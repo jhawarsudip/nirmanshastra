@@ -1,26 +1,43 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Brand colours */
+  --color-sheet-white: #F4F4F0;
+  --color-iron-ink: #1E2227;
+  --color-blueprint: #1F4E79;
+  --color-stamp-oxide: #8C3A22;
+  --color-marking-yellow: #D99A06;
+  --color-approved-green: #14532D;
+  --color-vastu-gold: #C9A84C;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Fonts — IBM Plex superfamily */
+  --font-serif: var(--font-plex-serif);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+  --font-devanagari: var(--font-plex-devanagari);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #F4F4F0;
+  color: #1E2227;
+  font-family: var(--font-plex-sans), system-ui, sans-serif;
+}
+
+/* Sheet frame — 1px Iron Ink border inset 16px around viewport (desktop).
+   On mobile collapses to top + bottom rules only. */
+.sheet-frame::before {
+  content: '';
+  position: fixed;
+  inset: 16px;
+  border: 1px solid #1E2227;
+  pointer-events: none;
+  z-index: 50;
+}
+
+@media (max-width: 767px) {
+  .sheet-frame::before {
+    inset: 0;
+    border-left: none;
+    border-right: none;
+  }
 }
