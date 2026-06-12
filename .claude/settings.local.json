@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest *)",
+      "Bash(npx create-next-app@15 *)",
+      "Bash(mktemp -d)",
+      "Bash(npm_config_cache=$\\(mktemp -d\\) npx create-next-app@15 . --typescript --eslint --tailwind --no-src-dir --app --import-alias \"@/*\" --yes)",
+      "Bash(mv /tmp/nirmanshastra_CLAUDE.md.bak /Users/sudipjhawar/nirmanshastra/CLAUDE.md)",
+      "Bash(mv /tmp/nirmanshastra_docs.bak /Users/sudipjhawar/nirmanshastra/docs)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(kill %1)",
+      "Bash(wait %1)"
+    ]
+  }
+}
