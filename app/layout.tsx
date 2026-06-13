@@ -47,6 +47,12 @@ export default function RootLayout({
       <body
         className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} antialiased`}
       >
+        {/* Announcement bar */}
+        <div style={{ background: '#1F4E79', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#F4F4F0', letterSpacing: '0.06em', textAlign: 'center', padding: '6px 16px' }}>
+            NirmanShastra — India&rsquo;s first IS-code construction cost estimation platform
+          </p>
+        </div>
         <Navbar />
         {children}
       </body>

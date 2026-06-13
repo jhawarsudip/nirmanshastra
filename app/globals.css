@@ -41,3 +41,46 @@ body {
     border-right: none;
   }
 }
+
+/* Grid-paper texture for alternating sections */
+.grid-paper {
+  background-image:
+    linear-gradient(rgba(30, 34, 39, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 34, 39, 0.03) 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+/* Title block reveal animation (hero, first load) */
+@keyframes drawTitleBlock {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0% 0 0); }
+}
+
+.hero-title-block {
+  animation: drawTitleBlock 700ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-title-block {
+    animation: none;
+  }
+}
+
+/* Dimension line animation */
+@keyframes drawLine {
+  from { stroke-dashoffset: 1200; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.animate-dim-line {
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: drawLine 700ms ease-out 150ms forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-dim-line {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
