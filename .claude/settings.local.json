@@ -46,7 +46,10 @@
       "Bash(echo \"done: $?\")",
       "Bash(screencapture /tmp/ns-screenshots/home.png)",
       "Bash(screencapture /tmp/ns-screenshots/vastupro-register.png)",
-      "Bash(screencapture /tmp/ns-screenshots/vastupro-register-scroll.png)"
+      "Bash(screencapture /tmp/ns-screenshots/vastupro-register-scroll.png)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/tools/structopro)",
+      "Bash(curl *)",
+      "Bash(npx tsx -e ' *)"
     ]
   }
 }

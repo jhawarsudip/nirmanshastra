@@ -1,0 +1,211 @@
+'use client'
+
+interface Props {
+  onSelect: (method: 'design_myself') => void
+}
+
+export default function MethodSelection({ onSelect }: Props) {
+  return (
+    <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-2xl">
+        {/* Header */}
+        <div className="mb-8">
+          <p
+            className="text-[10px] uppercase tracking-widest mb-1"
+            style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}
+          >
+            NIRMANSHASTRA · STRUCTOPRO
+          </p>
+          <h2
+            className="text-[28px] font-bold"
+            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}
+          >
+            How would you like to proceed?
+          </h2>
+          <p
+            className="text-[14px] mt-2"
+            style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}
+          >
+            Select the method that best describes your situation.
+          </p>
+        </div>
+
+        {/* Step bar */}
+        <div className="flex items-center mb-8">
+          {(['REG', 'METHOD', 'DETAILS', 'RESULTS'] as const).map((step, i) => (
+            <div key={step} className="flex items-center">
+              <div className="flex items-center gap-1.5">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] border"
+                  style={{
+                    background:  i === 0 ? '#14532D' : i === 1 ? '#1F4E79' : 'transparent',
+                    borderColor: i === 0 ? '#14532D' : i === 1 ? '#1F4E79' : 'rgba(30,34,39,0.22)',
+                    color:       i <= 1  ? '#fff'    : 'rgba(30,34,39,0.35)',
+                    fontFamily:  'var(--font-plex-mono)',
+                  }}
+                >
+                  {i === 0 ? '✓' : i + 1}
+                </div>
+                <span
+                  className="text-[10px] uppercase tracking-widest whitespace-nowrap hidden sm:inline"
+                  style={{
+                    fontFamily: 'var(--font-plex-mono)',
+                    color: i === 0 ? '#14532D' : i === 1 ? '#1F4E79' : 'rgba(30,34,39,0.3)',
+                  }}
+                >
+                  {step}
+                </span>
+              </div>
+              {i < 3 && (
+                <div className="w-6 h-px mx-2" style={{ background: 'rgba(30,34,39,0.14)' }} />
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div
+          className="border-b border-iron-ink mb-6 pb-1"
+          style={{ borderColor: 'rgba(30,34,39,0.12)' }}
+        >
+          <p
+            className="text-[11px] uppercase tracking-widest"
+            style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}
+          >
+            STEP 02 · METHOD SELECTION
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Card 1 — Design Myself (active) */}
+          <button
+            onClick={() => onSelect('design_myself')}
+            className="text-left rounded-[2px] p-5 transition-all"
+            style={{
+              border: '2px solid #1F4E79',
+              background: '#F4F4F0',
+            }}
+          >
+            {/* P1 large background numeral */}
+            <div className="relative mb-3">
+              <span
+                className="text-[52px] font-bold leading-none select-none"
+                style={{ color: 'rgba(31,78,121,0.07)', fontFamily: 'var(--font-plex-mono)' }}
+              >
+                P1
+              </span>
+            </div>
+            {/* Concrete hatch motif */}
+            <svg width="32" height="24" viewBox="0 0 32 24" className="mb-3" aria-hidden="true">
+              {[[4,4],[12,4],[20,4],[28,5],[8,12],[16,12],[24,12],[4,20],[12,20],[20,20],[28,20]].map(([x,y],i) => (
+                <circle key={i} cx={x} cy={y} r="2" fill="none" stroke="#1F4E79" strokeWidth="0.8" opacity="0.5" />
+              ))}
+            </svg>
+            <p
+              className="text-[12px] uppercase tracking-widest mb-2"
+              style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}
+            >
+              Design Myself
+            </p>
+            <p
+              className="text-[13px] leading-relaxed"
+              style={{ color: 'rgba(30,34,39,0.65)', fontFamily: 'var(--font-plex-sans)' }}
+            >
+              Answer plain questions about your building. No engineering knowledge needed.
+            </p>
+            <div
+              className="mt-4 inline-block px-3 py-1 rounded-[2px] text-[11px]"
+              style={{ background: '#1F4E79', color: '#fff', fontFamily: 'var(--font-plex-mono)' }}
+            >
+              START →
+            </div>
+          </button>
+
+          {/* Card 2 — Structural Drawings (Coming Soon) */}
+          <div
+            className="rounded-[2px] p-5 relative overflow-hidden"
+            style={{
+              border: '1px solid rgba(30,34,39,0.18)',
+              background: 'rgba(30,34,39,0.02)',
+            }}
+          >
+            <div className="mb-3">
+              <span
+                className="text-[52px] font-bold leading-none select-none"
+                style={{ color: 'rgba(30,34,39,0.04)', fontFamily: 'var(--font-plex-mono)' }}
+              >
+                P1
+              </span>
+            </div>
+            {/* AI badge */}
+            <div
+              className="mb-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-[2px] text-[10px]"
+              style={{ background: '#1F4E79', color: '#fff', fontFamily: 'var(--font-plex-mono)' }}
+            >
+              ✦ USES CLAUDE AI
+            </div>
+            <p
+              className="text-[12px] uppercase tracking-widest mb-2"
+              style={{ color: 'rgba(30,34,39,0.35)', fontFamily: 'var(--font-plex-mono)' }}
+            >
+              I Have Structural Drawings
+            </p>
+            <p
+              className="text-[13px] leading-relaxed"
+              style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}
+            >
+              Upload your engineer's drawings. AI reads column sizes, bar diameters, and concrete grades automatically.
+            </p>
+            <div
+              className="mt-4 inline-block px-3 py-1 rounded-[2px] text-[11px]"
+              style={{ background: 'rgba(30,34,39,0.1)', color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}
+            >
+              COMING SOON
+            </div>
+          </div>
+
+          {/* Card 3 — Add Floors (Coming Soon) */}
+          <div
+            className="rounded-[2px] p-5 relative overflow-hidden"
+            style={{
+              border: '1px solid rgba(217,154,6,0.35)',
+              background: 'rgba(217,154,6,0.03)',
+            }}
+          >
+            <div className="mb-3">
+              <span
+                className="text-[52px] font-bold leading-none select-none"
+                style={{ color: 'rgba(217,154,6,0.06)', fontFamily: 'var(--font-plex-mono)' }}
+              >
+                P1
+              </span>
+            </div>
+            <div
+              className="mb-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-[2px] text-[10px]"
+              style={{ background: '#D99A06', color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}
+            >
+              ⚠ STRUCT. CERT. REQUIRED
+            </div>
+            <p
+              className="text-[12px] uppercase tracking-widest mb-2"
+              style={{ color: 'rgba(30,34,39,0.35)', fontFamily: 'var(--font-plex-mono)' }}
+            >
+              Add Floors to Existing
+            </p>
+            <p
+              className="text-[13px] leading-relaxed"
+              style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}
+            >
+              Estimate cost of additional floors on your current structure. Includes IS safety checks.
+            </p>
+            <div
+              className="mt-4 inline-block px-3 py-1 rounded-[2px] text-[11px]"
+              style={{ background: 'rgba(30,34,39,0.1)', color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}
+            >
+              COMING SOON
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
