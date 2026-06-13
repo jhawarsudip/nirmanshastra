@@ -19,6 +19,7 @@ interface Props {
 }
 
 type PayStatus = 'idle' | 'creating' | 'open' | 'verifying' | 'polling' | 'paid' | 'error'
+type PdfStatus = 'idle' | 'generating' | 'ready' | 'error'
 
 function StampBadge({ status, clause, description }: { status: 'pass' | 'advisory' | 'fail'; clause: string; description: string }) {
   const colours = {
@@ -99,6 +100,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   const [isPaid, setIsPaid]         = useState(false)
   const [orderId, setOrderId]       = useState<string | null>(null)
   const pollRef                     = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [pdfStatus, setPdfStatus]   = useState<PdfStatus>('idle')
+  const [pdfUrl, setPdfUrl]         = useState<string | null>(null)
 
   // Load Razorpay checkout script
   useEffect(() => {
