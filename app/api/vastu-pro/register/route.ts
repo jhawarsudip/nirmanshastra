@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
+import { scheduleEmailSequences } from '@/lib/email-sequences'
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,6 +35,8 @@ export async function POST(req: NextRequest) {
       console.error('Supabase insert error:', error)
       return NextResponse.json({ error: 'Failed to save registration' }, { status: 500 })
     }
+
+    await scheduleEmailSequences(data.id, 'vastupro', supabase)
 
     return NextResponse.json({ contactId: data.id, success: true })
   } catch (err) {
