@@ -331,7 +331,7 @@ function WaterDemandPage({ input, result }: { input: PlumbInput; result: PlumbRe
           const colour = c.status === 'pass' ? T.approvedGreen : c.status === 'fail' ? T.stampOxide : T.markingYellow
           return (
             <View key={i} style={{ flexDirection: 'row', padding: 8, marginBottom: 5, borderWidth: 1, borderColor: colour + '44', backgroundColor: colour + '08' }}>
-              <View style={{ marginRight: 8, borderWidth: 1, borderColor: colour, borderStyle: 'double', padding: 2 }}>
+              <View style={{ marginRight: 8, borderWidth: 1, borderColor: colour, borderStyle: 'solid', padding: 2 }}>
                 <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: colour }}>{c.status.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
@@ -451,7 +451,7 @@ function WaterSupplyRiserPage({ input, result }: { input: PlumbInput; result: Pl
 
 // ─── PAGE 4: DRAINAGE LAYOUT SVG ─────────────────────────────────────────────
 
-function DrainageLayoutPage({ input, result }: { input: PlumbInput; result: PlumbResult }) {
+function DrainageLayoutPage({ input }: { input: PlumbInput; result: PlumbResult }) {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
@@ -590,7 +590,7 @@ function TankPumpPage({ input, result }: { input: PlumbInput; result: PlumbResul
           <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }} x="10" y="180">SUPPLY</Text>
 
           {/* Distribution from OHT */}
-          <Line x1="255" y1="100" x2="255" y2="130" stroke={T.blue} strokeWidth="1.5" />
+          <Line x1="255" y1="100" x2="255" y2="130" stroke={T.blueprint} strokeWidth="1.5" />
           <Line x1="200" y1="130" x2="400" y2="130" stroke={T.blueprint} strokeWidth="1.5" />
           <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }} x="202" y="125">DISTRIBUTION — 32mm CPVC DOWN RISER</Text>
 
@@ -893,7 +893,7 @@ function QualityChecklistPage() {
                 {check.item}
               </Text>
               {check.critical && (
-                <View style={{ marginLeft: 4, borderWidth: 1, borderColor: T.stampOxide, borderStyle: 'double', paddingHorizontal: 3, paddingVertical: 1 }}>
+                <View style={{ marginLeft: 4, borderWidth: 1, borderColor: T.stampOxide, borderStyle: 'solid', paddingHorizontal: 3, paddingVertical: 1 }}>
                   <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.stampOxide }}>CRITICAL</Text>
                 </View>
               )}
