@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>StructoPro — Structural Cost Estimator India</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b1120;--navy:#1a2f6e;--blue:#2563eb;--blue2:#3b82f6;
+  --gold:#d4a017;--gold2:#f0c040;
+  --green:#15803d;--green2:#dcfce7;
+  --red:#dc2626;--red2:#fee2e2;
+  --amber:#d97706;--teal:#0d9488;
+  --bg:#f0f4ff;--card:#fff;--border:#dde6f5;
+  --text:#0f172a;--muted:#64748b;
+  --r:12px;--r2:8px;
+  --sh:0 2px 8px rgba(26,47,110,.08),0 4px 20px rgba(26,47,110,.05);
+  --sh2:0 8px 40px rgba(26,47,110,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+/* PAGES */
+.pg{display:none;min-height:100vh;flex-direction:column;animation:fi .3s ease}
+.pg.on{display:flex}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* TOPBAR */
+.topbar{background:linear-gradient(90deg,#0b1120,#1a2f6e);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.3)}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo-box{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.logo-name{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#fff}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.5);display:block}
+.user-pill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:6px 14px;border-radius:20px;font-size:12px;color:rgba(255,255,255,.8)}
+
+/* PROGRESS */
+.prog{background:#111827;padding:.65rem 2rem}
+.prog-inner{max-width:900px;margin:0 auto;display:flex;align-items:center}
+.ps{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:rgba(255,255,255,.35);flex:1}
+.ps.done{color:var(--gold2)}.ps.now{color:#fff}
+.pc{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.ps.done .pc{background:var(--gold);color:#0b1120}.ps.now .pc{background:#fff;color:#0b1120}
+.pl{flex:1;height:1px;background:rgba(255,255,255,.1);margin:0 5px}.pl.done{background:var(--gold)}
+
+/* BODY */
+.wrap{flex:1;max-width:920px;width:100%;margin:0 auto;padding:2rem 1.25rem}
+.wrap.wide{max-width:1100px}.wrap.narrow{max-width:560px}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,#0a1628,#0d1f4e,#0f2a6a);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px}
+.hero-in{position:relative;z-index:1;padding:3.5rem 2rem;text-align:center;color:#fff}
+.hero-in h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:700;line-height:1.1;margin-bottom:1rem}
+.hero-in h1 em{color:var(--gold2);font-style:italic}
+.hero-in p{font-size:.95rem;opacity:.7;max-width:520px;margin:0 auto 1.5rem;line-height:1.8}
+.hbadge{display:inline-block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:4px 12px;border-radius:20px;font-size:10px;font-weight:600;color:rgba(255,255,255,.8);margin:3px}
+.hbadge.g{background:rgba(212,160,23,.15);border-color:var(--gold);color:var(--gold2)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;box-shadow:var(--sh);margin-bottom:1.25rem}
+.card-h{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:1.2rem;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.chi{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ch-b{background:#dbeafe}.ch-g{background:#dcfce7}.ch-o{background:#fed7aa}.ch-p{background:#ede9fe}.ch-y{background:#fef3c7}
+
+/* FORM */
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;margin-bottom:1rem}
+.fg2{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.fld input,.fld select{padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r2);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:#fafbff;outline:none;transition:all .2s}
+.fld input:focus,.fld select:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.fld .hint{font-size:10px;color:var(--muted)}
+.fld input.err{border-color:var(--red)}
+.req::after{content:' *';color:var(--red)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 26px;border:none;border-radius:var(--r2);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-navy{background:linear-gradient(135deg,#0b1120,var(--navy));color:#fff;box-shadow:0 4px 14px rgba(10,16,32,.3)}
+.btn-navy:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(10,16,32,.4)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b1120;font-weight:700;box-shadow:0 4px 14px rgba(212,160,23,.35)}
+.btn-gold:hover{transform:translateY(-1px)}
+.btn-green{background:linear-gradient(135deg,#15803d,#16a34a);color:#fff}
+.btn-outline{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.btn-outline:hover{background:var(--navy);color:#fff}
+.btn-full{width:100%}.btn-lg{padding:14px 36px;font-size:15px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* CHOICE CARDS */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.cc{border:2px solid var(--border);border-radius:var(--r);padding:1.75rem 1.25rem;cursor:pointer;transition:all .2s;background:var(--card);text-align:center;position:relative}
+.cc:hover{border-color:var(--blue2);box-shadow:var(--sh2);transform:translateY(-2px)}
+.cc.sel{border-color:var(--navy);background:linear-gradient(135deg,#f0f4ff,#e8eeff);box-shadow:0 0 0 4px rgba(26,47,110,.1)}
+.cc-chk{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;display:none;align-items:center;justify-content:center;font-size:11px}
+.cc.sel .cc-chk{display:flex}
+.cc-ico{font-size:2.8rem;display:block;margin-bottom:.85rem}
+.cc-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.4rem}
+.cc-desc{font-size:12px;color:var(--muted);line-height:1.65}
+
+/* TOGGLE SWITCH */
+.toggle-wrap{display:flex;align-items:center;gap:12px;padding:.85rem 1rem;background:#f0f4ff;border:1.5px solid var(--border);border-radius:var(--r2);cursor:pointer;transition:all .2s}
+.toggle-wrap:hover{border-color:var(--blue2);background:#e8eeff}
+.toggle-wrap input[type=checkbox]{width:18px;height:18px;accent-color:var(--navy);cursor:pointer;flex-shrink:0}
+.toggle-wrap label{font-weight:600;font-size:13px;cursor:pointer;flex:1}
+
+/* COLLAPSIBLE EDIT PANEL */
+.edit-panel{border:1.5px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem}
+.edit-panel-hd{background:#f8faff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .2s}
+.edit-panel-hd:hover{background:#eff4ff}
+.edit-panel-hd .ep-left{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px;color:var(--navy)}
+.edit-panel-hd .ep-badge{background:#dbeafe;color:var(--blue);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.edit-panel-hd .ep-badge.using-default{background:#f0fdf4;color:var(--green)}
+.edit-panel-hd .ep-badge.using-custom{background:#fef3c7;color:var(--amber)}
+.edit-panel-body{display:none;padding:1.25rem;border-top:1px solid var(--border)}
+.edit-panel-body.open{display:block}
+.ep-arrow{transition:transform .2s;font-size:12px;color:var(--muted)}
+.ep-arrow.open{transform:rotate(180deg)}
+
+/* FLOOR DIAGRAM */
+.fdg{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:10px;padding:1.25rem;display:flex;gap:.65rem;align-items:flex-end;justify-content:center;min-height:110px;flex-wrap:wrap;margin-bottom:1rem;position:relative}
+.fdg::before{content:'BUILDING ELEVATION';position:absolute;top:8px;left:12px;font-size:9px;color:rgba(255,255,255,.2);font-weight:600;letter-spacing:.1em}
+.fb{background:linear-gradient(to top,var(--navy),var(--blue2));border-radius:4px 4px 0 0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;position:relative;min-width:40px;transition:all .3s}
+.fb-a{position:absolute;top:-18px;color:#fbbf24;font-size:9px;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.fb-l{color:#fff;font-size:9px;font-weight:600}
+
+/* FLOOR TABLE */
+.ftbl{width:100%;border-collapse:collapse}
+.ftbl th{background:#f0f4ff;padding:8px 11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);text-align:left}
+.ftbl td{padding:7px 11px;border-bottom:1px solid #f5f7ff;vertical-align:middle;font-size:13px}
+.fi{width:110px;padding:7px 9px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:right;background:#fff;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--blue)}
+
+/* RATES TABLE */
+.rtbl{width:100%;border-collapse:collapse;margin-bottom:.75rem}
+.rtbl th{background:#f8faff;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);text-align:left}
+.rtbl td{padding:8px 12px;border-bottom:1px solid #f5f7ff;vertical-align:middle;font-size:13px}
+.rtbl tr:hover td{background:#f8faff}
+.ri{width:100px;padding:7px 9px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:right;background:#fff;outline:none}
+.ri:focus{border-color:var(--blue)}
+.avg-b{padding:2px 8px;border-radius:4px;font-size:10px;background:#f1f5f9;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+/* LABOUR BUILDER */
+.lab-table{width:100%;border-collapse:collapse;margin-bottom:.75rem}
+.lab-table th{background:#f0fdf4;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#166534;border-bottom:1px solid #86efac;text-align:left}
+.lab-table td{padding:8px 10px;border-bottom:1px solid #f0fdf4;vertical-align:middle;font-size:13px;transition:all .3s}
+.lab-row.off td{opacity:.3;pointer-events:none}
+.lab-row.off .tog-btn{opacity:1;pointer-events:all}
+.lab-inp{width:80px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:right;background:#fff;outline:none;transition:border-color .2s}
+.lab-inp:focus{border-color:var(--green)}
+.lab-name-inp{width:180px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;background:#fff;outline:none}
+.lab-name-inp:focus{border-color:var(--green)}
+.lab-total{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--green);font-size:12px}
+.tog-btn{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.tog-btn.active{background:#fee2e2;color:var(--red)}
+.tog-btn.inactive{background:#dcfce7;color:var(--green)}
+.workers-ctrl{display:flex;align-items:center;gap:4px}
+.wc-btn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--navy)}
+.wc-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.wc-num{width:36px;text-align:center;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--navy)}
+.add-lab-btn{display:flex;align-items:center;gap:8px;padding:.75rem 1rem;border:2px dashed #86efac;border-radius:var(--r2);background:#f0fdf4;color:var(--green);cursor:pointer;font-weight:600;font-size:13px;width:100%;justify-content:center;transition:all .2s;margin-top:.5rem}
+.add-lab-btn:hover{background:#dcfce7;border-color:#15803d}
+
+/* UPLOAD */
+.uz{border:2.5px dashed var(--blue2);border-radius:var(--r);padding:2.25rem;text-align:center;cursor:pointer;transition:all .2s;background:#f8faff}
+.uz:hover,.uz.drag{border-color:var(--navy);background:#eff4ff}
+.uz input{display:none}
+.fchip{background:var(--green2);border:1px solid #86efac;border-radius:8px;padding:.75rem 1rem;display:none;align-items:center;gap:10px;margin-top:.75rem}
+.fchip-rm{margin-left:auto;padding:4px 10px;background:var(--red2);color:var(--red);border:none;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer}
+
+/* AI STATUS */
+.ais{border-radius:var(--r2);padding:.9rem 1.1rem;margin:.75rem 0;font-size:13px;line-height:1.7;display:none}
+.ais.run{background:#fef3c7;border:1px solid #fde68a;color:#92400e}
+.ais.ok{background:var(--green2);border:1px solid #86efac;color:#166534}
+.ais.fail{background:var(--red2);border:1px solid #fecaca;color:#991b1b}
+
+/* ALERTS */
+.al{border-radius:var(--r2);padding:.85rem 1.1rem;font-size:12.5px;line-height:1.7;margin-bottom:1rem}
+.al-b{background:#eff6ff;border:1px solid #93c5fd;color:#1e40af}
+.al-g{background:var(--green2);border:1px solid #86efac;color:#166534}
+.al-y{background:#fffbeb;border:2px solid #f59e0b;color:#92400e}
+
+/* ══════════ RESULTS PAGE ══════════ */
+.res-hero{background:linear-gradient(135deg,#0b1120,var(--navy));color:#fff;border-radius:var(--r);padding:1.5rem 2rem;margin-bottom:1.25rem}
+.res-h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff;margin-bottom:4px}
+
+/* TABS */
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.25rem;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 18px;border:none;background:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy)}
+.tc{display:none}.tc.on{display:block}
+
+/* KPIS */
+.kpig{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem}
+.kpi{border-radius:var(--r);padding:1rem;text-align:center;border:1px solid var(--border)}
+.kpi.mat{background:#dbeafe;border-color:#93c5fd}
+.kpi.lab{background:var(--green2);border-color:#86efac}
+.kpi.big{background:var(--navy);color:#fff;border-color:var(--navy)}
+.kv{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--navy);line-height:1}
+.kpi.big .kv{color:var(--gold2);font-size:1.4rem}
+.ku{font-size:10px;color:var(--muted);margin-top:3px}
+.kpi.big .ku,.kpi.big .kl{color:rgba(255,255,255,.55)}
+.kl{font-size:11px;font-weight:700;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:.04em}
+
+/* ── INFO BUTTON & POPUP ── */
+.info-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#e0e7ff;color:#3730a3;font-size:10px;font-weight:800;cursor:pointer;border:1.5px solid #a5b4fc;margin-left:6px;flex-shrink:0;transition:all .2s;line-height:1;vertical-align:middle}
+.info-btn:hover{background:#3730a3;color:#fff;border-color:#3730a3;transform:scale(1.15)}
+.info-overlay{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:1.25rem;background:rgba(11,17,32,.6);backdrop-filter:blur(4px);animation:fi .2s ease}
+.info-modal{background:#fff;border-radius:14px;max-width:380px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.35);overflow:hidden}
+.info-modal-top{background:linear-gradient(135deg,#0b1120,#1a2f6e);padding:1rem 1.25rem;display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem}
+.info-modal-icon{font-size:1.6rem;flex-shrink:0}
+.info-modal-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#fff;flex:1;line-height:1.3}
+.info-modal-close{background:rgba(255,255,255,.15);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s}
+.info-modal-close:hover{background:rgba(255,255,255,.3)}
+.info-modal-body{padding:1.1rem 1.25rem}
+.info-modal-desc{font-size:13px;color:#1e293b;line-height:1.85;margin-bottom:.85rem}
+.info-modal-eg{background:#f0f4ff;border-left:3px solid var(--navy);border-radius:0 6px 6px 0;padding:.65rem .85rem;font-size:12px;color:#1e40af;line-height:1.7}
+.info-modal-eg strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;color:#64748b}
+
+/* GRAND BOX */
+.gbox{border:2px solid var(--navy);border-radius:var(--r);overflow:hidden;margin-bottom:1.5rem}
+.ghd{background:var(--navy);color:#fff;padding:14px 20px;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700}
+.gr{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);font-size:14px}
+.gr.mr{background:#eff6ff}.gr.lr{background:var(--green2)}.gr.wr{background:#fffbeb}
+.gr.cr{background:#fdf4ff}
+.gr.tr{background:var(--navy);color:#fff;font-size:16px;font-weight:700;border:none}
+.gr.tr .ga{color:var(--gold2);font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700}
+.gr.sr{background:#f0fdf4;font-weight:600}
+.ga{font-family:'JetBrains Mono',monospace;font-weight:700}
+
+/* BLUR EFFECT */
+.bv{filter:blur(6px);user-select:none;transition:filter .5s ease;display:inline-block;min-width:60px}
+.bv.revealed{filter:none}
+
+/* TAGS */
+.tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.tg{background:#dcfce7;color:#166534}.tr2{background:#fee2e2;color:#991b1b}
+.tb{background:#dbeafe;color:#1e40af}.to{background:#fef3c7;color:#92400e}
+.tp{background:#ede9fe;color:#5b21b6}
+
+/* IS PANEL */
+.isp{background:#0f172a;border-radius:var(--r2);padding:1rem 1.25rem;color:#94a3b8;font-size:11.5px;line-height:2.1;font-family:'JetBrains Mono',monospace;margin-bottom:1.5rem}
+.ir{color:#60a5fa}.iv{color:#4ade80}.iw{color:#fb923c}.ie{color:#f87171}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+th{background:#f0f4ff;padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border)}
+td{padding:9px 12px;border-bottom:1px solid #f5f7ff;font-size:13px;vertical-align:middle}
+tr:hover td{background:#f8faff}
+tfoot td{padding:10px 12px;font-weight:700;border-top:2px solid var(--border)}
+
+/* TECHNICAL REMINDERS */
+.rmg{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.rm{border-radius:var(--r2);padding:1rem 1.1rem;border-left:3px solid}
+.rm-b{background:#eff6ff;border-color:#3b82f6}.rm-g{background:#f0fdf4;border-color:#16a34a}
+.rm-o{background:#fffbeb;border-color:#d97706}.rm-r{background:var(--red2);border-color:#dc2626}
+.rm-p{background:#fdf4ff;border-color:#7c3aed}.rm-t{background:#f0fdfa;border-color:#0d9488}
+.rm h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem}
+.rm ul{list-style:none;font-size:11.5px;line-height:2}
+.rm ul li::before{content:'→ ';font-weight:700}
+
+/* PAYMENT GATE */
+.pay-gate{background:linear-gradient(135deg,#0b1120,#1a2f6e);border-radius:var(--r);padding:2rem;margin:1.5rem 0;text-align:center;border:2px solid var(--gold);box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.pay-gate h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:#fff;margin-bottom:.5rem}
+.pay-gate p{color:rgba(255,255,255,.65);font-size:13px;margin-bottom:1.5rem;line-height:1.7}
+.pay-price{display:inline-block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:.85rem 2rem;margin-bottom:1.5rem}
+.pay-amt{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:700;color:var(--gold2)}
+.pay-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px}
+.pay-features{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1.5rem}
+.pay-feat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:4px 12px;border-radius:20px;font-size:11px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:5px}
+.pay-feat::before{content:'✓';color:var(--gold2);font-weight:700}
+.pay-btn{padding:16px 48px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b1120;font-family:'Inter',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(212,160,23,.4);display:inline-flex;align-items:center;gap:8px}
+.pay-btn:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(212,160,23,.5)}
+.pay-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.pay-secure{font-size:11px;color:rgba(255,255,255,.4);margin-top:.75rem}
+
+/* DISCLAIMER */
+.disc{background:var(--red2);border:1px solid #fecaca;border-radius:var(--r2);padding:1rem 1.25rem;margin-bottom:1.25rem}
+.disc h4{color:var(--red);font-size:13px;margin-bottom:.4rem}
+.disc p{font-size:11px;color:#7f1d1d;line-height:1.8}
+
+/* VAR BOX */
+.vb{background:#fffbeb;border:2px solid #f59e0b;border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem}
+.vtbl{width:100%;border-collapse:collapse;margin-top:.75rem}
+.vtbl th{background:#fef3c7;padding:8px 12px;font-size:11px;text-transform:uppercase;color:#92400e;border:1px solid #fde68a;text-align:left}
+.vtbl td{padding:8px 12px;font-size:12px;border:1px solid #fde68a;line-height:1.6}
+.vtbl tr:nth-child(even) td{background:#fffdf0}
+
+/* SPINNER */
+.sp{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* FOOTER */
+.rfooter{background:var(--navy);color:#fff;border-radius:var(--r);padding:1.25rem;text-align:center;margin-top:1.5rem}
+
+/* PDF REPORT */
+#pdf-report{display:none;font-family:'Inter',sans-serif;font-size:11px;color:#1e293b;background:#fff;width:190mm;margin:0 auto}
+.rpt-hdr{background:linear-gradient(135deg,#0b1120,#1a2f6e);color:#fff;padding:16px 20px;border-radius:8px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.rpt-logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700}
+.rpt-logo em{color:#f0c040;font-style:normal}
+.rpt-hr{text-align:right;font-size:9px;opacity:.7;line-height:1.7}
+.rpt-sh{background:#f0f4ff;border-left:3px solid #1a2f6e;padding:5px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1a2f6e;margin-bottom:7px;border-radius:0 4px 4px 0;margin-top:10px}
+.rpt-sh.g{background:#f0fdf4;border-color:#15803d;color:#166534}
+.rpt-sh.y{background:#fef3c7;border-color:#d4a017;color:#92400e}
+.rpt-sh.r{background:#fff1f2;border-color:#dc2626;color:#991b1b}
+.rpt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
+.rpt-cell{background:#f8faff;border:1px solid #dde6f5;border-radius:5px;padding:7px 9px}
+.rpt-cl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.rpt-cv{font-size:11px;font-weight:700;color:#0f172a}
+#pdf-report table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:8px}
+#pdf-report th{background:#1a2f6e;color:#fff;padding:5px 8px;font-size:9px;font-weight:700;text-transform:uppercase}
+#pdf-report td{padding:5px 8px;border-bottom:1px solid #f0f4ff}
+#pdf-report tr:nth-child(even) td{background:#f8faff}
+.rtot{background:#0b1120!important;color:#fff!important;font-weight:700}
+.rtot td{border:none!important;padding:7px 8px!important}
+.rsub{background:#f0f4ff!important;font-weight:700}
+.rpt-grand{background:linear-gradient(135deg,#0b1120,#1a2f6e);color:#fff;border-radius:7px;padding:12px 16px;margin:10px 0;display:flex;justify-content:space-between;align-items:center}
+.rpt-grand-l{font-size:12px;font-weight:700}
+.rpt-grand-a{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#f0c040}
+.rpt-bkdn{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:9px 0}
+.rbc{border-radius:5px;padding:9px 11px;border:1px solid}
+.rbc-m{background:#dbeafe;border-color:#93c5fd;color:#1e40af}
+.rbc-l{background:#f0fdf4;border-color:#86efac;color:#166534}
+.rbc-c{background:#fdf4ff;border-color:#c4b5fd;color:#5b21b6}
+.rbc-w{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.rbc-t{font-size:9px;font-weight:700;text-transform:uppercase;margin-bottom:2px}
+.rbc-a{font-size:13px;font-weight:700;font-family:'Playfair Display',serif}
+.rpt-rem{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.rr{border-radius:5px;padding:7px 9px;border-left:2px solid}
+.rr-b{background:#eff6ff;border-color:#3b82f6}.rr-g{background:#f0fdf4;border-color:#16a34a}
+.rr-o{background:#fffbeb;border-color:#d97706}.rr-r{background:#fff1f2;border-color:#dc2626}
+.rr-p{background:#fdf4ff;border-color:#7c3aed}.rr-t{background:#f0fdfa;border-color:#0d9488}
+.rr h4{font-size:9px;font-weight:700;text-transform:uppercase;margin-bottom:2px}
+.rr ul{list-style:none;font-size:9px;line-height:1.9}
+.rr ul li::before{content:'→ ';font-weight:700}
+.rpt-disc{background:#fff1f2;border:1px solid #fecaca;border-radius:5px;padding:8px 10px;font-size:9px;color:#7f1d1d;line-height:1.7;margin-top:8px}
+.rpt-footer{background:#f8faff;border-top:2px solid #1a2f6e;padding:9px 12px;margin-top:10px;display:flex;justify-content:space-between;font-size:9px;color:#64748b;border-radius:0 0 7px 7px}
+
+@media(max-width:600px){
+  .cg{grid-template-columns:1fr}
+  .rmg{grid-template-columns:1fr}
+  .kpig{grid-template-columns:1fr 1fr}
+  .fg2{grid-template-columns:1fr}
+  .rpt-grid{grid-template-columns:1fr 1fr}
+  .rpt-rem{grid-template-columns:1fr}
+  .rpt-bkdn{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+  PAGE 1 — REGISTRATION
+══════════════════════════════════ -->
+<div id="pg1" class="pg on">
+<div class="hero">
+  <div class="hero-in">
+    <div style="display:inline-flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:8px 22px;border-radius:30px;margin-bottom:1.5rem">
+      <span style="font-size:1.4rem">🏗️</span>
+      <span style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#fff">StructoPro</span>
+    </div>
+    <h1>Know Your Building Cost<br><em>Before You Build</em></h1>
+    <p>Simple. Accurate. Professional. Get your complete structural material estimate in minutes. No engineering knowledge needed.</p>
+    <div>
+      <span class="hbadge">IS 456:2000</span>
+      <span class="hbadge">IS 1893:2016</span>
+      <span class="hbadge">IS 13920:2016</span>
+      <span class="hbadge g">✨ AI Drawing Analysis</span>
+      <span class="hbadge g">📄 Professional PDF</span>
+    </div>
+  </div>
+</div>
+<div class="wrap narrow" style="margin-top:2rem">
+  <div class="card">
+    <div class="card-h"><div class="chi ch-b">👤</div>Your Details</div>
+    <div class="al al-b" style="margin-bottom:1.25rem">Fill in your details. These will appear on your estimate report.</div>
+    <div class="fg fg2">
+      <div class="fld"><label class="req">Full Name</label><input type="text" id="r-name" placeholder="Ramesh Kumar"></div>
+      <div class="fld">
+        <label class="req">Mobile Number</label>
+        <div style="display:flex;gap:6px">
+          <select id="r-cc" style="width:110px;padding:10px 8px;border:1.5px solid var(--border);border-radius:var(--r2);font-family:'Inter',sans-serif;font-size:13px;background:#fafbff;outline:none" onchange="updatePhonePlaceholder()">
+            <option value="+91|10">🇮🇳 +91</option>
+            <option value="+1|10">🇺🇸 +1</option>
+            <option value="+44|10">🇬🇧 +44</option>
+            <option value="+61|9">🇦🇺 +61</option>
+            <option value="+971|9">🇦🇪 +971</option>
+            <option value="+65|8">🇸🇬 +65</option>
+            <option value="+60|10">🇲🇾 +60</option>
+            <option value="+977|10">🇳🇵 +977</option>
+            <option value="+880|10">🇧🇩 +880</option>
+            <option value="+94|9">🇱🇰 +94</option>
+          </select>
+          <input type="tel" id="r-mob" placeholder="98765 43210" style="flex:1" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+        <span class="hint" id="phone-hint">India: 10 digits without country code</span>
+      </div>
+      <div class="fld full"><label class="req">Email Address</label><input type="email" id="r-email" placeholder="ramesh@gmail.com"><span class="hint">e.g. name@gmail.com — must be a valid email</span></div>
+      <div class="fld full"><label class="req">Site / Project Address</label><input type="text" id="r-addr" placeholder="Plot No. 12, MG Road"></div>
+      <div class="fld"><label class="req">City</label><input type="text" id="r-city" placeholder="Gangtok"></div>
+      <div class="fld"><label class="req">State</label>
+        <select id="r-state">
+          <option value="">Select State</option>
+          <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+          <option>Bihar</option><option>Chhattisgarh</option><option>Delhi</option><option>Goa</option>
+          <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option>
+          <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+          <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+          <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
+          <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+          <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+          <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+          <option>West Bengal</option>
+        </select>
+      </div>
+      <div class="fld"><label>Pincode</label><input type="text" id="r-pin" placeholder="737101" maxlength="6"></div>
+      <div class="fld"><label>Project Name</label><input type="text" id="r-proj" placeholder="My Dream Home"></div>
+    </div>
+    <div id="reg-err" class="al" style="background:var(--red2);border:1px solid #fecaca;color:#991b1b;display:none">⚠️ Please fill all required fields.</div>
+    <button class="btn btn-navy btn-full btn-lg" onclick="doReg()" style="margin-top:.5rem">Start My Estimate →</button>
+  </div>
+  <div style="background:#f0f4ff;border:1px solid #93c5fd;border-radius:8px;padding:.85rem 1rem;margin-top:.75rem;font-size:11px;color:#1e40af;line-height:1.8">
+    🔒 <strong>Data Usage:</strong> Your name, mobile, email, and city are stored locally on this device and are also recorded in our estimate log for support and admin purposes. If payment is made via Razorpay, payment details are processed and stored by Razorpay as per their Privacy Policy. Your data is not sold to any third party. By continuing you consent to this usage.
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════
+  PAGE 2 — METHOD CHOICE
+══════════════════════════════════ -->
+<div id="pg2" class="pg">
+<div class="topbar">
+  <div class="logo" onclick="logoClick()"><div class="logo-box">🏗️</div><div><span class="logo-name">StructoPro</span><span class="logo-sub">Structural Estimator</span></div></div>
+  <div class="user-pill">👤 <span id="tn2"></span></div>
+</div>
+<div class="prog"><div class="prog-inner">
+  <div class="ps done"><div class="pc">✓</div><span>Details</span></div><div class="pl done"></div>
+  <div class="ps now"><div class="pc">2</div><span>Method</span></div><div class="pl"></div>
+  <div class="ps"><div class="pc">3</div><span>Parameters</span></div><div class="pl"></div>
+  <div class="ps"><div class="pc">4</div><span>Report</span></div>
+</div></div>
+<div class="wrap narrow" style="margin-top:2rem">
+  <div style="text-align:center;margin-bottom:2rem">
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--navy);margin-bottom:.5rem">How would you like to proceed?</h2>
+    <p style="color:var(--muted)">Choose your method to get started</p>
+  </div>
+  <div class="cg">
+    <div class="cc" id="m-self" onclick="pickM('self')">
+      <div class="cc-chk">✓</div>
+      <span class="cc-ico">🏠</span>
+      <div class="cc-title">I'll Design Myself</div>
+      <div class="cc-desc">No drawings yet. Answer a few simple questions about your building. No engineering knowledge needed at all.</div>
+    </div>
+    <div class="cc" id="m-draw" onclick="pickM('drawing')">
+      <div class="cc-chk">✓</div>
+      <span class="cc-ico">📐</span>
+      <div class="cc-title">I Have Structural Drawings</div>
+      <div class="cc-desc">Upload your engineer's structural drawings. AI reads everything from the drawing automatically.</div>
+    </div>
+  </div>
+  <button class="btn btn-navy btn-full" id="m-next" onclick="goS3()" disabled>Continue →</button>
+</div>
+</div>
+
+<!-- ══════════════════════════════════
+  PAGE 3A — SIMPLE FORM (layman)
+══════════════════════════════════ -->
+<div id="pg3a" class="pg">
+<div class="topbar">
+  <div class="logo"><div class="logo-box">🏗️</div><div><span class="logo-name">StructoPro</span><span class="logo-sub">Step 3 — Building Details</span></div></div>
+  <div class="user-pill">👤 <span id="tn3a"></span></div>
+</div>
+<div class="prog"><div class="prog-inner">
+  <div class="ps done"><div class="pc">✓</div><span>Details</span></div><div class="pl done"></div>
+  <div class="ps done"><div class="pc">✓</div><span>Method</span></div><div class="pl done"></div>
+  <div class="ps now"><div class="pc">3</div><span>Parameters</span></div><div class="pl"></div>
+  <div class="ps"><div class="pc">4</div><span>Report</span></div>
+</div></div>
+<div class="wrap" style="margin-top:1.5rem">
+
+  <!-- BASIC QUESTIONS -->
+  <div class="card">
+    <div class="card-h"><div class="chi ch-o">🏗️</div>Tell Us About Your Building</div>
+    <div class="al al-b" style="margin-bottom:1.25rem">Answer these simple questions. No engineering knowledge needed. All technical details will be handled automatically.</div>
+    <div class="fg">
+      <div class="fld"><label>What is the building for?</label>
+        <select id="p-use">
+          <option value="res">🏠 My Home (Residential)</option>
+          <option value="com">🏪 Shop / Commercial</option>
+          <option value="mix">🏢 Home + Shop (Mixed)</option>
+        </select>
+      </div>
+      <div class="fld"><label>How many floors do you want?</label>
+        <select id="p-fl" onchange="updFT()">
+          <option value="1">Ground Floor only (G)</option>
+          <option value="2">Ground + 1st Floor (G+1)</option>
+          <option value="3">Ground + 2 Floors (G+2)</option>
+          <option value="4">Ground + 3 Floors (G+3)</option>
+          <option value="5" selected>Ground + 4 Floors (G+4)</option>
+          <option value="6">Ground + 5 Floors (G+5)</option>
+          <option value="7">Ground + 6 Floors (G+6)</option>
+          <option value="8">Ground + 7 Floors (G+7)</option>
+        </select>
+      </div>
+      <div class="fld"><label>Plot / Site Area (sq ft)</label>
+        <input type="number" id="p-plot" value="2400" placeholder="e.g. 2400">
+        <span class="hint">Total area of your land/plot</span>
+      </div>
+      <div class="fld"><label>Floor to Floor Height <span class="info-btn" onclick="showInfo('p-fh')">i</span></label>
+        <select id="p-fh">
+          <option value="2.7">8.5 ft — Low ceiling (economy)</option>
+          <option value="3.0" selected>10 ft — Standard residential</option>
+          <option value="3.2">10.5 ft — Comfortable home</option>
+          <option value="3.4">11 ft — Spacious residential</option>
+          <option value="3.6">12 ft — Premium residential / office</option>
+          <option value="4.0">13 ft — Commercial / showroom</option>
+          <option value="4.5">15 ft — Warehouse / industrial</option>
+        </select>
+        <span class="hint">Height from floor slab to floor slab of next floor. Affects column steel and concrete significantly.</span>
+      </div>
+    </div>
+
+    <!-- FLOOR LAYOUT CHOICE -->
+    <div style="margin-bottom:1rem">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.65rem">ARE ALL FLOORS THE SAME SIZE?</div>
+      <div class="cg" style="margin-bottom:0">
+        <div class="cc" id="bt-uni" onclick="setBT('uniform')" style="padding:1.25rem">
+          <div class="cc-chk">✓</div>
+          <span class="cc-ico" style="font-size:2rem">🏢</span>
+          <div class="cc-title" style="font-size:.95rem">Yes — All Same Size</div>
+          <div class="cc-desc">Standard rectangular building. Every floor is the same shape and area.</div>
+        </div>
+        <div class="cc" id="bt-var" onclick="setBT('variable')" style="padding:1.25rem">
+          <div class="cc-chk">✓</div>
+          <span class="cc-ico" style="font-size:2rem">🏔️</span>
+          <div class="cc-title" style="font-size:.95rem">No — Different Each Floor</div>
+          <div class="cc-desc">Hill building, cantilever, stepped design — each floor has its own area.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIFORM INPUT -->
+    <div id="uni-div" style="display:none">
+      <div class="fld" style="max-width:250px">
+        <label>Built-up Area per Floor (sq ft)</label>
+        <input type="number" id="p-bu" value="1500" placeholder="e.g. 1500">
+        <span class="hint">The floor area inside each floor of the building</span>
+      </div>
+    </div>
+
+    <!-- VARIABLE INPUT -->
+    <div id="var-div" style="display:none">
+      <div class="al al-b" style="margin-bottom:.85rem">Enter the area for each floor separately. Your building will be shown as a diagram below.</div>
+      <div class="fdg" id="fdg"></div>
+      <div style="overflow-x:auto">
+        <table class="ftbl">
+          <thead><tr><th>Floor Level</th><th>Area (sq ft)</th><th>Type</th><th>Difference</th></tr></thead>
+          <tbody id="ftb"></tbody>
+          <tfoot><tr style="background:#e0f2fe"><td><strong>Total Built-up</strong></td><td><strong id="ftot">—</strong></td><td colspan="2" style="font-size:11px;color:var(--muted)">Sum of all floor areas</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECHNICAL SPECS PANEL (collapsed) -->
+  <div class="edit-panel">
+    <div class="edit-panel-hd" onclick="togglePanel('tech-panel','tech-arrow','tech-badge')">
+      <div class="ep-left">
+        <span>⚙️</span>
+        <div>
+          <div>Technical Specifications</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:400">Steel grade, concrete grade, column size, slab thickness</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="ep-badge using-default" id="tech-badge">Using IS Code Defaults</span>
+        <span class="ep-arrow" id="tech-arrow">▼</span>
+      </div>
+    </div>
+    <div class="edit-panel-body" id="tech-panel">
+      <div class="al al-y" style="margin-bottom:1.25rem">These are set to safe IS code defaults. Edit only if your structural engineer has given you specific grades.</div>
+      <div class="fg">
+        <div class="fld"><label>Steel Grade <span class="info-btn" onclick="showInfo('p-sg')">i</span></label><select id="p-sg"><option value="Fe415">Fe415 (Standard)</option><option value="Fe500" selected>Fe500 (Recommended)</option><option value="Fe500D">Fe500D (High Seismic Zones)</option><option value="Fe550">Fe550 (Heavy Loads)</option></select><span class="hint">IS 1786:2008</span></div>
+        <div class="fld"><label>Column Main Bar <span class="info-btn" onclick="showInfo('p-cb')">i</span></label><select id="p-cb"><option value="12">12mm</option><option value="16" selected>16mm (Standard)</option><option value="20">20mm</option><option value="25">25mm</option></select></div>
+        <div class="fld"><label>Beam Main Bar <span class="info-btn" onclick="showInfo('p-bb')">i</span></label><select id="p-bb"><option value="12">12mm</option><option value="16" selected>16mm (Standard)</option><option value="20">20mm</option><option value="25">25mm</option></select></div>
+        <div class="fld"><label>Slab Bar <span class="info-btn" onclick="showInfo('p-sb')">i</span></label><select id="p-sb"><option value="8">8mm</option><option value="10" selected>10mm (Standard)</option><option value="12">12mm</option></select></div>
+        <div class="fld"><label>Stirrup / Link Bar <span class="info-btn" onclick="showInfo('p-st')">i</span></label><select id="p-st"><option value="8" selected>8mm (Standard)</option><option value="10">10mm</option></select></div>
+        <div class="fld"><label>Column Size <span class="info-btn" onclick="showInfo('p-cs')">i</span></label><select id="p-cs"><option value="230">230×230mm (Small)</option><option value="300">300×300mm</option><option value="350" selected>350×350mm (Standard)</option><option value="400">400×400mm (Heavy)</option><option value="450">450×450mm</option></select></div>
+        <div class="fld"><label>Slab Thickness <span class="info-btn" onclick="showInfo('p-slbt')">i</span></label><select id="p-slbt"><option value="100">100mm (Light)</option><option value="125" selected>125mm (Standard)</option><option value="150">150mm (Heavy)</option><option value="175">175mm</option></select></div>
+      </div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.65rem;margin-top:.5rem">CONCRETE GRADES BY ELEMENT</div>
+      <div class="fg">
+        <div class="fld"><label>PCC Below Foundation <span class="info-btn" onclick="showInfo('p-pcc')">i</span></label><select id="p-pcc"><option value="M10">M10</option><option value="M15" selected>M15 (Standard)</option></select></div>
+        <div class="fld"><label>Foundation Concrete <span class="info-btn" onclick="showInfo('p-fg')">i</span></label><select id="p-fg"><option value="M20" selected>M20 (Standard)</option><option value="M25">M25</option><option value="M30">M30</option></select></div>
+        <div class="fld"><label>Column Concrete <span class="info-btn" onclick="showInfo('p-cg')">i</span></label><select id="p-cg"><option value="M20">M20</option><option value="M25" selected>M25 (Recommended)</option><option value="M30">M30</option><option value="M35">M35</option><option value="M40">M40</option></select></div>
+        <div class="fld"><label>Beam Concrete <span class="info-btn" onclick="showInfo('p-beg')">i</span></label><select id="p-beg"><option value="M20">M20</option><option value="M25" selected>M25 (Recommended)</option><option value="M30">M30</option><option value="M35">M35</option></select></div>
+        <div class="fld"><label>Slab Concrete <span class="info-btn" onclick="showInfo('p-slg')">i</span></label><select id="p-slg"><option value="M20" selected>M20 (Standard)</option><option value="M25">M25</option><option value="M30">M30</option></select></div>
+        <div class="fld"><label>Seismic Zone <span class="info-btn" onclick="showInfo('p-zone')">i</span></label><select id="p-zone"><option value="2">Zone II — Low Risk</option><option value="3">Zone III — Moderate</option><option value="4" selected>Zone IV — High</option><option value="5">Zone V — Very High (NE India)</option></select>
+          <span class="hint" style="color:#92400e">⚠️ Auto-set from your state. Large states (Maharashtra, UP, Rajasthan) span multiple zones — verify your city-level zone from IS 1893:2016 Annex E with your engineer.</span>
+        </div>
+        <div class="fld"><label>Soil Bearing Capacity <span class="info-btn" onclick="showInfo('p-sbc')">i</span></label><select id="p-sbc"><option value="75">Very Soft — below 100 kN/m²</option><option value="125">Soft — 100 to 150 kN/m²</option><option value="175" selected>Medium — 150 to 200 kN/m²</option><option value="250">Stiff — 200 to 300 kN/m²</option><option value="350">Hard Rock — above 300 kN/m²</option></select></div>
+        <div class="fld"><label>Foundation Depth (m) <span class="info-btn" onclick="showInfo('p-fdepth')">i</span></label><input type="number" id="p-fdepth" value="1.5" step="0.1" min="0.5" max="6"><span class="hint">Depth from ground to bottom of footing. Default 1.5m. Deeper = more excavation + concrete.</span></div>
+        <div class="fld"><label>Plinth Height (m) <span class="info-btn" onclick="showInfo('p-plinth')">i</span></label><input type="number" id="p-plinth" value="0.6" step="0.1" min="0.3" max="2.5"><span class="hint">Height from ground level to floor level. Default 0.6m (2 feet).</span></div>
+      </div>
+      <button class="btn btn-green" onclick="saveTech()" style="margin-top:.5rem">✓ Save Technical Specifications</button>
+    </div>
+  </div>
+
+  <!-- MATERIAL RATES PANEL (collapsed) -->
+  <div class="edit-panel">
+    <div class="edit-panel-hd" onclick="togglePanel('mat-panel','mat-arrow','mat-badge')">
+      <div class="ep-left">
+        <span>💰</span>
+        <div>
+          <div>Raw Material Rates</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:400">Edit rates to your local prices. India averages are pre-filled.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="ep-badge using-default" id="mat-badge">Using India Avg 2026</span>
+        <span class="ep-arrow" id="mat-arrow">▼</span>
+      </div>
+    </div>
+    <div class="edit-panel-body" id="mat-panel">
+
+      <!-- IS CODE MANDATORY NOTICE -->
+      <div style="background:#fff1f2;border:2px solid #dc2626;border-radius:var(--r2);padding:1rem 1.1rem;margin-bottom:1.25rem">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
+          <span style="font-size:1.2rem">⛔</span>
+          <strong style="color:#dc2626;font-size:13px">IS Code Mandatory Materials — Do Not Eliminate</strong>
+        </div>
+        <p style="font-size:12px;color:#7f1d1d;line-height:1.8">
+          The materials listed below are <strong>mandatory structural requirements</strong> for RCC construction as per Indian Standards — IS 456:2000, IS 1786:2008, IS 383, and IS 2502.<br><br>
+          <strong>We strongly advise against eliminating or substituting any of these materials</strong> during actual construction. Doing so may result in structural failure, non-compliance with building codes, rejection by municipal authorities, and serious risk to the safety of occupants.<br><br>
+          You may only edit the <strong>rate (price)</strong> of each material to match your local market. Quantities are calculated automatically as per IS code standards.
+        </p>
+      </div>
+
+      <!-- hidden inputs for calculation engine -->
+      <input type="hidden" id="r-st" value="75">
+      <input type="hidden" id="r-ce" value="490">
+      <input type="hidden" id="r-sa" value="3500">
+      <input type="hidden" id="r-ag" value="1800">
+      <input type="hidden" id="r-wi" value="92">
+      <input type="hidden" id="r-fo" value="22">
+      <input type="hidden" id="r-ad" value="60">
+
+      <table class="rtbl">
+        <thead>
+          <tr>
+            <th>Material</th>
+            <th>IS Code Reference</th>
+            <th>Unit</th>
+            <th>Your Rate (₹)</th>
+            <th>India Avg 2026</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>TMT Steel Bars</strong> <span class="info-btn" onclick="showInfo('mat-steel')">i</span><br><small style="color:var(--muted)">Tata Tiscon / JSW / SAIL / RINL</small></td>
+            <td><span class="tag tp" style="font-size:10px">IS 1786:2008</span></td>
+            <td>/kg</td>
+            <td><input type="number" class="ri" id="r-st-v" value="75" onchange="document.getElementById('r-st').value=this.value"></td>
+            <td><span class="avg-b">₹68–86</span></td>
+          </tr>
+          <tr>
+            <td><strong>OPC 53 Grade Cement</strong> <span class="info-btn" onclick="showInfo('mat-cement')">i</span><br><small style="color:var(--muted)">UltraTech / ACC / Ambuja / Shree</small></td>
+            <td><span class="tag tp" style="font-size:10px">IS 269:2015</span></td>
+            <td>/50kg bag</td>
+            <td><input type="number" class="ri" id="r-ce-v" value="490" onchange="document.getElementById('r-ce').value=this.value"></td>
+            <td><span class="avg-b">₹456–540</span></td>
+          </tr>
+          <tr>
+            <td><strong>Fine Aggregate (Sand / M-Sand)</strong> <span class="info-btn" onclick="showInfo('mat-sand')">i</span><br><small style="color:var(--muted)">River sand or Manufactured sand</small></td>
+            <td><span class="tag tp" style="font-size:10px">IS 383:2016</span></td>
+            <td>/m³</td>
+            <td><input type="number" class="ri" id="r-sa-v" value="3500" onchange="document.getElementById('r-sa').value=this.value"></td>
+            <td><span class="avg-b">₹2,800–4,500</span></td>
+          </tr>
+          <tr>
+            <td><strong>Coarse Aggregate 20mm</strong> <span class="info-btn" onclick="showInfo('mat-agg')">i</span><br><small style="color:var(--muted)">Crushed granite / basalt</small></td>
+            <td><span class="tag tp" style="font-size:10px">IS 383:2016</span></td>
+            <td>/m³</td>
+            <td><input type="number" class="ri" id="r-ag-v" value="1800" onchange="document.getElementById('r-ag').value=this.value"></td>
+            <td><span class="avg-b">₹1,400–2,500</span></td>
+          </tr>
+          <tr>
+            <td><strong>GI Binding Wire 18 Gauge</strong> <span class="info-btn" onclick="showInfo('mat-wire')">i</span><br><small style="color:var(--muted)">For tying all reinforcement</small></td>
+            <td><span class="tag tp" style="font-size:10px">IS 2502 / SP 34</span></td>
+            <td>/kg</td>
+            <td><input type="number" class="ri" id="r-wi-v" value="92" onchange="document.getElementById('r-wi').value=this.value"></td>
+            <td><span class="avg-b">₹85–100</span></td>
+          </tr>
+          <tr>
+            <td><strong>Formwork / Shuttering</strong> <span class="info-btn" onclick="showInfo('mat-form')">i</span><br><small style="color:var(--muted)">Plywood + steel props (rental or owned)</small></td>
+            <td><span class="tag tp" style="font-size:10px">IS 456 Cl.11</span></td>
+            <td>/sqft</td>
+            <td><input type="number" class="ri" id="r-fo-v" value="22" onchange="document.getElementById('r-fo').value=this.value"></td>
+            <td><span class="avg-b">₹18–30</span></td>
+          </tr>
+          <tr>
+            <td><strong>Admixture / Plasticizer</strong> <span class="info-btn" onclick="showInfo('mat-admix')">i</span><br><small style="color:var(--muted)">Required for M25 and above grades</small></td>
+            <td><span class="tag tp" style="font-size:10px">IS 9103:1999</span></td>
+            <td>/litre</td>
+            <td><input type="number" class="ri" id="r-ad-v" value="60" onchange="document.getElementById('r-ad').value=this.value"></td>
+            <td><span class="avg-b">₹50–80</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ADD CUSTOM ADDITIONAL ITEM -->
+      <div style="margin-top:.75rem;margin-bottom:.75rem">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.5rem">ADDITIONAL ITEMS (Optional)</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:.65rem;line-height:1.7">You may add extra items like waterproofing compound, anti-termite chemical, polythene sheet, etc. that are part of your project cost but are not standard structural materials.</div>
+        <div class="add-lab-btn" onclick="addMatRow()" style="border-color:#93c5fd;background:#eff6ff;color:#1e40af">
+          + Add Extra Item / Cost
+        </div>
+        <div style="overflow-x:auto;margin-top:.75rem" id="custom-mat-wrap" style="display:none">
+          <table class="lab-table" id="custom-mat-table">
+            <thead><tr><th style="width:36px"></th><th>Item Name</th><th>Unit</th><th>Your Quantity</th><th>Rate (₹ per unit)</th><th>Amount (₹)</th></tr></thead>
+            <tbody id="mat-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <button class="btn btn-green" onclick="saveMat()" style="margin-top:.25rem">✓ Save Rates</button>
+    </div>
+  </div>
+
+  <!-- LABOUR SECTION -->
+  <div class="card">
+    <div class="card-h"><div class="chi ch-g">👷</div>Labour Cost</div>
+
+    <div class="toggle-wrap" id="lab-toggle" onclick="toggleLab()">
+      <input type="checkbox" id="lab-check" onchange="toggleLab()">
+      <label for="lab-check">Include Labour Cost in my estimate</label>
+    </div>
+
+    <div id="lab-section" style="display:none;margin-top:1rem">
+
+      <!-- CPWD PRODUCTIVITY NOTE -->
+      <div style="background:#fffbeb;border:2px solid #f59e0b;border-radius:var(--r2);padding:1rem 1.1rem;margin-bottom:1.25rem">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
+          <span style="font-size:1.1rem">📋</span>
+          <strong style="color:#92400e;font-size:13px">Labour Days — Based on CPWD DSR Productivity Standards + Site Reality</strong>
+        </div>
+        <p style="font-size:12px;color:#92400e;line-height:1.9">
+          Days are pre-calculated using <strong>CPWD Schedule of Rates (DSR)</strong> productivity constants — the official Government of India standard for construction labour output per day. This gives a scientifically grounded starting point rather than a guess.<br><br>
+          However, actual site days may differ due to: curing wait times between concrete pours (7–28 days per IS 456), monsoon shutdowns, festival breaks, sand/aggregate bans, local political situations, and hill site access delays. <strong>Review and adjust</strong> the pre-filled days based on your site knowledge. Increasing workers automatically reduces calendar days.
+        </p>
+      </div>
+
+      <div class="al al-g" style="margin-bottom:1rem">
+        <strong>Days are auto-calculated using CPWD DSR productivity standards:</strong><br>
+        • Bar Bender — 600 kg steel per worker per day (CPWD Schedule of Rates)<br>
+        • Shuttering Carpenter — 100 sqft formwork per worker per day<br>
+        • Concreting Mason — 2.5 m³ concrete per mason per day<br>
+        • Curing — IS 456 minimum 14 days per floor curing cycle<br>
+        • Site staff (Engineer, Foreman, Watchman) — full project duration<br><br>
+        You can override any value. <strong>Adjust workers</strong> (+ / − buttons) to change calendar days automatically. <strong>Edit daily rate</strong> to match your local area. Click <strong>—</strong> to remove any trade not needed. Add custom trades at the bottom.
+      </div>
+
+      <!-- LABOUR TABLE -->
+      <div style="overflow-x:auto">
+        <table class="lab-table">
+          <thead>
+            <tr>
+              <th style="width:36px"></th>
+              <th>Trade / Designation</th>
+              <th>Workers</th>
+              <th>Rate/Day (₹)</th>
+              <th style="font-size:10px;color:var(--muted)">Days — auto from CPWD</th>
+            </tr>
+          </thead>
+          <tbody id="lab-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- ADD CUSTOM LABOUR -->
+      <div class="add-lab-btn" onclick="addLabRow()">
+        + Add Your Own Labour Type
+      </div>
+      <div class="al al-b" style="margin-top:.75rem;font-size:12px">
+        💡 Complete labour cost breakdown with total will appear in your estimate report after clicking Calculate.
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem">
+    <button class="btn btn-outline" onclick="sp('pg2')">← Back</button>
+    <button class="btn btn-gold btn-full btn-lg" onclick="runCalc()">⚡ Calculate My Estimate →</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════
+  PAGE 3B — UPLOAD DRAWING
+══════════════════════════════════ -->
+<div id="pg3b" class="pg">
+<div class="topbar">
+  <div class="logo"><div class="logo-box">🏗️</div><div><span class="logo-name">StructoPro</span><span class="logo-sub">Step 3 — Upload Drawings</span></div></div>
+  <div class="user-pill">👤 <span id="tn3b"></span></div>
+</div>
+<div class="prog"><div class="prog-inner">
+  <div class="ps done"><div class="pc">✓</div><span>Details</span></div><div class="pl done"></div>
+  <div class="ps done"><div class="pc">✓</div><span>Method</span></div><div class="pl done"></div>
+  <div class="ps now"><div class="pc">3</div><span>Drawings</span></div><div class="pl"></div>
+  <div class="ps"><div class="pc">4</div><span>Report</span></div>
+</div></div>
+<div class="wrap" style="max-width:680px;margin-top:1.5rem">
+  <div class="card">
+    <div class="card-h"><div class="chi ch-p">📐</div>Upload Structural Drawings</div>
+    <div class="uz" id="dz" onclick="document.getElementById('fin').click()" ondragover="dd(event,1)" ondragleave="dd(event,0)" ondrop="dp(event)">
+      <input type="file" id="fin" accept=".pdf,.jpg,.jpeg,.png,.webp" onchange="fc2(event)">
+      <div style="font-size:3rem;margin-bottom:.65rem">📋</div>
+      <div style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.35rem">Click to Upload or Drag & Drop</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:.85rem">Foundation plan, Column layout, Beam schedule, Bar Bending Schedule<br>PDF, JPG, PNG, WebP — Max 10MB</div>
+      <button class="btn btn-outline" style="pointer-events:none;padding:8px 20px;font-size:13px">Choose File</button>
+    </div>
+    <div class="fchip" id="fchip">
+      <div style="font-size:1.75rem" id="fci">📄</div>
+      <div><div style="font-weight:600;font-size:13px;color:var(--green)" id="fcn"></div><div style="font-size:11px;color:var(--muted)" id="fcs"></div></div>
+      <button class="fchip-rm" onclick="rf()">✕ Remove</button>
+    </div>
+    <div class="fld" style="margin-top:1rem;margin-bottom:1rem">
+      <label>Anthropic API Key (for AI Analysis)</label>
+      <input type="password" id="d-key" placeholder="sk-ant-api03-... leave blank if server key configured">
+      <span class="hint">Free key at console.anthropic.com. Server-configured = leave blank.</span>
+    </div>
+    <button class="btn btn-navy btn-full" id="anBtn" onclick="doAI()" style="margin-bottom:.75rem">🤖 Analyze Drawing with AI</button>
+    <div class="ais" id="ais"></div>
+  </div>
+  <div class="card" id="gapCard" style="display:none">
+    <div class="card-h"><div class="chi" style="background:#fef3c7">✅</div>Step 2 — Verify AI Extraction Before Proceeding</div>
+    <div style="background:#fff1f2;border:2px solid #dc2626;border-radius:var(--r2);padding:1rem;margin-bottom:1rem">
+      <strong style="color:#dc2626;font-size:13px">⚠️ You Must Verify This Before Calculating</strong>
+      <p style="font-size:12px;color:#7f1d1d;margin-top:.4rem;line-height:1.8">AI can misread complex structural drawings — especially handwritten dimensions, overlapping annotations, or non-standard formats. An 8mm bar misread as 18mm will give you a completely wrong estimate. <strong>Please check every extracted value below and correct any errors before proceeding.</strong></p>
+    </div>
+    <div class="al al-g" style="margin-bottom:1rem">Green fields were found in the drawing. Orange fields were NOT found — please fill those in. Edit any value you believe the AI got wrong.</div>
+    <div id="aiExt" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:.85rem;font-size:12px;color:#166534;line-height:1.8;margin-bottom:1.25rem"></div>
+    <div class="fg" id="gapF"></div>
+    <div style="margin-top:1.25rem">
+      <div class="al al-b" style="margin-bottom:.75rem">You can also edit material rates and labour costs. Expand the sections below.</div>
+      <div class="edit-panel">
+        <div class="edit-panel-hd" onclick="togglePanel('mat-panel-b','mat-arrow-b','mat-badge-b')">
+          <div class="ep-left"><span>💰</span><div><div>Material Rates</div><div style="font-size:11px;color:var(--muted);font-weight:400">Edit local rates or use India averages</div></div></div>
+          <div style="display:flex;align-items:center;gap:8px"><span class="ep-badge using-default" id="mat-badge-b">Using India Avg</span><span class="ep-arrow" id="mat-arrow-b">▼</span></div>
+        </div>
+        <div class="edit-panel-body" id="mat-panel-b">
+          <table class="rtbl">
+            <thead><tr><th>Material</th><th>Unit</th><th>Rate (₹)</th><th>India Avg</th></tr></thead>
+            <tbody>
+              <tr><td><strong>TMT Steel</strong></td><td>/kg</td><td><input type="number" class="ri" id="rb-st" value="75"></td><td><span class="avg-b">₹68–86</span></td></tr>
+              <tr><td><strong>Cement</strong></td><td>/50kg bag</td><td><input type="number" class="ri" id="rb-ce" value="490"></td><td><span class="avg-b">₹456–540</span></td></tr>
+              <tr><td><strong>Sand</strong></td><td>/m³</td><td><input type="number" class="ri" id="rb-sa" value="3500"></td><td><span class="avg-b">₹2,800–4,500</span></td></tr>
+              <tr><td><strong>Aggregate 20mm</strong></td><td>/m³</td><td><input type="number" class="ri" id="rb-ag" value="1800"></td><td><span class="avg-b">₹1,400–2,500</span></td></tr>
+              <tr><td><strong>Binding Wire</strong></td><td>/kg</td><td><input type="number" class="ri" id="rb-wi" value="92"></td><td><span class="avg-b">₹85–100</span></td></tr>
+              <tr><td><strong>Formwork</strong></td><td>/sqft</td><td><input type="number" class="ri" id="rb-fo" value="22"></td><td><span class="avg-b">₹18–30</span></td></tr>
+              <tr><td><strong>Admixture</strong></td><td>/litre</td><td><input type="number" class="ri" id="rb-ad" value="60"></td><td><span class="avg-b">₹50–80</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="toggle-wrap" style="margin-top:.75rem" id="lab-toggle-b" onclick="toggleLabB()">
+        <input type="checkbox" id="lab-check-b" onchange="toggleLabB()">
+        <label for="lab-check-b">Include Labour Cost</label>
+      </div>
+      <div id="lab-section-b" style="display:none;margin-top:1rem">
+        <div style="overflow-x:auto"><table class="lab-table"><thead><tr><th style="width:36px"></th><th>Trade</th><th>Workers</th><th>Days</th><th>Rate/Day</th><th>Total</th></tr></thead><tbody id="lab-tbody-b"></tbody></table></div>
+        <div class="add-lab-btn" onclick="addLabRow('b')">+ Add Labour Type</div>
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:var(--r2);padding:.85rem 1rem;margin-top:.75rem;display:flex;justify-content:space-between">
+          <span style="font-weight:600;color:var(--green)">Total Labour Cost</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--green)" id="lab-total-b">₹0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:1rem">
+    <button class="btn btn-outline" onclick="sp('pg2')">← Back</button>
+    <button class="btn btn-gold btn-full btn-lg" id="drNext" onclick="runCalcDraw()" disabled>⚡ Calculate My Estimate →</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════
+  PAGE 4 — RESULTS (BLURRED)
+══════════════════════════════════ -->
+<div id="pg4" class="pg">
+<div class="topbar">
+  <div class="logo"><div class="logo-box">🏗️</div><div><span class="logo-name">StructoPro</span><span class="logo-sub">Your Structural Estimate</span></div></div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <button class="btn btn-gold" id="pdf-btn" onclick="dlPDF()" style="padding:9px 20px;font-size:13px;display:none">📥 Download PDF</button>
+    <div class="user-pill">👤 <span id="tn4"></span></div>
+  </div>
+</div>
+<div class="prog"><div class="prog-inner">
+  <div class="ps done"><div class="pc">✓</div></div><div class="pl done"></div>
+  <div class="ps done"><div class="pc">✓</div></div><div class="pl done"></div>
+  <div class="ps done"><div class="pc">✓</div></div><div class="pl done"></div>
+  <div class="ps now"><div class="pc">4</div><span>Report</span></div>
+</div></div>
+
+<div class="wrap wide" style="margin-top:1.5rem">
+
+  <!-- CLIENT CARD -->
+  <div class="card" id="cli-card">
+    <div class="card-h"><div class="chi ch-b">📋</div>Client & Project Details</div>
+    <div id="cli-det" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:.75rem;font-size:13px"></div>
+  </div>
+
+  <!-- RESULT HERO -->
+  <div class="res-hero">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+      <div>
+        <h2 class="res-h2" id="res-t">Structural Estimate</h2>
+        <p id="res-s" style="font-size:11px;opacity:.6;font-family:'JetBrains Mono',monospace"></p>
+        <span id="res-src" style="display:inline-block;margin-top:8px;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:600;background:var(--gold);color:#0b1120"></span>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;opacity:.5;margin-bottom:4px">REPORT DATE</div>
+        <div id="res-dt" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#fff"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IS CODE -->
+  <div class="card">
+    <div class="card-h"><div class="chi ch-p">📋</div>IS Code Compliance</div>
+    <div class="isp" id="isp"></div>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="kpig" id="kpig"></div>
+
+  <!-- TABS -->
+  <div class="card">
+    <div class="tabs">
+      <button class="tab on" onclick="st('t1',this)">🧱 Raw Materials</button>
+      <button class="tab" onclick="st('t2',this)">🔩 Steel Schedule</button>
+      <button class="tab" onclick="st('t3',this)">🏗️ Concrete</button>
+      <button class="tab" onclick="st('t4',this)">👷 Labour</button>
+      <button class="tab" onclick="st('t5',this)">🏢 By Floor</button>
+    </div>
+
+    <div class="tc on" id="t1">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#dbeafe;border-radius:6px;color:#1e40af;margin-bottom:1rem">📦 Raw Materials — Structural Frame Only</div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>Material</th><th>Unit</th><th>Net Qty</th><th>+Wastage</th><th>Rate (₹)</th><th>Amount (₹)</th></tr></thead>
+        <tbody id="mat-body"></tbody>
+        <tfoot>
+          <tr style="background:#eff6ff"><td colspan="5">Sub-total</td><td><span class="bv" id="mat-sub">—</span></td></tr>
+          <tr style="background:#fef3c7"><td colspan="5">Wastage (7%)</td><td><span class="bv" id="mat-wst">—</span></td></tr>
+          <tr style="background:#1a2f6e;color:#fff"><td colspan="5" style="font-size:14px;font-weight:700">💰 TOTAL RAW MATERIAL COST</td><td style="font-size:15px;font-weight:700"><span class="bv" id="mat-tot">—</span></td></tr>
+        </tfoot>
+      </table></div>
+    </div>
+
+    <div class="tc" id="t2">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#dbeafe;border-radius:6px;color:#1e40af;margin-bottom:1rem">🔩 Bar Bending Schedule (IS 2502 / SP 34:1987)</div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>Element</th><th>Bar Type</th><th>Dia (mm)</th><th>Grade</th><th>Net (kg)</th><th>+5% (kg)</th><th>Approx Bars</th></tr></thead>
+        <tbody id="stl-body"></tbody>
+        <tfoot><tr style="background:#1a2f6e;color:#fff"><td colspan="4">TOTAL STEEL</td><td><span class="bv" id="st-n">—</span></td><td><span class="bv" id="st-w">—</span></td><td><span class="bv" id="st-b">—</span></td></tr></tfoot>
+      </table></div>
+    </div>
+
+    <div class="tc" id="t3">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#dbeafe;border-radius:6px;color:#1e40af;margin-bottom:1rem">🧱 Concrete Schedule — IS 10262:2019</div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>Element</th><th>Grade</th><th>Volume (m³)</th><th>Cement Bags</th><th>Sand (m³)</th><th>Agg (m³)</th><th>Water (L)</th></tr></thead>
+        <tbody id="con-body"></tbody>
+        <tfoot><tr style="background:#1a2f6e;color:#fff"><td>TOTAL</td><td></td><td><span class="bv" id="c-v">—</span></td><td><span class="bv" id="c-b">—</span></td><td><span class="bv" id="c-s">—</span></td><td><span class="bv" id="c-a">—</span></td><td><span class="bv" id="c-w">—</span></td></tr></tfoot>
+      </table></div>
+    </div>
+
+    <div class="tc" id="t4">
+      <div id="lab-excl-msg" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:1rem;color:#166534;text-align:center">Labour cost not included in this estimate.</div>
+      <div id="lab-wrap">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#dcfce7;border-radius:6px;color:#166534;margin-bottom:1rem">👷 Labour Breakdown — Structural Frame Only</div>
+        <div style="overflow-x:auto"><table>
+          <thead><tr><th>Trade</th><th>Workers</th><th>Days</th><th>Rate/Day</th><th>Total (₹)</th></tr></thead>
+          <tbody id="lab-body"></tbody>
+          <tfoot>
+            <tr style="background:#dcfce7"><td colspan="4">Labour Sub-Total</td><td><span class="bv" id="lab-sub">—</span></td></tr>
+            <tr style="background:#14532d;color:#fff"><td colspan="4" style="font-size:14px;font-weight:700">💰 TOTAL LABOUR COST</td><td style="font-size:15px;font-weight:700"><span class="bv" id="lab-tot">—</span></td></tr>
+          </tfoot>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="tc" id="t5">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#dbeafe;border-radius:6px;color:#1e40af;margin-bottom:1rem">🏢 Floor-by-Floor Breakdown</div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>Floor</th><th>Area (sq ft)</th><th>Columns</th><th>Slab Vol (m³)</th><th>Steel (kg)</th><th>Type</th></tr></thead>
+        <tbody id="flr-body"></tbody>
+        <tfoot><tr style="background:#1a2f6e;color:#fff"><td>TOTAL</td><td><span class="bv" id="fl-a">—</span></td><td id="fl-c">—</td><td><span class="bv" id="fl-s">—</span></td><td><span class="bv" id="fl-st">—</span></td><td></td></tr></tfoot>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- GRAND SUMMARY -->
+  <div class="gbox">
+    <div class="ghd">💰 Complete Cost Summary — Bare Structural Frame</div>
+    <div class="gr mr"><span>🧱 Raw Materials Sub-total</span><span class="ga"><span class="bv" id="g-ms">—</span></span></div>
+    <div class="gr wr"><span>📦 Material Wastage (7%)</span><span class="ga"><span class="bv" id="g-mw">—</span></span></div>
+    <div class="gr" style="background:#f8faff"><span style="font-weight:700">📦 Total Raw Material Cost</span><span class="ga"><span class="bv" id="g-mt">—</span></span></div>
+    <div class="gr lr" id="g-lr"><span>👷 Labour Cost</span><span class="ga"><span class="bv" id="g-la">—</span></span></div>
+    <div class="gr cr"><span>⚠️ Contingency Reserve (5%)</span><span class="ga"><span class="bv" id="g-co">—</span></span></div>
+    <div class="gr tr"><span>🏗️ GRAND TOTAL — BARE STRUCTURAL FRAME</span><span class="ga" id="g-tot" style="color:var(--gold2);font-size:1.35rem">—</span></div>
+    <div class="gr sr"><span>📐 Cost per sq ft — <em style="font-size:11px;font-weight:400;color:var(--muted)">Unlock to see full breakdown</em></span><span class="ga"><span class="bv" id="g-sf">—</span></span></div>
+  </div>
+
+  <!-- TECHNICAL REMINDERS — FULLY VISIBLE (teaser of value) -->
+  <div class="card">
+    <div class="card-h"><div class="chi ch-y">⚠️</div>Technical Quality Reminders — IS Code Based</div>
+    <div class="al al-y" style="margin-bottom:1.25rem">Based on IS 456:2000, IS 13920:2016, IS 1199, IS 516:1959. These are completely free to read.</div>
+    <div class="rmg">
+      <div class="rm rm-b"><h4 style="color:#1e40af">💧 Concrete Curing (IS 456 Cl.13.5)</h4><ul><li>Start curing within 24 hours of placing</li><li>Minimum 7 days for OPC concrete</li><li>Recommended 28 days for full strength</li><li>Keep surfaces continuously wet</li><li>Never allow premature drying in summer</li></ul></div>
+      <div class="rm rm-o"><h4 style="color:#92400e">🧪 Slump Test (IS 1199:2018)</h4><ul><li>Test before EVERY concrete batch</li><li>Columns: 25–75mm target slump</li><li>Slabs: 50–100mm target slump</li><li>Collapse slump = reject the batch</li><li>Never add water on site to increase slump</li></ul></div>
+      <div class="rm rm-g"><h4 style="color:#166534">🧊 Cube Testing (IS 516:1959)</h4><ul><li>3 cubes minimum per 50m³ concrete</li><li>Test at 7 days — ≥70% of 28-day strength</li><li>Final test at 28 days — IS 456 criterion</li><li>Cure cubes in water tank only</li><li>Alert engineer if 7-day is below 65%</li></ul></div>
+      <div class="rm rm-r"><h4 style="color:#991b1b">📏 Cover to Steel (IS 456 Table 16)</h4><ul><li>Footings: 50mm clear cover always</li><li>Columns: 40mm clear cover</li><li>Beams: 25–30mm clear cover</li><li>Slabs: 20mm minimum cover</li><li>Use concrete blocks — never brick pieces</li></ul></div>
+      <div class="rm rm-p"><h4 style="color:#5b21b6">🔩 Reinforcement (IS 13920)</h4><ul><li>Never weld TMT bars</li><li>Lap length: minimum 45 × bar diameter</li><li>Zone III and above: Fe500D mandatory</li><li>Bar bending done cold — never heat</li><li>Stagger laps — never at same section</li></ul></div>
+      <div class="rm rm-t"><h4 style="color:#0f766e">🏗️ Formwork Removal (IS 456 Table 4)</h4><ul><li>Columns: minimum 24 hours</li><li>Slab props: minimum 7 days</li><li>Beam props: 14–21 days by span</li><li>Use needle vibrator every pour</li><li>Max concrete free fall: 1.5m only</li></ul></div>
+      <div class="rm rm-o"><h4 style="color:#92400e">⚗️ Water-Cement Ratio (IS 456 Table 5)</h4><ul><li>M20: maximum W/C ratio 0.55</li><li>M25: maximum W/C ratio 0.50</li><li>M30: maximum W/C ratio 0.45</li><li>Potable water only — IS 456 Cl. 5.4</li><li>Use admixture for workability not water</li></ul></div>
+      <div class="rm rm-r"><h4 style="color:#991b1b">🪖 Safety (IS 4912)</h4><ul><li>Helmet and shoes — ALL workers always</li><li>Full body harness required G+2 and above</li><li>Safety net mandatory G+3 and above</li><li>Inspect scaffolding every week</li><li>No work on scaffolding during rain</li></ul></div>
+    </div>
+  </div>
+
+  <!-- VARIATION NOTICE -->
+  <div class="vb">
+    <h3 style="font-family:'Playfair Display',serif;color:#92400e;margin-bottom:.5rem;font-size:1rem">⚠️ Estimate Accuracy — Please Read</h3>
+    <table class="vtbl">
+      <thead><tr><th>Factor</th><th>Variation</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td>Material Price Changes</td><td><span class="tag to">±8–12%</span></td><td>Steel and cement prices change monthly.</td></tr>
+        <tr><td>Actual Soil Conditions</td><td><span class="tag tr2">±15–25%</span></td><td>Foundation depth after soil test may differ.</td></tr>
+        <tr><td>Structural Engineer's Design</td><td><span class="tag to">±10–15%</span></td><td>Actual sections may differ from thumb rules.</td></tr>
+        <tr><td>Location & Transport</td><td><span class="tag to">±10–20%</span></td><td>Your local rates have been applied.</td></tr>
+        <tr><td>Construction Season</td><td><span class="tag tg">±5–8%</span></td><td>Labour costs peak Oct–Feb every year.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:.85rem;font-size:13px;font-weight:700;color:#92400e">📊 Overall Accuracy: <span style="color:var(--red)">±15–20%</span> — Use for preliminary budgeting only.</p>
+  </div>
+
+  <!-- FINISHING COSTS GUIDE -->
+  <div style="background:#fff;border:2px solid var(--navy);border-radius:var(--r);overflow:hidden;margin-bottom:1.25rem">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#0b1120,#1a2f6e);padding:1.25rem 1.5rem;color:#fff">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:.35rem">
+        <span style="font-size:1.5rem">🏠</span>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#fff">What This Report Does NOT Include</h3>
+      </div>
+      <p style="font-size:12px;opacity:.7;line-height:1.7;margin:0">The structural frame is just the skeleton of your building — the columns, beams, slabs and foundations. A complete liveable house needs much more. Budget for these separately.</p>
+    </div>
+
+    <!-- Important alert -->
+    <div style="background:#fff7ed;border-bottom:1px solid #fed7aa;padding:1rem 1.5rem;display:flex;align-items:flex-start;gap:10px">
+      <span style="font-size:1.3rem;flex-shrink:0">⚠️</span>
+      <p style="font-size:12.5px;color:#92400e;line-height:1.8;margin:0">
+        <strong>Important:</strong> The Grand Total in this report covers the bare RCC structural frame only. For a complete house, you will typically need to add <strong>60% to 100% more</strong> for finishing work. A structural frame costing ₹40 lakhs usually becomes a complete home costing ₹65 to ₹80 lakhs at standard finish. Do not approach your bank or plan your budget based on the structural frame cost alone.
+      </p>
+    </div>
+
+    <!-- Finishing table -->
+    <div style="padding:1.25rem 1.5rem">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.85rem">BUDGET RANGE GUIDE — FINISHING WORKS (% of Structural Frame Cost)</div>
+      <div style="overflow-x:auto">
+        <table style="margin-bottom:0">
+          <thead>
+            <tr>
+              <th>Work Item</th>
+              <th>% of Structure Cost</th>
+              <th>On ₹40L Structure</th>
+              <th>Depends On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>🧱 Brickwork & Masonry</strong></td><td><span style="background:#dbeafe;color:#1e40af;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">20–25%</span></td><td style="font-weight:700;color:#1e40af">₹8–10L</td><td style="font-size:11px;color:var(--muted)">Brick type, wall thickness, mortar grade</td></tr>
+            <tr><td><strong>🪟 Plaster & Waterproofing</strong></td><td><span style="background:#dbeafe;color:#1e40af;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">8–10%</span></td><td style="font-weight:700;color:#1e40af">₹3.2–4L</td><td style="font-size:11px;color:var(--muted)">Plaster coats, waterproofing brand, terrace area</td></tr>
+            <tr><td><strong>🏠 Flooring</strong></td><td><span style="background:#fef3c7;color:#92400e;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">10–15%</span></td><td style="font-weight:700;color:#92400e">₹4–6L</td><td style="font-size:11px;color:var(--muted)">Ceramic ₹35, vitrified ₹80, Italian marble ₹350+/sqft</td></tr>
+            <tr><td><strong>🚪 Doors & Windows</strong></td><td><span style="background:#fef3c7;color:#92400e;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">8–12%</span></td><td style="font-weight:700;color:#92400e">₹3.2–4.8L</td><td style="font-size:11px;color:var(--muted)">Number of rooms, wood vs aluminium vs UPVC</td></tr>
+            <tr><td><strong>⚡ Electrical Wiring & Fittings</strong></td><td><span style="background:#fef3c7;color:#92400e;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">8–12%</span></td><td style="font-weight:700;color:#92400e">₹3.2–4.8L</td><td style="font-size:11px;color:var(--muted)">Brand of switches (Anchor vs Legrand), AC points</td></tr>
+            <tr><td><strong>🚿 Plumbing & Sanitary Fittings</strong></td><td><span style="background:#fef3c7;color:#92400e;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">6–10%</span></td><td style="font-weight:700;color:#92400e">₹2.4–4L</td><td style="font-size:11px;color:var(--muted)">Brand (Parryware vs Kohler vs American Standard)</td></tr>
+            <tr><td><strong>❄️ Mechanical (AC + Exhaust + Gas)</strong></td><td><span style="background:#fef3c7;color:#92400e;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">4–8%</span></td><td style="font-weight:700;color:#92400e">₹1.6–3.2L</td><td style="font-size:11px;color:var(--muted)">Number of AC units, ducted vs split, gas pipeline</td></tr>
+            <tr><td><strong>🎨 Paint (Interior + Exterior)</strong></td><td><span style="background:#dbeafe;color:#1e40af;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">4–6%</span></td><td style="font-weight:700;color:#1e40af">₹1.6–2.4L</td><td style="font-size:11px;color:var(--muted)">Asian Paints vs local brand, number of coats</td></tr>
+            <tr><td><strong>🪵 False Ceiling & Carpentry</strong></td><td><span style="background:#fef3c7;color:#92400e;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">5–10%</span></td><td style="font-weight:700;color:#92400e">₹2–4L</td><td style="font-size:11px;color:var(--muted)">Gypsum vs POP vs wood, area covered</td></tr>
+            <tr><td><strong>🪜 Staircase Railing & Grills</strong></td><td><span style="background:#dbeafe;color:#1e40af;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">2–3%</span></td><td style="font-weight:700;color:#1e40af">₹0.8–1.2L</td><td style="font-size:11px;color:var(--muted)">MS vs SS vs glass railing, window grills</td></tr>
+            <tr><td><strong>🧱 Compound Wall & Gate</strong></td><td><span style="background:#dbeafe;color:#1e40af;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">3–5%</span></td><td style="font-weight:700;color:#1e40af">₹1.2–2L</td><td style="font-size:11px;color:var(--muted)">Plot perimeter, wall height, gate design</td></tr>
+            <tr><td><strong>👷 Contractor Overhead & Profit</strong></td><td><span style="background:#fee2e2;color:#991b1b;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">10–15%</span></td><td style="font-weight:700;color:var(--red)">₹4–6L</td><td style="font-size:11px;color:var(--muted)">Always include — never forget contractor margin</td></tr>
+            <tr><td><strong>📋 Professional Fees</strong></td><td><span style="background:#fee2e2;color:#991b1b;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600">2–4%</span></td><td style="font-weight:700;color:var(--red)">₹0.8–1.6L</td><td style="font-size:11px;color:var(--muted)">Architect, structural engineer, soil test, plan approval</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Three-tier complete house summary -->
+      <div style="background:linear-gradient(135deg,#0b1120,#1a2f6e);border-radius:10px;padding:1.25rem 1.5rem;margin-top:1rem;color:#fff">
+        <div style="font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.85rem">COMPLETE HOUSE COST — THREE FINISH GRADES</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1rem">
+          <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:.85rem;text-align:center">
+            <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem">Basic Finish</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#93c5fd">1.8–2.0×</div>
+            <div style="font-size:11px;opacity:.7;margin-top:.3rem">₹72–80 lakhs</div>
+            <div style="font-size:10px;opacity:.5;margin-top:.2rem">on ₹40L structure</div>
+          </div>
+          <div style="background:rgba(240,192,64,.12);border:1px solid rgba(240,192,64,.3);border-radius:8px;padding:.85rem;text-align:center">
+            <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem">Standard Finish</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gold2)">2.2–2.5×</div>
+            <div style="font-size:11px;opacity:.7;margin-top:.3rem">₹88L – 1 crore</div>
+            <div style="font-size:10px;opacity:.5;margin-top:.2rem">on ₹40L structure</div>
+          </div>
+          <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:.85rem;text-align:center">
+            <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem">Premium Finish</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#f9a8d4">2.8–3.2×</div>
+            <div style="font-size:11px;opacity:.7;margin-top:.3rem">₹1.12–1.28 crores</div>
+            <div style="font-size:10px;opacity:.5;margin-top:.2rem">on ₹40L structure</div>
+          </div>
+        </div>
+        <div style="padding-top:.85rem;border-top:1px solid rgba(255,255,255,.15);font-size:12px;opacity:.75;line-height:1.8">
+          📐 <strong style="color:var(--gold2)">Contractor thumb rule:</strong> Total building cost = Structure cost × 2.2 to 2.5 for a standard ready-to-move-in home.<br>
+          The structural frame is only <strong style="color:var(--gold2)">40–45%</strong> of your total building cost. Do not approach your bank or plan your full budget based on the structural frame cost alone.
+        </div>
+      </div>
+
+      <p style="font-size:11px;color:var(--muted);margin-top:.85rem;line-height:1.7">
+        * Ranges above are indicative for 2026 Indian market. Actual costs vary significantly by region, material brand, quality choice, and contractor. These ranges are NOT estimated by StructoPro — they are published industry benchmarks for reference only.
+      </p>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="disc">
+    <h4>⛔ Engineering & Legal Disclaimer — Please Read Carefully</h4>
+    <p>
+      <strong>Nature of Calculations:</strong> Material quantities in this report are derived from <strong>empirical industry thumb rules and standard Indian construction productivity constants (CPWD DSR)</strong>, not from a custom structural analysis of your specific building. The material grades (M25, Fe500D, etc.) and IS code compliance checks follow IS 456:2000, IS 1893:2016, IS 13920:2016, and IS 1786:2008. However, the quantity calculations are estimates based on standard construction ratios, not engineered design.<br><br>
+      <strong>What This Report Is:</strong> A preliminary budgeting tool. Suitable for cost planning before engaging a structural engineer. Not suitable for procurement, tendering, or construction execution.<br><br>
+      <strong>Seismic Zone Limitation:</strong> Seismic zones are auto-assigned at state level. Large states (Maharashtra, UP, Rajasthan) span multiple seismic zones. For accurate zone classification, verify your city-level zone from IS 1893:2016 Annex E with your structural engineer.<br><br>
+      <strong>Mandatory Before Construction:</strong> (1) Geotechnical soil investigation per IS 1888, (2) Detailed structural design by a licensed Structural Engineer per IS 456:2000 + IS 1893:2016, (3) Approved drawings from municipal authority, (4) Structural engineer certification. StructoPro, Sudip Jhawar, and associated entities take no responsibility for structural decisions, failures, cost overruns, or legal non-compliance arising from use of this estimate alone.
+    </p>
+  </div>
+
+  <!-- PAYMENT GATE -->
+  <div class="pay-gate" id="pay-gate">
+    <span style="font-size:3rem;display:block;margin-bottom:.75rem">🔒</span>
+    <h2>Your Estimate Is Ready — Unlock It</h2>
+    <p>
+      Your <strong>Grand Total is shown above</strong> — the complete itemized breakdown of every material, every labour trade, every floor, and the full PDF report are waiting below the paywall.<br><br>
+      Pay once to unblur everything and download your professional IS code report.
+    </p>
+    <div class="pay-price">
+      <div class="pay-amt">₹499</div>
+      <div class="pay-sub">One-time payment — Instant access — No subscription</div>
+    </div>
+    <div class="pay-features">
+      <span class="pay-feat">All material quantities revealed</span>
+      <span class="pay-feat">Complete cost breakdown</span>
+      <span class="pay-feat">Labour cost details</span>
+      <span class="pay-feat">Steel bar schedule</span>
+      <span class="pay-feat">Concrete schedule</span>
+      <span class="pay-feat">Floor-by-floor breakdown</span>
+      <span class="pay-feat">Professional PDF download</span>
+      <span class="pay-feat">IS Code grade compliance report</span>
+    </div>
+    <button class="pay-btn" id="pay-now-btn" onclick="initiatePayment()">
+      💳 Pay ₹499 — Unlock Full Report
+    </button>
+    <div class="pay-secure">🔒 Secure payment via Razorpay · UPI · Cards · Net Banking · Wallets</div>
+  </div>
+
+  <!-- POST-PAYMENT BUTTONS (hidden until paid) -->
+  <div id="post-pay-btns" style="display:none;margin-top:1.25rem">
+    <div style="display:flex;gap:1rem;flex-wrap:wrap">
+      <button class="btn btn-gold btn-lg" onclick="dlPDF()" style="flex:1;min-width:200px">📥 Download PDF Report</button>
+      <button class="btn btn-outline" onclick="startOver()">🔄 New Estimate</button>
+    </div>
+  </div>
+
+  <div class="rfooter" style="margin-top:1.25rem">
+    <p style="font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:.35rem">StructoPro — Professional Structural Estimator</p>
+    <p style="font-size:11px;opacity:.55">Built by Sudip Jhawar | Civil Engineer — NIT Silchar | Ex-Sobha Limited | IS Code 2026 | jhawar.sudip@gmail.com</p>
+  </div>
+</div>
+</div>
+
+<!-- ADMIN -->
+<div id="pg-admin" class="pg">
+<div class="topbar"><div class="logo" onclick="sp('pg2')"><div class="logo-box">🏗️</div><div><span class="logo-name">StructoPro</span><span class="logo-sub">Admin Dashboard</span></div></div><div style="display:flex;gap:10px"><button class="btn btn-gold" onclick="expCSV()" style="padding:8px 16px;font-size:12px">📊 Export CSV</button><button class="btn btn-outline" onclick="sp('pg2')" style="padding:8px 16px;font-size:12px">← Exit</button></div></div>
+<div class="wrap" style="margin-top:1.5rem">
+  <div class="card"><div class="card-h"><div class="chi ch-p">🔐</div>Admin Login</div>
+    <div id="adm-login"><div class="fld" style="max-width:300px;margin-bottom:1rem"><label>Password</label><input type="password" id="adm-pw" placeholder="Admin password" onkeydown="if(event.key==='Enter')chkAdm()"></div><button class="btn btn-navy" onclick="chkAdm()">Login</button><div id="adm-err" class="al" style="background:var(--red2);border:1px solid #fecaca;color:#991b1b;display:none;margin-top:.75rem">Wrong password.</div></div>
+    <div id="adm-data" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem"><div><div style="font-size:2rem;font-weight:800;color:var(--navy)" id="adm-cnt">0</div><div style="font-size:12px;color:var(--muted)">Total Estimates Generated</div></div><button class="btn btn-outline" onclick="clrAll()" style="padding:8px 16px;font-size:12px;color:var(--red);border-color:var(--red)">🗑️ Clear All</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Date</th><th>Name</th><th>Mobile</th><th>City</th><th>Project</th><th>Building</th><th>Grand Total</th><th>Method</th><th>Paid</th></tr></thead><tbody id="adm-tbl"></tbody></table></div>
+      <div id="adm-empty" style="text-align:center;padding:2rem;color:var(--muted);display:none">No estimates yet.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PDF REPORT (hidden) -->
+<div id="pdf-report">
+<div style="font-family:'Inter',sans-serif;font-size:11px;color:#1e293b;background:#fff;width:190mm;margin:0 auto">
+  <div class="rpt-hdr"><div><div class="rpt-logo">Struct<em>o</em>Pro</div><div style="font-size:9px;opacity:.6;margin-top:3px">Professional Structural Material Estimator — India IS Code 2026</div></div><div class="rpt-hr"><div id="rpt-dt"></div><div>Sudip Jhawar — NIT Silchar | Ex-Sobha Limited</div><div>jhawar.sudip@gmail.com</div></div></div>
+  <div class="rpt-sh">CLIENT & PROJECT</div><div class="rpt-grid" id="r-cli"></div>
+  <div class="rpt-sh">BUILDING PARAMETERS</div><div class="rpt-grid" id="r-bld"></div>
+  <div class="rpt-sh">IS CODE COMPLIANCE</div><div id="r-isp" style="background:#0f172a;border-radius:5px;padding:8px 11px;color:#94a3b8;font-size:9px;line-height:2;font-family:'JetBrains Mono',monospace"></div>
+  <div class="rpt-sh y">COST SUMMARY</div>
+  <div class="rpt-bkdn" id="r-bkdn"></div>
+  <div class="rpt-grand" id="r-grand"></div>
+  <table><thead><tr><th>Component</th><th>Amount (₹)</th><th>% of Total</th><th>Notes</th></tr></thead><tbody id="r-ctbl"></tbody></table>
+  <div class="rpt-sh">RAW MATERIALS</div>
+  <table><thead><tr><th>Material</th><th>Unit</th><th>Net Qty</th><th>+Waste</th><th>Rate</th><th>Amount (₹)</th></tr></thead><tbody id="r-mat"></tbody>
+  <tr class="rsub"><td colspan="5">Sub-total</td><td id="r-ms"></td></tr>
+  <tr class="rsub"><td colspan="5">Wastage 7%</td><td id="r-mw"></td></tr>
+  <tr class="rtot"><td colspan="5">TOTAL RAW MATERIALS</td><td id="r-mt"></td></tr></table>
+  <div class="rpt-sh">STEEL BAR SCHEDULE (IS 2502 / SP 34:1987)</div>
+  <table><thead><tr><th>Element</th><th>Bar</th><th>Dia</th><th>Grade</th><th>Net (kg)</th><th>+5%</th><th>Bars</th></tr></thead><tbody id="r-stl"></tbody>
+  <tr class="rtot"><td colspan="4">TOTAL STEEL</td><td id="r-sn"></td><td id="r-sw"></td><td id="r-sb"></td></tr></table>
+  <div class="rpt-sh">CONCRETE SCHEDULE (IS 10262:2019)</div>
+  <table><thead><tr><th>Element</th><th>Grade</th><th>Vol (m³)</th><th>Cement Bags</th><th>Sand (m³)</th><th>Agg (m³)</th><th>Water (L)</th></tr></thead><tbody id="r-con"></tbody>
+  <tr class="rtot"><td>TOTAL</td><td></td><td id="r-cv"></td><td id="r-cb"></td><td id="r-cs"></td><td id="r-ca"></td><td id="r-cw"></td></tr></table>
+  <div id="r-lab-sec" style="display:none"><div class="rpt-sh g">LABOUR BREAKDOWN</div>
+  <table><thead><tr><th>Trade</th><th>Workers</th><th>Days</th><th>Rate/Day</th><th>Total (₹)</th></tr></thead><tbody id="r-lab"></tbody>
+  <tr class="rtot"><td colspan="4">TOTAL LABOUR</td><td id="r-lt"></td></tr></table></div>
+  <div class="rpt-sh">FLOOR-BY-FLOOR</div>
+  <table><thead><tr><th>Floor</th><th>Area (sqft)</th><th>Columns</th><th>Slab (m³)</th><th>Steel (kg)</th></tr></thead><tbody id="r-fl"></tbody></table>
+  <div class="rpt-sh r">TECHNICAL REMINDERS — IS CODE</div>
+  <div class="rpt-rem">
+    <div class="rr rr-b"><h4 style="color:#1e40af">CURING (IS 456 Cl.13.5)</h4><ul><li>Start within 24 hours of placing</li><li>Minimum 7 days OPC; 28 days recommended</li><li>Keep surfaces continuously wet</li></ul></div>
+    <div class="rr rr-o"><h4 style="color:#92400e">SLUMP TEST (IS 1199)</h4><ul><li>Test before every batch</li><li>Columns 25–75mm; Slabs 50–100mm</li><li>Collapse slump = reject batch</li></ul></div>
+    <div class="rr rr-g"><h4 style="color:#166534">CUBE TESTING (IS 516)</h4><ul><li>3 cubes per 50m³ concrete</li><li>7-day ≥70% of 28-day fck</li><li>Cure in water tank only</li></ul></div>
+    <div class="rr rr-r"><h4 style="color:#dc2626">COVER (IS 456 Table 16)</h4><ul><li>Footing 50mm; Column 40mm</li><li>Beam 25–30mm; Slab 20mm</li><li>Use concrete blocks only</li></ul></div>
+    <div class="rr rr-p"><h4 style="color:#7c3aed">STEEL (IS 13920)</h4><ul><li>Never weld TMT bars</li><li>Lap: min 45 × diameter</li><li>Fe500D mandatory Zone III+</li></ul></div>
+    <div class="rr rr-t"><h4 style="color:#0d9488">FORMWORK (IS 456 Table 4)</h4><ul><li>Column: min 24 hours</li><li>Slab props: min 7 days</li><li>Beam props: 14–21 days</li></ul></div>
+    <div class="rr rr-o"><h4 style="color:#92400e">W/C RATIO (IS 456 Table 5)</h4><ul><li>M20: max 0.55; M25: max 0.50</li><li>M30: max 0.45</li><li>Potable water only</li></ul></div>
+    <div class="rr rr-r"><h4 style="color:#dc2626">SAFETY (IS 4912)</h4><ul><li>Helmet & shoes all workers</li><li>Harness G+2+; Net G+3+</li><li>No work in rain on scaffolding</li></ul></div>
+  </div>
+  <!-- FINISHING COSTS IN PDF -->
+  <div style="border:2px solid #1a2f6e;border-radius:8px;overflow:hidden;margin-top:10px;margin-bottom:8px">
+    <div style="background:linear-gradient(135deg,#0b1120,#1a2f6e);padding:10px 14px;color:#fff">
+      <div style="font-size:11px;font-weight:700;margin-bottom:2px">🏠 What This Report Does NOT Include — Budget Separately</div>
+      <div style="font-size:9px;opacity:.7">The structural frame is the skeleton only. A complete liveable house requires the works below.</div>
+    </div>
+    <div style="background:#fff7ed;padding:8px 12px;border-bottom:1px solid #fed7aa">
+      <div style="font-size:9px;color:#92400e;line-height:1.7"><strong>⚠️ Important:</strong> The Grand Total in this report covers the bare RCC structural frame only. For a complete house, add 60% to 100% more for finishing. A frame costing ₹40 lakhs typically becomes a complete home costing ₹65–80 lakhs at standard finish.</div>
+    </div>
+    <div style="padding:10px 12px">
+      <table style="margin-bottom:8px">
+        <thead><tr><th>Work Item</th><th>% of Structure Cost</th><th>On ₹40L Structure</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Brickwork & Masonry</strong></td><td style="font-size:9px;font-weight:700;color:#1e40af">20–25%</td><td style="font-size:9px;font-weight:700;color:#1e40af">₹8–10L</td></tr>
+          <tr><td><strong>Plaster & Waterproofing</strong></td><td style="font-size:9px;font-weight:700;color:#1e40af">8–10%</td><td style="font-size:9px;font-weight:700;color:#1e40af">₹3.2–4L</td></tr>
+          <tr><td><strong>Flooring</strong></td><td style="font-size:9px;font-weight:700;color:#92400e">10–15%</td><td style="font-size:9px;font-weight:700;color:#92400e">₹4–6L</td></tr>
+          <tr><td><strong>Doors & Windows</strong></td><td style="font-size:9px;font-weight:700;color:#92400e">8–12%</td><td style="font-size:9px;font-weight:700;color:#92400e">₹3.2–4.8L</td></tr>
+          <tr><td><strong>Electrical Wiring & Fittings</strong></td><td style="font-size:9px;font-weight:700;color:#92400e">8–12%</td><td style="font-size:9px;font-weight:700;color:#92400e">₹3.2–4.8L</td></tr>
+          <tr><td><strong>Plumbing & Sanitary Fittings</strong></td><td style="font-size:9px;font-weight:700;color:#92400e">6–10%</td><td style="font-size:9px;font-weight:700;color:#92400e">₹2.4–4L</td></tr>
+          <tr><td><strong>Mechanical (AC + Exhaust + Gas)</strong></td><td style="font-size:9px;font-weight:700;color:#92400e">4–8%</td><td style="font-size:9px;font-weight:700;color:#92400e">₹1.6–3.2L</td></tr>
+          <tr><td><strong>Paint (Interior + Exterior)</strong></td><td style="font-size:9px;font-weight:700;color:#1e40af">4–6%</td><td style="font-size:9px;font-weight:700;color:#1e40af">₹1.6–2.4L</td></tr>
+          <tr><td><strong>False Ceiling & Carpentry</strong></td><td style="font-size:9px;font-weight:700;color:#92400e">5–10%</td><td style="font-size:9px;font-weight:700;color:#92400e">₹2–4L</td></tr>
+          <tr><td><strong>Staircase Railing & Grills</strong></td><td style="font-size:9px;font-weight:700;color:#1e40af">2–3%</td><td style="font-size:9px;font-weight:700;color:#1e40af">₹0.8–1.2L</td></tr>
+          <tr><td><strong>Compound Wall & Gate</strong></td><td style="font-size:9px;font-weight:700;color:#1e40af">3–5%</td><td style="font-size:9px;font-weight:700;color:#1e40af">₹1.2–2L</td></tr>
+          <tr><td><strong>Contractor Overhead & Profit</strong></td><td style="font-size:9px;font-weight:700;color:#dc2626">10–15%</td><td style="font-size:9px;font-weight:700;color:#dc2626">₹4–6L</td></tr>
+          <tr><td><strong>Professional Fees</strong></td><td style="font-size:9px;font-weight:700;color:#dc2626">2–4%</td><td style="font-size:9px;font-weight:700;color:#dc2626">₹0.8–1.6L</td></tr>
+        </tbody>
+      </table>
+      <div style="background:linear-gradient(135deg,#0b1120,#1a2f6e);border-radius:6px;padding:10px 12px;color:#fff;margin-bottom:6px">
+        <div style="font-size:9px;opacity:.6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">COMPLETE HOUSE COST — THREE FINISH GRADES</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="background:rgba(255,255,255,.07);border-radius:5px;padding:7px;text-align:center">
+            <div style="font-size:8px;opacity:.6;text-transform:uppercase;margin-bottom:2px">Basic</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#93c5fd">1.8–2.0×</div>
+            <div style="font-size:8px;opacity:.7">₹72–80 lakhs</div>
+          </div>
+          <div style="background:rgba(240,192,64,.12);border:1px solid rgba(240,192,64,.3);border-radius:5px;padding:7px;text-align:center">
+            <div style="font-size:8px;opacity:.6;text-transform:uppercase;margin-bottom:2px">Standard</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#f0c040">2.2–2.5×</div>
+            <div style="font-size:8px;opacity:.7">₹88L – 1 crore</div>
+          </div>
+          <div style="background:rgba(255,255,255,.07);border-radius:5px;padding:7px;text-align:center">
+            <div style="font-size:8px;opacity:.6;text-transform:uppercase;margin-bottom:2px">Premium</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#f9a8d4">2.8–3.2×</div>
+            <div style="font-size:8px;opacity:.7">₹1.12–1.28 crores</div>
+          </div>
+        </div>
+        <div style="font-size:9px;opacity:.75;line-height:1.7;border-top:1px solid rgba(255,255,255,.15);padding-top:7px">
+          Contractor thumb rule: Total building cost = Structure × 2.2–2.5 for a standard ready-to-move-in home. The structural frame is only <strong style="color:#f0c040">40–45%</strong> of your total building cost. Do not approach your bank based on structural frame cost alone.
+        </div>
+      </div>
+      <div style="font-size:8px;color:#64748b;margin-top:6px;line-height:1.6">* Ranges above are indicative for 2026 India market. Actual costs vary by region, brand, quality choice, and contractor. These are NOT estimated by StructoPro — they are published industry benchmarks for reference only.</div>
+    </div>
+  </div>
+
+  <div class="rpt-disc"><strong>⛔ Disclaimer:</strong> Preliminary estimates for budgeting only. Actual structural design must be done by a licensed Structural Engineer. Mandatory: geotechnical investigation (IS 1888), structural analysis (IS 456:2000 + IS 1893:2016), municipal authority approvals. Estimates may vary ±15–20% from actual construction cost.</div>
+  <div class="rpt-footer"><div><strong>StructoPro</strong> — IS Code Compliant | India 2026</div><div>Built by <strong>Sudip Jhawar</strong> | NIT Silchar | jhawar.sudip@gmail.com</div></div>
+</div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   IS CODE DATA
+═══════════════════════════════════════════ */
+const MIX={M10:{bags:3.0,s:0.44,a:0.88,w:190},M15:{bags:5.4,s:0.42,a:0.84,w:185},M20:{bags:7.6,s:0.40,a:0.80,w:180},M25:{bags:8.8,s:0.38,a:0.76,w:175},M30:{bags:10.2,s:0.36,a:0.72,w:168},M35:{bags:11.6,s:0.34,a:0.68,w:160},M40:{bags:13.0,s:0.32,a:0.64,w:155}};
+const ZD={2:{Z:0.10,n:'Zone II',r:'Low'},3:{Z:0.16,n:'Zone III',r:'Moderate'},4:{Z:0.24,n:'Zone IV',r:'High'},5:{Z:0.36,n:'Zone V',r:'Very High'}};
+const SFY={Fe415:415,Fe500:500,Fe500D:500,Fe550:550,Fe550D:550};
+const FLN=['Ground Floor','1st Floor','2nd Floor','3rd Floor','4th Floor','5th Floor','6th Floor','7th Floor'];
+const DA=[800,1000,1200,1400,1400,1400,1400,1400];
+
+// State → seismic zone
+const STATE_ZONE={'Sikkim':5,'Arunachal Pradesh':5,'Assam':5,'Manipur':5,'Meghalaya':5,'Mizoram':5,'Nagaland':5,'Tripura':5,'Himachal Pradesh':4,'Delhi':4,'Uttarakhand':4,'Bihar':3,'West Bengal':3,'Uttar Pradesh':3,'Maharashtra':3,'Gujarat':3,'Rajasthan':3,'Punjab':3,'Haryana':3,'Karnataka':2,'Kerala':2,'Tamil Nadu':2,'Andhra Pradesh':2,'Telangana':2,'Odisha':2,'Chhattisgarh':2,'Madhya Pradesh':2,'Jharkhand':2,'Goa':2};
+
+// State → rate multiplier
+const STATE_RATE={'Sikkim':1.22,'Arunachal Pradesh':1.25,'Assam':1.15,'Manipur':1.20,'Meghalaya':1.18,'Mizoram':1.20,'Nagaland':1.20,'Tripura':1.18,'Himachal Pradesh':1.15,'Uttarakhand':1.12,'Delhi':1.15,'Maharashtra':1.12,'Karnataka':1.08,'Kerala':1.08,'Gujarat':1.05,'Tamil Nadu':1.05};
+
+const fc=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const fn=(n,d=0)=>Math.round(n*10**d)/10**d;
+const bw=d=>d*d/162;
+const v=id=>{const e=document.getElementById(id);return e?e.value:'';}
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let U={},CM='',BT='',paid=false;
+let ufd=null,uft=null;
+let lc=0,lt=null;
+let labRows=[]; // main labour builder
+let labRowsB=[]; // drawing page labour builder
+
+/* DEFAULT LABOUR ROWS */
+function defaultLabRows(){
+  return[
+    {id:1,name:'Bar Bender (Sariya Mistri)',workers:2,days:0,rate:950,active:true,custom:false},
+    {id:2,name:'Shuttering Carpenter',workers:2,days:0,rate:900,active:true,custom:false},
+    {id:3,name:'Concreting Mason (RCC)',workers:2,days:0,rate:900,active:true,custom:false},
+    {id:4,name:'Vibrator Operator',workers:1,days:0,rate:800,active:true,custom:false},
+    {id:5,name:'Excavation Mason',workers:1,days:0,rate:750,active:true,custom:false},
+    {id:6,name:'Rock Cutting Crew (Hill sites)',workers:0,days:0,rate:3000,active:false,custom:false},
+    {id:7,name:'Crane / Hoist Operator',workers:1,days:0,rate:1100,active:true,custom:false},
+    {id:8,name:'Concrete Pump Operator',workers:1,days:0,rate:1100,active:false,custom:false},
+    {id:9,name:'General Helper / Beldar',workers:4,days:0,rate:580,active:true,custom:false},
+    {id:10,name:'Curing / Water Man',workers:1,days:0,rate:500,active:true,custom:false},
+    {id:11,name:'Night Watchman / Security',workers:1,days:0,rate:500,active:true,custom:false},
+    {id:12,name:'Junior Site Engineer',workers:1,days:0,rate:1500,active:true,custom:false},
+    {id:13,name:'Site Foreman / Supervisor',workers:1,days:0,rate:1200,active:true,custom:false},
+    {id:14,name:'Safety Officer',workers:1,days:0,rate:1200,active:true,custom:false},
+  ];
+}
+
+/* ═══════════════════════════════════════════
+   PAGE NAVIGATION
+═══════════════════════════════════════════ */
+function sp(id){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+function logoClick(){lc++;clearTimeout(lt);lt=setTimeout(()=>lc=0,2000);if(lc>=5){lc=0;sp('pg-admin');}}
+
+/* ═══════════════════════════════════════════
+   REGISTRATION
+═══════════════════════════════════════════ */
+function updatePhonePlaceholder(){
+  const cc=document.getElementById('r-cc');
+  const [code,digits]=cc.value.split('|');
+  const hints={'10':'10 digits','9':'9 digits','8':'8 digits'};
+  const names={'+91':'India','+1':'USA/Canada','+44':'UK','+61':'Australia','+971':'UAE','+65':'Singapore','+60':'Malaysia','+977':'Nepal','+880':'Bangladesh','+94':'Sri Lanka'};
+  document.getElementById('phone-hint').textContent=(names[code]||'')+(digits?': '+hints[digits]+' without country code':'');
+}
+
+function doReg(){
+  const req=['r-name','r-mob','r-email','r-addr','r-city','r-state'];
+  let ok=true;
+  req.forEach(id=>{const el=document.getElementById(id);if(!el||!el.value.trim()){if(el)el.classList.add('err');ok=false;}else el.classList.remove('err');});
+
+  // Phone validation
+  const mobEl=document.getElementById('r-mob');
+  const ccVal=document.getElementById('r-cc').value;
+  const requiredDigits=parseInt(ccVal.split('|')[1]||'10');
+  const ccCode=ccVal.split('|')[0];
+  const mobClean=mobEl.value.replace(/\D/g,'');
+  if(mobClean.length!==requiredDigits){
+    mobEl.classList.add('err');
+    document.getElementById('reg-err').textContent=`⚠️ Mobile number must be exactly ${requiredDigits} digits for your selected country code.`;
+    document.getElementById('reg-err').style.display='block';
+    return;
+  }
+  // India-specific: must start with 6, 7, 8, or 9
+  if(ccCode==='+91'&&!/^[6-9]/.test(mobClean)){
+    mobEl.classList.add('err');
+    document.getElementById('reg-err').textContent='⚠️ Indian mobile numbers must start with 6, 7, 8, or 9. Please check the number you entered.';
+    document.getElementById('reg-err').style.display='block';
+    return;
+  }
+
+  // Email validation
+  const emailEl=document.getElementById('r-email');
+  const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if(!emailRegex.test(emailEl.value.trim())){
+    emailEl.classList.add('err');
+    document.getElementById('reg-err').textContent='⚠️ Please enter a valid email address (e.g. name@gmail.com).';
+    document.getElementById('reg-err').style.display='block';
+    return;
+  }
+
+  if(!ok){document.getElementById('reg-err').textContent='⚠️ Please fill all required fields.';document.getElementById('reg-err').style.display='block';return;}
+  document.getElementById('reg-err').style.display='none';
+  U={name:v('r-name'),mob:ccCode+' '+mobClean,email:emailEl.value.trim(),addr:v('r-addr'),city:v('r-city'),state:v('r-state'),pin:v('r-pin'),proj:v('r-proj')||'Structural Estimate'};
+  // Auto-set seismic zone and rate multiplier from state
+  const zoneFromState=STATE_ZONE[U.state]||4;
+  document.getElementById('p-zone').value=zoneFromState;
+  const mult=STATE_RATE[U.state]||1.0;
+  if(mult!==1.0){
+    ['r-st','r-ce','r-sa','r-ag','r-wi','r-fo','r-ad'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.value=Math.round(+el.value*mult);
+    });
+  }
+  // Update name displays
+  ['tn2','tn3a','tn3b','tn4'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=U.name.split(' ')[0];});
+  sp('pg2');
+}
+
+/* ═══════════════════════════════════════════
+   METHOD
+═══════════════════════════════════════════ */
+function pickM(m){
+  CM=m;
+  document.getElementById('m-self').classList.toggle('sel',m==='self');
+  document.getElementById('m-draw').classList.toggle('sel',m==='drawing');
+  document.getElementById('m-next').disabled=false;
+}
+function goS3(){
+  if(!CM)return;
+  if(CM==='self'){
+    labRows=defaultLabRows();
+    if(!matRows.length)matRows=defaultMatRows();
+    renderLabTable('lab-tbody',labRows,'');
+    renderMatTable();
+    setBT('uniform');
+    sp('pg3a');
+  }else{
+    labRowsB=defaultLabRows();
+    if(!matRows.length)matRows=defaultMatRows();
+    renderLabTable('lab-tbody-b',labRowsB,'b');
+    sp('pg3b');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   BUILD TYPE (uniform / variable)
+═══════════════════════════════════════════ */
+function setBT(t){
+  BT=t;
+  document.getElementById('bt-uni').classList.toggle('sel',t==='uniform');
+  document.getElementById('bt-var').classList.toggle('sel',t==='variable');
+  document.getElementById('uni-div').style.display=t==='uniform'?'block':'none';
+  document.getElementById('var-div').style.display=t==='variable'?'block':'none';
+  if(t==='variable')updFT();
+}
+
+function updFT(){
+  const n=+v('p-fl')||5;
+  const tb=document.getElementById('ftb');
+  const ex=[];tb.querySelectorAll('.fi').forEach(i=>ex.push(+i.value||0));
+  tb.innerHTML='';
+  for(let i=0;i<n;i++){
+    const a=ex[i]||DA[Math.min(i,DA.length-1)];
+    const r=document.createElement('tr');
+    r.innerHTML=`<td><strong>${FLN[i]||'Floor '+i}</strong></td>
+    <td><input type="number" class="fi" id="fa_${i}" value="${a}" oninput="drawFD()"></td>
+    <td><select class="fi" id="ft_${i}" style="width:115px"><option value="base" ${i===0?'selected':''}>Base/Foundation</option><option value="std" ${i>0?'selected':''}>Standard</option><option value="cant">Cantilever</option><option value="set">Setback</option></select></td>
+    <td id="fd_${i}" style="font-size:12px;color:var(--muted)">—</td>`;
+    tb.appendChild(r);
+  }
+  drawFD();
+}
+
+function drawFD(){
+  const n=+v('p-fl')||5;
+  const a=[];for(let i=0;i<n;i++){const el=document.getElementById('fa_'+i);a.push(el?+el.value||0:0);}
+  const tot=a.reduce((s,x)=>s+x,0);
+  const td=document.getElementById('ftot');if(td)td.textContent=tot.toLocaleString()+' sq ft';
+  for(let i=1;i<n;i++){const d=document.getElementById('fd_'+i);if(!d)continue;const diff=a[i]-a[i-1];d.textContent=(diff>=0?'+':'')+diff.toLocaleString()+' sqft';d.style.color=diff>0?'var(--green)':diff<0?'var(--red)':'var(--muted)';}
+  const dg=document.getElementById('fdg');if(!dg)return;
+  const mx=Math.max(...a,1);dg.innerHTML='';
+  for(let i=n-1;i>=0;i--){const w=Math.max(36,Math.round((a[i]/mx)*130));const h=Math.max(24,Math.min(70,Math.round(a[i]/18)));const b=document.createElement('div');b.className='fb';b.style.width=w+'px';b.style.height=h+'px';b.innerHTML=`<span class="fb-a">${a[i].toLocaleString()}</span><span class="fb-l">${FLN[i]||'F'+i}</span>`;dg.appendChild(b);}
+}
+
+/* ═══════════════════════════════════════════
+   COLLAPSIBLE PANELS
+═══════════════════════════════════════════ */
+function togglePanel(bodyId,arrowId,badgeId){
+  const body=document.getElementById(bodyId);
+  const arrow=document.getElementById(arrowId);
+  const badge=document.getElementById(badgeId);
+  const open=body.classList.toggle('open');
+  arrow.classList.toggle('open',open);
+  if(open&&badge){badge.className='ep-badge using-custom';badge.textContent='Editing...';}
+}
+function saveTech(){
+  const body=document.getElementById('tech-panel');
+  const badge=document.getElementById('tech-badge');
+  body.classList.remove('open');
+  document.getElementById('tech-arrow').classList.remove('open');
+  badge.className='ep-badge using-custom';badge.textContent='Custom Specs Saved ✓';
+}
+/* ═══════════════════════════════════════════
+   MATERIAL BUILDER
+═══════════════════════════════════════════ */
+let matIdCounter=50;
+let matRows=[]; // material state
+
+function defaultMatRows(){
+  return[
+    {id:1,name:'TMT Steel Bars',spec:'Tata/JSW/SAIL/RINL',unit:'kg',rateKey:'r-st',rate:75,avg:'₹68–86',active:true,custom:false,customQty:0},
+    {id:2,name:'OPC 53 Cement',spec:'UltraTech/ACC/Ambuja',unit:'50kg bag',rateKey:'r-ce',rate:490,avg:'₹456–540',active:true,custom:false,customQty:0},
+    {id:3,name:'Sand / M-Sand',spec:'Fine aggregate IS 383',unit:'m³',rateKey:'r-sa',rate:3500,avg:'₹2,800–4,500',active:true,custom:false,customQty:0},
+    {id:4,name:'Aggregate 20mm',spec:'Crushed stone',unit:'m³',rateKey:'r-ag',rate:1800,avg:'₹1,400–2,500',active:true,custom:false,customQty:0},
+    {id:5,name:'GI Binding Wire 18G',spec:'For tying steel bars',unit:'kg',rateKey:'r-wi',rate:92,avg:'₹85–100',active:true,custom:false,customQty:0},
+    {id:6,name:'Formwork / Shuttering',spec:'Plywood + props',unit:'sqft',rateKey:'r-fo',rate:22,avg:'₹18–30',active:true,custom:false,customQty:0},
+    {id:7,name:'Admixture / Plasticizer',spec:'For M25+ mixes IS 9103',unit:'litre',rateKey:'r-ad',rate:60,avg:'₹50–80',active:true,custom:false,customQty:0},
+  ];
+}
+
+function renderMatTable(){
+  const tbody=document.getElementById('mat-tbody');
+  if(!tbody)return;
+  tbody.innerHTML='';
+  matRows.forEach(row=>{
+    const tr=document.createElement('tr');
+    tr.className='lab-row'+(row.active?'':' off');
+    tr.id='mat-row-'+row.id;
+    // Sync hidden input for calc engine
+    if(row.rateKey){const hi=document.getElementById(row.rateKey);if(hi)hi.value=row.rate;}
+    tr.innerHTML=`
+      <td>
+        <button class="tog-btn ${row.active?'active':'inactive'}" onclick="toggleMatRow(${row.id})" title="${row.active?'Remove this material':'Add back'}">
+          ${row.active?'−':'+'}
+        </button>
+      </td>
+      <td>
+        ${row.custom
+          ?`<input class="lab-name-inp" value="${row.name}" onchange="updateMatRow(${row.id},'name',this.value)" placeholder="Material name">`
+          :`<strong>${row.name}</strong><br><small style="color:var(--muted);font-size:10px">${row.spec}</small>`
+        }
+      </td>
+      <td>
+        ${row.custom
+          ?`<input class="lab-inp" style="width:60px" value="${row.unit}" onchange="updateMatRow(${row.id},'unit',this.value)" placeholder="unit">`
+          :`<span class="tag tb" style="font-size:10px">${row.unit}</span>`
+        }
+      </td>
+      <td style="font-size:11px;color:var(--muted)">
+        ${row.custom
+          ?`<input class="lab-inp" style="width:70px" type="number" value="${row.customQty}" onchange="updateMatRow(${row.id},'customQty',this.value)" placeholder="qty">`
+          :`<em>Auto-calculated</em>`
+        }
+      </td>
+      <td>
+        <input class="lab-inp" type="number" value="${row.rate}" onchange="updateMatRow(${row.id},'rate',this.value)">
+      </td>
+      <td><span class="avg-b">${row.avg||'—'}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleMatRow(id){
+  const row=matRows.find(r=>r.id===id);if(!row)return;
+  row.active=!row.active;
+  // Sync hidden input
+  if(row.rateKey){const hi=document.getElementById(row.rateKey);if(hi)hi.value=row.active?row.rate:0;}
+  renderMatTable();
+}
+
+function updateMatRow(id,field,val){
+  const row=matRows.find(r=>r.id===id);if(!row)return;
+  if(field==='name')row.name=val;
+  else if(field==='unit')row.unit=val;
+  else if(field==='rate'){row.rate=+val||0;if(row.rateKey&&row.active){const hi=document.getElementById(row.rateKey);if(hi)hi.value=row.rate;}}
+  else if(field==='customQty')row.customQty=+val||0;
+}
+
+function addMatRow(){
+  matIdCounter++;
+  const newRow={id:matIdCounter,name:'Custom Material',spec:'',unit:'unit',rateKey:null,rate:0,avg:'—',active:true,custom:true,customQty:0};
+  matRows.push(newRow);
+  renderMatTable();
+  setTimeout(()=>{const el=document.querySelector('#mat-row-'+matIdCounter+' .lab-name-inp');if(el){el.focus();el.select();}},100);
+}
+
+function saveMat(){
+  // Sync all rates from matRows to hidden inputs
+  matRows.forEach(row=>{
+    if(row.rateKey){const hi=document.getElementById(row.rateKey);if(hi)hi.value=row.active?row.rate:0;}
+  });
+  const body=document.getElementById('mat-panel');
+  const badge=document.getElementById('mat-badge');
+  body.classList.remove('open');
+  document.getElementById('mat-arrow').classList.remove('open');
+  const customCount=matRows.filter(r=>r.custom).length;
+  const inactiveCount=matRows.filter(r=>!r.active&&!r.custom).length;
+  if(customCount>0||inactiveCount>0){
+    badge.className='ep-badge using-custom';
+    badge.textContent=`Custom (${inactiveCount} removed, ${customCount} added) ✓`;
+  }else{
+    badge.className='ep-badge using-custom';badge.textContent='Custom Rates Saved ✓';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   LABOUR BUILDER
+═══════════════════════════════════════════ */
+let labIdCounter=100;
+
+function toggleLab(){
+  const checked=document.getElementById('lab-check').checked;
+  document.getElementById('lab-section').style.display=checked?'block':'none';
+}
+function toggleLabB(){
+  const checked=document.getElementById('lab-check-b').checked;
+  document.getElementById('lab-section-b').style.display=checked?'block':'none';
+}
+
+function renderLabTable(tbodyId,rows,suffix){
+  const tbody=document.getElementById(tbodyId);
+  if(!tbody)return;
+  tbody.innerHTML='';
+  rows.forEach(row=>{
+    const tr=document.createElement('tr');
+    tr.className='lab-row'+(row.active?'':' off');
+    tr.id='lab-row-'+suffix+'-'+row.id;
+    const rowCost=row.active?Math.round(row.workers*row.days*row.rate):0;
+    tr.innerHTML=`
+      <td>
+        <button class="tog-btn ${row.active?'active':'inactive'}" onclick="toggleLabRow('${suffix}',${row.id})" title="${row.active?'Remove this trade':'Add this trade back'}">
+          ${row.active?'−':'+'}
+        </button>
+      </td>
+      <td>
+        ${row.custom?`<input class="lab-name-inp" value="${row.name}" onchange="updateLabRow('${suffix}',${row.id},'name',this.value)">`:`<strong>${row.name}</strong><span class="info-btn" onclick="showInfo(getLabInfoKey('${row.name}'))" style="margin-left:4px">i</span>`}
+      </td>
+      <td>
+        <div class="workers-ctrl">
+          <button class="wc-btn" onclick="chgWorkers('${suffix}',${row.id},-1)">−</button>
+          <span class="wc-num" id="wn-${suffix}-${row.id}">${row.workers}</span>
+          <button class="wc-btn" onclick="chgWorkers('${suffix}',${row.id},1)">+</button>
+        </div>
+      </td>
+      <td><input class="lab-inp" type="number" value="${row.rate}" onchange="updateLabRow('${suffix}',${row.id},'rate',this.value)"></td>
+      <td style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',sans-serif" id="ld-${suffix}-${row.id}">${row.days>0?row.days+'d':'—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  updateLabTotal(suffix,rows);
+}
+
+function toggleLabRow(suffix,id){
+  const rows=suffix==='b'?labRowsB:labRows;
+  const row=rows.find(r=>r.id===id);if(!row)return;
+  row.active=!row.active;
+  renderLabTable(suffix==='b'?'lab-tbody-b':'lab-tbody',rows,suffix);
+}
+
+function chgWorkers(suffix,id,delta){
+  const rows=suffix==='b'?labRowsB:labRows;
+  const row=rows.find(r=>r.id===id);if(!row)return;
+  row.workers=Math.max(0,row.workers+delta);
+  const wn=document.getElementById('wn-'+suffix+'-'+id);if(wn)wn.textContent=row.workers;
+  updateLabTotal(suffix,rows);
+}
+
+function updateLabRow(suffix,id,field,val){
+  const rows=suffix==='b'?labRowsB:labRows;
+  const row=rows.find(r=>r.id===id);if(!row)return;
+  if(field==='name')row.name=val;
+  else if(field==='days')row.days=Math.max(0,+val||0);
+  else if(field==='rate')row.rate=Math.max(0,+val||0);
+  recalcLabRow(suffix,id,rows);
+}
+
+function recalcLabRow(suffix,id,rows){
+  const row=rows.find(r=>r.id===id);if(!row)return;
+  const cost=row.active&&row.days>0?Math.round(row.workers*row.days*row.rate):0;
+  const lt=document.getElementById('lt-'+suffix+'-'+id);
+  if(lt)lt.textContent=row.active&&row.days>0?fc(cost):'—';
+  updateLabTotal(suffix,rows);
+}
+
+function updateLabTotal(suffix,rows){
+  // Total is calculated silently — not displayed on the form
+  // It will appear in the report only
+}
+
+function recalcLabRow(suffix,id,rows){
+  // Recalc silently — total appears in report only
+  updateLabTotal(suffix,rows);
+}
+
+function getLabTotal(rows){
+  return rows.filter(r=>r.active&&r.days>0).reduce((s,r)=>s+Math.round(r.workers*r.days*r.rate),0);
+}
+
+function addLabRow(suffix){
+  suffix=suffix||'';
+  const rows=suffix==='b'?labRowsB:labRows;
+  labIdCounter++;
+  const newRow={id:labIdCounter,name:'New Labour Type',workers:1,days:0,rate:500,active:true,custom:true};
+  rows.push(newRow);
+  renderLabTable(suffix==='b'?'lab-tbody-b':'lab-tbody',rows,suffix);
+  // Focus the name input of the new row
+  setTimeout(()=>{const el=document.querySelector('#lab-row-'+suffix+'-'+labIdCounter+' .lab-name-inp');if(el){el.focus();el.select();}},100);
+}
+
+/* ═══════════════════════════════════════════
+   FILE UPLOAD (Drawing page)
+═══════════════════════════════════════════ */
+function dd(e,on){e.preventDefault();document.getElementById('dz').classList.toggle('drag',!!on);}
+function dp(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');hf(e.dataTransfer.files[0]);}
+function fc2(e){hf(e.target.files[0]);}
+function hf(file){
+  if(!file)return;
+  if(file.size>10*1024*1024){alert('Max 10MB.');return;}
+  const ok=['application/pdf','image/jpeg','image/jpg','image/png','image/webp'];
+  if(!ok.includes(file.type)){alert('PDF, JPG, PNG or WebP only.');return;}
+  const r=new FileReader();
+  r.onload=e=>{ufd=e.target.result.split(',')[1];uft=file.type;document.getElementById('fcn').textContent=file.name;document.getElementById('fcs').textContent=(file.size/1024/1024).toFixed(2)+' MB';document.getElementById('fci').textContent=file.type==='application/pdf'?'📄':'🖼️';document.getElementById('fchip').style.display='flex';document.getElementById('ais').style.display='none';};
+  r.readAsDataURL(file);
+}
+function rf(){ufd=null;uft=null;document.getElementById('fchip').style.display='none';document.getElementById('fin').value='';document.getElementById('ais').style.display='none';document.getElementById('gapCard').style.display='none';document.getElementById('drNext').disabled=true;}
+
+/* ═══════════════════════════════════════════
+   AI DRAWING ANALYSIS
+═══════════════════════════════════════════ */
+async function doAI(){
+  if(!ufd){alert('Upload a drawing first.');return;}
+  const btn=document.getElementById('anBtn'),st=document.getElementById('ais');
+  btn.disabled=true;btn.innerHTML='<span class="sp"></span> Analyzing drawing...';
+  st.className='ais run';st.style.display='block';
+  st.innerHTML='🤖 AI is reading your structural drawing. This takes 15–30 seconds...';
+  const apiKey=v('d-key');
+  const prompt=`Expert structural engineer. Analyze this Indian building structural drawing. Return ONLY valid JSON with null for missing values:
+{"floors":null,"builtup_sqft":null,"plot_sqft":null,"floor_height_m":null,"column_size_mm":null,"column_main_bar_mm":null,"beam_bar_mm":null,"slab_bar_mm":null,"stirrup_mm":null,"slab_thickness_mm":null,"steel_grade":null,"column_concrete":null,"beam_concrete":null,"slab_concrete":null,"footing_concrete":null,"seismic_zone":null,"found_in_drawing":[],"not_found":[],"notes":""}`;
+  try{
+    let ex;
+    const srvRes=await fetch('/api/analyze-drawing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileData:ufd,fileType:uft,apiKey})}).catch(()=>null);
+    if(srvRes&&srvRes.ok){const d=await srvRes.json();ex=d.data||d;}
+    else{
+      if(!apiKey)throw new Error('No API key. Enter your Anthropic key above.');
+      const r2=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:[{type:uft==='application/pdf'?'document':'image',source:{type:'base64',media_type:uft,data:ufd}},{type:'text',text:prompt}]}]})});
+      const d2=await r2.json();const txt=d2.content[0].text;const jm=txt.match(/\{[\s\S]*\}/);if(!jm)throw new Error('Parse error');ex=JSON.parse(jm[0]);
+    }
+    applyEx(ex);
+    st.className='ais ok';st.innerHTML=`<strong>✅ Analysis Complete!</strong><br>Found: ${(ex.found_in_drawing||[]).join(' • ')}<br>${ex.notes||''}`;
+    showGap(ex);document.getElementById('drNext').disabled=false;
+  }catch(err){
+    st.className='ais fail';st.innerHTML=`<strong>⚠️ Failed:</strong> ${err.message}<br>Enter parameters manually below.`;
+    document.getElementById('gapCard').style.display='block';
+    document.getElementById('aiExt').innerHTML='<strong style="color:#991b1b">AI analysis failed — please fill in below:</strong>';
+    document.getElementById('drNext').disabled=false;
+  }
+  btn.disabled=false;btn.innerHTML='🤖 Analyze Drawing with AI';
+}
+
+function applyEx(ex){
+  if(ex.floors){document.getElementById('p-fl').value=Math.min(8,Math.max(1,ex.floors));}
+  if(ex.builtup_sqft)document.getElementById('p-bu').value=ex.builtup_sqft;
+  if(ex.plot_sqft)document.getElementById('p-plot').value=ex.plot_sqft;
+  if(ex.floor_height_m){
+    // Map to nearest dropdown value
+    const fhOpts=[2.7,3.0,3.2,3.4,3.6,4.0,4.5];
+    const nearest=fhOpts.reduce((a,b)=>Math.abs(b-ex.floor_height_m)<Math.abs(a-ex.floor_height_m)?b:a);
+    document.getElementById('p-fh').value=nearest;
+  }
+  if(ex.column_size_mm){const val=[230,300,350,400,450].reduce((a,b)=>Math.abs(b-ex.column_size_mm)<Math.abs(a-ex.column_size_mm)?b:a);document.getElementById('p-cs').value=val;}
+  if(ex.column_main_bar_mm)document.getElementById('p-cb').value=ex.column_main_bar_mm;
+  if(ex.beam_bar_mm)document.getElementById('p-bb').value=ex.beam_bar_mm;
+  if(ex.slab_bar_mm)document.getElementById('p-sb').value=ex.slab_bar_mm;
+  if(ex.stirrup_mm)document.getElementById('p-st').value=ex.stirrup_mm;
+  if(ex.slab_thickness_mm)document.getElementById('p-slbt').value=ex.slab_thickness_mm;
+  if(ex.steel_grade&&SFY[ex.steel_grade])document.getElementById('p-sg').value=ex.steel_grade;
+  if(ex.column_concrete&&MIX[ex.column_concrete])document.getElementById('p-cg').value=ex.column_concrete;
+  if(ex.beam_concrete&&MIX[ex.beam_concrete])document.getElementById('p-beg').value=ex.beam_concrete;
+  if(ex.slab_concrete&&MIX[ex.slab_concrete])document.getElementById('p-slg').value=ex.slab_concrete;
+  if(ex.footing_concrete&&MIX[ex.footing_concrete])document.getElementById('p-fg').value=ex.footing_concrete;
+  if(ex.seismic_zone)document.getElementById('p-zone').value=ex.seismic_zone;
+  // Sync drawing page rates to main rates
+  ['st','ce','sa','ag','wi','fo','ad'].forEach(k=>{const src=document.getElementById('rb-'+k);const dst=document.getElementById('r-'+k);if(src&&dst)dst.value=src.value;});
+}
+
+function showGap(ex){
+  const card=document.getElementById('gapCard'),gf=document.getElementById('gapF'),ext=document.getElementById('aiExt');
+  const nf=ex.not_found||[],fd=ex.found_in_drawing||[];
+  ext.innerHTML=`<strong>📋 Extracted:</strong> ${fd.length?fd.join(' • '):'Nothing detected'}<br>${nf.length?'<strong style="color:#92400e">⚠️ Not found — please fill:</strong> '+nf.join(' • '):'<strong style="color:#166534">✅ All key values found</strong>'}`;
+  gf.innerHTML='';
+  const gaps={floors:{l:'Number of Floors',t:'select',o:['1','2','3','4','5','6','7','8'],id:'p-fl'},builtup_sqft:{l:'Built-up Area per Floor (sq ft)',t:'number',id:'p-bu'},seismic_zone:{l:'Seismic Zone',t:'select',o:[['2','Zone II'],['3','Zone III'],['4','Zone IV'],['5','Zone V']],id:'p-zone'}};
+  Object.keys(gaps).forEach(k=>{
+    if(ex[k]===null||ex[k]===undefined){
+      const g=gaps[k],div=document.createElement('div');div.className='fld';div.style.marginBottom='.75rem';
+      let inp='';
+      if(g.t==='number'){inp=`<input type="number" onchange="document.getElementById('${g.id}').value=this.value" style="padding:10px;border:1.5px solid #f59e0b;border-radius:8px;background:#fffbeb;font-size:14px;outline:none;width:100%">`;}
+      else{const opts=g.o.map(o=>{const vv=Array.isArray(o)?o[0]:o,tt=Array.isArray(o)?o[1]:o;return`<option value="${vv}">${tt}</option>`;}).join('');inp=`<select onchange="document.getElementById('${g.id}').value=this.value" style="padding:10px;border:1.5px solid #f59e0b;border-radius:8px;background:#fffbeb;font-size:14px;outline:none;width:100%">${opts}</select>`;}
+      div.innerHTML=`<label style="font-size:10px;font-weight:700;text-transform:uppercase;color:#92400e">⚠️ ${g.l}</label>${inp}`;
+      gf.appendChild(div);
+    }
+  });
+  card.style.display='block';
+}
+
+/* TABS */
+function st(id,btn){document.querySelectorAll('.tc').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));document.getElementById(id).classList.add('on');btn.classList.add('on');}
+
+/* GET FLOOR AREAS */
+function getFAs(){
+  const n=+v('p-fl')||5;
+  if(BT==='uniform'){const a=+v('p-bu')||1500;return Array(n).fill(a);}
+  const a=[];for(let i=0;i<n;i++){const el=document.getElementById('fa_'+i);a.push(el?Math.max(0,+el.value||0):1200);}return a;
+}
+
+/* ═══════════════════════════════════════════
+   MAIN CALCULATION ENGINE
+═══════════════════════════════════════════ */
+function runCalc(){calcAndRender(false);}
+function runCalcDraw(){
+  // Sync drawing page rates to main rates
+  ['st','ce','sa','ag','wi','fo','ad'].forEach(k=>{const src=document.getElementById('rb-'+k);const dst=document.getElementById('r-'+k);if(src&&dst)dst.value=src.value;});
+  // Sync labour
+  const checked=document.getElementById('lab-check-b').checked;
+  document.getElementById('lab-check').checked=checked;
+  if(checked){labRows=labRowsB.map(r=>({...r}));}
+  calcAndRender(true);
+}
+
+function calcAndRender(fromDrawing){
+  const floors=+v('p-fl')||5;
+  const use=v('p-use');
+  const zone=+v('p-zone')||4;
+  const sbc=+v('p-sbc')||175;
+  const fh=+v('p-fh')||3.2;
+  const fdepth=+v('p-fdepth')||1.5;  // foundation depth
+  const plinth=+v('p-plinth')||0.6;  // plinth height
+  const sg=v('p-sg')||'Fe500';
+  const cbd=+v('p-cb')||16;
+  const bbd=+v('p-bb')||16;
+  const sbd=+v('p-sb')||10;
+  const std2=+v('p-st')||8;
+  const cmm=+v('p-cs')||350;
+  const slbt=+v('p-slbt')/1000||0.125;
+  const pccG=v('p-pcc')||'M15';
+  const ftG=v('p-fg')||'M20';
+  const cG=v('p-cg')||'M25';
+  const bG=v('p-beg')||'M25';
+  const slG=v('p-slg')||'M20';
+  const rSt=+v('r-st')||75;
+  const rCe=+v('r-ce')||490;
+  const rSa=+v('r-sa')||3500;
+  const rAg=+v('r-ag')||1800;
+  const rWi=+v('r-wi')||92;
+  const rFo=+v('r-fo')||22;
+  const rAd=+v('r-ad')||60;
+  const inclLab=document.getElementById('lab-check').checked;
+
+  const fAs=getFAs();
+  const totSqft=fAs.reduce((s,x)=>s+x,0);
+  const totSqm=totSqft*0.0929;
+  const cM=cmm/1000;
+  const fy=SFY[sg]||500;
+  const fySF=415/fy;
+  const Z=ZD[zone]||ZD[4];
+  const fl=floors===1?'G':`G+${floors-1}`;
+  const ll=use==='com'?4.0:use==='mix'?3.0:2.0;
+  const colSpacing=cmm>=400?4.5:cmm>=350?4.0:3.5;
+  const fsz=sbc<125?2.0:sbc<200?1.7:1.5;
+  const cPct=zone>=4?0.020:zone===3?0.016:0.013;
+  const cDays=Math.ceil(totSqm/9*1.15);
+
+  // Per-floor calculation
+  let fRes=[],tVC=0,tVS=0,tVB=0;
+  fAs.forEach((a,idx)=>{
+    const sm=a*0.0929,cols=Math.ceil(sm/(colSpacing*colSpacing)),bc=cols*2;
+    const vs=fn(sm*slbt,3),vb=fn(bc*colSpacing*0.230*0.450*0.55,3),vc=fn(cols*cM*cM*fh,3);
+    const fs=fn(sm*slbt*7850*0.0012*2+vb*7850*(zone>=4?0.018:0.014)*fySF+vc*7850*cPct*fySF);
+    fRes.push({idx,a,sm,cols,vs,vb,vc,fs});tVC+=vc;tVS+=vs;tVB+=vb;
+  });
+  const cG0=fRes[0].cols;
+  const vFt=fn(cG0*fsz*fsz*fdepth,2);
+  const vPCC=fn(cG0*(fsz+0.3)*(fsz+0.3)*0.10,2);
+  const excavVol = fn(cG0*fsz*fsz*(fdepth+plinth)*1.2,2);
+  const vSt=fn(floors*0.15*2.8*1.5,2);
+
+  // Steel
+  const stC=fn(tVC*7850*cPct*fySF),stSC=fn(cG0*floors*fh*4*(cmm+50)/1000*(fh/(zone>=3?0.15:0.20))*bw(std2));
+  const stB=fn(tVB*7850*(zone>=4?0.018:0.014)*fySF),stSB=fn(fRes.reduce((s,r)=>s+r.cols,0)*2*colSpacing*2*(0.230+0.450)*bw(std2)*(1/(zone>=3?0.15:0.20)));
+  const stSl=fn(totSqm*slbt*7850*0.0012*2),stFt=fn(cG0*fsz*fsz*0.45*7850*0.0015*2*fySF);
+  const totStN=stC+stSC+stB+stSB+stSl+stFt,totStW=fn(totStN*1.05);
+  const bWire=fn(totStW*0.012),fwA=fn((tVS/slbt)+(tVB/(0.230*0.450))*0.450*2+tVC/(cM*cM)*cM*4),admQ=fn(totStW*0.012*1.5);
+
+  // ── CPWD-BASED LABOUR DAY CALCULATION ──
+  // All required variables now available: totStW, fwA, vFt, vPCC, vSt, excavVol
+  const totalConcreteVol = fn(tVC,2)+fn(tVB,2)+fn(tVS,2)+vFt+vPCC+vSt;
+  labRows.forEach(r=>{
+    if(r.custom)return;
+    let mdn=0;
+    const w=Math.max(1,r.workers);
+    if(r.name.includes('Bar Bender')||r.name.includes('Sariya')){
+      mdn=Math.ceil(totStW/600);
+    }else if(r.name.includes('Shuttering')||r.name.includes('Carpenter')){
+      mdn=Math.ceil(fwA/100);
+    }else if(r.name.includes('Concreting')||r.name.includes('RCC')){
+      mdn=Math.ceil(totalConcreteVol/2.5);
+    }else if(r.name.includes('Vibrator')){
+      mdn=Math.ceil(totalConcreteVol/2.5);
+    }else if(r.name.includes('Excavat')){
+      mdn=Math.ceil(excavVol/2);
+    }else if(r.name.includes('Rock')){
+      mdn=Math.ceil(excavVol/0.5);
+    }else if(r.name.includes('Crane')||r.name.includes('Hoist')){
+      mdn=Math.ceil(totalConcreteVol/2.5);
+    }else if(r.name.includes('Pump')){
+      mdn=Math.ceil(totalConcreteVol/5);
+    }else if(r.name.includes('Helper')||r.name.includes('Beldar')){
+      mdn=Math.ceil(totStW/600)+Math.ceil(fwA/100)+Math.ceil(totalConcreteVol/2.5);
+    }else if(r.name.includes('Curing')||r.name.includes('Water')){
+      mdn=floors*14;
+    }else{
+      mdn=Math.ceil(totalConcreteVol/2.5)+(floors*10);
+    }
+    r.days=Math.max(1,Math.ceil(mdn/w));
+  });
+
+  // Concrete
+  const cEls=[{n:'PCC Below Footings',g:pccG,v:vPCC},{n:'Isolated Footings',g:ftG,v:vFt},{n:'Columns — All Floors',g:cG,v:fn(tVC,2)},{n:'Beams — All Floors',g:bG,v:fn(tVB,2)},{n:'Slabs — All Floors',g:slG,v:fn(tVS,2)},{n:'Staircase Slabs',g:slG,v:vSt}];
+  let tv=0,tb=0,ts=0,ta=0,tw=0,tc=0;
+  cEls.forEach(e=>{const m=MIX[e.g];const b=fn(e.v*m.bags*1.05,0);tv+=e.v;tb+=b;ts+=fn(e.v*m.s*1.05,2);ta+=fn(e.v*m.a*1.05,2);tw+=fn(e.v*m.w*1.05,0);tc+=b*rCe;});
+
+  // Custom material costs (user-added items with manual qty)
+  let customMatCost=0;
+  const customMats=matRows.filter(r=>r.custom&&r.active&&r.customQty>0&&r.rate>0);
+  customMats.forEach(r=>{customMatCost+=r.customQty*r.rate;});
+
+  // Standard material costs (use rateKey for rate, qty auto-calculated)
+  const isSteelActive=matRows.find(r=>r.id===1)?.active!==false;
+  const isCemActive=matRows.find(r=>r.id===2)?.active!==false;
+  const isSandActive=matRows.find(r=>r.id===3)?.active!==false;
+  const isAggActive=matRows.find(r=>r.id===4)?.active!==false;
+  const isWireActive=matRows.find(r=>r.id===5)?.active!==false;
+  const isFormActive=matRows.find(r=>r.id===6)?.active!==false;
+  const isAdmixActive=matRows.find(r=>r.id===7)?.active!==false;
+
+  const stCost=isSteelActive?totStW*rSt:0;
+  const ceCost=isCemActive?tb*rCe:0;
+  const saCost=isSandActive?fn(ts)*rSa:0;
+  const agCost=isAggActive?fn(ta)*rAg:0;
+  const wiCost=isWireActive?bWire*rWi:0;
+  const foCost=isFormActive?fwA*rFo:0;
+  const adCost=isAdmixActive?admQ*rAd:0;
+  const matSub=stCost+ceCost+saCost+agCost+wiCost+foCost+adCost+customMatCost;
+  const matWst=matSub*0.07,matTot=matSub+matWst;
+
+  // Labour
+  const labTot=inclLab?getLabTotal(labRows):0;
+  const cont=(matTot+labTot)*0.05,grand=matTot+labTot+cont;
+  const dt=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+
+  // Save record
+  const rec={ts:new Date().toISOString(),name:U.name,mob:U.mob,email:U.email,city:U.city,state:U.state,proj:U.proj,building:`${fl} | ${totSqft.toLocaleString()} sqft`,grand:Math.round(grand),method:fromDrawing?'AI Drawing':'Manual',zone:Z.n,paid:false};
+  const saved=JSON.parse(localStorage.getItem('sp_estimates')||'[]');saved.push(rec);localStorage.setItem('sp_estimates',JSON.stringify(saved));
+
+  // ── RENDER RESULTS ──
+  document.getElementById('res-dt').textContent=dt;
+  document.getElementById('cli-det').innerHTML=`
+    <div style="background:#f8faff;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Client Name</div><div style="font-weight:700;font-size:15px">${U.name}</div></div>
+    <div style="background:#f8faff;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Mobile</div><div style="font-weight:600">${U.mob}</div></div>
+    <div style="background:#f8faff;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Email</div><div style="font-weight:600">${U.email}</div></div>
+    <div style="background:#f8faff;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Project</div><div style="font-weight:600">${U.proj}</div></div>
+    <div style="background:#f8faff;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;grid-column:span 2"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Site Address</div><div style="font-weight:600">${U.addr}, ${U.city}, ${U.state} ${U.pin}</div></div>
+    <div style="background:#f8faff;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Report Date</div><div style="font-weight:600">${dt}</div></div>`;
+
+  document.getElementById('res-t').textContent=`${fl} ${use==='res'?'Residential':use==='com'?'Commercial':'Mixed'} | ${Z.n} | ${cG} Columns | ${sg}`;
+  document.getElementById('res-s').textContent=`Total: ${totSqft.toLocaleString()} sqft | ${cG0} cols/floor | Slab ${slbt*1000}mm | ${cbd}mm col bars`;
+  document.getElementById('res-src').textContent=fromDrawing?'📐 AI Drawing Analysis':(BT==='variable'?'🏔️ Floor-by-Floor':'🏢 Uniform Building');
+
+  document.getElementById('isp').innerHTML=`<span class="ir">IS 456:2000</span>    Min grade: <span class="iv">${zone>=3?'M25':'M20'}</span>${cG==='M20'&&zone>=3?' <span class="ie">⚠️ M20 low for Zone III+</span>':''}
+<span class="ir">IS 1786:2008</span>   Steel: <span class="iv">${sg} (fy=${fy})</span>${zone>=3&&!sg.includes('D')?' <span class="iw">⚠️ Fe500D recommended Zone III+</span>':''}
+<span class="ir">IS 1893:2016</span>   Zone: <span class="iv">${Z.n}</span> | Z=${Z.Z} | Risk: <span class="iv">${Z.r}</span>
+<span class="ir">IS 875 Pt.2</span>    Live load: <span class="iv">${ll} kN/m²</span>
+<span class="ir">IS 1904:1986</span>   Foundation: <span class="iv">${sbc<100?'RAFT':sbc<175?'Strip':'Isolated Pad'}</span> | SBC: <span class="iv">${sbc} kN/m²</span>
+<span class="ir">IS 456 Cl.26.4</span> Cover: Footing <span class="iv">50mm</span> | Column <span class="iv">40mm</span> | Beam <span class="iv">25mm</span> | Slab <span class="iv">20mm</span>`;
+
+  // KPIs — values blurred
+  document.getElementById('kpig').innerHTML=[
+    {i:'🧱',v:`<span class="bv">${fc(matTot)}</span>`,u:'with 7% wastage',l:'Raw Material Cost',c:'mat'},
+    {i:'👷',v:`<span class="bv">${inclLab?fc(labTot):'Excluded'}</span>`,u:'structural trades',l:'Labour Cost',c:'lab'},
+    {i:'🔩',v:`<span class="bv">${totStW.toLocaleString()} kg</span>`,u:sg,l:'Total Steel',c:'mat'},
+    {i:'📦',v:`<span class="bv">${Math.round(tb).toLocaleString()} bags</span>`,u:'all grades',l:'Cement Bags',c:'mat'},
+    {i:'🏢',v:`${floors} floors`,u:`${totSqft.toLocaleString()} sqft total`,l:'Building Size',c:''},
+    {i:'💰',v:`<strong style="font-size:1.4rem;color:var(--gold2)">${fc(grand)}</strong>`,u:'Unlock for full breakdown',l:'GRAND TOTAL',c:'big'},
+  ].map(k=>`<div class="kpi ${k.c}"><div style="font-size:1.5rem;margin-bottom:4px">${k.i}</div><div class="kv">${k.v}</div><div class="ku">${k.u}</div><div class="kl">${k.l}</div></div>`).join('');
+
+  // Build material rows for display (only active items)
+  const mR=[];
+  if(isSteelActive) mR.push(['TMT Steel Bars',`${sg} ${cbd}/${bbd}/${sbd}/${std2}mm`,'kg',fn(totStN),totStW,'5%',`₹${rSt}/kg`,stCost]);
+  if(isCemActive)   mR.push(['OPC Cement','All grades','bags',Math.round(tb/1.05),Math.round(tb),'5%',`₹${rCe}/bag`,ceCost]);
+  if(isSandActive)  mR.push(['Sand/M-Sand','IS 383','m³',fn(ts/1.05,1),fn(ts,1),'5%',`₹${rSa}/m³`,saCost]);
+  if(isAggActive)   mR.push(['Aggregate 20mm','Crushed stone','m³',fn(ta/1.05,1),fn(ta,1),'5%',`₹${rAg}/m³`,agCost]);
+  if(isWireActive)  mR.push(['GI Binding Wire','18G 1.2% steel','kg',fn(bWire/1.1),bWire,'10%',`₹${rWi}/kg`,wiCost]);
+  if(isFormActive)  mR.push(['Formwork/Shuttering','Plywood+props','sqft',fn(fwA/1.15),fn(fwA),'15%',`₹${rFo}/sqft`,foCost]);
+  if(isAdmixActive) mR.push(['Admixture','M25+ IS 9103','ltrs',fn(admQ/1.05),admQ,'5%',`₹${rAd}/ltr`,adCost]);
+  // Custom materials
+  customMats.forEach(r=>mR.push([r.name,r.spec||'Custom item',r.unit,r.customQty,r.customQty,'—',`₹${r.rate}/${r.unit}`,r.customQty*r.rate]));
+  document.getElementById('mat-body').innerHTML=mR.map(r=>`<tr><td><strong>${r[0]}</strong><br><small style="color:var(--muted)">${r[1]}</small></td><td><span class="tag tb">${r[2]}</span></td><td><span class="bv">${Number(r[3]).toLocaleString()}</span></td><td><span class="bv">${Number(r[4]).toLocaleString()}</span></td><td style="color:var(--muted)">${r[6]}</td><td><strong><span class="bv">${fc(r[7])}</span></strong></td></tr>`).join('');
+  document.getElementById('mat-sub').textContent=fc(matSub);
+  document.getElementById('mat-wst').textContent=fc(matWst);
+  document.getElementById('mat-tot').textContent=fc(matTot);
+
+  // Steel table
+  const sR=[['Column Main','Vertical',cbd,sg,stC],['Column Stirrups','Closed ties',std2,sg,stSC],['Beam Main','Top+Bottom',bbd,sg,stB],['Beam Stirrups','Links',std2,sg,stSB],['Slab Bars','Both ways',sbd,sg,stSl],['Footing Bars','Bottom mesh',cbd,sg,stFt]];
+  let tn=0,tw2=0,tb2=0;
+  document.getElementById('stl-body').innerHTML=sR.map(r=>{const w=fn(r[4]*1.05);const bc=Math.ceil(r[4]/(bw(r[2])*6));tn+=r[4];tw2+=w;tb2+=bc;return`<tr><td><strong>${r[0]}</strong></td><td style="color:var(--muted)">${r[1]}</td><td><span class="tag tb">${r[2]}mm</span></td><td><span class="tag tp">${r[3]}</span></td><td><span class="bv">${fn(r[4]).toLocaleString()}</span></td><td><strong><span class="bv">${w.toLocaleString()}</span></strong></td><td><span class="bv">${bc.toLocaleString()}</span></td></tr>`;}).join('');
+  document.getElementById('st-n').textContent=fn(tn).toLocaleString()+' kg';
+  document.getElementById('st-w').textContent=fn(tw2).toLocaleString()+' kg';
+  document.getElementById('st-b').textContent=tb2.toLocaleString();
+
+  // Concrete table
+  let cv=0,cb2=0,cs=0,ca=0,cw2=0,cc=0;
+  document.getElementById('con-body').innerHTML=cEls.map(e=>{const m=MIX[e.g];const b=fn(e.v*m.bags*1.05,0);const sa=fn(e.v*m.s*1.05,2);const ag2=fn(e.v*m.a*1.05,2);const wa=fn(e.v*m.w*1.05,0);const cost=b*rCe;cv+=e.v;cb2+=b;cs+=sa;ca+=ag2;cw2+=wa;cc+=cost;return`<tr><td><strong>${e.n}</strong></td><td><span class="tag ${e.g==='M20'?'tg':e.g==='M25'?'tb':'to'}">${e.g}</span></td><td><span class="bv">${e.v}</span></td><td><span class="bv">${b.toLocaleString()}</span></td><td><span class="bv">${sa}</span></td><td><span class="bv">${ag2}</span></td><td><span class="bv">${wa.toLocaleString()}</span></td></tr>`;}).join('');
+  document.getElementById('c-v').textContent=fn(cv,1)+' m³';
+  document.getElementById('c-b').textContent=Math.round(cb2).toLocaleString();
+  document.getElementById('c-s').textContent=fn(cs,1)+' m³';
+  document.getElementById('c-a').textContent=fn(ca,1)+' m³';
+  document.getElementById('c-w').textContent=Math.round(cw2).toLocaleString()+' L';
+
+  // Labour tab
+  document.getElementById('lab-excl-msg').style.display=inclLab?'none':'block';
+  document.getElementById('lab-wrap').style.display=inclLab?'block':'none';
+  if(inclLab){
+    document.getElementById('lab-body').innerHTML=labRows.filter(r=>r.active&&r.days>0).map(r=>{const c=Math.round(r.workers*r.days*r.rate);return`<tr><td><strong>${r.name}</strong></td><td><span class="bv">${r.workers}</span></td><td><span class="bv">${r.days}</span></td><td>${fc(r.rate)}</td><td><strong><span class="bv">${fc(c)}</span></strong></td></tr>`;}).join('');
+    document.getElementById('lab-sub').textContent=fc(labTot);
+    document.getElementById('lab-tot').textContent=fc(labTot);
+  }
+
+  // Floor tab
+  let fa2=0,fc3=0,fs2=0,fst2=0;
+  document.getElementById('flr-body').innerHTML=fRes.map(r=>{const ft=document.getElementById('ft_'+r.idx);const ftype=ft?ft.value:'std';const fn2={base:'<span class="tag tb">Foundation</span>',cant:'<span class="tag to">Cantilever</span>',set:'<span class="tag tp">Setback</span>',std:'<span class="tag tg">Standard</span>'}[ftype]||'';fa2+=r.a;fc3+=r.cols;fs2+=r.vs;fst2+=r.fs;return`<tr><td><strong>${FLN[r.idx]||'Floor '+r.idx}</strong></td><td><span class="bv">${r.a.toLocaleString()}</span></td><td>${r.cols}</td><td><span class="bv">${fn(r.vs,2)}</span></td><td><span class="bv">${fn(r.fs).toLocaleString()}</span></td><td>${fn2}</td></tr>`;}).join('');
+  document.getElementById('fl-a').textContent=fa2.toLocaleString()+' sqft';
+  document.getElementById('fl-c').textContent=fc3;
+  document.getElementById('fl-s').textContent=fn(fs2,1)+' m³';
+  document.getElementById('fl-st').textContent=fn(fst2).toLocaleString()+' kg';
+
+  // Grand summary
+  document.getElementById('g-ms').textContent=fc(matSub);
+  document.getElementById('g-mw').textContent=fc(matWst);
+  document.getElementById('g-mt').textContent=fc(matTot);
+  document.getElementById('g-la').textContent=inclLab?fc(labTot):'Not included';
+  document.getElementById('g-lr').style.display=inclLab?'flex':'none';
+  document.getElementById('g-co').textContent=fc(cont);
+  document.getElementById('g-tot').textContent=fc(grand); // unblurred — hook
+  document.getElementById('g-sf').textContent=fc(grand/totSqft)+' per sq ft';
+
+  // PDF data (fill now, used after payment)
+  const rDt=dt;
+  document.getElementById('rpt-dt').textContent=rDt;
+  document.getElementById('r-cli').innerHTML=`<div class="rpt-cell"><div class="rpt-cl">Client</div><div class="rpt-cv">${U.name}</div></div><div class="rpt-cell"><div class="rpt-cl">Mobile</div><div class="rpt-cv">${U.mob}</div></div><div class="rpt-cell"><div class="rpt-cl">Email</div><div class="rpt-cv">${U.email}</div></div><div class="rpt-cell" style="grid-column:span 2"><div class="rpt-cl">Address</div><div class="rpt-cv">${U.addr}, ${U.city}, ${U.state} ${U.pin}</div></div><div class="rpt-cell"><div class="rpt-cl">Project</div><div class="rpt-cv">${U.proj}</div></div>`;
+  document.getElementById('r-bld').innerHTML=`<div class="rpt-cell"><div class="rpt-cl">Building</div><div class="rpt-cv">${fl} ${use==='res'?'Residential':'Building'}</div></div><div class="rpt-cell"><div class="rpt-cl">Total Area</div><div class="rpt-cv">${totSqft.toLocaleString()} sq ft</div></div><div class="rpt-cell"><div class="rpt-cl">Seismic Zone</div><div class="rpt-cv">${Z.n}</div></div><div class="rpt-cell"><div class="rpt-cl">Steel Grade</div><div class="rpt-cv">${sg} (fy=${fy})</div></div><div class="rpt-cell"><div class="rpt-cl">Col Concrete</div><div class="rpt-cv">${cG}</div></div><div class="rpt-cell"><div class="rpt-cl">Foundation</div><div class="rpt-cv">${sbc<100?'Raft':sbc<175?'Strip':'Isolated'}</div></div>`;
+  document.getElementById('r-isp').textContent=document.getElementById('isp').textContent;
+  document.getElementById('r-bkdn').innerHTML=`<div class="rbc rbc-m"><div class="rbc-t">Raw Material Cost</div><div class="rbc-a">${fc(matTot)}</div><div style="font-size:9px;margin-top:2px">${((matTot/grand)*100).toFixed(1)}% of total</div></div><div class="rbc rbc-l"><div class="rbc-t">Labour Cost</div><div class="rbc-a">${inclLab?fc(labTot):'Excluded'}</div></div><div class="rbc rbc-w"><div class="rbc-t">Wastage (7%)</div><div class="rbc-a">${fc(matWst)}</div></div><div class="rbc rbc-c"><div class="rbc-t">Contingency (5%)</div><div class="rbc-a">${fc(cont)}</div></div>`;
+  document.getElementById('r-grand').innerHTML=`<div><div class="rpt-grand-l">GRAND TOTAL — BARE STRUCTURAL FRAME</div><div style="font-size:9px;opacity:.6;margin-top:2px">${fl} | ${totSqft.toLocaleString()} sqft | ${Z.n}</div></div><div><div class="rpt-grand-a">${fc(grand)}</div><div style="text-align:right;font-size:9px;opacity:.6;margin-top:2px">${fc(grand/totSqft)}/sqft</div></div>`;
+  document.getElementById('r-ctbl').innerHTML=`<tr><td>Raw Material Sub-total</td><td>${fc(matSub)}</td><td>${((matSub/grand)*100).toFixed(1)}%</td><td>Before wastage</td></tr><tr><td>Material Wastage 7%</td><td>${fc(matWst)}</td><td>${((matWst/grand)*100).toFixed(1)}%</td><td>Breakage & cutting loss</td></tr><tr class="rsub"><td><strong>Total Raw Materials</strong></td><td>${fc(matTot)}</td><td>${((matTot/grand)*100).toFixed(1)}%</td><td>With wastage included</td></tr>${inclLab?`<tr><td>Labour Cost</td><td>${fc(labTot)}</td><td>${((labTot/grand)*100).toFixed(1)}%</td><td>All structural trades</td></tr>`:'<tr><td>Labour</td><td colspan="3">Not included</td></tr>'}<tr><td>Contingency 5%</td><td>${fc(cont)}</td><td>${((cont/grand)*100).toFixed(1)}%</td><td>Buffer for unforeseen costs</td></tr>`;
+  document.getElementById('r-mat').innerHTML=mR.map(r=>`<tr><td><strong>${r[0]}</strong></td><td>${r[2]}</td><td>${Number(r[3]).toLocaleString()}</td><td>${Number(r[4]).toLocaleString()}</td><td>${r[6]}</td><td>${fc(r[7])}</td></tr>`).join('');
+  document.getElementById('r-ms').textContent=fc(matSub);document.getElementById('r-mw').textContent=fc(matWst);document.getElementById('r-mt').textContent=fc(matTot);
+  document.getElementById('r-stl').innerHTML=sR.map(r=>{const w=fn(r[4]*1.05);const bc=Math.ceil(r[4]/(bw(r[2])*6));return`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}mm</td><td>${r[3]}</td><td>${fn(r[4]).toLocaleString()}</td><td>${w.toLocaleString()}</td><td>${bc.toLocaleString()}</td></tr>`;}).join('');
+  document.getElementById('r-sn').textContent=fn(tn).toLocaleString();document.getElementById('r-sw').textContent=fn(tw2).toLocaleString();document.getElementById('r-sb').textContent=tb2.toLocaleString();
+  document.getElementById('r-con').innerHTML=cEls.map(e=>{const m=MIX[e.g];const b=fn(e.v*m.bags*1.05,0);const sa=fn(e.v*m.s*1.05,2);const ag2=fn(e.v*m.a*1.05,2);const wa=fn(e.v*m.w*1.05,0);return`<tr><td>${e.n}</td><td>${e.g}</td><td>${e.v}</td><td>${b.toLocaleString()}</td><td>${sa}</td><td>${ag2}</td><td>${wa.toLocaleString()}</td></tr>`;}).join('');
+  document.getElementById('r-cv').textContent=fn(cv,1)+' m³';document.getElementById('r-cb').textContent=Math.round(cb2).toLocaleString();document.getElementById('r-cs').textContent=fn(cs,1)+' m³';document.getElementById('r-ca').textContent=fn(ca,1)+' m³';document.getElementById('r-cw').textContent=Math.round(cw2).toLocaleString()+' L';
+  const rls=document.getElementById('r-lab-sec');rls.style.display=inclLab?'block':'none';
+  if(inclLab){document.getElementById('r-lab').innerHTML=labRows.filter(r=>r.active&&r.days>0).map(r=>{const c=Math.round(r.workers*r.days*r.rate);return`<tr><td>${r.name}</td><td>${r.workers}</td><td>${r.days}</td><td>${fc(r.rate)}</td><td>${fc(c)}</td></tr>`;}).join('');document.getElementById('r-lt').textContent=fc(labTot);}
+  document.getElementById('r-fl').innerHTML=fRes.map(r=>{const ft=document.getElementById('ft_'+r.idx);return`<tr><td>${FLN[r.idx]||'Floor '+r.idx}</td><td>${r.a.toLocaleString()}</td><td>${r.cols}</td><td>${fn(r.vs,2)}</td><td>${fn(r.fs).toLocaleString()}</td></tr>`;}).join('');
+
+  sp('pg4');
+}
+
+/* ═══════════════════════════════════════════
+   PAYMENT
+═══════════════════════════════════════════ */
+async function initiatePayment(){
+  const btn=document.getElementById('pay-now-btn');
+  btn.disabled=true;btn.innerHTML='<span class="sp"></span> Creating order...';
+  try{
+    // Try server-side order creation
+    const orderRes=await fetch('/api/create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientName:U.name,clientEmail:U.email,clientMobile:U.mob,estimateId:'est_'+Date.now()})}).catch(()=>null);
+
+    if(!orderRes||!orderRes.ok){
+      // Fallback: for testing without backend, show test mode message
+      alert('Payment server not configured. If testing, contact admin.\n\nFor deployment: set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Railway environment variables.');
+      btn.disabled=false;btn.innerHTML='💳 Pay ₹499 — Unlock Full Report';
+      return;
+    }
+    const order=await orderRes.json();
+    if(order.error)throw new Error(order.error);
+
+    const options={
+      key:order.keyId,amount:order.amount,currency:order.currency,
+      name:'StructoPro',description:'Structural Estimate Report',
+      order_id:order.orderId,
+      prefill:{name:U.name,email:U.email,contact:U.mob},
+      theme:{color:'#1a2f6e'},
+      handler:async function(response){await verifyPayment(response,order.orderId);},
+      modal:{ondismiss:function(){btn.disabled=false;btn.innerHTML='💳 Pay ₹499 — Unlock Full Report';}}
+    };
+    const rzp=new Razorpay(options);
+    rzp.on('payment.failed',function(resp){alert('Payment failed: '+resp.error.description);btn.disabled=false;btn.innerHTML='💳 Pay ₹499 — Retry';});
+    rzp.open();
+  }catch(err){
+    alert('Error: '+err.message);
+    btn.disabled=false;btn.innerHTML='💳 Pay ₹499 — Unlock Full Report';
+  }
+}
+
+async function verifyPayment(paymentResponse,orderId){
+  try{
+    const verRes=await fetch('/api/verify-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({razorpay_order_id:orderId,razorpay_payment_id:paymentResponse.razorpay_payment_id,razorpay_signature:paymentResponse.razorpay_signature,clientData:U})});
+    const result=await verRes.json();
+    if(!verRes.ok)throw new Error(result.error||'Verification failed');
+    unlockReport();
+  }catch(err){
+    alert('Payment verification failed: '+err.message+'\nContact support with payment ID: '+paymentResponse.razorpay_payment_id);
+  }
+}
+
+function unlockReport(){
+  paid=true;
+  // Remove all blur
+  document.querySelectorAll('.bv').forEach(el=>el.classList.add('revealed'));
+  // Hide payment gate
+  document.getElementById('pay-gate').style.display='none';
+  // Show PDF button and post-pay buttons
+  document.getElementById('pdf-btn').style.display='flex';
+  document.getElementById('post-pay-btns').style.display='block';
+  // Update admin record
+  const saved=JSON.parse(localStorage.getItem('sp_estimates')||'[]');
+  if(saved.length>0){saved[saved.length-1].paid=true;localStorage.setItem('sp_estimates',JSON.stringify(saved));}
+  // Scroll to top of results
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════
+   PDF DOWNLOAD
+═══════════════════════════════════════════ */
+function dlPDF(){
+  if(!paid){alert('Please complete payment first to download the PDF.');return;}
+  const el=document.getElementById('pdf-report');
+  const fname='StructoPro_'+U.name.replace(/\s+/g,'_')+'_'+U.proj.replace(/\s+/g,'_')+'.pdf';
+  const opt={margin:[8,8,8,8],filename:fname,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+  el.style.display='block';
+  html2pdf().set(opt).from(el).save().then(()=>{el.style.display='none';});
+}
+
+/* ═══════════════════════════════════════════
+   ADMIN
+═══════════════════════════════════════════ */
+function goAdmin(){sp('pg-admin');}
+function chkAdm(){
+  if(document.getElementById('adm-pw').value==='structopro2026'){
+    document.getElementById('adm-login').style.display='none';
+    document.getElementById('adm-data').style.display='block';
+    loadAdm();
+  }else{document.getElementById('adm-err').style.display='block';}
+}
+function loadAdm(){
+  const data=JSON.parse(localStorage.getItem('sp_estimates')||'[]');
+  document.getElementById('adm-cnt').textContent=data.length;
+  document.getElementById('adm-empty').style.display=data.length?'none':'block';
+  const paidCount=data.filter(r=>r.paid).length;
+  document.getElementById('adm-tbl').innerHTML=data.slice().reverse().map((r,i)=>`<tr style="cursor:default"><td style="color:var(--muted)">${data.length-i}</td><td>${new Date(r.ts).toLocaleString('en-IN')}</td><td><strong>${r.name}</strong></td><td>${r.mob}</td><td>${r.city}, ${r.state}</td><td>${r.proj}</td><td style="font-size:12px">${r.building}</td><td><strong style="color:var(--navy)">${fc(r.grand)}</strong></td><td><span class="tag ${r.method==='AI Drawing'?'tp':'tb'}">${r.method}</span></td><td>${r.paid?'<span class="tag tg">✓ Paid</span>':'<span class="tag tr2">Unpaid</span>'}</td></tr>`).join('');
+}
+function expCSV(){
+  const data=JSON.parse(localStorage.getItem('sp_estimates')||'[]');
+  if(!data.length){alert('No data yet.');return;}
+  const csv=['Date,Name,Mobile,Email,City,State,Project,Building,Grand Total,Method,Paid',...data.map(r=>`"${new Date(r.ts).toLocaleString('en-IN')}","${r.name}","${r.mob}","${r.email}","${r.city}","${r.state}","${r.proj}","${r.building}","${r.grand}","${r.method}","${r.paid?'Yes':'No'}"`)].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='StructoPro_Estimates.csv';a.click();
+}
+function clrAll(){if(confirm('Delete ALL records?')){localStorage.removeItem('sp_estimates');loadAdm();}}
+function startOver(){if(confirm('Start a new estimate?')){location.reload();}}
+
+/* ═══════════════════════════════════════════
+   INFO POPUP SYSTEM
+═══════════════════════════════════════════ */
+const INFO = {
+  // ── TECHNICAL SPECIFICATIONS ──
+  'p-sg':{icon:'🔩',title:'Steel Grade (TMT Bar Quality)',desc:'This tells you the strength of the iron rods used inside your concrete columns, beams and slabs. Higher the number, stronger the rod. Fe500 means the rod can withstand a pull force of 500 N per sq mm before breaking — it is the standard for most homes in India. In earthquake-prone areas, Fe500D is used because the D means Ductile — it bends without snapping suddenly during an earthquake.',eg:'Fe415 — older standard. Fe500 — current standard for most homes. Fe500D — mandatory in Zone III, IV, V (NE India, Delhi, Maharashtra, Gujarat).'},
+  'p-cb':{icon:'📏',title:'Column Main Bar Diameter',desc:'The thick vertical iron rods inside your columns (the vertical pillars of your building). These carry the entire weight of your building down to the foundation. Thicker bars carry more load. For a standard G+3 home, 16mm bars are used. For G+5 and above or in high seismic zones, 20mm bars are used.',eg:'16mm bar — standard for residential up to G+4. 20mm bar — for heavy commercial or tall buildings.'},
+  'p-bb':{icon:'📏',title:'Beam Main Bar Diameter',desc:'The iron rods inside your beams — the horizontal members that connect columns and carry the weight of slabs. These bend under load so they need to be strong and properly placed (top bars in some positions, bottom bars in others). Your structural engineer decides exact placement.',eg:'16mm bar — standard for spans up to 4m. 20mm bar — for longer spans or heavy loads.'},
+  'p-sb':{icon:'📏',title:'Slab Bar Diameter',desc:'The thin iron mesh inside your floor slabs. Slabs are the flat concrete floors you walk on. They carry the live load of people and furniture. The bars run in both directions forming a grid inside the slab to prevent cracking.',eg:'10mm bars at 150mm spacing — most common for residential slabs.'},
+  'p-st':{icon:'🔗',title:'Stirrup / Link Bar Diameter',desc:'Stirrups are the closed rectangular loops of thin rod that wrap around the main column and beam bars. They prevent the column from buckling sideways under load and during earthquakes. Think of them as the rings that hold a bundle of sticks together so they don\'t spread apart.',eg:'8mm stirrups at 150mm spacing in columns — standard residential. Closer spacing (100mm) needed near joints in earthquake zones.'},
+  'p-cs':{icon:'⬛',title:'Column Size (Cross Section)',desc:'The width and depth of your concrete columns — the vertical pillars that carry all loads from your building to the foundation. A bigger column is stronger but takes up more floor space. 350×350mm is standard for G+3 residential. Taller buildings or commercial buildings need larger columns.',eg:'230×230mm — very small, only for G+0. 350×350mm — standard G+3 home. 450×450mm — G+5 and above or heavy commercial.'},
+  'p-slbt':{icon:'📐',title:'Slab Thickness',desc:'The thickness of your concrete floor slabs. Thicker slabs are stronger and span longer distances without deflection. They also provide better sound insulation between floors. But thicker slabs mean more concrete and more weight on beams and columns.',eg:'125mm (5 inches) — standard for spans up to 4m. 150mm — for spans of 4m to 5m or heavy load areas.'},
+  'p-pcc':{icon:'🧱',title:'PCC — Plain Cement Concrete (Below Foundation)',desc:'A thin layer of weak concrete poured flat on the excavated soil before placing the reinforced footing. It creates a clean, level working surface and prevents the soil from absorbing water from the main footing concrete. It contains NO steel bars — just cement, sand and aggregate.',eg:'M15 PCC, 100mm thick below all footings — this is the IS code standard requirement.'},
+  'p-fg':{icon:'🏛️',title:'Footing Concrete Grade',desc:'The grade of concrete used for your foundation footings — the underground concrete pads that transfer your building\'s load to the soil below. Higher grade means stronger concrete. M20 is minimum required by IS code. In wet areas or aggressive soil, M25 is recommended.',eg:'M20 — minimum by IS 456. M25 — recommended for coastal areas or soft soil sites.'},
+  'p-cg':{icon:'🏗️',title:'Column Concrete Grade',desc:'The grade (strength) of concrete poured inside your column shuttering. M25 means the concrete cube achieves 25 N/sq mm compressive strength at 28 days of curing. Columns carry the most load, so they need the strongest concrete in your building.',eg:'M25 — IS code recommended minimum for columns in Zone III and above. M30 — for taller buildings or higher seismic zones.'},
+  'p-beg':{icon:'━',title:'Beam Concrete Grade',desc:'The grade of concrete used for your beams — the horizontal members that span between columns and carry slab loads. Same grade as columns is common practice for uniformity on site.',eg:'M25 — standard for beams in most residential buildings.'},
+  'p-slg':{icon:'▬',title:'Slab Concrete Grade',desc:'The grade of concrete for your floor slabs. Slabs have less compression load than columns so M20 is generally sufficient. In areas with heavy floor loads like parking, industrial or commercial use, M25 is used.',eg:'M20 — standard residential slabs. M25 — for parking slabs, commercial floors, or when slab spans are long.'},
+  'p-zone':{icon:'🌍',title:'Seismic Zone (Earthquake Risk Level)',desc:'India is divided into 4 seismic zones based on earthquake risk. Your zone determines how much extra steel is needed in columns and beams to resist earthquake forces. Higher zone = more steel = more cost. This has been auto-set from your state but large states like Maharashtra span Zone III and IV — verify with your engineer for your specific city.',eg:'Zone II — South India (Hyderabad, Bangalore, Chennai). Zone IV — Delhi, Himachal Pradesh. Zone V — Sikkim, all NE states — highest risk in India.'},
+  'p-sbc':{icon:'🌱',title:'Soil Bearing Capacity (SBC)',desc:'How much load per sq metre your soil can safely carry. Soft, loose or filled soil has low SBC and needs larger or deeper foundations. Hard rock has very high SBC and needs smaller foundations. Ideally you should get a soil test (IS 1888) done by a geotechnical engineer before construction.',eg:'Soft clay = 75 kN/m². Normal garden soil = 150-175 kN/m². Hard murum = 250 kN/m². Rock = 350+ kN/m².'},
+  'p-fdepth':{icon:'⬇️',title:'Foundation Depth',desc:'How deep below the ground surface your footing bottom sits. Deeper foundations reach undisturbed, stronger soil. IS 1904 requires minimum 0.5m but in practice 1.5m to 2m is standard for residential buildings in India. In expansive or black cotton soil, 2.5m or more is needed.',eg:'1.5m — standard for most Indian sites. 2m — black cotton soil, soft soil. 2.5m — very poor soil or zone V buildings.'},
+  'p-plinth':{icon:'⬆️',title:'Plinth Height',desc:'The height from natural ground level to the top of your ground floor slab. This gap protects your building from surface water flooding and dampness. Taller plinth means more basement filling, more PCC, and more column height below floor level.',eg:'0.45m (18 inches) — urban plots with good drainage. 0.6m (2 feet) — standard for most Indian homes. 0.9m+ — flood-prone areas or sloped sites.'},
+  'p-fh':{icon:'📐',title:'Floor to Floor Height',desc:'The distance from the top of one floor slab to the top of the next floor slab above it. This includes the floor slab thickness itself plus the clear ceiling height inside the room. Taller floor heights mean longer columns, more steel in columns, and more concrete — directly increasing cost.',eg:'3.0m (10 ft) — standard Indian home. 3.6m (12 ft) — office or premium home. 4.5m (15 ft) — warehouse or showroom.'},
+
+  // ── RAW MATERIALS ──
+  'mat-steel':{icon:'🔩',title:'TMT Steel Bars',desc:'TMT stands for Thermo-Mechanically Treated. These are the iron rods you see sticking out of columns during construction. They are ribbed (have ridges) so concrete grips them tightly. They form the skeleton of your RCC building. Without steel, concrete cracks and collapses under tension loads. This is the single most expensive material in your estimate.',eg:'A G+3 residential building of 1500 sqft per floor typically needs 8,000 to 14,000 kg of steel. Rate varies monthly — check with your nearest steel dealer or Tata/JSW distributor.'},
+  'mat-cement':{icon:'🏗️',title:'OPC 53 Grade Cement',desc:'OPC stands for Ordinary Portland Cement. Grade 53 means it achieves 53 N/sq mm strength at 28 days. This is the standard structural cement used for columns, beams, slabs and foundations in India. Do not use PPC (Portland Pozzolana Cement) for structural members — use OPC 53 only. Cement has a shelf life of only 3 months — never use lumpy or old cement.',eg:'A G+3 building of 1500 sqft per floor needs roughly 500 to 800 bags of cement for the structural frame alone. Buy from authorized dealers only — check for ISI mark.'},
+  'mat-sand':{icon:'🏖️',title:'Sand / M-Sand (Fine Aggregate)',desc:'Sand fills the gaps between cement and coarse aggregate in concrete, making it dense and strong. River sand is the traditional choice but is increasingly restricted due to environmental rules. Manufactured Sand (M-Sand) is crushed stone dust and is the IS code approved alternative. Never use sea sand — salt corrodes steel bars.',eg:'Check local market for river sand or M-sand. In NE India and hill areas, crushed stone dust (quarry dust) is commonly used instead. Always test silt content — maximum 8% allowed per IS 383.'},
+  'mat-agg':{icon:'🪨',title:'Coarse Aggregate 20mm (Bajri / Gitti)',desc:'Crushed stone pieces that form the main bulk of concrete. 20mm size is standard for slabs, beams and columns. The aggregate skeleton carries compressive loads in concrete. Aggregate must be clean, angular, free from dust and organic matter. Angular (crushed) aggregate gives better bond than rounded (river) aggregate.',eg:'Granite aggregate (black) is strongest. Limestone aggregate is cheaper but weaker. Always wash aggregate before use if dusty. Check from local stone quarry for best rates.'},
+  'mat-wire':{icon:'🔗',title:'GI Binding Wire (Tying Wire)',desc:'Thin galvanized iron wire used to tie steel bars together at junctions before concrete is poured. This holds the reinforcement cage in position and prevents bars from shifting during concrete pouring and vibration. 18 gauge wire is standard. Required at every bar intersection.',eg:'Approximately 12 to 15 kg of binding wire per tonne of steel. Very small cost but essential — without proper tying, bars shift position and concrete cover gets disturbed.'},
+  'mat-form':{icon:'🪵',title:'Formwork / Shuttering',desc:'Temporary wooden or steel molds that hold the wet concrete in shape until it hardens. Formwork is needed for columns (box mold), beams (U-shaped mold) and slabs (flat platform). Plywood shuttering can be reused 4 to 6 times. Steel props (supports) can be reused many times. This is a temporary cost — not a permanent material.',eg:'Plywood 19mm thick is standard. Good quality shuttering plywood can be reused 5-6 times before replacing. Props should not be removed from slabs for at least 7 days after pouring per IS 456.'},
+  'mat-admix':{icon:'🧪',title:'Admixture / Plasticizer',desc:'A liquid chemical added to concrete mix to improve workability without adding extra water. Extra water weakens concrete — admixture lets you make concrete flowable for pumping or tight spaces while keeping water-cement ratio low and strength high. Required for M25 grade and above as per IS 9103. Also used in hot weather concreting to slow setting time.',eg:'Superplasticizer like Conplast SP430 — add 0.5 to 1.5% of cement weight. Cost is small but very important for quality concrete in columns and slabs.'},
+
+  // ── LABOUR ──
+  'lab-barb':{icon:'🔨',title:'Bar Bender (Sariya Mistri)',desc:'This skilled worker does all the steel reinforcement work. He reads the Bar Bending Schedule (BBS) from the structural engineer, cuts steel bars to exact lengths using a bar cutter, bends them to required shapes using a bender machine, and ties them together with binding wire to form the column cage, beam cage, and slab mesh. Without a good sariya mistri your reinforcement placement will be wrong.',eg:'He works from ground level upward. First he makes column cages and lowers them into place. Then beam cages. Then slab mesh. All before concrete is poured.'},
+  'lab-carp':{icon:'🪚',title:'Shuttering Carpenter',desc:'This carpenter builds and dismantles all the temporary wooden formwork (shuttering) that holds wet concrete in shape. He makes the box molds for columns, U-channels for beams, and the flat plywood platform that supports slab concrete. After concrete hardens, he carefully dismantles the shuttering so it can be reused.',eg:'Column shuttering must remain for 24 hours minimum. Slab supports (props) must remain for 7 days minimum per IS 456. Removing too early causes cracks and collapse.'},
+  'lab-conc':{icon:'🏗️',title:'Concreting Mason (RCC Mason)',desc:'This skilled mason supervises and directs the concrete pouring operation. He ensures concrete flows evenly into all corners of the formwork, coordinates with the vibrator operator, checks that cover blocks are in place, and finishes the top surface of slabs to the required level. He is responsible for the quality of each pour.',eg:'He also does the slump test before each pour to check workability. If slump is wrong, he rejects the batch. A good RCC mason prevents honeycombing, cold joints and segregation.'},
+  'lab-vib':{icon:'📳',title:'Vibrator Operator',desc:'He operates the needle vibrator — a machine with a vibrating metal rod that is inserted into freshly poured concrete. Vibration removes air bubbles trapped in the concrete and ensures it flows into every corner of the formwork around steel bars. Concrete without vibration has air voids that make it weak and porous.',eg:'Vibrator needle should be inserted every 450mm and withdrawn slowly. Do not over-vibrate (causes segregation). Do not touch steel bars with vibrator. Essential for every single pour — no exceptions.'},
+  'lab-exc':{icon:'⛏️',title:'Excavation Mason',desc:'Digs the foundation trenches and pits to the required depth. He lays out the column positions using the structural drawing, digs to the specified foundation depth, levels the bottom of the pit for PCC, and removes excavated soil from site. In hard soil or rock he uses pneumatic tools or blasting.',eg:'He also does the anti-termite treatment in the excavated pit before PCC. After footing concrete is poured he does the backfilling and compaction around footings.'},
+  'lab-rock':{icon:'🪨',title:'Rock Cutting Crew (Hill Sites)',desc:'Specialized workers for sites in Sikkim, hill states, and rocky terrain where foundation pits cannot be dug with normal tools. They use pneumatic rock drills, chisels, and controlled blasting to cut through rock. This is significantly more expensive than normal excavation and takes much more time.',eg:'Only needed for hill sites with exposed rock or shallow rock table. Not required for flat alluvial plains like UP, Bihar, Punjab. Enter 0 workers if your site has no rock.'},
+  'lab-crane':{icon:'🏗️',title:'Crane / Hoist Operator',desc:'Operates a material hoist or mobile crane that lifts heavy materials — steel bundles, concrete buckets, formwork — to upper floors. Essential for G+2 and above buildings where manual carrying becomes impractical and dangerous. Saves time and reduces labour fatigue significantly.',eg:'Tower hoist is common for G+3 and above. Mobile crane for heavy steel placement in large spans. Enter 0 workers if your building is ground floor only or G+1 where manual lifting is sufficient.'},
+  'lab-pump':{icon:'🚿',title:'Concrete Pump Operator',desc:'Operates a concrete boom pump that pushes liquid concrete through pipes to exact locations — especially upper floors, columns, and areas where a concrete bucket cannot reach easily. For G+2 and above, pumping concrete is faster, cleaner and reduces segregation compared to lifting buckets by crane.',eg:'Boom pump operator is typically paid per day plus pump rental cost. Very efficient for slab pours. Enter 0 workers for ground floor only construction.'},
+  'lab-help':{icon:'👷',title:'General Helper / Beldar',desc:'Unskilled workers who assist all other trades. They carry sand, aggregate, steel bundles, water drums, formwork boards. They mix concrete by hand for small patches, clean the site, move materials and do all heavy lifting. They are the largest group on any site and work throughout the entire construction period.',eg:'Typically 1 helper for every skilled worker. For a 1500 sqft residential building, 8 to 12 helpers are needed during peak activity. They also do curing (watering) if no dedicated curing man is deployed.'},
+  'lab-cure':{icon:'💧',title:'Curing Man / Water Man',desc:'Dedicated worker responsible for keeping all freshly poured concrete wet continuously for the required curing period. IS 456 requires minimum 7 days curing for OPC concrete — 28 days is recommended for full strength. He sprinkles water, covers surfaces with wet jute sacks, fills water on slab surfaces (ponding), and ensures no surface dries out.',eg:'One curing man can handle about 3000 sqft of concrete surface. Without proper curing, concrete strength reduces by 30-40% and cracks appear. This is one of the most neglected but critical activities on site.'},
+  'lab-watch':{icon:'🔦',title:'Night Watchman / Security',desc:'Guards the site at night to prevent theft of expensive materials like TMT steel bars, copper wire, cement bags, and tools. Steel theft at night is very common on Indian construction sites. One watchman per entry/exit point is recommended. If your site has 3 gates, you need 3 watchmen for proper security.',eg:'Steel rate ₹75/kg. If 500kg of steel is stolen in one night that is ₹37,500 loss. A watchman at ₹500/day pays for himself many times over. Do not compromise on security.'},
+  'lab-eng':{icon:'📋',title:'Junior Site Engineer',desc:'A diploma or degree civil engineer who stays on site full time to supervise work quality. He checks bar placement matches the BBS, inspects cover blocks, does slump tests, conducts cube tests, maintains the site diary and pour register, takes photographs before every pour, and flags any problem to the senior structural engineer.',eg:'Critical for large buildings. For a small G+2 home the site owner can take on this role with guidance. For G+3 and above, a dedicated site engineer prevents costly mistakes.'},
+  'lab-fore':{icon:'👔',title:'Site Foreman / Mukadam',desc:'The on-ground manager who coordinates between all labour trades. He assigns daily tasks to each gang, manages material procurement from stores, resolves disputes between workers, maintains daily headcount, and reports progress to the site engineer or owner. An experienced foreman can significantly improve site productivity.',eg:'A good foreman knows exactly how long each activity takes and plans the work sequence to avoid idle time between trades. He ensures the shuttering carpenter is ready when the bar bender finishes.'},
+  'lab-safe':{icon:'🪖',title:'Safety Officer',desc:'Responsible for enforcing safety rules on site. He ensures all workers wear helmets and safety shoes, checks that scaffolding is properly erected and stable, inspects harnesses for workers at height (mandatory G+2 and above per IS 4912), puts up safety nets (mandatory G+3 and above), and conducts weekly safety inspections.',eg:'As per IS 4912, safety is legally mandatory on construction sites. A single accident can halt your project, invite labour department inspection, and result in legal liability. Do not skip this role for buildings G+2 and above.'},
+};
+
+function getLabInfoKey(name){
+  if(name.includes('Bar Bender')||name.includes('Sariya'))return 'lab-barb';
+  if(name.includes('Shuttering')||name.includes('Carpenter'))return 'lab-carp';
+  if(name.includes('Concreting')||name.includes('RCC'))return 'lab-conc';
+  if(name.includes('Vibrator'))return 'lab-vib';
+  if(name.includes('Excavat'))return 'lab-exc';
+  if(name.includes('Rock'))return 'lab-rock';
+  if(name.includes('Crane')||name.includes('Hoist'))return 'lab-crane';
+  if(name.includes('Pump'))return 'lab-pump';
+  if(name.includes('Helper')||name.includes('Beldar'))return 'lab-help';
+  if(name.includes('Curing')||name.includes('Water'))return 'lab-cure';
+  if(name.includes('Watchman')||name.includes('Security'))return 'lab-watch';
+  if(name.includes('Engineer'))return 'lab-eng';
+  if(name.includes('Foreman')||name.includes('Mukadam'))return 'lab-fore';
+  if(name.includes('Safety'))return 'lab-safe';
+  return null; // custom trades have no info
+}
+
+function showInfo(key){
+  if(!key)return;
+  const d=INFO[key];
+  if(!d)return;
+  document.getElementById('info-icon').textContent=d.icon||'ℹ️';
+  document.getElementById('info-title').textContent=d.title;
+  document.getElementById('info-desc').textContent=d.desc;
+  const egEl=document.getElementById('info-eg');
+  const egTxt=document.getElementById('info-eg-text');
+  if(d.eg){egEl.style.display='block';egTxt.textContent=d.eg;}
+  else{egEl.style.display='none';}
+  document.getElementById('info-overlay').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeInfo(e){
+  if(e&&e.target!==document.getElementById('info-overlay'))return;
+  document.getElementById('info-overlay').style.display='none';
+  document.body.style.overflow='';
+}
+// Close on Escape key
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeInfo({target:document.getElementById('info-overlay')});});
+
+/* INIT */
+window.onload=function(){
+  setBT('uniform');
+  updFT();
+  matRows=defaultMatRows();
+  renderMatTable();
+  updatePhonePlaceholder();
+};
+</script>
+<!-- ══ INFO POPUP OVERLAY ══ -->
+<div id="info-overlay" class="info-overlay" style="display:none" onclick="closeInfo(event)">
+  <div class="info-modal" onclick="event.stopPropagation()">
+    <div class="info-modal-top">
+      <div class="info-modal-icon" id="info-icon">ℹ️</div>
+      <div class="info-modal-title" id="info-title">Information</div>
+      <button class="info-modal-close" onclick="closeInfo()">✕</button>
+    </div>
+    <div class="info-modal-body">
+      <div class="info-modal-desc" id="info-desc"></div>
+      <div class="info-modal-eg" id="info-eg" style="display:none">
+        <strong>Example</strong>
+        <span id="info-eg-text"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

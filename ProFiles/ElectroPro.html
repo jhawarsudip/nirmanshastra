@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ElectroPro — Electrical Cost Estimator India</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--amber:#D97706;--amber2:#F59E0B;--amber3:#FCD34D;--charcoal:#111827;--green:#059669;--green2:#D1FAE5;--red:#DC2626;--red2:#FEE2E2;--blue:#2563EB;--bg:#FAF7F2;--card:#fff;--border:#E5DDD0;--text:#1C1917;--muted:#78716C;--earth:#92400E;--r:12px;--r2:8px;--sh:0 2px 8px rgba(28,25,23,.08),0 4px 20px rgba(28,25,23,.05);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+.pg{display:none;min-height:100vh;flex-direction:column;animation:fi .3s ease}.pg.on{display:flex}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.topbar{background:linear-gradient(90deg,#0D0D0D,#1F2937);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.4)}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo-box{width:38px;height:38px;background:linear-gradient(135deg,var(--amber),var(--amber3));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.logo-name{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#fff}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);display:block}
+.upill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:6px 14px;border-radius:20px;font-size:12px;color:rgba(255,255,255,.8)}
+.prog{background:#0D0D0D;padding:.65rem 2rem}.prog-inner{max-width:900px;margin:0 auto;display:flex;align-items:center}
+.ps{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:rgba(255,255,255,.3);flex:1}.ps.done{color:var(--amber3)}.ps.now{color:#fff}
+.pc{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.ps.done .pc{background:var(--amber);color:#0D0D0D}.ps.now .pc{background:#fff;color:#0D0D0D}
+.pl{flex:1;height:1px;background:rgba(255,255,255,.1);margin:0 5px}.pl.done{background:var(--amber)}
+.wrap{flex:1;max-width:920px;width:100%;margin:0 auto;padding:2rem 1.25rem}.wrap.wide{max-width:1100px}.wrap.narrow{max-width:560px}
+.hero{background:linear-gradient(160deg,#0D0D0D,#1C1917,#2D1B00);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(217,119,6,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(217,119,6,.06) 1px,transparent 1px);background-size:40px 40px}
+.hero-in{position:relative;z-index:1;padding:3.5rem 2rem;text-align:center;color:#fff}
+.hero-in h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:700;line-height:1.1;margin-bottom:1rem}
+.hero-in h1 em{color:var(--amber3);font-style:italic}
+.hero-in p{font-size:.95rem;opacity:.65;max-width:520px;margin:0 auto 1.5rem;line-height:1.8}
+.hbadge{display:inline-block;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:4px 12px;border-radius:20px;font-size:10px;font-weight:600;color:rgba(255,255,255,.75);margin:3px}
+.hbadge.a{background:rgba(217,119,6,.2);border-color:var(--amber);color:var(--amber3)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;box-shadow:var(--sh);margin-bottom:1.25rem}
+.card-h{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--charcoal);margin-bottom:1.2rem;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.chi{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ch-a{background:#FEF3C7}.ch-g{background:#D1FAE5}.ch-b{background:#DBEAFE}.ch-p{background:#EDE9FE}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;margin-bottom:1rem}
+.fg2{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.fld input,.fld select{padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r2);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:#FDFAF7;outline:none;transition:all .2s}
+.fld input:focus,.fld select:focus{border-color:var(--amber);background:#fff;box-shadow:0 0 0 3px rgba(217,119,6,.1)}
+.fld .hint{font-size:10px;color:var(--muted)}
+.req::after{content:' *';color:var(--red)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 26px;border:none;border-radius:var(--r2);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-dark{background:linear-gradient(135deg,#0D0D0D,#1F2937);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.3)}.btn-dark:hover{transform:translateY(-1px)}
+.btn-amber{background:linear-gradient(135deg,var(--amber),var(--amber2));color:#0D0D0D;font-weight:700;box-shadow:0 4px 14px rgba(217,119,6,.35)}.btn-amber:hover{transform:translateY(-1px)}
+.btn-green{background:linear-gradient(135deg,#059669,#10B981);color:#fff}
+.btn-outline{background:#fff;color:var(--charcoal);border:2px solid var(--charcoal)}.btn-outline:hover{background:var(--charcoal);color:#fff}
+.btn-full{width:100%}.btn-lg{padding:14px 36px;font-size:15px}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.cc{border:2px solid var(--border);border-radius:var(--r);padding:1.75rem 1.25rem;cursor:pointer;transition:all .2s;background:var(--card);text-align:center;position:relative}
+.cc:hover{border-color:var(--amber2);transform:translateY(-2px)}.cc.sel{border-color:var(--amber);background:linear-gradient(135deg,#FFFBEB,#FEF3C7)}
+.cc-chk{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;background:var(--amber);color:#0D0D0D;display:none;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.cc.sel .cc-chk{display:flex}.cc-ico{font-size:2.8rem;display:block;margin-bottom:.85rem}
+.cc-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--charcoal);margin-bottom:.4rem}
+.cc-desc{font-size:12px;color:var(--muted);line-height:1.65}
+.tw{display:flex;align-items:center;gap:12px;padding:.85rem 1rem;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:var(--r2);cursor:pointer}
+.tw input[type=checkbox]{width:18px;height:18px;accent-color:var(--amber);cursor:pointer;flex-shrink:0}
+.tw label{font-weight:600;font-size:13px;cursor:pointer;flex:1}
+.ep{border:1.5px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem}
+.ep-hd{background:#FDFAF7;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}.ep-hd:hover{background:#FEF3C7}
+.ep-l{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px;color:var(--charcoal)}
+.ep-badge{background:#D1FAE5;color:var(--green);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.ep-badge.cust{background:#FEF3C7;color:var(--earth)}
+.ep-body{display:none;padding:1.25rem;border-top:1px solid var(--border)}.ep-body.open{display:block}
+.ep-arr{transition:transform .2s;font-size:12px;color:var(--muted)}.ep-arr.open{transform:rotate(180deg)}
+.rtbl{width:100%;border-collapse:collapse;margin-bottom:.75rem}
+.rtbl th{background:#FDFAF7;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);text-align:left}
+.rtbl td{padding:8px 12px;border-bottom:1px solid #FAF5EE;font-size:13px;vertical-align:middle}
+.rtbl tr:hover td{background:#FFFBEB}
+.ri{width:100px;padding:7px 9px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:right;background:#fff;outline:none}.ri:focus{border-color:var(--amber)}
+.avg-b{padding:2px 8px;border-radius:4px;font-size:10px;background:#F5F0E8;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.fs{background:#FDFAF7;border:1.5px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem}
+.fhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.ft{font-weight:700;font-size:14px;color:var(--charcoal);display:flex;align-items:center;gap:8px}
+.fb{background:linear-gradient(135deg,#111827,#374151);color:#fff;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:600}
+.rtbody tr td{padding:7px 10px;border-bottom:1px solid #FAF5EE;vertical-align:middle;font-size:13px}
+.rtbody tr:hover td{background:#FFFBEB}
+.rts{padding:7px 9px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;background:#fff;outline:none;width:190px}.rts:focus{border-color:var(--amber)}
+.rmc{width:70px;padding:7px 9px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center;background:#fff;outline:none}.rmc:focus{border-color:var(--amber)}
+.pts-b{display:inline-block;background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.rdel{width:28px;height:28px;border-radius:50%;border:none;background:#FEE2E2;color:var(--red);cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.add-room{display:flex;align-items:center;gap:8px;padding:.7rem 1rem;border:2px dashed #FCD34D;border-radius:var(--r2);background:#FFFBEB;color:var(--amber);cursor:pointer;font-weight:600;font-size:13px;width:100%;justify-content:center;margin-top:.75rem;transition:all .2s}
+.add-room:hover{background:#FEF3C7;border-color:var(--amber)}
+.lt{width:100%;border-collapse:collapse;margin-bottom:.75rem}
+.lt th{background:#FFFBEB;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--earth);border-bottom:1px solid #FDE68A;text-align:left}
+.lt td{padding:8px 10px;border-bottom:1px solid #FFFBEB;font-size:13px;transition:all .3s}
+.lr.off td{opacity:.3;pointer-events:none}.lr.off .tgb{opacity:1;pointer-events:all}
+.li{width:80px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:right;background:#fff;outline:none}.li:focus{border-color:var(--amber)}
+.lni{width:200px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;background:#fff;outline:none}
+.tgb{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.tgb.act{background:#FEE2E2;color:var(--red)}.tgb.inact{background:#D1FAE5;color:var(--green)}
+.wc{display:flex;align-items:center;gap:4px}
+.wcb{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--charcoal)}
+.wcb:hover{background:var(--amber);color:#fff;border-color:var(--amber)}
+.wcn{width:36px;text-align:center;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:14px}
+.add-lab{display:flex;align-items:center;gap:8px;padding:.75rem 1rem;border:2px dashed #FDE68A;border-radius:var(--r2);background:#FFFBEB;color:var(--earth);cursor:pointer;font-weight:600;font-size:13px;width:100%;justify-content:center;transition:all .2s;margin-top:.5rem}
+.add-lab:hover{background:#FEF3C7;border-color:var(--amber)}
+.al{border-radius:var(--r2);padding:.85rem 1.1rem;font-size:12.5px;line-height:1.7;margin-bottom:1rem}
+.al-a{background:#FFFBEB;border:1px solid #FDE68A;color:var(--earth)}
+.al-g{background:var(--green2);border:1px solid #6EE7B7;color:#065F46}
+.al-r{background:var(--red2);border:1px solid #FECACA;color:#991B1B}
+.al-b{background:#EFF6FF;border:1px solid #93C5FD;color:#1E40AF}
+.res-hero{background:linear-gradient(135deg,#0D0D0D,#1F2937);color:#fff;border-radius:var(--r);padding:1.5rem 2rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
+.res-hero::after{content:'⚡';position:absolute;right:20px;bottom:-10px;font-size:80px;opacity:.06}
+.res-h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff;margin-bottom:4px}
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.25rem;overflow-x:auto;scrollbar-width:none}
+.tab{padding:10px 18px;border:none;background:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s}
+.tab.on{color:var(--amber);border-bottom-color:var(--amber)}.tc{display:none}.tc.on{display:block}
+.kpig{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:1rem;margin-bottom:1.5rem}
+.kpi{border-radius:var(--r);padding:1rem;text-align:center;border:1px solid var(--border)}
+.kpi.k1{background:#FEF3C7;border-color:#FDE68A}.kpi.k2{background:#DBEAFE;border-color:#93C5FD}
+.kpi.k3{background:#111827;color:#fff;border-color:#111827}.kpi.k4{background:var(--green2);border-color:#6EE7B7}
+.kv{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;line-height:1}
+.kpi.k3 .kv{color:var(--amber3)}.kpi.k1 .kv{color:var(--earth)}.kpi.k2 .kv{color:#1E40AF}.kpi.k4 .kv{color:var(--green)}
+.ku{font-size:10px;color:var(--muted);margin-top:3px}.kpi.k3 .ku{color:rgba(255,255,255,.5)}
+.kl{font-size:11px;font-weight:700;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:.04em}
+.kpi.k3 .kl{color:rgba(255,255,255,.5)}.kpi.k1 .kl{color:var(--earth)}.kpi.k2 .kl{color:#1E40AF}.kpi.k4 .kl{color:var(--green)}
+.isp{background:#0F172A;border-radius:var(--r2);padding:1rem 1.25rem;color:#94A3B8;font-size:11.5px;line-height:2.1;font-family:'JetBrains Mono',monospace;margin-bottom:1.5rem}
+.iv{color:#4ADE80}.iw{color:#FCD34D}.ir{color:#60A5FA}.ie{color:#F87171}
+.gbox{border:2px solid var(--charcoal);border-radius:var(--r);overflow:hidden;margin-bottom:1.5rem}
+.ghd{background:var(--charcoal);color:#fff;padding:14px 20px;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700}
+.gr{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);font-size:14px}
+.gr.mr{background:#FFFBEB}.gr.lr{background:var(--green2)}.gr.wr{background:#FEF3C7}
+.gr.tr{background:var(--charcoal);color:#fff;font-size:16px;font-weight:700;border:none}
+.gr.sr{background:#F0FDF4;font-weight:600}
+.ga{font-family:'JetBrains Mono',monospace;font-weight:700}
+.bv{filter:blur(6px);user-select:none;transition:filter .5s ease;display:inline-block;min-width:60px}.bv.revealed{filter:none}
+.tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.tg{background:#D1FAE5;color:#065F46}.tr2{background:#FEE2E2;color:#991B1B}
+.tb{background:#DBEAFE;color:#1E40AF}.ta{background:#FEF3C7;color:#92400E}
+table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+th{background:#F5F0E8;padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border)}
+td{padding:9px 12px;border-bottom:1px solid #FAF5EE;font-size:13px;vertical-align:middle}
+tr:hover td{background:#FFFBEB}
+tfoot td{padding:10px 12px;font-weight:700;border-top:2px solid var(--border)}
+.rmg{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.rm{border-radius:var(--r2);padding:1rem 1.1rem;border-left:3px solid}
+.rm-a{background:#FFFBEB;border-color:var(--amber)}.rm-g{background:#F0FDF4;border-color:#16A34A}
+.rm-r{background:var(--red2);border-color:#DC2626}.rm-b{background:#EFF6FF;border-color:#3B82F6}
+.rm-p{background:#FDF4FF;border-color:#7C3AED}.rm-e{background:#ECFDF5;border-color:#10B981}
+.rm-y{background:#FEFCE8;border-color:#CA8A04}.rm-c{background:#F0FDF4;border-color:#059669}
+.rm h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem}
+.rm ul{list-style:none;font-size:11.5px;line-height:2}.rm ul li::before{content:'→ ';font-weight:700}
+.vb{background:#FFFBEB;border:2px solid var(--amber2);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem}
+.vtbl{width:100%;border-collapse:collapse;margin-top:.75rem}
+.vtbl th{background:#FEF3C7;padding:8px 12px;font-size:11px;text-transform:uppercase;color:var(--earth);border:1px solid #FDE68A;text-align:left}
+.vtbl td{padding:8px 12px;font-size:12px;border:1px solid #FDE68A;line-height:1.6}
+.vtbl tr:nth-child(even) td{background:#FFFDF0}
+.pay-gate{background:linear-gradient(135deg,#0D0D0D,#1F2937);border-radius:var(--r);padding:2rem;margin:1.5rem 0;text-align:center;border:2px solid var(--amber);box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.pay-gate h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:#fff;margin-bottom:.5rem}
+.pay-gate p{color:rgba(255,255,255,.6);font-size:13px;margin-bottom:1.5rem;line-height:1.7}
+.pay-price{display:inline-block;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:.85rem 2rem;margin-bottom:1.5rem}
+.pay-amt{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:700;color:var(--amber3)}
+.pay-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px}
+.pay-features{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1.5rem}
+.pay-feat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);padding:4px 12px;border-radius:20px;font-size:11px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:5px}
+.pay-feat::before{content:'✓';color:var(--amber3);font-weight:700}
+.pay-btn{padding:16px 48px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--amber),var(--amber3));color:#0D0D0D;font-family:'Inter',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(217,119,6,.4);display:inline-flex;align-items:center;gap:8px}
+.pay-btn:hover{transform:translateY(-2px)}.pay-secure{font-size:11px;color:rgba(255,255,255,.35);margin-top:.75rem}
+.disc{background:var(--red2);border:1px solid #FECACA;border-radius:var(--r2);padding:1rem 1.25rem;margin-bottom:1.25rem}
+.disc h4{color:var(--red);font-size:13px;margin-bottom:.4rem}.disc p{font-size:11px;color:#7F1D1D;line-height:1.8}
+.rfooter{background:var(--charcoal);color:#fff;border-radius:var(--r);padding:1.25rem;text-align:center;margin-top:1.5rem}
+.sp-{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.cg,.fg{grid-template-columns:1fr}.rmg{grid-template-columns:1fr}.wrap{padding:1rem .75rem}}
+/* ── QUESTION UI ── */
+.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:.5rem}
+.scope-card{border:2px solid var(--border);border-radius:var(--r);padding:1.25rem 1rem;cursor:pointer;text-align:center;background:#fff;transition:all .2s;position:relative}
+.scope-card:hover{border-color:var(--amber2);transform:translateY(-2px)}.scope-card.sel{border-color:var(--amber);background:linear-gradient(135deg,#FFFBEB,#FEF3C7)}
+.scope-chk{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--amber);color:#111;display:none;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.scope-card.sel .scope-chk{display:flex}
+.scope-ico{font-size:2rem;display:block;margin-bottom:.4rem}.scope-title{font-weight:700;font-size:13px;color:var(--charcoal)}.scope-desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+.q-sec{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid #F5EFE6}.q-sec:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.q-lbl{font-size:15px;font-weight:700;color:var(--charcoal);margin-bottom:.75rem;display:block;line-height:1.4}
+.q-sub{font-size:12px;color:var(--muted);margin-bottom:.75rem;display:block;line-height:1.6}
+.counter{display:inline-flex;align-items:center;border:2px solid var(--border);border-radius:10px;overflow:hidden;background:#fff}
+.cntb{width:46px;height:46px;border:none;background:#FDFAF7;font-size:22px;font-weight:700;cursor:pointer;color:var(--charcoal);transition:all .2s}.cntb:hover{background:var(--amber);color:#fff}
+.cntv{width:60px;text-align:center;font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--charcoal)}
+.cg2{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.5rem}
+.cbtn{padding:10px 22px;border:2px solid var(--border);border-radius:8px;background:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--charcoal);transition:all .2s}
+.cbtn:hover{border-color:var(--amber2)}.cbtn.on{border-color:var(--amber);background:#FFFBEB;color:var(--earth)}
+.rtags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+.rtag{padding:8px 14px;border:2px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:500;cursor:pointer;color:var(--charcoal);transition:all .2s}
+.rtag:hover{border-color:var(--amber2)}.rtag.on{border-color:var(--amber);background:#FFFBEB;color:var(--earth)}
+.cond{display:none}.cond.vis{display:block}
+.ftabs{display:flex;gap:.5rem;margin-bottom:1.25rem;overflow-x:auto;flex-wrap:wrap}
+.ftab{padding:8px 16px;border:2px solid var(--border);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);background:#fff;white-space:nowrap;transition:all .2s}
+.ftab.on{border-color:var(--amber);background:var(--amber);color:#0D0D0D}
+.earth-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem}
+.earth-card{border:2px solid var(--border);border-radius:var(--r);padding:1rem;cursor:pointer;text-align:center;background:#fff;transition:all .2s}
+.earth-card:hover{border-color:var(--green)}.earth-card.on{border-color:var(--green);background:#F0FDF4}
+@media(max-width:600px){.scope-grid{grid-template-columns:1fr}.earth-opts{grid-template-columns:1fr}.cntb{width:40px;height:40px}.cntv{width:50px}}
+
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: REGISTRATION -->
+<div id="pg1" class="pg on">
+<div class="topbar"><div class="logo"><div class="logo-box">⚡</div><div><span class="logo-name">ElectroPro</span><span class="logo-sub">Electrical Cost Estimator India</span></div></div><div style="font-size:11px;color:rgba(255,255,255,.4)">IS 732 · IS 3043 · NBC 2016</div></div>
+<div class="hero"><div class="hero-in">
+  <h1>Know Your <em>Wiring Cost</em><br>Before You Build</h1>
+  <p>India's complete electrical estimation tool. IS code-compliant circuit design, wire BOM, MCB sizing, earthing design — in minutes.</p>
+  <div><span class="hbadge a">IS 732:2019</span><span class="hbadge a">IS 3043:2018</span><span class="hbadge a">IS 694:2010</span><span class="hbadge a">NBC 2016 Part 8</span><span class="hbadge">IE Rules 1956</span><span class="hbadge">CEA Regulations 2010</span></div>
+</div></div>
+<div class="wrap narrow" style="margin-top:1.5rem">
+<div class="card">
+  <div class="card-h"><div class="chi ch-a">⚡</div>Create Your Electrical Estimate</div>
+  <div class="fg">
+    <div class="fld full"><label class="req">Full Name</label><input id="rname" placeholder="e.g. Ramesh Kumar Sharma"></div>
+    <div class="fld">
+      <label class="req">Mobile Number</label>
+      <div style="display:flex;gap:6px">
+        <select id="rcc" style="width:90px;padding:10px 8px;border:1.5px solid var(--border);border-radius:var(--r2);font-size:13px;background:#FDFAF7;outline:none">
+          <option value="+91">🇮🇳 +91</option><option value="+1">🇺🇸 +1</option><option value="+44">🇬🇧 +44</option>
+          <option value="+61">🇦🇺 +61</option><option value="+971">🇦🇪 +971</option><option value="+65">🇸🇬 +65</option>
+          <option value="+60">🇲🇾 +60</option><option value="+977">🇳🇵 +977</option>
+        </select>
+        <input id="rmob" type="tel" placeholder="10-digit number" style="flex:1">
+      </div>
+      <span class="hint">India: 10 digits without country code</span>
+    </div>
+    <div class="fld"><label class="req">Email Address</label><input id="remail" type="email" placeholder="name@gmail.com"></div>
+    <div class="fld full"><label class="req">Project / Site Address</label><input id="raddr" placeholder="Plot No., Street, Near Landmark"></div>
+    <div class="fld"><label class="req">City</label><input id="rcity" placeholder="e.g. Bengaluru"></div>
+    <div class="fld">
+      <label class="req">State</label>
+      <select id="rstate" onchange="onStateChg()">
+        <option value="">— Select State —</option>
+        <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option>
+        <option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option><option>Haryana</option>
+        <option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+        <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option>
+        <option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option>
+        <option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+        <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option>
+        <option>Delhi</option><option>Jammu &amp; Kashmir</option><option>Ladakh</option>
+        <option>Puducherry</option><option>Chandigarh</option><option>Andaman and Nicobar</option>
+      </select>
+    </div>
+    <div class="fld"><label>Pincode</label><input id="rpin" maxlength="6" placeholder="6-digit pincode"></div>
+    <div class="fld full"><label>Project Name</label><input id="rprojname" placeholder='e.g. "My Home Wiring"'></div>
+  </div>
+  <div id="statebox" class="al al-a" style="display:none;margin-bottom:1rem"></div>
+  <div class="al al-b">🔒 Your data stays on your device only. Nothing is sent to any server during registration.</div>
+  <div style="display:flex;justify-content:flex-end;margin-top:1rem">
+    <button class="btn btn-amber btn-lg" onclick="goMethod()">Start My Estimate →</button>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- PAGE 2: METHOD -->
+<div id="pg2" class="pg">
+<div class="topbar"><div class="logo" onclick="sp('pg1')"><div class="logo-box">⚡</div><div><span class="logo-name">ElectroPro</span><span class="logo-sub">Electrical Cost Estimator India</span></div></div><div class="upill" id="up2"></div></div>
+<div class="prog"><div class="prog-inner">
+  <div class="ps done"><div class="pc">✓</div><span>Details</span></div><div class="pl done"></div>
+  <div class="ps now"><div class="pc">2</div><span>Method</span></div><div class="pl"></div>
+  <div class="ps"><div class="pc">3</div><span>Rooms</span></div><div class="pl"></div>
+  <div class="ps"><div class="pc">4</div><span>Report</span></div>
+</div></div>
+<div class="wrap narrow" style="margin-top:1.5rem">
+<div class="card">
+  <div class="card-h"><div class="chi ch-a">🔌</div>How would you like to proceed?</div>
+  <div class="cg">
+    <div class="cc" id="mc1" onclick="selM(1)"><div class="cc-chk">✓</div><span class="cc-ico">🏠</span><div class="cc-title">I'll Describe My Building</div><div class="cc-desc">Tell us rooms on each floor — we calculate all circuits, wiring, MCBs, earthing using IS code defaults. No engineering knowledge needed.</div></div>
+    <div class="cc" id="mc2" onclick="selM(2)"><div class="cc-chk">✓</div><span class="cc-ico">📐</span><div class="cc-title">I Have Electrical Layout</div><div class="cc-desc">Upload your electrical engineer's single-line diagram or floor plan. AI reads circuit details and DB schedule automatically.</div></div>
+  </div>
+  <div style="display:flex;gap:1rem;justify-content:space-between">
+    <button class="btn btn-outline" onclick="sp('pg1')">← Back</button>
+    <button class="btn btn-amber btn-lg" id="mcont" disabled onclick="goFromMethod()">Continue →</button>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- PAGE 3: DESIGN MYSELF -->
+<!-- PAGE 3: CONVERSATIONAL INPUT -->
+<div id="pg3" class="pg">
+<div class="topbar"><div class="logo" onclick="sp('pg1')"><div class="logo-box">⚡</div><div><span class="logo-name">ElectroPro</span><span class="logo-sub">Electrical Cost Estimator India</span></div></div><div class="upill" id="up3"></div></div>
+<div class="prog"><div class="prog-inner">
+  <div class="ps done"><div class="pc">✓</div></div><div class="pl done"></div>
+  <div class="ps done"><div class="pc">✓</div></div><div class="pl done"></div>
+  <div class="ps now"><div class="pc">3</div><span>Your Building</span></div><div class="pl"></div>
+  <div class="ps"><div class="pc">4</div><span>Report</span></div>
+</div></div>
+<div class="wrap" style="margin-top:1.5rem">
+
+<!-- Q0: SCOPE -->
+<div class="card">
+  <div class="card-h"><div class="chi ch-a">🏗️</div>What are you calculating the electrical cost for?</div>
+  <div class="scope-grid">
+    <div class="scope-card" id="sc-full" onclick="setScope('full')"><div class="scope-chk">✓</div><span class="scope-ico">🏗️</span><div class="scope-title">Full Building</div><div class="scope-desc">I own a plot. Building from scratch. Ground floor + upper floors.</div></div>
+    <div class="scope-card" id="sc-flat" onclick="setScope('flat')"><div class="scope-chk">✓</div><span class="scope-ico">🏠</span><div class="scope-title">My Flat / Apartment</div><div class="scope-desc">I bought or own a flat inside a building or apartment complex.</div></div>
+    <div class="scope-card" id="sc-floor" onclick="setScope('floor')"><div class="scope-chk">✓</div><span class="scope-ico">🏢</span><div class="scope-title">Single Floor of My House</div><div class="scope-desc">I want to calculate for just one floor of my existing building.</div></div>
+    <div class="scope-card" id="sc-add" onclick="setScope('add')"><div class="scope-chk">✓</div><span class="scope-ico">➕</span><div class="scope-title">Adding a New Floor</div><div class="scope-desc">My building already exists. I am adding one new floor on top.</div></div>
+  </div>
+</div>
+
+<!-- Q1: FLOORS (only for full building) -->
+<div id="q-floors" style="display:none" class="card">
+  <div class="card-h"><div class="chi ch-b">🏢</div>How many floors is your building?</div>
+  <div class="fld" style="max-width:300px">
+    <label>Total number of floors</label>
+    <select id="fcount" onchange="setFloors(this.value)">
+      <option value="1">Ground Floor Only</option>
+      <option value="2">Ground + 1 Floor (G+1)</option>
+      <option value="3">Ground + 2 Floors (G+2)</option>
+      <option value="4">Ground + 3 Floors (G+3)</option>
+      <option value="5">Ground + 4 Floors (G+4)</option>
+      <option value="6">Ground + 5 Floors (G+5)</option>
+      <option value="7">Ground + 6 Floors (G+6)</option>
+      <option value="8">Ground + 7 Floors (G+7)</option>
+    </select>
+  </div>
+</div>
+
+<!-- Q2: ROOM QUESTIONS (dynamic per floor) -->
+<div id="q-rooms" style="display:none" class="card">
+  <div class="card-h"><div class="chi ch-b">🏠</div>Tell us about the rooms — <span id="q-rooms-title" style="font-weight:400;font-size:.9rem;color:var(--muted)">answer in plain language, no technical knowledge needed</span></div>
+  <div id="ftabs" class="ftabs" style="display:none"></div>
+  <div id="floor-qs"></div>
+</div>
+
+<!-- Q3: SPECIAL EQUIPMENT -->
+<div id="q-special" style="display:none" class="card">
+  <div class="card-h"><div class="chi ch-a">⚡</div>Any special electrical needs?</div>
+  <div class="q-sec">
+    <span class="q-lbl">🔋 Do you want battery backup for power cuts?</span>
+    <span class="q-sub">This is an inverter or UPS — it keeps your lights and fans running when electricity goes off.</span>
+    <div class="cg2">
+      <button class="cbtn on" id="inv-none" onclick="selInv('none',this)">No backup needed</button>
+      <button class="cbtn" id="inv-small" onclick="selInv('small',this)">Yes — only lights &amp; fans (1–2 rooms)</button>
+      <button class="cbtn" id="inv-med" onclick="selInv('med',this)">Yes — full house lights &amp; fans</button>
+      <button class="cbtn" id="inv-big" onclick="selInv('big',this)">Yes — lights, fans &amp; some appliances too</button>
+    </div>
+  </div>
+  <div class="q-sec">
+    <span class="q-lbl">💧 Do you have a water pump or motor?</span>
+    <span class="q-sub">This is the pump that fills your overhead tank or runs your borewell.</span>
+    <div class="cg2">
+      <button class="cbtn on" id="pump-no" onclick="selPump('no',this)">No pump</button>
+      <button class="cbtn" id="pump-small" onclick="selPump('small',this)">Yes — small pump (fills overhead tank)</button>
+      <button class="cbtn" id="pump-big" onclick="selPump('big',this)">Yes — borewell / submersible pump</button>
+    </div>
+  </div>
+  <div class="q-sec">
+    <span class="q-lbl">🚗 Do you have or plan to buy an electric car or scooter?</span>
+    <span class="q-sub">If yes, we include a dedicated charging point in the estimate.</span>
+    <div class="cg2">
+      <button class="cbtn on" id="ev-no" onclick="selEV('no',this)">No electric vehicle</button>
+      <button class="cbtn" id="ev-yes" onclick="selEV('yes',this)">Yes — include EV charging point</button>
+    </div>
+  </div>
+  <div class="q-sec">
+    <span class="q-lbl">☀️ Are you planning solar panels on the roof?</span>
+    <span class="q-sub">If yes, we include solar inverter and panel wiring in the estimate.</span>
+    <div class="cg2">
+      <button class="cbtn on" id="sol-no" onclick="selSol('no',this)">No solar panels</button>
+      <button class="cbtn" id="sol-yes" onclick="selSol('yes',this)">Yes — include solar wiring</button>
+    </div>
+  </div>
+</div>
+
+<!-- Q4: EARTHING (for flat/floor/add only) -->
+<div id="q-earth" style="display:none" class="card">
+  <div class="card-h"><div class="chi ch-g">🌍</div>What about earthing?</div>
+  <span class="q-sub" style="display:block;margin-bottom:1rem">Earthing is the safety wire that goes underground to protect you from electric shock. In a building, it is usually done once for the whole building — not separately for each flat.</span>
+  <div class="earth-opts">
+    <div class="earth-card on" id="earth-yes" onclick="selEarth('yes',this)"><span style="font-size:1.8rem">✅</span><div style="font-weight:700;margin-top:.4rem;font-size:13px">Already done</div><div style="font-size:11px;color:var(--muted);margin-top:3px">The building already has earthing. Do not include it in my estimate.</div></div>
+    <div class="earth-card" id="earth-no" onclick="selEarth('no',this)"><span style="font-size:1.8rem">🔧</span><div style="font-weight:700;margin-top:.4rem;font-size:13px">Not done yet</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Earthing is not done. Calculate and include it in my estimate.</div></div>
+    <div class="earth-card" id="earth-dk" onclick="selEarth('dk',this)"><span style="font-size:1.8rem">🤷</span><div style="font-weight:700;margin-top:.4rem;font-size:13px">I don't know</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Calculate earthing cost and add a note. I will verify with my electrician.</div></div>
+  </div>
+</div>
+
+<!-- RATES (collapsed) -->
+<div class="ep">
+  <div class="ep-hd" onclick="togEP('mpanel','marr','mbadge')"><div class="ep-l">💰 Material Rates <span id="mbadge" class="ep-badge">Using India Avg 2026</span></div><span id="marr" class="ep-arr">▼</span></div>
+  <div id="mpanel" class="ep-body">
+    <div class="al al-a" style="margin-bottom:1rem;color:#7f1d1d;background:#fee2e2;border:1px solid #fecaca">⛔ IS Code Mandatory Materials — Do Not Eliminate. You may only change the rate (₹) to match your local market. Quantities are auto-calculated per IS 732:2019.</div>
+    <table class="rtbl"><thead><tr><th>Material</th><th>IS Code</th><th>Unit</th><th>Your Rate (₹)</th><th>India Avg 2026</th></tr></thead><tbody>
+      <tr><td><strong>1.5 sqmm FR Copper Wire</strong></td><td>IS 694:2010</td><td>/metre</td><td><input class="ri" id="rw15" type="number" value="18"></td><td><span class="avg-b">₹15–22</span></td></tr>
+      <tr><td><strong>2.5 sqmm FR Copper Wire</strong></td><td>IS 694:2010</td><td>/metre</td><td><input class="ri" id="rw25" type="number" value="28"></td><td><span class="avg-b">₹24–34</span></td></tr>
+      <tr><td><strong>4 sqmm FR Copper Wire</strong></td><td>IS 694:2010</td><td>/metre</td><td><input class="ri" id="rw4" type="number" value="48"></td><td><span class="avg-b">₹42–56</span></td></tr>
+      <tr><td><strong>6 sqmm FR Copper Wire</strong></td><td>IS 694:2010</td><td>/metre</td><td><input class="ri" id="rw6" type="number" value="72"></td><td><span class="avg-b">₹65–82</span></td></tr>
+      <tr><td><strong>10 sqmm FR Copper Wire</strong></td><td>IS 694:2010</td><td>/metre</td><td><input class="ri" id="rw10" type="number" value="115"></td><td><span class="avg-b">₹100–132</span></td></tr>
+      <tr><td><strong>25mm PVC Conduit</strong></td><td>IS 9537 Pt.3</td><td>/metre</td><td><input class="ri" id="rc25" type="number" value="38"></td><td><span class="avg-b">₹32–45</span></td></tr>
+      <tr><td><strong>32mm PVC Conduit</strong></td><td>IS 9537 Pt.3</td><td>/metre</td><td><input class="ri" id="rc32" type="number" value="52"></td><td><span class="avg-b">₹44–62</span></td></tr>
+      <tr><td><strong>MCB 6A (SP)</strong></td><td>IS 8828:2007</td><td>/piece</td><td><input class="ri" id="rm6" type="number" value="120"></td><td><span class="avg-b">₹100–145</span></td></tr>
+      <tr><td><strong>MCB 16A (SP)</strong></td><td>IS 8828:2007</td><td>/piece</td><td><input class="ri" id="rm16" type="number" value="135"></td><td><span class="avg-b">₹115–160</span></td></tr>
+      <tr><td><strong>MCB 20A (SP)</strong></td><td>IS 8828:2007</td><td>/piece</td><td><input class="ri" id="rm20" type="number" value="160"></td><td><span class="avg-b">₹140–185</span></td></tr>
+      <tr><td><strong>MCB 32A (DP)</strong></td><td>IS 8828:2007</td><td>/piece</td><td><input class="ri" id="rm32" type="number" value="220"></td><td><span class="avg-b">₹190–260</span></td></tr>
+      <tr><td><strong>MCB 63A (DP)</strong></td><td>IS 8828:2007</td><td>/piece</td><td><input class="ri" id="rm63" type="number" value="480"></td><td><span class="avg-b">₹420–560</span></td></tr>
+      <tr><td><strong>RCCB 30mA 2-Pole</strong></td><td>IS 12640-1</td><td>/piece</td><td><input class="ri" id="rrccb30" type="number" value="875"></td><td><span class="avg-b">₹750–1000</span></td></tr>
+      <tr><td><strong>RCCB 100mA 4-Pole</strong></td><td>IS 12640-1</td><td>/piece</td><td><input class="ri" id="rrccb100" type="number" value="1250"></td><td><span class="avg-b">₹1050–1500</span></td></tr>
+      <tr><td><strong>8-way MCB DB Box</strong></td><td>IS 8623</td><td>/piece</td><td><input class="ri" id="rdb8" type="number" value="780"></td><td><span class="avg-b">₹650–920</span></td></tr>
+      <tr><td><strong>12-way MCB DB Box</strong></td><td>IS 8623</td><td>/piece</td><td><input class="ri" id="rdb12" type="number" value="1150"></td><td><span class="avg-b">₹950–1380</span></td></tr>
+      <tr><td><strong>16-way MCB DB Box</strong></td><td>IS 8623</td><td>/piece</td><td><input class="ri" id="rdb16" type="number" value="1450"></td><td><span class="avg-b">₹1200–1750</span></td></tr>
+      <tr><td><strong>Modular Switch Plate (6M)</strong></td><td>IS 3854:1997</td><td>/piece</td><td><input class="ri" id="rsp" type="number" value="185"></td><td><span class="avg-b">₹150–240</span></td></tr>
+      <tr><td><strong>5A Socket Outlet</strong></td><td>IS 1293:2019</td><td>/piece</td><td><input class="ri" id="rs5" type="number" value="75"></td><td><span class="avg-b">₹60–92</span></td></tr>
+      <tr><td><strong>15A Socket Outlet</strong></td><td>IS 1293:2019</td><td>/piece</td><td><input class="ri" id="rs15" type="number" value="95"></td><td><span class="avg-b">₹80–115</span></td></tr>
+      <tr><td><strong>Fan Speed Regulator</strong></td><td>IS 4648:1968</td><td>/piece</td><td><input class="ri" id="rfreg" type="number" value="260"></td><td><span class="avg-b">₹220–320</span></td></tr>
+      <tr><td><strong>Earth Pit Set (pipe+charcoal+salt)</strong></td><td>IS 3043:2018</td><td>/pit</td><td><input class="ri" id="rep" type="number" value="920"></td><td><span class="avg-b">₹750–1150</span></td></tr>
+      <tr><td><strong>Earth Wire 6 sqmm GI</strong></td><td>IS 3043:2018</td><td>/metre</td><td><input class="ri" id="rew" type="number" value="90"></td><td><span class="avg-b">₹75–110</span></td></tr>
+    </tbody></table>
+    <button class="btn btn-green" onclick="saveMat()">Save Rates</button>
+  </div>
+</div>
+
+<!-- LABOUR (toggle) -->
+<div class="card">
+  <div class="card-h"><div class="chi ch-g">👷</div>Labour Cost</div>
+  <div class="tw"><input type="checkbox" id="labchk" onchange="togLab()"><label for="labchk">Include Labour Cost in my estimate</label></div>
+  <div id="labsec" style="display:none;margin-top:1.25rem">
+    <div class="al al-a" style="margin-bottom:1rem">⚠️ Days depend on your built-up area, number of floors, site access and local availability of licensed electricians. Edit days to match your reality. Rough estimates pre-filled.</div>
+    <div style="overflow-x:auto"><table class="lt"><thead><tr><th></th><th>Trade</th><th>Workers</th><th>Rate/Day (₹)</th><th>Days</th></tr></thead><tbody id="labtbody"></tbody></table></div>
+    <button class="add-lab" onclick="addLabRow()">+ Add Your Own Labour Type</button>
+  </div>
+</div>
+
+<div style="display:flex;gap:1rem;justify-content:space-between;margin-top:1rem">
+  <button class="btn btn-outline" onclick="sp('pg2')">← Back</button>
+  <button class="btn btn-amber btn-lg" onclick="runCalc()">⚡ Calculate My Estimate →</button>
+</div>
+</div>
+</div>
+
+<!-- PAGE 4: RESULTS -->
+<div id="pg4" class="pg">
+<div class="topbar"><div class="logo" onclick="sp('pg1')"><div class="logo-box">⚡</div><div><span class="logo-name">ElectroPro</span><span class="logo-sub">Electrical Cost Estimator India</span></div></div><div class="upill" id="up4"></div></div>
+<div class="prog"><div class="prog-inner">
+  <div class="ps done"><div class="pc">✓</div></div><div class="pl done"></div>
+  <div class="ps done"><div class="pc">✓</div></div><div class="pl done"></div>
+  <div class="ps done"><div class="pc">✓</div></div><div class="pl done"></div>
+  <div class="ps now"><div class="pc">4</div><span>Report</span></div>
+</div></div>
+<div class="wrap wide" style="margin-top:1.5rem">
+
+<div class="card" id="clicard"><div class="card-h"><div class="chi ch-a">📋</div>Client &amp; Project Details</div><div id="clidet" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:.75rem;font-size:13px"></div></div>
+
+<div id="scope-note" style="display:none;background:#DBEAFE;border:1px solid #93C5FD;border-radius:8px;padding:.85rem 1.1rem;font-size:12.5px;color:#1E40AF;margin-bottom:1.25rem;line-height:1.7"></div>
+
+<div class="res-hero">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+    <div><h2 class="res-h2" id="rh"></h2><p id="rs" style="font-size:11px;opacity:.55;font-family:'JetBrains Mono',monospace"></p><span id="rz" style="display:inline-block;margin-top:8px;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:600;background:var(--amber);color:#0D0D0D"></span></div>
+    <div style="text-align:right"><div style="font-size:11px;opacity:.45;margin-bottom:4px">REPORT DATE</div><div id="rdt" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#fff"></div></div>
+  </div>
+</div>
+
+<div class="card"><div class="card-h"><div class="chi ch-p">📋</div>IS Code Compliance Check</div><div class="isp" id="ispanel"></div></div>
+
+<div class="kpig" id="kpig"></div>
+
+<div class="card">
+  <div class="tabs">
+    <button class="tab on" onclick="st('t1',this)">⚡ Load Schedule</button>
+    <button class="tab" onclick="st('t2',this)">🔌 Circuit Layout</button>
+    <button class="tab" onclick="st('t3',this)">📦 Materials</button>
+    <button class="tab" onclick="st('t4',this)">🌍 Earthing</button>
+    <button class="tab" onclick="st('t5',this)">👷 Labour</button>
+    <button class="tab" onclick="st('t6',this)">🏢 By Floor</button>
+  </div>
+
+  <!-- TAB 1: LOAD (FULLY VISIBLE) -->
+  <div class="tc on" id="t1">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#FEF3C7;border-radius:6px;color:var(--earth);margin-bottom:1rem">⚡ Electrical Load Schedule — IS 732:2019 — Fully Visible (no payment required)</div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Room / Area</th><th>Count</th><th>Light Pts</th><th>Fan Pts</th><th>5A Sockets</th><th>15A Sockets</th><th>AC Points</th><th>Geyser Pts</th><th>Connected Load</th><th>Demand Load</th></tr></thead>
+      <tbody id="ltbody"></tbody>
+      <tfoot><tr style="background:#FEF3C7"><td colspan="8"><strong>Total (All Floors)</strong></td><td id="totconn" style="font-weight:700;font-family:'JetBrains Mono',monospace"></td><td id="totdem" style="font-weight:700;font-family:'JetBrains Mono',monospace"></td></tr></tfoot>
+    </table></div>
+    <div id="phasebox" style="margin-top:1rem;padding:1rem 1.25rem;border-radius:8px;background:#111827;color:#fff;font-size:13px;line-height:1.8"></div>
+  </div>
+
+  <!-- TAB 2: CIRCUITS (partially visible) -->
+  <div class="tc" id="t2">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#DBEAFE;border-radius:6px;color:#1E40AF;margin-bottom:1rem">🔌 Circuit Design — IS 732:2019 — Circuit count visible · Wire sizes &amp; costs unlock after payment</div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Floor</th><th>Circuit Type</th><th>No. of Circuits</th><th>Load (W)</th><th>Wire Size</th><th>MCB Rating</th><th>RCCB Required</th></tr></thead>
+      <tbody id="ctbody"></tbody>
+      <tfoot><tr style="background:#111827;color:#fff"><td colspan="2"><strong>Total Circuits</strong></td><td id="tcirc" style="font-weight:700;font-family:'JetBrains Mono',monospace"></td><td colspan="4"></td></tr></tfoot>
+    </table></div>
+  </div>
+
+  <!-- TAB 3: MATERIALS (blurred) -->
+  <div class="tc" id="t3">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#FEF3C7;border-radius:6px;color:var(--earth);margin-bottom:1rem">📦 Bill of Materials — All quantities and costs unlock after payment</div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Material</th><th>IS Code</th><th>Unit</th><th>Quantity</th><th>Rate (₹)</th><th>Amount (₹)</th></tr></thead>
+      <tbody id="mtbody"></tbody>
+      <tfoot>
+        <tr style="background:#FFFBEB"><td colspan="5">Materials Sub-total</td><td><span class="bv" id="matsub">—</span></td></tr>
+        <tr style="background:#111827;color:#fff"><td colspan="5" style="font-size:14px;font-weight:700">💰 TOTAL MATERIAL COST</td><td><span class="bv" id="mattot">—</span></td></tr>
+      </tfoot>
+    </table></div>
+  </div>
+
+  <!-- TAB 4: EARTHING -->
+  <div class="tc" id="t4">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#D1FAE5;border-radius:6px;color:var(--green);margin-bottom:1rem">🌍 Earthing Design — IS 3043:2018</div>
+    <div id="earthbox" class="al al-g" style="margin-bottom:1rem"></div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Item</th><th>Specification</th><th>Qty</th><th>Unit</th><th>Rate (₹)</th><th>Amount (₹)</th></tr></thead>
+      <tbody id="etbody"></tbody>
+      <tfoot><tr style="background:#111827;color:#fff"><td colspan="5" style="font-weight:700">💰 TOTAL EARTHING COST</td><td id="earthtot" style="font-weight:700;font-family:'JetBrains Mono',monospace"></td></tr></tfoot>
+    </table></div>
+  </div>
+
+  <!-- TAB 5: LABOUR -->
+  <div class="tc" id="t5">
+    <div id="labexcl" style="display:none;background:#F0FDF4;border:1px solid #6EE7B7;border-radius:8px;padding:1rem;color:#065F46;text-align:center">Labour cost not included in this estimate.</div>
+    <div id="labwrap">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#D1FAE5;border-radius:6px;color:var(--green);margin-bottom:1rem">👷 Labour Breakdown — Electrical Installation</div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>Trade</th><th>Workers</th><th>Days</th><th>Rate/Day</th><th>Total (₹)</th></tr></thead>
+        <tbody id="labbody"></tbody>
+        <tfoot>
+          <tr style="background:#D1FAE5"><td colspan="4">Labour Sub-Total</td><td><span class="bv" id="labsub2">—</span></td></tr>
+          <tr style="background:#065F46;color:#fff"><td colspan="4" style="font-weight:700">💰 TOTAL LABOUR COST</td><td><span class="bv" id="labtot2">—</span></td></tr>
+        </tfoot>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- TAB 6: BY FLOOR -->
+  <div class="tc" id="t6">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1rem;background:#DBEAFE;border-radius:6px;color:#1E40AF;margin-bottom:1rem">🏢 Floor-by-Floor Summary</div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Floor</th><th>Total Circuits</th><th>Connected Load</th><th>Demand Load</th><th>DB Required</th><th>Floor Incomer MCB</th></tr></thead>
+      <tbody id="ftbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- GRAND SUMMARY -->
+<div class="gbox">
+  <div class="ghd">💰 Complete Electrical Installation Cost Summary</div>
+  <div class="gr mr"><span>📦 Material Cost</span><span class="ga"><span class="bv" id="gmat">—</span></span></div>
+  <div class="gr" id="glab-row" style="background:#D1FAE5"><span>👷 Labour Cost</span><span class="ga"><span class="bv" id="glab">—</span></span></div>
+  <div class="gr wr"><span>⚠️ Contingency Reserve (5%)</span><span class="ga"><span class="bv" id="gcont">—</span></span></div>
+  <div class="gr tr"><span>⚡ GRAND TOTAL — ELECTRICAL INSTALLATION</span><span class="ga" id="gtot" style="color:var(--amber3);font-size:1.35rem">—</span></div>
+</div>
+
+<!-- TECHNICAL REMINDERS -->
+<div class="card">
+  <div class="card-h"><div class="chi ch-a">⚠️</div>Electrical Quality &amp; Safety Reminders — IS Code Based (Free to Read)</div>
+  <div class="rmg">
+    <div class="rm rm-a"><h4 style="color:var(--earth)">🌍 Earthing (IS 3043:2018)</h4><ul><li>Minimum 2 earth pits for any building — mandatory</li><li>Earth wire must be continuous — no joints underground</li><li>Test earth resistance annually — target &lt;1 Ohm</li><li>Use GI or copper earth wire only — no aluminium</li><li>Maintain moisture in earth pits — water monthly</li></ul></div>
+    <div class="rm rm-r"><h4 style="color:#991B1B">🛡️ RCCB — Mandatory (IS 12640)</h4><ul><li>30mA RCCB mandatory for bathroom and kitchen circuits</li><li>30mA RCCB mandatory for all outdoor circuits</li><li>Test RCCB with test button every 3 months</li><li>RCCB must trip within 40ms at rated current</li><li>Never bypass RCCB — it saves lives in shock events</li></ul></div>
+    <div class="rm rm-b"><h4 style="color:#1E40AF">🔌 MCB Sizing (IS 8828:2007)</h4><ul><li>Never replace a tripped MCB with a higher rating</li><li>MCB breaking capacity: min 6kA for residential</li><li>Never use fuse wire in place of MCB — illegal</li><li>All DBs must have a main incomer MCB or RCCB</li><li>Label every MCB in DB — circuit name and area</li></ul></div>
+    <div class="rm rm-a"><h4 style="color:var(--earth)">⚡ Wire Colour Coding (IS 732:2019)</h4><ul><li>Phase wire: Red (L1), Yellow (L2), Blue (L3)</li><li>Neutral wire: Black — always, no exceptions</li><li>Earth wire: Green/Green-Yellow — never carry current</li><li>Never reverse neutral and earth at socket outlet</li><li>All wires must follow IS 732 colour code</li></ul></div>
+    <div class="rm rm-g"><h4 style="color:#065F46">🧪 Testing Before Energising (IE Rules)</h4><ul><li>Insulation resistance (megger): min 1 MΩ per circuit</li><li>Earth loop impedance test on all circuits</li><li>Polarity check — L and N not reversed at outlets</li><li>RCD operating time test at 5× rated current</li><li>All tests mandatory before electricity board connection</li></ul></div>
+    <div class="rm rm-e"><h4 style="color:var(--green)">🚿 Wet Area Safety (IS 732)</h4><ul><li>No socket outlets inside bathrooms — IS 732 Cl.10.4</li><li>Bathroom light fitting: IP44 minimum (splash-proof)</li><li>Geyser: double pole isolator switch outside bathroom</li><li>No metal switch plates in bathrooms — plastic only</li><li>All bathroom/kitchen circuits: 30mA RCCB mandatory</li></ul></div>
+  </div>
+</div>
+
+<div class="vb">
+  <h3 style="font-family:'Playfair Display',serif;color:var(--earth);margin-bottom:.5rem;font-size:1rem">⚠️ Estimate Accuracy — Please Read</h3>
+  <table class="vtbl"><thead><tr><th>Factor</th><th>Variation</th><th>Reason</th></tr></thead><tbody>
+    <tr><td>Wire &amp; MCB Price Changes</td><td><span class="tag ta">±8–12%</span></td><td>Copper prices fluctuate monthly.</td></tr>
+    <tr><td>Actual Room Routing</td><td><span class="tag tr2">±10–15%</span></td><td>Wire lengths depend on exact room positions and conduit routing in walls.</td></tr>
+    <tr><td>Brand Upgrade by Contractor</td><td><span class="tag ta">±12–20%</span></td><td>Switching Anchor → Legrand can increase switchgear cost by 20%+.</td></tr>
+    <tr><td>Region &amp; Transport</td><td><span class="tag tg">±8–15%</span></td><td>Your local rates applied with regional adjustment.</td></tr>
+  </tbody></table>
+  <p style="margin-top:.85rem;font-size:13px;font-weight:700;color:var(--earth)">📊 Overall Accuracy: <span style="color:var(--red)">±15–20%</span> — Use for preliminary budgeting only.</p>
+</div>
+
+<div class="disc"><h4>⛔ Electrical &amp; Legal Disclaimer</h4>
+  <p>Wire lengths and quantities are calculated from IS 732:2019 room loading assumptions and circuit-based averages — NOT from your actual floor plan routing. This is a preliminary budgeting tool only. Mandatory before energising: (1) Electrical design by licensed engineer (IE Rules Rule 45), (2) Work done by licensed electrician (Rule 32), (3) State board clearance, (4) All IS code tests completed. ElectroPro takes no responsibility for electrical hazards, cost overruns, or non-compliance.</p>
+</div>
+
+<div class="pay-gate" id="paygate">
+  <span style="font-size:3rem;display:block;margin-bottom:.75rem">🔒</span>
+  <h2>Your Electrical Estimate Is Ready — Unlock It</h2>
+  <p>The complete load schedule above is fully visible. Pay once to unlock all wire quantities, MCB schedule, earthing design, cost breakdown, and your professional PDF report.</p>
+  <div class="pay-price"><div class="pay-amt">₹499</div><div class="pay-sub">One-time payment · Instant access · No subscription</div></div>
+  <div class="pay-features">
+    <span class="pay-feat">Complete wire quantity schedule</span><span class="pay-feat">Full circuit layout with MCB sizing</span>
+    <span class="pay-feat">Earthing design IS 3043</span><span class="pay-feat">Switchboard &amp; socket schedule</span>
+    <span class="pay-feat">DB sizing per floor</span><span class="pay-feat">Labour cost details</span><span class="pay-feat">Professional PDF report</span>
+  </div>
+  <button class="pay-btn" id="paybtn" onclick="initPay()">💳 Pay ₹499 — Unlock Full Electrical Report</button>
+  <div class="pay-secure">🔒 Secure payment via Razorpay · UPI · Cards · Net Banking · Wallets</div>
+</div>
+
+<div id="postpay" style="display:none;margin-top:1.25rem">
+  <div style="display:flex;gap:1rem;flex-wrap:wrap">
+    <button class="btn btn-amber btn-lg" onclick="dlPDF()" style="flex:1;min-width:200px">📥 Download PDF Report</button>
+    <button class="btn btn-outline" onclick="sp('pg1')">🔄 New Estimate</button>
+  </div>
+</div>
+
+<div class="rfooter" style="margin-top:1.25rem">
+  <p style="font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:.35rem">ElectroPro — Professional Electrical Cost Estimator India</p>
+  <p style="font-size:11px;opacity:.45">IS 732:2019 · IS 3043:2018 · IS 694:2010 · IS 8828:2007 · NBC 2016 Part 8 · CEA Regulations 2010 · India 2026</p>
+</div>
+</div>
+</div>
+
+<div id="pdf-report" style="display:none;font-family:'Inter',sans-serif;font-size:11px;color:#1C1917;background:#fff;width:190mm;margin:0 auto"><div id="pdf-body"></div></div>
+
+<script>
+/* ─── NAVIGATION ─── */
+function sp(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
+function st(id,el){document.querySelectorAll('.tc').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.getElementById(id).classList.add('on');el.classList.add('on');}
+
+/* ─── STATE DATA [seismicZone, coastal, climate, ratePremium%] ─── */
+const SD={'Andhra Pradesh':['II',true,'Tropical',10],'Arunachal Pradesh':['V',false,'Cold-Humid',18],'Assam':['V',false,'Humid',15],'Bihar':['IV',false,'Hot-Humid',8],'Chhattisgarh':['II',false,'Hot-Dry',5],'Goa':['III',true,'Tropical',15],'Gujarat':['III',true,'Hot-Dry',10],'Haryana':['IV',false,'Hot-Dry',8],'Himachal Pradesh':['V',false,'Cold',15],'Jharkhand':['II',false,'Hot-Humid',5],'Karnataka':['II',false,'Tropical',8],'Kerala':['II',true,'Tropical-Humid',12],'Madhya Pradesh':['II',false,'Hot-Dry',5],'Maharashtra':['III',true,'Tropical',10],'Manipur':['V',false,'Humid',18],'Meghalaya':['V',false,'Humid',18],'Mizoram':['V',false,'Humid',18],'Nagaland':['V',false,'Humid',18],'Odisha':['II',true,'Tropical',10],'Punjab':['IV',false,'Hot-Dry',8],'Rajasthan':['III',false,'Hot-Dry',5],'Sikkim':['V',false,'Cold-Humid',20],'Tamil Nadu':['II',true,'Tropical',10],'Telangana':['II',false,'Hot-Dry',8],'Tripura':['V',false,'Humid',15],'Uttar Pradesh':['IV',false,'Hot-Dry',8],'Uttarakhand':['V',false,'Cold',15],'West Bengal':['III',true,'Humid',10],'Delhi':['IV',false,'Hot-Dry',12],'Jammu & Kashmir':['V',false,'Cold',15],'Ladakh':['V',false,'Cold',18],'Puducherry':['II',true,'Tropical',12],'Chandigarh':['IV',false,'Hot-Dry',10],'Andaman and Nicobar':['V',true,'Tropical',25]};
+
+/* ─── ROOM SPECS (IS 732:2019) ─── */
+const RS={
+  'Living Room':       {l:4,f:2,s5:4,s15:2,ac:1,g:0,lW:160,fW:150,s5W:400,s15W:1000,acW:2000,gW:0},
+  'Dining Room':       {l:2,f:1,s5:2,s15:1,ac:0,g:0,lW:80,fW:75,s5W:200,s15W:500,acW:0,gW:0},
+  'Master Bedroom':    {l:3,f:1,s5:3,s15:2,ac:1,g:0,lW:120,fW:75,s5W:300,s15W:1000,acW:2000,gW:0},
+  'Bedroom':           {l:2,f:1,s5:2,s15:1,ac:1,g:0,lW:80,fW:75,s5W:200,s15W:500,acW:1500,gW:0},
+  'Bedroom (no AC)':   {l:2,f:1,s5:2,s15:1,ac:0,g:0,lW:80,fW:75,s5W:200,s15W:500,acW:0,gW:0},
+  'Master Bedroom (no AC)':{l:3,f:1,s5:3,s15:2,ac:0,g:0,lW:120,fW:75,s5W:300,s15W:1000,acW:0,gW:0},
+  'Kitchen':           {l:2,f:0,s5:0,s15:4,ac:0,g:0,lW:80,fW:0,s5W:0,s15W:3000,acW:0,gW:0},
+  'Kitchen (heavy)':   {l:2,f:0,s5:0,s15:6,ac:0,g:0,lW:80,fW:0,s5W:0,s15W:5000,acW:0,gW:0},
+  'Bathroom':          {l:1,f:0,s5:0,s15:1,ac:0,g:1,lW:40,fW:0,s5W:0,s15W:0,acW:0,gW:2000},
+  'Bathroom (no geyser)':{l:1,f:0,s5:0,s15:1,ac:0,g:0,lW:40,fW:0,s5W:0,s15W:0,acW:0,gW:0},
+  'Study Room':        {l:2,f:1,s5:4,s15:1,ac:1,g:0,lW:80,fW:75,s5W:400,s15W:500,acW:1500,gW:0},
+  'Study (no AC)':     {l:2,f:1,s5:4,s15:1,ac:0,g:0,lW:80,fW:75,s5W:400,s15W:500,acW:0,gW:0},
+  'Pooja Room':        {l:2,f:1,s5:2,s15:0,ac:0,g:0,lW:80,fW:75,s5W:200,s15W:0,acW:0,gW:0},
+  'Servant Room':      {l:1,f:1,s5:1,s15:1,ac:0,g:0,lW:40,fW:75,s5W:100,s15W:500,acW:0,gW:0},
+  'Garage / Porch':    {l:2,f:0,s5:0,s15:2,ac:0,g:0,lW:80,fW:0,s5W:0,s15W:1000,acW:0,gW:0},
+  'Balcony / Terrace': {l:1,f:1,s5:1,s15:0,ac:0,g:0,lW:40,fW:75,s5W:100,s15W:0,acW:0,gW:0},
+  'Storeroom':         {l:1,f:0,s5:1,s15:0,ac:0,g:0,lW:40,fW:0,s5W:100,s15W:0,acW:0,gW:0},
+  'Corridor / Hall':   {l:2,f:0,s5:0,s15:0,ac:0,g:0,lW:80,fW:0,s5W:0,s15W:0,acW:0,gW:0},
+};
+const FN=['Ground Floor','1st Floor','2nd Floor','3rd Floor','4th Floor','5th Floor','6th Floor','7th Floor'];
+
+/* ─── CONVERSATIONAL INPUT STATE ─── */
+let C={scope:'',floors:1,curFloor:0,earth:'yes',inv:'none',pump:'no',ev:'no',sol:'no'};
+// Per-floor data stored here: C.fd[fi] = {beds, hasMaster, acBeds, baths, geyser, hasLiving, livingAC, hasDining, hasKitchen, kitHeavy, hasStudy, studyAC, extras:[]}
+let C_fd={};
+
+function defFloor(){return{beds:2,hasMaster:'yes',acBeds:'some',baths:2,geyser:'all',hasLiving:'yes',livingAC:'yes',hasDining:'yes',hasKitchen:'yes',kitHeavy:'no',hasStudy:'no',studyAC:'no',extras:[]};}
+
+/* ─── SCOPE SELECTION ─── */
+function setScope(s){
+  C.scope=s;
+  ['full','flat','floor','add'].forEach(x=>{document.getElementById('sc-'+x).classList.toggle('sel',x===s);});
+  const isFullBldg=s==='full';
+  document.getElementById('q-floors').style.display=isFullBldg?'block':'none';
+  document.getElementById('q-earth').style.display=s!=='full'?'block':'none';
+  C.floors=isFullBldg?parseInt(document.getElementById('fcount').value)||1:1;
+  if(!isFullBldg){document.getElementById('q-rooms-title').textContent=s==='flat'?'your flat':s==='floor'?'this floor':'the new floor';}
+  showRooms();
+}
+
+function setFloors(v){C.floors=parseInt(v)||1;showRooms();}
+
+function showRooms(){
+  for(let i=0;i<C.floors;i++){if(!C_fd[i])C_fd[i]=defFloor();}
+  document.getElementById('q-rooms').style.display='block';
+  document.getElementById('q-special').style.display='block';
+  buildTabs();
+  renderFQ(C.curFloor);
+}
+
+function buildTabs(){
+  const d=document.getElementById('ftabs');
+  if(C.floors>1){
+    d.style.display='flex';
+    d.innerHTML=FN.slice(0,C.floors).map((n,i)=>`<button class="ftab ${i===C.curFloor?'on':''}" onclick="switchFl(${i})">${n}</button>`).join('');
+  }else{d.style.display='none';}
+}
+
+function switchFl(i){C.curFloor=i;buildTabs();renderFQ(i);}
+
+/* ─── RENDER FLOOR QUESTIONS ─── */
+function renderFQ(fi){
+  const fd=C_fd[fi]||defFloor();
+  const fname=C.floors>1?FN[fi]:'this floor';
+  document.getElementById('floor-qs').innerHTML=`
+  <!-- BEDROOMS -->
+  <div class="q-sec">
+    <span class="q-lbl">🛏️ How many bedrooms does ${fname} have?</span>
+    <div class="counter"><button class="cntb" onclick="chgCnt(${fi},'beds',-1)">−</button><span class="cntv" id="beds-${fi}">${fd.beds}</span><button class="cntb" onclick="chgCnt(${fi},'beds',1)">+</button></div>
+    <div id="bed-qs-${fi}" style="margin-top:1rem;padding-left:.5rem;border-left:3px solid var(--amber)" class="${fd.beds>0?'':'cond'}">
+      <div style="margin-bottom:1rem">
+        <span class="q-lbl" style="font-size:13px">Is one of them a larger master bedroom (master suite)?</span>
+        <div class="cg2">
+          <button class="cbtn ${fd.hasMaster==='yes'?'on':''}" onclick="setFD(${fi},'hasMaster','yes',this,'master-${fi}')">Yes — one master bedroom</button>
+          <button class="cbtn ${fd.hasMaster==='no'?'on':''}" onclick="setFD(${fi},'hasMaster','no',this,'master-${fi}')">No — all same size</button>
+        </div>
+      </div>
+      <div>
+        <span class="q-lbl" style="font-size:13px">Will there be AC (air conditioning) in the bedrooms?</span>
+        <div class="cg2">
+          <button class="cbtn ${fd.acBeds==='all'?'on':''}" onclick="setFD(${fi},'acBeds','all',this,'acbeds-${fi}')">Yes — in all bedrooms</button>
+          <button class="cbtn ${fd.acBeds==='some'?'on':''}" onclick="setFD(${fi},'acBeds','some',this,'acbeds-${fi}')">Only in some bedrooms</button>
+          <button class="cbtn ${fd.acBeds==='none'?'on':''}" onclick="setFD(${fi},'acBeds','none',this,'acbeds-${fi}')">No AC in bedrooms</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- BATHROOMS -->
+  <div class="q-sec">
+    <span class="q-lbl">🚿 How many bathrooms / toilets does ${fname} have?</span>
+    <div class="counter"><button class="cntb" onclick="chgCnt(${fi},'baths',-1)">−</button><span class="cntv" id="baths-${fi}">${fd.baths}</span><button class="cntb" onclick="chgCnt(${fi},'baths',1)">+</button></div>
+    <div style="margin-top:1rem;padding-left:.5rem;border-left:3px solid var(--blue)" class="${fd.baths>0?'':'cond'}" id="bath-qs-${fi}">
+      <span class="q-lbl" style="font-size:13px">Will the bathrooms have a geyser (electric water heater)?</span>
+      <div class="cg2">
+        <button class="cbtn ${fd.geyser==='all'?'on':''}" onclick="setFD(${fi},'geyser','all',this,'geyser-${fi}')">Yes — in all bathrooms</button>
+        <button class="cbtn ${fd.geyser==='some'?'on':''}" onclick="setFD(${fi},'geyser','some',this,'geyser-${fi}')">Only in some bathrooms</button>
+        <button class="cbtn ${fd.geyser==='none'?'on':''}" onclick="setFD(${fi},'geyser','none',this,'geyser-${fi}')">No geyser</button>
+      </div>
+    </div>
+  </div>
+  <!-- LIVING & DINING -->
+  <div class="q-sec">
+    <span class="q-lbl">🛋️ Common areas on ${fname}</span>
+    <div style="margin-bottom:1rem">
+      <span class="q-lbl" style="font-size:13px">Does ${fname} have a living / drawing room?</span>
+      <div class="cg2">
+        <button class="cbtn ${fd.hasLiving==='yes'?'on':''}" onclick="setFD(${fi},'hasLiving','yes',this,'living-${fi}')">Yes</button>
+        <button class="cbtn ${fd.hasLiving==='no'?'on':''}" onclick="setFD(${fi},'hasLiving','no',this,'living-${fi}')">No</button>
+      </div>
+      <div style="margin-top:.75rem;padding-left:.5rem;border-left:3px solid var(--amber)" id="livingac-${fi}" class="${fd.hasLiving==='yes'?'':'cond'}">
+        <span class="q-lbl" style="font-size:13px">Will the living room have AC?</span>
+        <div class="cg2">
+          <button class="cbtn ${fd.livingAC==='yes'?'on':''}" onclick="setFD(${fi},'livingAC','yes',this,'lac-${fi}')">Yes — AC in living room</button>
+          <button class="cbtn ${fd.livingAC==='no'?'on':''}" onclick="setFD(${fi},'livingAC','no',this,'lac-${fi}')">No AC</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <span class="q-lbl" style="font-size:13px">Is there a separate dining room?</span>
+      <div class="cg2">
+        <button class="cbtn ${fd.hasDining==='yes'?'on':''}" onclick="setFD(${fi},'hasDining','yes',this,'dining-${fi}')">Yes — separate dining room</button>
+        <button class="cbtn ${fd.hasDining==='no'?'on':''}" onclick="setFD(${fi},'hasDining','no',this,'dining-${fi}')">No — dining is part of living room</button>
+      </div>
+    </div>
+  </div>
+  <!-- KITCHEN -->
+  <div class="q-sec">
+    <span class="q-lbl">🍳 Does ${fname} have a kitchen?</span>
+    <div class="cg2" style="margin-bottom:.75rem">
+      <button class="cbtn ${fd.hasKitchen==='yes'?'on':''}" onclick="setFD(${fi},'hasKitchen','yes',this,'kitchen-${fi}')">Yes</button>
+      <button class="cbtn ${fd.hasKitchen==='no'?'on':''}" onclick="setFD(${fi},'hasKitchen','no',this,'kitchen-${fi}')">No</button>
+    </div>
+    <div id="kit-qs-${fi}" style="padding-left:.5rem;border-left:3px solid var(--amber)" class="${fd.hasKitchen==='yes'?'':'cond'}">
+      <span class="q-lbl" style="font-size:13px">What kind of kitchen?</span>
+      <div class="cg2">
+        <button class="cbtn ${fd.kitHeavy==='no'?'on':''}" onclick="setFD(${fi},'kitHeavy','no',this,'kit-${fi}')">🥘 Basic — mixer, fridge, stove only</button>
+        <button class="cbtn ${fd.kitHeavy==='yes'?'on':''}" onclick="setFD(${fi},'kitHeavy','yes',this,'kit-${fi}')">⚡ Heavy — microwave, OTG, chimney, dishwasher too</button>
+      </div>
+    </div>
+  </div>
+  <!-- STUDY & EXTRAS -->
+  <div class="q-sec">
+    <span class="q-lbl">📚 Any other rooms on ${fname}?</span>
+    <div style="margin-bottom:1rem">
+      <span class="q-lbl" style="font-size:13px">Study / work-from-home room?</span>
+      <div class="cg2">
+        <button class="cbtn ${fd.hasStudy==='yes'?'on':''}" onclick="setFD(${fi},'hasStudy','yes',this,'study-${fi}')">Yes</button>
+        <button class="cbtn ${fd.hasStudy==='no'?'on':''}" onclick="setFD(${fi},'hasStudy','no',this,'study-${fi}')">No</button>
+      </div>
+      <div id="studyac-${fi}" style="margin-top:.6rem;padding-left:.5rem;border-left:3px solid var(--amber)" class="${fd.hasStudy==='yes'?'':'cond'}">
+        <span class="q-lbl" style="font-size:13px">AC in study room?</span>
+        <div class="cg2">
+          <button class="cbtn ${fd.studyAC==='yes'?'on':''}" onclick="setFD(${fi},'studyAC','yes',this,'sac-${fi}')">Yes</button>
+          <button class="cbtn ${fd.studyAC==='no'?'on':''}" onclick="setFD(${fi},'studyAC','no',this,'sac-${fi}')">No</button>
+        </div>
+      </div>
+    </div>
+    <span class="q-lbl" style="font-size:13px">Select any other rooms that apply:</span>
+    <div class="rtags">
+      <button class="rtag ${fd.extras.includes('Pooja Room')?'on':''}" onclick="togExtra(${fi},'Pooja Room',this)">🪔 Pooja Room</button>
+      <button class="rtag ${fd.extras.includes('Servant Room')?'on':''}" onclick="togExtra(${fi},'Servant Room',this)">👤 Servant Room</button>
+      <button class="rtag ${fd.extras.includes('Garage / Porch')?'on':''}" onclick="togExtra(${fi},'Garage / Porch',this)">🚗 Garage / Car Porch</button>
+      <button class="rtag ${fd.extras.includes('Balcony / Terrace')?'on':''}" onclick="togExtra(${fi},'Balcony / Terrace',this)">🌿 Balcony / Terrace</button>
+      <button class="rtag ${fd.extras.includes('Storeroom')?'on':''}" onclick="togExtra(${fi},'Storeroom',this)">📦 Storeroom</button>
+      <button class="rtag ${fd.extras.includes('Corridor / Hall')?'on':''}" onclick="togExtra(${fi},'Corridor / Hall',this)">🚪 Corridor / Staircase Hall</button>
+    </div>
+  </div>
+  `;
+  updateBedVis(fi,fd.beds);
+  updateBathVis(fi,fd.baths);
+}
+
+/* ─── COUNTER ─── */
+function chgCnt(fi,key,d){
+  if(!C_fd[fi])C_fd[fi]=defFloor();
+  C_fd[fi][key]=Math.max(0,Math.min(10,(C_fd[fi][key]||0)+d));
+  const el=document.getElementById(key+'-'+fi);
+  if(el)el.textContent=C_fd[fi][key];
+  if(key==='beds')updateBedVis(fi,C_fd[fi][key]);
+  if(key==='baths')updateBathVis(fi,C_fd[fi][key]);
+}
+
+function updateBedVis(fi,n){
+  const el=document.getElementById('bed-qs-'+fi);
+  if(el){el.style.display=n>0?'block':'none';}
+}
+function updateBathVis(fi,n){
+  const el=document.getElementById('bath-qs-'+fi);
+  if(el){el.style.display=n>0?'block':'none';}
+}
+
+/* ─── CHOICE BUTTONS ─── */
+function setFD(fi,key,val,btn,grp){
+  if(!C_fd[fi])C_fd[fi]=defFloor();
+  C_fd[fi][key]=val;
+  // Deselect siblings
+  btn.closest('.cg2').querySelectorAll('.cbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  // Show/hide conditional
+  if(key==='hasLiving'){const el=document.getElementById('livingac-'+fi);if(el)el.style.display=val==='yes'?'block':'none';}
+  if(key==='hasKitchen'){const el=document.getElementById('kit-qs-'+fi);if(el)el.style.display=val==='yes'?'block':'none';}
+  if(key==='hasStudy'){const el=document.getElementById('studyac-'+fi);if(el)el.style.display=val==='yes'?'block':'none';}
+}
+
+function togExtra(fi,room,btn){
+  if(!C_fd[fi])C_fd[fi]=defFloor();
+  const idx=C_fd[fi].extras.indexOf(room);
+  if(idx>=0){C_fd[fi].extras.splice(idx,1);btn.classList.remove('on');}
+  else{C_fd[fi].extras.push(room);btn.classList.add('on');}
+}
+
+/* ─── SPECIAL EQUIPMENT ─── */
+function selInv(v,btn){C.inv=v;btn.closest('.cg2').querySelectorAll('.cbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+function selPump(v,btn){C.pump=v;btn.closest('.cg2').querySelectorAll('.cbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+function selEV(v,btn){C.ev=v;btn.closest('.cg2').querySelectorAll('.cbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+function selSol(v,btn){C.sol=v;btn.closest('.cg2').querySelectorAll('.cbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+
+/* ─── EARTHING ─── */
+function selEarth(v,card){
+  C.earth=v;
+  document.querySelectorAll('.earth-card').forEach(c=>c.classList.remove('on'));
+  card.classList.add('on');
+}
+
+/* ─── PANELS ─── */
+function togEP(bid,aid,bd2){const b=document.getElementById(bid);const a=document.getElementById(aid);const o=b.classList.contains('open');b.classList.toggle('open',!o);a.classList.toggle('open',!o);}
+function saveTech(){togEP('tpanel','tarr','tbadge');const b=document.getElementById('tbadge');if(b){b.textContent='Custom Specs Saved ✓';b.className='ep-badge cust';}}
+function saveMat(){togEP('mpanel','marr','mbadge');const b=document.getElementById('mbadge');if(b){b.textContent='Custom Rates Saved ✓';b.className='ep-badge cust';}}
+
+/* ─── LABOUR ─── */
+let labRows=[
+  {id:1,n:'Licensed Electrician (Master)',w:2,d:0,r:1200,a:true},
+  {id:2,n:'Wireman / Helper',w:4,d:0,r:700,a:true},
+  {id:3,n:'Earthing Team',w:2,d:3,r:850,a:true},
+  {id:4,n:'Panel Board Fitter',w:1,d:0,r:1050,a:true},
+  {id:5,n:'Switch & Socket Fitter',w:2,d:0,r:800,a:true},
+  {id:6,n:'Testing & Commissioning Engr.',w:1,d:2,r:2000,a:true},
+  {id:7,n:'Site Electrician (Construction)',w:1,d:0,r:950,a:true},
+];
+let lc=50;
+
+function togLab(){const c=document.getElementById('labchk').checked;document.getElementById('labsec').style.display=c?'block':'none';if(c)renderLab();}
+function renderLab(){
+  const tb=document.getElementById('labtbody');tb.innerHTML='';
+  labRows.forEach(r=>{
+    const tr=document.createElement('tr');tr.className='lr'+(r.a?'':' off');tr.id='lr'+r.id;
+    tr.innerHTML=`<td><button class="tgb ${r.a?'act':'inact'}" onclick="togLR(${r.id})">${r.a?'−':'+'}</button></td>
+    <td>${r.custom?`<input class="lni" value="${r.n}" onchange="updLR(${r.id},'n',this.value)">`:`<strong>${r.n}</strong>`}</td>
+    <td><div class="wc"><button class="wcb" onclick="chgW(${r.id},-1)">−</button><span class="wcn" id="wn${r.id}">${r.w}</span><button class="wcb" onclick="chgW(${r.id},1)">+</button></div></td>
+    <td><input class="li" type="number" value="${r.r}" onchange="updLR(${r.id},'r',this.value)"></td>
+    <td><input class="li" type="number" value="${r.d}" placeholder="days" onchange="updLR(${r.id},'d',this.value)"></td>`;
+    tb.appendChild(tr);
+  });
+}
+function togLR(id){const r=labRows.find(x=>x.id===id);if(r){r.a=!r.a;renderLab();}}
+function chgW(id,d){const r=labRows.find(x=>x.id===id);if(r){r.w=Math.max(0,r.w+d);const el=document.getElementById('wn'+id);if(el)el.textContent=r.w;}}
+function updLR(id,f,v){const r=labRows.find(x=>x.id===id);if(r)r[f]=f==='n'?v:(+v||0);}
+function addLabRow(){lc++;labRows.push({id:lc,n:'New Trade',w:1,d:0,r:600,a:true,custom:true});renderLab();}
+function getLabTotal(){return labRows.filter(r=>r.a&&r.d>0).reduce((s,r)=>s+r.w*r.d*r.r,0);}
+
+/* ─── DB HELPERS ─── */
+function getDBSz(c){const w=Math.ceil(c*1.25);if(w<=8)return'8-way';if(w<=12)return'12-way';if(w<=16)return'16-way';if(w<=20)return'20-way';return'24-way';}
+function getIncMCB(W){const A=W/230;if(A<=20)return'32A MCB';if(A<=32)return'40A MCB';if(A<=50)return'63A MCB';return'100A MCB';}
+function getMainMCB(W,ph){if(ph==='Single Phase'){const A=W/230;if(A<=32)return'40A SP MCB';if(A<=50)return'63A SP MCB';return'100A SP MCB';}else{const A=W/1200;if(A<=32)return'32A TP MCB';if(A<=63)return'63A TP MCB';return'100A TP MCB';}}
+
+/* ─── FORMAT ─── */
+function fc(n){if(n>=10000000)return'₹'+(n/10000000).toFixed(2)+' Cr';if(n>=100000)return'₹'+(n/100000).toFixed(2)+' L';if(n>=1000)return'₹'+(n/1000).toFixed(1)+'K';return'₹'+n.toLocaleString('en-IN');}
+function fn(n){return Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});}
+
+/* ─── BUILD ROOM LIST FROM CONVERSATIONAL ANSWERS ─── */
+function buildRooms(fi){
+  const fd=C_fd[fi]||defFloor();
+  const rooms=[];
+
+  // Bedrooms
+  if(fd.beds>0){
+    const acAll=fd.acBeds==='all', acSome=fd.acBeds==='some';
+    if(fd.hasMaster==='yes'&&fd.beds>=1){
+      const acMaster=acAll||(acSome&&true);
+      rooms.push({type:acMaster?'Master Bedroom':'Master Bedroom (no AC)',count:1});
+      const rem=fd.beds-1;
+      if(rem>0){
+        const acRem=acAll?rem:(acSome?Math.ceil(rem/2):0);
+        if(acRem>0)rooms.push({type:'Bedroom',count:acRem});
+        if(acRem<rem)rooms.push({type:'Bedroom (no AC)',count:rem-acRem});
+      }
+    }else{
+      const acCount=acAll?fd.beds:(acSome?Math.ceil(fd.beds/2):0);
+      if(acCount>0)rooms.push({type:'Bedroom',count:acCount});
+      if(acCount<fd.beds)rooms.push({type:'Bedroom (no AC)',count:fd.beds-acCount});
+    }
+  }
+
+  // Bathrooms
+  if(fd.baths>0){
+    const withGey=fd.geyser==='all'?fd.baths:(fd.geyser==='some'?Math.ceil(fd.baths/2):0);
+    if(withGey>0)rooms.push({type:'Bathroom',count:withGey});
+    if(withGey<fd.baths)rooms.push({type:'Bathroom (no geyser)',count:fd.baths-withGey});
+  }
+
+  // Living room
+  if(fd.hasLiving==='yes'){
+    const spec=Object.assign({},RS['Living Room']);
+    if(fd.livingAC==='no')spec.ac=0;
+    rooms.push({type:'Living Room',count:1,specOverride:spec});
+  }
+
+  // Dining
+  if(fd.hasDining==='yes')rooms.push({type:'Dining Room',count:1});
+
+  // Kitchen
+  if(fd.hasKitchen==='yes')rooms.push({type:fd.kitHeavy==='yes'?'Kitchen (heavy)':'Kitchen',count:1});
+
+  // Study
+  if(fd.hasStudy==='yes')rooms.push({type:fd.studyAC==='yes'?'Study Room':'Study (no AC)',count:1});
+
+  // Extras
+  fd.extras.forEach(e=>rooms.push({type:e,count:1}));
+
+  return rooms;
+}
+
+/* ─── MAIN CALCULATION ─── */
+let G={};
+
+function runCalc(){
+  if(!C.scope){alert('Please select what you are calculating for at the top first.');return;}
+
+  const state=document.getElementById('rstate').value;
+  const si=SD[state]||['III',false,'Moderate',8];
+  const[seismZ,isCoastal,climate,premPct]=si;
+  const prem=premPct/100;
+
+  // Special loads
+  const invKVA={none:0,small:1,med:2,big:5}[C.inv]||0;
+  const pumpHP={no:0,small:0.5,big:1}[C.pump]||0;
+  const evChg=C.ev==='yes';
+  const solKW=C.sol==='yes'?3:0;
+  const skipEarth=C.earth==='yes';// Already done
+
+  // Rates
+  const R={
+    w15:+document.getElementById('rw15').value||18,
+    w25:+document.getElementById('rw25').value||28,
+    w4:+document.getElementById('rw4').value||48,
+    w6:+document.getElementById('rw6').value||72,
+    w10:+document.getElementById('rw10').value||115,
+    c25:+document.getElementById('rc25').value||38,
+    c32:+document.getElementById('rc32').value||52,
+    m6:+document.getElementById('rm6').value||120,
+    m16:+document.getElementById('rm16').value||135,
+    m20:+document.getElementById('rm20').value||160,
+    m32:+document.getElementById('rm32').value||220,
+    m63:+document.getElementById('rm63').value||480,
+    rccb30:+document.getElementById('rrccb30').value||875,
+    rccb100:+document.getElementById('rrccb100').value||1250,
+    db8:+document.getElementById('rdb8').value||780,
+    db12:+document.getElementById('rdb12').value||1150,
+    db16:+document.getElementById('rdb16').value||1450,
+    sp:+document.getElementById('rsp').value||185,
+    s5:+document.getElementById('rs5').value||75,
+    s15:+document.getElementById('rs15').value||95,
+    freg:+document.getElementById('rfreg').value||260,
+    ep:+document.getElementById('rep').value||920,
+    ew:+document.getElementById('rew').value||90,
+  };
+
+  let totalConn=0,totLC=0,totPC=0,totACC=0,totGC=0,totKC=0;
+  let totLP=0,totFP=0,totS5=0,totS15=0,totAC=0,totGey=0;
+  const floorRes=[],allRows=[];
+
+  for(let fi=0;fi<C.floors;fi++){
+    const rooms=buildRooms(fi);
+    let flConn=0,flLW=0,flSW=0,flAW=0,flGW=0;
+    let flLP=0,flFP=0,flS5=0,flS15=0,flAC=0,flGey=0;
+    let hasWet=false;
+
+    rooms.forEach(r=>{
+      const sp=r.specOverride||RS[r.type];
+      if(!sp)return;
+      const n=r.count;
+      const lP=sp.l*n,fP=sp.f*n,s5P=sp.s5*n,s15P=sp.s15*n,acP=sp.ac*n,gP=sp.g*n;
+      const lW=sp.lW*n,fW=sp.fW*n,s5W=sp.s5W*n,s15W=sp.s15W*n,acW=sp.acW*n,gW=sp.gW*n;
+      const rConn=lW+fW+s5W+s15W+acW+gW;
+      flConn+=rConn;flLW+=lW+fW;flSW+=s5W+s15W;flAW+=acW;flGW+=gW;
+      flLP+=lP;flFP+=fP;flS5+=s5P;flS15+=s15P;flAC+=acP;flGey+=gP;
+      if(r.type.includes('Bathroom')||r.type==='Kitchen'||r.type==='Kitchen (heavy)')hasWet=true;
+      allRows.push({floor:FN[fi],type:r.type,count:n,lPts:lP,fPts:fP,s5:s5P,s15:s15P,acPts:acP,geyPts:gP,conn:rConn,demand:Math.round(rConn*0.65)});
+    });
+
+    const flLC=flLW>0?Math.max(1,Math.ceil(flLW/800)):0;
+    const flPC=flSW>0?Math.max(1,Math.ceil(flSW/3000)):0;
+    const flACC=flAC;
+    const flGC=flGey;
+    const kitRooms=rooms.filter(r=>r.type.includes('Kitchen'));
+    const flKC=kitRooms.reduce((s,r)=>s+r.count,0);
+    const flTC=flLC+flPC+flACC+flGC+flKC;
+    const flDem=Math.round(flConn*0.65);
+    totLC+=flLC;totPC+=flPC;totACC+=flACC;totGC+=flGC;totKC+=flKC;
+    totLP+=flLP;totFP+=flFP;totS5+=flS5;totS15+=flS15;totAC+=flAC;totGey+=flGey;
+    totalConn+=flConn;
+    floorRes.push({name:FN[fi],lightC:flLC,pwrC:flPC,acC:flACC,geyC:flGC,kitC:flKC,totalC:flTC,conn:flConn,demand:flDem,lPts:flLP,fPts:flFP,s5:flS5,s15:flS15,acPts:flAC,geyPts:flGey,dbSize:getDBSz(flTC),incomer:getIncMCB(flDem),hasWet});
+  }
+
+  // Special
+  const invW=invKVA*800, pumpW=pumpHP*746*1.3, evW=evChg?3300:0;
+  totalConn+=invW+pumpW+evW;
+  const totalDem=Math.round(totalConn*0.65);
+  const phase=totalDem>7500?'3-Phase':'Single Phase';
+
+  // Wires
+  const w15m=Math.round(totLC*15*3*1.15);
+  const w25m=Math.round(totPC*15*3*1.15);
+  const w4m=Math.round((totACC+totGC+totKC)*12*3*1.15)+Math.round((invKVA>0?1:0)+(pumpHP>0?1:0)+(evChg?1:0)+(solKW>0?1:0))*10*3;
+  const w6m=Math.round(C.floors*12*3*1.15);
+  const w10m=Math.round(Math.max(6,Math.ceil(totalDem/3000))*5*3);
+  const c25m=Math.round((w15m+w25m)/3.2);
+  const c32m=Math.round((w4m+w6m)/2.2);
+
+  // MCBs
+  const m6cnt=Math.round(totLC*1.1),m16cnt=Math.round((totPC+totKC)*1.1),m20cnt=Math.round((totACC+totGC)*1.1);
+  const m32cnt=C.floors+2,m63cnt=1;
+  const rccb30cnt=floorRes.filter(f=>f.hasWet).length,rccb100cnt=1;
+  let db8cnt=0,db12cnt=0,db16cnt=0;
+  floorRes.forEach(f=>{const sz=f.dbSize;if(sz==='8-way')db8cnt++;else if(sz==='12-way')db12cnt++;else db16cnt++;});
+
+  // Points
+  const totPts=totLP+totFP+totS5+totS15+totAC+totGey;
+  const switchPlates=Math.ceil(totPts/4);
+
+  // Earthing
+  const numPits=skipEarth?0:Math.max(2,Math.ceil(totalDem/5000));
+  const earthWireM=skipEarth?0:Math.round(C.floors*15+15);
+
+  // Costs
+  const MC={
+    w15:w15m*R.w15,w25:w25m*R.w25,w4:w4m*R.w4,w6:w6m*R.w6,w10:w10m*R.w10,
+    c25:c25m*R.c25,c32:c32m*R.c32,
+    m6:m6cnt*R.m6,m16:m16cnt*R.m16,m20:m20cnt*R.m20,m32:m32cnt*R.m32,m63:m63cnt*R.m63,
+    rccb30:rccb30cnt*R.rccb30,rccb100:rccb100cnt*R.rccb100,
+    db8:db8cnt*R.db8,db12:db12cnt*R.db12,db16:db16cnt*R.db16,
+    sp:switchPlates*R.sp,s5:totS5*R.s5,s15:(totS15+totAC+totGey)*R.s15,freg:totFP*R.freg,
+    earthPits:numPits*R.ep,earthWire:earthWireM*R.ew,
+  };
+  const totalMat=Object.values(MC).reduce((s,v)=>s+v,0);
+  const labInc=document.getElementById('labchk').checked;
+  const labCost=labInc?getLabTotal():0;
+  const cont=Math.round((totalMat+labCost)*0.05);
+  const grand=Math.round((totalMat+labCost+cont)*(1+prem));
+
+  G={state,seismZ,isCoastal,climate,premPct,phase,mainMCB:getMainMCB(totalDem,phase),
+    totalConn,totalDem,floorRes,allRows,
+    totLC,totPC,totACC,totGC,totKC,totLP,totFP,totS5,totS15,totAC,totGey,totPts,
+    w15m,w25m,w4m,w6m,w10m,c25m,c32m,
+    m6cnt,m16cnt,m20cnt,m32cnt,m63cnt,rccb30cnt,rccb100cnt,
+    db8cnt,db12cnt,db16cnt,switchPlates,numPits,earthWireM,
+    skipEarth,MC,totalMat,labCost,cont,grand,R,labInc,
+    invKVA,pumpHP,evChg,solKW,scope:C.scope,earth:C.earth,
+  };
+
+  sp('pg4');renderResults();
+}
+
+/* ─── RENDER RESULTS ─── */
+function renderResults(){
+  const proj=document.getElementById('rprojname').value||'Electrical Estimate';
+  const city=document.getElementById('rcity').value;
+  const state=document.getElementById('rstate').value;
+  const scopeLabel={full:'Full Building',flat:'Single Flat / Apartment',floor:'Single Floor',add:'New Floor Added'}[G.scope]||'';
+  ['up4'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=document.getElementById('rname').value;});
+  const cd=document.getElementById('clidet');
+  cd.innerHTML=[['👤 Name',document.getElementById('rname').value],['📱 Mobile',document.getElementById('rcc').value+' '+document.getElementById('rmob').value],['📧 Email',document.getElementById('remail').value],['📍 Address',document.getElementById('raddr').value],['🏙️ City, State',city+', '+state],['📁 Project',proj]].map(([l,v])=>`<div style="background:#FDFAF7;border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px">${l}</div><div style="font-weight:600;font-size:13px">${v||'—'}</div></div>`).join('');
+
+  document.getElementById('rh').textContent=proj;
+  document.getElementById('rs').textContent=`${scopeLabel} · ${G.floorRes.length} floor(s) · ${G.totPts} electrical points · ${G.phase}`;
+  document.getElementById('rz').textContent=`Zone ${G.seismZ} · ${G.isCoastal?'Coastal':'Inland'} · ${G.climate}`;
+  document.getElementById('rdt').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+
+  // IS compliance
+  const isp=document.getElementById('ispanel');
+  const Z=G.seismZ;
+  const checks=[
+    [G.totalDem>7500,'3-Phase connection recommended (demand >7.5kW)','Single-phase adequate','IS 732:2019 / IE Rule 50'],
+    [G.rccb30cnt>0,'RCCB 30mA installed for wet area circuits (bathroom/kitchen)','No wet areas detected — verify on site','IS 12640-1:2000 — Mandatory'],
+    [!G.skipEarth&&G.numPits>=2||G.skipEarth,'Earthing adequate — IS 3043:2018 compliant',G.skipEarth?'Earthing marked as already done — verify this on site':'Increase earth pits before energising','IS 3043:2018 Cl.8'],
+    [(Z==='IV'||Z==='V'),'High seismic zone — flexible conduit at structural joints recommended','Low seismic zone — rigid conduit acceptable',`IS 732 / NBC 2016 — Zone ${Z}`],
+    [G.isCoastal,'Coastal location — FR-LSH grade wire & IP44 enclosures required','Inland — standard IS 694 FR wire acceptable','IS 694:2010'],
+    [true,'Wire colour coding per IS 732:2019 — Red/L · Black/N · Green-Yellow/E','','IS 732:2019 Table 3'],
+    [true,'All circuits to be tested before energising (insulation resistance, earth continuity)','','IE Rules 1956 Rule 45'],
+  ];
+  isp.innerHTML=checks.map(([ok,pass,fail,ref])=>`<span class="${ok?'iv':'iw'}">${ok?'✔':'⚠'} ${ok?pass:fail}</span> <span class="ir">[${ref}]</span><br>`).join('');
+
+  // KPIs
+  const kg=document.getElementById('kpig');
+  kg.innerHTML=[
+    ['load',fn(G.totalConn)+'W','Connected Load','kpig-load'],
+    ['circ',G.totLC+G.totPC+G.totACC+G.totGC+G.totKC,'Total Circuits','kpig-circ'],
+    ['big',G.phase,'Power Supply','kpig-big'],
+    ['earth',G.skipEarth?'Pre-done':G.numPits,'Earth Pits','kpig-earth'],
+    ['load',G.totPts,'Electrical Points','kpig-pts'],
+    ['circ',G.floorRes.length,'Floor DB(s)','kpig-db'],
+  ].map(([cls,val,label])=>`<div class="kpi ${cls}"><div class="kv">${val}</div><div class="kl">${label}</div></div>`).join('');
+
+  // Tab 1: Load
+  const lt=document.getElementById('ltbody');
+  lt.innerHTML=G.allRows.map(r=>`<tr><td><strong>${r.type}</strong><br><span style="font-size:10px;color:var(--muted)">${r.floor}</span></td><td>${r.count}</td><td>${r.lPts}</td><td>${r.fPts}</td><td>${r.s5}</td><td>${r.s15}</td><td>${r.acPts}</td><td>${r.geyPts}</td><td style="font-family:'JetBrains Mono',monospace;font-weight:600">${fn(r.conn)}W</td><td style="font-family:'JetBrains Mono',monospace;color:var(--amber)">${fn(r.demand)}W</td></tr>`).join('');
+  document.getElementById('totconn').textContent=fn(G.totalConn)+'W';
+  document.getElementById('totdem').textContent=fn(G.totalDem)+'W';
+  document.getElementById('phasebox').innerHTML=`⚡ <strong style="color:var(--amber3)">Recommended: ${G.phase}</strong> &nbsp;|&nbsp; Total Load: <strong style="color:var(--amber3)">${fn(G.totalConn)}W (${(G.totalConn/1000).toFixed(1)} kW)</strong> &nbsp;|&nbsp; Main MCB: <strong style="color:var(--amber3)">${G.mainMCB}</strong>${G.skipEarth?' &nbsp;|&nbsp; <span style="color:#4ADE80">Earthing: Pre-done (excluded from cost)</span>':''}`;
+
+  // Tab 2: Circuits
+  const ct=document.getElementById('ctbody');
+  let crows=[],totCC=0;
+  G.floorRes.forEach(f=>{
+    if(f.lightC)crows.push({fl:f.name,type:'Lighting (Lights + Fans)',n:f.lightC,load:f.lPts*60+f.fPts*60,wire:'1.5 sqmm',mcb:'6A',rccb:'—'});
+    if(f.pwrC)crows.push({fl:f.name,type:'Power (Sockets)',n:f.pwrC,load:f.s5*100+f.s15*500,wire:'2.5 sqmm',mcb:'16A',rccb:'—'});
+    if(f.acC)crows.push({fl:f.name,type:'Air Conditioner (Dedicated)',n:f.acC,load:f.acPts*1500,wire:'4 sqmm',mcb:'20A',rccb:'—'});
+    if(f.geyC)crows.push({fl:f.name,type:'Geyser / Water Heater (Dedicated)',n:f.geyC,load:f.geyPts*2000,wire:'4 sqmm',mcb:'20A',rccb:'30mA ✓'});
+    if(f.kitC)crows.push({fl:f.name,type:'Kitchen Heavy (Dedicated)',n:f.kitC,load:3000,wire:'2.5 sqmm',mcb:'16A',rccb:'30mA ✓'});
+    totCC+=f.totalC;
+  });
+  if(G.invKVA>0)crows.push({fl:'Special',type:'Inverter / UPS',n:1,load:Math.round(G.invKVA*800),wire:'4 sqmm',mcb:'20A',rccb:'—'});
+  if(G.pumpHP>0)crows.push({fl:'Special',type:'Water Pump',n:1,load:Math.round(G.pumpHP*746),wire:'4 sqmm',mcb:'16A',rccb:'—'});
+  if(G.evChg)crows.push({fl:'Special',type:'EV Charger Point',n:1,load:3300,wire:'4 sqmm',mcb:'20A',rccb:'—'});
+  ct.innerHTML=crows.map(r=>`<tr><td style="font-size:11px;color:var(--muted)">${r.fl}</td><td><strong>${r.type}</strong></td><td><strong style="color:var(--amber);font-family:'JetBrains Mono',monospace">${r.n}</strong></td><td>${fn(r.load)}W</td><td><span class="bv">${r.wire}</span></td><td><span class="bv">${r.mcb} MCB</span></td><td>${r.rccb==='—'?'—':`<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">${r.rccb}</span>`}</td></tr>`).join('');
+  document.getElementById('tcirc').textContent=totCC;
+
+  // Tab 3: Materials
+  const mt=document.getElementById('mtbody');
+  const matRows=[
+    ['1.5 sqmm FR Copper Wire (Lighting)','IS 694:2010','metres',G.w15m,G.R.w15,G.MC.w15],
+    ['2.5 sqmm FR Copper Wire (Power)','IS 694:2010','metres',G.w25m,G.R.w25,G.MC.w25],
+    ['4 sqmm FR Copper Wire (AC/Geyser/Pump)','IS 694:2010','metres',G.w4m,G.R.w4,G.MC.w4],
+    ['6 sqmm FR Copper Wire (Submain Riser)','IS 694:2010','metres',G.w6m,G.R.w6,G.MC.w6],
+    ['10 sqmm FR Copper Wire (Main Incomer)','IS 694:2010','metres',G.w10m,G.R.w10,G.MC.w10],
+    ['25mm PVC Conduit','IS 9537 Pt.3','metres',G.c25m,G.R.c25,G.MC.c25],
+    ['32mm PVC Conduit (Submain)','IS 9537 Pt.3','metres',G.c32m,G.R.c32,G.MC.c32],
+    ['MCB 6A SP (Lighting)','IS 8828:2007','nos.',G.m6cnt,G.R.m6,G.MC.m6],
+    ['MCB 16A SP (Power/Kitchen)','IS 8828:2007','nos.',G.m16cnt,G.R.m16,G.MC.m16],
+    ['MCB 20A SP (AC/Geyser)','IS 8828:2007','nos.',G.m20cnt,G.R.m20,G.MC.m20],
+    ['MCB 32A DP (Floor Incomer)','IS 8828:2007','nos.',G.m32cnt,G.R.m32,G.MC.m32],
+    ['MCB 63A DP (Main Incomer)','IS 8828:2007','nos.',G.m63cnt,G.R.m63,G.MC.m63],
+    ['RCCB 30mA 2-Pole (Wet Areas)','IS 12640-1','nos.',G.rccb30cnt,G.R.rccb30,G.MC.rccb30],
+    ['RCCB 100mA 4-Pole (Main)','IS 12640-1','nos.',G.rccb100cnt,G.R.rccb100,G.MC.rccb100],
+    ['8-way MCB DB Box','IS 8623','nos.',G.db8cnt,G.R.db8,G.MC.db8],
+    ['12-way MCB DB Box','IS 8623','nos.',G.db12cnt,G.R.db12,G.MC.db12],
+    ['16-way MCB DB Box','IS 8623','nos.',G.db16cnt,G.R.db16,G.MC.db16],
+    ['Modular Switch Plates','IS 3854:1997','nos.',G.switchPlates,G.R.sp,G.MC.sp],
+    ['5A Socket Outlets','IS 1293:2019','nos.',G.totS5,G.R.s5,G.MC.s5],
+    ['15A Socket Outlets (AC/Geyser)','IS 1293:2019','nos.',G.totS15+G.totAC+G.totGey,G.R.s15,G.MC.s15],
+    ['Fan Speed Regulators','IS 4648','nos.',G.totFP,G.R.freg,G.MC.freg],
+  ];
+  if(!G.skipEarth){
+    matRows.push(['Earth Pit Set (GI Pipe+Charcoal+Salt)','IS 3043:2018','pits',G.numPits,G.R.ep,G.MC.earthPits]);
+    matRows.push(['Earth Wire 6 sqmm GI','IS 3043:2018','metres',G.earthWireM,G.R.ew,G.MC.earthWire]);
+  }
+  mt.innerHTML=matRows.map(([name,code,unit,qty,rate,amt])=>`<tr><td><strong>${name}</strong></td><td style="font-size:11px;color:var(--muted)">${code}</td><td>${unit}</td><td><span class="bv">${fn(qty)}</span></td><td>₹${fn(rate)}</td><td><span class="bv">${fc(amt)}</span></td></tr>`).join('');
+  document.getElementById('matsub').textContent=fc(G.totalMat);
+  document.getElementById('mattot').textContent=fc(G.totalMat);
+
+  // Tab 4: Earthing
+  const edb=document.getElementById('earthbox');
+  if(G.skipEarth){
+    edb.innerHTML='✅ Earthing marked as <strong>already done</strong> in this building. Earthing cost is excluded from this estimate. Verify with your electrician that existing earthing meets IS 3043:2018 — earth resistance should be less than 1 Ohm.';
+    edb.className='al al-g';
+    document.getElementById('etbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">Earthing excluded — marked as pre-done.</td></tr>';
+    document.getElementById('earthtot').textContent='₹0 (excluded)';
+  }else{
+    edb.innerHTML=`🌍 Earthing design as per IS 3043:2018 · ${G.numPits} GI Pipe Earth Pit(s) required based on total electrical load of ${fn(G.totalDem)}W.${G.earth==='dk'?' <strong>Note: Earthing status was unknown — verify with your electrician whether building earthing already exists before installing.</strong>':''}`;
+    edb.className='al al-g';
+    const et=document.getElementById('etbody');
+    et.innerHTML=[
+      ['GI Pipe 40mm dia × 3m length','IS 3043:2018 Cl.8',G.numPits,'nos.','—','Material'],
+      ['Charcoal filling','IS 3043:2018',G.numPits*25,'kg','—','Material'],
+      ['Salt filling','IS 3043:2018',G.numPits*25,'kg','—','Material'],
+      ['Earth Pit Set (all above combined)','IS 3043:2018',G.numPits,'pits',G.R.ep,G.MC.earthPits],
+      ['Earth Wire 6 sqmm GI (surface run)','IS 3043:2018',G.earthWireM,'metres',G.R.ew,G.MC.earthWire],
+      ['Inspection chamber per pit','IS 3043:2018',G.numPits,'nos.','Incl.','—'],
+    ].map(([n,c,q,u,r,a])=>`<tr><td><strong>${n}</strong></td><td style="font-size:11px;color:var(--muted)">${c}</td><td><span class="${typeof a==='number'?'bv':''}">${fn(q)}</span></td><td>${u}</td><td>${r==='—'||r==='Incl.'?r:'₹'+fn(r)}</td><td>${typeof a==='number'?`<span class="bv">${fc(a)}</span>`:a}</td></tr>`).join('');
+    document.getElementById('earthtot').textContent=fc(G.MC.earthPits+G.MC.earthWire);
+  }
+
+  // Tab 5: Labour
+  const labw=document.getElementById('labwrap');
+  const labex=document.getElementById('labexcl');
+  if(!G.labInc){labw.style.display='none';labex.style.display='block';}
+  else{
+    labw.style.display='block';labex.style.display='none';
+    const lbt=document.getElementById('labbody');
+    const labActive=labRows.filter(r=>r.a&&r.d>0);
+    lbt.innerHTML=labActive.map(r=>`<tr><td><strong>${r.n}</strong></td><td>${r.w}</td><td>${r.d}</td><td>₹${fn(r.r)}</td><td><span class="bv">${fc(r.w*r.d*r.r)}</span></td></tr>`).join('');
+    document.getElementById('labsub2').textContent=fc(G.labCost);
+    document.getElementById('labtot2').textContent=fc(G.labCost);
+  }
+
+  // Tab 6: By Floor
+  const ft=document.getElementById('ftbody');
+  ft.innerHTML=G.floorRes.map(f=>`<tr><td><strong>${f.name}</strong></td><td style="font-family:'JetBrains Mono',monospace">${f.totalC}</td><td>${fn(f.conn)}W</td><td style="color:var(--amber)">${fn(f.demand)}W</td><td><span style="background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">${f.dbSize} MCB DB</span></td><td>${f.incomer}</td></tr>`).join('');
+
+  // Grand total
+  document.getElementById('gmat').textContent=fc(G.totalMat);
+  document.getElementById('glab').textContent=G.labInc?fc(G.labCost):'Not included';
+  document.getElementById('gcont').textContent=fc(G.cont);
+  document.getElementById('gtot').textContent=fc(G.grand);
+  document.getElementById('glab-row').style.display=G.labInc?'flex':'none';
+
+  // Scope note
+  const sn=document.getElementById('scope-note');
+  if(sn){
+    const notes={flat:'This estimate is for your flat only. Earthing, main DB, and riser wiring costs are excluded as these are typically handled by the building developer.',floor:'This estimate covers one floor only. Main panel and riser costs may be shared with the building.',add:'This estimate covers the new floor being added. Main panel upgrade may be required — verify with your electrician.',full:''};
+    const note=notes[G.scope]||'';
+    sn.style.display=note?'block':'none';
+    sn.textContent=note?'ℹ️ '+note:'';
+  }
+}
+
+/* ─── PAYMENT ─── */
+function initPay(){
+  const btn=document.getElementById('paybtn');
+  btn.disabled=true;btn.innerHTML='<span class="sp"></span> Opening payment...';
+  // Razorpay integration
+  const options={key:'YOUR_RAZORPAY_KEY_HERE',amount:49900,currency:'INR',name:'ElectroPro',description:'Electrical Estimate Report',handler:function(response){revealAll();},prefill:{name:document.getElementById('rname').value,email:document.getElementById('remail').value,contact:document.getElementById('rmob').value},theme:{color:'#D97706'}};
+  try{const rzp=new Razorpay(options);rzp.open();}catch(e){alert('Payment gateway not configured. Contact support.');btn.disabled=false;btn.innerHTML='💳 Pay ₹499 — Unlock Full Electrical Report';}
+}
+
+function revealAll(){
+  document.querySelectorAll('.bv').forEach(el=>el.classList.add('revealed'));
+  document.getElementById('paygate').style.display='none';
+  document.getElementById('postpay').style.display='block';
+}
+
+/* ─── PDF ─── */
+function dlPDF(){
+  const proj=document.getElementById('rprojname').value||'Electrical_Estimate';
+  const body=document.getElementById('pdf-body');
+  body.innerHTML=`
+    <div style="background:linear-gradient(135deg,#111827,#1F2937);color:#fff;padding:16px 20px;border-radius:8px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700">⚡ ElectroPro</div><div style="font-size:9px;opacity:.5">Electrical Cost Estimator India</div></div>
+      <div style="text-align:right;font-size:9px;opacity:.55">IS 732:2019 · IS 3043:2018 · IS 694:2010<br>${new Date().toLocaleDateString('en-IN')}</div>
+    </div>
+    <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:12px 16px;margin-bottom:10px">
+      <div style="font-size:14px;font-weight:700;color:#92400E;margin-bottom:4px">Project: ${proj}</div>
+      <div style="font-size:11px;color:#78716C">${document.getElementById('raddr').value} · ${document.getElementById('rcity').value}, ${document.getElementById('rstate').value}</div>
+      <div style="font-size:11px;color:#78716C;margin-top:2px">${G.floorRes.length} floor(s) · ${G.totPts} electrical points · ${G.phase}</div>
+    </div>
+    <div style="background:#111827;color:#fff;border-radius:8px;padding:12px 16px;margin-bottom:12px">
+      <div style="font-size:11px;opacity:.6;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Summary</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div><div style="font-size:18px;font-weight:700;color:#FCD34D">${fn(G.totalConn)}W</div><div style="font-size:9px;opacity:.55">Connected Load</div></div>
+        <div><div style="font-size:18px;font-weight:700;color:#FCD34D">${G.totLC+G.totPC+G.totACC+G.totGC+G.totKC}</div><div style="font-size:9px;opacity:.55">Total Circuits</div></div>
+        <div><div style="font-size:18px;font-weight:700;color:#FCD34D">${G.skipEarth?'Pre-done':G.numPits+' pits'}</div><div style="font-size:9px;opacity:.55">Earthing</div></div>
+      </div>
+    </div>
+    <p style="font-size:10px;color:#78716C;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Grand Total — Electrical Installation</p>
+    <div style="background:#111827;color:#FCD34D;border-radius:8px;padding:14px 20px;font-size:20px;font-weight:700;margin-bottom:12px">${fc(G.grand)} <span style="font-size:11px;opacity:.6">(incl. ${G.premPct}% regional adjustment)</span></div>
+    <p style="font-size:9px;color:#78716C;line-height:1.7">Generated by ElectroPro · IS 732:2019 · IS 3043:2018 · IS 694:2010 · NBC 2016 Part 8 · Preliminary estimate only. Verify with licensed electrical engineer before procurement or execution.</p>
+  `;
+  const r=document.getElementById('pdf-report');r.style.display='block';
+  html2pdf().set({margin:10,filename:`ElectroPro_${proj.replace(/\s/g,'_')}.pdf`,html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(r).save().then(()=>{r.style.display='none';});
+}
+
+/* ─── REGISTRATION ─── */
+function onStateChg(){
+  const s=document.getElementById('rstate').value;
+  const si=SD[s];
+  const box=document.getElementById('statebox');
+  if(!si){box.style.display='none';return;}
+  const[z,coastal,climate,prem]=si;
+  let msgs=[];
+  msgs.push(`⚡ Seismic Zone ${z} — ${z==='IV'||z==='V'?'Flexible conduit at structural joints recommended':'Standard wiring applicable'}`);
+  if(coastal)msgs.push(`🌊 Coastal State — IS 694 FR-LSH grade wire & IP44 enclosures strongly recommended`);
+  if(climate==='Cold'||climate==='Cold-Humid')msgs.push(`❄️ Cold/High Altitude — Anti-condensation heaters in DBs recommended`);
+  msgs.push(`📍 Regional rate adjustment: +${prem}% applied automatically`);
+  box.innerHTML=msgs.join('<br>');box.style.display='block';
+}
+
+function goMethod(){
+  const name=document.getElementById('rname').value.trim();
+  const mob=document.getElementById('rmob').value.trim();
+  const email=document.getElementById('remail').value.trim();
+  const addr=document.getElementById('raddr').value.trim();
+  const city=document.getElementById('rcity').value.trim();
+  const state=document.getElementById('rstate').value;
+  if(!name||!mob||!email||!addr||!city||!state){alert('Please fill all required fields (marked with *).');return;}
+  if(document.getElementById('rcc').value==='+91'&&mob.length!==10){alert('Mobile number must be exactly 10 digits for India (+91).');return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){alert('Please enter a valid email address.');return;}
+  ['up2','up3'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=name;});
+  sp('pg2');
+}
+
+let selMethod=0;
+function selM(n){selMethod=n;['mc1','mc2'].forEach((id,i)=>document.getElementById(id).classList.toggle('sel',i+1===n));document.getElementById('mcont').disabled=false;}
+function goFromMethod(){if(!selMethod)return;sp('pg3');}
+</script>
+</body>
+</html>
