@@ -21,7 +21,15 @@
       "Bash(mkdir -p /Users/sudipjhawar/nirmanshastra/app/api/vastu-pro/register)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl -s http://localhost:3000/tools/vastu-pro)",
+      "Bash(curl -s http://localhost:3002/tools/vastu-pro -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:3002/tools/vastu-pro)",
+      "Bash(npx playwright *)",
+      "Bash(npm init *)",
+      "Bash('button:has-text\\(\\\\\"Analyse My Floor Plan\\\\\"\\)')",
+      "Bash('text=Place at *)"
     ]
   }
 }
