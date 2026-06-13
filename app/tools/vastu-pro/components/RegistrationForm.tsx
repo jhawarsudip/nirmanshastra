@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 interface RegistrationData {
   name: string
@@ -27,21 +28,56 @@ const PROPERTY_TYPES = [
   'Other',
 ]
 
+const INDIAN_STATES = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+  'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+  'Andaman and Nicobar Islands', 'Chandigarh',
+  'Dadra and Nagar Haveli and Daman and Diu',
+  'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry',
+]
+
+const EMPTY: RegistrationData = {
+  name: '', mobile: '', email: '', address: '',
+  city: '', pinCode: '', state: '', propertyType: '', plotSize: '',
+}
+
 export default function RegistrationForm({ onSubmit }: Props) {
-  const [form, setForm] = useState<RegistrationData>({
-    name: '', mobile: '', email: '', address: '',
-    city: '', pinCode: '', state: '', propertyType: '', plotSize: '',
-  })
+  const [form, setForm] = useState<RegistrationData>(EMPTY)
   const [errors, setErrors] = useState<Partial<RegistrationData>>({})
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState('')
+  const supabase = useMemo(() => createClient(), [])
+
+  // Pre-fill from logged-in user
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return
+      const meta = data.user.user_metadata ?? {}
+      setForm(prev => ({
+        ...prev,
+        email: prev.email || data.user?.email || '',
+        name:  prev.name  || meta.full_name || meta.name || '',
+      }))
+    })
+  }, [supabase])
+
+  function set<K extends keyof RegistrationData>(k: K, v: string) {
+    setForm(prev => ({ ...prev, [k]: v }))
+    if (errors[k]) setErrors(prev => ({ ...prev, [k]: undefined }))
+  }
 
   function validate(): boolean {
     const e: Partial<RegistrationData> = {}
-    if (!form.name.trim()) e.name = 'Name is required'
+    if (!form.name.trim())  e.name    = 'Name is required'
     if (!/^\d{10}$/.test(form.mobile)) e.mobile = 'Enter a valid 10-digit mobile number'
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address'
-    if (!form.city.trim()) e.city = 'City is required'
+    if (!form.state)        e.state   = 'State is required'
+    if (!form.city.trim())  e.city    = 'City is required'
+    if (!form.pinCode.trim()) e.pinCode = 'PIN code is required'
+    if (!form.address.trim()) e.address = 'Address is required'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -49,7 +85,6 @@ export default function RegistrationForm({ onSubmit }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) return
-
     setLoading(true)
     setApiError('')
     try {
@@ -62,40 +97,41 @@ export default function RegistrationForm({ onSubmit }: Props) {
       if (!res.ok) throw new Error(json.error || 'Registration failed')
       onSubmit(form, json.contactId)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
-      setApiError(message)
+      setApiError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  function field(
+  function textField(
     id: keyof RegistrationData,
     label: string,
-    type = 'text',
-    placeholder = '',
-    required = false
+    options: { type?: string; placeholder?: string; required?: boolean } = {}
   ) {
+    const { type = 'text', placeholder = '', required = false } = options
     return (
       <div className="flex flex-col gap-1">
         <label
           htmlFor={id}
-          className="text-[11px] uppercase tracking-widest font-mono"
+          className="text-[11px] uppercase tracking-widest"
           style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
         >
-          {label}{required && <span className="text-stamp-oxide ml-1">*</span>}
+          {label}{required && <span style={{ color: '#8C3A22' }} className="ml-1">*</span>}
         </label>
         <input
           id={id}
           type={type}
           value={form[id]}
-          onChange={e => setForm(p => ({ ...p, [id]: e.target.value }))}
+          onChange={e => set(id, e.target.value)}
           placeholder={placeholder}
-          className="border border-iron-ink rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint focus:ring-1 focus:ring-blueprint/30"
-          style={{ fontFamily: 'var(--font-plex-sans)' }}
+          className="border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint focus:ring-1 focus:ring-blueprint/30"
+          style={{
+            fontFamily: 'var(--font-plex-sans)',
+            borderColor: errors[id] ? '#8C3A22' : '#1E2227',
+          }}
         />
         {errors[id] && (
-          <span className="text-stamp-oxide text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)' }}>
+          <span className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
             {errors[id]}
           </span>
         )}
@@ -105,26 +141,20 @@ export default function RegistrationForm({ onSubmit }: Props) {
 
   return (
     <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
-      {/* VastuPro header */}
+      {/* VastuPro header card */}
       <div className="w-full max-w-xl mb-8">
-        <div
-          className="rounded-[2px] p-6 mb-6"
-          style={{ background: '#1E2227' }}
-        >
-          {/* 16-spoke mandala motif (inline SVG) */}
+        <div className="rounded-[2px] p-6 mb-6" style={{ background: '#1E2227' }}>
           <svg width="56" height="56" viewBox="0 0 56 56" className="mb-3" aria-hidden="true">
             <circle cx="28" cy="28" r="26" fill="none" stroke="#C9A84C" strokeWidth="1.5" opacity="0.4" />
             <circle cx="28" cy="28" r="4" fill="#C9A84C" />
             {Array.from({ length: 16 }, (_, i) => {
-              const angle = (i * 360) / 16
-              const rad = (angle * Math.PI) / 180
-              const x1 = 28 + 6 * Math.sin(rad)
-              const y1 = 28 - 6 * Math.cos(rad)
-              const x2 = 28 + 24 * Math.sin(rad)
-              const y2 = 28 - 24 * Math.cos(rad)
+              const rad = (i * 360 / 16 * Math.PI) / 180
+              const x1 = 28 + 6 * Math.sin(rad), y1 = 28 - 6 * Math.cos(rad)
+              const x2 = 28 + 24 * Math.sin(rad), y2 = 28 - 24 * Math.cos(rad)
               return (
                 <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
-                  stroke="#C9A84C" strokeWidth={i % 4 === 0 ? 1.5 : 0.8} opacity={i % 4 === 0 ? 0.9 : 0.45} />
+                  stroke="#C9A84C" strokeWidth={i % 4 === 0 ? 1.5 : 0.8}
+                  opacity={i % 4 === 0 ? 0.9 : 0.45} />
               )
             })}
           </svg>
@@ -138,22 +168,22 @@ export default function RegistrationForm({ onSubmit }: Props) {
           </h1>
           <p className="text-[14px] mt-1"
             style={{ color: 'rgba(244,244,240,0.7)', fontFamily: 'var(--font-plex-sans)' }}>
-            16-zone Vastu Shastra analysis for your home. Score, findings & remedies — free.
+            16-zone Vastu Shastra analysis for your home. Score, findings &amp; remedies — free.
           </p>
         </div>
 
-        {/* Progress indicator: REG → PLAN → RESULTS */}
-        <div className="flex items-center gap-0 mb-8 overflow-x-auto">
+        {/* Step bar */}
+        <div className="flex items-center gap-0 mb-8">
           {(['REGISTER', 'PLAN', 'RESULTS'] as const).map((step, i) => (
             <div key={step} className="flex items-center">
               <div className="flex items-center gap-2">
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono border"
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] border"
                   style={{
-                    background: i === 0 ? '#1F4E79' : 'transparent',
+                    background:  i === 0 ? '#1F4E79' : 'transparent',
                     borderColor: i === 0 ? '#1F4E79' : 'rgba(30,34,39,0.25)',
-                    color: i === 0 ? '#fff' : 'rgba(30,34,39,0.4)',
-                    fontFamily: 'var(--font-plex-mono)',
+                    color:       i === 0 ? '#fff' : 'rgba(30,34,39,0.4)',
+                    fontFamily:  'var(--font-plex-mono)',
                   }}
                 >
                   {i + 1}
@@ -168,9 +198,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
                   {step}
                 </span>
               </div>
-              {i < 2 && (
-                <div className="w-8 h-px mx-2" style={{ background: 'rgba(30,34,39,0.15)' }} />
-              )}
+              {i < 2 && <div className="w-8 h-px mx-2" style={{ background: 'rgba(30,34,39,0.15)' }} />}
             </div>
           ))}
         </div>
@@ -187,16 +215,57 @@ export default function RegistrationForm({ onSubmit }: Props) {
           </div>
 
           <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {field('name', 'Full Name', 'text', 'Ramesh Sharma', true)}
-            {field('mobile', 'Mobile', 'tel', '9876543210', true)}
+            {/* Name | Mobile */}
+            {textField('name', 'Full Name', { placeholder: 'Ramesh Sharma', required: true })}
+            {textField('mobile', 'Mobile', { type: 'tel', placeholder: '9876543210', required: true })}
+
+            {/* Email — full width */}
             <div className="sm:col-span-2">
-              {field('email', 'Email', 'email', 'ramesh@example.com', true)}
+              {textField('email', 'Email', { type: 'email', placeholder: 'ramesh@example.com', required: true })}
             </div>
-            {field('city', 'City', 'text', 'Pune', true)}
-            {field('state', 'State', 'text', 'Maharashtra')}
-            {field('pinCode', 'PIN Code', 'text', '411001')}
+
+            {/* State dropdown — full width */}
+            <div className="sm:col-span-2 flex flex-col gap-1">
+              <label
+                htmlFor="state"
+                className="text-[11px] uppercase tracking-widest"
+                style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
+              >
+                State <span style={{ color: '#8C3A22' }}>*</span>
+              </label>
+              <select
+                id="state"
+                value={form.state}
+                onChange={e => { set('state', e.target.value); set('city', '') }}
+                className="border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
+                style={{
+                  fontFamily: 'var(--font-plex-sans)',
+                  borderColor: errors.state ? '#8C3A22' : '#1E2227',
+                }}
+              >
+                <option value="">Select your state</option>
+                {INDIAN_STATES.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+              {errors.state && (
+                <span className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
+                  {errors.state}
+                </span>
+              )}
+            </div>
+
+            {/* City + PIN — appear once state is selected */}
+            {form.state && (
+              <>
+                {textField('city', 'City', { placeholder: 'e.g. Pune', required: true })}
+                {textField('pinCode', 'PIN Code', { placeholder: '411001', required: true })}
+              </>
+            )}
+
+            {/* Address — full width, required */}
             <div className="sm:col-span-2">
-              {field('address', 'Address', 'text', 'Plot no., Street, Area')}
+              {textField('address', 'Address', { placeholder: 'Plot no., Street, Area', required: true })}
             </div>
 
             {/* Property Type */}
@@ -211,23 +280,21 @@ export default function RegistrationForm({ onSubmit }: Props) {
               <select
                 id="propertyType"
                 value={form.propertyType}
-                onChange={e => setForm(p => ({ ...p, propertyType: e.target.value }))}
+                onChange={e => set('propertyType', e.target.value)}
                 className="border border-iron-ink rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
                 style={{ fontFamily: 'var(--font-plex-sans)' }}
               >
                 <option value="">Select type</option>
-                {PROPERTY_TYPES.map(t => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
+                {PROPERTY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
 
-            {field('plotSize', 'Plot / BUA Size', 'text', 'e.g. 1200 sqft')}
+            {textField('plotSize', 'Plot / BUA Size', { placeholder: 'e.g. 1200 sqft' })}
           </div>
 
           <div className="border-t border-iron-ink px-5 py-4">
             {apiError && (
-              <p className="text-stamp-oxide text-[13px] mb-3" style={{ fontFamily: 'var(--font-plex-mono)' }}>
+              <p className="text-[13px] mb-3" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
                 ⚠ {apiError}
               </p>
             )}

@@ -29,7 +29,24 @@
       "Bash(npx playwright *)",
       "Bash(npm init *)",
       "Bash('button:has-text\\(\\\\\"Analyse My Floor Plan\\\\\"\\)')",
-      "Bash('text=Place at *)"
+      "Bash('text=Place at *)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s http://localhost:3002/auth)",
+      "Bash(npx tsc *)",
+      "Bash(curl -s http://localhost:3002/)",
+      "Bash(curl -sv http://localhost:3002/tools/vastu-pro)",
+      "Bash(curl -sv http://localhost:3002/)",
+      "Skill(run)",
+      "Bash(curl -sf http://localhost:3002)",
+      "Bash(mkdir -p /tmp/ns-screenshots)",
+      "Bash(osascript)",
+      "Bash(screencapture -x /tmp/ns-screenshots/auth.png)",
+      "Bash(osascript -e 'tell application \"Google Chrome\" to activate')",
+      "Bash(screencapture /tmp/ns-screenshots/auth.png)",
+      "Bash(echo \"done: $?\")",
+      "Bash(screencapture /tmp/ns-screenshots/home.png)",
+      "Bash(screencapture /tmp/ns-screenshots/vastupro-register.png)",
+      "Bash(screencapture /tmp/ns-screenshots/vastupro-register-scroll.png)"
     ]
   }
 }

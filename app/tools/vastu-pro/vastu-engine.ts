@@ -108,13 +108,14 @@ export interface CanvasDrawParams {
   northDeg: number
   markers: PlacedMarker[]
   selectedMarkerKey: string | null
+  floorPlanImage?: HTMLImageElement | null
 }
 
 const GOLD = '#C9A84C'
 const INK  = '#1E2227'
 
 export function drawVastuCanvas(params: CanvasDrawParams) {
-  const { canvas, northDeg, markers, selectedMarkerKey } = params
+  const { canvas, northDeg, markers, selectedMarkerKey, floorPlanImage } = params
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
@@ -125,9 +126,21 @@ export function drawVastuCanvas(params: CanvasDrawParams) {
 
   ctx.clearRect(0, 0, W, H)
 
-  // Background — very faint grid-paper texture (4% ink)
+  // Background
   ctx.fillStyle = '#F4F4F0'
   ctx.fillRect(0, 0, W, H)
+
+  // ── Floor plan image at 35% opacity (drawn behind the grid) ────────────
+  if (floorPlanImage) {
+    const img = floorPlanImage
+    const scale = Math.min(W / img.width, H / img.height)
+    const imgW = img.width * scale
+    const imgH = img.height * scale
+    ctx.save()
+    ctx.globalAlpha = 0.35
+    ctx.drawImage(img, (W - imgW) / 2, (H - imgH) / 2, imgW, imgH)
+    ctx.restore()
+  }
 
   // ── 8×8 gold dashed grid ────────────────────────────────────────────────
   ctx.save()

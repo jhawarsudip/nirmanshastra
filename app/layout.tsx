@@ -6,6 +6,7 @@ import {
   IBM_Plex_Sans_Devanagari,
 } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/layout/Navbar";
 
 const plexSerif = IBM_Plex_Serif({
   variable: "--font-plex-serif",
@@ -46,6 +47,7 @@ export default function RootLayout({
       <body
         className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} antialiased`}
       >
+        <Navbar />
         {children}
       </body>
     </html>
