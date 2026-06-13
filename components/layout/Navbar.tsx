@@ -6,6 +6,104 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
+// ── Admin password modal ──────────────────────────────────────────────────────
+
+function AdminModal({ onClose }: { onClose: () => void }) {
+  const router = useRouter()
+  const [pw, setPw]         = useState('')
+  const [busy, setBusy]     = useState(false)
+  const [shake, setShake]   = useState(false)
+  const inputRef            = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { inputRef.current?.focus() }, [])
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    setBusy(true)
+    const res  = await fetch('/api/admin/login', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ password: pw }),
+    })
+    const data = await res.json()
+    setBusy(false)
+    if (data.ok) {
+      onClose()
+      router.push('/admin')
+    } else {
+      setPw('')
+      setShake(true)
+      setTimeout(() => setShake(false), 400)
+      inputRef.current?.focus()
+    }
+  }
+
+  const mono: React.CSSProperties = { fontFamily: 'var(--font-plex-mono)' }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(30,34,39,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background:    '#1E2227',
+          border:        '1px solid rgba(244,244,240,0.15)',
+          padding:       '32px',
+          width:         320,
+          transform:     shake ? 'translateX(6px)' : 'none',
+          transition:    'transform 0.08s ease',
+        }}
+      >
+        <div style={{ ...mono, fontSize: 10, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 }}>
+          ADMIN ACCESS · NS-ADM
+        </div>
+        <form onSubmit={submit}>
+          <input
+            ref={inputRef}
+            type="password"
+            value={pw}
+            onChange={e => setPw(e.target.value)}
+            placeholder="Password"
+            style={{
+              ...mono,
+              width:       '100%',
+              boxSizing:   'border-box',
+              background:  'rgba(244,244,240,0.06)',
+              border:      '1px solid rgba(244,244,240,0.15)',
+              color:       '#F4F4F0',
+              padding:     '10px 12px',
+              fontSize:    13,
+              outline:     'none',
+              marginBottom: 14,
+              borderRadius: 0,
+            }}
+          />
+          <button
+            type="submit"
+            disabled={busy || !pw}
+            style={{
+              ...mono,
+              width:         '100%',
+              background:    busy || !pw ? 'rgba(140,58,34,0.4)' : '#8C3A22',
+              color:         '#F4F4F0',
+              border:        'none',
+              padding:       '10px',
+              fontSize:      12,
+              cursor:        busy || !pw ? 'not-allowed' : 'pointer',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+            }}
+          >
+            {busy ? 'Verifying…' : 'Enter'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 const TOOLS = [
   { phase: 'P0', name: 'VastuPro',   href: '/tools/vastu-pro',  free: true  },
   { phase: 'P1', name: 'StructoPro', href: '/tools/structopro', free: false },
@@ -16,11 +114,24 @@ const TOOLS = [
 ]
 
 export default function Navbar() {
-  const [user, setUser]         = useState<User | null>(null)
-  const [toolsOpen, setToolsOpen] = useState(false)
-  const dropdownRef             = useRef<HTMLDivElement>(null)
-  const router                  = useRouter()
-  const supabase                = useMemo(() => createClient(), [])
+  const [user, setUser]             = useState<User | null>(null)
+  const [toolsOpen, setToolsOpen]   = useState(false)
+  const [adminOpen, setAdminOpen]   = useState(false)
+  const dropdownRef                 = useRef<HTMLDivElement>(null)
+  const logoClickTimes              = useRef<number[]>([])
+  const router                      = useRouter()
+  const supabase                    = useMemo(() => createClient(), [])
+
+  function handleLogoClick() {
+    const now = Date.now()
+    logoClickTimes.current = [...logoClickTimes.current, now].filter(t => now - t < 2000)
+    if (logoClickTimes.current.length >= 5) {
+      logoClickTimes.current = []
+      setAdminOpen(true)
+    } else {
+      router.push('/')
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null))
@@ -50,6 +161,7 @@ export default function Navbar() {
   const mono: React.CSSProperties = { fontFamily: 'var(--font-plex-mono)' }
 
   return (
+    <>
     <nav
       style={{
         background: '#1E2227',
@@ -61,15 +173,20 @@ export default function Navbar() {
       }}
       className="w-full px-5 flex items-center justify-between"
     >
-      {/* Logo */}
-      <Link href="/" className="flex flex-col leading-none flex-shrink-0">
+      {/* Logo — 5 rapid clicks opens admin modal */}
+      <button
+        onClick={handleLogoClick}
+        className="flex flex-col leading-none flex-shrink-0"
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+        aria-label="NirmanShastra home"
+      >
         <span style={{ ...mono, color: '#F4F4F0', fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-plex-serif)' }}>
           NirmanShastra
         </span>
         <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 10, color: 'rgba(244,244,240,0.45)' }}>
           निर्माणशास्त्र
         </span>
-      </Link>
+      </button>
 
       {/* Centre nav */}
       <div className="hidden md:flex items-center gap-6">
@@ -170,5 +287,8 @@ export default function Navbar() {
         )}
       </div>
     </nav>
+
+    {adminOpen && <AdminModal onClose={() => setAdminOpen(false)} />}
+    </>
   )
 }
