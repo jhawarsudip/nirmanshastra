@@ -270,7 +270,7 @@ function drawMarker(
   ctx: CanvasRenderingContext2D,
   marker: PlacedMarker,
   isSelected: boolean,
-  brahmaR: number
+  _brahmaR: number
 ) {
   const room = getRoomByKey(marker.roomKey)
   if (!room) return

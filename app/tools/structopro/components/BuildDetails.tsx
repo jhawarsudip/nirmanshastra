@@ -286,7 +286,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
           </div>
           <div className="p-4">
             <p className="text-[14px] mb-4" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
-              What best describes your plot's ground condition?
+              What best describes your plot&apos;s ground condition?
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {SITE_CARDS.map(card => (

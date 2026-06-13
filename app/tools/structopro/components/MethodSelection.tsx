@@ -153,7 +153,7 @@ export default function MethodSelection({ onSelect }: Props) {
               className="text-[13px] leading-relaxed"
               style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}
             >
-              Upload your engineer's drawings. AI reads column sizes, bar diameters, and concrete grades automatically.
+              Upload your engineer&apos;s drawings. AI reads column sizes, bar diameters, and concrete grades automatically.
             </p>
             <div
               className="mt-4 inline-block px-3 py-1 rounded-[2px] text-[11px]"
