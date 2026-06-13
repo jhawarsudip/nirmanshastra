@@ -245,7 +245,7 @@ function PageCover({ input, result, contact, reportId, projectName, date }: Prop
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader reportId={reportId} page={1} total={9} />
+        <PageHeader reportId={reportId} page={1} total={10} />
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <View style={{ flex: 1 }}>
             <Text style={[S.eyebrow, { fontSize: 9, marginBottom: 8 }]}>MASONPRO · PHASE 2 — MASONRY</Text>
@@ -338,7 +338,7 @@ function PageProjectSummary({ input, result, contact, reportId, projectName, dat
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader reportId={reportId} page={2} total={9} />
+        <PageHeader reportId={reportId} page={2} total={10} />
         <SectionTitle text="SHEET 02 · PROJECT SUMMARY" />
         {rows.map(([label, value], i) => (
           <View key={i} style={[i % 2 === 0 ? S.tableRow : S.tableRowAlt, { paddingVertical: 2 }]}>
@@ -355,7 +355,7 @@ function PageCompliancePanel({ result, reportId }: Props & { reportId: string })
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader reportId={reportId} page={3} total={9} />
+        <PageHeader reportId={reportId} page={3} total={10} />
         <SectionTitle text="SHEET 03 · IS COMPLIANCE PANEL" />
         <Text style={[S.body, { color: T.inkA60, marginBottom: 10 }]}>
           IS 1077:1992 + IS 2212:1991 + IS 4326:1993 + IS 2645:2003 compliance checks based on selected wall type, site zone, and waterproofing method.
@@ -391,7 +391,7 @@ function PageWallSection({ input, reportId }: Props & { reportId: string }) {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader reportId={reportId} page={4} total={9} />
+        <PageHeader reportId={reportId} page={4} total={10} />
         <SectionTitle text="SHEET 04 · WALL SECTION DETAIL" />
         <View style={{ alignItems: 'center', marginVertical: 20 }}>
           <WallSectionSvg wallType={input.externalWallType} />
@@ -446,7 +446,7 @@ function PageWallComparison({ result, reportId }: { result: MasonResult; reportI
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader reportId={reportId} page={5} total={9} />
+        <PageHeader reportId={reportId} page={5} total={10} />
         <SectionTitle text="SHEET 05 · 8 WALL TYPE COMPARISON — COST PER SQM" />
         <Text style={[S.body, { color: T.inkA60, marginBottom: 10 }]}>
           Material cost per sqm at Pune 2026 average rates. Excludes labour, plaster, and waterproofing.
@@ -504,7 +504,7 @@ function PageWaterproofingDetail({ input, result, reportId }: Props & { reportId
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader reportId={reportId} page={6} total={9} />
+        <PageHeader reportId={reportId} page={6} total={10} />
         <SectionTitle text="SHEET 06 · WATERPROOFING DETAIL — IS 2645:2003" />
 
         {input.includeWaterproofing && result.waterproofingCosts ? (
@@ -579,7 +579,7 @@ function PageBrickworkBOQ({ input, result, reportId }: Props & { reportId: strin
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader reportId={reportId} page={7} total={9} />
+        <PageHeader reportId={reportId} page={7} total={10} />
         <SectionTitle text="SHEET 07 · BRICKWORK BOQ — IS 1077:1992 + IS 2212:1991" />
 
         <View style={{ flexDirection: 'row', paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: T.ironInk, borderBottomStyle: 'solid', marginBottom: 4 }}>
@@ -676,7 +676,7 @@ function PagePlasterBOQ({ input, result, reportId }: Props & { reportId: string 
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader reportId={reportId} page={8} total={9} />
+        <PageHeader reportId={reportId} page={8} total={10} />
         <SectionTitle text="SHEET 08 · PLASTERING BOQ — IS 1661:1972" />
         {pq ? (
           <>
@@ -745,13 +745,134 @@ function PagePlasterBOQ({ input, result, reportId }: Props & { reportId: string 
   )
 }
 
+function PageSiteQCChecklist({ reportId }: { reportId: string }) {
+  const groups: Array<{
+    title: string
+    clause: string
+    items: Array<{ text: string; critical: boolean }>
+  }> = [
+    {
+      title: 'BRICK PREPARATION',
+      clause: 'IS 2212:1991',
+      items: [
+        { text: 'Soak clay bricks minimum 2 hours before laying in clean water', critical: true },
+        { text: 'Fly ash bricks — soak minimum 4 hours, longer than clay bricks', critical: false },
+        { text: 'Lay all bricks frog-face UP always — never face down', critical: true },
+        { text: 'Brick compressive strength minimum 7.5 N/mm² for load-bearing walls (IS 1077:1992)', critical: true },
+      ],
+    },
+    {
+      title: 'MORTAR MIX & JOINTS',
+      clause: 'IS 2250:1981',
+      items: [
+        { text: '9" (230mm) load-bearing walls — mortar 1:6 cement:sand', critical: false },
+        { text: '4.5" (115mm) partition walls — mortar 1:4 cement:sand', critical: false },
+        { text: 'Mortar joint — exactly 10mm bed joint + 10mm perpendicular joint', critical: true },
+        { text: 'Never exceed 12mm joint thickness under any circumstance', critical: true },
+      ],
+    },
+    {
+      title: 'BOND PATTERN',
+      clause: 'IS 2212:1991',
+      items: [
+        { text: 'English bond — all 9" (230mm) load-bearing walls', critical: false },
+        { text: 'Stretcher bond — all 4.5" (115mm) partition walls', critical: false },
+      ],
+    },
+    {
+      title: 'CURING & PLASTERING',
+      clause: 'IS 2212:1991',
+      items: [
+        { text: 'Cure masonry minimum 7 days continuously with wet gunny bags', critical: true },
+        { text: 'Apply plaster only after masonry has cured for minimum 7 days', critical: true },
+        { text: 'External plaster — scratch coat first; finish coat after minimum 24 hours', critical: false },
+        { text: 'Never rest scaffolding on masonry less than 48 hours old', critical: true },
+      ],
+    },
+    {
+      title: 'RCC-BRICK JUNCTIONS',
+      clause: 'IS 1661:1972',
+      items: [
+        { text: 'Chicken mesh mandatory at every RCC-brick junction without exception', critical: true },
+        { text: 'Chicken mesh overlap — minimum 150mm on each side of junction', critical: true },
+      ],
+    },
+    {
+      title: 'SEISMIC COMPLIANCE',
+      clause: 'IS 4326:1993',
+      items: [
+        { text: 'Seismic bands mandatory at plinth, sill, lintel, and roof levels — Zones III, IV & V', critical: true },
+        { text: 'AAC blocks NOT permitted as load-bearing masonry in Seismic Zones IV and V', critical: true },
+        { text: 'AAC blocks permitted for infill and partition use only in Seismic Zones IV and V', critical: false },
+      ],
+    },
+    {
+      title: 'WATERPROOFING TEST',
+      clause: 'IS 2645:2003',
+      items: [
+        { text: 'Pond 50mm depth of water on treated surface for minimum 48 hours before backfill', critical: true },
+        { text: 'Mark water level before test begins. No drop after 48 hours = PASS', critical: false },
+      ],
+    },
+  ]
+
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <PageHeader reportId={reportId} page={9} total={10} />
+        <SectionTitle text="SHEET 09 · SITE QUALITY CONTROL CHECKLIST" />
+        <Text style={[S.body, { color: T.inkA60, marginBottom: 10 }]}>
+          IS-code mandatory site practices for Phase 2 masonry. Print and keep on site.
+          Items marked CRITICAL must not be omitted under any circumstance.
+        </Text>
+
+        {groups.map((group, gi) => (
+          <View key={gi} style={{ marginBottom: 7 }}>
+            <View style={{
+              flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2,
+              borderBottomWidth: 1, borderBottomColor: T.blueprint, borderBottomStyle: 'solid', paddingBottom: 2,
+            }}>
+              <Text style={[S.eyebrow, { marginBottom: 0, flex: 1 }]}>{group.title}</Text>
+              <Text style={[S.monoSm, { color: T.blueprint }]}>{group.clause}</Text>
+            </View>
+            {group.items.map((item, ii) => (
+              <View key={ii} style={[
+                ii % 2 === 0 ? S.tableRow : S.tableRowAlt,
+                { paddingVertical: 3, alignItems: 'center', flexDirection: 'row' },
+              ]}>
+                <Text style={[S.monoSm, {
+                  width: 14,
+                  color: item.critical ? T.stampOxide : T.approvedGreen,
+                }]}>
+                  {item.critical ? '!' : '✓'}
+                </Text>
+                <Text style={[S.body, { flex: 1 }]}>{item.text}</Text>
+                {item.critical && (
+                  <Text style={[S.monoSm, { color: T.stampOxide, width: 50, textAlign: 'right' }]}>
+                    CRITICAL
+                  </Text>
+                )}
+              </View>
+            ))}
+          </View>
+        ))}
+
+        <View style={{ flex: 1 }} />
+        <Text style={[S.monoSm, { color: T.inkA35, marginTop: 8 }]}>
+          IS 2212:1991 · IS 2250:1981 · IS 1077:1992 · IS 1661:1972 · IS 4326:1993 · IS 2645:2003 — Masonry site quality control reference.
+        </Text>
+      </View>
+    </Page>
+  )
+}
+
 function PageCostSummary({ result, reportId, date }: Props & { reportId: string }) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nirmanshastra.in'
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader reportId={reportId} page={9} total={9} />
-        <SectionTitle text="SHEET 09 · COST SUMMARY + NEXT PHASE" />
+        <PageHeader reportId={reportId} page={10} total={10} />
+        <SectionTitle text="SHEET 10 · COST SUMMARY + NEXT PHASE" />
 
         {/* Waterproofing BOQ summary */}
         {result.waterproofingCosts && result.waterproofingCosts.total > 0 && (
@@ -859,8 +980,9 @@ export default function MasonProPDF(props: Props) {
       <PageWallComparison result={props.result} reportId={props.reportId} />
       <PageWaterproofingDetail {...props} reportId={props.reportId} />
       <PageBrickworkBOQ   {...props} reportId={props.reportId} />
-      <PagePlasterBOQ     {...props} reportId={props.reportId} />
-      <PageCostSummary    {...props} reportId={props.reportId} />
+      <PagePlasterBOQ        {...props} reportId={props.reportId} />
+      <PageSiteQCChecklist   reportId={props.reportId} />
+      <PageCostSummary       {...props} reportId={props.reportId} />
     </Document>
   )
 }
