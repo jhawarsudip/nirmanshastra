@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { type StructoResult, type StructoInput, formatLakhs } from '../structopro-engine'
 
 declare global {
@@ -132,6 +132,42 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
     }, 2000)
     return () => clearInterval(pollRef.current!)
   }, [orderId, payStatus])
+
+  // PDF generation — extracted so retry button can call it directly
+  const generatePdf = useCallback(async () => {
+    if (!estimateId) return
+    setPdfStatus('generating')
+    try {
+      // Check if PDF already exists (idempotent — avoids re-generation on re-render)
+      const getRes = await fetch(`/api/structopro/generate-pdf?estimateId=${estimateId}`)
+      const getJson = await getRes.json()
+      if (getJson.pdfUrl) {
+        setPdfUrl(getJson.pdfUrl)
+        setPdfStatus('ready')
+        return
+      }
+      // Generate fresh PDF
+      const postRes = await fetch('/api/structopro/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estimateId }),
+      })
+      const postJson = await postRes.json()
+      if (postJson.pdfUrl) {
+        setPdfUrl(postJson.pdfUrl)
+        setPdfStatus('ready')
+      } else {
+        setPdfStatus('error')
+      }
+    } catch {
+      setPdfStatus('error')
+    }
+  }, [estimateId])
+
+  // Trigger PDF generation after payment confirmed
+  useEffect(() => {
+    if (isPaid) generatePdf()
+  }, [isPaid, generatePdf])
 
   async function handleUnlock() {
     if (!estimateId) {
@@ -621,7 +657,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             )}
 
             <div className="flex flex-wrap gap-3 mt-2">
-              {['IS 456:2000 calculations', 'Itemised BOQ', 'Contractor comparison', 'PDF report (coming soon)'].map(f => (
+              {['IS 456:2000 calculations', 'Itemised BOQ', 'Contractor comparison', '10-page PDF report'].map(f => (
                 <span key={f} className="flex items-center gap-1 text-[11px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>
                   <span style={{ color: '#14532D' }}>✓</span> {f}
                 </span>
@@ -636,12 +672,57 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             className="rounded-[2px] p-5"
             style={{ border: '2px solid #14532D', background: 'rgba(20,83,45,0.04)' }}
           >
-            <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
+            <p className="text-[11px] uppercase tracking-widest mb-2" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
               ✓ PAYMENT SUCCESSFUL — REPORT UNLOCKED
             </p>
-            <p className="text-[13px]" style={{ color: 'rgba(30,34,39,0.65)', fontFamily: 'var(--font-plex-sans)' }}>
-              Your full estimate is now visible above. PDF download will be available in a future update.
+            <p className="text-[13px] mb-4" style={{ color: 'rgba(30,34,39,0.65)', fontFamily: 'var(--font-plex-sans)' }}>
+              Your full estimate is now visible above. Download your 10-page IS-code PDF report below.
             </p>
+
+            {/* PDF download area */}
+            {pdfStatus === 'generating' && (
+              <div
+                className="flex items-center gap-3 px-4 py-3 rounded-[2px]"
+                style={{ border: '1px solid rgba(31,78,121,0.3)', background: 'rgba(31,78,121,0.05)' }}
+              >
+                <svg className="animate-spin" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="6" stroke="#1F4E79" strokeWidth="1.5" strokeDasharray="10 6" />
+                </svg>
+                <p className="text-[12px]" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  GENERATING PDF REPORT — please wait…
+                </p>
+              </div>
+            )}
+
+            {pdfStatus === 'ready' && pdfUrl && (
+              <a
+                href={pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-[6px] text-[14px] font-semibold text-white no-underline"
+                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Download PDF Report
+              </a>
+            )}
+
+            {pdfStatus === 'error' && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-[12px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
+                  ⚠ PDF generation failed. Check your email — the report may have been sent there.
+                </p>
+                <button
+                  onClick={generatePdf}
+                  className="text-[11px] underline"
+                  style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-sans)' }}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
           </div>
         )}
 

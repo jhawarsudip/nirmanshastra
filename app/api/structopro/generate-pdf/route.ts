@@ -61,16 +61,17 @@ export async function POST(req: NextRequest) {
     const projectName = estimate.project_name ?? 'My Project'
 
     // 3. Generate PDF buffer
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(StructoProPDF, {
-        input,
-        result,
-        contact: contactInfo,
-        reportId,
-        projectName,
-        date: new Date(),
-      })
-    )
+    const pdfElement = React.createElement(StructoProPDF, {
+      input,
+      result,
+      contact: contactInfo,
+      reportId,
+      projectName,
+      date: new Date(),
+    })
+    // renderToBuffer expects ReactElement<DocumentProps>; our component returns Document
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pdfBuffer = await renderToBuffer(pdfElement as any)
 
     // 4. Ensure storage bucket exists (public — reports identified by UUID)
     const { error: bucketErr } = await supabase.storage.createBucket('reports', {
