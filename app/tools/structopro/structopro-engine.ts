@@ -51,7 +51,7 @@ export type SiteCondition =
   | 'flat' | 'sloped_mild' | 'sloped_steep' | 'rocky'
   | 'bcs' | 'soft_marshy' | 'waterlogged' | 'coastal'
 
-export type ConcreteGrade = 'M20' | 'M25' | 'M30' | 'M35'
+export type ConcreteGrade = 'M20' | 'M25' | 'M30' | 'M35' | 'M40'
 export type SteelGrade = 'Fe415' | 'Fe500' | 'Fe500D' | 'Fe550D'
 export type ExposureClass = 'mild' | 'moderate' | 'severe' | 'very_severe' | 'extreme'
 
@@ -81,6 +81,17 @@ export interface StructoInput {
   concreteGrade: ConcreteGrade
   steelGrade: SteelGrade
   seismicZoneOverride?: string
+  // Extended form fields (not used in calculation — saved to estimate record)
+  projectName?: string
+  contractorQuote?: number
+  contractorName?: string
+  contractorConcreteRate?: number
+  contractorSteelRate?: number
+  contractorFormworkRate?: number
+  includeLabour?: boolean
+  columnSize?: string
+  slabThickness?: number
+  foundationDepth?: number
 }
 
 export interface MaterialQuantities {
@@ -226,14 +237,14 @@ function isGradeAdequate(selected: ConcreteGrade, required: ConcreteGrade): bool
 
 function exposureMinGrade(exp: ExposureClass): ConcreteGrade {
   const map: Record<ExposureClass, ConcreteGrade> = {
-    mild: 'M20', moderate: 'M25', severe: 'M30', very_severe: 'M35', extreme: 'M35',
+    mild: 'M20', moderate: 'M25', severe: 'M30', very_severe: 'M35', extreme: 'M40',
   }
   return map[exp]
 }
 
 // Cement grade cost per sqft BUA multiplier (relative to M20 = 1.0)
 const GRADE_COST_FACTOR: Record<ConcreteGrade, number> = {
-  M20: 1.00, M25: 1.12, M30: 1.22, M35: 1.32,
+  M20: 1.00, M25: 1.12, M30: 1.22, M35: 1.32, M40: 1.45,
 }
 
 // Default Pune 2026 material rates (Section 5)
