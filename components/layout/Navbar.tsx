@@ -183,10 +183,10 @@ export default function Navbar() {
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
         aria-label="NirmanShastra home"
       >
-        <span style={{ ...mono, color: '#F4F4F0', fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-plex-serif)' }}>
-          NirmanShastra
+        <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, lineHeight: 1.1 }}>
+          <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
         </span>
-        <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 10, color: 'rgba(244,244,240,0.45)' }}>
+        <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 11, color: '#C9A84C', opacity: 0.7, marginTop: 1 }}>
           निर्माणशास्त्र
         </span>
       </button>

@@ -48,8 +48,8 @@ export default function RootLayout({
         className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} antialiased`}
       >
         {/* Announcement bar */}
-        <div style={{ background: '#1F4E79', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#F4F4F0', letterSpacing: '0.06em', textAlign: 'center', padding: '6px 16px' }}>
+        <div style={{ background: '#1F4E79' }}>
+          <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: '#F4F4F0', letterSpacing: '0.03em', textAlign: 'center', padding: '10px 16px', fontWeight: 500 }}>
             NirmanShastra — India&rsquo;s first IS-code construction cost estimation platform
           </p>
         </div>

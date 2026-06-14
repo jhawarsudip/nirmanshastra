@@ -582,15 +582,6 @@ export default function Home() {
     day: '2-digit', month: 'short', year: 'numeric',
   })
 
-  const titleRows: [string, string][] = [
-    ['PROJECT',          'YOUR HOME'],
-    ['DRG NO.',          'NS-001'],
-    ['DRAWN BY',         'NIRMANSHASTRA'],
-    ['CHECKED AGAINST',  'IS 456 · 1077 · 732 · 1172 · 1893'],
-    ['SCALE',            '1:1 COST CERTAINTY'],
-    ['DATE',             `${today}   REV A`],
-  ]
-
   const sectionRef = useRef<HTMLDivElement>(null)
 
   return (
@@ -616,7 +607,7 @@ export default function Home() {
               </p>
             </div>
 
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(244,244,240,0.65)', lineHeight: 1.7, maxWidth: 500 }}>
+            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.6, maxWidth: 480 }}>
               India&rsquo;s first IS-code construction cost estimation platform.
               Know exact material quantities, catch contractor inflation, and build your home
               with engineering certainty — phase by phase.
@@ -647,37 +638,18 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Hero structural illustration */}
-            <div style={{ paddingTop: 8 }}>
-              <HouseConstructionSVG />
-            </div>
           </motion.div>
 
-          {/* Right — Engineering title block with gold border */}
+          {/* Right — Building elevation illustration */}
           <motion.div
-            className="flex justify-center lg:justify-end"
+            className="flex items-center justify-center lg:justify-end"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
+            style={{ width: '100%' }}
           >
-            <div
-              className="hero-title-block"
-              style={{ border: '1px solid #C9A84C', fontFamily: 'var(--font-plex-mono)', display: 'inline-block' }}
-            >
-              <table style={{ borderCollapse: 'collapse', minWidth: 340 }}>
-                <tbody>
-                  {titleRows.map(([label, value], i) => (
-                    <tr key={label} style={i > 0 ? { borderTop: '1px solid rgba(201,168,76,0.3)' } : {}}>
-                      <td style={{ borderRight: '1px solid rgba(201,168,76,0.3)', padding: '9px 14px', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(201,168,76,0.5)', whiteSpace: 'nowrap', verticalAlign: 'top' }}>
-                        {label}
-                      </td>
-                      <td style={{ padding: '9px 14px', fontSize: 13, color: '#F4F4F0', verticalAlign: 'top' }}>
-                        {value}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div style={{ width: '100%', maxWidth: 560 }}>
+              <HouseConstructionSVG />
             </div>
           </motion.div>
         </section>
