@@ -599,30 +599,36 @@ function WireSchedulePage({ result }: { result: ElectroResult }) {
 
         <SectionEyebrow>WIRE SCHEDULE (1.15 WASTAGE FACTOR — IS 732:2019)</SectionEyebrow>
         <View style={{ flexDirection: 'row', ...S.tableHeader }}>
-          <Text style={{ flex: 2, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>WIRE TYPE / USE</Text>
-          <Text style={{ width: 70, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>METRES</Text>
-          <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>RATE ₹/M</Text>
-          <Text style={{ width: 70, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>COST (₹)</Text>
+          <Text style={{ width: 28, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>ITEM NO.</Text>
+          <Text style={{ flex: 2, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>DESCRIPTION</Text>
+          <Text style={{ width: 40, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>UNIT</Text>
+          <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>QTY</Text>
+          <Text style={{ width: 55, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>RATE (₹)</Text>
+          <Text style={{ width: 65, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>AMOUNT (₹)</Text>
         </View>
         {[
-          { type: '1.5 sqmm — Lighting & fans & exhaust (IS 732:2019 Cl 6.2)', metres: result.wireSchedule.size_1_5_m,  rate: 22 },
-          { type: '2.5 sqmm — Power sockets (IS 732:2019 Cl 6.2)',             metres: result.wireSchedule.size_2_5_m,  rate: 35 },
-          { type: '4.0 sqmm — AC units & geysers (IS 732:2019 Cl 6.2)',        metres: result.wireSchedule.size_4_0_m,  rate: 55 },
-          { type: '6.0 sqmm — Sub-panel feeds (IS 732:2019 Cl 6.2)',           metres: result.wireSchedule.size_6_0_m,  rate: 85 },
-          { type: '10.0 sqmm — Main incomer (IS 732:2019 Cl 6.2)',             metres: result.wireSchedule.size_10_0_m, rate: 140 },
+          { type: '1.5 sqmm FR — Lighting & fans & exhaust (IS 732:2019)', metres: result.wireSchedule.size_1_5_m,  rate: 22 },
+          { type: '2.5 sqmm FR — Power sockets (IS 732:2019)',             metres: result.wireSchedule.size_2_5_m,  rate: 35 },
+          { type: '4.0 sqmm FR — AC units & geysers (IS 732:2019)',        metres: result.wireSchedule.size_4_0_m,  rate: 55 },
+          { type: '6.0 sqmm FR — Sub-panel feeds (IS 732:2019)',           metres: result.wireSchedule.size_6_0_m,  rate: 85 },
+          { type: '10.0 sqmm FR — Main incomer (IS 732:2019)',             metres: result.wireSchedule.size_10_0_m, rate: 140 },
         ].map((row, i) => (
           <View key={i} style={i % 2 === 0 ? S.tableRow : S.tableRowAlt}>
+            <Text style={{ width: 28, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60 }}>{`1.${i + 1}`}</Text>
             <Text style={{ flex: 2, fontFamily: 'IBMPlexSans', fontSize: 9, color: T.ironInk }}>{row.type}</Text>
-            <Text style={{ width: 70, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.ironInk, textAlign: 'right' }}>{row.metres.toLocaleString('en-IN')}</Text>
-            <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60, textAlign: 'right' }}>{row.rate}</Text>
-            <Text style={{ width: 70, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.ironInk, textAlign: 'right' }}>{(row.metres * row.rate).toLocaleString('en-IN')}</Text>
+            <Text style={{ width: 40, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60, textAlign: 'right' }}>m</Text>
+            <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.ironInk, textAlign: 'right' }}>{row.metres.toLocaleString('en-IN')}</Text>
+            <Text style={{ width: 55, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60, textAlign: 'right' }}>{row.rate}</Text>
+            <Text style={{ width: 65, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.ironInk, textAlign: 'right' }}>{(row.metres * row.rate).toLocaleString('en-IN')}</Text>
           </View>
         ))}
         <View style={{ flexDirection: 'row', paddingVertical: 5, borderTopWidth: 2, borderTopColor: T.ironInk }}>
+          <Text style={{ width: 28 }} />
           <Text style={{ flex: 2, fontFamily: 'IBMPlexSans', fontSize: 9, fontWeight: 600, color: T.ironInk }}>Total Wire Material</Text>
-          <Text style={{ width: 70 }} />
+          <Text style={{ width: 40 }} />
           <Text style={{ width: 60 }} />
-          <Text style={{ width: 70, fontFamily: 'IBMPlexMono', fontSize: 9, fontWeight: 700, color: T.blueprint, textAlign: 'right' }}>
+          <Text style={{ width: 55 }} />
+          <Text style={{ width: 65, fontFamily: 'IBMPlexMono', fontSize: 9, fontWeight: 700, color: T.blueprint, textAlign: 'right' }}>
             {result.costs.wireMaterial.toLocaleString('en-IN')}
           </Text>
         </View>

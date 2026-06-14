@@ -555,24 +555,26 @@ function FlooringSchedulePage({ input, result }: { input: InteriorInput; result:
           ))}
         </View>
 
-        <SectionEyebrow>FLOORING MATERIAL SCHEDULE</SectionEyebrow>
+        <SectionEyebrow>FLOORING MATERIAL SCHEDULE — IS-CODE BOQ</SectionEyebrow>
         <View style={S.tableHeader}>
-          <Text style={{ flex: 2, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>ITEM</Text>
-          <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>QTY</Text>
-          <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>UNIT</Text>
+          <Text style={{ width: 28, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>ITEM NO.</Text>
+          <Text style={{ flex: 2, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>DESCRIPTION</Text>
+          <Text style={{ width: 55, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>QTY</Text>
+          <Text style={{ width: 50, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>UNIT</Text>
           <Text style={{ flex: 1, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>IS REF</Text>
         </View>
         {[
-          { item: `Vitrified tiles ${fs.tileSize}`, qty: fs.tileQty,       unit: 'Tiles',    code: 'IS 13006:2013' },
-          { item: 'Tile adhesive 20kg bags',        qty: fs.adhesiveBags,  unit: 'Bags',     code: 'IS 15477:2004' },
-          { item: 'Polymer grout',                  qty: fs.groutKg,       unit: 'kg',       code: 'IS 15477:2004 Annex' },
-          { item: 'Tile spacers 2mm',               qty: Math.ceil(fs.tileQty * 4), unit: 'Pcs',  code: 'Field practice' },
-          { item: 'Waterproofing coat (wet areas)',  qty: Math.round(input.numBathrooms * 60 + input.buaPerFloorSqft * 0.14 * 2), unit: 'sqft', code: 'IS 2645:2003' },
+          { no: '1.1', item: `Vitrified tiles ${fs.tileSize}`, qty: fs.tileQty,       unit: 'Tiles',    code: 'IS 13006:2013' },
+          { no: '1.2', item: 'Tile adhesive 20kg bags',        qty: fs.adhesiveBags,  unit: 'Bags',     code: 'IS 15477:2004' },
+          { no: '1.3', item: 'Polymer grout',                  qty: fs.groutKg,       unit: 'kg',       code: 'IS 15477:2004 Annex' },
+          { no: '1.4', item: 'Tile spacers 2mm',               qty: Math.ceil(fs.tileQty * 4), unit: 'Pcs', code: 'Field practice' },
+          { no: '1.5', item: 'Waterproofing coat (wet areas)',  qty: Math.round(input.numBathrooms * 60 + input.buaPerFloorSqft * 0.14 * 2), unit: 'sqft', code: 'IS 2645:2003' },
         ].map((row, i) => (
           <View key={i} style={i % 2 === 0 ? S.tableRow : S.tableRowAlt}>
+            <Text style={{ width: 28, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60 }}>{row.no}</Text>
             <Text style={{ flex: 2, fontFamily: 'IBMPlexSans', fontSize: 9, color: T.ironInk }}>{row.item}</Text>
-            <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 9, fontWeight: 700, color: T.blueprint, textAlign: 'right' }}>{row.qty.toLocaleString('en-IN')}</Text>
-            <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60, textAlign: 'right' }}>{row.unit}</Text>
+            <Text style={{ width: 55, fontFamily: 'IBMPlexMono', fontSize: 9, fontWeight: 700, color: T.blueprint, textAlign: 'right' }}>{row.qty.toLocaleString('en-IN')}</Text>
+            <Text style={{ width: 50, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60, textAlign: 'right' }}>{row.unit}</Text>
             <Text style={{ flex: 1, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>{row.code}</Text>
           </View>
         ))}

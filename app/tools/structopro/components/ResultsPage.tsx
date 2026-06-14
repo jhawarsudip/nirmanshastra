@@ -1,7 +1,21 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { animate } from 'framer-motion'
 import { type StructoResult, type StructoInput, formatLakhs } from '../structopro-engine'
+
+function CountUp({ to, format }: { to: number; format: (n: number) => string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const controls = animate(0, to, {
+      duration: 1.1,
+      ease: 'easeOut',
+      onUpdate(v) { if (ref.current) ref.current.textContent = format(v) },
+    })
+    return controls.stop
+  }, [to, format])
+  return <span ref={ref}>{format(0)}</span>
+}
 
 declare global {
   interface Window {
@@ -321,7 +335,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               className="text-[40px] sm:text-[52px] font-bold leading-none"
               style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}
             >
-              {formatLakhs(r.grandTotal.standard)}
+              <CountUp to={r.grandTotal.standard} format={formatLakhs} />
             </span>
             <span
               className="text-[16px]"
@@ -517,91 +531,131 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           </ol>
         </div>
 
-        {/* ── BLURRED QUANTITIES SECTION ── */}
-        <div className="border rounded-[2px] overflow-hidden relative" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
+        {/* ── BOQ SECTION ── */}
+        <div className="border rounded-[2px] overflow-hidden" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
           <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-              EXACT MATERIAL QUANTITIES
+              {isPaid ? 'FULL IS-CODE BOQ — PHASE 1 · RCC STRUCTURE' : 'MATERIAL QUANTITIES — PREVIEW'}
             </p>
           </div>
 
-          {/* Blurred content */}
-          <div style={{ filter: isPaid ? 'none' : 'blur(6px)', userSelect: isPaid ? 'auto' : 'none', transition: 'filter 0.5s' }}>
-            <div className="p-4">
-              <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
-                    <th className="text-left py-2 text-[10px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>Material</th>
-                    <th className="text-right py-2 text-[10px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>Quantity</th>
-                    <th className="text-right py-2 text-[10px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>Unit</th>
-                    <th className="text-right py-2 text-[10px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>Cost (₹)</th>
+          <div className="p-4">
+            {/* Table header */}
+            <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                  {isPaid && <th className="text-left py-2 px-1 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 44 }}>Item No.</th>}
+                  <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
+                  <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 44 }}>Unit</th>
+                  <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 70 }}>Qty</th>
+                  {isPaid && <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 70 }}>Rate (₹)</th>}
+                  <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 90 }}>Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* ── PROOF-OF-WORK: first 2 rows always visible ── */}
+                {[
+                  { itemNo: '1.1', name: `Cement — ${input.concreteGrade}`, unit: 'bags', qty: r.quantities.cementBags, cost: r.costs.cement },
+                  { itemNo: '1.2', name: `TMT Steel — ${input.steelGrade}`, unit: 'kg',   qty: r.quantities.steelKg,   cost: r.costs.steel },
+                ].map((row, i) => (
+                  <tr key={row.itemNo} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                    {isPaid && <td className="py-2 px-1" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>{row.itemNo}</td>}
+                    <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{row.name}</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{row.unit}</td>
+                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{row.qty.toLocaleString('en-IN')}</td>
+                    {isPaid && <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(row.cost / row.qty).toLocaleString('en-IN')}</td>}
+                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{isPaid ? row.cost.toLocaleString('en-IN') : '—'}</td>
                   </tr>
-                </thead>
+                ))}
+              </tbody>
+            </table>
+
+            {/* ── Remaining rows: blurred until paid ── */}
+            {!isPaid ? (
+              <div style={{ position: 'relative', marginTop: 0 }}>
+                {/* Blurred preview of remaining rows */}
+                <div style={{ filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none' }}>
+                  <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
+                    <tbody>
+                      {[
+                        { name: 'Coarse Aggregate (20mm)', unit: 'cft',  qty: r.quantities.aggregateCft },
+                        { name: 'Sand (River/M-Sand)',      unit: 'cft',  qty: r.quantities.sandCft },
+                        { name: 'Binding Wire (GI)',        unit: 'kg',   qty: r.quantities.bindingWireKg },
+                        { name: 'Formwork (shuttering)',    unit: 'sqft', qty: r.quantities.formworkSqft },
+                        { name: `Foundation (${r.foundationRecommendation.label})`, unit: 'lump', qty: 1 },
+                      ].map((row, i) => (
+                        <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                          <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{row.name}</td>
+                          <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{row.unit}</td>
+                          <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{row.qty.toLocaleString('en-IN')}</td>
+                          <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
+                        </tr>
+                      ))}
+                      <tr style={{ borderTop: '2px solid #1F4E79', background: 'rgba(31,78,121,0.05)' }}>
+                        <td colSpan={3} className="py-2 font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1F4E79' }}>TOTAL STANDARD ESTIMATE</td>
+                        <td className="py-2 text-right font-bold text-[16px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>{r.grandTotal.standard.toLocaleString('en-IN')}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                {/* Glassmorphism lock overlay */}
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.72)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                  <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                    4 more items + labour + total locked
+                  </p>
+                  <button
+                    onClick={handleUnlock}
+                    style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}
+                  >
+                    Unlock Full BOQ — ₹499
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Post-payment: full professional BOQ */
+              <table className="w-full text-[13px] mt-0" style={{ borderCollapse: 'collapse' }}>
                 <tbody>
                   {[
-                    { name: `Cement (${input.concreteGrade})`, qty: r.quantities.cementBags,    unit: 'bags',  cost: r.costs.cement },
-                    { name: `Steel (${input.steelGrade} TMT)`, qty: r.quantities.steelKg,       unit: 'kg',    cost: r.costs.steel },
-                    { name: 'Coarse Aggregate (20mm)',           qty: r.quantities.aggregateCft,  unit: 'cft',   cost: r.costs.aggregate },
-                    { name: 'Sand (River/M-Sand)',               qty: r.quantities.sandCft,       unit: 'cft',   cost: r.costs.sand },
-                    { name: 'Binding Wire (GI)',                 qty: r.quantities.bindingWireKg, unit: 'kg',    cost: r.costs.bindingWire },
-                    { name: 'Formwork (shuttering)',             qty: r.quantities.formworkSqft,  unit: 'sqft',  cost: r.costs.formwork },
+                    { itemNo: '1.3', name: 'Coarse Aggregate (20mm)',           unit: 'cft',  qty: r.quantities.aggregateCft,  cost: r.costs.aggregate },
+                    { itemNo: '1.4', name: 'Sand (River/M-Sand)',               unit: 'cft',  qty: r.quantities.sandCft,       cost: r.costs.sand },
+                    { itemNo: '1.5', name: 'Binding Wire (GI)',                 unit: 'kg',   qty: r.quantities.bindingWireKg, cost: r.costs.bindingWire },
+                    { itemNo: '1.6', name: 'Formwork (wooden/steel shuttering)',unit: 'sqft', qty: r.quantities.formworkSqft,  cost: r.costs.formwork },
                   ].map((row, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.02)' }}>
-                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.name}</td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{row.qty.toLocaleString('en-IN')}</td>
-                      <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{row.unit}</td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
-                        {row.cost.toLocaleString('en-IN')}
-                      </td>
+                    <tr key={row.itemNo} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                      <td className="py-2 px-1" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)', fontSize: 11, width: 44 }}>{row.itemNo}</td>
+                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{row.name}</td>
+                      <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12, width: 44 }}>{row.unit}</td>
+                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, width: 70 }}>{row.qty.toLocaleString('en-IN')}</td>
+                      <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12, width: 70 }}>{Math.round(row.cost / Math.max(row.qty, 1)).toLocaleString('en-IN')}</td>
+                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, width: 90 }}>{row.cost.toLocaleString('en-IN')}</td>
                     </tr>
                   ))}
-                  <tr style={{ borderTop: '1px solid rgba(30,34,39,0.18)' }}>
-                    <td colSpan={3} className="py-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>
-                      Foundation ({r.foundationRecommendation.label})
-                    </td>
-                    <td className="py-2 text-right font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>
-                      {r.costs.foundation.toLocaleString('en-IN')}
-                    </td>
+                  <tr style={{ borderTop: '1px solid rgba(30,34,39,0.15)' }}>
+                    <td className="py-2 px-1" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>1.7</td>
+                    <td colSpan={3} className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Foundation ({r.foundationRecommendation.label})</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>lump</td>
+                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{r.costs.foundation.toLocaleString('en-IN')}</td>
                   </tr>
-                  <tr style={{ borderTop: '2px solid #1E2227' }}>
-                    <td colSpan={3} className="py-2 font-semibold text-[13px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>
-                      Total Material Cost
-                    </td>
-                    <td className="py-2 text-right font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>
-                      {r.costs.total.toLocaleString('en-IN')}
-                    </td>
+                  <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
+                    <td colSpan={5} className="py-2 font-semibold text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>Total Material Cost</td>
+                    <td className="py-2 text-right font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{r.costs.total.toLocaleString('en-IN')}</td>
                   </tr>
                   <tr>
-                    <td colSpan={3} className="py-1 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
-                      Labour (standard CPWD rates)
-                    </td>
-                    <td className="py-1 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>
-                      {r.labourCost.toLocaleString('en-IN')}
-                    </td>
+                    <td colSpan={5} className="py-1.5 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>Labour — CPWD standard rates</td>
+                    <td className="py-1.5 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>{r.labourCost.toLocaleString('en-IN')}</td>
                   </tr>
                   <tr>
-                    <td colSpan={3} className="py-1 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
-                      Contractor overhead + margin (10%)
-                    </td>
-                    <td className="py-1 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>
-                      {r.overheadCost.toLocaleString('en-IN')}
-                    </td>
+                    <td colSpan={5} className="py-1.5 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>Contractor overhead + margin (10%)</td>
+                    <td className="py-1.5 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>{r.overheadCost.toLocaleString('en-IN')}</td>
                   </tr>
-                  <tr style={{ borderTop: '2px solid #1F4E79', background: 'rgba(31,78,121,0.05)' }}>
-                    <td colSpan={3} className="py-2 font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1F4E79' }}>
-                      TOTAL STANDARD ESTIMATE
-                    </td>
-                    <td className="py-2 text-right font-bold text-[16px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>
-                      {r.grandTotal.standard.toLocaleString('en-IN')}
-                    </td>
+                  <tr style={{ borderTop: '2px solid #1F4E79', background: 'rgba(31,78,121,0.06)' }}>
+                    <td colSpan={5} className="py-2 font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1F4E79' }}>TOTAL STANDARD ESTIMATE</td>
+                    <td className="py-2 text-right font-bold text-[16px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>{r.grandTotal.standard.toLocaleString('en-IN')}</td>
                   </tr>
                 </tbody>
               </table>
-            </div>
+            )}
           </div>
-
-          {/* Blur overlay — shown when not paid */}
-          {!isPaid && <BlurOverlay onClick={handleUnlock} />}
         </div>
 
         {/* ── PAYMENT GATE ── */}
@@ -620,16 +674,16 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               className="text-[20px] font-bold mb-2"
               style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}
             >
-              Unlock exact quantities and contractor comparison
+              Unlock Full IS-Code BOQ + Professional PDF
             </h2>
             <p
               className="text-[13px] mb-4"
               style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}
             >
-              Get cement bags, steel kg, aggregate cft, and line-by-line itemised costs. Compare with your contractor quote to spot overcharging.
+              Includes exact quantities, local market rates, and contractor-ready BOQ
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <div className="flex flex-col sm:flex-row gap-3 mb-3">
               <button
                 onClick={handleUnlock}
                 disabled={payStatus === 'creating' || payStatus === 'verifying' || payStatus === 'polling'}
@@ -639,7 +693,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 {payStatus === 'creating'  ? 'Creating order…' :
                  payStatus === 'verifying' ? 'Verifying payment…' :
                  payStatus === 'polling'   ? 'Confirming payment…' :
-                 'Unlock Report ₹499'}
+                 'Unlock Full IS-Code BOQ + Professional PDF — ₹499'}
               </button>
               <div
                 className="flex-1 py-3 px-4 rounded-[6px] text-center"
@@ -651,7 +705,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             </div>
 
             {payError && (
-              <p className="text-[12px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
+              <p className="text-[12px] mb-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
                 ⚠ {payError}
               </p>
             )}

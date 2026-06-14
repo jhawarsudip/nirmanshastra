@@ -105,12 +105,12 @@ function AdminModal({ onClose }: { onClose: () => void }) {
 }
 
 const TOOLS = [
-  { phase: 'P0', name: 'VastuPro',   href: '/tools/vastu-pro',  free: true  },
-  { phase: 'P1', name: 'StructoPro', href: '/tools/structopro', free: false },
-  { phase: 'P2', name: 'MasonPro',   href: '/tools/masonpro',   free: false },
-  { phase: 'P3', name: 'ElectroPro', href: '/tools/electropro', free: false },
-  { phase: 'P4', name: 'PlumbPro',   href: '/tools/plumbpro',   free: false },
-  { phase: 'P5', name: 'InteriorPro',href: '/tools/interiorpro',free: false },
+  { phase: 'P0', name: 'VastuPro',    descriptor: 'Vastu Compliance Analyser',      href: '/tools/vastu-pro',  free: true  },
+  { phase: 'P1', name: 'StructoPro',  descriptor: 'RCC Structure Cost Estimator',   href: '/tools/structopro', free: false },
+  { phase: 'P2', name: 'MasonPro',    descriptor: 'Masonry & Plaster Estimator',    href: '/tools/masonpro',   free: false },
+  { phase: 'P3', name: 'ElectroPro',  descriptor: 'Electrical Wiring Estimator',    href: '/tools/electropro', free: false },
+  { phase: 'P4', name: 'PlumbPro',    descriptor: 'Plumbing & Drainage Estimator',  href: '/tools/plumbpro',   free: false },
+  { phase: 'P5', name: 'InteriorPro', descriptor: 'Interior Finishing Estimator',   href: '/tools/interiorpro',free: false },
 ]
 
 export default function Navbar() {
@@ -207,7 +207,7 @@ export default function Navbar() {
               transform: 'translateX(-50%)',
               background: '#1E2227',
               border: '1px solid rgba(244,244,240,0.12)',
-              minWidth: 220,
+              minWidth: 280,
               zIndex: 50,
             }}>
               {TOOLS.map((t, i) => (
@@ -222,9 +222,15 @@ export default function Navbar() {
                     padding: '9px 14px',
                     borderTop: i > 0 ? '1px solid rgba(244,244,240,0.06)' : undefined,
                     textDecoration: 'none',
+                    gap: 10,
                   }}
                 >
-                  <span style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {t.descriptor}
+                    </div>
+                  </div>
                   <span style={{
                     ...mono,
                     fontSize: 10,
@@ -232,6 +238,7 @@ export default function Navbar() {
                     color: t.free ? '#14532D' : '#1F4E79',
                     border: `1px solid ${t.free ? '#14532D' : '#1F4E79'}`,
                     letterSpacing: '0.04em',
+                    flexShrink: 0,
                   }}>
                     {t.free ? 'FREE' : '₹499'}
                   </span>

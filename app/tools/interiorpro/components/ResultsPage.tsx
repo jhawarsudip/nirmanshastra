@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { animate } from 'framer-motion'
 import {
   type InteriorResult,
   type InteriorInput,
@@ -31,6 +32,19 @@ type PdfStatus = 'idle' | 'generating' | 'ready' | 'error'
 
 const GRADE_LABELS: Record<InteriorGrade, string> = {
   basic: 'Basic', standard: 'Standard', premium: 'Premium', luxury: 'Luxury',
+}
+
+function CountUp({ to, format }: { to: number; format: (n: number) => string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const controls = animate(0, to, {
+      duration: 1.1,
+      ease: 'easeOut',
+      onUpdate(v) { if (ref.current) ref.current.textContent = format(v) },
+    })
+    return controls.stop
+  }, [to, format])
+  return <span ref={ref}>{format(0)}</span>
 }
 
 function StampBadge({ status, clause, description }: {
@@ -259,7 +273,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <div className="flex flex-wrap items-baseline gap-3 mb-4">
             <span className="text-[40px] sm:text-[52px] font-bold leading-none"
               style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
-              {formatLakhs(r.grandTotal[input.grade])}
+              <CountUp to={r.grandTotal[input.grade]} format={formatLakhs} />
             </span>
             <span className="text-[16px]"
               style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
@@ -459,13 +473,55 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           </ol>
         </div>
 
+        {/* PROOF-OF-WORK: first 2 BOQ rows always visible */}
+        {!isPaid && (
+          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                MATERIAL SCHEDULE — PREVIEW
+              </p>
+            </div>
+            <div className="p-4">
+              <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                    <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
+                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 60 }}>Unit</th>
+                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 80 }}>Qty</th>
+                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 90 }}>Amount (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.08)' }}>
+                    <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Flooring — tiles with 10% wastage (IS 15477:2004)</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>sqft</td>
+                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{r.flooringSchedule.withWastageSqft.toLocaleString('en-IN')}</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: 'rgba(30,34,39,0.018)' }}>
+                    <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Kitchen cabinets — modular ({GRADE_LABELS[input.grade]})</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>rft</td>
+                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{input.kitchenRft}</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
+                  </tr>
+                  <tr>
+                    <td colSpan={4} className="py-2 text-center text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>
+                      + false ceiling, paint, doors, room-wise breakdown &amp; totals locked →
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* Blurred section — PAID */}
         <div className="border rounded-[2px] overflow-hidden relative"
           style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
           <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-              EXACT QUANTITIES — FLOORING SCHEDULE + ROOM BREAKDOWN + COMPLETE BOQ
+              {isPaid ? 'FULL IS-CODE BOQ — PHASE 5 · INTERIOR' : 'EXACT QUANTITIES — FLOORING SCHEDULE + ROOM BREAKDOWN + COMPLETE BOQ'}
             </p>
           </div>
 
@@ -646,12 +702,11 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             </p>
             <h2 className="text-[20px] font-bold mb-2"
               style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
-              Unlock exact quantities and contractor comparison
+              Unlock Full IS-Code BOQ + Professional PDF
             </h2>
             <p className="text-[13px] mb-4"
               style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
-              Get exact tile quantities, adhesive bags, paint litres, room-by-room breakdown, and complete BOQ.
-              Compare with your interior contractor&apos;s quote line-by-line.
+              Includes exact quantities, local market rates, and contractor-ready BOQ
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <button onClick={handleUnlock}
@@ -661,7 +716,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 {payStatus === 'creating'  ? 'Creating order…' :
                  payStatus === 'verifying' ? 'Verifying payment…' :
                  payStatus === 'polling'   ? 'Confirming payment…' :
-                 'Unlock Report ₹499'}
+                 'Unlock Full IS-Code BOQ + Professional PDF — ₹499'}
               </button>
               <div className="flex-1 py-3 px-4 rounded-[6px] text-center"
                 style={{ border: '1px dashed rgba(30,34,39,0.3)' }}>

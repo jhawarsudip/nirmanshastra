@@ -538,16 +538,16 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           {/* BOQ Table */}
           <View style={S.table}>
             <View style={S.tHead}>
-              <Text style={{ ...S.tHeader, width: 20 }}>#</Text>
+              <Text style={{ ...S.tHeader, width: 28 }}>ITEM NO.</Text>
               <Text style={{ ...S.tHeader, flex: 1 }}>DESCRIPTION</Text>
               <Text style={{ ...S.tHeaderR, width: 32 }}>UNIT</Text>
               <Text style={{ ...S.tHeaderR, width: 45 }}>QTY</Text>
-              <Text style={{ ...S.tHeaderR, width: 55 }}>RATE (Rs.)</Text>
-              <Text style={{ ...S.tHeaderR, width: 65 }}>AMOUNT (Rs.)</Text>
+              <Text style={{ ...S.tHeaderR, width: 55 }}>RATE (₹)</Text>
+              <Text style={{ ...S.tHeaderR, width: 65 }}>AMOUNT (₹)</Text>
             </View>
             {foundationBOQ.map((row, i) => (
               <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-                <Text style={{ ...S.tCell, width: 20 }}>{i + 1}</Text>
+                <Text style={{ ...S.tCellMono, width: 28, color: T.inkA60 }}>{`1.${i + 1}`}</Text>
                 <Text style={{ ...S.tCell, flex: 1, lineHeight: 1.45 }}>{row.desc}</Text>
                 <Text style={{ ...S.tCellMono, width: 32 }}>{row.unit}</Text>
                 <Text style={{ ...S.tCellMono, width: 45 }}>{num(row.qty, row.unit === 'kg' ? 0 : 2)}</Text>
@@ -684,12 +684,13 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
 
           <View style={S.table}>
             <View style={S.tHead}>
-              <Text style={{ ...S.tHeader, flex: 1 }}>MATERIAL</Text>
-              <Text style={{ ...S.tHeader, width: 130 }}>SPECIFICATION</Text>
-              <Text style={{ ...S.tHeaderR, width: 55 }}>QTY</Text>
+              <Text style={{ ...S.tHeader, width: 28 }}>ITEM NO.</Text>
+              <Text style={{ ...S.tHeader, flex: 1 }}>DESCRIPTION</Text>
+              <Text style={{ ...S.tHeader, width: 110 }}>SPECIFICATION</Text>
               <Text style={{ ...S.tHeaderR, width: 40 }}>UNIT</Text>
-              <Text style={{ ...S.tHeaderR, width: 55 }}>RATE (Rs.)</Text>
-              <Text style={{ ...S.tHeaderR, width: 65 }}>TOTAL (Rs.)</Text>
+              <Text style={{ ...S.tHeaderR, width: 50 }}>QTY</Text>
+              <Text style={{ ...S.tHeaderR, width: 50 }}>RATE (₹)</Text>
+              <Text style={{ ...S.tHeaderR, width: 60 }}>AMOUNT (₹)</Text>
             </View>
             {[
               {
@@ -736,21 +737,23 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
               },
             ].map((r, i) => (
               <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+                <Text style={{ ...S.tCellMono, width: 28, color: T.inkA60 }}>{`2.${i + 1}`}</Text>
                 <Text style={{ ...S.tCell, flex: 1, fontWeight: 500 }}>{r.mat}</Text>
-                <Text style={{ ...S.tCell, width: 130, lineHeight: 1.4 }}>{r.spec}</Text>
-                <Text style={{ ...S.tCellMono, width: 55 }}>{num(r.qty)}</Text>
+                <Text style={{ ...S.tCell, width: 110, lineHeight: 1.4 }}>{r.spec}</Text>
                 <Text style={{ ...S.tCellMono, width: 40 }}>{r.unit}</Text>
-                <Text style={{ ...S.tCellMono, width: 55 }}>{num(r.rate)}</Text>
-                <Text style={{ ...S.tCellMono, width: 65 }}>{num(r.qty * r.rate)}</Text>
+                <Text style={{ ...S.tCellMono, width: 50 }}>{num(r.qty)}</Text>
+                <Text style={{ ...S.tCellMono, width: 50 }}>{num(r.rate)}</Text>
+                <Text style={{ ...S.tCellMono, width: 60 }}>{num(r.qty * r.rate)}</Text>
               </View>
             ))}
             <View style={S.tTotalRow}>
+              <Text style={{ ...S.tCellMono, width: 28 }} />
               <Text style={{ ...S.tCell, flex: 1, fontWeight: 600 }}>TOTAL MATERIAL COST</Text>
-              <Text style={{ ...S.tCell, width: 130 }} />
-              <Text style={{ ...S.tCellMono, width: 55 }} />
+              <Text style={{ ...S.tCell, width: 110 }} />
               <Text style={{ ...S.tCellMono, width: 40 }} />
-              <Text style={{ ...S.tCellMono, width: 55 }} />
-              <Text style={{ ...S.tCellMono, width: 65, fontWeight: 700, color: T.blueprint }}>
+              <Text style={{ ...S.tCellMono, width: 50 }} />
+              <Text style={{ ...S.tCellMono, width: 50 }} />
+              <Text style={{ ...S.tCellMono, width: 60, fontWeight: 700, color: T.blueprint }}>
                 {num(result.costs.total)}
               </Text>
             </View>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import RegistrationForm, { type ElectroRegData } from './components/RegistrationForm'
 import MethodSelection from './components/MethodSelection'
 import BuildDetails from './components/BuildDetails'
@@ -15,6 +16,12 @@ interface SessionState {
   estimateId: string | null
   input:      ElectroInput | null
   result:     ElectroResult | null
+}
+
+const stepVariants = {
+  initial: { opacity: 0, x: 18 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.28, ease: 'easeOut' as const } },
+  exit:    { opacity: 0, x: -18, transition: { duration: 0.18, ease: 'easeIn' as const } },
 }
 
 export default function ElectroProPage() {
@@ -74,28 +81,38 @@ export default function ElectroProPage() {
     })
   }
 
-  if (step === 'register') return <RegistrationForm onSubmit={handleRegistration} />
-  if (step === 'method')   return <MethodSelection onSelect={handleMethod} />
-  if (step === 'details') {
-    return (
-      <BuildDetails
-        state={session.regData.state}
-        city={session.regData.city}
-        onSubmit={handleDetails}
-      />
-    )
-  }
-  if (step === 'results' && session.result && session.input) {
-    return (
-      <ResultsPage
-        result={session.result}
-        input={session.input}
-        estimateId={session.estimateId}
-        contactName={session.regData.name}
-        onStartOver={handleStartOver}
-      />
-    )
-  }
-
-  return null
+  return (
+    <AnimatePresence mode="wait">
+      {step === 'register' && (
+        <motion.div key="register" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+          <RegistrationForm onSubmit={handleRegistration} />
+        </motion.div>
+      )}
+      {step === 'method' && (
+        <motion.div key="method" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+          <MethodSelection onSelect={handleMethod} />
+        </motion.div>
+      )}
+      {step === 'details' && (
+        <motion.div key="details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+          <BuildDetails
+            state={session.regData.state}
+            city={session.regData.city}
+            onSubmit={handleDetails}
+          />
+        </motion.div>
+      )}
+      {step === 'results' && session.result && session.input && (
+        <motion.div key="results" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+          <ResultsPage
+            result={session.result}
+            input={session.input}
+            estimateId={session.estimateId}
+            contactName={session.regData.name}
+            onStartOver={handleStartOver}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
 }

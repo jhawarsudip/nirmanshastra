@@ -649,42 +649,46 @@ function PipeSchedulePage({ result }: { result: PlumbResult }) {
 
         <SectionEyebrow>PIPE SCHEDULE — LOCKED DIAMETERS (IS 1742:1983)</SectionEyebrow>
         <View style={{ flexDirection: 'row', ...S.tableHeader }}>
-          <Text style={{ flex: 2, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>PIPE TYPE / SPECIFICATION</Text>
-          <Text style={{ width: 55, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>QTY (m)</Text>
-          <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>RATE ₹/m</Text>
-          <Text style={{ width: 70, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>COST (₹)</Text>
-          <Text style={{ flex: 1, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>IS CODE</Text>
+          <Text style={{ width: 28, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>ITEM NO.</Text>
+          <Text style={{ flex: 2, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60 }}>DESCRIPTION</Text>
+          <Text style={{ width: 40, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>UNIT</Text>
+          <Text style={{ width: 50, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>QTY</Text>
+          <Text style={{ width: 55, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>RATE (₹)</Text>
+          <Text style={{ width: 65, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, textAlign: 'right' }}>AMOUNT (₹)</Text>
         </View>
         {[
-          { type: 'CPVC 25mm — branch supply (hot+cold)', qty: result.pipeSchedule.cpvc25m, rate: 120, code: 'IS 15778:2007' },
-          { type: 'CPVC 32mm — main riser supply',        qty: result.pipeSchedule.cpvc32m, rate: 180, code: 'IS 15778:2007' },
-          { type: 'SWR 75mm — waste pipes (slope 1:48)',  qty: result.pipeSchedule.swr75m,  rate: 95,  code: 'IS 1742:1983' },
-          { type: 'SWR 110mm — soil stack (slope 1:80)', qty: result.pipeSchedule.swr110m, rate: 145, code: 'IS 1742:1983' },
-          { type: 'uPVC 110mm — underground drain',       qty: result.pipeSchedule.upvc110m,rate: 160, code: 'IS 4985:2000' },
+          { type: 'CPVC 25mm — branch supply (hot+cold) IS 15778:2007', qty: result.pipeSchedule.cpvc25m, rate: 120 },
+          { type: 'CPVC 32mm — main riser supply IS 15778:2007',        qty: result.pipeSchedule.cpvc32m, rate: 180 },
+          { type: 'SWR 75mm — waste pipes (slope 1:48) IS 1742:1983',  qty: result.pipeSchedule.swr75m,  rate: 95  },
+          { type: 'SWR 110mm — soil stack (slope 1:80) IS 1742:1983',  qty: result.pipeSchedule.swr110m, rate: 145 },
+          { type: 'uPVC 110mm — underground drain IS 4985:2000',        qty: result.pipeSchedule.upvc110m,rate: 160 },
         ].map((row, i) => (
           <View key={i} style={i % 2 === 0 ? S.tableRow : S.tableRowAlt}>
+            <Text style={{ width: 28, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60 }}>{`1.${i + 1}`}</Text>
             <Text style={{ flex: 2, fontFamily: 'IBMPlexSans', fontSize: 9, color: T.ironInk }}>{row.type}</Text>
-            <Text style={{ width: 55, fontFamily: 'IBMPlexMono', fontSize: 9, fontWeight: 700, color: T.ironInk, textAlign: 'right' }}>{row.qty}</Text>
-            <Text style={{ width: 60, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60, textAlign: 'right' }}>{row.rate}</Text>
-            <Text style={{ width: 70, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.ironInk, textAlign: 'right' }}>{(row.qty * row.rate).toLocaleString('en-IN')}</Text>
-            <Text style={{ flex: 1, fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.inkA60, textAlign: 'right' }}>{row.code}</Text>
+            <Text style={{ width: 40, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60, textAlign: 'right' }}>m</Text>
+            <Text style={{ width: 50, fontFamily: 'IBMPlexMono', fontSize: 9, fontWeight: 700, color: T.ironInk, textAlign: 'right' }}>{row.qty}</Text>
+            <Text style={{ width: 55, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.inkA60, textAlign: 'right' }}>{row.rate}</Text>
+            <Text style={{ width: 65, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.ironInk, textAlign: 'right' }}>{(row.qty * row.rate).toLocaleString('en-IN')}</Text>
           </View>
         ))}
         <View style={{ flexDirection: 'row', paddingVertical: 4, borderTopWidth: 1, borderTopColor: T.inkA35 }}>
-          <Text style={{ flex: 2, fontFamily: 'IBMPlexSans', fontSize: 9, color: T.ironInk, fontStyle: 'italic' }}>+ Fittings allowance (35% of pipe cost)</Text>
+          <Text style={{ width: 28 }} />
+          <Text style={{ flex: 2, fontFamily: 'IBMPlexSans', fontSize: 9, color: T.ironInk, fontStyle: 'italic' }}>1.6  Fittings allowance (35% of pipe cost)</Text>
+          <Text style={{ width: 40 }} />
+          <Text style={{ width: 50 }} />
           <Text style={{ width: 55 }} />
-          <Text style={{ width: 60 }} />
-          <Text style={{ width: 70, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.ironInk, textAlign: 'right' }}>{result.costs.fittingsMaterial.toLocaleString('en-IN')}</Text>
-          <Text style={{ flex: 1 }} />
+          <Text style={{ width: 65, fontFamily: 'IBMPlexMono', fontSize: 9, color: T.ironInk, textAlign: 'right' }}>{result.costs.fittingsMaterial.toLocaleString('en-IN')}</Text>
         </View>
         <View style={{ flexDirection: 'row', paddingVertical: 5, borderTopWidth: 2, borderTopColor: T.ironInk }}>
+          <Text style={{ width: 28 }} />
           <Text style={{ flex: 2, fontFamily: 'IBMPlexSans', fontSize: 10, fontWeight: 600, color: T.ironInk }}>Total Pipe + Fittings Material</Text>
+          <Text style={{ width: 40 }} />
+          <Text style={{ width: 50 }} />
           <Text style={{ width: 55 }} />
-          <Text style={{ width: 60 }} />
-          <Text style={{ width: 70, fontFamily: 'IBMPlexMono', fontSize: 10, fontWeight: 700, color: T.blueprint, textAlign: 'right' }}>
+          <Text style={{ width: 65, fontFamily: 'IBMPlexMono', fontSize: 10, fontWeight: 700, color: T.blueprint, textAlign: 'right' }}>
             {(result.costs.cpvcPipeMaterial + result.costs.swrPipeMaterial + result.costs.upvcPipeMaterial + result.costs.fittingsMaterial).toLocaleString('en-IN')}
           </Text>
-          <Text style={{ flex: 1 }} />
         </View>
 
         <SectionEyebrow>CPWD LABOUR SCHEDULE — SECTION 16 (LOCKED)</SectionEyebrow>

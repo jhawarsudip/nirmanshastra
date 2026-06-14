@@ -583,6 +583,7 @@ function PageBrickworkBOQ({ input, result, reportId }: Props & { reportId: strin
         <SectionTitle text="SHEET 07 · BRICKWORK BOQ — IS 1077:1992 + IS 2212:1991" />
 
         <View style={{ flexDirection: 'row', paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: T.ironInk, borderBottomStyle: 'solid', marginBottom: 4 }}>
+          <Text style={[S.tableHeader, { width: 28 }]}>ITEM NO.</Text>
           {['Description', 'Wall Area (sqm)', 'Qty', 'Unit', 'Rate (₹)', 'Amount (₹)'].map(h => (
             <Text key={h} style={[S.tableHeader, { flex: h === 'Description' ? 2 : 1, textAlign: h !== 'Description' ? 'right' : 'left' }]}>
               {h}
@@ -592,6 +593,7 @@ function PageBrickworkBOQ({ input, result, reportId }: Props & { reportId: strin
 
         {/* External wall row */}
         <View style={S.tableRow}>
+          <Text style={[S.tableCellMono, { width: 28, color: T.inkA60 }]}>1.1</Text>
           <Text style={[S.tableCell, { flex: 2 }]}>{extSpec.label}{'\n'}
             <Text style={[S.monoSm, { color: T.inkA60 }]}>{extSpec.isCode} · {extSpec.mortarRatio} mortar</Text>
           </Text>
@@ -608,6 +610,7 @@ function PageBrickworkBOQ({ input, result, reportId }: Props & { reportId: strin
 
         {/* Cement brickwork */}
         <View style={S.tableRowAlt}>
+          <Text style={[S.tableCellMono, { width: 28, color: T.inkA60 }]}>1.2</Text>
           <Text style={[S.tableCell, { flex: 2 }]}>Cement (brickwork){'\n'}
             <Text style={[S.monoSm, { color: T.inkA60 }]}>{extSpec.cementBagsPerSqm} bags/sqm × {extSpec.unitsPerSqm}u · dry factor 1.1</Text>
           </Text>
@@ -622,6 +625,7 @@ function PageBrickworkBOQ({ input, result, reportId }: Props & { reportId: strin
 
         {extSpec.sandCftPerSqm > 0 && (
           <View style={S.tableRow}>
+            <Text style={[S.tableCellMono, { width: 28, color: T.inkA60 }]}>1.3</Text>
             <Text style={[S.tableCell, { flex: 2 }]}>Sand (brickwork){'\n'}
               <Text style={[S.monoSm, { color: T.inkA60 }]}>{extSpec.sandCftPerSqm} cft/sqm</Text>
             </Text>
@@ -637,6 +641,7 @@ function PageBrickworkBOQ({ input, result, reportId }: Props & { reportId: strin
 
         {input.includeInternal && bq.internalBricksOrBlocks > 0 && (
           <View style={S.tableRowAlt}>
+            <Text style={[S.tableCellMono, { width: 28, color: T.inkA60 }]}>1.4</Text>
             <Text style={[S.tableCell, { flex: 2 }]}>
               Internal partition — {input.internalWallType?.replace(/_/g, ' ')}
             </Text>
@@ -685,6 +690,7 @@ function PagePlasterBOQ({ input, result, reportId }: Props & { reportId: string 
               Chicken mesh mandatory at all RCC-brick junctions.
             </Text>
             <View style={{ flexDirection: 'row', paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: T.ironInk, borderBottomStyle: 'solid', marginBottom: 4 }}>
+              <Text style={[S.tableHeader, { width: 28 }]}>ITEM NO.</Text>
               {['Description', 'Thickness', 'Ratio', 'Area (sqm)', 'Cement (bags)', 'Sand (cft)'].map(h => (
                 <Text key={h} style={[S.tableHeader, { flex: 1, textAlign: h !== 'Description' ? 'right' : 'left' }]}>
                   {h}
@@ -693,6 +699,7 @@ function PagePlasterBOQ({ input, result, reportId }: Props & { reportId: string 
             </View>
             {[
               {
+                no: '2.1',
                 desc: 'External plaster (both faces)',
                 thick: '15mm',
                 ratio: '1:4',
@@ -701,6 +708,7 @@ function PagePlasterBOQ({ input, result, reportId }: Props & { reportId: string 
                 sand: pq.externalPlasterSandCft.toFixed(1),
               },
               {
+                no: '2.2',
                 desc: 'Internal plaster (both faces)',
                 thick: '12mm',
                 ratio: '1:4',
@@ -709,6 +717,7 @@ function PagePlasterBOQ({ input, result, reportId }: Props & { reportId: string 
                 sand: pq.internalPlasterSandCft.toFixed(1),
               },
               {
+                no: '',
                 desc: 'TOTAL (incl. 5% wastage)',
                 thick: '—',
                 ratio: '—',
@@ -719,6 +728,7 @@ function PagePlasterBOQ({ input, result, reportId }: Props & { reportId: string 
               },
             ].map((row, i) => (
               <View key={i} style={[i < 2 ? S.tableRow : { flexDirection: 'row', borderTopWidth: 2, borderTopColor: T.ironInk, borderTopStyle: 'solid' }]}>
+                <Text style={[S.tableCellMono, { width: 28, color: T.inkA60 }]}>{row.no}</Text>
                 <Text style={i === 2 ? [S.tableCellMono, { fontWeight: 700, flex: 1 }] : [S.tableCell, { flex: 1 }]}>{row.desc}</Text>
                 <Text style={[S.tableCellMono, { flex: 1, textAlign: 'right', fontSize: 8 }]}>{row.thick}</Text>
                 <Text style={[S.tableCellMono, { flex: 1, textAlign: 'right', fontSize: 8 }]}>{row.ratio}</Text>
