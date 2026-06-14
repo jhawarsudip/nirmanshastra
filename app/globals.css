@@ -23,20 +23,16 @@ body {
   font-family: var(--font-plex-sans), system-ui, sans-serif;
 }
 
-/* Sheet frame — 1px Iron Ink border inset 16px around viewport (desktop).
-   On mobile collapses to top + bottom rules only. */
-.sheet-frame::before {
-  content: '';
-  position: fixed;
-  inset: 16px;
-  border: 1px solid #1E2227;
-  pointer-events: none;
-  z-index: 50;
+/* Sheet frame — 1px Iron Ink border on the left and right edges of the
+   main content area (below navbar). No fixed overlay so it never crosses
+   the announcement bar or navbar. */
+.sheet-frame {
+  border-left: 1px solid #1E2227;
+  border-right: 1px solid #1E2227;
 }
 
 @media (max-width: 767px) {
-  .sheet-frame::before {
-    inset: 0;
+  .sheet-frame {
     border-left: none;
     border-right: none;
   }

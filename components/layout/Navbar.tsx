@@ -183,7 +183,7 @@ export default function Navbar() {
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
         aria-label="NirmanShastra home"
       >
-        <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, lineHeight: 1.1 }}>
+        <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, lineHeight: 1.1 }}>
           <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
         </span>
         <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 11, color: '#C9A84C', opacity: 0.7, marginTop: 1 }}>
@@ -197,7 +197,7 @@ export default function Navbar() {
         <div ref={dropdownRef} style={{ position: 'relative' }}>
           <button
             onClick={() => setToolsOpen(o => !o)}
-            style={{ ...mono, color: 'rgba(244,244,240,0.65)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0' }}
+            style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.05em', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0' }}
           >
             Tools <span style={{ fontSize: 9, opacity: 0.7 }}>▾</span>
           </button>
@@ -271,10 +271,10 @@ export default function Navbar() {
           )}
         </div>
 
-        <Link href="/#how-it-works" style={{ ...mono, color: 'rgba(244,244,240,0.65)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', textDecoration: 'none' }}>
+        <Link href="/#how-it-works" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.05em', textDecoration: 'none' }}>
           How It Works
         </Link>
-        <Link href="/#pricing" style={{ ...mono, color: 'rgba(244,244,240,0.65)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', textDecoration: 'none' }}>
+        <Link href="/#pricing" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.05em', textDecoration: 'none' }}>
           Pricing
         </Link>
       </div>
@@ -298,14 +298,14 @@ export default function Navbar() {
           <>
             <Link
               href="/auth"
-              style={{ ...mono, color: 'rgba(244,244,240,0.65)', fontSize: 11, textDecoration: 'none', letterSpacing: '0.04em' }}
+              style={{ ...mono, color: 'rgba(244,244,240,0.65)', fontSize: 14, textDecoration: 'none', letterSpacing: '0.04em' }}
               className="hidden sm:block"
             >
               Log In
             </Link>
             <Link
               href="/tools/vastu-pro"
-              style={{ ...mono, background: '#8C3A22', color: '#F4F4F0', fontSize: 11, padding: '7px 14px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}
+              style={{ ...mono, background: '#8C3A22', color: '#F4F4F0', fontSize: 14, padding: '10px 20px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}
             >
               Get Started
             </Link>
