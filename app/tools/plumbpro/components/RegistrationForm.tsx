@@ -140,18 +140,28 @@ export default function RegistrationForm({ onSubmit }: Props) {
   return (
     <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl mb-8">
-        <div className="rounded-[2px] p-6 mb-6" style={{ border: '1px solid #1E2227', background: '#F4F4F0' }}>
-          <RiserMotif size={56} />
-          <p className="text-[11px] uppercase tracking-widest mb-1 mt-3"
-            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+        <div className="rounded-[2px] mb-6"
+          style={{ border: '1px solid #1E2227', background: '#1E2227', position: 'relative', overflow: 'hidden', padding: '28px 24px' }}>
+          {/* Large pipe riser watermark */}
+          <div style={{ position: 'absolute', bottom: -12, right: -12, opacity: 0.1, pointerEvents: 'none', lineHeight: 0 }}>
+            <svg width="160" height="160" viewBox="0 0 160 160" fill="none" aria-hidden="true">
+              <line x1="80" y1="0" x2="80" y2="55" stroke="#F4F4F0" strokeWidth="3" />
+              <line x1="48" y1="55" x2="112" y2="55" stroke="#F4F4F0" strokeWidth="1.8" />
+              <path d="M42,55 Q42,128 80,128 Q118,128 118,55" stroke="#F4F4F0" strokeWidth="2.5" fill="none" />
+              <line x1="118" y1="128" x2="118" y2="160" stroke="#F4F4F0" strokeWidth="2.5" />
+            </svg>
+          </div>
+          <div className="mb-4"><RiserMotif size={48} /></div>
+          <p className="text-[11px] uppercase tracking-widest mb-2"
+            style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 4 · ₹499 REPORT
           </p>
-          <h1 className="text-[28px] font-bold leading-tight"
-            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
+          <h1 className="font-bold leading-tight mb-2"
+            style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}>
             PlumbPro
           </h1>
-          <p className="text-[14px] mt-1"
-            style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[14px]"
+            style={{ color: 'rgba(244,244,240,0.55)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
             IS 1172:1993 water demand, pipe schedule, tank sizing, pump HP — exact quantities before your plumber quotes you.
           </p>
         </div>

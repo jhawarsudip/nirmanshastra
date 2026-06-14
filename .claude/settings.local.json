@@ -54,7 +54,8 @@
       "Bash(mkdir -p /Users/sudipjhawar/nirmanshastra/app/api/masonpro/register)",
       "Bash(mkdir -p /Users/sudipjhawar/nirmanshastra/app/api/masonpro/save-estimate)",
       "Bash(mkdir -p /Users/sudipjhawar/nirmanshastra/app/api/masonpro/generate-pdf)",
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(awk NR==930,NR==936 *)"
     ]
   }
 }

@@ -148,18 +148,30 @@ export default function RegistrationForm({ onSubmit }: Props) {
   return (
     <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl mb-8">
-        <div className="rounded-[2px] p-6 mb-6" style={{ border: '1px solid #1E2227', background: '#F4F4F0' }}>
-          <TileGridMotif size={56} />
-          <p className="text-[11px] uppercase tracking-widest mb-1 mt-3"
-            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+        <div className="rounded-[2px] mb-6"
+          style={{ border: '1px solid #1E2227', background: '#1E2227', position: 'relative', overflow: 'hidden', padding: '28px 24px' }}>
+          {/* Large tile grid watermark */}
+          <div style={{ position: 'absolute', bottom: -12, right: -12, opacity: 0.1, pointerEvents: 'none', lineHeight: 0 }}>
+            <svg width="160" height="160" viewBox="0 0 160 160" fill="none" aria-hidden="true">
+              {Array.from({length:4}, (_,r) =>
+                Array.from({length:4}, (_,c) => (
+                  <rect key={`${r}-${c}`} x={c*40+1} y={r*40+1} width="38" height="38"
+                    stroke="#F4F4F0" strokeWidth="1.5" />
+                ))
+              ).flat()}
+            </svg>
+          </div>
+          <div className="mb-4"><TileGridMotif size={48} /></div>
+          <p className="text-[11px] uppercase tracking-widest mb-2"
+            style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 5 · ₹499 REPORT
           </p>
-          <h1 className="text-[28px] font-bold leading-tight"
-            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
+          <h1 className="font-bold leading-tight mb-2"
+            style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}>
             InteriorPro
           </h1>
-          <p className="text-[14px] mt-1"
-            style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[14px]"
+            style={{ color: 'rgba(244,244,240,0.55)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
             Flooring, kitchen, paint, false ceiling — IS-code quantities and grade comparison across Basic to Luxury. Know what you should pay before your contractor quotes.
           </p>
         </div>

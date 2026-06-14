@@ -171,23 +171,23 @@ export default function VastuProPage() {
 
   // ── Step: Plan ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-sheet-white">
+    <div className="min-h-screen" style={{ background: '#1E2227' }}>
       {/* Page header */}
       <div
         className="px-4 py-4"
-        style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}
+        style={{ borderBottom: '1px solid rgba(201,168,76,0.15)' }}
       >
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <p
               className="text-[10px] uppercase tracking-widest mb-0.5"
-              style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}
+              style={{ color: 'rgba(201,168,76,0.45)', fontFamily: 'var(--font-plex-mono)' }}
             >
               NIRMANSHASTRA · VASTUPRO
             </p>
             <h1
-              className="text-[22px] font-bold"
-              style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}
+              className="font-bold"
+              style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,28px)' }}
             >
               Mark Your Rooms
             </h1>
@@ -200,7 +200,7 @@ export default function VastuProPage() {
       <div className="max-w-6xl mx-auto px-4 pt-4 pb-2">
         <p
           className="text-[13px]"
-          style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}
+          style={{ color: 'rgba(244,244,240,0.45)', fontFamily: 'var(--font-plex-sans)' }}
         >
           Select a room from the panel → click on the floor plan to place it. Set North direction with the compass wheel before placing rooms.
         </p>

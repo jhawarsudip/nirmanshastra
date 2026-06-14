@@ -108,7 +108,7 @@ const STEPS = [
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SVG MOTIFS — per-app engineering hatch conventions
+// SVG MOTIFS — small icons (44×44, card top-left)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function StructoHatch() {
@@ -197,152 +197,139 @@ function VastuMandala() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// SVG MOTIFS — large watermarks (140×140, card background)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function LargeStructoWatermark() {
+  return (
+    <svg width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+      {([
+        [18,18],[48,12],[80,22],[112,15],[132,28],
+        [28,48],[62,44],[95,50],[128,42],
+        [14,78],[44,72],[75,80],[108,75],[138,82],
+        [24,108],[56,103],[90,110],[122,105],
+        [18,135],[52,130],[88,138],[120,133],
+      ] as [number,number][]).map(([x,y],i) => (
+        <circle key={i} cx={x} cy={y} r="4.5" fill="currentColor" opacity=".85" />
+      ))}
+      <line x1="70" y1="0" x2="70" y2="140" stroke="currentColor" strokeWidth="1" opacity=".45" />
+      <line x1="0" y1="70" x2="140" y2="70" stroke="currentColor" strokeWidth="1" opacity=".45" />
+      <text x="74" y="28" fontSize="13" fill="currentColor" fontFamily="monospace" opacity=".7">C1</text>
+      <text x="74" y="88" fontSize="13" fill="currentColor" fontFamily="monospace" opacity=".7">C2</text>
+    </svg>
+  )
+}
+
+function LargeMasonWatermark() {
+  return (
+    <svg width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+      {Array.from({length:12}, (_,i) => (
+        <line key={`a${i}`} x1={-8+i*14} y1="0" x2={i*14+132} y2="140" stroke="currentColor" strokeWidth="1.5" opacity=".55" />
+      ))}
+      {Array.from({length:12}, (_,i) => (
+        <line key={`b${i}`} x1={148-i*14} y1="0" x2={8-i*14} y2="140" stroke="currentColor" strokeWidth="1.2" opacity=".4" />
+      ))}
+    </svg>
+  )
+}
+
+function LargeElectroWatermark() {
+  return (
+    <svg width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+      <line x1="0" y1="70" x2="140" y2="70" stroke="currentColor" strokeWidth="2" opacity=".5" />
+      {([25,62,100,132] as number[]).map((cx,i) => (
+        <g key={i}>
+          <circle cx={cx} cy="70" r="11" stroke="currentColor" strokeWidth="1.5" opacity=".65" />
+          <line x1={cx-7} y1="63" x2={cx+7} y2="77" stroke="currentColor" strokeWidth="1.5" opacity=".65" />
+          <line x1={cx} y1="59" x2={cx} y2="46" stroke="currentColor" strokeWidth="1.2" opacity=".5" />
+          <line x1={cx-5} y1="46" x2={cx+5} y2="46" stroke="currentColor" strokeWidth="1.2" opacity=".4" />
+        </g>
+      ))}
+      <line x1="70" y1="0" x2="70" y2="24" stroke="currentColor" strokeWidth="2" opacity=".35" />
+      <line x1="0" y1="110" x2="140" y2="110" stroke="currentColor" strokeWidth="1" opacity=".22" />
+    </svg>
+  )
+}
+
+function LargePlumbWatermark() {
+  return (
+    <svg width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+      <line x1="70" y1="0" x2="70" y2="52" stroke="currentColor" strokeWidth="2.5" opacity=".5" />
+      <line x1="40" y1="52" x2="100" y2="52" stroke="currentColor" strokeWidth="1.5" opacity=".35" />
+      <path d="M35,52 Q35,118 70,118 Q105,118 105,52" stroke="currentColor" strokeWidth="2" fill="none" opacity=".5" />
+      <line x1="105" y1="118" x2="105" y2="140" stroke="currentColor" strokeWidth="2" opacity=".45" />
+      <line x1="70" y1="52" x2="140" y2="52" stroke="currentColor" strokeWidth="1" opacity=".25" />
+      <line x1="70" y1="80" x2="140" y2="80" stroke="currentColor" strokeWidth="1" opacity=".2" />
+    </svg>
+  )
+}
+
+function LargeInteriorWatermark() {
+  return (
+    <svg width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+      {Array.from({length:4}, (_,r) =>
+        Array.from({length:4}, (_,c) => (
+          <rect key={`${r}-${c}`} x={c*35+1} y={r*35+1} width="33" height="33"
+            stroke="currentColor" strokeWidth="1.2" opacity=".55" />
+        ))
+      ).flat()}
+    </svg>
+  )
+}
+
+function LargeVastuWatermark() {
+  const spokes = Array.from({length: 16}, (_, i) => {
+    const rad = (i * 22.5 - 90) * (Math.PI / 180)
+    return {
+      x2: parseFloat((70 + 62 * Math.cos(rad)).toFixed(2)),
+      y2: parseFloat((70 + 62 * Math.sin(rad)).toFixed(2)),
+    }
+  })
+  return (
+    <svg width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+      {spokes.map((s, i) => (
+        <line key={i} x1="70" y1="70" x2={s.x2} y2={s.y2}
+          stroke="#C9A84C" strokeWidth="1.2" opacity=".7" />
+      ))}
+      <circle cx="70" cy="70" r="18" stroke="#C9A84C" strokeWidth="1.5" fill="none" opacity=".6" />
+      <circle cx="70" cy="70" r="62" stroke="#C9A84C" strokeWidth="1" fill="none" opacity=".35" />
+      <circle cx="70" cy="70" r="40" stroke="#C9A84C" strokeWidth=".8" fill="none" opacity=".25" />
+    </svg>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // SVG ENGINEERING ILLUSTRATIONS
 // ─────────────────────────────────────────────────────────────────────────────
 
 function HouseConstructionSVG() {
-  const INK = '#1E2227'
+  const INK = '#F4F4F0'
   return (
     <svg width="220" height="150" viewBox="0 0 220 150" fill="none" aria-hidden="true"
-      style={{ opacity: 0.55 }}>
-      {/* Ground line */}
+      style={{ opacity: 0.35 }}>
       <line x1="10" y1="138" x2="210" y2="138" stroke={INK} strokeWidth="1.5" />
-      {/* Footing left */}
       <rect x="22" y="130" width="20" height="8" stroke={INK} strokeWidth="0.8" fill="none" />
-      {/* Footing right */}
       <rect x="178" y="130" width="20" height="8" stroke={INK} strokeWidth="0.8" fill="none" />
-      {/* Footing centre */}
       <rect x="100" y="130" width="20" height="8" stroke={INK} strokeWidth="0.8" fill="none" />
-      {/* Left column */}
-      <rect x="27" y="40" width="10" height="90" stroke={INK} strokeWidth="1" fill="rgba(30,34,39,0.04)" />
-      {/* Right column */}
-      <rect x="183" y="40" width="10" height="90" stroke={INK} strokeWidth="1" fill="rgba(30,34,39,0.04)" />
-      {/* Centre column */}
-      <rect x="105" y="40" width="10" height="90" stroke={INK} strokeWidth="1" fill="rgba(30,34,39,0.04)" />
-      {/* Ground floor beam (left span) */}
-      <rect x="27" y="90" width="88" height="8" stroke={INK} strokeWidth="1" fill="rgba(30,34,39,0.06)" />
-      {/* Ground floor beam (right span) */}
-      <rect x="105" y="90" width="88" height="8" stroke={INK} strokeWidth="1" fill="rgba(30,34,39,0.06)" />
-      {/* Roof beam */}
-      <rect x="27" y="32" width="166" height="10" stroke={INK} strokeWidth="1" fill="rgba(30,34,39,0.06)" />
-      {/* Partial brick wall - left bay lower */}
+      <rect x="27" y="40" width="10" height="90" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.04)" />
+      <rect x="183" y="40" width="10" height="90" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.04)" />
+      <rect x="105" y="40" width="10" height="90" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.04)" />
+      <rect x="27" y="90" width="88" height="8" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.06)" />
+      <rect x="105" y="90" width="88" height="8" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.06)" />
+      <rect x="27" y="32" width="166" height="10" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.06)" />
       <line x1="37" y1="98" x2="105" y2="98" stroke={INK} strokeWidth="0.4" />
       <line x1="37" y1="107" x2="105" y2="107" stroke={INK} strokeWidth="0.4" />
       <line x1="37" y1="116" x2="105" y2="116" stroke={INK} strokeWidth="0.4" />
       <line x1="37" y1="125" x2="105" y2="125" stroke={INK} strokeWidth="0.4" />
       {[50,68,86].map(x => <line key={x} x1={x} y1="98" x2={x} y2="130" stroke={INK} strokeWidth="0.4" />)}
       {[44,62,80,96].map(x => <line key={x} x1={x} y1="107" x2={x} y2="116" stroke={INK} strokeWidth="0.4" />)}
-      {/* Rebar indication in column */}
       <line x1="30" y1="42" x2="30" y2="88" stroke={INK} strokeWidth="0.4" strokeDasharray="3,3" />
       <line x1="34" y1="42" x2="34" y2="88" stroke={INK} strokeWidth="0.4" strokeDasharray="3,3" />
-      {/* Dimension arrow - column height */}
       <line x1="8" y1="40" x2="8" y2="130" stroke={INK} strokeWidth="0.6" />
       <line x1="5" y1="40" x2="11" y2="40" stroke={INK} strokeWidth="0.6" />
       <line x1="5" y1="130" x2="11" y2="130" stroke={INK} strokeWidth="0.6" />
-      {/* Label */}
-      <text x="114" y="148" fontSize="6" fill={INK} fontFamily="monospace" letterSpacing="0.5" opacity=".6">
+      <text x="114" y="148" fontSize="6" fill={INK} fontFamily="monospace" letterSpacing="0.5" opacity=".45">
         RCC STRUCTURAL FRAME
-      </text>
-    </svg>
-  )
-}
-
-function BrickWallSVG() {
-  const INK = '#1E2227'
-  const rows = [0, 1, 2, 3, 4, 5]
-  return (
-    <svg width="180" height="130" viewBox="0 0 180 130" fill="none" aria-hidden="true"
-      style={{ opacity: 0.55 }}>
-      {/* Section hatch lines in brick (45°) */}
-      {rows.map(row => {
-        const y = 10 + row * 18
-        const offset = row % 2 === 0 ? 0 : 14
-        const bricks = [0, 28, 56, 84, 112, 140]
-        return bricks.map((bx, bi) => {
-          const bLeft = bx + offset
-          if (bLeft > 160) return null
-          const bRight = Math.min(bLeft + 24, 160)
-          const bTop = y
-          const bBottom = y + 13
-          return (
-            <g key={`${row}-${bi}`}>
-              <rect x={bLeft} y={bTop} width={bRight - bLeft} height="13"
-                stroke={INK} strokeWidth="0.8" fill="rgba(30,34,39,0.03)" />
-              {[0, 5, 10, 15, 20].map(d => (
-                <line key={d}
-                  x1={Math.max(bLeft, bLeft + d)} y1={bTop}
-                  x2={Math.min(bLeft + d + 13, bRight)} y2={Math.min(bTop + (bRight - bLeft - d), bBottom)}
-                  stroke={INK} strokeWidth="0.35" opacity=".4"
-                  clipPath={`url(#clip-${row}-${bi})`}
-                />
-              ))}
-            </g>
-          )
-        })
-      })}
-      {/* Mortar joints (horizontal) */}
-      {rows.map(row => (
-        <line key={row} x1="0" y1={10 + row * 18 + 13} x2="170" y2={10 + row * 18 + 13}
-          stroke={INK} strokeWidth="0.4" opacity=".3" />
-      ))}
-      {/* Wall outline */}
-      <rect x="0" y="10" width="170" height="108" stroke={INK} strokeWidth="1" fill="none" />
-      {/* Mortar joint thickness note */}
-      <line x1="172" y1="10" x2="172" y2="23" stroke={INK} strokeWidth="0.5" />
-      <line x1="170" y1="10" x2="174" y2="10" stroke={INK} strokeWidth="0.5" />
-      <line x1="170" y1="23" x2="174" y2="23" stroke={INK} strokeWidth="0.5" />
-      <text x="176" y="18" fontSize="5" fill={INK} fontFamily="monospace" opacity=".6">10</text>
-      {/* Label */}
-      <text x="0" y="125" fontSize="6" fill={INK} fontFamily="monospace" letterSpacing="0.5" opacity=".6">
-        BRICK SECTION — IS 1077:1992
-      </text>
-    </svg>
-  )
-}
-
-function ElectricalLineSVG() {
-  const INK = '#1E2227'
-  return (
-    <svg width="200" height="130" viewBox="0 0 200 130" fill="none" aria-hidden="true"
-      style={{ opacity: 0.55 }}>
-      {/* Main incomer line */}
-      <line x1="20" y1="20" x2="20" y2="60" stroke={INK} strokeWidth="1.5" />
-      {/* Main MCB symbol */}
-      <circle cx="20" cy="68" r="8" stroke={INK} strokeWidth="1" fill="none" />
-      <line x1="16" y1="64" x2="24" y2="72" stroke={INK} strokeWidth="1" />
-      {/* Distribution line */}
-      <line x1="20" y1="76" x2="20" y2="90" stroke={INK} strokeWidth="1.2" />
-      <line x1="20" y1="90" x2="170" y2="90" stroke={INK} strokeWidth="1.2" />
-      {/* Branch 1 — Lighting */}
-      <line x1="50" y1="90" x2="50" y2="105" stroke={INK} strokeWidth="1" />
-      <circle cx="50" cy="113" r="6" stroke={INK} strokeWidth="0.8" fill="none" />
-      <line x1="47" y1="110" x2="53" y2="116" stroke={INK} strokeWidth="0.8" />
-      <text x="43" y="126" fontSize="5" fill={INK} fontFamily="monospace" opacity=".7">L1</text>
-      {/* Branch 2 — Power */}
-      <line x1="90" y1="90" x2="90" y2="105" stroke={INK} strokeWidth="1" />
-      <circle cx="90" cy="113" r="6" stroke={INK} strokeWidth="0.8" fill="none" />
-      <line x1="87" y1="110" x2="93" y2="116" stroke={INK} strokeWidth="0.8" />
-      <text x="83" y="126" fontSize="5" fill={INK} fontFamily="monospace" opacity=".7">P1</text>
-      {/* Branch 3 — AC */}
-      <line x1="130" y1="90" x2="130" y2="105" stroke={INK} strokeWidth="1" />
-      <circle cx="130" cy="113" r="6" stroke={INK} strokeWidth="0.8" fill="none" />
-      <line x1="127" y1="110" x2="133" y2="116" stroke={INK} strokeWidth="0.8" />
-      <text x="120" y="126" fontSize="5" fill={INK} fontFamily="monospace" opacity=".7">AC</text>
-      {/* Branch 4 — Geyser */}
-      <line x1="160" y1="90" x2="160" y2="105" stroke={INK} strokeWidth="1" />
-      <circle cx="160" cy="113" r="6" stroke={INK} strokeWidth="0.8" fill="none" />
-      <line x1="157" y1="110" x2="163" y2="116" stroke={INK} strokeWidth="0.8" />
-      <text x="150" y="126" fontSize="5" fill={INK} fontFamily="monospace" opacity=".7">GYZ</text>
-      {/* Incomer label */}
-      <text x="26" y="18" fontSize="5.5" fill={INK} fontFamily="monospace" opacity=".6">MAIN INCOMER</text>
-      {/* DB label */}
-      <rect x="8" y="86" width="24" height="8" stroke={INK} strokeWidth="0.5" fill="rgba(31,78,121,0.05)" />
-      <text x="10" y="92" fontSize="4.5" fill={INK} fontFamily="monospace" opacity=".6">DB-1</text>
-      {/* Wire sizes */}
-      <text x="25" y="55" fontSize="4.5" fill={INK} fontFamily="monospace" opacity=".5">10mm²</text>
-      {/* Label */}
-      <text x="0" y="10" fontSize="6" fill={INK} fontFamily="monospace" letterSpacing="0.5" opacity=".6">
-        SINGLE LINE DIAGRAM — IS 732:2019
       </text>
     </svg>
   )
@@ -352,34 +339,35 @@ function ElectricalLineSVG() {
 // LAYOUT HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
 
-function DimDivider({ label, animated = false }: { label: string; animated?: boolean }) {
-  const INK = '#1E2227'
+function DimDivider({ label, animated = false, dark = false }: { label: string; animated?: boolean; dark?: boolean }) {
+  const lineColor = dark ? 'rgba(244,244,240,0.18)' : '#1E2227'
+  const textColor = dark ? 'rgba(244,244,240,0.4)' : '#1E2227'
   return (
     <div className="flex items-center gap-4 px-6 md:px-12">
       <div className="flex flex-1 items-center">
-        <div style={{ width: 0, height: 0, borderTop: '4px solid transparent', borderBottom: '4px solid transparent', borderRight: `7px solid ${INK}`, flexShrink: 0 }} />
-        <div style={{ flex: 1, height: 1, background: INK }} className={animated ? 'animate-dim-line' : ''} />
-        <div style={{ width: 1, height: 10, background: INK, flexShrink: 0 }} />
+        <div style={{ width: 0, height: 0, borderTop: '4px solid transparent', borderBottom: '4px solid transparent', borderRight: `7px solid ${lineColor}`, flexShrink: 0 }} />
+        <div style={{ flex: 1, height: 1, background: lineColor }} className={animated ? 'animate-dim-line' : ''} />
+        <div style={{ width: 1, height: 10, background: lineColor, flexShrink: 0 }} />
       </div>
-      <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: INK, letterSpacing: '0.07em', whiteSpace: 'nowrap' }}>
+      <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: textColor, letterSpacing: '0.07em', whiteSpace: 'nowrap' }}>
         {label}
       </span>
       <div className="flex flex-1 items-center">
-        <div style={{ width: 1, height: 10, background: INK, flexShrink: 0 }} />
-        <div style={{ flex: 1, height: 1, background: INK }} />
-        <div style={{ width: 0, height: 0, borderTop: '4px solid transparent', borderBottom: '4px solid transparent', borderLeft: `7px solid ${INK}`, flexShrink: 0 }} />
+        <div style={{ width: 1, height: 10, background: lineColor, flexShrink: 0 }} />
+        <div style={{ flex: 1, height: 1, background: lineColor }} />
+        <div style={{ width: 0, height: 0, borderTop: '4px solid transparent', borderBottom: '4px solid transparent', borderLeft: `7px solid ${lineColor}`, flexShrink: 0 }} />
       </div>
     </div>
   )
 }
 
-function SectionHeader({ clause, title }: { clause: string; title: string }) {
+function SectionHeader({ clause, title, dark = false }: { clause: string; title: string; dark?: boolean }) {
   return (
     <div className="space-y-1">
-      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: dark ? '#6BA3CC' : '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
         {clause}
       </p>
-      <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,30px)', fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>
+      <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: dark ? '#F4F4F0' : '#1E2227', lineHeight: 1.2 }}>
         {title}
       </h2>
     </div>
@@ -399,6 +387,15 @@ const motifMap: Record<string, React.ReactElement> = {
   P5: <InteriorTile />,
 }
 
+const largeMotifMap: Record<string, React.ReactElement> = {
+  P0: <LargeVastuWatermark />,
+  P1: <LargeStructoWatermark />,
+  P2: <LargeMasonWatermark />,
+  P3: <LargeElectroWatermark />,
+  P4: <LargePlumbWatermark />,
+  P5: <LargeInteriorWatermark />,
+}
+
 function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number }) {
   return (
     <motion.div
@@ -410,20 +407,32 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
       <Link href={tool.href} style={{ textDecoration: 'none', display: 'block' }}>
         <article
           style={{
-            border: `1px solid ${tool.free ? '#C9A84C' : '#1E2227'}`,
-            padding: '20px',
+            border: `1px solid ${tool.free ? '#C9A84C' : 'rgba(30,34,39,0.75)'}`,
+            padding: '24px',
             background: '#F4F4F0',
             position: 'relative',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
             gap: 12,
-            minHeight: 220,
+            minHeight: 260,
             cursor: 'pointer',
             transition: 'border-color 0.15s',
           }}
         >
-          <span style={{ position: 'absolute', top: 6, right: 12, fontFamily: 'var(--font-plex-mono)', fontSize: 52, color: 'rgba(30,34,39,0.05)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
+          {/* Large hatch watermark background */}
+          <div style={{
+            position: 'absolute',
+            bottom: -10,
+            right: -10,
+            color: tool.free ? 'rgba(201,168,76,0.11)' : 'rgba(30,34,39,0.09)',
+            pointerEvents: 'none',
+            lineHeight: 0,
+          }}>
+            {largeMotifMap[tool.phase]}
+          </div>
+
+          <span style={{ position: 'absolute', top: 6, right: 12, fontFamily: 'var(--font-plex-mono)', fontSize: 52, color: 'rgba(30,34,39,0.04)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
             {tool.phase}
           </span>
 
@@ -435,7 +444,7 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>
               {tool.descriptor}
             </p>
-            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 20, fontWeight: 700, color: '#1E2227', marginBottom: 8 }}>
+            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, color: '#1E2227', marginBottom: 8 }}>
               {tool.name}
             </h3>
             <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.63)', lineHeight: 1.65 }}>
@@ -487,100 +496,102 @@ export default function Home() {
   return (
     <main className="sheet-frame min-h-screen" style={{ background: '#F4F4F0' }}>
 
-      {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="px-6 md:px-12 pt-14 pb-12 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
+      {/* ── HERO (dark Iron Ink) ─────────────────────────────────────────── */}
+      <div style={{ background: '#1E2227' }}>
+        <section className="px-6 md:px-12 pt-16 pb-14 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
 
-        {/* Left — headline */}
-        <motion.div
-          className="space-y-7"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-        >
-          <div>
-            <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(38px,5vw,56px)', fontWeight: 700, color: '#1E2227', lineHeight: 1.08, letterSpacing: '-0.01em' }}>
-              Build With Certainty.
-            </h1>
-            <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 16, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>
-              निर्माणशास्त्र
-            </p>
-          </div>
-
-          <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.72)', lineHeight: 1.7, maxWidth: 500 }}>
-            India&rsquo;s first IS-code construction cost estimation platform.
-            Know exact material quantities, catch contractor inflation, and build your home
-            with engineering certainty — phase by phase.
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/tools/vastu-pro"
-              style={{ background: '#14532D', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '11px 22px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', letterSpacing: '0.02em' }}
-            >
-              Start Free — VastuPro
-            </Link>
-            <a
-              href="#pricing"
-              style={{ border: '1px solid #1E2227', color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '11px 22px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', background: 'transparent', letterSpacing: '0.02em' }}
-            >
-              See Pricing ↓
-            </a>
-          </div>
-
-          {/* Stats */}
-          <div className="flex gap-10 pt-2" style={{ borderTop: '1px solid rgba(30,34,39,0.1)', paddingTop: 20 }}>
-            {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹2,999', 'Bundle']].map(([val, label]) => (
-              <div key={label}>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 20, fontWeight: 500, color: '#1E2227' }}>{val}</div>
-                <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(30,34,39,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 }}>{label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* SVG Illustration — house under construction, below stats */}
-          <div style={{ paddingTop: 12, opacity: 1 }}>
-            <HouseConstructionSVG />
-          </div>
-        </motion.div>
-
-        {/* Right — Engineering title block */}
-        <motion.div
-          className="flex justify-center lg:justify-end"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
-        >
-          <div
-            className="hero-title-block"
-            style={{ border: '1px solid #1E2227', fontFamily: 'var(--font-plex-mono)', display: 'inline-block' }}
+          {/* Left — headline */}
+          <motion.div
+            className="space-y-7"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            <table style={{ borderCollapse: 'collapse', minWidth: 340 }}>
-              <tbody>
-                {titleRows.map(([label, value], i) => (
-                  <tr key={label} style={i > 0 ? { borderTop: '1px solid #1E2227' } : {}}>
-                    <td style={{ borderRight: '1px solid #1E2227', padding: '8px 14px', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(30,34,39,0.55)', whiteSpace: 'nowrap', verticalAlign: 'top' }}>
-                      {label}
-                    </td>
-                    <td style={{ padding: '8px 14px', fontSize: 13, color: '#1E2227', verticalAlign: 'top' }}>
-                      {value}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-      </section>
+            <div>
+              <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(48px,6vw,72px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.05, letterSpacing: '-0.01em' }}>
+                Build With Certainty.
+              </h1>
+              <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 20, color: '#C9A84C', marginTop: 10 }}>
+                निर्माणशास्त्र
+              </p>
+            </div>
 
-      {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
-      <div className="py-3">
-        <DimDivider label="SHEET 01 · THE PROBLEM" animated />
+            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(244,244,240,0.65)', lineHeight: 1.7, maxWidth: 500 }}>
+              India&rsquo;s first IS-code construction cost estimation platform.
+              Know exact material quantities, catch contractor inflation, and build your home
+              with engineering certainty — phase by phase.
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/tools/vastu-pro"
+                style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '12px 24px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', letterSpacing: '0.02em' }}
+              >
+                Start Free — VastuPro
+              </Link>
+              <a
+                href="#pricing"
+                style={{ border: '1px solid rgba(244,244,240,0.3)', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '12px 24px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', background: 'transparent', letterSpacing: '0.02em' }}
+              >
+                See Pricing ↓
+              </a>
+            </div>
+
+            {/* Stats row — gold numbers */}
+            <div className="flex flex-wrap gap-8 pt-2" style={{ borderTop: '1px solid rgba(244,244,240,0.1)', paddingTop: 20 }}>
+              {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹2,999', 'Bundle']].map(([val, label]) => (
+                <div key={label}>
+                  <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 28, fontWeight: 500, color: '#C9A84C' }}>{val}</div>
+                  <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 3 }}>{label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Hero structural illustration */}
+            <div style={{ paddingTop: 8 }}>
+              <HouseConstructionSVG />
+            </div>
+          </motion.div>
+
+          {/* Right — Engineering title block with gold border */}
+          <motion.div
+            className="flex justify-center lg:justify-end"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
+          >
+            <div
+              className="hero-title-block"
+              style={{ border: '1px solid #C9A84C', fontFamily: 'var(--font-plex-mono)', display: 'inline-block' }}
+            >
+              <table style={{ borderCollapse: 'collapse', minWidth: 340 }}>
+                <tbody>
+                  {titleRows.map(([label, value], i) => (
+                    <tr key={label} style={i > 0 ? { borderTop: '1px solid rgba(201,168,76,0.3)' } : {}}>
+                      <td style={{ borderRight: '1px solid rgba(201,168,76,0.3)', padding: '9px 14px', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(201,168,76,0.5)', whiteSpace: 'nowrap', verticalAlign: 'top' }}>
+                        {label}
+                      </td>
+                      <td style={{ padding: '9px 14px', fontSize: 13, color: '#F4F4F0', verticalAlign: 'top' }}>
+                        {value}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        </section>
       </div>
 
-      {/* ── PROBLEM SECTION ──────────────────────────────────────────────── */}
-      <section className="grid-paper px-6 md:px-12 py-14">
+      {/* ── DIMENSION DIVIDER (dark) ─────────────────────────────────────── */}
+      <div style={{ background: '#1E2227', paddingTop: 12, paddingBottom: 12 }}>
+        <DimDivider label="SHEET 01 · THE PROBLEM" dark animated />
+      </div>
+
+      {/* ── PROBLEM SECTION (dark) ──────────────────────────────────────── */}
+      <section className="px-6 md:px-12 py-16" style={{ background: '#1E2227' }}>
         <div className="max-w-7xl mx-auto space-y-10">
-          <SectionHeader clause="CL. 1.0 — WHY BUDGETS FAIL" title="The three problems no contractor will tell you" />
+          <SectionHeader clause="CL. 1.0 — WHY BUDGETS FAIL" title="The three problems no contractor will tell you" dark />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {PROBLEMS.map((p, i) => (
@@ -590,15 +601,15 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.3, ease: 'easeOut', delay: i * 0.1 }}
-                style={{ border: '1px solid #1E2227', padding: '24px', background: '#F4F4F0', position: 'relative', overflow: 'hidden' }}
+                style={{ border: '1px solid rgba(244,244,240,0.09)', padding: '32px 28px', background: 'rgba(255,255,255,0.03)', position: 'relative', overflow: 'hidden' }}
               >
-                <div style={{ position: 'absolute', top: 10, right: 14, fontFamily: 'var(--font-plex-mono)', fontSize: 56, color: 'rgba(30,34,39,0.05)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
+                <div style={{ position: 'absolute', top: -16, right: 8, fontFamily: 'var(--font-plex-mono)', fontSize: 112, color: 'rgba(31,78,121,0.14)', fontWeight: 700, lineHeight: 1, userSelect: 'none' }}>
                   {p.no}
                 </div>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 18, fontWeight: 600, color: '#1E2227', marginBottom: 12, lineHeight: 1.3 }}>
+                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 600, color: '#F4F4F0', marginBottom: 14, lineHeight: 1.3, position: 'relative' }}>
                   {p.heading}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(30,34,39,0.68)', lineHeight: 1.7 }}>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.56)', lineHeight: 1.75, position: 'relative' }}>
                   {p.body}
                 </p>
               </motion.div>
@@ -607,44 +618,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
-      <div className="py-3">
-        <DimDivider label="SHEET 02 · 6 TOOLS · 1 PLATFORM" />
+      {/* ── DIMENSION DIVIDER (dark) ─────────────────────────────────────── */}
+      <div style={{ background: '#1E2227', paddingTop: 12, paddingBottom: 12 }}>
+        <DimDivider label="SHEET 02 · 6 TOOLS · 1 PLATFORM" dark />
       </div>
 
-      {/* ── TOOLS SECTION ────────────────────────────────────────────────── */}
-      <section className="px-6 md:px-12 py-14" ref={sectionRef}>
+      {/* ── TOOLS SECTION (dark section, light cards) ──────────────────── */}
+      <section className="px-6 md:px-12 py-16" style={{ background: '#1E2227' }} ref={sectionRef}>
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <SectionHeader clause="CL. 2.0 — SCOPE OF TOOLS" title="Every phase of your construction, estimated" />
-            {/* IS-code BOQ messaging */}
-            <div style={{ border: '1px solid rgba(31,78,121,0.3)', padding: '10px 16px', background: 'rgba(31,78,121,0.04)', flexShrink: 0, maxWidth: 380 }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.05em', lineHeight: 1.5 }}>
+            <SectionHeader clause="CL. 2.0 — SCOPE OF TOOLS" title="Every phase of your construction, estimated" dark />
+            <div style={{ border: '1px solid rgba(31,78,121,0.4)', padding: '10px 16px', background: 'rgba(31,78,121,0.1)', flexShrink: 0, maxWidth: 380 }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#7BA7CC', letterSpacing: '0.05em', lineHeight: 1.5 }}>
                 Professional IS-code compliant BOQ for each construction phase
               </p>
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(30,34,39,0.55)', marginTop: 3 }}>
+              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(244,244,240,0.4)', marginTop: 3 }}>
                 Exact quantities · Local market rates · Contractor-ready format
               </p>
             </div>
           </div>
 
-          {/* ── SUITE 1: COMPLIANCE & ANALYSIS ─────────────────────────── */}
+          {/* ── SUITE 1: VastuPro ────────────────────────────────────────── */}
           <div>
-            {/* Suite header */}
             <div className="flex items-center gap-4 mb-5">
-              <div style={{ height: 1, flex: 1, background: 'rgba(30,34,39,0.12)' }} />
+              <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                   SUITE 1
                 </span>
-                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, fontWeight: 600, color: '#1E2227' }}>
+                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>
                   Compliance &amp; Analysis
                 </span>
                 <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid #14532D', color: '#14532D', letterSpacing: '0.04em' }}>
                   FREE
                 </span>
               </div>
-              <div style={{ height: 1, flex: 1, background: 'rgba(30,34,39,0.12)' }} />
+              <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
             </div>
 
             {/* VastuPro featured card */}
@@ -657,7 +666,7 @@ export default function Home() {
               <Link href={VASTU_TOOL.href} style={{ textDecoration: 'none', display: 'block' }}>
                 <article style={{
                   border: '1px solid #C9A84C',
-                  padding: '24px 28px',
+                  padding: '28px 32px',
                   background: '#F4F4F0',
                   display: 'flex',
                   flexDirection: 'row',
@@ -666,10 +675,14 @@ export default function Home() {
                   cursor: 'pointer',
                   position: 'relative',
                   overflow: 'hidden',
+                  minHeight: 120,
                 }}>
                   <span style={{ position: 'absolute', top: 8, right: 16, fontFamily: 'var(--font-plex-mono)', fontSize: 80, color: 'rgba(201,168,76,0.06)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
                     P0
                   </span>
+                  <div style={{ position: 'absolute', bottom: -10, right: -10, color: 'rgba(201,168,76,0.1)', pointerEvents: 'none', lineHeight: 0 }}>
+                    <LargeVastuWatermark />
+                  </div>
                   <div style={{ color: '#C9A84C', width: 52, height: 52, flexShrink: 0 }}>
                     <VastuMandala />
                   </div>
@@ -677,7 +690,7 @@ export default function Home() {
                     <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 3 }}>
                       {VASTU_TOOL.descriptor}
                     </p>
-                    <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, color: '#1E2227', marginBottom: 6 }}>
+                    <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', marginBottom: 6 }}>
                       {VASTU_TOOL.name}
                     </h3>
                     <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.63)', lineHeight: 1.65, maxWidth: 520 }}>
@@ -702,32 +715,26 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* ── SUITE DIVIDER ───────────────────────────────────────────── */}
+          {/* ── SUITE 2 DIVIDER ──────────────────────────────────────────── */}
           <div style={{ paddingTop: 8, paddingBottom: 4 }}>
             <div className="flex items-center gap-4">
-              <div style={{ height: 1, flex: 1, background: 'rgba(30,34,39,0.12)' }} />
+              <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                   SUITE 2
                 </span>
-                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, fontWeight: 600, color: '#1E2227' }}>
+                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>
                   Phase-wise Cost &amp; BOQ Estimation
                 </span>
-                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid #1F4E79', color: '#1F4E79', letterSpacing: '0.04em' }}>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid rgba(31,78,121,0.55)', color: '#7BA7CC', letterSpacing: '0.04em' }}>
                   ₹499 / REPORT
                 </span>
               </div>
-              <div style={{ height: 1, flex: 1, background: 'rgba(30,34,39,0.12)' }} />
+              <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
             </div>
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(30,34,39,0.5)', textAlign: 'center', marginTop: 8 }}>
+            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.32)', textAlign: 'center', marginTop: 8 }}>
               IS-code verified BOQ · Exact quantities · CPWD labour rates · Contractor comparison
             </p>
-          </div>
-
-          {/* SVG Illustrations strip */}
-          <div className="flex flex-wrap items-end justify-center gap-10 py-2" style={{ borderTop: '1px solid rgba(30,34,39,0.08)', borderBottom: '1px solid rgba(30,34,39,0.08)', paddingTop: 16, paddingBottom: 16 }}>
-            <BrickWallSVG />
-            <ElectricalLineSVG />
           </div>
 
           {/* 5 paid tools grid */}
@@ -743,20 +750,20 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            style={{ border: '1px solid #1E2227', padding: '18px 24px', background: '#F4F4F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}
+            style={{ border: '1px solid rgba(244,244,240,0.12)', padding: '20px 28px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}
           >
             <div>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#7BA7CC', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
                 COMPLETE BUNDLE — ALL 5 PAID TOOLS
               </p>
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(30,34,39,0.68)' }}>
+              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.57)' }}>
                 StructoPro · MasonPro · ElectroPro · PlumbPro · InteriorPro
                 {' '}&mdash; saves{' '}
                 <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹1,496</span> vs buying separately
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 28, fontWeight: 500, color: '#1E2227' }}>₹2,999</span>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 32, fontWeight: 500, color: '#F4F4F0' }}>₹2,999</span>
               <Link
                 href="/tools/structopro"
                 style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '10px 20px', borderRadius: 6, textDecoration: 'none', whiteSpace: 'nowrap' }}
@@ -808,10 +815,17 @@ export default function Home() {
         <DimDivider label="CHECKED AGAINST 25 IS CODES" />
       </div>
 
-      {/* ── IS CODE TRUST STRIP ──────────────────────────────────────────── */}
-      <section className="px-6 md:px-12 py-12">
+      {/* ── IS CODE TRUST STRIP (Blueprint blue) ─────────────────────────── */}
+      <section className="px-6 md:px-12 py-14" style={{ background: '#1F4E79' }}>
         <div className="max-w-7xl mx-auto space-y-8">
-          <SectionHeader clause="CL. 4.0 — CODE COMPLIANCE" title="Every calculation backed by Bureau of Indian Standards" />
+          <div className="space-y-1">
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              CL. 4.0 — CODE COMPLIANCE
+            </p>
+            <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.2 }}>
+              Every calculation backed by Bureau of Indian Standards
+            </h2>
+          </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {IS_CODES.map((code, i) => (
@@ -823,12 +837,12 @@ export default function Home() {
                 transition={{ duration: 0.2, delay: i * 0.02 }}
                 style={{
                   fontFamily: 'var(--font-plex-mono)',
-                  fontSize: 11,
-                  padding: '4px 10px',
-                  border: '1px solid #1F4E79',
-                  color: '#1F4E79',
+                  fontSize: 12,
+                  padding: '5px 12px',
+                  border: '1px solid rgba(244,244,240,0.35)',
+                  color: '#F4F4F0',
                   letterSpacing: '0.04em',
-                  background: 'transparent',
+                  background: 'rgba(255,255,255,0.09)',
                   display: 'inline-block',
                 }}
               >
@@ -837,9 +851,9 @@ export default function Home() {
             ))}
           </div>
 
-          <div style={{ border: '1px solid rgba(31,78,121,0.25)', padding: '14px 18px', background: 'rgba(31,78,121,0.04)', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#1F4E79', flexShrink: 0 }}>ⓘ</span>
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.68)', lineHeight: 1.65, margin: 0 }}>
+          <div style={{ border: '1px solid rgba(244,244,240,0.2)', padding: '14px 18px', background: 'rgba(255,255,255,0.06)', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: 'rgba(244,244,240,0.55)', flexShrink: 0 }}>ⓘ</span>
+            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.72)', lineHeight: 1.65, margin: 0 }}>
               IS code values in NirmanShastra are verified against BIS publications and locked at source.
               Every material quantity, mix ratio, and structural parameter traces back to a specific IS clause.
               M20 is <span style={{ fontFamily: 'var(--font-plex-mono)' }}>1:1.5:3</span> (not{' '}

@@ -117,33 +117,36 @@ export default function RegistrationForm({ onSubmit }: Props) {
   return (
     <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl mb-8">
-        <div className="rounded-[2px] p-6 mb-6" style={{ border: '1px solid #1E2227', background: '#F4F4F0' }}>
-          {/* Brick hatch motif — MasonPro signature (45° double diagonals) */}
-          <svg width="56" height="40" viewBox="0 0 56 40" className="mb-3" aria-hidden="true">
-            {/* Brick coursing hatch */}
-            {[0,1,2,3].map(row => (
-              <g key={row}>
-                <rect x={row % 2 === 0 ? 0 : 14} y={row * 10} width="24" height="8"
-                  fill="none" stroke="#1F4E79" strokeWidth="1" opacity="0.5" />
-                <rect x={row % 2 === 0 ? 26 : 40} y={row * 10} width="24" height="8"
-                  fill="none" stroke="#1F4E79" strokeWidth="1" opacity="0.5" />
-              </g>
-            ))}
-            {/* 45° hatch lines on first brick */}
-            <line x1="2" y1="8" x2="8" y2="2" stroke="#1F4E79" strokeWidth="0.6" opacity="0.4" />
-            <line x1="6" y1="8" x2="12" y2="2" stroke="#1F4E79" strokeWidth="0.6" opacity="0.4" />
-            <line x1="10" y1="8" x2="16" y2="2" stroke="#1F4E79" strokeWidth="0.6" opacity="0.4" />
+        <div className="rounded-[2px] mb-6"
+          style={{ border: '1px solid #1E2227', background: '#1E2227', position: 'relative', overflow: 'hidden', padding: '28px 24px' }}>
+          {/* Large brick hatch watermark */}
+          <div style={{ position: 'absolute', bottom: -12, right: -12, opacity: 0.1, pointerEvents: 'none', lineHeight: 0 }}>
+            <svg width="160" height="160" viewBox="0 0 160 160" fill="none" aria-hidden="true">
+              {Array.from({length:13}, (_,i) => (
+                <line key={`a${i}`} x1={-8+i*14} y1="0" x2={i*14+132} y2="160" stroke="#F4F4F0" strokeWidth="1.5" />
+              ))}
+              {Array.from({length:13}, (_,i) => (
+                <line key={`b${i}`} x1={148-i*14} y1="0" x2={8-i*14} y2="160" stroke="#F4F4F0" strokeWidth="1.2" />
+              ))}
+            </svg>
+          </div>
+          {/* Small motif */}
+          <svg width="48" height="36" viewBox="0 0 48 36" className="mb-4" aria-hidden="true">
+            <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(201,168,76,0.6)" strokeWidth="1.2" />
+            <line x1="12" y1="0" x2="48" y2="36" stroke="rgba(201,168,76,0.6)" strokeWidth="1.2" />
+            <line x1="36" y1="0" x2="0" y2="36" stroke="rgba(244,244,240,0.25)" strokeWidth="1" />
+            <line x1="48" y1="0" x2="12" y2="36" stroke="rgba(244,244,240,0.25)" strokeWidth="1" />
           </svg>
-          <p className="text-[11px] uppercase tracking-widest mb-1"
-            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+          <p className="text-[11px] uppercase tracking-widest mb-2"
+            style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 2 · ₹499 REPORT
           </p>
-          <h1 className="text-[28px] font-bold leading-tight"
-            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
+          <h1 className="font-bold leading-tight mb-2"
+            style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}>
             MasonPro
           </h1>
-          <p className="text-[14px] mt-1"
-            style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[14px]"
+            style={{ color: 'rgba(244,244,240,0.55)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
             IS 1077:1992 based masonry cost estimate. 8 wall types, exact brick counts, plaster quantities, waterproofing costs.
           </p>
         </div>

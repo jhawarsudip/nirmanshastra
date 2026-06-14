@@ -145,18 +145,33 @@ export default function RegistrationForm({ onSubmit }: Props) {
   return (
     <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl mb-8">
-        <div className="rounded-[2px] p-6 mb-6" style={{ border: '1px solid #1E2227', background: '#F4F4F0' }}>
-          <SLDMotif size={56} />
-          <p className="text-[11px] uppercase tracking-widest mb-1 mt-3"
-            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+        <div className="rounded-[2px] mb-6"
+          style={{ border: '1px solid #1E2227', background: '#1E2227', position: 'relative', overflow: 'hidden', padding: '28px 24px' }}>
+          {/* Large circuit watermark */}
+          <div style={{ position: 'absolute', bottom: -12, right: -12, opacity: 0.1, pointerEvents: 'none', lineHeight: 0 }}>
+            <svg width="160" height="160" viewBox="0 0 160 160" fill="none" aria-hidden="true">
+              <line x1="0" y1="80" x2="160" y2="80" stroke="#F4F4F0" strokeWidth="2.5" />
+              {([28,68,108,142] as number[]).map((cx,i) => (
+                <g key={i}>
+                  <circle cx={cx} cy="80" r="13" stroke="#F4F4F0" strokeWidth="1.5" />
+                  <line x1={cx-8} y1="72" x2={cx+8} y2="88" stroke="#F4F4F0" strokeWidth="1.5" />
+                  <line x1={cx} y1="67" x2={cx} y2="52" stroke="#F4F4F0" strokeWidth="1.2" />
+                  <line x1={cx-5} y1="52" x2={cx+5} y2="52" stroke="#F4F4F0" strokeWidth="1.2" />
+                </g>
+              ))}
+            </svg>
+          </div>
+          <div className="mb-4"><SLDMotif size={48} /></div>
+          <p className="text-[11px] uppercase tracking-widest mb-2"
+            style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 3 · ₹499 REPORT
           </p>
-          <h1 className="text-[28px] font-bold leading-tight"
-            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
+          <h1 className="font-bold leading-tight mb-2"
+            style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}>
             ElectroPro
           </h1>
-          <p className="text-[14px] mt-1"
-            style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[14px]"
+            style={{ color: 'rgba(244,244,240,0.55)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
             IS 732:2019 based electrical cost estimate. DB panel schedule, wire quantities, MCB ratings, earthing — exact circuits calculated.
           </p>
         </div>

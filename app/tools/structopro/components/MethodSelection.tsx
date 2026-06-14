@@ -9,22 +9,38 @@ export default function MethodSelection({ onSelect }: Props) {
     <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-2xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 rounded-[2px] px-6 py-5 relative overflow-hidden"
+          style={{ background: '#1E2227', border: '1px solid rgba(30,34,39,0.7)' }}>
+          <div style={{ position: 'absolute', bottom: -10, right: -10, opacity: 0.1, pointerEvents: 'none', lineHeight: 0 }}>
+            <svg width="130" height="130" viewBox="0 0 130 130" fill="none" aria-hidden="true">
+              {([
+                [16,16],[42,10],[70,20],[98,14],[122,24],
+                [24,42],[56,38],[84,46],[116,38],
+                [12,68],[38,62],[66,70],[96,64],[124,72],
+                [20,94],[50,90],[80,96],[110,90],
+                [16,120],[46,116],[76,122],[106,117],
+              ] as [number,number][]).map(([x,y],i) => (
+                <circle key={i} cx={x} cy={y} r="4" fill="#F4F4F0" />
+              ))}
+              <line x1="65" y1="0" x2="65" y2="130" stroke="#F4F4F0" strokeWidth="1" />
+              <line x1="0" y1="65" x2="130" y2="65" stroke="#F4F4F0" strokeWidth="1" />
+            </svg>
+          </div>
           <p
-            className="text-[10px] uppercase tracking-widest mb-1"
-            style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}
+            className="text-[10px] uppercase tracking-widest mb-2"
+            style={{ color: 'rgba(201,168,76,0.5)', fontFamily: 'var(--font-plex-mono)' }}
           >
             NIRMANSHASTRA · STRUCTOPRO
           </p>
           <h2
-            className="text-[28px] font-bold"
-            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}
+            className="font-bold mb-2"
+            style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3.5vw,30px)' }}
           >
             How would you like to proceed?
           </h2>
           <p
-            className="text-[14px] mt-2"
-            style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}
+            className="text-[14px]"
+            style={{ color: 'rgba(244,244,240,0.5)', fontFamily: 'var(--font-plex-sans)' }}
           >
             Select the method that best describes your situation.
           </p>

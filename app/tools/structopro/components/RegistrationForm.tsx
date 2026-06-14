@@ -127,37 +127,53 @@ export default function RegistrationForm({ onSubmit }: Props) {
       {/* StructoPro header */}
       <div className="w-full max-w-xl mb-8">
         <div
-          className="rounded-[2px] p-6 mb-6"
-          style={{ border: '1px solid #1E2227', background: '#F4F4F0' }}
+          className="rounded-[2px] mb-6"
+          style={{ border: '1px solid #1E2227', background: '#1E2227', position: 'relative', overflow: 'hidden', padding: '28px 24px' }}
         >
-          {/* Concrete hatch motif */}
-          <svg width="56" height="40" viewBox="0 0 56 40" className="mb-3" aria-hidden="true">
-            {/* Aggregate dots */}
-            {[
-              [8,8],[20,6],[32,10],[44,7],[14,20],[26,18],[38,22],[50,19],
-              [6,32],[18,30],[30,34],[42,28],[52,33],
-            ].map(([x,y], i) => (
-              <circle key={i} cx={x} cy={y} r="2.5" fill="none" stroke="#1F4E79" strokeWidth="1" opacity="0.6" />
+          {/* Large concrete hatch watermark */}
+          <div style={{ position: 'absolute', bottom: -12, right: -12, opacity: 0.12, pointerEvents: 'none', lineHeight: 0 }}>
+            <svg width="160" height="160" viewBox="0 0 160 160" fill="none" aria-hidden="true">
+              {([
+                [18,18],[48,12],[80,22],[112,15],[138,28],
+                [28,48],[62,44],[95,50],[130,42],
+                [14,78],[44,72],[75,80],[108,75],[140,82],
+                [24,108],[56,103],[90,110],[125,105],
+                [18,138],[52,133],[88,140],[122,135],
+              ] as [number,number][]).map(([x,y],i) => (
+                <circle key={i} cx={x} cy={y} r="5" fill="#F4F4F0" />
+              ))}
+              <line x1="80" y1="0" x2="80" y2="160" stroke="#F4F4F0" strokeWidth="1.2" />
+              <line x1="0" y1="80" x2="160" y2="80" stroke="#F4F4F0" strokeWidth="1.2" />
+              <text x="84" y="34" fontSize="14" fill="#F4F4F0" fontFamily="monospace">C1</text>
+            </svg>
+          </div>
+          {/* Small motif */}
+          <svg width="48" height="36" viewBox="0 0 48 36" className="mb-4" aria-hidden="true">
+            {([
+              [6,6],[16,5],[27,8],[38,6],[44,10],
+              [4,18],[14,17],[24,19],[35,16],[44,20],
+              [8,28],[20,26],[32,29],[42,27],
+            ] as [number,number][]).map(([x,y],i) => (
+              <circle key={i} cx={x} cy={y} r="2" fill="none" stroke="rgba(201,168,76,0.6)" strokeWidth="0.8" />
             ))}
-            {/* Column grid mark C1 */}
-            <rect x="42" y="24" width="10" height="14" fill="none" stroke="#1E2227" strokeWidth="1.2" />
-            <text x="47" y="33" textAnchor="middle" fontSize="6" fontFamily="var(--font-plex-mono)" fill="#1E2227" opacity="0.7">C1</text>
+            <line x1="24" y1="0" x2="24" y2="36" stroke="rgba(244,244,240,0.15)" strokeWidth="0.8" />
+            <line x1="0" y1="18" x2="48" y2="18" stroke="rgba(244,244,240,0.15)" strokeWidth="0.8" />
           </svg>
           <p
-            className="text-[11px] uppercase tracking-widest mb-1"
-            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}
+            className="text-[11px] uppercase tracking-widest mb-2"
+            style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}
           >
             PHASE 1 · ₹499 REPORT
           </p>
           <h1
-            className="text-[28px] font-bold leading-tight"
-            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}
+            className="font-bold leading-tight mb-2"
+            style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}
           >
             StructoPro
           </h1>
           <p
-            className="text-[14px] mt-1"
-            style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}
+            className="text-[14px]"
+            style={{ color: 'rgba(244,244,240,0.55)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}
           >
             IS 456:2000 based RCC structure cost estimate. Exact quantities, itemised costs, contractor comparison.
           </p>
