@@ -5,6 +5,7 @@ import {
   seismicZoneFromState,
   exposureFromSiteCondition,
   foundationFromSiteCondition,
+  INDIAN_STATES,
   type SiteCondition,
   type ConcreteGrade,
   type SteelGrade,
@@ -12,23 +13,10 @@ import {
   type StructoInput,
 } from '../structopro-engine'
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const INDIAN_STATES = [
-  'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa',
-  'Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala',
-  'Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland',
-  'Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura',
-  'Uttar Pradesh','Uttarakhand','West Bengal',
-  'Andaman and Nicobar Islands','Chandigarh',
-  'Dadra and Nagar Haveli and Daman and Diu','Delhi',
-  'Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry',
-]
-
-type AreaUnit = 'sqft' | 'sqm' | 'sqyard'
-const UNIT_TO_SQFT: Record<AreaUnit, number> = { sqft: 1, sqm: 10.764, sqyard: 9 }
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type UseType = 'Residential' | 'Commercial' | 'Parking'
+
 interface FloorRow {
   label: string
   length: string
@@ -43,7 +31,8 @@ interface LabourTrade {
   workers: number
   ratePerDay: number
   indiaAvgRate: number
-  basisText: string
+  productivity: string
+  stdProductivity: string
   active: boolean
   daysManual: string
 }
@@ -56,140 +45,110 @@ interface CustomTrade {
   days: string
 }
 
-const INDIA_AVG_RATES = {
-  cement: 410, steel: 66, sand: 28, aggregate: 45, formwork: 12, antiTermite: 18,
+interface CustomMaterial {
+  id: string
+  name: string
+  rate: string
 }
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const INDIA_AVG_2026 = {
+  cement: 410, steel: 66, sand: 28, aggregate: 45,
+  formwork: 12, antiTermite: 18, bindingWire: 80, pccM10: 3200,
+}
+
+const SITE_CARDS: { value: SiteCondition; label: string; icon: string; note: string }[] = [
+  { value: 'flat',         label: 'Flat Terrain',      icon: '▬', note: 'Level site, no cutting needed' },
+  { value: 'sloped_mild',  label: 'Mild Slope',         icon: '◣', note: 'Up to 10° — minor earthwork' },
+  { value: 'sloped_steep', label: 'Steep Slope',        icon: '◤', note: 'Over 10° — retaining walls likely' },
+  { value: 'rocky',        label: 'Rocky',              icon: '⬡', note: 'Hard rock — drilling, good bearing' },
+  { value: 'bcs',          label: 'Black Cotton Soil',  icon: '●', note: 'Expansive clay — special foundation' },
+  { value: 'soft_marshy',  label: 'Soft / Marshy',      icon: '≋', note: 'Low bearing — piling or raft likely' },
+  { value: 'waterlogged',  label: 'Waterlogged',        icon: '〰', note: 'Water table near surface' },
+  { value: 'coastal',      label: 'Coastal',            icon: '∿', note: 'Marine exposure — higher cover' },
+]
 
 const INITIAL_TRADES: LabourTrade[] = [
-  { id: 't1',  name: 'Bar Bender (Sariya Mistri)',  workers: 2, ratePerDay: 950,  indiaAvgRate: 950,  basisText: '600 kg steel/day',         active: true,  daysManual: '' },
-  { id: 't2',  name: 'Shuttering Carpenter',        workers: 2, ratePerDay: 900,  indiaAvgRate: 900,  basisText: '100 sqft formwork/day',     active: true,  daysManual: '' },
-  { id: 't3',  name: 'Concreting Mason (RCC)',       workers: 2, ratePerDay: 900,  indiaAvgRate: 900,  basisText: '2.5 m³ concrete/day',       active: true,  daysManual: '' },
-  { id: 't4',  name: 'Vibrator Operator',            workers: 1, ratePerDay: 800,  indiaAvgRate: 800,  basisText: 'Per pour',                   active: true,  daysManual: '' },
-  { id: 't5',  name: 'Excavation Mason',             workers: 1, ratePerDay: 750,  indiaAvgRate: 750,  basisText: 'Volume/day',                 active: true,  daysManual: '' },
-  { id: 't6',  name: 'Rock Cutting Crew',            workers: 0, ratePerDay: 3000, indiaAvgRate: 3000, basisText: 'Manual',                     active: false, daysManual: '' },
-  { id: 't7',  name: 'Crane / Hoist Operator',       workers: 1, ratePerDay: 1100, indiaAvgRate: 1100, basisText: 'Per day',                    active: true,  daysManual: '' },
-  { id: 't8',  name: 'Concrete Pump Operator',       workers: 0, ratePerDay: 1100, indiaAvgRate: 1100, basisText: 'Per day',                    active: false, daysManual: '' },
-  { id: 't9',  name: 'General Helper / Beldar',      workers: 4, ratePerDay: 580,  indiaAvgRate: 580,  basisText: 'Ratio to masons',            active: true,  daysManual: '' },
-  { id: 't10', name: 'Curing / Water Man',           workers: 1, ratePerDay: 500,  indiaAvgRate: 500,  basisText: 'Per day',                    active: true,  daysManual: '' },
-  { id: 't11', name: 'Night Watchman',               workers: 1, ratePerDay: 500,  indiaAvgRate: 500,  basisText: 'Per day',                    active: true,  daysManual: '' },
-  { id: 't12', name: 'Junior Site Engineer',         workers: 1, ratePerDay: 1500, indiaAvgRate: 1500, basisText: 'Per day',                    active: true,  daysManual: '' },
-  { id: 't13', name: 'Site Foreman',                 workers: 1, ratePerDay: 1200, indiaAvgRate: 1200, basisText: 'Per day',                    active: true,  daysManual: '' },
-  { id: 't14', name: 'Safety Officer',               workers: 1, ratePerDay: 1200, indiaAvgRate: 1200, basisText: 'Per day',                    active: true,  daysManual: '' },
+  { id: 't1',  name: 'Bar Bender (Sariya Mistri)',  workers: 2, ratePerDay: 950,  indiaAvgRate: 950,  productivity: '600',  stdProductivity: '600 kg/day',       active: true,  daysManual: '' },
+  { id: 't2',  name: 'Shuttering Carpenter',         workers: 2, ratePerDay: 900,  indiaAvgRate: 900,  productivity: '100',  stdProductivity: '100 sqft/day',     active: true,  daysManual: '' },
+  { id: 't3',  name: 'Concreting Mason (RCC)',        workers: 2, ratePerDay: 900,  indiaAvgRate: 900,  productivity: '2.5',  stdProductivity: '2.5 m³/day',       active: true,  daysManual: '' },
+  { id: 't4',  name: 'Vibrator Operator',             workers: 1, ratePerDay: 800,  indiaAvgRate: 800,  productivity: '—',    stdProductivity: 'per pour',          active: true,  daysManual: '' },
+  { id: 't5',  name: 'Excavation Mason',              workers: 1, ratePerDay: 750,  indiaAvgRate: 750,  productivity: '3',    stdProductivity: '3 m³/day',          active: true,  daysManual: '' },
+  { id: 't6',  name: 'Rock Cutting Crew',             workers: 0, ratePerDay: 3000, indiaAvgRate: 3000, productivity: '1',    stdProductivity: '1 m³/day',          active: false, daysManual: '' },
+  { id: 't7',  name: 'Crane / Hoist Operator',        workers: 1, ratePerDay: 1100, indiaAvgRate: 1100, productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
+  { id: 't8',  name: 'Concrete Pump Operator',        workers: 0, ratePerDay: 1100, indiaAvgRate: 1100, productivity: '—',    stdProductivity: 'per day',           active: false, daysManual: '' },
+  { id: 't9',  name: 'General Helper / Beldar',       workers: 4, ratePerDay: 580,  indiaAvgRate: 580,  productivity: '—',    stdProductivity: 'ratio to masons',   active: true,  daysManual: '' },
+  { id: 't10', name: 'Curing / Water Man',            workers: 1, ratePerDay: 500,  indiaAvgRate: 500,  productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
+  { id: 't11', name: 'Night Watchman',                workers: 1, ratePerDay: 500,  indiaAvgRate: 500,  productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
+  { id: 't12', name: 'Junior Site Engineer',          workers: 1, ratePerDay: 1500, indiaAvgRate: 1500, productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
+  { id: 't13', name: 'Site Foreman',                  workers: 1, ratePerDay: 1200, indiaAvgRate: 1200, productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
+  { id: 't14', name: 'Safety Officer',                workers: 1, ratePerDay: 1200, indiaAvgRate: 1200, productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
 ]
 
-type SiteCard = { value: SiteCondition; label: string; icon: string; note: string }
-const SITE_CARDS: SiteCard[] = [
-  { value: 'flat',         label: 'Flat',              icon: '▬',  note: 'Ideal condition' },
-  { value: 'sloped_mild',  label: 'Sloped — Mild',     icon: '↗',  note: '1:5 gradient' },
-  { value: 'sloped_steep', label: 'Sloped — Steep',    icon: '↗↗', note: '1:3 or steeper' },
-  { value: 'rocky',        label: 'Rocky Ground',      icon: '◈',  note: 'Hard rock visible' },
-  { value: 'bcs',          label: 'Black Cotton Soil', icon: '◉',  note: 'Expansive clay' },
-  { value: 'soft_marshy',  label: 'Soft / Marshy',     icon: '≋',  note: 'Low bearing capacity' },
-  { value: 'waterlogged',  label: 'Waterlogged',       icon: '~',  note: 'High water table' },
-  { value: 'coastal',      label: 'Coastal',           icon: '◌',  note: 'Within 1km of sea' },
-]
-
-function makeFloorRow(idx: number): FloorRow {
-  const labels = ['Ground Floor', '1st Floor', '2nd Floor', '3rd Floor', '4th Floor', '5th Floor']
-  return { label: labels[idx] ?? `Floor ${idx + 1}`, length: '', width: '', height: '10', useType: 'Residential' }
+const INFO: Record<string, { title: string; body: string; is?: string }> = {
+  seismic:     { title: 'Seismic Zone', body: 'Auto-detected from your state using IS 1893:2016 map. Zone V is highest risk (Himalayan belt, NE states). Higher zones need more steel and ductile detailing.', is: 'IS 1893:2016 Table 2' },
+  concrete:    { title: 'Concrete Grade', body: 'M20 = 20 MPa compressive strength at 28 days. IS 456:2000 mandates M20 minimum for RCC. Use M25 or above for columns in Zone III+.', is: 'IS 456:2000 Cl 6.1' },
+  steel:       { title: 'Steel Grade', body: 'Fe500D: 500 MPa yield + "D" means ductile (IS 13920:2016). Mandatory for all seismic zones III and above. Fe415 is obsolete for new construction.', is: 'IS 1786:2008 + IS 13920:2016' },
+  exposure:    { title: 'Exposure Class', body: 'Determines min cement content, w/c ratio, and cover. Mild = protected interior. Moderate = open air. Severe = coastal. Very Severe = splash zone. Auto-set from site condition.', is: 'IS 456:2000 Table 5' },
+  column:      { title: 'Column Size', body: 'Minimum 230×230mm for G+1. 300×300mm for G+3 to G+5. Larger columns improve lateral stability. Must be consistent floor-to-floor.', is: 'IS 456:2000 Cl 26.5.3' },
+  slab:        { title: 'Slab Thickness', body: 'Minimum 125mm for residential. Span÷26 for one-way simply supported (IS 456:2000 Cl 23.2). Increase for longer spans or heavy live loads.', is: 'IS 456:2000 Cl 23.2' },
+  foundation:  { title: 'Foundation Depth', body: 'Minimum 900mm below natural ground (IS 1904:2016 Cl 4.1). Increases for soft/expansive soils. Shallow foundations need bearing capacity > 100 kN/m².', is: 'IS 1904:2016 Cl 4.1' },
+  cover:       { title: 'Concrete Cover (read-only)', body: 'Auto-set from exposure class. IS 456:2000 Table 16: Mild=40mm, Moderate=45mm, Severe=50mm, Very Severe=55mm, Extreme=60mm. Cannot reduce below IS minimum.', is: 'IS 456:2000 Table 16' },
+  staircase:   { title: 'Staircase', body: 'NBC 2016 mandates: tread min 250mm, riser max 190mm, clear width min 900mm. Dog-leg is standard for residential. Open well suits G+3 and above.', is: 'NBC 2016 Part 3 Cl 4.2' },
+  oht:         { title: 'Overhead Tank', body: 'HDPE (IS 12701) tanks are lighter and leak-free. RCC tanks save material cost but add structural load and need RCC slab design. OHT = Daily demand × 0.67 (IS 1172:1993).', is: 'IS 1172:1993 + IS 12701' },
+  parapet:     { title: 'Parapet Wall', body: 'NBC 2016 minimum height 900mm for occupied terraces. The RCC band is structural — built with the slab pour. MasonPro handles brick/block parapet infill separately.', is: 'NBC 2016 Part 4 Cl 3.3' },
+  parking:     { title: 'Stilt Ground Floor', body: 'Stilt parking creates a soft storey — GF is much weaker than upper floors. IS 1893:2016 Cl 7.10 requires special structural design. Consult a structural engineer.', is: 'IS 1893:2016 Cl 7.10' },
+  cpwd:        { title: 'CPWD Productivity (Editable)', body: 'CPWD publishes standard output per worker per day. These are reference values — edit to match your site. Labour total shown only in your paid PDF report.', is: 'CPWD DSR 2023' },
 }
 
-function autoFoundationDepth(cond: SiteCondition): number {
-  if (cond === 'rocky') return 500
-  if (cond === 'bcs' || cond === 'soft_marshy' || cond === 'waterlogged') return 1500
-  if (cond === 'coastal') return 1200
-  return 900
-}
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
-function exposureMinGrade(exp: ExposureClass): string {
-  const map: Record<ExposureClass, string> = {
-    mild: 'M20', moderate: 'M25', severe: 'M30', very_severe: 'M35', extreme: 'M40',
-  }
-  return map[exp]
-}
-
-function exposureDisplayLabel(exp: ExposureClass): string {
-  const map: Record<ExposureClass, string> = {
-    mild: 'Mild', moderate: 'Moderate', severe: 'Severe',
-    very_severe: 'Very Severe', extreme: 'Extreme',
-  }
-  return map[exp]
-}
-
-function columnMinByFloors(n: number): string {
-  if (n === 0) return '230×230mm'
-  if (n === 1) return '300×300mm'
-  if (n === 2) return '350×350mm'
-  return '400×400mm'
-}
-
-// ─── ⓘ Tip Button ────────────────────────────────────────────────────────────
-
-function TipBtn({ id, open, onToggle, children }: {
-  id: string; open: string | null; onToggle: (id: string) => void; children: ReactNode
-}) {
+function Tip({ id, open, setOpen }: { id: string; open: string | null; setOpen: (v: string | null) => void }) {
+  const tip = INFO[id]
+  if (!tip) return null
+  const isOpen = open === id
   return (
-    <span className="relative inline-block">
+    <span className="relative inline-block ml-1 align-middle">
       <button
         type="button"
-        onClick={() => onToggle(id)}
-        className="w-4 h-4 rounded-full text-[9px] font-bold inline-flex items-center justify-center ml-1 flex-shrink-0"
-        style={{ background: 'rgba(31,78,121,0.15)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', verticalAlign: 'middle', cursor: 'pointer' }}
-        aria-label="More information"
-      >
-        i
-      </button>
-      {open === id && (
-        <span
-          className="absolute z-50 left-0 top-5 p-3 rounded-[2px] w-72 block"
-          style={{ background: '#fff', border: '1px solid rgba(31,78,121,0.3)', color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 12, lineHeight: 1.5, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
-        >
-          {children}
-        </span>
+        className="text-[11px] w-[18px] h-[18px] rounded-full border inline-flex items-center justify-center leading-none"
+        style={{ borderColor: '#1F4E79', color: '#1F4E79' }}
+        onClick={() => setOpen(isOpen ? null : id)}
+      >i</button>
+      {isOpen && (
+        <div className="absolute z-50 left-6 top-0 w-64 p-3 rounded-[2px] shadow-lg" style={{ background: '#F4F4F0', border: '1.5px solid #1F4E79' }}>
+          <div className="flex justify-between items-start mb-1">
+            <span className="text-[12px] font-semibold" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-sans)' }}>{tip.title}</span>
+            <button type="button" onClick={() => setOpen(null)} className="text-[11px] opacity-40 hover:opacity-100 ml-2">✕</button>
+          </div>
+          <p className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{tip.body}</p>
+          {tip.is && <p className="text-[11px] mt-1.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>— {tip.is}</p>}
+        </div>
       )}
     </span>
   )
 }
 
-function ISBadge({ code }: { code: string }) {
+function Sect({ title, badge, defaultOpen = true, children }: { title: string; badge?: string; defaultOpen?: boolean; children: ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen)
   return (
-    <span className="ml-1.5 px-1.5 py-0.5 text-[9px] rounded-[2px] inline-block"
-      style={{ background: 'rgba(31,78,121,0.1)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', verticalAlign: 'middle' }}>
-      {code}
-    </span>
-  )
-}
-
-// ─── Step Bar ────────────────────────────────────────────────────────────────
-
-function StepBar() {
-  return (
-    <div className="flex items-center">
-      {(['REG', 'METHOD', 'DETAILS', 'RESULTS'] as const).map((step, i) => (
-        <div key={step} className="flex items-center">
-          <div className="flex items-center gap-1.5">
-            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] border"
-              style={{
-                background:  i < 2 ? '#14532D' : i === 2 ? '#1F4E79' : 'transparent',
-                borderColor: i < 2 ? '#14532D' : i === 2 ? '#1F4E79' : 'rgba(30,34,39,0.22)',
-                color:       i <= 2 ? '#fff' : 'rgba(30,34,39,0.35)',
-                fontFamily:  'var(--font-plex-mono)',
-              }}>
-              {i < 2 ? '✓' : i + 1}
-            </div>
-            <span className="text-[10px] uppercase tracking-widest hidden sm:inline"
-              style={{ fontFamily: 'var(--font-plex-mono)', color: i < 2 ? '#14532D' : i === 2 ? '#1F4E79' : 'rgba(30,34,39,0.3)' }}>
-              {step}
-            </span>
-          </div>
-          {i < 3 && <div className="w-5 h-px mx-1.5" style={{ background: 'rgba(30,34,39,0.14)' }} />}
+    <div className="rounded-[2px] border" style={{ borderColor: '#1E222720' }}>
+      <button type="button" onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-black/5 transition-colors"
+        style={{ background: '#1E22270A' }}>
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] font-semibold tracking-wide" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{title}</span>
+          {badge && <span className="text-[10px] px-2 py-0.5 rounded-[1px]" style={{ background: '#1F4E7918', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{badge}</span>}
         </div>
-      ))}
+        <span className="text-[12px] opacity-50">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && <div className="px-5 py-5 space-y-4">{children}</div>}
     </div>
   )
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Props ────────────────────────────────────────────────────────────────────
 
 interface Props {
   state: string
@@ -197,965 +156,759 @@ interface Props {
   onSubmit: (input: StructoInput) => void
 }
 
-export default function BuildDetails({ state, city, onSubmit }: Props) {
-  // S1 — Project Details
-  const [projectName, setProjectName]   = useState('')
-  const [numFloors, setNumFloors]       = useState(1)
-  const [area, setArea]                 = useState('')
-  const [areaUnit, setAreaUnit]         = useState<AreaUnit>('sqft')
-  const [floorRows, setFloorRows]       = useState<FloorRow[]>(() => [makeFloorRow(0), makeFloorRow(1)])
-  const [localState, setLocalState]     = useState(state)
-  const [localCity, setLocalCity]       = useState(city)
-  const [scope, setScope]               = useState({ staircase: false, ohtSlab: false, parapet: false, parkingSlab: false })
+// ─── Main Component ───────────────────────────────────────────────────────────
 
-  // S2 — Site Conditions
-  const [siteCondition, setSite]        = useState<SiteCondition | null>(null)
-  const [foundationOverride, setFndOverride] = useState('')
+export default function BuildDetails({ state: initState, city: initCity, onSubmit }: Props) {
+  const [openTip, setOpenTip] = useState<string | null>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // S3 — Technical Specs (open by default)
-  const [showTechSpecs, setShowTechSpecs] = useState(true)
-  const [concreteGrade, setConcrete]    = useState<ConcreteGrade>('M20')
-  const [steelGrade, setSteel]          = useState<SteelGrade>('Fe500D')
-  const [exposureClass, setExposure]    = useState<ExposureClass>('mild')
-  const [columnSize, setColumnSize]     = useState('300×300mm')
+  // S1
+  const [projectName, setProjectName] = useState('')
+  const [localState, setLocalState] = useState(initState || '')
+  const [localCity, setLocalCity] = useState(initCity || '')
+  const [seismicOverride, setSeismicOverride] = useState('')
+
+  // S2
+  const [numFloors, setNumFloors] = useState(1)
+  const [sameArea, setSameArea] = useState(true)
+  const [groundArea, setGroundArea] = useState('')
+  const [floorRows, setFloorRows] = useState<FloorRow[]>([
+    { label: 'Ground Floor', length: '', width: '', height: '10', useType: 'Residential' },
+    { label: 'First Floor',  length: '', width: '', height: '10', useType: 'Residential' },
+  ])
+
+  // S3
+  const [siteCondition, setSiteCondition] = useState<SiteCondition | null>(null)
+  const [foundationOverride, setFoundationOverride] = useState('')
+
+  // S4
+  const [staircase, setStaircase] = useState({ include: true, type: 'dogleg' as 'straight'|'dogleg'|'open_well', widthMm: 1200, count: 1 })
+  const [oht, setOht] = useState({ include: true, type: 'hdpe' as 'hdpe'|'rcc' })
+  const [parapet, setParapet] = useState({ include: true, heightMm: 900 })
+  const [parkingType, setParkingType] = useState<'none'|'stilt'|'shed'>('none')
+
+  // S5 — Tech Specs
+  const [concreteGrade, setConcreteGrade] = useState<ConcreteGrade>('M20')
+  const [steelGrade, setSteelGrade] = useState<SteelGrade>('Fe500D')
+  const [columnSize, setColumnSize] = useState('300×300mm')
   const [slabThickness, setSlabThickness] = useState(125)
-  const [foundationDepth, setFndDepth]  = useState(900)
+  const [foundationDepth, setFoundationDepth] = useState(900)
 
-  // S4 — Material Rates (collapsed)
-  const [showRates, setShowRates]       = useState(false)
-  const [rates, setRates]               = useState({ ...INDIA_AVG_RATES })
+  // S6 — Material Rates
+  const [rates, setRates] = useState({ ...INDIA_AVG_2026 })
+  const [customMaterials, setCustomMaterials] = useState<CustomMaterial[]>([])
 
-  // S5 — Contractor Quote
-  const [contractorName, setCtName]     = useState('')
-  const [contractorTotal, setCtTotal]   = useState('')
-  const [ctConcreteRate, setCtConcrete] = useState('')
-  const [ctSteelRate, setCtSteel]       = useState('')
-  const [ctFormworkRate, setCtFormwork] = useState('')
+  // S7 — Contractor Quote
+  const [quoteMode, setQuoteMode] = useState<'total'|'materials'|'breakdown'>('total')
+  const [contractorName, setContractorName] = useState('')
+  const [contractorTotal, setContractorTotal] = useState('')
+  const [ctConcreteRate, setCtConcreteRate] = useState('')
+  const [ctSteelRate, setCtSteelRate] = useState('')
+  const [ctFormworkRate, setCtFormworkRate] = useState('')
 
-  // S6 — Labour
+  // S8 — Labour
   const [includeLabour, setIncludeLabour] = useState(false)
-  const [trades, setTrades]             = useState<LabourTrade[]>(INITIAL_TRADES)
+  const [trades, setTrades] = useState<LabourTrade[]>(INITIAL_TRADES)
   const [customTrades, setCustomTrades] = useState<CustomTrade[]>([])
 
-  const [openTip, setOpenTip]           = useState<string | null>(null)
-  const [errors, setErrors]             = useState<Record<string, string>>({})
-
+  // ── Computed ──
   const szInfo = seismicZoneFromState(localState)
+  const effectiveZone = seismicOverride || szInfo.zone
+  const exposureClass: ExposureClass = siteCondition ? exposureFromSiteCondition(siteCondition) : 'mild'
+  const foundationRec = siteCondition ? foundationFromSiteCondition(siteCondition, numFloors) : null
+  const coverMm = { mild: 40, moderate: 45, severe: 50, very_severe: 55, extreme: 60 }[exposureClass]
+  const isStiltSoftStorey = parkingType === 'stilt' && ['III', 'IV', 'V'].includes(effectiveZone)
+
+  const FLOOR_LABELS = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor']
 
   // Sync floor rows when numFloors changes
   useEffect(() => {
     const count = numFloors + 1
     setFloorRows(prev => {
       if (prev.length === count) return prev
-      if (prev.length < count) {
-        return [...prev, ...Array.from({ length: count - prev.length }, (_, i) => makeFloorRow(prev.length + i))]
+      const next = [...prev]
+      while (next.length < count) {
+        next.push({ label: FLOOR_LABELS[next.length] ?? `Floor ${next.length}`, length: '', width: '', height: '10', useType: 'Residential' })
       }
-      return prev.slice(0, count)
+      return next.slice(0, count)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numFloors])
 
-  // Auto-set steel from seismic zone
-  useEffect(() => {
-    const { zone } = seismicZoneFromState(localState)
-    setSteel(zone === 'III' || zone === 'IV' || zone === 'V' ? 'Fe500D' : 'Fe500')
-  }, [localState])
-
-  // Auto-set concrete + exposure from site condition
-  useEffect(() => {
-    if (!siteCondition) return
-    const exp = exposureFromSiteCondition(siteCondition)
-    setExposure(exp)
-    const minGrades: Record<string, ConcreteGrade> = {
-      mild: 'M20', moderate: 'M25', severe: 'M30', very_severe: 'M35', extreme: 'M40',
-    }
-    setConcrete(prev => {
-      const required = minGrades[exp] ?? 'M20'
-      return parseInt(required.replace('M', '')) > parseInt(prev.replace('M', '')) ? required : prev
-    })
-    setFndDepth(autoFoundationDepth(siteCondition))
-    setColumnSize(columnMinByFloors(numFloors))
-  }, [siteCondition, numFloors])
-
-  const foundation = siteCondition ? foundationFromSiteCondition(siteCondition, numFloors) : null
-  const areaSqft   = area ? parseFloat(area) * UNIT_TO_SQFT[areaUnit] : 0
-
-  function toggleTip(id: string) {
-    setOpenTip(prev => prev === id ? null : id)
+  function updateFloorRow(idx: number, field: keyof FloorRow, val: string) {
+    setFloorRows(prev => prev.map((r, i) => i === idx ? { ...r, [field]: val } : r))
   }
 
-  function updateFloorRow(idx: number, key: keyof FloorRow, val: string) {
-    setFloorRows(prev => prev.map((r, i) => i === idx ? { ...r, [key]: val } : r))
+  function updateTrade(id: string, field: keyof LabourTrade, val: string | number | boolean) {
+    setTrades(prev => prev.map(t => t.id === id ? { ...t, [field]: val } : t))
   }
 
-  function updateTrade(id: string, key: keyof LabourTrade, val: unknown) {
-    setTrades(prev => prev.map(t => t.id === id ? { ...t, [key]: val } : t))
+  function addCustomMaterial() {
+    setCustomMaterials(prev => [...prev, { id: `cm-${Date.now()}`, name: '', rate: '' }])
   }
 
   function addCustomTrade() {
-    setCustomTrades(prev => [...prev, { id: `c${Date.now()}`, name: '', workers: '', ratePerDay: '', days: '' }])
+    setCustomTrades(prev => [...prev, { id: `ct-${Date.now()}`, name: '', workers: '1', ratePerDay: '', days: '' }])
   }
 
-  function updateCustomTrade(id: string, key: keyof CustomTrade, val: string) {
-    setCustomTrades(prev => prev.map(t => t.id === id ? { ...t, [key]: val } : t))
-  }
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const errs: Record<string, string> = {}
+    if (!siteCondition) errs.site = 'Select a site condition to continue'
+    const buaSqft = parseFloat(groundArea) || 0
+    if (sameArea && buaSqft < 100) errs.area = 'Enter a valid floor area (min 100 sqft)'
+    if (!sameArea && floorRows.some(r => !r.length || !r.width)) errs.floors = 'Enter length & width for all floors'
+    if (Object.keys(errs).length) { setErrors(errs); return }
+    setErrors({})
 
-  function validate(): boolean {
-    const e: Record<string, string> = {}
-    if (!area || parseFloat(area) <= 0)  e.area = 'Enter a valid area'
-    if (!siteCondition)                  e.site = 'Select a site condition'
-    setErrors(e)
-    return Object.keys(e).length === 0
-  }
+    const gfAreaSqft = sameArea
+      ? parseFloat(groundArea) || 0
+      : (parseFloat(floorRows[0]?.length || '0') * parseFloat(floorRows[0]?.width || '0'))
 
-  function handleSubmit() {
-    if (!validate() || !siteCondition) return
-    onSubmit({
-      state:                localState,
-      city:                 localCity,
+    const input: StructoInput = {
+      projectName,
+      state: localState,
+      city: localCity,
       numFloors,
-      groundFloorAreaSqft:  Math.round(areaSqft),
-      siteCondition,
+      groundFloorAreaSqft: gfAreaSqft,
+      siteCondition: siteCondition!,
       concreteGrade,
       steelGrade,
-      seismicZoneOverride:  undefined,
-      projectName,
-      contractorQuote:      contractorTotal ? parseFloat(contractorTotal) : undefined,
-      contractorName:       contractorName || undefined,
+      seismicZoneOverride: seismicOverride || undefined,
+      contractorQuote: contractorTotal ? parseFloat(contractorTotal) : undefined,
       contractorConcreteRate: ctConcreteRate ? parseFloat(ctConcreteRate) : undefined,
-      contractorSteelRate:  ctSteelRate ? parseFloat(ctSteelRate) : undefined,
+      contractorSteelRate: ctSteelRate ? parseFloat(ctSteelRate) : undefined,
       contractorFormworkRate: ctFormworkRate ? parseFloat(ctFormworkRate) : undefined,
       includeLabour,
       columnSize,
       slabThickness,
       foundationDepth,
-    })
+    }
+    onSubmit(input)
   }
 
-  // Cover requirements auto from exposure
-  const covers = {
-    footing: 50,
-    column:  40,
-    beam:    exposureClass === 'mild' ? 25 : 40,
-    slab:    exposureClass === 'mild' ? 20 : 30,
-  }
+  const iCls = 'w-full px-3 py-2 rounded-[2px] border text-[13px] bg-white'
+  const iStyle = { borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }
+  const monoStyle = { fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }
+  const lCls = 'block text-[12px] font-medium mb-1'
+  const lStyle = { color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }
+  const avgTag = (v: number | string, unit = '') => (
+    <span className="text-[11px] ml-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>
+      India Avg: {v}{unit}
+    </span>
+  )
 
   return (
-    <div className="min-h-screen bg-sheet-white pb-12">
-
-      {/* Page header */}
-      <div className="px-4 py-4" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
-        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest mb-0.5"
-              style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-              NIRMANSHASTRA · STRUCTOPRO
-            </p>
-            <h1 className="text-[22px] font-bold"
-              style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
-              Build Details
-            </h1>
-          </div>
-          <StepBar />
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-3 max-w-3xl mx-auto py-6 px-4">
+      <div className="mb-4">
+        <h2 className="text-[20px] font-bold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>StructoPro — Build Details</h2>
+        <p className="text-[13px] mt-1" style={{ color: '#1E2227A0', fontFamily: 'var(--font-plex-sans)' }}>Fill all sections to generate your structural estimate</p>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 pt-6 space-y-6">
-
-        {/* Location + seismic chip */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[2px]"
-          style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)' }}>
-          <span style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>
-            📍 {localCity}, {localState}
-          </span>
-          <span className="px-2 py-0.5 rounded-[2px] text-[10px]"
-            style={{ background: '#1F4E79', color: '#fff', fontFamily: 'var(--font-plex-mono)' }}>
-            SEISMIC ZONE {szInfo.zone} · Z={szInfo.zFactor}
-          </span>
-        </div>
-
-        {/* ── SECTION 1: PROJECT DETAILS ─────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
-            <p className="text-[11px] uppercase tracking-widest"
-              style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-              01 — PROJECT DETAILS
-            </p>
+      {/* ── S1: Project Details ────────────────────────────────────────────────── */}
+      <Sect title="S1 — Project Details">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2">
+            <label className={lCls} style={lStyle}>Project Name</label>
+            <input className={iCls} style={iStyle} placeholder="e.g. Sharma Residence, Pune" value={projectName} onChange={e => setProjectName(e.target.value)} />
           </div>
-          <div className="p-4 space-y-4">
-
-            {/* Project name */}
-            <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-1"
-                style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                Project Name
-              </label>
-              <input type="text" value={projectName} onChange={e => setProjectName(e.target.value)}
-                placeholder="e.g. Sharma Residence, Pune"
-                className="w-full border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none focus:border-blueprint"
-                style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
-              />
-            </div>
-
-            {/* Number of floors */}
-            <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-2"
-                style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                Number of Floors
-              </label>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                {[0,1,2,3,4,5].map(n => (
-                  <button key={n} type="button" onClick={() => setNumFloors(n)}
-                    className="py-2 rounded-[2px] text-center transition-all"
-                    style={{
-                      border:     `1px solid ${numFloors === n ? '#1F4E79' : 'rgba(30,34,39,0.2)'}`,
-                      background: numFloors === n ? '#1F4E79' : 'transparent',
-                      color:      numFloors === n ? '#fff' : '#1E2227',
-                      fontFamily: 'var(--font-plex-mono)', fontSize: 13,
-                    }}>
-                    {n === 0 ? 'G' : `G+${n}`}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Ground floor area */}
-            <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-1"
-                style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                Ground Floor Area
-              </label>
-              <div className="flex gap-2">
-                <input type="number" value={area}
-                  onChange={e => { setArea(e.target.value); setErrors(prev => ({ ...prev, area: '' })) }}
-                  placeholder="e.g. 1200"
-                  className="flex-1 border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none focus:border-blueprint"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: errors.area ? '#8C3A22' : 'rgba(30,34,39,0.4)', color: '#1E2227' }}
-                />
-                <select value={areaUnit} onChange={e => setAreaUnit(e.target.value as AreaUnit)}
-                  className="border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}>
-                  <option value="sqft">sqft</option>
-                  <option value="sqm">sqm</option>
-                  <option value="sqyard">sq yard</option>
-                </select>
-              </div>
-              {errors.area && <p className="text-[11px] mt-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>{errors.area}</p>}
-              {areaSqft > 0 && (
-                <p className="text-[12px] mt-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                  Total BUA: {Math.round(areaSqft * (numFloors + 1)).toLocaleString('en-IN')} sqft across {numFloors + 1} floor{numFloors > 0 ? 's' : ''}
-                </p>
-              )}
-            </div>
-
-            {/* Per-floor table */}
-            <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-2"
-                style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                Per-Floor Details (optional — for detailed report)
-              </label>
-              <div className="overflow-x-auto">
-                <table className="w-full text-[11px]" style={{ borderCollapse: 'collapse', minWidth: 520 }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
-                      {['Floor', 'Length (ft)', 'Width (ft)', 'Area (sqft)', 'Height (ft)', 'Use Type'].map(h => (
-                        <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
-                          style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {floorRows.map((row, idx) => {
-                      const calcArea = row.length && row.width
-                        ? Math.round(parseFloat(row.length) * parseFloat(row.width))
-                        : '—'
-                      return (
-                        <tr key={idx} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: idx % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
-                          <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', whiteSpace: 'nowrap' }}>{row.label}</td>
-                          {(['length', 'width'] as const).map(key => (
-                            <td key={key} className="py-1 px-1">
-                              <input type="number" value={row[key]}
-                                onChange={e => updateFloorRow(idx, key, e.target.value)}
-                                placeholder="—"
-                                className="w-20 border rounded px-2 py-1 text-[12px] bg-sheet-white outline-none"
-                                style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                              />
-                            </td>
-                          ))}
-                          <td className="py-1.5 px-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{calcArea}</td>
-                          <td className="py-1 px-1">
-                            <input type="number" value={row.height}
-                              onChange={e => updateFloorRow(idx, 'height', e.target.value)}
-                              className="w-16 border rounded px-2 py-1 text-[12px] bg-sheet-white outline-none"
-                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                            />
-                          </td>
-                          <td className="py-1 px-1">
-                            <select value={row.useType}
-                              onChange={e => updateFloorRow(idx, 'useType', e.target.value)}
-                              className="border rounded px-2 py-1 text-[11px] bg-sheet-white outline-none"
-                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}>
-                              <option>Residential</option>
-                              <option>Commercial</option>
-                              <option>Parking</option>
-                            </select>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Plot location */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="text-[11px] uppercase tracking-widest block mb-1"
-                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                  State
-                </label>
-                <select value={localState} onChange={e => setLocalState(e.target.value)}
-                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}>
-                  {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-[11px] uppercase tracking-widest block mb-1"
-                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                  City
-                </label>
-                <input type="text" value={localCity} onChange={e => setLocalCity(e.target.value)}
-                  placeholder="e.g. Pune"
-                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
-                />
-              </div>
-            </div>
-
-            {/* Scope checkboxes */}
-            <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-2"
-                style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                Scope — What to Include
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {([
-                  ['staircase', 'Include staircase structure'],
-                  ['ohtSlab', 'Include overhead water tank slab'],
-                  ['parapet', 'Include parapet walls'],
-                  ['parkingSlab', 'Include car parking slab'],
-                ] as [keyof typeof scope, string][]).map(([key, label]) => (
-                  <label key={key} className="flex items-center gap-2.5 cursor-pointer">
-                    <input type="checkbox" checked={scope[key]}
-                      onChange={() => setScope(prev => ({ ...prev, [key]: !prev[key] }))}
-                      className="w-4 h-4 rounded"
-                      style={{ accentColor: '#1F4E79' }}
-                    />
-                    <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+          <div>
+            <label className={lCls} style={lStyle}>State</label>
+            <select className={iCls} style={iStyle} value={localState} onChange={e => { setLocalState(e.target.value); setSeismicOverride('') }}>
+              <option value="">— Select State / UT —</option>
+              {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>City</label>
+            <input className={iCls} style={iStyle} placeholder="e.g. Pune" value={localCity} onChange={e => setLocalCity(e.target.value)} />
           </div>
         </div>
 
-        {/* ── SECTION 2: SITE CONDITIONS ──────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
-            <p className="text-[11px] uppercase tracking-widest"
-              style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-              02 — SITE CONDITIONS
-            </p>
+        {/* Seismic zone display + override */}
+        {localState && (
+          <div className="p-3 rounded-[2px]" style={{ background: '#1F4E7910', border: '1px solid #1F4E7930' }}>
+            <div className="flex items-center flex-wrap gap-3">
+              <div>
+                <span className="text-[11px] font-medium" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  IS 1893:2016 — Auto-detected: Zone {szInfo.zone} (Z = {szInfo.zFactor})
+                </span>
+                <Tip id="seismic" open={openTip} setOpen={setOpenTip} />
+              </div>
+              <div className="flex items-center gap-2 ml-auto">
+                <span className="text-[11px]" style={{ color: '#1E2227A0', fontFamily: 'var(--font-plex-sans)' }}>Override:</span>
+                <select
+                  className="px-2 py-1 rounded-[2px] border text-[12px]"
+                  style={{ borderColor: '#1F4E7940', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', background: 'white' }}
+                  value={seismicOverride}
+                  onChange={e => setSeismicOverride(e.target.value)}
+                >
+                  <option value="">Auto (Zone {szInfo.zone})</option>
+                  {['II', 'III', 'IV', 'V'].map(z => <option key={z} value={z}>Zone {z}</option>)}
+                </select>
+              </div>
+            </div>
+            {seismicOverride && (
+              <p className="text-[11px] mt-1" style={{ color: '#D99A06', fontFamily: 'var(--font-plex-sans)' }}>
+                ⚠ Manual override active — using Zone {seismicOverride} for design
+              </p>
+            )}
           </div>
-          <div className="p-4 space-y-4">
-            <p className="text-[14px]" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
-              What best describes your plot&apos;s ground condition?
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {SITE_CARDS.map(card => (
-                <button key={card.value} type="button"
-                  onClick={() => { setSite(card.value); setErrors(prev => ({ ...prev, site: '' })) }}
-                  className="text-left p-3 rounded-[2px] transition-all"
-                  style={{
-                    border:     `1.5px solid ${siteCondition === card.value ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
-                    background: siteCondition === card.value ? 'rgba(31,78,121,0.06)' : 'transparent',
-                  }}>
-                  <div className="text-[18px] mb-1"
-                    style={{ fontFamily: 'var(--font-plex-mono)', color: siteCondition === card.value ? '#1F4E79' : 'rgba(30,34,39,0.4)' }}>
-                    {card.icon}
-                  </div>
-                  <p className="text-[12px] font-medium leading-tight mb-0.5"
-                    style={{ color: siteCondition === card.value ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
-                    {card.label}
-                  </p>
-                  <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                    {card.note}
-                  </p>
-                </button>
+        )}
+      </Sect>
+
+      {/* ── S2: Floor Details ─────────────────────────────────────────────────── */}
+      <Sect title="S2 — Floor Details">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={lCls} style={lStyle}>Number of Floors</label>
+            <select className={iCls} style={{ ...iStyle, ...monoStyle }} value={numFloors} onChange={e => setNumFloors(parseInt(e.target.value))}>
+              {[['0','G (Ground only)'],['1','G + 1'],['2','G + 2'],['3','G + 3'],['4','G + 4'],['5','G + 5']].map(([v, l]) => (
+                <option key={v} value={v}>{l}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>Same area on all floors?</label>
+            <div className="flex gap-3 mt-2">
+              {(['Yes', 'No'] as const).map(opt => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="sameArea" checked={sameArea === (opt === 'Yes')} onChange={() => setSameArea(opt === 'Yes')} style={{ accentColor: '#1F4E79' }} />
+                  <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{opt}</span>
+                </label>
               ))}
             </div>
-            {errors.site && <p className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>{errors.site}</p>}
+          </div>
+        </div>
 
-            {foundation && (
-              <div className="p-3 rounded-[2px]"
-                style={{ border: foundation.warning ? '1px solid rgba(217,154,6,0.5)' : '1px solid rgba(31,78,121,0.3)', background: foundation.warning ? 'rgba(217,154,6,0.05)' : 'rgba(31,78,121,0.04)' }}>
-                <p className="text-[10px] uppercase tracking-widest mb-1"
-                  style={{ color: foundation.warning ? '#D99A06' : '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                  RECOMMENDED: {foundation.label}
-                </p>
-                <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                  {foundation.isCode} · ₹{foundation.minCostPerSqft}–{foundation.maxCostPerSqft}/sqft GFA
-                </p>
-                {foundation.warning && (
-                  <div className="mt-2 flex gap-2" style={{ borderTop: '1px solid rgba(217,154,6,0.2)', paddingTop: 8 }}>
-                    <span style={{ color: '#D99A06' }}>⚠</span>
-                    <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{foundation.warning}</p>
-                  </div>
-                )}
+        {sameArea ? (
+          <div>
+            <label className={lCls} style={lStyle}>Floor Area (sqft) — applies to all floors</label>
+            <input className={iCls} style={{ ...iStyle, ...monoStyle }} type="number" min="100" placeholder="e.g. 1200" value={groundArea} onChange={e => setGroundArea(e.target.value)} />
+            {errors.area && <p className="text-[11px] mt-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>{errors.area}</p>}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-[12px] border-collapse">
+              <thead>
+                <tr style={{ background: '#1E22270A' }}>
+                  {['Floor', 'Length (ft)', 'Width (ft)', 'Area (sqft)', 'Height (ft)', 'Use Type'].map(h => (
+                    <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {floorRows.map((row, idx) => {
+                  const area = (parseFloat(row.length) || 0) * (parseFloat(row.width) || 0)
+                  return (
+                    <tr key={idx} style={{ borderBottom: '1px solid #1E222710' }}>
+                      <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
+                      <td className="px-2 py-1">
+                        <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" value={row.length} onChange={e => updateFloorRow(idx, 'length', e.target.value)} />
+                      </td>
+                      <td className="px-2 py-1">
+                        <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" value={row.width} onChange={e => updateFloorRow(idx, 'width', e.target.value)} />
+                      </td>
+                      <td className="px-3 py-2" style={{ ...monoStyle, color: area > 0 ? '#1E2227' : '#1E222740' }}>{area > 0 ? area.toFixed(0) : '—'}</td>
+                      <td className="px-2 py-1">
+                        <input className="w-16 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={row.height} onChange={e => updateFloorRow(idx, 'height', e.target.value)} />
+                      </td>
+                      <td className="px-2 py-1">
+                        <select className="px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, fontFamily: 'var(--font-plex-sans)' }} value={row.useType} onChange={e => updateFloorRow(idx, 'useType', e.target.value as UseType)}>
+                          <option>Residential</option>
+                          <option>Commercial</option>
+                          <option>Parking</option>
+                        </select>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+            {errors.floors && <p className="text-[11px] mt-1" style={{ color: '#8C3A22' }}>{errors.floors}</p>}
+          </div>
+        )}
+      </Sect>
+
+      {/* ── S3: Site Conditions ───────────────────────────────────────────────── */}
+      <Sect title="S3 — Site Conditions">
+        {errors.site && <p className="text-[12px] mb-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>⚠ {errors.site}</p>}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {SITE_CARDS.map(card => (
+            <button
+              key={card.value}
+              type="button"
+              onClick={() => setSiteCondition(card.value)}
+              className="p-3 rounded-[2px] border text-left transition-all"
+              style={{
+                borderColor: siteCondition === card.value ? '#1F4E79' : '#1E222720',
+                background: siteCondition === card.value ? '#1F4E7912' : 'white',
+              }}
+            >
+              <div className="text-[18px] mb-1">{card.icon}</div>
+              <div className="text-[12px] font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{card.label}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: '#1E222770', fontFamily: 'var(--font-plex-sans)' }}>{card.note}</div>
+            </button>
+          ))}
+        </div>
+
+        {/* Foundation recommendation */}
+        {foundationRec && (
+          <div className="mt-3 p-3 rounded-[2px]" style={{ background: '#14532D0A', border: '1px solid #14532D30' }}>
+            <div className="flex items-start gap-2">
+              <span className="text-[11px] font-medium" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)', marginTop: 1 }}>RECOMMENDED</span>
+              <div>
+                <p className="text-[13px] font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{foundationRec.label}</p>
+                <p className="text-[11px]" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{foundationRec.isCode} · ₹{foundationRec.minCostPerSqft}–{foundationRec.maxCostPerSqft}/sqft</p>
+                {foundationRec.warning && <p className="text-[12px] mt-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>⚠ {foundationRec.warning}</p>}
               </div>
-            )}
-
-            <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-1"
-                style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                Foundation Type Override (if you want to change)
-              </label>
-              <select value={foundationOverride} onChange={e => setFndOverride(e.target.value)}
-                className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}>
-                <option value="">Use recommended</option>
-                <option>Isolated Footing</option>
-                <option>Strip Footing</option>
-                <option>Raft / Mat Foundation</option>
-                <option>Under-Reamed Pile (IS 2911:2010)</option>
-                <option>Pile Foundation (IS 2911:2010)</option>
-                <option>Rock-Cut Footing</option>
+            </div>
+            {/* Override dropdown */}
+            <div className="flex items-center gap-2 mt-3">
+              <label className="text-[12px]" style={{ color: '#1E2227A0', fontFamily: 'var(--font-plex-sans)' }}>Override foundation type:</label>
+              <select
+                className="px-2 py-1 rounded-[2px] border text-[12px]"
+                style={{ borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)', background: 'white' }}
+                value={foundationOverride}
+                onChange={e => setFoundationOverride(e.target.value)}
+              >
+                <option value="">Auto (recommended)</option>
+                <option value="isolated">Isolated Footing</option>
+                <option value="strip">Strip Footing</option>
+                <option value="raft">Raft / Mat Foundation</option>
+                <option value="pile">Pile Foundation</option>
+                <option value="under_reamed">Under-Reamed Pile</option>
+                <option value="rock_cut">Rock-Cut Footing</option>
               </select>
             </div>
           </div>
-        </div>
+        )}
+      </Sect>
 
-        {/* ── SECTION 3: TECHNICAL SPECIFICATIONS ────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <button type="button"
-            onClick={() => setShowTechSpecs(v => !v)}
-            className="w-full px-4 py-3 flex items-center justify-between">
-            <p className="text-[11px] uppercase tracking-widest"
-              style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-              03 — TECHNICAL SPECIFICATIONS
-            </p>
-            <span style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>
-              {showTechSpecs ? '▲' : '▼'}
-            </span>
-          </button>
-
-          {showTechSpecs && (
-            <div className="px-4 pb-5 space-y-4" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[11px] pt-3" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
-                All values are auto-set per IS codes. Click <strong>i</strong> for plain English explanation.
-              </p>
-
-              {/* Concrete grade */}
-              <div>
-                <div className="flex items-center gap-1 mb-1">
-                  <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                    Concrete Grade
-                  </label>
-                  <ISBadge code="IS 456:2000" />
-                  <TipBtn id="concrete" open={openTip} onToggle={toggleTip}>
-                    M20 = 1:1.5:3 mix, 8.07 bags/m³. Minimum for mild exposure per IS 456:2000 Table 5. M25 = 1:1:2, 11 bags/m³ — mandatory for moderate/coastal areas. Higher grade = more cement = stronger but costlier concrete.
-                  </TipBtn>
-                </div>
-                <select value={concreteGrade} onChange={e => setConcrete(e.target.value as ConcreteGrade)}
-                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.35)', color: '#1E2227' }}>
-                  <option value="M20">M20 — 1:1.5:3 mix · Mild exposure minimum</option>
-                  <option value="M25">M25 — 1:1:2 mix · Moderate/BCS/slope minimum</option>
-                  <option value="M30">M30 — Design mix · Severe/marshy minimum</option>
-                  <option value="M35">M35 — Design mix · Very severe minimum</option>
-                  <option value="M40">M40 — Design mix · Extreme/coastal minimum</option>
-                </select>
-                {siteCondition && (
-                  <p className="text-[10px] mt-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                    IS 456:2000 minimum for your exposure class: {exposureMinGrade(exposureClass)}
-                  </p>
-                )}
-              </div>
-
-              {/* Steel grade */}
-              <div>
-                <div className="flex items-center gap-1 mb-1">
-                  <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                    Steel Grade
-                  </label>
-                  <ISBadge code="IS 1786:2008" />
-                  <TipBtn id="steel" open={openTip} onToggle={toggleTip}>
-                    Fe500D has higher ductility (16% elongation vs 12%) — mandatory for Seismic Zones III-V per IS 13920:2016. In Zone II, Fe500 is sufficient. Never use Fe415 for new construction — old standard, lower ductility.
-                  </TipBtn>
-                </div>
-                <select value={steelGrade} onChange={e => setSteel(e.target.value as SteelGrade)}
-                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.35)', color: '#1E2227' }}>
-                  <option value="Fe415">Fe415 — Old standard, not recommended</option>
-                  <option value="Fe500">Fe500 — Standard residential Zone II</option>
-                  <option value="Fe500D">Fe500D — Mandatory Zones III–V (IS 13920)</option>
-                  <option value="Fe550D">Fe550D — High-rise seismic</option>
-                </select>
-                <p className="text-[10px] mt-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                  IS 13920:2016 recommends Fe500D for Zone {szInfo.zone}
-                </p>
-              </div>
-
-              {/* Exposure class */}
-              <div>
-                <div className="flex items-center gap-1 mb-1">
-                  <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                    Exposure Class
-                  </label>
-                  <ISBadge code="IS 456:2000 Table 5" />
-                  <TipBtn id="exposure" open={openTip} onToggle={toggleTip}>
-                    Mild = protected from weather (indoor columns). Moderate = normal outdoor exposure. Severe = coastal within 50km / industrial. Very Severe = aggressive chemical environment. Extreme = tidal zones, chemical plants. Exposure class sets minimum concrete grade and cover requirements.
-                  </TipBtn>
-                </div>
-                <select value={exposureClass} onChange={e => setExposure(e.target.value as ExposureClass)}
-                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.35)', color: '#1E2227' }}>
-                  <option value="mild">Mild — Indoor / protected</option>
-                  <option value="moderate">Moderate — Normal outdoor, no direct rain</option>
-                  <option value="severe">Severe — Coastal / industrial areas</option>
-                  <option value="very_severe">Very Severe — Aggressive environment</option>
-                  <option value="extreme">Extreme — Tidal / chemical zones</option>
-                </select>
-                <p className="text-[10px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                  Auto-set from site condition · Minimum grade: {exposureMinGrade(exposureClass)}
-                </p>
-              </div>
-
-              {/* Column size */}
-              <div>
-                <div className="flex items-center gap-1 mb-1">
-                  <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                    Column Size
-                  </label>
-                  <ISBadge code="IS 456:2000" />
-                  <TipBtn id="column" open={openTip} onToggle={toggleTip}>
-                    Column size determines how many floors the structure can safely support. A 230×230mm column is minimum for G+0. For G+1 use 300×300mm. For G+2 use 350×350mm. For G+3 and above, use 400×400mm or consult a structural engineer for custom sizes.
-                  </TipBtn>
-                </div>
-                <select value={columnSize} onChange={e => setColumnSize(e.target.value)}
-                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.35)', color: '#1E2227' }}>
-                  <option>230×230mm</option>
-                  <option>300×300mm</option>
-                  <option>350×350mm</option>
-                  <option>400×400mm</option>
-                  <option>Custom</option>
-                </select>
-                <p className="text-[10px] mt-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                  IS 456:2000: minimum {columnMinByFloors(numFloors)} for {numFloors === 0 ? 'G+0' : `G+${numFloors}`}
-                </p>
-              </div>
-
-              {/* Slab thickness */}
-              <div>
-                <div className="flex items-center gap-1 mb-1">
-                  <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                    Slab Thickness
-                  </label>
-                  <ISBadge code="IS 456:2000" />
-                  <TipBtn id="slab" open={openTip} onToggle={toggleTip}>
-                    Standard RCC slab thickness. 125mm for spans up to 4m per IS 456:2000 span/depth ratios (L/d ≥ 20 for two-way slab). For spans above 4m, increase to 150mm. Thicker slab = more concrete and steel, better sound insulation.
-                  </TipBtn>
-                </div>
-                <div className="grid grid-cols-4 gap-2">
-                  {[100, 125, 150, 175].map(t => (
-                    <button key={t} type="button" onClick={() => setSlabThickness(t)}
-                      className="py-2 rounded-[2px] text-center transition-all"
-                      style={{
-                        border:     `1.5px solid ${slabThickness === t ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
-                        background: slabThickness === t ? 'rgba(31,78,121,0.08)' : 'transparent',
-                        color:      slabThickness === t ? '#1F4E79' : '#1E2227',
-                        fontFamily: 'var(--font-plex-mono)', fontSize: 13,
-                      }}>
-                      {t}mm
-                    </button>
-                  ))}
-                </div>
-                <p className="text-[10px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                  Default 125mm · IS 456:2000 Table 22 span/depth ratios
-                </p>
-              </div>
-
-              {/* Foundation depth */}
-              <div>
-                <div className="flex items-center gap-1 mb-1">
-                  <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                    Foundation Depth (mm)
-                  </label>
-                  <ISBadge code="IS 1904:2016" />
-                  <TipBtn id="fndepth" open={openTip} onToggle={toggleTip}>
-                    Minimum 500mm below natural ground level per IS 1904:2016. Typical residential foundations go 900–1200mm. Black Cotton Soil needs 1500mm minimum. Rocky soil can be 500mm. Deeper foundation = more excavation cost but better stability.
-                  </TipBtn>
-                </div>
-                <input type="number" value={foundationDepth} onChange={e => setFndDepth(parseInt(e.target.value) || 900)}
-                  className="w-full border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.35)', color: '#1E2227' }}
-                />
-                <p className="text-[10px] mt-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                  IS 1904:2016 minimum: 500mm · Auto-set from soil type
-                </p>
-              </div>
-
-              {/* Cover requirements — read-only */}
-              <div>
-                <div className="flex items-center gap-1 mb-2">
-                  <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                    Cover Requirements (auto from exposure class — read-only)
-                  </label>
-                  <ISBadge code="IS 456 Cl 26.4" />
-                  <TipBtn id="cover" open={openTip} onToggle={toggleTip}>
-                    Concrete cover protects steel from corrosion. IS 456:2000 Cl 26.4.2.2: Footing always 50mm. Column minimum 40mm. Beam minimum 25mm for mild, 40mm for moderate and above. Slab minimum 20mm for mild, 30mm for moderate and above.
-                  </TipBtn>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {([['Footing', covers.footing], ['Column', covers.column], ['Beam', covers.beam], ['Slab', covers.slab]] as [string, number][]).map(([label, val]) => (
-                    <div key={label} className="px-3 py-2 rounded-[2px] text-center"
-                      style={{ border: '1px solid rgba(30,34,39,0.12)', background: 'rgba(30,34,39,0.02)' }}>
-                      <p className="text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{label}</p>
-                      <p className="text-[16px] font-bold mt-0.5" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{val}mm</p>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[10px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                  IS 456:2000 Cl 26.4.2.2 · Exposure class: {exposureDisplayLabel(exposureClass)}
-                </p>
-              </div>
-
-              {/* Seismic zone */}
-              <div>
-                <div className="flex items-center gap-1 mb-1">
-                  <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                    Seismic Zone
-                  </label>
-                  <ISBadge code="IS 1893:2016" />
-                  <TipBtn id="seismic" open={openTip} onToggle={toggleTip}>
-                    Your state falls in Zone {szInfo.zone} (Z-factor {szInfo.zFactor}) per IS 1893:2016. This affects steel grade requirements (Fe500D mandatory for Zone III–V) and tie spacing at column hinge zones (max 100mm). Higher zone = stricter requirements.
-                  </TipBtn>
-                </div>
-                <div className="px-3 py-2 rounded-[6px] text-[13px]"
-                  style={{ border: '1px solid rgba(30,34,39,0.2)', background: 'rgba(31,78,121,0.04)', fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>
-                  Zone {szInfo.zone} · Z-Factor {szInfo.zFactor} · Auto-determined from {localState}
-                </div>
-                <p className="text-[10px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                  IS 1893:2016 — your state: Zone {szInfo.zone}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── SECTION 4: MATERIAL RATES ───────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <button type="button"
-            onClick={() => setShowRates(v => !v)}
-            className="w-full px-4 py-3 flex items-center justify-between">
-            <div>
-              <p className="text-[11px] uppercase tracking-widest text-left"
-                style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                04 — MATERIAL RATES
-              </p>
-              {!showRates && (
-                <p className="text-[11px] text-left mt-0.5" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
-                  ✓ India Average 2026 rates · Edit if you have local quotes
-                </p>
-              )}
-            </div>
-            <span style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>
-              {showRates ? '▲' : '▼'}
-            </span>
-          </button>
-
-          {showRates && (
-            <div className="px-4 pb-4 space-y-3" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[12px] pt-3" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
-                Material Rates — India Average 2026 (edit if you have local quotes)
-              </p>
-              {([
-                ['cement',      'Cement (OPC 43/53 grade)', '₹/bag', 410],
-                ['steel',       'Steel TMT Fe500',          '₹/kg',  66],
-                ['sand',        'River Sand / M-Sand',      '₹/cft', 28],
-                ['aggregate',   'Aggregate 20mm',           '₹/cft', 45],
-                ['formwork',    'Formwork (timber)',        '₹/sqft',12],
-                ['antiTermite', 'Anti-termite treatment',  '₹/sqft',18],
-              ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
-                <div key={key} className="flex items-center gap-3">
-                  <label className="text-[12px] flex-1"
-                    style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
-                    {label}
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                    <input type="number" value={rates[key]}
-                      onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                    />
-                    <span className="text-[10px] whitespace-nowrap"
-                      style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                      {unit} · India Avg: ₹{avg}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              <button type="button" onClick={() => setRates({ ...INDIA_AVG_RATES })}
-                className="text-[11px] px-3 py-1.5 rounded-[2px] transition-all"
-                style={{ border: '1px solid rgba(30,34,39,0.2)', color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)', background: 'transparent' }}>
-                Reset to India Average
-              </button>
-              <p className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
-                IS 456:2000 mandates specific material grades. Changing rates does not change quantities — only cost totals.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* ── SECTION 5: CONTRACTOR QUOTE ─────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
-            <p className="text-[11px] uppercase tracking-widest"
-              style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-              05 — CONTRACTOR QUOTE (OPTIONAL)
-            </p>
-          </div>
-          <div className="p-4 space-y-3">
-            <p className="text-[13px]" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
-              Have a contractor quote? Enter it to compare after unlocking your report.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="text-[11px] uppercase tracking-widest block mb-1"
-                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                  Contractor Name (optional)
-                </label>
-                <input type="text" value={contractorName} onChange={e => setCtName(e.target.value)}
-                  placeholder="e.g. Ramesh Constructions"
-                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                />
-              </div>
-              <div>
-                <label className="text-[11px] uppercase tracking-widest block mb-1"
-                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-                  Total Quoted Amount (₹)
-                </label>
-                <div className="flex items-center gap-1.5">
-                  <span style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>₹</span>
-                  <input type="number" value={contractorTotal} onChange={e => setCtTotal(e.target.value)}
-                    placeholder="e.g. 1500000"
-                    className="flex-1 border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                    style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                  />
-                </div>
-              </div>
-            </div>
-            <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-              Itemwise (optional)
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {([
-                ['ctConcreteRate', 'Concrete rate (₹/m³)', ctConcreteRate, setCtConcrete],
-                ['ctSteelRate',    'Steel rate (₹/kg)',     ctSteelRate,    setCtSteel],
-                ['ctFormworkRate', 'Formwork rate (₹/sqft)', ctFormworkRate, setCtFormwork],
-              ] as [string, string, string, (v: string) => void][]).map(([key, label, val, setter]) => (
-                <div key={key}>
-                  <label className="text-[11px] uppercase tracking-widest block mb-1"
-                    style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                    {label}
-                  </label>
-                  <input type="number" value={val} onChange={e => setter(e.target.value)}
-                    placeholder="—"
-                    className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                    style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                  />
-                </div>
-              ))}
-            </div>
-            {contractorTotal && (
-              <p className="text-[11px]" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
-                ✓ Quote saved. Comparison with IS-code quantities available after unlocking report.
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* ── SECTION 6: LABOUR ───────────────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" checked={includeLabour} onChange={() => setIncludeLabour(v => !v)}
-                className="w-4 h-4 rounded" style={{ accentColor: '#1F4E79' }}
-              />
-              <div>
-                <p className="text-[11px] uppercase tracking-widest"
-                  style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                  06 — INCLUDE LABOUR COST IN ESTIMATE
-                </p>
-                <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
-                  Add CPWD-based labour cost to your total
-                </p>
-              </div>
+      {/* ── S4: Scope ─────────────────────────────────────────────────────────── */}
+      <Sect title="S4 — Scope of Work">
+        {/* Staircase */}
+        <div className="p-4 rounded-[2px] border" style={{ borderColor: '#1E222720' }}>
+          <div className="flex items-center gap-3 mb-3">
+            <input type="checkbox" id="sc-stair" checked={staircase.include} onChange={e => setStaircase(s => ({ ...s, include: e.target.checked }))} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
+            <label htmlFor="sc-stair" className="text-[13px] font-semibold cursor-pointer" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              Staircase
+              <Tip id="staircase" open={openTip} setOpen={setOpenTip} />
             </label>
           </div>
-
-          {includeLabour && (
-            <div className="p-4 space-y-4">
-              {/* CPWD warning */}
-              <div className="p-3 rounded-[2px]"
-                style={{ background: 'rgba(217,154,6,0.12)', border: '1px solid rgba(217,154,6,0.4)' }}>
-                <div className="flex gap-2">
-                  <span style={{ color: '#D99A06' }}>⚠</span>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest mb-1"
-                      style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
-                      WHY WE CANNOT AUTO-CALCULATE WORKING DAYS
-                    </p>
-                    <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
-                      Curing intervals, monsoon shutdowns, festival breaks, sand bans, local political situations —
-                      no software can predict these. CPWD productivity rates calculate man-days of work required.
-                      You set workers; days calculate automatically.
-                    </p>
-                  </div>
+          {staircase.include && (
+            <div className="grid grid-cols-3 gap-3 pl-6">
+              <div>
+                <label className={lCls} style={lStyle}>Type</label>
+                <select className={iCls} style={iStyle} value={staircase.type} onChange={e => setStaircase(s => ({ ...s, type: e.target.value as typeof staircase.type }))}>
+                  <option value="dogleg">Dog-leg (standard)</option>
+                  <option value="straight">Straight flight</option>
+                  <option value="open_well">Open well</option>
+                </select>
+              </div>
+              <div>
+                <label className={lCls} style={lStyle}>Clear width (mm)</label>
+                <input className={iCls} style={{ ...iStyle, ...monoStyle }} type="number" min="900" value={staircase.widthMm} onChange={e => setStaircase(s => ({ ...s, widthMm: parseInt(e.target.value) || 1200 })} />
+                <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>NBC min: 900mm</p>
+              </div>
+              <div>
+                <label className={lCls} style={lStyle}>Number of staircases</label>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={() => setStaircase(s => ({ ...s, count: Math.max(1, s.count - 1) }))} className="w-8 h-8 rounded-[2px] border flex items-center justify-center text-lg" style={{ borderColor: '#1E222730' }}>−</button>
+                  <span className="text-[14px] font-semibold w-8 text-center" style={monoStyle}>{staircase.count}</span>
+                  <button type="button" onClick={() => setStaircase(s => ({ ...s, count: Math.min(4, s.count + 1) }))} className="w-8 h-8 rounded-[2px] border flex items-center justify-center text-lg" style={{ borderColor: '#1E222730' }}>+</button>
                 </div>
               </div>
+            </div>
+          )}
+        </div>
 
-              {/* Trades table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-[11px]" style={{ borderCollapse: 'collapse', minWidth: 580 }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
-                      {['Trade', 'Workers', 'Rate/day ₹', 'India Avg', 'CPWD Basis', 'Days'].map(h => (
-                        <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
-                          style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {trades.map(trade => (
-                      <tr key={trade.id}
-                        style={{
-                          borderBottom: '1px solid rgba(30,34,39,0.06)',
-                          opacity: trade.active ? 1 : 0.35,
-                          background: trade.active ? 'transparent' : 'rgba(30,34,39,0.02)',
-                        }}>
-                        <td className="py-1.5 px-2" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', whiteSpace: 'nowrap' }}>
-                          {trade.name}
-                        </td>
-                        <td className="py-1 px-2">
-                          <div className="flex items-center gap-1">
-                            <button type="button"
-                              onClick={() => updateTrade(trade.id, 'active', !trade.active)}
-                              className="w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center"
-                              style={{ border: '1px solid rgba(30,34,39,0.2)', background: trade.active ? 'rgba(140,58,34,0.1)' : 'rgba(20,83,45,0.1)', color: trade.active ? '#8C3A22' : '#14532D' }}>
-                              {trade.active ? '−' : '+'}
-                            </button>
-                            <input type="number" value={trade.workers}
-                              disabled={!trade.active}
-                              onChange={e => updateTrade(trade.id, 'workers', parseInt(e.target.value) || 0)}
-                              className="w-10 border rounded px-1 py-0.5 text-center text-[11px] bg-sheet-white outline-none"
-                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
-                            />
-                          </div>
-                        </td>
-                        <td className="py-1 px-2">
-                          <input type="number" value={trade.ratePerDay}
-                            disabled={!trade.active}
-                            onChange={e => updateTrade(trade.id, 'ratePerDay', parseInt(e.target.value) || 0)}
-                            className="w-20 border rounded px-1 py-0.5 text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
-                          />
-                        </td>
-                        <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                          ₹{trade.indiaAvgRate}
-                        </td>
-                        <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
-                          {trade.basisText}
-                        </td>
-                        <td className="py-1 px-2" style={{ color: 'rgba(30,34,39,0.35)', fontFamily: 'var(--font-plex-mono)', fontSize: 10 }}>
-                          auto
-                        </td>
-                      </tr>
-                    ))}
-                    {customTrades.map(ct => (
-                      <tr key={ct.id} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)' }}>
-                        <td className="py-1 px-2">
-                          <input type="text" value={ct.name}
-                            onChange={e => updateCustomTrade(ct.id, 'name', e.target.value)}
-                            placeholder="Trade name"
-                            className="w-36 border rounded px-1 py-0.5 text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
-                          />
-                        </td>
-                        <td className="py-1 px-2">
-                          <input type="number" value={ct.workers}
-                            onChange={e => updateCustomTrade(ct.id, 'workers', e.target.value)}
-                            className="w-10 border rounded px-1 py-0.5 text-center text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
-                          />
-                        </td>
-                        <td className="py-1 px-2">
-                          <input type="number" value={ct.ratePerDay}
-                            onChange={e => updateCustomTrade(ct.id, 'ratePerDay', e.target.value)}
-                            className="w-20 border rounded px-1 py-0.5 text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
-                          />
-                        </td>
-                        <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.3)', fontFamily: 'var(--font-plex-mono)', fontSize: 10 }}>—</td>
-                        <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.3)', fontFamily: 'var(--font-plex-mono)', fontSize: 10 }}>Custom</td>
-                        <td className="py-1 px-2">
-                          <input type="number" value={ct.days}
-                            onChange={e => updateCustomTrade(ct.id, 'days', e.target.value)}
-                            placeholder="days"
-                            className="w-14 border rounded px-1 py-0.5 text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        {/* OHT */}
+        <div className="p-4 rounded-[2px] border" style={{ borderColor: '#1E222720' }}>
+          <div className="flex items-center gap-3 mb-3">
+            <input type="checkbox" id="sc-oht" checked={oht.include} onChange={e => setOht(o => ({ ...o, include: e.target.checked }))} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
+            <label htmlFor="sc-oht" className="text-[13px] font-semibold cursor-pointer" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              Overhead Tank (OHT)
+              <Tip id="oht" open={openTip} setOpen={setOpenTip} />
+            </label>
+          </div>
+          {oht.include && (
+            <div className="pl-6 flex gap-6">
+              {(['hdpe', 'rcc'] as const).map(t => (
+                <label key={t} className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="ohtType" checked={oht.type === t} onChange={() => setOht(o => ({ ...o, type: t }))} style={{ accentColor: '#1F4E79' }} />
+                  <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                    {t === 'hdpe' ? 'HDPE (IS 12701) — lighter, no leak' : 'RCC slab tank — lower material cost'}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Parapet */}
+        <div className="p-4 rounded-[2px] border" style={{ borderColor: '#1E222720' }}>
+          <div className="flex items-center gap-3 mb-3">
+            <input type="checkbox" id="sc-parapet" checked={parapet.include} onChange={e => setParapet(p => ({ ...p, include: e.target.checked }))} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
+            <label htmlFor="sc-parapet" className="text-[13px] font-semibold cursor-pointer" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              Parapet (RCC band)
+              <Tip id="parapet" open={openTip} setOpen={setOpenTip} />
+            </label>
+          </div>
+          {parapet.include && (
+            <div className="pl-6 space-y-2">
+              <div className="flex items-center gap-4">
+                <div>
+                  <label className={lCls} style={lStyle}>Height (mm)</label>
+                  <input className="w-32 px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="900" value={parapet.heightMm} onChange={e => setParapet(p => ({ ...p, heightMm: parseInt(e.target.value) || 900 }))} />
+                  <span className="text-[11px] ml-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>NBC min: 900mm</span>
+                </div>
               </div>
-              <button type="button" onClick={addCustomTrade}
-                className="text-[11px] px-3 py-1.5 rounded-[2px]"
-                style={{ border: '1px dashed rgba(30,34,39,0.25)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', background: 'transparent' }}>
-                + Add Your Own Labour
-              </button>
-              <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
-                Labour total shown only in report after unlocking. Not displayed on this form.
+              <p className="text-[12px]" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
+                Note: RCC band built during structural pour. Brick/block infill covered by MasonPro.
               </p>
             </div>
           )}
         </div>
 
-        {/* Submit */}
-        <button type="button" onClick={handleSubmit}
-          className="w-full py-3.5 rounded-[6px] text-[14px] font-semibold text-white"
-          style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
-          Calculate My Structure Cost →
+        {/* Parking */}
+        <div className="p-4 rounded-[2px] border" style={{ borderColor: isStiltSoftStorey ? '#D99A0640' : '#1E222720' }}>
+          <label className="block text-[13px] font-semibold mb-3" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            Parking
+            <Tip id="parking" open={openTip} setOpen={setOpenTip} />
+          </label>
+          <div className="space-y-2">
+            {([['none', 'No covered parking'], ['stilt', 'Stilt Ground Floor (open columns)'], ['shed', 'Separate parking shed']] as const).map(([val, label]) => (
+              <label key={val} className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="parking" checked={parkingType === val} onChange={() => setParkingType(val)} style={{ accentColor: '#1F4E79' }} />
+                <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</span>
+              </label>
+            ))}
+          </div>
+          {isStiltSoftStorey && (
+            <div className="mt-3 p-3 rounded-[2px]" style={{ background: '#D99A0610', border: '1.5px solid #D99A0660' }}>
+              <p className="text-[12px] font-semibold" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>⚠ SOFT STOREY WARNING — IS 1893:2016 Cl 7.10</p>
+              <p className="text-[12px] mt-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                Stilt ground floor in Seismic Zone {effectiveZone} creates a structural irregularity. A licensed structural engineer must design the stilt frame with special detailing. Prohibited in Zone V without engineer approval.
+              </p>
+            </div>
+          )}
+        </div>
+      </Sect>
+
+      {/* ── S5: Technical Specifications (collapsed by default) ───────────────── */}
+      <Sect title="S5 — Technical Specifications" defaultOpen={false}>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={lCls} style={lStyle}>
+              Concrete Grade
+              <Tip id="concrete" open={openTip} setOpen={setOpenTip} />
+            </label>
+            <select className={iCls} style={{ ...iStyle, ...monoStyle }} value={concreteGrade} onChange={e => setConcreteGrade(e.target.value as ConcreteGrade)}>
+              {(['M20','M25','M30','M35','M40'] as ConcreteGrade[]).map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 456:2000 min for RCC: M20</p>
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>
+              Steel Grade
+              <Tip id="steel" open={openTip} setOpen={setOpenTip} />
+            </label>
+            <select className={iCls} style={{ ...iStyle, ...monoStyle }} value={steelGrade} onChange={e => setSteelGrade(e.target.value as SteelGrade)}>
+              {(['Fe415','Fe500','Fe500D','Fe550D'] as SteelGrade[]).map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 1786:2008 — Zone III+: use Fe500D</p>
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>
+              Exposure Class
+              <Tip id="exposure" open={openTip} setOpen={setOpenTip} />
+            </label>
+            <div className="px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, background: '#F4F4F0', ...monoStyle }}>
+              {exposureClass.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} (auto from site)
+            </div>
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>
+              Column Size
+              <Tip id="column" open={openTip} setOpen={setOpenTip} />
+            </label>
+            <select className={iCls} style={{ ...iStyle, ...monoStyle }} value={columnSize} onChange={e => setColumnSize(e.target.value)}>
+              <option value="230×230mm">230×230mm (up to G+2)</option>
+              <option value="300×300mm">300×300mm (G+3 to G+5)</option>
+              <option value="350×350mm">350×350mm (heavy loads)</option>
+              <option value="400×400mm">400×400mm (commercial)</option>
+            </select>
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>
+              Slab Thickness (mm)
+              <Tip id="slab" open={openTip} setOpen={setOpenTip} />
+            </label>
+            <input className={iCls} style={{ ...iStyle, ...monoStyle }} type="number" min="100" max="250" value={slabThickness} onChange={e => setSlabThickness(parseInt(e.target.value) || 125)} />
+            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 456:2000 min: 125mm</p>
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>
+              Foundation Depth (mm)
+              <Tip id="foundation" open={openTip} setOpen={setOpenTip} />
+            </label>
+            <input className={iCls} style={{ ...iStyle, ...monoStyle }} type="number" min="600" max="3000" value={foundationDepth} onChange={e => setFoundationDepth(parseInt(e.target.value) || 900)} />
+            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 1904:2016 min: 900mm</p>
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>
+              Concrete Cover (mm)
+              <Tip id="cover" open={openTip} setOpen={setOpenTip} />
+            </label>
+            <div className="px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, background: '#F4F4F0', ...monoStyle }}>
+              {coverMm} mm (IS 456:2000 Table 16 — read-only)
+            </div>
+          </div>
+        </div>
+      </Sect>
+
+      {/* ── S6: Material Rates (collapsed by default) ─────────────────────────── */}
+      <Sect title="S6 — Material Rates" badge="India Avg 2026" defaultOpen={false}>
+        <p className="text-[12px]" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
+          Edit rates for your city. India Average 2026 shown beside each field.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { key: 'cement',      label: 'Cement (₹/50kg bag)', unit: '/bag' },
+            { key: 'steel',       label: 'Steel TMT Fe500D (₹/kg)', unit: '/kg' },
+            { key: 'sand',        label: 'Sand (₹/cft)', unit: '/cft' },
+            { key: 'aggregate',   label: 'Aggregate 20mm (₹/cft)', unit: '/cft' },
+            { key: 'formwork',    label: 'Formwork (₹/sqft BUA)', unit: '/sqft' },
+            { key: 'antiTermite', label: 'Anti-termite treatment (₹/sqft)', unit: '/sqft' },
+            { key: 'bindingWire', label: 'Binding Wire (₹/kg)', unit: '/kg' },
+            { key: 'pccM10',      label: 'PCC M10 lean mix (₹/m³)', unit: '/m³' },
+          ].map(({ key, label, unit }) => (
+            <div key={key}>
+              <label className={lCls} style={lStyle}>{label}</label>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                  <input
+                    className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]"
+                    style={{ ...iStyle, ...monoStyle }}
+                    type="number"
+                    min="0"
+                    value={rates[key as keyof typeof rates]}
+                    onChange={e => setRates(r => ({ ...r, [key]: parseFloat(e.target.value) || 0 }))}
+                  />
+                </div>
+                {avgTag(INDIA_AVG_2026[key as keyof typeof INDIA_AVG_2026], unit)}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Custom materials */}
+        {customMaterials.map((cm, idx) => (
+          <div key={cm.id} className="flex items-end gap-2 mt-2">
+            <div className="flex-1">
+              <label className={lCls} style={lStyle}>Material Name</label>
+              <input className={iCls} style={iStyle} placeholder="e.g. AAC blocks" value={cm.name} onChange={e => setCustomMaterials(prev => prev.map((m, i) => i === idx ? { ...m, name: e.target.value } : m))} />
+            </div>
+            <div className="w-36">
+              <label className={lCls} style={lStyle}>Rate</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" value={cm.rate} onChange={e => setCustomMaterials(prev => prev.map((m, i) => i === idx ? { ...m, rate: e.target.value } : m))} />
+              </div>
+            </div>
+            <button type="button" onClick={() => setCustomMaterials(prev => prev.filter((_, i) => i !== idx))} className="px-3 py-2 text-[12px] rounded-[2px]" style={{ color: '#8C3A22', border: '1px solid #8C3A2230' }}>Remove</button>
+          </div>
+        ))}
+
+        <div className="flex gap-3 pt-2">
+          <button type="button" onClick={addCustomMaterial} className="px-4 py-2 rounded-[2px] text-[12px] font-medium transition-colors" style={{ background: '#1F4E7912', color: '#1F4E79', border: '1px solid #1F4E7930', fontFamily: 'var(--font-plex-sans)' }}>
+            + Add Material
+          </button>
+          <button type="button" onClick={() => setRates({ ...INDIA_AVG_2026 })} className="px-4 py-2 rounded-[2px] text-[12px] transition-colors" style={{ color: '#1E222780', border: '1px solid #1E222730', fontFamily: 'var(--font-plex-sans)' }}>
+            Reset to India Average
+          </button>
+        </div>
+      </Sect>
+
+      {/* ── S7: Contractor Quote ──────────────────────────────────────────────── */}
+      <Sect title="S7 — Contractor Quote (Optional)">
+        <p className="text-[12px]" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
+          Enter your contractor&apos;s quote to compare against the estimate. Select what they provided:
+        </p>
+        <div className="space-y-2">
+          {([
+            ['total',     'Total project quote only (single lump sum)'],
+            ['materials', 'Materials cost only (you arrange labour separately)'],
+            ['breakdown', 'Full breakdown — concrete rate + steel rate + formwork rate'],
+          ] as const).map(([val, label]) => (
+            <label key={val} className="flex items-center gap-2 cursor-pointer p-2 rounded-[2px] transition-colors" style={{ background: quoteMode === val ? '#1F4E7910' : 'transparent' }}>
+              <input type="radio" name="quoteMode" checked={quoteMode === val} onChange={() => setQuoteMode(val)} style={{ accentColor: '#1F4E79' }} />
+              <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</span>
+            </label>
+          ))}
+        </div>
+
+        {quoteMode !== 'none' && (
+          <div className="space-y-3 mt-3 pt-3" style={{ borderTop: '1px solid #1E222715' }}>
+            <div>
+              <label className={lCls} style={lStyle}>Contractor / Company Name (optional)</label>
+              <input className={iCls} style={iStyle} placeholder="e.g. Mehta Construction Co." value={contractorName} onChange={e => setContractorName(e.target.value)} />
+            </div>
+
+            {quoteMode === 'total' && (
+              <div>
+                <label className={lCls} style={lStyle}>Total Quote (₹)</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                  <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={contractorTotal} onChange={e => setContractorTotal(e.target.value)} />
+                </div>
+              </div>
+            )}
+
+            {quoteMode === 'materials' && (
+              <div>
+                <label className={lCls} style={lStyle}>Materials Quote (₹)</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                  <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={contractorTotal} onChange={e => setContractorTotal(e.target.value)} />
+                </div>
+              </div>
+            )}
+
+            {quoteMode === 'breakdown' && (
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Concrete rate (₹/m³)', val: ctConcreteRate, set: setCtConcreteRate },
+                  { label: 'Steel rate (₹/kg)', val: ctSteelRate, set: setCtSteelRate },
+                  { label: 'Formwork (₹/sqft)', val: ctFormworkRate, set: setCtFormworkRate },
+                ].map(({ label, val, set }) => (
+                  <div key={label}>
+                    <label className={lCls} style={lStyle}>{label}</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                      <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={val} onChange={e => set(e.target.value)} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </Sect>
+
+      {/* ── S8: Labour ────────────────────────────────────────────────────────── */}
+      <Sect title="S8 — Labour Estimation (Optional)">
+        <div className="flex items-center gap-3">
+          <input type="checkbox" id="inclLabour" checked={includeLabour} onChange={e => setIncludeLabour(e.target.checked)} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
+          <label htmlFor="inclLabour" className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Include labour cost in estimate</label>
+        </div>
+
+        {includeLabour && (
+          <>
+            <div className="p-3 rounded-[2px]" style={{ background: '#D99A0608', border: '1px solid #D99A0640' }}>
+              <p className="text-[12px] font-semibold" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>CPWD WARNING</p>
+              <p className="text-[12px] mt-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                CPWD DSR rates are government-procurement benchmarks. Private residential work may differ by ±30%. Labour total is shown only in your paid PDF report — not on this form.
+              </p>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-[12px] border-collapse">
+                <thead>
+                  <tr style={{ background: '#1E22270A' }}>
+                    {['Active', 'Trade', 'Workers', 'Rate/Day (₹)', 'CPWD Productivity (editable)', 'Days'].map(h => (
+                      <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {trades.map(t => (
+                    <tr key={t.id} style={{ borderBottom: '1px solid #1E222710', opacity: t.active ? 1 : 0.45 }}>
+                      <td className="px-3 py-2">
+                        <input type="checkbox" checked={t.active} onChange={e => updateTrade(t.id, 'active', e.target.checked)} style={{ accentColor: '#1F4E79' }} />
+                      </td>
+                      <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{t.name}</td>
+                      <td className="px-2 py-1">
+                        <div className="flex items-center gap-1">
+                          <button type="button" onClick={() => updateTrade(t.id, 'workers', Math.max(0, t.workers - 1))} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: '#1E222730' }}>−</button>
+                          <span className="w-6 text-center text-[12px]" style={monoStyle}>{t.workers}</span>
+                          <button type="button" onClick={() => updateTrade(t.id, 'workers', t.workers + 1)} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: '#1E222730' }}>+</button>
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
+                        <div className="flex items-center gap-1">
+                          <input className="w-20 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={t.ratePerDay} onChange={e => updateTrade(t.id, 'ratePerDay', parseInt(e.target.value) || 0)} />
+                          <span className="text-[11px] whitespace-nowrap" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>avg: {t.indiaAvgRate}</span>
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
+                        <div className="flex items-center gap-1">
+                          <input
+                            className="w-16 px-2 py-1 rounded-[2px] border text-[12px]"
+                            style={{ ...iStyle, ...monoStyle }}
+                            value={t.productivity}
+                            onChange={e => updateTrade(t.id, 'productivity', e.target.value)}
+                            placeholder={t.stdProductivity}
+                          />
+                          <span className="text-[11px] whitespace-nowrap" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>std: {t.stdProductivity}</span>
+                          <Tip id="cpwd" open={openTip} setOpen={setOpenTip} />
+                        </div>
+                      </td>
+                      <td className="px-2 py-1">
+                        <input className="w-16 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} placeholder="auto" value={t.daysManual} onChange={e => updateTrade(t.id, 'daysManual', e.target.value)} />
+                      </td>
+                    </tr>
+                  ))}
+                  {customTrades.map((ct, idx) => (
+                    <tr key={ct.id} style={{ borderBottom: '1px solid #1E222710' }}>
+                      <td className="px-3 py-2"><input type="checkbox" defaultChecked style={{ accentColor: '#1F4E79' }} /></td>
+                      <td className="px-2 py-1">
+                        <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={iStyle} placeholder="Trade name" value={ct.name} onChange={e => setCustomTrades(prev => prev.map((t, i) => i === idx ? { ...t, name: e.target.value } : t))} />
+                      </td>
+                      <td className="px-2 py-1">
+                        <input className="w-16 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={ct.workers} onChange={e => setCustomTrades(prev => prev.map((t, i) => i === idx ? { ...t, workers: e.target.value } : t))} />
+                      </td>
+                      <td className="px-2 py-1">
+                        <input className="w-20 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={ct.ratePerDay} onChange={e => setCustomTrades(prev => prev.map((t, i) => i === idx ? { ...t, ratePerDay: e.target.value } : t))} />
+                      </td>
+                      <td className="px-2 py-1"><span className="text-[12px]" style={{ color: '#1E222750' }}>—</span></td>
+                      <td className="px-2 py-1">
+                        <div className="flex gap-1">
+                          <input className="w-16 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={ct.days} onChange={e => setCustomTrades(prev => prev.map((t, i) => i === idx ? { ...t, days: e.target.value } : t))} />
+                          <button type="button" onClick={() => setCustomTrades(prev => prev.filter((_, i) => i !== idx))} className="text-[11px] px-1" style={{ color: '#8C3A22' }}>✕</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <button type="button" onClick={addCustomTrade} className="px-4 py-2 rounded-[2px] text-[12px] font-medium" style={{ background: '#1F4E7912', color: '#1F4E79', border: '1px solid #1F4E7930', fontFamily: 'var(--font-plex-sans)' }}>
+              + Add Your Own Labour
+            </button>
+            <p className="text-[11px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+              Labour subtotals are shown only in your paid PDF report — never on this form.
+            </p>
+          </>
+        )}
+      </Sect>
+
+      {/* ── Submit ────────────────────────────────────────────────────────────── */}
+      <div className="pt-2">
+        <button
+          type="submit"
+          className="w-full py-3 rounded-[2px] font-semibold text-[15px] transition-all"
+          style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}
+        >
+          Generate Structural Estimate →
         </button>
+        <p className="text-[11px] text-center mt-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+          Free: grand total range + IS compliance checks. Itemised BOQ requires ₹499 unlock.
+        </p>
       </div>
-    </div>
+    </form>
   )
 }
