@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { INDIAN_STATES } from '../interiorpro-engine'
 
@@ -161,7 +162,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
               ).flat()}
             </svg>
           </div>
-          <div className="mb-4"><TileGridMotif size={48} /></div>
+          <div className="mb-4"><Image src="/interiorpro-icon.png" alt="InteriorPro" width={64} height={64} style={{ objectFit: 'contain' }} /></div>
           <p className="text-[11px] uppercase tracking-widest mb-2"
             style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 5 · ₹499 REPORT

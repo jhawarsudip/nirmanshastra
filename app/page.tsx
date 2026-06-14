@@ -2,6 +2,7 @@
 
 import React, { useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -479,12 +480,12 @@ function SectionHeader({ clause, title, dark = false }: { clause: string; title:
 // ─────────────────────────────────────────────────────────────────────────────
 
 const motifMap: Record<string, React.ReactElement> = {
-  P0: <VastuMandala />,
-  P1: <StructoHatch />,
-  P2: <MasonHatch />,
-  P3: <ElectroGlyph />,
-  P4: <PlumbRiser />,
-  P5: <InteriorTile />,
+  P0: <Image src="/vastupro-icon.png"   alt="VastuPro"   width={44} height={44} style={{ objectFit: 'contain' }} />,
+  P1: <Image src="/structopro-icon.png" alt="StructoPro" width={44} height={44} style={{ objectFit: 'contain' }} />,
+  P2: <Image src="/masonpro-icon.png"   alt="MasonPro"   width={44} height={44} style={{ objectFit: 'contain' }} />,
+  P3: <Image src="/electropro-icon.png" alt="ElectroPro" width={44} height={44} style={{ objectFit: 'contain' }} />,
+  P4: <Image src="/plumbpro-icon.png"   alt="PlumbPro"   width={44} height={44} style={{ objectFit: 'contain' }} />,
+  P5: <Image src="/interiorpro-icon.png" alt="InteriorPro" width={44} height={44} style={{ objectFit: 'contain' }} />,
 }
 
 const largeMotifMap: Record<string, React.ReactElement> = {
@@ -648,8 +649,14 @@ export default function Home() {
             transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
             style={{ width: '100%' }}
           >
-            <div style={{ width: '100%', maxWidth: 560 }}>
-              <HouseConstructionSVG />
+            <div style={{ position: 'relative', width: '100%', maxWidth: 600, minHeight: 420 }}>
+              <Image
+                src="/hero-illustration.png"
+                alt="NirmanShastra building elevation"
+                fill
+                style={{ objectFit: 'contain' }}
+                priority
+              />
             </div>
           </motion.div>
         </section>
@@ -755,8 +762,8 @@ export default function Home() {
                   <div style={{ position: 'absolute', bottom: -10, right: -10, color: 'rgba(201,168,76,0.1)', pointerEvents: 'none', lineHeight: 0 }}>
                     <LargeVastuWatermark />
                   </div>
-                  <div style={{ color: '#C9A84C', width: 52, height: 52, flexShrink: 0 }}>
-                    <VastuMandala />
+                  <div style={{ width: 52, height: 52, flexShrink: 0 }}>
+                    <Image src="/vastupro-icon.png" alt="VastuPro" width={52} height={52} style={{ objectFit: 'contain' }} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 3 }}>

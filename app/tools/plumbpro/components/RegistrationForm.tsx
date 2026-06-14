@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { INDIAN_STATES } from '../plumbpro-engine'
 
@@ -151,7 +152,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
               <line x1="118" y1="128" x2="118" y2="160" stroke="#F4F4F0" strokeWidth="2.5" />
             </svg>
           </div>
-          <div className="mb-4"><RiserMotif size={48} /></div>
+          <div className="mb-4"><Image src="/plumbpro-icon.png" alt="PlumbPro" width={64} height={64} style={{ objectFit: 'contain' }} /></div>
           <p className="text-[11px] uppercase tracking-widest mb-2"
             style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 4 · ₹499 REPORT

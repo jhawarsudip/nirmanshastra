@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { INDIAN_STATES } from '../masonpro-engine'
 
@@ -130,13 +131,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
               ))}
             </svg>
           </div>
-          {/* Small motif */}
-          <svg width="48" height="36" viewBox="0 0 48 36" className="mb-4" aria-hidden="true">
-            <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(201,168,76,0.6)" strokeWidth="1.2" />
-            <line x1="12" y1="0" x2="48" y2="36" stroke="rgba(201,168,76,0.6)" strokeWidth="1.2" />
-            <line x1="36" y1="0" x2="0" y2="36" stroke="rgba(244,244,240,0.25)" strokeWidth="1" />
-            <line x1="48" y1="0" x2="12" y2="36" stroke="rgba(244,244,240,0.25)" strokeWidth="1" />
-          </svg>
+          <Image src="/masonpro-icon.png" alt="MasonPro" width={64} height={64} className="mb-4" style={{ objectFit: 'contain' }} />
           <p className="text-[11px] uppercase tracking-widest mb-2"
             style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 2 · ₹499 REPORT

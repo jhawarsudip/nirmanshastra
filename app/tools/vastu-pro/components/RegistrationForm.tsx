@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 
 interface RegistrationData {
@@ -144,20 +145,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
       {/* VastuPro header card */}
       <div className="w-full max-w-xl mb-8">
         <div className="rounded-[2px] p-6 mb-6" style={{ background: '#1E2227' }}>
-          <svg width="56" height="56" viewBox="0 0 56 56" className="mb-3" aria-hidden="true">
-            <circle cx="28" cy="28" r="26" fill="none" stroke="#C9A84C" strokeWidth="1.5" opacity="0.4" />
-            <circle cx="28" cy="28" r="4" fill="#C9A84C" />
-            {Array.from({ length: 16 }, (_, i) => {
-              const rad = (i * 360 / 16 * Math.PI) / 180
-              const x1 = 28 + 6 * Math.sin(rad), y1 = 28 - 6 * Math.cos(rad)
-              const x2 = 28 + 24 * Math.sin(rad), y2 = 28 - 24 * Math.cos(rad)
-              return (
-                <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
-                  stroke="#C9A84C" strokeWidth={i % 4 === 0 ? 1.5 : 0.8}
-                  opacity={i % 4 === 0 ? 0.9 : 0.45} />
-              )
-            })}
-          </svg>
+          <Image src="/vastupro-icon.png" alt="VastuPro" width={64} height={64} className="mb-3" style={{ objectFit: 'contain' }} />
           <p className="text-[11px] uppercase tracking-widest mb-1"
             style={{ color: 'rgba(201,168,76,0.6)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 0 · FREE FOREVER

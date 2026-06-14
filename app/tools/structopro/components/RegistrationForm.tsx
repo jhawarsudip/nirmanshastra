@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { INDIAN_STATES } from '../structopro-engine'
 
@@ -147,18 +148,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
               <text x="84" y="34" fontSize="14" fill="#F4F4F0" fontFamily="monospace">C1</text>
             </svg>
           </div>
-          {/* Small motif */}
-          <svg width="48" height="36" viewBox="0 0 48 36" className="mb-4" aria-hidden="true">
-            {([
-              [6,6],[16,5],[27,8],[38,6],[44,10],
-              [4,18],[14,17],[24,19],[35,16],[44,20],
-              [8,28],[20,26],[32,29],[42,27],
-            ] as [number,number][]).map(([x,y],i) => (
-              <circle key={i} cx={x} cy={y} r="2" fill="none" stroke="rgba(201,168,76,0.6)" strokeWidth="0.8" />
-            ))}
-            <line x1="24" y1="0" x2="24" y2="36" stroke="rgba(244,244,240,0.15)" strokeWidth="0.8" />
-            <line x1="0" y1="18" x2="48" y2="18" stroke="rgba(244,244,240,0.15)" strokeWidth="0.8" />
-          </svg>
+          <Image src="/structopro-icon.png" alt="StructoPro" width={64} height={64} className="mb-4" style={{ objectFit: 'contain' }} />
           <p
             className="text-[11px] uppercase tracking-widest mb-2"
             style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}
