@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import {
   calcGradeComparison,
   seismicZoneFromState,
@@ -16,6 +15,40 @@ import {
   type InteriorGrade,
   type InteriorMethod,
 } from '../interiorpro-engine'
+
+// ─── Alert + Regional helpers ─────────────────────────────────────────────────
+
+type AlertVariant = 'info' | 'caution' | 'error' | 'tip'
+function AlertBox({ variant, children }: { variant: AlertVariant; children: ReactNode }) {
+  const styles: Record<AlertVariant, { bg: string; border: string; icon: string; iconColor: string }> = {
+    info:    { bg: '#1F4E7908', border: '#1F4E7940', icon: 'ⓘ', iconColor: '#1F4E79' },
+    caution: { bg: '#D99A0610', border: '#D99A0650', icon: '⚠', iconColor: '#D99A06' },
+    error:   { bg: '#8C3A2208', border: '#8C3A2240', icon: '✕', iconColor: '#8C3A22' },
+    tip:     { bg: '#14532D08', border: '#14532D40', icon: '✓', iconColor: '#14532D' },
+  }
+  const s = styles[variant]
+  return (
+    <div className="flex gap-2.5 p-3 rounded-[2px]" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+      <span className="text-[13px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
+      <div className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
+    </div>
+  )
+}
+
+function RegionalNote({ note }: { note: string }) {
+  return (
+    <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+      {note}
+    </p>
+  )
+}
+
+const INTERIOR_REGIONAL_NOTES: Record<string, string> = {
+  basic:    'Ceramic tile ₹28–38/sqft near Morbi (Gujarat tile belt). Remote NE India ₹50–65/sqft (transport adds 25–35%).',
+  standard: 'Kajaria/Orient vitrified ₹55–75/sqft in Tier-2 cities. Mumbai/Bangalore showrooms ₹80–110/sqft.',
+  premium:  'Full-body vitrified/imported ₹120–180/sqft nationally. Design tiles from Italy/Spain ₹200–400/sqft.',
+  luxury:   'Marble/large-format ₹200–600/sqft. Statuario marble ₹800+ in metros. Regional granite ₹150–250/sqft.',
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -728,7 +761,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
             <div>
               <p className="text-[11px] uppercase tracking-widest text-left"
                 style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                09 — TECHNICAL SPECIFICATIONS
+                09 — ADVANCED SETTINGS ▼ — TECHNICAL SPECIFICATIONS
               </p>
               {!showTechSpecs && (
                 <p className="text-[11px] text-left mt-0.5" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
@@ -743,9 +776,11 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
 
           {showTechSpecs && (
             <div className="px-4 pb-5 space-y-4" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[11px] pt-3" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
-                IS code values are applied automatically. These values are LOCKED per IS code and Build Reference Section 8.
-              </p>
+              <div className="pt-3">
+                <AlertBox variant="info">
+                  IS code values (tile wastage, paint coverage, MS frame spec) are applied automatically and locked. Ask your tile contractor to provide IS 15477:2004 compliant material with test certificate. Waterproofing in bathrooms is IS 2645:2003 mandatory — not optional.
+                </AlertBox>
+              </div>
 
               {/* Tile wastage */}
               <div>
@@ -852,7 +887,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
             <div>
               <p className="text-[11px] uppercase tracking-widest text-left"
                 style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                10 — MATERIAL RATES
+                10 — ADVANCED SETTINGS ▼ — MATERIAL RATES
               </p>
               {!showRates && (
                 <p className="text-[11px] text-left mt-0.5" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
@@ -867,9 +902,14 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
 
           {showRates && (
             <div className="px-4 pb-4 space-y-4" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[12px] pt-3" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
-                Material Rates — India Average 2026 (Pune / kajaria / orient pricing)
-              </p>
+              <div className="pt-3 space-y-2">
+                <AlertBox variant="tip">
+                  India Average 2026 rates (Pune / Kajaria / Orient pricing). Tile prices vary 30–40% between Morbi (Gujarat tile belt) and remote NE India. Ask your dealer for current lot pricing before locking budget.
+                </AlertBox>
+                <AlertBox variant="caution">
+                  IS 15477:2004: Always order 10% extra tile for wastage — engine already adds this. Kitchen/bathroom tile prices include IS 2645:2003 waterproofing cost. Rates are for supply + lay (labour included in tile rate here, separate from the Labour section below).
+                </AlertBox>
+              </div>
 
               <div>
                 <p className="text-[10px] uppercase tracking-widest mb-2"
@@ -877,19 +917,22 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
                   FLOORING RATES (₹/sqft supply + lay)
                 </p>
                 {(Object.keys(flooringRates) as InteriorGrade[]).map(g => (
-                  <div key={g} className="flex items-center gap-3 mb-2">
-                    <label className="text-[12px] w-24" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{GRADE_META[g].label}</label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                      <input type="number" value={flooringRates[g]}
-                        onChange={e => setFlooringRates(prev => ({ ...prev, [g]: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                        style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                      />
-                      <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                        /sqft · Avg: ₹{FLOORING_RATES[g]}
-                      </span>
+                  <div key={g} className="mb-2">
+                    <div className="flex items-center gap-3">
+                      <label className="text-[12px] w-24" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{GRADE_META[g].label}</label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                        <input type="number" value={flooringRates[g]}
+                          onChange={e => setFlooringRates(prev => ({ ...prev, [g]: parseFloat(e.target.value) || 0 }))}
+                          className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                          style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
+                        />
+                        <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                          /sqft · Avg: ₹{FLOORING_RATES[g]}
+                        </span>
+                      </div>
                     </div>
+                    {INTERIOR_REGIONAL_NOTES[g] && <RegionalNote note={INTERIOR_REGIONAL_NOTES[g]} />}
                   </div>
                 ))}
               </div>
@@ -959,7 +1002,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
           <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-              11 — CONTRACTOR QUOTE (OPTIONAL)
+              11 — ADVANCED SETTINGS ▼ — CONTRACTOR QUOTE (OPTIONAL)
             </p>
           </div>
           <div className="p-4">
@@ -993,7 +1036,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
               <div>
                 <p className="text-[11px] uppercase tracking-widest"
                   style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                  12 — INCLUDE LABOUR COST IN ESTIMATE
+                  12 — ADVANCED SETTINGS ▼ — INCLUDE LABOUR COST IN ESTIMATE
                 </p>
                 <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
                   Add CPWD-based interior labour cost to your total
@@ -1004,32 +1047,18 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
 
           {includeLabour && (
             <div className="p-4 space-y-4">
-              <div className="p-3 rounded-[2px]"
-                style={{ background: 'rgba(217,154,6,0.12)', border: '1px solid rgba(217,154,6,0.4)' }}>
-                <div className="flex gap-2">
-                  <span style={{ color: '#D99A06' }}>⚠</span>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest mb-1"
-                      style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
-                      WHY WE CANNOT AUTO-CALCULATE WORKING DAYS
-                    </p>
-                    <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
-                      Interior trades have strict sequencing: tile must cure 3 days before carpenter work begins;
-                      false ceiling goes before paint; doors are fitted after paint; electrical fixtures last.
-                      Days also depend on drying times, contractor availability, and material delivery.
-                      CPWD productivity rates calculate the total man-days of work required —
-                      {LABOUR.tileMasonFloor.sqftPerDay} sqft/day for tile mason, {LABOUR.painter.sqftPerDay} sqft/day for painter.
-                      You set workers; days auto-calculate from that.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <AlertBox variant="caution">
+                Interior trades have strict sequencing — tile must cure 3 days before carpentry; false ceiling before paint; doors after paint; electrical fixtures last. CPWD rates: {LABOUR.tileMasonFloor.sqftPerDay} sqft/day tile mason, {LABOUR.painter.sqftPerDay} sqft/day painter. You set workers; days auto-calculate.
+              </AlertBox>
+              <AlertBox variant="tip">
+                To exclude a trade from your estimate, enter 0 in the Workers column (or use the − button). Excluded trades show at 35% opacity and are not included in the labour total.
+              </AlertBox>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-[11px]" style={{ borderCollapse: 'collapse', minWidth: 560 }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
-                      {['Trade', 'Workers', 'Rate/day ₹', 'India Avg', 'CPWD Basis', 'Days'].map(h => (
+                      {['Trade', 'Workers (0 = exclude)', 'Rate/day ₹', 'India Avg', 'CPWD Basis', 'Days'].map(h => (
                         <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
                           style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                       ))}

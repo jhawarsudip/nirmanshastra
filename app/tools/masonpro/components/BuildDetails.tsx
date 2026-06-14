@@ -85,6 +85,32 @@ function TipBtn({ id, open, onToggle, children }: {
   )
 }
 
+type AlertVariant = 'info' | 'caution' | 'error' | 'tip'
+function AlertBox({ variant, children }: { variant: AlertVariant; children: ReactNode }) {
+  const styles: Record<AlertVariant, { bg: string; border: string; icon: string; iconColor: string }> = {
+    info:    { bg: '#1F4E7908', border: '#1F4E7940', icon: 'ⓘ', iconColor: '#1F4E79' },
+    caution: { bg: '#D99A0610', border: '#D99A0650', icon: '⚠', iconColor: '#D99A06' },
+    error:   { bg: '#8C3A2208', border: '#8C3A2240', icon: '✕', iconColor: '#8C3A22' },
+    tip:     { bg: '#14532D08', border: '#14532D40', icon: '✓', iconColor: '#14532D' },
+  }
+  const s = styles[variant]
+  return (
+    <div className="flex gap-2.5 p-3 rounded-[2px]" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+      <span className="text-[13px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
+      <div className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
+    </div>
+  )
+}
+
+const MASON_REGIONAL_NOTES: Record<string, string> = {
+  clayBrick:   'Jharkhand & WB ₹7,000–8,500/1000. Coastal Karnataka ₹11,000–13,000/1000. Transport adds ₹1,000–2,500 beyond 100km.',
+  flyAshBrick: '₹5,500–6,000 near thermal plants (Korba, Mundra). ₹8,000–9,000 in metros far from source.',
+  aacBlock:    '₹45–50/cft near AAC plants (Ahmedabad, Hyderabad). ₹65–75/cft in remote NE India.',
+  cement:      '₹380–420 coastal Maharashtra. ₹440–460 remote NE India (transport adds 15–25%).',
+  sand:        '₹18–22 in river-belt zones. ₹35–45 coastal/metro. M-sand ₹20–28 nationwide.',
+  wpCompound:  '₹200–210 in Tier-2 cities. ₹250–280 in metros. Crystalline brands (Xypex) cost 2× more but last longer.',
+}
+
 function ISBadge({ code }: { code: string }) {
   return (
     <span className="ml-1.5 px-1.5 py-0.5 text-[9px] rounded-[2px] inline-block"
@@ -153,8 +179,8 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
   const [bathroomCount, setBathroomCount] = useState('2')
   const [bathroomWPMethod, setBathroomWPMethod] = useState<BathroomWpMethod>('cementitious')
 
-  // S3 — Technical Specs (open by default)
-  const [showTechSpecs, setShowTechSpecs] = useState(true)
+  // S3 — Technical Specs (collapsed by default)
+  const [showTechSpecs, setShowTechSpecs] = useState(false)
   const [mortarGrade, setMortarGrade]   = useState<MortarGrade>('1:6')
   const [brickClass, setBrickClass]     = useState<BrickClass>('7.5')
 
@@ -586,7 +612,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
             className="w-full px-4 py-3 flex items-center justify-between">
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-              03 — TECHNICAL SPECIFICATIONS
+              ADVANCED SETTINGS ▼ — TECHNICAL SPECIFICATIONS
             </p>
             <span style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>
               {showTechSpecs ? '▲' : '▼'}
@@ -594,9 +620,11 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
           </button>
           {showTechSpecs && (
             <div className="px-4 pb-5 space-y-4" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[11px] pt-3" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
-                Auto-set per IS codes. Click <strong>i</strong> for plain English explanation.
-              </p>
+              <div className="pt-3">
+                <AlertBox variant="info">
+                  These values are auto-set per IS codes for your wall type and seismic zone. Change only if your structural engineer has specified different values in writing.
+                </AlertBox>
+              </div>
 
               {/* Mortar grade */}
               <div>
@@ -688,7 +716,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
             <div>
               <p className="text-[11px] uppercase tracking-widest text-left"
                 style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                04 — MATERIAL RATES
+                ADVANCED SETTINGS ▼ — MATERIAL RATES
               </p>
               {!showRates && (
                 <p className="text-[11px] text-left mt-0.5" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
@@ -702,9 +730,14 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
           </button>
           {showRates && (
             <div className="px-4 pb-4 space-y-3" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[12px] pt-3" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
-                Material Rates — India Average 2026 (edit if you have local quotes)
-              </p>
+              <div className="pt-3 space-y-2">
+                <AlertBox variant="tip">
+                  <strong>India Average 2026</strong> rates are pre-loaded. Get 3 supplier quotes before finalising — brick rates vary by 30–40% across states.
+                </AlertBox>
+                <AlertBox variant="caution">
+                  Contractor-supplied brick is typically 10–20% above market rate. Always ask for the supply bill separately.
+                </AlertBox>
+              </div>
               {([
                 ['clayBrick',   'Clay modular brick',       '₹/1000',  9500],
                 ['flyAshBrick', 'Fly ash brick',            '₹/1000',  7000],
@@ -713,19 +746,24 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
                 ['sand',        'Sand',                     '₹/cft',     28],
                 ['wpCompound',  'Waterproofing compound',   '₹/kg',     230],
               ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
-                <div key={key} className="flex items-center gap-3">
-                  <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                    <input type="number" value={rates[key]}
-                      onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                    />
-                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                      {unit} · India Avg: ₹{avg.toLocaleString('en-IN')}
-                    </span>
+                <div key={key}>
+                  <div className="flex items-center gap-3">
+                    <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                      <input type="number" value={rates[key]}
+                        onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
+                        className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                        style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
+                      />
+                      <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                        {unit} · India Avg: ₹{avg.toLocaleString('en-IN')}
+                      </span>
+                    </div>
                   </div>
+                  {MASON_REGIONAL_NOTES[key] && (
+                    <p className="text-[11px] mt-0.5 ml-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>{MASON_REGIONAL_NOTES[key]}</p>
+                  )}
                 </div>
               ))}
               <button type="button" onClick={() => setRates({ ...INDIA_AVG_RATES })}
@@ -793,7 +831,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
               <div>
                 <p className="text-[11px] uppercase tracking-widest"
                   style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                  06 — INCLUDE LABOUR COST IN ESTIMATE
+                  ADVANCED SETTINGS ▼ — INCLUDE LABOUR COST IN ESTIMATE
                 </p>
                 <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
                   Add CPWD-based labour cost to your total
@@ -803,24 +841,12 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
           </div>
           {includeLabour && (
             <div className="p-4 space-y-4">
-              <div className="p-3 rounded-[2px]"
-                style={{ background: 'rgba(217,154,6,0.12)', border: '1px solid rgba(217,154,6,0.4)' }}>
-                <div className="flex gap-2">
-                  <span style={{ color: '#D99A06' }}>⚠</span>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest mb-1"
-                      style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>WHY WE CANNOT AUTO-CALCULATE WORKING DAYS</p>
-                    <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
-                      Curing intervals (IS 2212:1991: minimum 7 days wet gunny), monsoon shutdowns, festival breaks,
-                      sand bans, local political situations — no software can predict these. CPWD productivity rates
-                      calculate man-days of work required. You set workers; days calculate automatically.
-                    </p>
-                    <p className="text-[10px] mt-1.5" style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
-                      IS 2212:1991: Masonry starts 60–90 days after RCC pour is complete.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <AlertBox variant="caution">
+                <strong>CPWD DSR 2023 rates.</strong> Curing intervals (IS 2212:1991: minimum 7 days wet gunny), monsoon shutdowns, festival breaks, sand bans, local political situations — no software can predict these. CPWD productivity rates calculate man-days of work. You set workers; days calculate automatically. <em>IS 2212:1991: Masonry starts 60–90 days after RCC pour.</em>
+              </AlertBox>
+              <AlertBox variant="tip">
+                <strong>Enter 0 workers</strong> to exclude any trade entirely — same as the − toggle button.
+              </AlertBox>
               <div className="overflow-x-auto">
                 <table className="w-full text-[11px]" style={{ borderCollapse: 'collapse', minWidth: 520 }}>
                   <thead>

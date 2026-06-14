@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { type ReactNode } from 'react'
 import {
   seismicZoneFromState,
   MATERIAL_RATES,
@@ -10,6 +11,46 @@ import {
   calcWaterDemand,
   type PlumbInput,
 } from '../plumbpro-engine'
+
+// ─── Alert + Regional helpers ─────────────────────────────────────────────────
+
+type AlertVariant = 'info' | 'caution' | 'error' | 'tip'
+function AlertBox({ variant, children }: { variant: AlertVariant; children: ReactNode }) {
+  const styles: Record<AlertVariant, { bg: string; border: string; icon: string; iconColor: string }> = {
+    info:    { bg: '#1F4E7908', border: '#1F4E7940', icon: 'ⓘ', iconColor: '#1F4E79' },
+    caution: { bg: '#D99A0610', border: '#D99A0650', icon: '⚠', iconColor: '#D99A06' },
+    error:   { bg: '#8C3A2208', border: '#8C3A2240', icon: '✕', iconColor: '#8C3A22' },
+    tip:     { bg: '#14532D08', border: '#14532D40', icon: '✓', iconColor: '#14532D' },
+  }
+  const s = styles[variant]
+  return (
+    <div className="flex gap-2.5 p-3 rounded-[2px]" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+      <span className="text-[13px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
+      <div className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
+    </div>
+  )
+}
+
+function RegionalNote({ note }: { note: string }) {
+  return (
+    <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+      {note}
+    </p>
+  )
+}
+
+const PLUMB_REGIONAL_NOTES: Record<string, string> = {
+  cpvc_25:     'Astral/Supreme CPVC ₹55–65/m in Tier-2 cities. Mumbai/Chennai ₹70–80/m. Remote NE India ₹85–95/m.',
+  cpvc_32:     'Astral CPVC 32mm ₹90–100/m nationally. NE India transport adds ₹15–20/m.',
+  cpvc_40:     'CPVC 40mm ₹140–160/m near manufacturing hubs. Remote sites ₹180–200/m.',
+  swr_75:      'SWR 75mm ₹28–35/m in metros. ₹22–28/m in Tier-2 cities. Kerala and NE pay 10% more.',
+  swr_110:     'SWR 110mm ₹45–55/m nationwide. Near Ahmedabad (plastic belt) ₹38–42/m.',
+  upvc_110:    'uPVC 110mm underground ₹55–65/m. Coastal areas pay ₹70–80/m for UV-resistant grade.',
+  pTrap100:    'P-trap 100mm ₹80–110/pc at hardware stores. Online/bulk buying saves 15–20%.',
+  sumpTankPerL:'HDPE sump ₹3.5–4.5/L in Tier-2. Mumbai/Bangalore ₹5–6/L. NE India ₹6–8/L (transport).',
+  ohtPerL:     'Sintex/Penguin OHT ₹4–5/L nationally. Coastal areas prefer SS (₹8–12/L) for longer life.',
+  pumpHalfHP:  'Kirloskar/CRI 0.5HP ₹3,500–4,500 Tier-2 cities. Mumbai/Bangalore ₹4,500–6,000.',
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -600,7 +641,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
             <div>
               <p className="text-[11px] uppercase tracking-widest text-left"
                 style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                07 — TECHNICAL SPECIFICATIONS
+                07 — ADVANCED SETTINGS ▼ — TECHNICAL SPECIFICATIONS
               </p>
               {!showTechSpecs && (
                 <p className="text-[11px] text-left mt-0.5" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
@@ -615,9 +656,11 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
 
           {showTechSpecs && (
             <div className="px-4 pb-5 space-y-4" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[11px] pt-3" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
-                IS 1742:1983 pipe sizes and IS 1172:1993 water demand values are applied automatically. These values are LOCKED per IS code.
-              </p>
+              <div className="pt-3">
+                <AlertBox variant="info">
+                  IS 1742:1983 pipe sizes and IS 1172:1993 water demand values are applied automatically and locked. These are minimum IS code values — your contractor must not deviate below these diameters. Changing rates in Section 8 affects cost totals only, not pipe quantities.
+                </AlertBox>
+              </div>
 
               <div>
                 <div className="flex items-center gap-1 mb-2">
@@ -715,7 +758,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
             <div>
               <p className="text-[11px] uppercase tracking-widest text-left"
                 style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                08 — MATERIAL RATES
+                08 — ADVANCED SETTINGS ▼ — MATERIAL RATES
               </p>
               {!showRates && (
                 <p className="text-[11px] text-left mt-0.5" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
@@ -730,9 +773,14 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
 
           {showRates && (
             <div className="px-4 pb-4 space-y-3" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[12px] pt-3" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
-                Material Rates — India Average 2026 (Pune / Astral / Supreme pricing)
-              </p>
+              <div className="pt-3 space-y-2">
+                <AlertBox variant="tip">
+                  These are India Average 2026 rates (Pune / Astral / Supreme pricing). Adjust to your local market — plumbing material prices vary 30–40% between metro and remote NE India.
+                </AlertBox>
+                <AlertBox variant="caution">
+                  IS 1742:1983 mandates CPVC (not GI) for drinking water supply. Never use GI pipes for CPVC branches — galvanic corrosion leaches zinc into water. Changing rates here affects cost totals only, not pipe quantities.
+                </AlertBox>
+              </div>
 
               <p className="text-[10px] uppercase tracking-widest"
                 style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
@@ -743,19 +791,22 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
                 ['cpvc_32', 'CPVC 32mm (main riser)',       '₹/metre', MATERIAL_RATES.cpvc_32],
                 ['cpvc_40', 'CPVC 40mm (main, large bldg)', '₹/metre', MATERIAL_RATES.cpvc_40],
               ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
-                <div key={key} className="flex items-center gap-3">
-                  <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                    <input type="number" value={rates[key]}
-                      onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                    />
-                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                      {unit} · Avg: ₹{avg}
-                    </span>
+                <div key={key}>
+                  <div className="flex items-center gap-3">
+                    <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                      <input type="number" value={rates[key]}
+                        onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
+                        className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                        style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
+                      />
+                      <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                        {unit} · Avg: ₹{avg}
+                      </span>
+                    </div>
                   </div>
+                  {PLUMB_REGIONAL_NOTES[key] && <RegionalNote note={PLUMB_REGIONAL_NOTES[key]} />}
                 </div>
               ))}
 
@@ -768,19 +819,22 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
                 ['swr_110',  'SWR 110mm (soil stack)',         '₹/metre', MATERIAL_RATES.swr_110],
                 ['upvc_110', 'uPVC 110mm (underground drain)', '₹/metre', MATERIAL_RATES.upvc_110],
               ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
-                <div key={key} className="flex items-center gap-3">
-                  <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                    <input type="number" value={rates[key]}
-                      onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                    />
-                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                      {unit} · Avg: ₹{avg}
-                    </span>
+                <div key={key}>
+                  <div className="flex items-center gap-3">
+                    <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                      <input type="number" value={rates[key]}
+                        onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
+                        className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                        style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
+                      />
+                      <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                        {unit} · Avg: ₹{avg}
+                      </span>
+                    </div>
                   </div>
+                  {PLUMB_REGIONAL_NOTES[key] && <RegionalNote note={PLUMB_REGIONAL_NOTES[key]} />}
                 </div>
               ))}
 
@@ -796,19 +850,22 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
                 ['waterMeter', 'Water meter',             '₹/piece', MATERIAL_RATES.waterMeter],
                 ['prv',        'Pressure reducing valve', '₹/piece', MATERIAL_RATES.prv],
               ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
-                <div key={key} className="flex items-center gap-3">
-                  <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                    <input type="number" value={rates[key]}
-                      onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                    />
-                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                      {unit} · Avg: ₹{avg}
-                    </span>
+                <div key={key}>
+                  <div className="flex items-center gap-3">
+                    <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                      <input type="number" value={rates[key]}
+                        onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
+                        className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                        style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
+                      />
+                      <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                        {unit} · Avg: ₹{avg}
+                      </span>
+                    </div>
                   </div>
+                  {PLUMB_REGIONAL_NOTES[key] && <RegionalNote note={PLUMB_REGIONAL_NOTES[key]} />}
                 </div>
               ))}
 
@@ -823,19 +880,22 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
                 ['pump1HP',     'Pump 1.0 HP',                '₹/piece', MATERIAL_RATES.pump1HP],
                 ['pump1_5HP',   'Pump 1.5 HP',                '₹/piece', MATERIAL_RATES.pump1_5HP],
               ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
-                <div key={key} className="flex items-center gap-3">
-                  <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                    <input type="number" value={rates[key]}
-                      onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
-                    />
-                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                      {unit} · Avg: ₹{avg}
-                    </span>
+                <div key={key}>
+                  <div className="flex items-center gap-3">
+                    <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                      <input type="number" value={rates[key]}
+                        onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
+                        className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                        style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
+                      />
+                      <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                        {unit} · Avg: ₹{avg}
+                      </span>
+                    </div>
                   </div>
+                  {PLUMB_REGIONAL_NOTES[key] && <RegionalNote note={PLUMB_REGIONAL_NOTES[key]} />}
                 </div>
               ))}
 
@@ -856,7 +916,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
           <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-              09 — CONTRACTOR QUOTE (OPTIONAL)
+              09 — ADVANCED SETTINGS ▼ — CONTRACTOR QUOTE (OPTIONAL)
             </p>
           </div>
           <div className="p-4">
@@ -890,7 +950,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
               <div>
                 <p className="text-[11px] uppercase tracking-widest"
                   style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                  10 — INCLUDE LABOUR COST IN ESTIMATE
+                  10 — ADVANCED SETTINGS ▼ — INCLUDE LABOUR COST IN ESTIMATE
                 </p>
                 <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
                   Add CPWD-based plumbing labour cost to your total
@@ -901,34 +961,21 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
 
           {includeLabour && (
             <div className="p-4 space-y-4">
-              <div className="p-3 rounded-[2px]"
-                style={{ background: 'rgba(217,154,6,0.12)', border: '1px solid rgba(217,154,6,0.4)' }}>
-                <div className="flex gap-2">
-                  <span style={{ color: '#D99A06' }}>⚠</span>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest mb-1"
-                      style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
-                      WHY WE CANNOT AUTO-CALCULATE WORKING DAYS
-                    </p>
-                    <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
-                      Plumbing is done in two phases — rough-in (before plastering) and finishing (after).
-                      Days between phases depend on mason schedule, inspection clearances, and slab curing time.
-                      Tank and pump installation wait for civil work to complete. Flush testing must happen after
-                      all fixtures are set. CPWD rates calculate joints/fixtures per day. You set workers;
-                      days calculate from that productivity.
-                    </p>
-                    <p className="text-[11px] mt-1.5" style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
-                      IS 1742:1983: Hydrostatic pressure test at 1.5× working pressure required before approval.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <AlertBox variant="caution">
+                Plumbing labour is done in two phases — rough-in (before plastering) and finishing (after). Days between phases depend on mason schedule, inspection clearances, and slab curing. CPWD rates calculate joints/fixtures per day. You set workers; days auto-calculate from productivity.
+              </AlertBox>
+              <AlertBox variant="error">
+                IS 1742:1983: Hydrostatic pressure test at 1.5× working pressure is mandatory before handing over. Budget 1 day for testing + flushing. Do not skip this — leaks discovered post-plastering cost 5–10× more to fix.
+              </AlertBox>
+              <AlertBox variant="tip">
+                To exclude a trade from your estimate, enter 0 in the Workers column (or use the − button). Excluded trades show at 35% opacity and are not included in the labour total.
+              </AlertBox>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-[11px]" style={{ borderCollapse: 'collapse', minWidth: 560 }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
-                      {['Trade', 'Workers', 'Rate/day ₹', 'India Avg', 'CPWD Basis', 'Days'].map(h => (
+                      {['Trade', 'Workers (0 = exclude)', 'Rate/day ₹', 'India Avg', 'CPWD Basis', 'Days'].map(h => (
                         <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
                           style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                       ))}

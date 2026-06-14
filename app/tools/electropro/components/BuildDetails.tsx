@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { seismicZoneFromState, MATERIAL_RATES, type ElectroInput } from '../electropro-engine'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -61,6 +61,23 @@ const INITIAL_TRADES: LabourTrade[] = [
 ]
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+type AlertVariant = 'info' | 'caution' | 'error' | 'tip'
+function AlertBox({ variant, children }: { variant: AlertVariant; children: ReactNode }) {
+  const styles: Record<AlertVariant, { bg: string; border: string; icon: string; iconColor: string }> = {
+    info:    { bg: '#1F4E7908', border: '#1F4E7940', icon: 'ⓘ', iconColor: '#1F4E79' },
+    caution: { bg: '#D99A0610', border: '#D99A0650', icon: '⚠', iconColor: '#D99A06' },
+    error:   { bg: '#8C3A2208', border: '#8C3A2240', icon: '✕', iconColor: '#8C3A22' },
+    tip:     { bg: '#14532D08', border: '#14532D40', icon: '✓', iconColor: '#14532D' },
+  }
+  const s = styles[variant]
+  return (
+    <div className="flex gap-2.5 p-3 rounded-[2px]" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+      <span className="text-[13px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
+      <div className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
+    </div>
+  )
+}
 
 function TipBtn({ id, open, onToggle, children }: {
   id: string; open: string | null; onToggle: (id: string) => void; children: string
@@ -648,7 +665,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
             <div>
               <p className="text-[11px] uppercase tracking-widest text-left"
                 style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                06 — MATERIAL RATES
+                ADVANCED SETTINGS ▼ — MATERIAL RATES
               </p>
               {!showRates && (
                 <p className="text-[11px] text-left mt-0.5" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
@@ -663,9 +680,17 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
 
           {showRates && (
             <div className="px-4 pb-4 space-y-3" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[12px] pt-3" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
-                Material Rates — India Average 2026 (Pune / Finolex / Havells pricing)
-              </p>
+              <div className="pt-3 space-y-2">
+                <AlertBox variant="tip">
+                  <strong>India Average 2026</strong> rates (Finolex / Havells / Polycab pricing). Edit if your electrician has quoted specific brand rates — unbranded wire can be 20–30% cheaper but may not meet IS 694:2010.
+                </AlertBox>
+                <AlertBox variant="caution">
+                  <strong>IS 732:2019:</strong> Wire must be FR-LSH (flame retardant low smoke halogen free) for concealed wiring. Do NOT accept PVC wire from electrician for savings — it is a fire risk.
+                </AlertBox>
+                <AlertBox variant="info">
+                  NE India / J&amp;K: Finolex/Havells wire ₹15–25% more due to transport. Use branded wire regardless — unbranded wire is a leading cause of residential fires in these regions.
+                </AlertBox>
+              </div>
 
               <p className="text-[10px] uppercase tracking-widest"
                 style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
@@ -796,7 +821,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
               <div>
                 <p className="text-[11px] uppercase tracking-widest"
                   style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                  08 — INCLUDE LABOUR COST IN ESTIMATE
+                  ADVANCED SETTINGS ▼ — INCLUDE LABOUR COST IN ESTIMATE
                 </p>
                 <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
                   Add CPWD-based electrical labour cost to your total
@@ -807,29 +832,15 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
 
           {includeLabour && (
             <div className="p-4 space-y-4">
-              {/* CPWD warning */}
-              <div className="p-3 rounded-[2px]"
-                style={{ background: 'rgba(217,154,6,0.12)', border: '1px solid rgba(217,154,6,0.4)' }}>
-                <div className="flex gap-2">
-                  <span style={{ color: '#D99A06' }}>⚠</span>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest mb-1"
-                      style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
-                      WHY WE CANNOT AUTO-CALCULATE WORKING DAYS
-                    </p>
-                    <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
-                      Labour days depend on factors no software can predict — conduit must be laid before plastering,
-                      DB installation after masonry, testing only after all circuits complete, monsoon shutdowns,
-                      festival breaks, and coordination with other trades. CPWD productivity rates calculate man-days
-                      of work required. You set workers; days calculate automatically.
-                    </p>
-                    <p className="text-[11px] mt-1.5" style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
-                      IS 732:2019: Verify Class B electrical contractor license. Unlicensed work voids insurance.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
+              <AlertBox variant="caution">
+                <strong>CPWD DSR 2023.</strong> Labour days depend on factors no software can predict — conduit must be laid before plastering, DB installation after masonry, testing only after all circuits complete, monsoon shutdowns, festival breaks. CPWD productivity rates calculate man-days. You set workers; days calculate automatically.
+              </AlertBox>
+              <AlertBox variant="error">
+                <strong>IS 732:2019 MANDATORY:</strong> Verify Class B electrical contractor license before starting work. Unlicensed electrical work voids home insurance and creates personal liability.
+              </AlertBox>
+              <AlertBox variant="tip">
+                <strong>Enter 0 workers</strong> to exclude any trade entirely — same effect as the − toggle button.
+              </AlertBox>
               {/* Trades table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-[11px]" style={{ borderCollapse: 'collapse', minWidth: 560 }}>

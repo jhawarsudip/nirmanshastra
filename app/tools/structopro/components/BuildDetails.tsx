@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, type ReactNode } from 'react'
+import { useState, useEffect, useRef, type ReactNode } from 'react'
 import {
   seismicZoneFromState,
   exposureFromSiteCondition,
@@ -144,6 +144,108 @@ function Sect({ title, badge, defaultOpen = true, children }: { title: string; b
         <span className="text-[12px] opacity-50">{open ? '▲' : '▼'}</span>
       </button>
       {open && <div className="px-5 py-5 space-y-4">{children}</div>}
+    </div>
+  )
+}
+
+type AlertVariant = 'info' | 'caution' | 'error' | 'tip'
+function AlertBox({ variant, children }: { variant: AlertVariant; children: ReactNode }) {
+  const styles: Record<AlertVariant, { bg: string; border: string; icon: string; iconColor: string }> = {
+    info:    { bg: '#1F4E7908', border: '#1F4E7940', icon: 'ⓘ', iconColor: '#1F4E79' },
+    caution: { bg: '#D99A0610', border: '#D99A0650', icon: '⚠', iconColor: '#D99A06' },
+    error:   { bg: '#8C3A2208', border: '#8C3A2240', icon: '✕', iconColor: '#8C3A22' },
+    tip:     { bg: '#14532D08', border: '#14532D40', icon: '✓', iconColor: '#14532D' },
+  }
+  const s = styles[variant]
+  return (
+    <div className="flex gap-2.5 p-3 rounded-[2px]" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+      <span className="text-[13px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
+      <div className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
+    </div>
+  )
+}
+
+function RegionalNote({ children }: { children: string }) {
+  return (
+    <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+      {children}
+    </p>
+  )
+}
+
+const REGIONAL_NOTES: Record<string, string> = {
+  cement:      '₹380–420 along coastal Maharashtra. ₹440–460 in remote NE India (transport adds 15–25%).',
+  steel:       'Near Jamshedpur (TISCO) ₹62–64/kg. Mumbai ₹66–68. Remote NE pays ₹72–78/kg.',
+  sand:        '₹18–22 in river-belt zones. ₹35–45 in coastal/metro. M-sand ₹20–28 nationwide.',
+  aggregate:   '₹35–42 near quarries (Deccan, Eastern Ghats). ₹55–65 in plains far from source.',
+  formwork:    '₹8–10 in Tier-2 cities. ₹16–18 in Mumbai/Pune with steel shuttering demand.',
+  antiTermite: '₹14–18 in dry zones. ₹22–28 in coastal and NE India (higher soil moisture).',
+  bindingWire: '₹70–75 in steel belt (Jharkhand, WB). ₹88–95 in remote NE.',
+  pccM10:      '₹2,800–3,200 in Tier-2 cities. ₹4,000+ in Mumbai/Chennai metro.',
+}
+
+function ElevationDiagram({ floorRows, sameArea, groundArea }: {
+  floorRows: { label: string; length: string; width: string; height: string }[]
+  sameArea: boolean
+  groundArea: string
+}) {
+  const svgRef = useRef<SVGSVGElement>(null)
+  const floors = floorRows.map((f, i) => {
+    const area = sameArea
+      ? (parseFloat(groundArea) || 0)
+      : (parseFloat(f.length) || 0) * (parseFloat(f.width) || 0)
+    const height = parseFloat(f.height) || 10
+    return { label: f.label, area, height }
+  })
+  const validFloors = floors.filter(f => f.area > 0)
+  if (validFloors.length === 0) return null
+  const maxArea = Math.max(...floors.map(f => f.area), 1)
+  const totalH = floors.reduce((s, f) => s + f.height, 0)
+  const svgH = 160
+  const svgW = 280
+  const maxBarW = 220
+  const baseY = svgH - 16
+  let curY = baseY
+  const floorRects = [...floors].reverse().map(f => {
+    const barW = (f.area / maxArea) * maxBarW
+    const barH = Math.max(8, (f.height / totalH) * (svgH - 30))
+    const rect = { x: (svgW - barW) / 2, y: curY - barH, w: barW, h: barH, label: f.label, area: f.area }
+    curY -= barH
+    return rect
+  }).reverse()
+  return (
+    <div className="mt-3 p-3 rounded-[2px]" style={{ border: '1px solid #1E222720', background: '#1E22270A' }}>
+      <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+        LIVE ELEVATION DIAGRAM
+      </p>
+      <svg ref={svgRef} width={svgW} height={svgH} style={{ display: 'block', margin: '0 auto' }}>
+        {/* ground line */}
+        <line x1={10} y1={baseY} x2={svgW - 10} y2={baseY} stroke="#1E222740" strokeWidth={1} />
+        {floorRects.map((r, i) => (
+          <g key={i}>
+            <rect
+              x={r.x} y={r.y} width={r.w} height={r.h}
+              fill={`rgba(31,78,121,${0.08 + i * 0.06})`}
+              stroke="#1F4E79"
+              strokeWidth={0.8}
+            />
+            <text
+              x={svgW / 2} y={r.y + r.h / 2 + 4}
+              textAnchor="middle"
+              style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, fill: '#1F4E79' }}
+            >
+              {r.label} {r.area > 0 ? `${r.area.toFixed(0)} sqft` : ''}
+            </text>
+          </g>
+        ))}
+        {/* dimension arrows */}
+        <text x={svgW - 5} y={baseY + 12} textAnchor="end" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, fill: '#1E222760' }}>
+          G.L.
+        </text>
+      </svg>
+      <p className="text-[10px] text-center mt-1" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>
+        Bar width = floor area, bar height = floor-to-floor height
+      </p>
     </div>
   )
 }
@@ -306,7 +408,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       </div>
 
       {/* ── S1: Project Details ────────────────────────────────────────────────── */}
-      <Sect title="S1 — Project Details">
+      <Sect title="1 — Where is your plot and what is the project?">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className={lCls} style={lStyle}>Project Name</label>
@@ -355,10 +457,20 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
             )}
           </div>
         )}
+        {localState && ['Arunachal Pradesh','Assam','Manipur','Meghalaya','Mizoram','Nagaland','Sikkim','Tripura','Jammu and Kashmir','Ladakh','Uttarakhand','Himachal Pradesh'].includes(localState) && (
+          <AlertBox variant="caution">
+            <strong>NE India / Himalayan belt:</strong> Seismic Zone IV–V. Fe500D steel and IS 13920:2016 ductile detailing are mandatory. Material costs run 15–25% higher due to transport. Budget accordingly.
+          </AlertBox>
+        )}
+        {localState && ['Maharashtra','Gujarat','Rajasthan','West Bengal','Goa','Kerala'].includes(localState) && (
+          <AlertBox variant="info">
+            Zone III state. M20 minimum concrete + Fe500D preferred. Check your district-level zone map — some districts within Zone III states have local amendments.
+          </AlertBox>
+        )}
       </Sect>
 
       {/* ── S2: Floor Details ─────────────────────────────────────────────────── */}
-      <Sect title="S2 — Floor Details">
+      <Sect title="2 — How many floors and what is the floor area?">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={lCls} style={lStyle}>Number of Floors</label>
@@ -381,6 +493,10 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
           </div>
         </div>
 
+        <AlertBox variant="tip">
+          <strong>Different area per floor</strong> is common for L-shaped, T-shaped, or setback buildings. Select &quot;No&quot; below to enter each floor separately. If all floors are the same footprint, select &quot;Yes&quot; for faster entry.
+        </AlertBox>
+
         {sameArea ? (
           <div>
             <label className={lCls} style={lStyle}>Floor Area (sqft) — applies to all floors</label>
@@ -388,50 +504,60 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
             {errors.area && <p className="text-[11px] mt-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>{errors.area}</p>}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-[12px] border-collapse">
-              <thead>
-                <tr style={{ background: '#1E22270A' }}>
-                  {['Floor', 'Length (ft)', 'Width (ft)', 'Area (sqft)', 'Height (ft)', 'Use Type'].map(h => (
-                    <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {floorRows.map((row, idx) => {
-                  const area = (parseFloat(row.length) || 0) * (parseFloat(row.width) || 0)
-                  return (
-                    <tr key={idx} style={{ borderBottom: '1px solid #1E222710' }}>
-                      <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
-                      <td className="px-2 py-1">
-                        <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" value={row.length} onChange={e => updateFloorRow(idx, 'length', e.target.value)} />
-                      </td>
-                      <td className="px-2 py-1">
-                        <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" value={row.width} onChange={e => updateFloorRow(idx, 'width', e.target.value)} />
-                      </td>
-                      <td className="px-3 py-2" style={{ ...monoStyle, color: area > 0 ? '#1E2227' : '#1E222740' }}>{area > 0 ? area.toFixed(0) : '—'}</td>
-                      <td className="px-2 py-1">
-                        <input className="w-16 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={row.height} onChange={e => updateFloorRow(idx, 'height', e.target.value)} />
-                      </td>
-                      <td className="px-2 py-1">
-                        <select className="px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, fontFamily: 'var(--font-plex-sans)' }} value={row.useType} onChange={e => updateFloorRow(idx, 'useType', e.target.value as UseType)}>
-                          <option>Residential</option>
-                          <option>Commercial</option>
-                          <option>Parking</option>
-                        </select>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-            {errors.floors && <p className="text-[11px] mt-1" style={{ color: '#8C3A22' }}>{errors.floors}</p>}
-          </div>
+          <>
+            <AlertBox variant="info">
+              Enter the built-up area (length × width of slab) for each floor. Balconies and cantilevers count. Do NOT include the area of the staircase landing if it is common.
+            </AlertBox>
+            <div className="overflow-x-auto">
+              <table className="w-full text-[12px] border-collapse">
+                <thead>
+                  <tr style={{ background: '#1E22270A' }}>
+                    {['Floor', 'Length (ft)', 'Width (ft)', 'Area (sqft)', 'Height (ft)', 'Use Type'].map(h => (
+                      <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {floorRows.map((row, idx) => {
+                    const area = (parseFloat(row.length) || 0) * (parseFloat(row.width) || 0)
+                    return (
+                      <tr key={idx} style={{ borderBottom: '1px solid #1E222710' }}>
+                        <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
+                        <td className="px-2 py-1">
+                          <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" value={row.length} onChange={e => updateFloorRow(idx, 'length', e.target.value)} />
+                        </td>
+                        <td className="px-2 py-1">
+                          <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" value={row.width} onChange={e => updateFloorRow(idx, 'width', e.target.value)} />
+                        </td>
+                        <td className="px-3 py-2" style={{ ...monoStyle, color: area > 0 ? '#1E2227' : '#1E222740' }}>{area > 0 ? area.toFixed(0) : '—'}</td>
+                        <td className="px-2 py-1">
+                          <input className="w-16 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={row.height} onChange={e => updateFloorRow(idx, 'height', e.target.value)} />
+                        </td>
+                        <td className="px-2 py-1">
+                          <select className="px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, fontFamily: 'var(--font-plex-sans)' }} value={row.useType} onChange={e => updateFloorRow(idx, 'useType', e.target.value as UseType)}>
+                            <option>Residential</option>
+                            <option>Commercial</option>
+                            <option>Parking</option>
+                          </select>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+              {errors.floors && <p className="text-[11px] mt-1" style={{ color: '#8C3A22' }}>{errors.floors}</p>}
+            </div>
+          </>
         )}
+
+        <ElevationDiagram floorRows={floorRows} sameArea={sameArea} groundArea={groundArea} />
       </Sect>
 
       {/* ── S3: Site Conditions ───────────────────────────────────────────────── */}
-      <Sect title="S3 — Site Conditions">
+      <Sect title="3 — What is your site like?">
+        <AlertBox variant="info">
+          Your site condition determines the foundation type and concrete cover thickness. If you are unsure, describe your site to a civil engineer before choosing — wrong foundation selection is expensive to fix later.
+        </AlertBox>
         {errors.site && <p className="text-[12px] mb-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>⚠ {errors.site}</p>}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {SITE_CARDS.map(card => (
@@ -451,6 +577,27 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
             </button>
           ))}
         </div>
+
+        {siteCondition === 'bcs' && (
+          <AlertBox variant="error">
+            <strong>Black Cotton Soil (BCS) detected.</strong> IS 1904:2016 requires under-reamed pile foundations. Conventional isolated footings MUST NOT be used — BCS swells with moisture and collapses in dry seasons. Geotechnical investigation (₹15,000–50,000) is mandatory before design.
+          </AlertBox>
+        )}
+        {(siteCondition === 'soft_marshy' || siteCondition === 'waterlogged') && (
+          <AlertBox variant="error">
+            <strong>Soft / waterlogged soil.</strong> Bearing capacity may be as low as 50 kN/m². Raft or pile foundation is likely required. Do NOT start construction without a soil test report — settlement cracks are irreversible.
+          </AlertBox>
+        )}
+        {siteCondition === 'coastal' && (
+          <AlertBox variant="caution">
+            <strong>Coastal exposure.</strong> IS 456:2000 Table 5 mandates M30 minimum concrete and 50mm cover for severe exposure. Salt ingress accelerates corrosion. Use stainless or epoxy-coated rebar for splash-zone members within 500m of sea.
+          </AlertBox>
+        )}
+        {siteCondition === 'rocky' && (
+          <AlertBox variant="tip">
+            <strong>Rocky terrain — advantage.</strong> Hard rock has bearing capacity of 3,300 kN/m² (IS 1904:2016). Foundation costs will be lower. Drilling and rock-cutting is required but overall foundation is far safer and cheaper than raft.
+          </AlertBox>
+        )}
 
         {/* Foundation recommendation */}
         {foundationRec && (
@@ -486,7 +633,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       </Sect>
 
       {/* ── S4: Scope ─────────────────────────────────────────────────────────── */}
-      <Sect title="S4 — Scope of Work">
+      <Sect title="4 — What are you including in this estimate?">
         {/* Staircase */}
         <div className="p-4 rounded-[2px] border" style={{ borderColor: '#1E222720' }}>
           <div className="flex items-center gap-3 mb-3">
@@ -508,7 +655,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
               </div>
               <div>
                 <label className={lCls} style={lStyle}>Clear width (mm)</label>
-                <input className={iCls} style={{ ...iStyle, ...monoStyle }} type="number" min="900" value={staircase.widthMm} onChange={e => setStaircase(s => ({ ...s, widthMm: parseInt(e.target.value) || 1200 })} />
+                <input className={iCls} style={{ ...iStyle, ...monoStyle }} type="number" min="900" value={staircase.widthMm} onChange={e => setStaircase(s => ({ ...s, widthMm: parseInt(e.target.value) || 1200 }))} />
                 <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>NBC min: 900mm</p>
               </div>
               <div>
@@ -597,7 +744,10 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       </Sect>
 
       {/* ── S5: Technical Specifications (collapsed by default) ───────────────── */}
-      <Sect title="S5 — Technical Specifications" defaultOpen={false}>
+      <Sect title="Advanced Settings ▼ — Technical Specifications" defaultOpen={false}>
+        <AlertBox variant="info">
+          These values are pre-set to <strong>IS-code safe defaults</strong> for residential construction. Change them only if your structural engineer has specified different values in a drawing or calculation sheet. Wrong values here will produce incorrect material quantities.
+        </AlertBox>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={lCls} style={lStyle}>
@@ -669,10 +819,13 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       </Sect>
 
       {/* ── S6: Material Rates (collapsed by default) ─────────────────────────── */}
-      <Sect title="S6 — Material Rates" badge="India Avg 2026" defaultOpen={false}>
-        <p className="text-[12px]" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
-          Edit rates for your city. India Average 2026 shown beside each field.
-        </p>
+      <Sect title="Advanced Settings ▼ — Material Rates" badge="India Avg 2026" defaultOpen={false}>
+        <AlertBox variant="tip">
+          <strong>India Average 2026</strong> rates are pre-loaded. Only edit if you have confirmed rates from your local supplier or a recent indent. Rates vary by 20–30% depending on your city and transport distance from source.
+        </AlertBox>
+        <AlertBox variant="caution">
+          Get quotes from <strong>at least 3 suppliers</strong> before fixing rates. Contractor-supplied material is typically 8–15% above market rate — build this margin into your budget.
+        </AlertBox>
         <div className="grid grid-cols-2 gap-3">
           {[
             { key: 'cement',      label: 'Cement (₹/50kg bag)', unit: '/bag' },
@@ -700,6 +853,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
                 </div>
                 {avgTag(INDIA_AVG_2026[key as keyof typeof INDIA_AVG_2026], unit)}
               </div>
+              {REGIONAL_NOTES[key] && <RegionalNote>{REGIONAL_NOTES[key]}</RegionalNote>}
             </div>
           ))}
         </div>
@@ -733,7 +887,10 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       </Sect>
 
       {/* ── S7: Contractor Quote ──────────────────────────────────────────────── */}
-      <Sect title="S7 — Contractor Quote (Optional)">
+      <Sect title="Advanced Settings ▼ — Contractor Quote (Optional)" defaultOpen={false}>
+        <AlertBox variant="info">
+          Enter your contractor&apos;s quote now to <strong>compare it line-by-line</strong> against our IS-code calculated quantities after payment. We flag inflated quantities, missing items, and rate manipulation automatically.
+        </AlertBox>
         <p className="text-[12px]" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
           Enter your contractor&apos;s quote to compare against the estimate. Select what they provided:
         </p>
@@ -750,8 +907,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
           ))}
         </div>
 
-        {quoteMode !== 'none' && (
-          <div className="space-y-3 mt-3 pt-3" style={{ borderTop: '1px solid #1E222715' }}>
+        <div className="space-y-3 mt-3 pt-3" style={{ borderTop: '1px solid #1E222715' }}>
             <div>
               <label className={lCls} style={lStyle}>Contractor / Company Name (optional)</label>
               <input className={iCls} style={iStyle} placeholder="e.g. Mehta Construction Co." value={contractorName} onChange={e => setContractorName(e.target.value)} />
@@ -795,11 +951,10 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
               </div>
             )}
           </div>
-        )}
       </Sect>
 
       {/* ── S8: Labour ────────────────────────────────────────────────────────── */}
-      <Sect title="S8 — Labour Estimation (Optional)">
+      <Sect title="Advanced Settings ▼ — Labour Estimation (Optional)">
         <div className="flex items-center gap-3">
           <input type="checkbox" id="inclLabour" checked={includeLabour} onChange={e => setIncludeLabour(e.target.checked)} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
           <label htmlFor="inclLabour" className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Include labour cost in estimate</label>
@@ -807,18 +962,18 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
 
         {includeLabour && (
           <>
-            <div className="p-3 rounded-[2px]" style={{ background: '#D99A0608', border: '1px solid #D99A0640' }}>
-              <p className="text-[12px] font-semibold" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>CPWD WARNING</p>
-              <p className="text-[12px] mt-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
-                CPWD DSR rates are government-procurement benchmarks. Private residential work may differ by ±30%. Labour total is shown only in your paid PDF report — not on this form.
-              </p>
-            </div>
+            <AlertBox variant="caution">
+              <strong>CPWD DSR 2023 rates</strong> are government-procurement benchmarks. Private residential work typically differs by ±20–30%. The number of working days depends on curing intervals, monsoon shutdowns, festival breaks, sand bans, and local conditions — these cannot be predicted by software. <em>Labour total appears only in your paid PDF report.</em>
+            </AlertBox>
+            <AlertBox variant="tip">
+              <strong>Enter 0 workers</strong> to exclude any trade from the estimate entirely. This is equivalent to the − button — use whichever is faster for you.
+            </AlertBox>
 
             <div className="overflow-x-auto">
               <table className="w-full text-[12px] border-collapse">
                 <thead>
                   <tr style={{ background: '#1E22270A' }}>
-                    {['Active', 'Trade', 'Workers', 'Rate/Day (₹)', 'CPWD Productivity (editable)', 'Days'].map(h => (
+                    {['Active', 'Trade', 'Workers (enter 0 to exclude)', 'Rate/Day (₹)', 'CPWD Productivity (editable)', 'Days'].map(h => (
                       <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
                     ))}
                   </tr>
@@ -833,9 +988,17 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
                       <td className="px-2 py-1">
                         <div className="flex items-center gap-1">
                           <button type="button" onClick={() => updateTrade(t.id, 'workers', Math.max(0, t.workers - 1))} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: '#1E222730' }}>−</button>
-                          <span className="w-6 text-center text-[12px]" style={monoStyle}>{t.workers}</span>
+                          <input
+                            className="w-10 text-center px-1 py-0.5 rounded-[2px] border text-[12px]"
+                            style={{ ...iStyle, ...monoStyle }}
+                            type="number"
+                            min="0"
+                            value={t.workers}
+                            onChange={e => updateTrade(t.id, 'workers', parseInt(e.target.value) || 0)}
+                          />
                           <button type="button" onClick={() => updateTrade(t.id, 'workers', t.workers + 1)} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: '#1E222730' }}>+</button>
                         </div>
+                        <p className="text-[9px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>0 = exclude</p>
                       </td>
                       <td className="px-2 py-1">
                         <div className="flex items-center gap-1">
