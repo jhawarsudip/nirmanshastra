@@ -29,36 +29,36 @@ const VASTU_TOOL = {
 const PAID_TOOLS = [
   {
     phase: 'P1', name: 'StructoPro',
-    descriptor: 'RCC Structure Cost Estimator',
-    tagline: 'RCC Structure Cost',
+    descriptor: 'Structural Cost & BOQ Estimator',
+    tagline: 'Structural Cost',
     desc: 'Foundations, columns, beams, slabs per IS 456:2000. M20 / M25 / M30 grades.',
     price: '₹499', free: false, href: '/tools/structopro',
   },
   {
     phase: 'P2', name: 'MasonPro',
-    descriptor: 'Masonry & Plaster Estimator',
-    tagline: 'Masonry & Plaster',
+    descriptor: 'Masonry Cost & BOQ Estimator',
+    tagline: 'Masonry Cost',
     desc: 'All 8 wall types — brick, AAC, hollow block — plaster and waterproofing per IS 1077:1992.',
     price: '₹499', free: false, href: '/tools/masonpro',
   },
   {
     phase: 'P3', name: 'ElectroPro',
-    descriptor: 'Electrical Wiring Estimator',
-    tagline: 'Electrical',
+    descriptor: 'Electrical Cost & BOQ Estimator',
+    tagline: 'Electrical Cost',
     desc: 'Wiring, DB panels, earthing per IS 732:2019. Circuit-by-circuit breakdown.',
     price: '₹499', free: false, href: '/tools/electropro',
   },
   {
     phase: 'P4', name: 'PlumbPro',
-    descriptor: 'Plumbing & Drainage Estimator',
-    tagline: 'Plumbing',
+    descriptor: 'Plumbing Cost & BOQ Estimator',
+    tagline: 'Plumbing Cost',
     desc: 'Water supply, drainage, sanitary fixtures per IS 1172:1993. Tank sizing included.',
     price: '₹499', free: false, href: '/tools/plumbpro',
   },
   {
     phase: 'P5', name: 'InteriorPro',
-    descriptor: 'Interior Finishing Estimator',
-    tagline: 'Interior Finishing',
+    descriptor: 'Interior Cost & BOQ Estimator',
+    tagline: 'Interior Cost',
     desc: 'Flooring, kitchen, paint, false ceiling across Basic / Standard / Premium / Luxury.',
     price: '₹499', free: false, href: '/tools/interiorpro',
   },
@@ -304,32 +304,132 @@ function LargeVastuWatermark() {
 
 function HouseConstructionSVG() {
   const INK = '#F4F4F0'
+  const D = 'rgba(244,244,240,0.5)'
+  const GLS = 'rgba(244,244,240,0.06)'
+  const WAL = 'rgba(244,244,240,0.03)'
+  const SLB = 'rgba(244,244,240,0.09)'
+
   return (
-    <svg width="220" height="150" viewBox="0 0 220 150" fill="none" aria-hidden="true"
-      style={{ opacity: 0.35 }}>
-      <line x1="10" y1="138" x2="210" y2="138" stroke={INK} strokeWidth="1.5" />
-      <rect x="22" y="130" width="20" height="8" stroke={INK} strokeWidth="0.8" fill="none" />
-      <rect x="178" y="130" width="20" height="8" stroke={INK} strokeWidth="0.8" fill="none" />
-      <rect x="100" y="130" width="20" height="8" stroke={INK} strokeWidth="0.8" fill="none" />
-      <rect x="27" y="40" width="10" height="90" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.04)" />
-      <rect x="183" y="40" width="10" height="90" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.04)" />
-      <rect x="105" y="40" width="10" height="90" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.04)" />
-      <rect x="27" y="90" width="88" height="8" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.06)" />
-      <rect x="105" y="90" width="88" height="8" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.06)" />
-      <rect x="27" y="32" width="166" height="10" stroke={INK} strokeWidth="1" fill="rgba(244,244,240,0.06)" />
-      <line x1="37" y1="98" x2="105" y2="98" stroke={INK} strokeWidth="0.4" />
-      <line x1="37" y1="107" x2="105" y2="107" stroke={INK} strokeWidth="0.4" />
-      <line x1="37" y1="116" x2="105" y2="116" stroke={INK} strokeWidth="0.4" />
-      <line x1="37" y1="125" x2="105" y2="125" stroke={INK} strokeWidth="0.4" />
-      {[50,68,86].map(x => <line key={x} x1={x} y1="98" x2={x} y2="130" stroke={INK} strokeWidth="0.4" />)}
-      {[44,62,80,96].map(x => <line key={x} x1={x} y1="107" x2={x} y2="116" stroke={INK} strokeWidth="0.4" />)}
-      <line x1="30" y1="42" x2="30" y2="88" stroke={INK} strokeWidth="0.4" strokeDasharray="3,3" />
-      <line x1="34" y1="42" x2="34" y2="88" stroke={INK} strokeWidth="0.4" strokeDasharray="3,3" />
-      <line x1="8" y1="40" x2="8" y2="130" stroke={INK} strokeWidth="0.6" />
-      <line x1="5" y1="40" x2="11" y2="40" stroke={INK} strokeWidth="0.6" />
-      <line x1="5" y1="130" x2="11" y2="130" stroke={INK} strokeWidth="0.6" />
-      <text x="114" y="148" fontSize="6" fill={INK} fontFamily="monospace" letterSpacing="0.5" opacity=".45">
-        RCC STRUCTURAL FRAME
+    <svg width="100%" viewBox="0 0 520 325" fill="none" aria-hidden="true" style={{ opacity: 0.82 }}>
+
+      {/* Ground line + soil hatching */}
+      <line x1="32" y1="275" x2="488" y2="275" stroke={INK} strokeWidth="1.5" />
+      {Array.from({ length: 15 }, (_, i) => (
+        <line key={i} x1={80 + i * 28} y1="275" x2={66 + i * 28} y2="291" stroke={INK} strokeWidth="0.8" opacity="0.28" />
+      ))}
+
+      {/* Foundation */}
+      <rect x="62" y="252" width="396" height="23" stroke={INK} strokeWidth="1.2" fill={SLB} />
+      {[257, 263, 269].map(y => (
+        <line key={y} x1="65" y1={y} x2="455" y2={y} stroke={INK} strokeWidth="0.4" opacity="0.22" />
+      ))}
+
+      {/* Ground floor */}
+      <rect x="68" y="137" width="384" height="115" stroke={INK} strokeWidth="1.5" fill={WAL} />
+
+      {/* Intermediate floor slab */}
+      <rect x="60" y="125" width="400" height="12" stroke={INK} strokeWidth="1.2" fill={SLB} />
+      <line x1="60" y1="131" x2="460" y2="131" stroke={INK} strokeWidth="0.5" opacity="0.3" />
+
+      {/* First floor */}
+      <rect x="68" y="24" width="384" height="101" stroke={INK} strokeWidth="1.5" fill={WAL} />
+
+      {/* Parapet */}
+      <rect x="60" y="8" width="400" height="16" stroke={INK} strokeWidth="1.2" fill={SLB} />
+      <line x1="60" y1="8" x2="460" y2="8" stroke={INK} strokeWidth="2" />
+
+      {/* Main wall edges */}
+      <line x1="68" y1="8" x2="68" y2="252" stroke={INK} strokeWidth="2" />
+      <line x1="452" y1="8" x2="452" y2="252" stroke={INK} strokeWidth="2" />
+
+      {/* GF Left Window (W1) — x=103–178, y=165–222 */}
+      <line x1="97" y1="163" x2="184" y2="163" stroke={INK} strokeWidth="1.2" />
+      <rect x="103" y="165" width="75" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
+      <line x1="140" y1="165" x2="140" y2="222" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="103" y1="193" x2="178" y2="193" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="97" y1="222" x2="184" y2="222" stroke={INK} strokeWidth="1.2" />
+      <line x1="94" y1="225" x2="187" y2="225" stroke={INK} strokeWidth="0.5" opacity="0.35" />
+      <text x="140" y="242" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W1</text>
+
+      {/* GF Right Window (W2) — x=342–417, y=165–222 */}
+      <line x1="336" y1="163" x2="423" y2="163" stroke={INK} strokeWidth="1.2" />
+      <rect x="342" y="165" width="75" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
+      <line x1="379" y1="165" x2="379" y2="222" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="342" y1="193" x2="417" y2="193" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="336" y1="222" x2="423" y2="222" stroke={INK} strokeWidth="1.2" />
+      <line x1="333" y1="225" x2="426" y2="225" stroke={INK} strokeWidth="0.5" opacity="0.35" />
+      <text x="379" y="242" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W2</text>
+
+      {/* GF Central Double Door (D1) — x=231–289, arch to y=160 */}
+      <line x1="224" y1="163" x2="296" y2="163" stroke={INK} strokeWidth="1.2" />
+      <path d="M231,178 Q231,160 260,160 Q289,160 289,178" stroke={INK} strokeWidth="1" fill="none" />
+      <rect x="231" y="178" width="58" height="74" stroke={INK} strokeWidth="1.1" fill="rgba(244,244,240,0.05)" />
+      <line x1="260" y1="178" x2="260" y2="252" stroke={INK} strokeWidth="0.7" opacity="0.7" />
+      <rect x="234" y="182" width="23" height="34" stroke={INK} strokeWidth="0.5" fill="none" opacity="0.55" />
+      <rect x="264" y="182" width="23" height="34" stroke={INK} strokeWidth="0.5" fill="none" opacity="0.55" />
+      <line x1="220" y1="252" x2="300" y2="252" stroke={INK} strokeWidth="1.5" />
+      <line x1="215" y1="257" x2="305" y2="257" stroke={INK} strokeWidth="1" opacity="0.6" />
+      <line x1="210" y1="262" x2="310" y2="262" stroke={INK} strokeWidth="0.7" opacity="0.35" />
+      <text x="260" y="242" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">D1</text>
+
+      {/* FF Left Window (W3) — x=99–171, y=40–97 */}
+      <line x1="93" y1="38" x2="177" y2="38" stroke={INK} strokeWidth="1.2" />
+      <rect x="99" y="40" width="72" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
+      <line x1="135" y1="40" x2="135" y2="97" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="99" y1="68" x2="171" y2="68" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="93" y1="97" x2="177" y2="97" stroke={INK} strokeWidth="1.2" />
+      <line x1="90" y1="100" x2="180" y2="100" stroke={INK} strokeWidth="0.5" opacity="0.35" />
+      <text x="135" y="115" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W3</text>
+
+      {/* FF Centre Window (W4) — x=224–296, y=40–97 */}
+      <line x1="218" y1="38" x2="302" y2="38" stroke={INK} strokeWidth="1.2" />
+      <rect x="224" y="40" width="72" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
+      <line x1="260" y1="40" x2="260" y2="97" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="224" y1="68" x2="296" y2="68" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="218" y1="97" x2="302" y2="97" stroke={INK} strokeWidth="1.2" />
+      <line x1="215" y1="100" x2="305" y2="100" stroke={INK} strokeWidth="0.5" opacity="0.35" />
+      <text x="260" y="115" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W4</text>
+
+      {/* FF Right Window (W5) — x=349–421, y=40–97 */}
+      <line x1="343" y1="38" x2="427" y2="38" stroke={INK} strokeWidth="1.2" />
+      <rect x="349" y="40" width="72" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
+      <line x1="385" y1="40" x2="385" y2="97" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="349" y1="68" x2="421" y2="68" stroke={INK} strokeWidth="0.6" opacity="0.7" />
+      <line x1="343" y1="97" x2="427" y2="97" stroke={INK} strokeWidth="1.2" />
+      <line x1="340" y1="100" x2="430" y2="100" stroke={INK} strokeWidth="0.5" opacity="0.35" />
+      <text x="385" y="115" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W5</text>
+
+      {/* Overall height dim — right side */}
+      <line x1="470" y1="8" x2="470" y2="275" stroke={D} strokeWidth="0.8" />
+      <line x1="463" y1="8" x2="477" y2="8" stroke={D} strokeWidth="0.8" />
+      <line x1="463" y1="275" x2="477" y2="275" stroke={D} strokeWidth="0.8" />
+      <text x="484" y="141" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" transform="rotate(-90 484 141)" letterSpacing="0.5">7500</text>
+
+      {/* GF floor height dim — left */}
+      <line x1="48" y1="137" x2="48" y2="252" stroke={D} strokeWidth="0.7" />
+      <line x1="41" y1="137" x2="55" y2="137" stroke={D} strokeWidth="0.7" />
+      <line x1="41" y1="252" x2="55" y2="252" stroke={D} strokeWidth="0.7" />
+      <text x="32" y="194" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" transform="rotate(-90 32 194)" letterSpacing="0.5">3000</text>
+
+      {/* FF floor height dim — left */}
+      <line x1="48" y1="24" x2="48" y2="125" stroke={D} strokeWidth="0.7" />
+      <line x1="41" y1="24" x2="55" y2="24" stroke={D} strokeWidth="0.7" />
+      <line x1="41" y1="125" x2="55" y2="125" stroke={D} strokeWidth="0.7" />
+      <text x="32" y="74" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" transform="rotate(-90 32 74)" letterSpacing="0.5">3000</text>
+
+      {/* Width dim — bottom */}
+      <line x1="68" y1="292" x2="452" y2="292" stroke={D} strokeWidth="0.8" />
+      <line x1="68" y1="285" x2="68" y2="299" stroke={D} strokeWidth="0.8" />
+      <line x1="452" y1="285" x2="452" y2="299" stroke={D} strokeWidth="0.8" />
+      <text x="260" y="307" fontSize="7.5" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">10800</text>
+
+      {/* Floor labels */}
+      <text x="458" y="200" fontSize="7" fill={D} fontFamily="monospace" letterSpacing="0.5">GF</text>
+      <text x="458" y="80" fontSize="7" fill={D} fontFamily="monospace" letterSpacing="0.5">FF</text>
+
+      {/* Title */}
+      <text x="68" y="321" fontSize="6.5" fill={INK} fontFamily="monospace" letterSpacing="0.6" opacity="0.45">
+        NORTH ELEVATION · SCALE 1:100 · RCC FRAMED STRUCTURE · IS 456:2000 · DRG NS-EL-01
       </text>
     </svg>
   )
