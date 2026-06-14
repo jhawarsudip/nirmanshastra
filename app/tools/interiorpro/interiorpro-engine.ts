@@ -188,6 +188,7 @@ export interface InteriorInput {
   falseCeilingSqft:   number
   numDoors:           number
   contractorQuote?:   number
+  includeLabour?:     boolean
 }
 
 export interface InteriorResult {

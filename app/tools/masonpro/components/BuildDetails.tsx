@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import {
   EXTERNAL_WALL_SPECS,
   INTERNAL_WALL_SPECS,
@@ -66,7 +66,7 @@ type BrickClass = '7.5' | '10' | '15'
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function TipBtn({ id, open, onToggle, children }: {
-  id: string; open: string | null; onToggle: (id: string) => void; children: string
+  id: string; open: string | null; onToggle: (id: string) => void; children: ReactNode
 }) {
   return (
     <span className="relative inline-block">
@@ -625,7 +625,7 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
                   ))}
                 </div>
                 <p className="text-[10px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                  Auto-set from wall type · 1:6 for 9" walls, 1:4 for 4.5" partitions
+                  Auto-set from wall type · 1:6 for 9&quot; walls, 1:4 for 4.5&quot; partitions
                 </p>
               </div>
 

@@ -162,6 +162,7 @@ export interface ElectroInput {
   includeEarthing:  boolean
   numEarthingPits?: number
   contractorQuote?: number
+  includeLabour?:   boolean
 }
 
 export interface ElectroCosts {

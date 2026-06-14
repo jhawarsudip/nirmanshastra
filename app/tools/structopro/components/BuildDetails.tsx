@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import {
   seismicZoneFromState,
   exposureFromSiteCondition,
@@ -126,7 +126,7 @@ function columnMinByFloors(n: number): string {
 // ─── ⓘ Tip Button ────────────────────────────────────────────────────────────
 
 function TipBtn({ id, open, onToggle, children }: {
-  id: string; open: string | null; onToggle: (id: string) => void; children: string
+  id: string; open: string | null; onToggle: (id: string) => void; children: ReactNode
 }) {
   return (
     <span className="relative inline-block">

@@ -170,6 +170,7 @@ export interface PlumbInput {
   waterSource:    'municipal' | 'borewell'
   includeSump:    boolean
   contractorQuote?: number
+  includeLabour?:   boolean
 }
 
 export interface PlumbResult {
