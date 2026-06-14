@@ -29,20 +29,21 @@ export const KITCHEN_RATES: Record<InteriorGrade, number> = {
   luxury:   7500,
 }
 
-// False ceiling — Section 8 (LOCKED). Basic has no false ceiling.
-export const FALSE_CEILING_RATES: Partial<Record<InteriorGrade, number>> = {
+// False ceiling — Section 8 (LOCKED). Basic = pop/cornice ceiling at 20% BUA area.
+export const FALSE_CEILING_RATES: Record<InteriorGrade, number> = {
+  basic:    85,   // Pop/cornice ceiling — 20% of BUA area
   standard: 165,
   premium:  255,
   luxury:   455,
 }
 // IS 277:2003: MS frame mandatory, minimum 0.5mm thickness
 
-// Paint rates per litre (Pune 2026 avg)
-const PAINT_RATES: Record<InteriorGrade, number> = {
-  basic:    90,    // Economy emulsion
-  standard: 160,   // Standard emulsion (IS 2395:1994)
-  premium:  300,   // Premium washable emulsion
-  luxury:   500,   // Luxury Matt / texture paint
+// Paint rates per sqft of wall area — used for cost calculation (per HTML source)
+const PAINT_SQFT_RATES: Record<InteriorGrade, number> = {
+  basic:    22,   // ₹/sqft wall area
+  standard: 35,
+  premium:  58,
+  luxury:   98,
 }
 
 // Door rates per unit (Pune 2026)
@@ -50,7 +51,7 @@ const DOOR_RATES: Record<InteriorGrade, number> = {
   basic:    8500,
   standard: 16000,
   premium:  38000,
-  luxury:   85000,
+  luxury:   54000,  // 1.8× premium rate per HTML source formula
 }
 
 // CPWD labour rates — Section 17 (LOCKED)
@@ -231,7 +232,7 @@ export function gradeLabel(grade: InteriorGrade): string {
 // ─── GRADE COMPARISON (fully visible free) ───────────────────────────────────
 
 export function calcGradeComparison(input: InteriorInput): GradeComparison[] {
-  const { numFloors, buaPerFloorSqft, kitchenRft, includeFalseCeiling, falseCeilingSqft, numDoors } = input
+  const { numFloors, buaPerFloorSqft, kitchenRft, includeFalseCeiling, numDoors } = input
   const totalBua = buaPerFloorSqft * numFloors
 
   const grades: InteriorGrade[] = ['basic', 'standard', 'premium', 'luxury']
@@ -239,19 +240,18 @@ export function calcGradeComparison(input: InteriorInput): GradeComparison[] {
     const flooringWithWastage = totalBua * TILE_WASTAGE_FACTOR
     const flooringCost  = Math.round(flooringWithWastage * FLOORING_RATES[grade])
     const kitchenCost   = Math.round(kitchenRft * KITCHEN_RATES[grade])
-    const fcRate        = FALSE_CEILING_RATES[grade] ?? 0
-    const falseCeilingCost = includeFalseCeiling ? Math.round(falseCeilingSqft * fcRate) : 0
-    const paintLitres   = totalBua * PAINT_LITRES_PER_SQFT_BUA
-    const paintCost     = Math.round(paintLitres * PAINT_RATES[grade])
+    // Basic grade = pop/cornice ceiling at 20% BUA; standard/premium/luxury = 70% BUA
+    const fcArea        = grade === 'basic' ? Math.round(totalBua * 0.20) : Math.round(totalBua * 0.70)
+    const falseCeilingCost = includeFalseCeiling ? Math.round(fcArea * FALSE_CEILING_RATES[grade]) : 0
+    // Paint cost = wall area (3.4× BUA) × rate per sqft wall — per HTML source formula
+    const wallArea      = Math.round(totalBua * 3.4)
+    const paintCost     = Math.round(wallArea * PAINT_SQFT_RATES[grade])
     const doorsCost     = Math.round(numDoors * DOOR_RATES[grade])
 
     const totalMaterial = flooringCost + kitchenCost + falseCeilingCost + paintCost + doorsCost
 
-    // Labour estimate — scaled by grade multiplier and basic labour
-    const baseLabour = Math.round(totalBua * 28)  // ₹28/sqft basic labour approx
-    const gradeLabour = Math.round(baseLabour * GRADE_MULTIPLIERS[grade])
-
-    const totalWithLabour = totalMaterial + gradeLabour + Math.round((totalMaterial + gradeLabour) * 0.08)
+    // 5% contingency on materials — no auto-labour in comparison (per HTML source)
+    const totalWithLabour = totalMaterial + Math.round(totalMaterial * 0.05)
     const perSqft = totalBua > 0 ? Math.round(totalWithLabour / totalBua) : 0
 
     return {
@@ -304,7 +304,7 @@ export function runCalculation(input: InteriorInput): InteriorResult {
   // IS 2395:1994 — primer coat mandatory before emulsion
   const paintLitres  = Math.ceil(totalBuaSqft * PAINT_LITRES_PER_SQFT_BUA)
   const primerLitres = Math.ceil(paintLitres * 0.25)  // 1 primer coat = ~25% of emulsion
-  const wallAreaApprox = Math.round(totalBuaSqft * 3.2)  // rough wall area factor
+  const wallAreaApprox = Math.round(totalBuaSqft * 3.4)  // rough wall area factor
   const puttyBags    = Math.ceil(wallAreaApprox / 50 * 3)  // 3 kg per 50 sqft
 
   const paintSchedule: PaintSchedule = {
@@ -371,7 +371,7 @@ export function runCalculation(input: InteriorInput): InteriorResult {
   const carpenterDays  = Math.ceil((kitchenRft / 4) + numDoors + numBedrooms * 0.5)
   const carpenterCost  = carpenterDays * LABOUR.carpenter.workers * LABOUR.carpenter.ratePerDay
   // Painter
-  const painterDays    = Math.ceil((totalBuaSqft * 3.2) / LABOUR.painter.sqftPerDay)
+  const painterDays    = Math.ceil((totalBuaSqft * 3.4) / LABOUR.painter.sqftPerDay)
   const painterCost    = painterDays * LABOUR.painter.workers * LABOUR.painter.ratePerDay
   // False ceiling
   const falseCeilDays  = includeFalseCeiling ? Math.ceil(falseCeilingSqft / LABOUR.falseCeilingInstall.sqftPerDay) : 0
@@ -392,10 +392,10 @@ export function runCalculation(input: InteriorInput): InteriorResult {
   )
 
   // ── Grand total ranges ────────────────────────────────────────────────────
-  const overheadBasic    = Math.round((gradeComparison[0].totalMaterial + labourCost * 0.85) * 0.06)
-  const overheadStandard = Math.round((gradeComparison[1].totalMaterial + labourCost)        * 0.08)
-  const overheadPremium  = Math.round((gradeComparison[2].totalMaterial + labourCost * 1.10) * 0.10)
-  const overheadLuxury   = Math.round((gradeComparison[3].totalMaterial + labourCost * 1.20) * 0.12)
+  const overheadBasic    = Math.round((gradeComparison[0].totalMaterial + labourCost * 0.85) * 0.05)
+  const overheadStandard = Math.round((gradeComparison[1].totalMaterial + labourCost)        * 0.05)
+  const overheadPremium  = Math.round((gradeComparison[2].totalMaterial + labourCost * 1.10) * 0.05)
+  const overheadLuxury   = Math.round((gradeComparison[3].totalMaterial + labourCost * 1.20) * 0.05)
 
   const totalBasic    = gradeComparison[0].totalMaterial + Math.round(labourCost * 0.85) + overheadBasic
   const totalStandard = gradeComparison[1].totalMaterial + labourCost + overheadStandard

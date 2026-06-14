@@ -4,7 +4,7 @@ const IS_THUMB = {
   STEEL_KG_PER_SQFT: 4,
   AGGREGATE_CFT_PER_SQFT: 1.35,
   SAND_CFT_PER_SQFT: 1.8,
-  BINDING_WIRE_KG_PER_TONNE: 10,
+  BINDING_WIRE_KG_PER_TONNE: 12,
 }
 
 // Seismic zone mapping (IS 1893:2016) — Build Reference Section 8
@@ -89,6 +89,7 @@ export interface MaterialQuantities {
   aggregateCft: number
   sandCft: number
   bindingWireKg: number
+  admixtureLitres: number
   formworkSqft: number
 }
 
@@ -98,6 +99,7 @@ export interface MaterialCosts {
   aggregate: number
   sand: number
   bindingWire: number
+  admixture: number
   formwork: number
   foundation: number
   total: number
@@ -236,11 +238,12 @@ const GRADE_COST_FACTOR: Record<ConcreteGrade, number> = {
 
 // Default Pune 2026 material rates (Section 5)
 const DEFAULT_RATES = {
-  cement: 495,      // ₹/50kg bag
-  steel: 68,        // ₹/kg (Fe500D, TMT)
-  aggregate: 20,    // ₹/cft (coarse aggregate)
-  sand: 24,         // ₹/cft
-  bindingWire: 85,  // ₹/kg
+  cement: 495,         // ₹/50kg bag
+  steel: 68,           // ₹/kg (Fe500D, TMT)
+  aggregate: 20,       // ₹/cft (coarse aggregate)
+  sand: 24,            // ₹/cft
+  bindingWire: 85,     // ₹/kg
+  admixture: 450,      // ₹/litre (plasticizer/superplasticizer)
   formworkPerSqftBUA: 30, // ₹/sqft material only
 }
 
@@ -271,31 +274,36 @@ export function runCalculation(input: StructoInput): StructoResult {
   const gradeFactor = GRADE_COST_FACTOR[concreteGrade]
 
   // Material quantities (superstructure)
-  const cementBags     = Math.round(totalBUA * IS_THUMB.CEMENT_BAGS_PER_SQFT * ff * gradeFactor)
-  const steelKg        = Math.round(totalBUA * IS_THUMB.STEEL_KG_PER_SQFT * ff)
-  const aggregateCft   = Math.round(totalBUA * IS_THUMB.AGGREGATE_CFT_PER_SQFT * ff)
-  const sandCft        = Math.round(totalBUA * IS_THUMB.SAND_CFT_PER_SQFT * ff)
-  const bindingWireKg  = Math.round(steelKg * (IS_THUMB.BINDING_WIRE_KG_PER_TONNE / 1000))
-  const formworkSqft   = Math.round(totalBUA * 0.5)  // ~0.5 sqft contact area per sqft BUA
+  const cementBags      = Math.round(totalBUA * IS_THUMB.CEMENT_BAGS_PER_SQFT * ff * gradeFactor)
+  const steelKg         = Math.round(totalBUA * IS_THUMB.STEEL_KG_PER_SQFT * ff)
+  const aggregateCft    = Math.round(totalBUA * IS_THUMB.AGGREGATE_CFT_PER_SQFT * ff)
+  const sandCft         = Math.round(totalBUA * IS_THUMB.SAND_CFT_PER_SQFT * ff)
+  const bindingWireKg   = Math.round(steelKg * (IS_THUMB.BINDING_WIRE_KG_PER_TONNE / 1000))
+  // Admixture: 1.5× binding wire quantity in litres (plasticizer per HTML source formula)
+  const admixtureLitres = Math.round(steelKg * 0.018 * 10) / 10
+  const formworkSqft    = Math.round(totalBUA * 0.5)  // ~0.5 sqft contact area per sqft BUA
 
   const quantities: MaterialQuantities = {
-    cementBags, steelKg, aggregateCft, sandCft, bindingWireKg, formworkSqft,
+    cementBags, steelKg, aggregateCft, sandCft, bindingWireKg, admixtureLitres, formworkSqft,
   }
 
   // Material costs
   const r = DEFAULT_RATES
-  const cementCost     = cementBags    * r.cement
-  const steelCost      = steelKg       * r.steel
-  const aggregateCost  = aggregateCft  * r.aggregate
-  const sandCost       = sandCft       * r.sand
-  const bindingWireCost = bindingWireKg * r.bindingWire
-  const formworkCost   = formworkSqft  * r.formworkPerSqftBUA
+  const cementCost      = cementBags     * r.cement
+  const steelCost       = steelKg        * r.steel
+  const aggregateCost   = aggregateCft   * r.aggregate
+  const sandCost        = sandCft        * r.sand
+  const bindingWireCost = bindingWireKg  * r.bindingWire
+  const admixtureCost   = admixtureLitres * r.admixture
+  const formworkCost    = formworkSqft   * r.formworkPerSqftBUA
 
-  const fndAvgPerSqft = (foundationRecommendation.minCostPerSqft + foundationRecommendation.maxCostPerSqft) / 2
+  const fndAvgPerSqft  = (foundationRecommendation.minCostPerSqft + foundationRecommendation.maxCostPerSqft) / 2
   const foundationCost = Math.round(groundFloorAreaSqft * fndAvgPerSqft)
 
-  const materialSubtotal = cementCost + steelCost + aggregateCost + sandCost + bindingWireCost + formworkCost
-  const totalMaterialCost = materialSubtotal + foundationCost
+  // 7% field wastage on superstructure materials before adding foundation
+  const materialSubtotal  = cementCost + steelCost + aggregateCost + sandCost + bindingWireCost + admixtureCost + formworkCost
+  const materialWithWaste = Math.round(materialSubtotal * 1.07)
+  const totalMaterialCost = materialWithWaste + foundationCost
 
   const costs: MaterialCosts = {
     cement:      Math.round(cementCost),
@@ -303,6 +311,7 @@ export function runCalculation(input: StructoInput): StructoResult {
     aggregate:   Math.round(aggregateCost),
     sand:        Math.round(sandCost),
     bindingWire: Math.round(bindingWireCost),
+    admixture:   Math.round(admixtureCost),
     formwork:    Math.round(formworkCost),
     foundation:  foundationCost,
     total:       Math.round(totalMaterialCost),
@@ -313,7 +322,7 @@ export function runCalculation(input: StructoInput): StructoResult {
   const labourCostStandard = Math.round(totalMaterialCost * 0.28)
   const labourCostPremium  = Math.round(totalMaterialCost * 0.38)
   const overheadBasic      = Math.round((totalMaterialCost + labourCostBasic)    * 0.05)
-  const overheadStandard   = Math.round((totalMaterialCost + labourCostStandard) * 0.10)
+  const overheadStandard   = Math.round((totalMaterialCost + labourCostStandard) * 0.05)
   const overheadPremium    = Math.round((totalMaterialCost + labourCostPremium)  * 0.15)
 
   const totalBasic    = totalMaterialCost + labourCostBasic    + overheadBasic

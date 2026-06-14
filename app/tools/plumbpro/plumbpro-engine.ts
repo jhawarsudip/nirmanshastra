@@ -46,6 +46,7 @@ export const MATERIAL_RATES = {
   sumpTankPerL: 0.8, // ₹/litre  HDPE food-grade IS 12701
   ohtPerL:    0.85,  // ₹/litre  HDPE overhead tank IS 12701
   pumpHalfHP: 6500,  // ₹/piece  0.5 HP pump
+  pump075HP:  8000,  // ₹/piece  0.75 HP pump
   pump1HP:    9500,  // ₹/piece  1 HP submersible/centrifugal
   pump1_5HP:  13500, // ₹/piece  1.5 HP
   pump2HP:    17500, // ₹/piece  2 HP
@@ -206,26 +207,26 @@ export function formatLakhs(amount: number): string {
 }
 
 export function calcWaterDemand(input: PlumbInput): WaterDemand {
-  const occupants      = input.numBedrooms * 2 + 2
+  const occupants      = Math.max(2, input.numBathrooms * 2 + 2)
   const lpcd           = WATER_DEMAND_LPCD[input.waterSource]
   const dailyDemandL   = occupants * lpcd
   const totalTankL     = Math.round(dailyDemandL * TANK_RATIO)
-  const ohtL           = Math.round(totalTankL * 0.5)
+  const ohtL           = totalTankL  // full 2/3 daily demand = OHT size per IS 1172:1993
   const sumpL          = input.includeSump ? totalTankL : 0
 
-  // Pump HP — standard formula
-  // Q in LPH (pump for 2 hours/day to fill OHT)
-  const pumpFlowLPH  = Math.round(ohtL / 2)
-  const staticHeadM  = input.numFloors * 3.5 + 5   // floor height 3.5m + friction losses 5m
-  // HP = Q(LPM) × H(m) / (75 × efficiency); Q in LPM = LPH/60; efficiency 0.6
-  const rawHP = (pumpFlowLPH / 60) * staticHeadM / (75 * 60 * 0.6)
+  // Pump HP — IS 1172:1993 sizing (fill OHT in 30 minutes)
+  const pumpFlowLPH  = ohtL * 2                             // L/h needed to fill in 30 min
+  const staticHeadM  = input.numFloors * 3.5 + 6            // floor height 3.5m + 6m friction
+  // HP = Q(L/s) × H(m) × 9.81 / (efficiency 0.70 × 746 W per electrical HP)
+  const rawHP = (pumpFlowLPH / 3600) * staticHeadM * 9.81 / (0.7 * 746)
 
   let pumpHP: number
   let pumpHPStandard: string
-  if (rawHP <= 0.5)      { pumpHP = 0.5; pumpHPStandard = '0.5 HP' }
-  else if (rawHP <= 1.0) { pumpHP = 1.0; pumpHPStandard = '1 HP'   }
-  else if (rawHP <= 1.5) { pumpHP = 1.5; pumpHPStandard = '1.5 HP' }
-  else                   { pumpHP = 2.0; pumpHPStandard = '2 HP'   }
+  if (rawHP <= 0.5)       { pumpHP = 0.5;  pumpHPStandard = '0.5 HP'  }
+  else if (rawHP <= 0.75) { pumpHP = 0.75; pumpHPStandard = '0.75 HP' }
+  else if (rawHP <= 1.0)  { pumpHP = 1.0;  pumpHPStandard = '1 HP'    }
+  else if (rawHP <= 1.5)  { pumpHP = 1.5;  pumpHPStandard = '1.5 HP'  }
+  else                    { pumpHP = 2.0;  pumpHPStandard = '2 HP'    }
 
   return {
     occupants, lpcd, dailyDemandL, totalTankL, ohtL, sumpL,
@@ -247,8 +248,8 @@ export function runCalculation(input: PlumbInput): PlumbResult {
   // CPVC 25mm branches, 32mm riser
   const cpvc25m  = Math.round(numBathrooms * 8 + 6 + 4)        // bathrooms + kitchen + common
   const cpvc32m  = Math.round(numFloors * 4 + 3)               // riser + roof connection
-  const swr75m   = Math.round(numBathrooms * 5 + 4)            // waste branches per IS 1742
-  const swr110m  = Math.round(numFloors * 3.5 + 2)             // soil stack per IS 1742
+  const swr75m   = Math.round(numBathrooms * 4 + numFloors * 3) // 4m/bath waste + kitchen per IS 1742
+  const swr110m  = Math.round(numBathrooms * 4 + numFloors * 3.5 + 2) // WC branches + riser per IS 1742
   const upvc110m = 12                                           // underground drain connection
 
   const pipeSchedule: PipeSchedule = { cpvc25m, cpvc32m, swr75m, swr110m, upvc110m }
@@ -295,9 +296,10 @@ export function runCalculation(input: PlumbInput): PlumbResult {
   const tanksMaterial = ohtCost + sumpCost
 
   // Pump
-  const pumpRate = waterDemand.pumpHP <= 0.5 ? MATERIAL_RATES.pumpHalfHP :
-                   waterDemand.pumpHP <= 1.0 ? MATERIAL_RATES.pump1HP :
-                   waterDemand.pumpHP <= 1.5 ? MATERIAL_RATES.pump1_5HP :
+  const pumpRate = waterDemand.pumpHP <= 0.5  ? MATERIAL_RATES.pumpHalfHP :
+                   waterDemand.pumpHP <= 0.75 ? MATERIAL_RATES.pump075HP  :
+                   waterDemand.pumpHP <= 1.0  ? MATERIAL_RATES.pump1HP    :
+                   waterDemand.pumpHP <= 1.5  ? MATERIAL_RATES.pump1_5HP  :
                    MATERIAL_RATES.pump2HP
   const pumpMaterial = pumpRate
 

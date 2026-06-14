@@ -230,7 +230,7 @@ export const INTERNAL_WALL_SPECS: Record<InternalWallType, WallTypeSpec & { isPa
     label: 'Hollow Concrete Block (100mm)',
     shortLabel: 'Hollow Block 100mm',
     isCode: 'IS 2185:2005',
-    unitsPerSqm: 25.0, // double the 200mm count for 100mm thickness
+    unitsPerSqm: 12.5, // 400×200mm face = 12.5 blocks/sqm (same face dimensions as 200mm, regardless of thickness)
     unitLabel: 'blocks',
     cementBagsPerSqm: 0.20,
     sandCftPerSqm: 0.75,

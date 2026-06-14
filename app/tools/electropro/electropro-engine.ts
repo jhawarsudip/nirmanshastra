@@ -32,8 +32,9 @@ export const MATERIAL_RATES = {
   wire_4_0:     55,   // ₹/metre
   wire_6_0:     85,   // ₹/metre
   wire_10_0:    140,  // ₹/metre
-  conduit_16mm: 25,   // ₹/metre  16mm PVC conduit
-  conduit_25mm: 38,   // ₹/metre  25mm PVC conduit
+  conduit_16mm: 25,   // ₹/metre  16mm PVC conduit (kept for reference)
+  conduit_25mm: 38,   // ₹/metre  25mm PVC conduit (lighting + power)
+  conduit_32mm: 52,   // ₹/metre  32mm PVC conduit (heavy circuits)
   mcb_6A:       120,  // ₹/piece
   mcb_16A:      165,  // ₹/piece
   mcb_20A:      165,  // ₹/piece
@@ -41,7 +42,10 @@ export const MATERIAL_RATES = {
   mcb_63A:      380,  // ₹/piece
   rccb_25A:     1200, // ₹/piece
   rccb_40A:     1500, // ₹/piece
-  db_12way:     1800, // ₹/panel (includes busbars)
+  db_8way:      1200, // ₹/panel (includes busbars)
+  db_12way:     1800, // ₹/panel
+  db_16way:     2200, // ₹/panel
+  db_20way:     2500, // ₹/panel
   db_24way:     2800, // ₹/panel
   db_36way:     3800, // ₹/panel
   earthingKit:  3500, // ₹/pit  (pipe earth, 2.5m × 40mm GI)
@@ -235,7 +239,7 @@ export function runCalculation(input: ElectroInput): ElectroResult {
   }
 
   // ── Load calculation ──────────────────────────────────────────────────────
-  const lightLoad   = (lightPoints + exhaustPoints) * 20   // 20W avg LED/exhaust
+  const lightLoad   = (lightPoints + exhaustPoints) * 40   // 40W avg per light point per room specs
   const fanLoad     = fanPoints * 75                        // 75W per fan
   const powerLoad   = powerPoints * 250                     // 250W effective per socket
   const acLoad      = acPoints * 1500                       // 1500W per ton AC
@@ -283,16 +287,24 @@ export function runCalculation(input: ElectroInput): ElectroResult {
     }] : []),
   ]
 
-  const totalWaysWithSpares = totalCircuits + 2  // 2 spare ways per IS 732
+  // 25% spare capacity — IS 8828:2007 best practice (per HTML source)
+  const totalWaysWithSpares = Math.ceil(totalCircuits * 1.25)
   const panelSize =
+    totalWaysWithSpares <= 8  ? '8-way'  :
     totalWaysWithSpares <= 12 ? '12-way' :
+    totalWaysWithSpares <= 16 ? '16-way' :
+    totalWaysWithSpares <= 20 ? '20-way' :
     totalWaysWithSpares <= 24 ? '24-way' : '36-way'
   const panelRate =
+    panelSize === '8-way'  ? MATERIAL_RATES.db_8way  :
     panelSize === '12-way' ? MATERIAL_RATES.db_12way :
+    panelSize === '16-way' ? MATERIAL_RATES.db_16way :
+    panelSize === '20-way' ? MATERIAL_RATES.db_20way :
     panelSize === '24-way' ? MATERIAL_RATES.db_24way : MATERIAL_RATES.db_36way
 
   const mainLoadW = lightLoad + fanLoad + powerLoad + acLoad + geyserLoad
-  const mainCurrentA = mainLoadW / 230
+  // 65% demand factor per HTML source formula before MCB sizing
+  const mainCurrentA = mainLoadW * 0.65 / 230
   const mainMCBRating =
     mainCurrentA <= 32 ? '32A' :
     mainCurrentA <= 63 ? '63A' : '100A'
@@ -308,21 +320,13 @@ export function runCalculation(input: ElectroInput): ElectroResult {
   }
 
   // ── Wire schedule (PAID — blurred) ────────────────────────────────────────
-  // Average run lengths (metres): from DB to furthest point per type
-  const avgRunLight   = 12 // metres per point (3+3 loop, both ways)
-  const avgRunPower   = 15 // metres per point
-  const avgRunAc      = 20 // metres per unit (dedicated long run)
-  const avgRunGeyser  = 18 // metres per unit
-
-  const wire_1_5_m  = Math.round(
-    (lightPoints + fanPoints + exhaustPoints) * avgRunLight * 2 * WIRE_WASTAGE
-  )
-  const wire_2_5_m  = Math.round(powerPoints * avgRunPower * 2 * WIRE_WASTAGE)
-  const wire_4_0_m  = Math.round(
-    (acPoints * avgRunAc + geyserPoints * avgRunGeyser) * 2 * WIRE_WASTAGE
-  )
-  const wire_6_0_m  = Math.round(numFloors * 15 * 2 * WIRE_WASTAGE)  // sub-panel feeds
-  const wire_10_0_m = Math.round(1 * 12 * 2 * WIRE_WASTAGE)           // main incomer
+  // Circuit-based wire quantities with 3 conductors (L+N+E) per HTML source formula
+  const wire_1_5_m  = Math.round(lightCircuits  * 15 * 3 * WIRE_WASTAGE)  // lighting circuits × 15m × 3
+  const wire_2_5_m  = Math.round(powerCircuits  * 15 * 3 * WIRE_WASTAGE)  // power circuits × 15m × 3
+  const wire_4_0_m  = Math.round((acCircuits + geyserCircuits) * 12 * 3 * WIRE_WASTAGE)  // heavy circuits × 12m × 3
+  const wire_6_0_m  = Math.round(numFloors * 12 * 3 * WIRE_WASTAGE)       // sub-panel risers × 12m × 3
+  // Main incomer: max(6, ceil(demand÷3000)) × 5m × 3 conductors — no wastage factor
+  const wire_10_0_m = Math.round(Math.max(6, Math.ceil(mainLoadW * 0.65 / 3000)) * 5 * 3)
 
   const wireSchedule: WireSchedule = {
     size_1_5_m: wire_1_5_m,
@@ -341,17 +345,16 @@ export function runCalculation(input: ElectroInput): ElectroResult {
     wire_10_0_m * MATERIAL_RATES.wire_10_0
   )
 
-  // Conduit: 1 metre conduit per 3 metres of wire (rough bundling ratio)
-  const totalWireMetres = wire_1_5_m + wire_2_5_m + wire_4_0_m + wire_6_0_m + wire_10_0_m
-  const conduit16Metres = Math.round(totalWireMetres / 3)
-  const conduitBase = conduit16Metres * MATERIAL_RATES.conduit_16mm
-  const conduitMaterial = Math.round(conduitBase * (1 + MATERIAL_RATES.fittings))
+  // Conduit: 25mm for light/power wires, 32mm for heavy circuits — per HTML source formula
+  const conduit25m = Math.round((wire_1_5_m + wire_2_5_m) / 3.2)
+  const conduit32m = Math.round((wire_4_0_m + wire_6_0_m) / 2.2)
+  const conduitMaterial = Math.round(conduit25m * MATERIAL_RATES.conduit_25mm + conduit32m * MATERIAL_RATES.conduit_32mm)
 
-  // MCBs + RCCB
-  const mcbLighting = lightCircuits * MATERIAL_RATES.mcb_6A
-  const mcbPower    = powerCircuits * MATERIAL_RATES.mcb_16A
-  const mcbAC       = acCircuits    * MATERIAL_RATES.mcb_20A
-  const mcbGeyser   = geyserCircuits * MATERIAL_RATES.mcb_20A
+  // MCBs + RCCB — 10% spare count on all MCBs per HTML source
+  const mcbLighting = Math.round(lightCircuits  * 1.1) * MATERIAL_RATES.mcb_6A
+  const mcbPower    = Math.round(powerCircuits  * 1.1) * MATERIAL_RATES.mcb_16A
+  const mcbAC       = Math.round(acCircuits     * 1.1) * MATERIAL_RATES.mcb_20A
+  const mcbGeyser   = Math.round(geyserCircuits * 1.1) * MATERIAL_RATES.mcb_20A
   const mainMCBCost = (mainMCBRating === '32A' ? MATERIAL_RATES.mcb_32A : MATERIAL_RATES.mcb_63A)
   const rccbCost    = rccbRequired ? MATERIAL_RATES.rccb_40A : 0
   const mcbRccbMaterial = Math.round(mcbLighting + mcbPower + mcbAC + mcbGeyser + mainMCBCost + rccbCost)
@@ -385,7 +388,7 @@ export function runCalculation(input: ElectroInput): ElectroResult {
   const electricianDays  = totalPoints / LABOUR.electrician.pointsPerDay
   const electricianCost  = electricianDays * LABOUR.electrician.workers * LABOUR.electrician.ratePerDay
   const wiremanCost      = electricianDays * LABOUR.wireman.workers     * LABOUR.wireman.ratePerDay
-  const conduitDays      = (conduit16Metres * 3.281) / LABOUR.conduitFixer.rftPerDay  // convert to rft
+  const conduitDays      = ((conduit25m + conduit32m) * 3.281) / LABOUR.conduitFixer.rftPerDay  // convert to rft
   const conduitCost      = conduitDays * LABOUR.conduitFixer.workers * LABOUR.conduitFixer.ratePerDay
   const dbDays           = numFloors  // 1 panel/day per DB per floor
   const dbCost           = dbDays * LABOUR.dbInstaller.ratePerDay
@@ -401,7 +404,7 @@ export function runCalculation(input: ElectroInput): ElectroResult {
 
   // ── Grand total ranges ────────────────────────────────────────────────────
   const overheadBasic    = Math.round((totalMaterial + labourCost * 0.85) * 0.05)
-  const overheadStandard = Math.round((totalMaterial + labourCost)        * 0.10)
+  const overheadStandard = Math.round((totalMaterial + labourCost)        * 0.05)
   const overheadPremium  = Math.round((totalMaterial + labourCost * 1.15) * 0.15)
 
   const totalBasic    = totalMaterial + Math.round(labourCost * 0.85) + overheadBasic
@@ -475,7 +478,7 @@ export function runCalculation(input: ElectroInput): ElectroResult {
       clause: 'IS 8828:2007 Cl 5',
       description: 'DB panel spare capacity',
       status: totalWaysWithSpares - totalCircuits >= 2 ? 'pass' : 'advisory',
-      detail: `${panelSize} DB with ${totalWaysWithSpares} ways selected. ${totalCircuits} ways used, ${totalWaysWithSpares - totalCircuits} spare. IS 8828:2007 recommends minimum 20% spare capacity for future loads.`,
+      detail: `${panelSize} DB with ${totalWaysWithSpares} ways selected. ${totalCircuits} ways used, ${totalWaysWithSpares - totalCircuits} spare. IS 8828:2007 recommends minimum 25% spare capacity for future loads.`,
     },
   ]
 
