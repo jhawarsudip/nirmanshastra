@@ -210,37 +210,16 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   return (
     <div className="min-h-screen bg-sheet-white pb-16">
       {/* Header */}
-      <div className="px-4 py-4" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
-        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest mb-0.5"
-              style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-              NIRMANSHASTRA · PLUMBPRO
-            </p>
-            <h1 className="text-[22px] font-bold"
-              style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
-              Your Estimate is Ready
-            </h1>
-          </div>
-          <div className="flex items-center">
-            {(['REG', 'METHOD', 'DETAILS', 'RESULTS'] as const).map((s, i) => (
-              <div key={s} className="flex items-center">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] border"
-                    style={{ background: '#14532D', borderColor: '#14532D', color: '#fff', fontFamily: 'var(--font-plex-mono)' }}>
-                    ✓
-                  </div>
-                  <span className="text-[10px] uppercase tracking-widest hidden sm:inline"
-                    style={{ fontFamily: 'var(--font-plex-mono)', color: '#14532D' }}>{s}</span>
-                </div>
-                {i < 3 && <div className="w-5 h-px mx-1.5" style={{ background: 'rgba(30,34,39,0.14)' }} />}
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="py-8 px-6 md:px-12 lg:px-16" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>
+          04 · PLUMBING ESTIMATE
+        </p>
+        <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 600, color: '#1E2227', lineHeight: 1.2 }}>
+          Your Estimate is Ready
+        </h1>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 pt-6 space-y-6">
+      <div className="px-6 md:px-12 lg:px-16 pt-6 space-y-6">
 
         {/* Test mode banner */}
         <div className="px-4 py-2 rounded-[2px] flex items-center gap-2"
@@ -252,53 +231,37 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* Grand total — FREE */}
-        <div className="rounded-[2px] p-6" style={{ border: '2px solid #1E2227', background: '#F4F4F0' }}>
-          <p className="text-[11px] uppercase tracking-widest mb-2"
-            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+        <div style={{ background: '#1E2227', padding: '56px 48px', textAlign: 'center' }}>
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
             PHASE 4 — PLUMBING · {input.city}, {input.state}
           </p>
-          <p className="text-[13px] mb-1"
-            style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
-            Your Plumbing Cost ({r.totalBuaSqft.toFixed(0)} sqft BUA · {input.numFloors} floor{input.numFloors > 1 ? 's' : ''} · {input.numBathrooms} bathroom{input.numBathrooms > 1 ? 's' : ''})
+          <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(244,244,240,0.55)', marginBottom: 16 }}>
+            {r.totalBuaSqft.toFixed(0)} sqft · {input.numFloors} floor{input.numFloors > 1 ? 's' : ''} · {input.numBathrooms} bathroom{input.numBathrooms > 1 ? 's' : ''}
           </p>
-          <div className="flex flex-wrap items-baseline gap-3 mb-4">
-            <span className="text-[40px] sm:text-[52px] font-bold leading-none"
-              style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
-              <CountUp to={r.grandTotal.standard} format={formatLakhs} />
-            </span>
-            <span className="text-[16px]"
-              style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-              standard
-            </span>
+          <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(64px,8vw,96px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1, marginBottom: 8 }}>
+            <CountUp to={r.grandTotal.standard} format={formatLakhs} />
           </div>
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 13, color: 'rgba(244,244,240,0.35)', marginBottom: 36 }}>standard estimate</p>
 
-          <div className="flex gap-4 flex-wrap">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 600, margin: '0 auto' }}>
             {[
               { label: 'BASIC',    value: r.grandTotal.basic,    note: 'Min spec + local rates' },
               { label: 'STANDARD', value: r.grandTotal.standard, note: 'CPWD rates + overhead', active: true },
               { label: 'PREMIUM',  value: r.grandTotal.premium,  note: 'Premium rates + oversight' },
             ].map(t => (
-              <div key={t.label} className="flex-1 min-w-[100px] px-3 py-2 rounded-[2px]"
-                style={{
-                  border: t.active ? '1.5px solid #1F4E79' : '1px solid rgba(30,34,39,0.18)',
-                  background: t.active ? 'rgba(31,78,121,0.05)' : 'transparent',
-                }}>
-                <p className="text-[9px] uppercase tracking-widest mb-0.5"
-                  style={{ color: t.active ? '#1F4E79' : 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                  {t.label}
-                </p>
-                <p className="text-[18px] font-bold"
-                  style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+              <div key={t.label} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '16px 20px',
+                border: t.active ? '1.5px solid rgba(31,78,121,0.7)' : '1px solid rgba(244,244,240,0.1)',
+                background: t.active ? 'rgba(31,78,121,0.2)' : 'rgba(244,244,240,0.03)',
+              }}>
+                <div style={{ textAlign: 'left' }}>
+                  <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: t.active ? '#7BA7CC' : 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{t.label}</p>
+                  <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.45)' }}>{t.note}</p>
+                </div>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 24, fontWeight: 600, color: '#F4F4F0' }}>
                   {formatLakhs(t.value)}
-                </p>
-                <p className="text-[10px]"
-                  style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
-                  {t.note}
-                </p>
-                <p className="text-[11px] mt-0.5"
-                  style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                  ₹{r.perSqftCost[t.label.toLowerCase() as 'basic' | 'standard' | 'premium']}/sqft
-                </p>
+                </div>
               </div>
             ))}
           </div>
@@ -664,47 +627,47 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           {!isPaid && <BlurOverlay onClick={handleUnlock} />}
         </div>
 
-        {/* Payment gate */}
+        {/* Payment gate — dramatic dark unlock card */}
         {!isPaid && (
-          <div className="rounded-[2px] p-6" style={{ border: '2px solid #1E2227', background: '#F4F4F0' }}>
-            <p className="text-[11px] uppercase tracking-widest mb-1"
-              style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+          <div style={{ background: '#1E2227', padding: '56px 48px', textAlign: 'center' }}>
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
               YOUR PHASE 4 ESTIMATE IS READY
             </p>
-            <h2 className="text-[20px] font-bold mb-2"
-              style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
-              Unlock Full IS-Code BOQ + Professional PDF
+            <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,48px)', fontWeight: 600, color: '#F4F4F0', lineHeight: 1.15, marginBottom: 12 }}>
+              Unlock Full IS-Code BOQ<br />+ Professional PDF
             </h2>
-            <p className="text-[13px] mb-4"
-              style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
-              Includes exact quantities, local market rates, and contractor-ready BOQ
+            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.55)', margin: '0 auto 36px', maxWidth: 500 }}>
+              Pipe schedule, tank sizing, fixture counts, and a 9-page IS-code PDF report
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <button onClick={handleUnlock}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, maxWidth: 480, margin: '0 auto' }}>
+              <button
+                onClick={handleUnlock}
                 disabled={payStatus === 'creating' || payStatus === 'verifying' || payStatus === 'polling'}
-                className="flex-1 py-3 rounded-[6px] text-[15px] font-semibold text-white disabled:opacity-60 transition-opacity"
-                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
+                style={{
+                  width: '100%', background: '#8C3A22', color: '#F4F4F0',
+                  fontFamily: 'var(--font-plex-mono)', fontSize: 16, fontWeight: 600,
+                  padding: '18px 32px', border: 'none', borderRadius: 6, cursor: 'pointer',
+                  letterSpacing: '0.03em',
+                  opacity: (payStatus === 'creating' || payStatus === 'verifying' || payStatus === 'polling') ? 0.6 : 1,
+                }}
+              >
                 {payStatus === 'creating'  ? 'Creating order…' :
                  payStatus === 'verifying' ? 'Verifying payment…' :
                  payStatus === 'polling'   ? 'Confirming payment…' :
-                 'Unlock Full IS-Code BOQ + Professional PDF — ₹499'}
+                 'Unlock Report — ₹499'}
               </button>
-              <div className="flex-1 py-3 px-4 rounded-[6px] text-center"
-                style={{ border: '1px dashed rgba(30,34,39,0.3)' }}>
-                <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.5)' }}>Or save ₹1,496</p>
-                <p className="text-[13px] font-medium" style={{ color: '#1E2227' }}>Bundle — All 5 Apps ₹2,999</p>
+              <div style={{ width: '100%', padding: '14px 20px', border: '1px dashed rgba(244,244,240,0.2)', textAlign: 'center' }}>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', marginBottom: 2 }}>Or save ₹1,496</p>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.7)' }}>Complete Bundle — All 5 Apps <span style={{ fontFamily: 'var(--font-plex-mono)', color: '#F4F4F0' }}>₹2,999</span></p>
               </div>
             </div>
             {payError && (
-              <p className="text-[12px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
-                ⚠ {payError}
-              </p>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: '#D99A06', marginTop: 12 }}>⚠ {payError}</p>
             )}
-            <div className="flex flex-wrap gap-3 mt-2">
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginTop: 28 }}>
               {['IS 1172:1993 water demand', 'Pipe schedule by diameter', 'Tank + pump sizing', 'Fixture counts', 'Plumber comparison', '9-page PDF report'].map(f => (
-                <span key={f} className="flex items-center gap-1 text-[11px]"
-                  style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>
-                  <span style={{ color: '#14532D' }}>✓</span> {f}
+                <span key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.45)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ color: '#14532D', fontWeight: 700 }}>✓</span>{f}
                 </span>
               ))}
             </div>

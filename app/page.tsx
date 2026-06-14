@@ -140,66 +140,26 @@ function MasonHatch() {
   )
 }
 
-function ElectroGlyph() {
-  return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
-      <line x1="0"  y1="22" x2="44" y2="22" stroke="currentColor" strokeWidth="1.5" opacity=".45" />
-      <circle cx="13" cy="22" r="6" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="31" cy="22" r="6" stroke="currentColor" strokeWidth="1.5" />
-      <line x1="13" y1="16" x2="13" y2="8"  stroke="currentColor" strokeWidth="1"   opacity=".7" />
-      <line x1="31" y1="16" x2="31" y2="8"  stroke="currentColor" strokeWidth="1"   opacity=".7" />
-      <line x1="10" y1="8"  x2="16" y2="8"  stroke="currentColor" strokeWidth="1"   opacity=".55" />
-      <line x1="28" y1="8"  x2="34" y2="8"  stroke="currentColor" strokeWidth="1"   opacity=".55" />
-    </svg>
-  )
-}
-
-function PlumbRiser() {
-  return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
-      <line x1="22" y1="0"  x2="22" y2="18" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M12,18 Q12,37 22,37 Q32,37 32,18" stroke="currentColor" strokeWidth="1.5" fill="none" />
-      <line x1="32" y1="37" x2="32" y2="44" stroke="currentColor" strokeWidth="1.5" />
-      <line x1="8"  y1="18" x2="36" y2="18" stroke="currentColor" strokeWidth="1"   opacity=".5" />
-    </svg>
-  )
-}
-
-function InteriorTile() {
-  return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
-      <rect x="1"  y="1"  width="19" height="19" stroke="currentColor" strokeWidth="1" />
-      <rect x="24" y="1"  width="19" height="19" stroke="currentColor" strokeWidth="1" />
-      <rect x="1"  y="24" width="19" height="19" stroke="currentColor" strokeWidth="1" />
-      <rect x="24" y="24" width="19" height="19" stroke="currentColor" strokeWidth="1" />
-    </svg>
-  )
-}
-
-function VastuMandala() {
-  const spokes = Array.from({ length: 16 }, (_, i) => {
+function LargeVastuWatermark() {
+  const spokes = Array.from({length: 16}, (_, i) => {
     const rad = (i * 22.5 - 90) * (Math.PI / 180)
     return {
-      x2: parseFloat((22 + 18 * Math.cos(rad)).toFixed(2)),
-      y2: parseFloat((22 + 18 * Math.sin(rad)).toFixed(2)),
+      x2: parseFloat((70 + 62 * Math.cos(rad)).toFixed(2)),
+      y2: parseFloat((70 + 62 * Math.sin(rad)).toFixed(2)),
     }
   })
   return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true"
-      style={{ background: '#1E2227' }}>
+    <svg width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
       {spokes.map((s, i) => (
-        <line key={i} x1="22" y1="22" x2={s.x2} y2={s.y2}
-          stroke="#C9A84C" strokeWidth=".9" opacity=".9" />
+        <line key={i} x1="70" y1="70" x2={s.x2} y2={s.y2}
+          stroke="#C9A84C" strokeWidth="1.2" opacity=".7" />
       ))}
-      <circle cx="22" cy="22" r="5"  stroke="#C9A84C" strokeWidth="1"  fill="none" />
-      <circle cx="22" cy="22" r="18" stroke="#C9A84C" strokeWidth=".8" fill="none" opacity=".5" />
+      <circle cx="70" cy="70" r="18" stroke="#C9A84C" strokeWidth="1.5" fill="none" opacity=".6" />
+      <circle cx="70" cy="70" r="62" stroke="#C9A84C" strokeWidth="1" fill="none" opacity=".35" />
+      <circle cx="70" cy="70" r="40" stroke="#C9A84C" strokeWidth=".8" fill="none" opacity=".25" />
     </svg>
   )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SVG MOTIFS — large watermarks (140×140, card background)
-// ─────────────────────────────────────────────────────────────────────────────
 
 function LargeStructoWatermark() {
   return (
@@ -246,8 +206,6 @@ function LargeElectroWatermark() {
           <line x1={cx-5} y1="46" x2={cx+5} y2="46" stroke="currentColor" strokeWidth="1.2" opacity=".4" />
         </g>
       ))}
-      <line x1="70" y1="0" x2="70" y2="24" stroke="currentColor" strokeWidth="2" opacity=".35" />
-      <line x1="0" y1="110" x2="140" y2="110" stroke="currentColor" strokeWidth="1" opacity=".22" />
     </svg>
   )
 }
@@ -259,8 +217,6 @@ function LargePlumbWatermark() {
       <line x1="40" y1="52" x2="100" y2="52" stroke="currentColor" strokeWidth="1.5" opacity=".35" />
       <path d="M35,52 Q35,118 70,118 Q105,118 105,52" stroke="currentColor" strokeWidth="2" fill="none" opacity=".5" />
       <line x1="105" y1="118" x2="105" y2="140" stroke="currentColor" strokeWidth="2" opacity=".45" />
-      <line x1="70" y1="52" x2="140" y2="52" stroke="currentColor" strokeWidth="1" opacity=".25" />
-      <line x1="70" y1="80" x2="140" y2="80" stroke="currentColor" strokeWidth="1" opacity=".2" />
     </svg>
   )
 }
@@ -278,29 +234,8 @@ function LargeInteriorWatermark() {
   )
 }
 
-function LargeVastuWatermark() {
-  const spokes = Array.from({length: 16}, (_, i) => {
-    const rad = (i * 22.5 - 90) * (Math.PI / 180)
-    return {
-      x2: parseFloat((70 + 62 * Math.cos(rad)).toFixed(2)),
-      y2: parseFloat((70 + 62 * Math.sin(rad)).toFixed(2)),
-    }
-  })
-  return (
-    <svg width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
-      {spokes.map((s, i) => (
-        <line key={i} x1="70" y1="70" x2={s.x2} y2={s.y2}
-          stroke="#C9A84C" strokeWidth="1.2" opacity=".7" />
-      ))}
-      <circle cx="70" cy="70" r="18" stroke="#C9A84C" strokeWidth="1.5" fill="none" opacity=".6" />
-      <circle cx="70" cy="70" r="62" stroke="#C9A84C" strokeWidth="1" fill="none" opacity=".35" />
-      <circle cx="70" cy="70" r="40" stroke="#C9A84C" strokeWidth=".8" fill="none" opacity=".25" />
-    </svg>
-  )
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
-// SVG ENGINEERING ILLUSTRATIONS
+// SVG ENGINEERING ILLUSTRATION
 // ─────────────────────────────────────────────────────────────────────────────
 
 function HouseConstructionSVG() {
@@ -309,126 +244,48 @@ function HouseConstructionSVG() {
   const GLS = 'rgba(244,244,240,0.06)'
   const WAL = 'rgba(244,244,240,0.03)'
   const SLB = 'rgba(244,244,240,0.09)'
-
   return (
     <svg width="100%" viewBox="0 0 520 325" fill="none" aria-hidden="true" style={{ opacity: 0.82 }}>
-
-      {/* Ground line + soil hatching */}
       <line x1="32" y1="275" x2="488" y2="275" stroke={INK} strokeWidth="1.5" />
       {Array.from({ length: 15 }, (_, i) => (
         <line key={i} x1={80 + i * 28} y1="275" x2={66 + i * 28} y2="291" stroke={INK} strokeWidth="0.8" opacity="0.28" />
       ))}
-
-      {/* Foundation */}
       <rect x="62" y="252" width="396" height="23" stroke={INK} strokeWidth="1.2" fill={SLB} />
-      {[257, 263, 269].map(y => (
-        <line key={y} x1="65" y1={y} x2="455" y2={y} stroke={INK} strokeWidth="0.4" opacity="0.22" />
-      ))}
-
-      {/* Ground floor */}
       <rect x="68" y="137" width="384" height="115" stroke={INK} strokeWidth="1.5" fill={WAL} />
-
-      {/* Intermediate floor slab */}
       <rect x="60" y="125" width="400" height="12" stroke={INK} strokeWidth="1.2" fill={SLB} />
-      <line x1="60" y1="131" x2="460" y2="131" stroke={INK} strokeWidth="0.5" opacity="0.3" />
-
-      {/* First floor */}
       <rect x="68" y="24" width="384" height="101" stroke={INK} strokeWidth="1.5" fill={WAL} />
-
-      {/* Parapet */}
       <rect x="60" y="8" width="400" height="16" stroke={INK} strokeWidth="1.2" fill={SLB} />
       <line x1="60" y1="8" x2="460" y2="8" stroke={INK} strokeWidth="2" />
-
-      {/* Main wall edges */}
       <line x1="68" y1="8" x2="68" y2="252" stroke={INK} strokeWidth="2" />
       <line x1="452" y1="8" x2="452" y2="252" stroke={INK} strokeWidth="2" />
-
-      {/* GF Left Window (W1) — x=103–178, y=165–222 */}
       <line x1="97" y1="163" x2="184" y2="163" stroke={INK} strokeWidth="1.2" />
       <rect x="103" y="165" width="75" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
       <line x1="140" y1="165" x2="140" y2="222" stroke={INK} strokeWidth="0.6" opacity="0.7" />
       <line x1="103" y1="193" x2="178" y2="193" stroke={INK} strokeWidth="0.6" opacity="0.7" />
       <line x1="97" y1="222" x2="184" y2="222" stroke={INK} strokeWidth="1.2" />
-      <line x1="94" y1="225" x2="187" y2="225" stroke={INK} strokeWidth="0.5" opacity="0.35" />
       <text x="140" y="242" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W1</text>
-
-      {/* GF Right Window (W2) — x=342–417, y=165–222 */}
       <line x1="336" y1="163" x2="423" y2="163" stroke={INK} strokeWidth="1.2" />
       <rect x="342" y="165" width="75" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
       <line x1="379" y1="165" x2="379" y2="222" stroke={INK} strokeWidth="0.6" opacity="0.7" />
       <line x1="342" y1="193" x2="417" y2="193" stroke={INK} strokeWidth="0.6" opacity="0.7" />
       <line x1="336" y1="222" x2="423" y2="222" stroke={INK} strokeWidth="1.2" />
-      <line x1="333" y1="225" x2="426" y2="225" stroke={INK} strokeWidth="0.5" opacity="0.35" />
       <text x="379" y="242" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W2</text>
-
-      {/* GF Central Double Door (D1) — x=231–289, arch to y=160 */}
       <line x1="224" y1="163" x2="296" y2="163" stroke={INK} strokeWidth="1.2" />
       <path d="M231,178 Q231,160 260,160 Q289,160 289,178" stroke={INK} strokeWidth="1" fill="none" />
       <rect x="231" y="178" width="58" height="74" stroke={INK} strokeWidth="1.1" fill="rgba(244,244,240,0.05)" />
       <line x1="260" y1="178" x2="260" y2="252" stroke={INK} strokeWidth="0.7" opacity="0.7" />
-      <rect x="234" y="182" width="23" height="34" stroke={INK} strokeWidth="0.5" fill="none" opacity="0.55" />
-      <rect x="264" y="182" width="23" height="34" stroke={INK} strokeWidth="0.5" fill="none" opacity="0.55" />
       <line x1="220" y1="252" x2="300" y2="252" stroke={INK} strokeWidth="1.5" />
-      <line x1="215" y1="257" x2="305" y2="257" stroke={INK} strokeWidth="1" opacity="0.6" />
-      <line x1="210" y1="262" x2="310" y2="262" stroke={INK} strokeWidth="0.7" opacity="0.35" />
       <text x="260" y="242" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">D1</text>
-
-      {/* FF Left Window (W3) — x=99–171, y=40–97 */}
-      <line x1="93" y1="38" x2="177" y2="38" stroke={INK} strokeWidth="1.2" />
-      <rect x="99" y="40" width="72" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
-      <line x1="135" y1="40" x2="135" y2="97" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="99" y1="68" x2="171" y2="68" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="93" y1="97" x2="177" y2="97" stroke={INK} strokeWidth="1.2" />
-      <line x1="90" y1="100" x2="180" y2="100" stroke={INK} strokeWidth="0.5" opacity="0.35" />
-      <text x="135" y="115" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W3</text>
-
-      {/* FF Centre Window (W4) — x=224–296, y=40–97 */}
-      <line x1="218" y1="38" x2="302" y2="38" stroke={INK} strokeWidth="1.2" />
-      <rect x="224" y="40" width="72" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
-      <line x1="260" y1="40" x2="260" y2="97" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="224" y1="68" x2="296" y2="68" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="218" y1="97" x2="302" y2="97" stroke={INK} strokeWidth="1.2" />
-      <line x1="215" y1="100" x2="305" y2="100" stroke={INK} strokeWidth="0.5" opacity="0.35" />
-      <text x="260" y="115" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W4</text>
-
-      {/* FF Right Window (W5) — x=349–421, y=40–97 */}
-      <line x1="343" y1="38" x2="427" y2="38" stroke={INK} strokeWidth="1.2" />
-      <rect x="349" y="40" width="72" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
-      <line x1="385" y1="40" x2="385" y2="97" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="349" y1="68" x2="421" y2="68" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="343" y1="97" x2="427" y2="97" stroke={INK} strokeWidth="1.2" />
-      <line x1="340" y1="100" x2="430" y2="100" stroke={INK} strokeWidth="0.5" opacity="0.35" />
-      <text x="385" y="115" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W5</text>
-
-      {/* Overall height dim — right side */}
       <line x1="470" y1="8" x2="470" y2="275" stroke={D} strokeWidth="0.8" />
       <line x1="463" y1="8" x2="477" y2="8" stroke={D} strokeWidth="0.8" />
       <line x1="463" y1="275" x2="477" y2="275" stroke={D} strokeWidth="0.8" />
       <text x="484" y="141" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" transform="rotate(-90 484 141)" letterSpacing="0.5">7500</text>
-
-      {/* GF floor height dim — left */}
-      <line x1="48" y1="137" x2="48" y2="252" stroke={D} strokeWidth="0.7" />
-      <line x1="41" y1="137" x2="55" y2="137" stroke={D} strokeWidth="0.7" />
-      <line x1="41" y1="252" x2="55" y2="252" stroke={D} strokeWidth="0.7" />
-      <text x="32" y="194" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" transform="rotate(-90 32 194)" letterSpacing="0.5">3000</text>
-
-      {/* FF floor height dim — left */}
-      <line x1="48" y1="24" x2="48" y2="125" stroke={D} strokeWidth="0.7" />
-      <line x1="41" y1="24" x2="55" y2="24" stroke={D} strokeWidth="0.7" />
-      <line x1="41" y1="125" x2="55" y2="125" stroke={D} strokeWidth="0.7" />
-      <text x="32" y="74" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" transform="rotate(-90 32 74)" letterSpacing="0.5">3000</text>
-
-      {/* Width dim — bottom */}
       <line x1="68" y1="292" x2="452" y2="292" stroke={D} strokeWidth="0.8" />
       <line x1="68" y1="285" x2="68" y2="299" stroke={D} strokeWidth="0.8" />
       <line x1="452" y1="285" x2="452" y2="299" stroke={D} strokeWidth="0.8" />
       <text x="260" y="307" fontSize="7.5" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">10800</text>
-
-      {/* Floor labels */}
       <text x="458" y="200" fontSize="7" fill={D} fontFamily="monospace" letterSpacing="0.5">GF</text>
       <text x="458" y="80" fontSize="7" fill={D} fontFamily="monospace" letterSpacing="0.5">FF</text>
-
-      {/* Title */}
       <text x="68" y="321" fontSize="6.5" fill={INK} fontFamily="monospace" letterSpacing="0.6" opacity="0.45">
         NORTH ELEVATION · SCALE 1:100 · RCC FRAMED STRUCTURE · IS 456:2000 · DRG NS-EL-01
       </text>
@@ -444,7 +301,7 @@ function DimDivider({ label, animated = false, dark = false }: { label: string; 
   const lineColor = dark ? 'rgba(244,244,240,0.18)' : '#1E2227'
   const textColor = dark ? 'rgba(244,244,240,0.4)' : '#1E2227'
   return (
-    <div className="flex items-center gap-4 px-6 md:px-12">
+    <div className="flex items-center gap-4 px-6 md:px-16">
       <div className="flex flex-1 items-center">
         <div style={{ width: 0, height: 0, borderTop: '4px solid transparent', borderBottom: '4px solid transparent', borderRight: `7px solid ${lineColor}`, flexShrink: 0 }} />
         <div style={{ flex: 1, height: 1, background: lineColor }} className={animated ? 'animate-dim-line' : ''} />
@@ -464,11 +321,11 @@ function DimDivider({ label, animated = false, dark = false }: { label: string; 
 
 function SectionHeader({ clause, title, dark = false }: { clause: string; title: string; dark?: boolean }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: dark ? '#6BA3CC' : '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
         {clause}
       </p>
-      <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: dark ? '#F4F4F0' : '#1E2227', lineHeight: 1.2 }}>
+      <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: dark ? '#F4F4F0' : '#1E2227', lineHeight: 1.15 }}>
         {title}
       </h2>
     </div>
@@ -480,12 +337,12 @@ function SectionHeader({ clause, title, dark = false }: { clause: string; title:
 // ─────────────────────────────────────────────────────────────────────────────
 
 const motifMap: Record<string, React.ReactElement> = {
-  P0: <Image src="/vastupro-icon.png"   alt="VastuPro"   width={44} height={44} style={{ objectFit: 'contain' }} />,
-  P1: <Image src="/structopro-icon.png" alt="StructoPro" width={44} height={44} style={{ objectFit: 'contain' }} />,
-  P2: <Image src="/masonpro-icon.png"   alt="MasonPro"   width={44} height={44} style={{ objectFit: 'contain' }} />,
-  P3: <Image src="/electropro-icon.png" alt="ElectroPro" width={44} height={44} style={{ objectFit: 'contain' }} />,
-  P4: <Image src="/plumbpro-icon.png"   alt="PlumbPro"   width={44} height={44} style={{ objectFit: 'contain' }} />,
-  P5: <Image src="/interiorpro-icon.png" alt="InteriorPro" width={44} height={44} style={{ objectFit: 'contain' }} />,
+  P0: <Image src="/vastupro-icon.png"    alt="VastuPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P1: <Image src="/structopro-icon.png"  alt="StructoPro"  width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P2: <Image src="/masonpro-icon.png"    alt="MasonPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P3: <Image src="/electropro-icon.png"  alt="ElectroPro"  width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P4: <Image src="/plumbpro-icon.png"    alt="PlumbPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P5: <Image src="/interiorpro-icon.png" alt="InteriorPro" width={80} height={80} style={{ objectFit: 'contain' }} />,
 }
 
 const largeMotifMap: Record<string, React.ReactElement> = {
@@ -500,28 +357,27 @@ const largeMotifMap: Record<string, React.ReactElement> = {
 function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 18 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.35, ease: 'easeOut', delay }}
+      transition={{ duration: 0.4, ease: 'easeOut', delay }}
     >
       <Link href={tool.href} style={{ textDecoration: 'none', display: 'block' }}>
         <article
           style={{
             border: `1px solid ${tool.free ? '#C9A84C' : 'rgba(30,34,39,0.75)'}`,
-            padding: '24px',
+            padding: '32px',
             background: '#F4F4F0',
             position: 'relative',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            gap: 12,
-            minHeight: 260,
+            gap: 20,
+            minHeight: 340,
             cursor: 'pointer',
-            transition: 'border-color 0.15s',
+            transition: 'border-color 0.15s, transform 0.15s',
           }}
         >
-          {/* Large hatch watermark background */}
           <div style={{
             position: 'absolute',
             bottom: -10,
@@ -533,22 +389,22 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
             {largeMotifMap[tool.phase]}
           </div>
 
-          <span style={{ position: 'absolute', top: 6, right: 12, fontFamily: 'var(--font-plex-mono)', fontSize: 52, color: 'rgba(30,34,39,0.04)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
+          <span style={{ position: 'absolute', top: 8, right: 16, fontFamily: 'var(--font-plex-mono)', fontSize: 64, color: 'rgba(30,34,39,0.04)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
             {tool.phase}
           </span>
 
-          <div style={{ color: tool.free ? '#C9A84C' : '#1E2227', width: 44, height: 44, flexShrink: 0 }}>
+          <div style={{ color: tool.free ? '#C9A84C' : '#1E2227', width: 80, height: 80, flexShrink: 0 }}>
             {motifMap[tool.phase]}
           </div>
 
           <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
               {tool.descriptor}
             </p>
-            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, color: '#1E2227', marginBottom: 8 }}>
+            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 10, lineHeight: 1.1 }}>
               {tool.name}
             </h3>
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.63)', lineHeight: 1.65 }}>
+            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.63)', lineHeight: 1.7 }}>
               {tool.desc}
             </p>
           </div>
@@ -556,15 +412,15 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{
               fontFamily: 'var(--font-plex-mono)',
-              fontSize: 12,
-              padding: '3px 9px',
+              fontSize: 14,
+              padding: '5px 14px',
               border: `1px solid ${tool.free ? '#14532D' : '#1F4E79'}`,
               color: tool.free ? '#14532D' : '#1F4E79',
               letterSpacing: '0.04em',
             }}>
               {tool.price}
             </span>
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.35)' }}>
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.35)' }}>
               {tool.phase} ›
             </span>
           </div>
@@ -588,107 +444,134 @@ export default function Home() {
   return (
     <main className="sheet-frame min-h-screen" style={{ background: '#F4F4F0' }}>
 
-      {/* ── HERO (dark Iron Ink) ─────────────────────────────────────────── */}
+      {/* ── HERO (dark Iron Ink, full viewport width) ─────────────────────── */}
       <div style={{ background: '#1E2227' }}>
-        <section className="px-6 md:px-12 pt-16 pb-14 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
+        <section className="px-6 md:px-16 lg:px-24 pt-20 pb-18">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-          {/* Left — headline */}
-          <motion.div
-            className="space-y-7"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-          >
-            <div>
-              <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(48px,6vw,72px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.05, letterSpacing: '-0.01em' }}>
-                Build With Certainty.
-              </h1>
-              <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 20, color: '#C9A84C', marginTop: 10 }}>
-                निर्माणशास्त्र
+            {/* Left — headline */}
+            <motion.div
+              className="space-y-10"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
+              <div>
+                <h1 style={{
+                  fontFamily: 'var(--font-plex-serif)',
+                  fontSize: 'clamp(48px, 5.5vw, 80px)',
+                  fontWeight: 700,
+                  color: '#F4F4F0',
+                  lineHeight: 1.02,
+                  letterSpacing: '-0.02em',
+                }}>
+                  Build With Certainty.
+                </h1>
+                <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 24, color: '#C9A84C', marginTop: 14, letterSpacing: '0.01em' }}>
+                  निर्माणशास्त्र
+                </p>
+              </div>
+
+              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.65, maxWidth: 540 }}>
+                India&rsquo;s first IS-code construction cost estimation platform.
+                Know exact material quantities, catch contractor inflation, and build your home
+                with engineering certainty — phase by phase.
               </p>
-            </div>
 
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.6, maxWidth: 480 }}>
-              India&rsquo;s first IS-code construction cost estimation platform.
-              Know exact material quantities, catch contractor inflation, and build your home
-              with engineering certainty — phase by phase.
-            </p>
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  href="/tools/vastu-pro"
+                  style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '15px 32px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', letterSpacing: '0.02em', fontWeight: 500 }}
+                >
+                  Start Free — VastuPro
+                </Link>
+                <a
+                  href="#pricing"
+                  style={{ border: '1px solid rgba(244,244,240,0.3)', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '15px 32px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', background: 'transparent', letterSpacing: '0.02em' }}
+                >
+                  See Pricing ↓
+                </a>
+              </div>
 
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/tools/vastu-pro"
-                style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '12px 24px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', letterSpacing: '0.02em' }}
-              >
-                Start Free — VastuPro
-              </Link>
-              <a
-                href="#pricing"
-                style={{ border: '1px solid rgba(244,244,240,0.3)', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '12px 24px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', background: 'transparent', letterSpacing: '0.02em' }}
-              >
-                See Pricing ↓
-              </a>
-            </div>
+              {/* Stats row — huge Plex Mono numbers */}
+              <div className="flex flex-wrap gap-10 pt-4" style={{ borderTop: '1px solid rgba(244,244,240,0.1)' }}>
+                {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹2,999', 'Bundle']].map(([val, label]) => (
+                  <div key={label}>
+                    <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 4vw, 56px)', fontWeight: 500, color: '#C9A84C', lineHeight: 1 }}>{val}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 }}>{label}</div>
+                  </div>
+                ))}
+              </div>
 
-            {/* Stats row — gold numbers */}
-            <div className="flex flex-wrap gap-8 pt-2" style={{ borderTop: '1px solid rgba(244,244,240,0.1)', paddingTop: 20 }}>
-              {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹2,999', 'Bundle']].map(([val, label]) => (
-                <div key={label}>
-                  <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 28, fontWeight: 500, color: '#C9A84C' }}>{val}</div>
-                  <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 3 }}>{label}</div>
-                </div>
-              ))}
-            </div>
+            </motion.div>
 
-          </motion.div>
-
-          {/* Right — Building elevation illustration */}
-          <motion.div
-            className="flex items-center justify-center lg:justify-end"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
-            style={{ width: '100%' }}
-          >
-            <div style={{ position: 'relative', width: '100%', maxWidth: 600, minHeight: 420 }}>
-              <Image
-                src="/hero-illustration.png"
-                alt="NirmanShastra building elevation"
-                fill
-                style={{ objectFit: 'contain' }}
-                priority
-              />
-            </div>
-          </motion.div>
+            {/* Right — Building elevation illustration */}
+            <motion.div
+              className="flex items-center justify-center lg:justify-end"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
+              style={{ width: '100%' }}
+            >
+              <div style={{ position: 'relative', width: '100%', maxWidth: 620, minHeight: 440 }}>
+                <Image
+                  src="/hero-illustration.png"
+                  alt="NirmanShastra building elevation"
+                  fill
+                  style={{ objectFit: 'contain' }}
+                  priority
+                />
+              </div>
+            </motion.div>
+          </div>
         </section>
       </div>
 
       {/* ── DIMENSION DIVIDER (dark) ─────────────────────────────────────── */}
-      <div style={{ background: '#1E2227', paddingTop: 12, paddingBottom: 12 }}>
+      <div style={{ background: '#1E2227', paddingTop: 14, paddingBottom: 14 }}>
         <DimDivider label="SHEET 01 · THE PROBLEM" dark animated />
       </div>
 
-      {/* ── PROBLEM SECTION (dark) ──────────────────────────────────────── */}
-      <section className="px-6 md:px-12 py-16" style={{ background: '#1E2227' }}>
-        <div className="max-w-7xl mx-auto space-y-10">
+      {/* ── PROBLEM SECTION (dark, full width) ──────────────────────────── */}
+      <section className="px-6 md:px-16 lg:px-24 py-20" style={{ background: '#1E2227' }}>
+        <div className="space-y-14">
           <SectionHeader clause="CL. 1.0 — WHY BUDGETS FAIL" title="The three problems no contractor will tell you" dark />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
             {PROBLEMS.map((p, i) => (
               <motion.div
                 key={p.no}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.3, ease: 'easeOut', delay: i * 0.1 }}
-                style={{ border: '1px solid rgba(244,244,240,0.09)', padding: '32px 28px', background: 'rgba(255,255,255,0.03)', position: 'relative', overflow: 'hidden' }}
+                transition={{ duration: 0.35, ease: 'easeOut', delay: i * 0.12 }}
+                style={{
+                  borderLeft: i === 0 ? '1px solid rgba(244,244,240,0.1)' : 'none',
+                  borderRight: '1px solid rgba(244,244,240,0.1)',
+                  borderTop: '1px solid rgba(244,244,240,0.1)',
+                  borderBottom: '1px solid rgba(244,244,240,0.1)',
+                  padding: '48px 40px',
+                  background: 'rgba(255,255,255,0.02)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
               >
-                <div style={{ position: 'absolute', top: -16, right: 8, fontFamily: 'var(--font-plex-mono)', fontSize: 112, color: 'rgba(31,78,121,0.14)', fontWeight: 700, lineHeight: 1, userSelect: 'none' }}>
+                {/* Big number — prominent foreground */}
+                <div style={{
+                  fontFamily: 'var(--font-plex-mono)',
+                  fontSize: 96,
+                  color: 'rgba(31,78,121,0.2)',
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  userSelect: 'none',
+                  marginBottom: 24,
+                }}>
                   {p.no}
                 </div>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 600, color: '#F4F4F0', marginBottom: 14, lineHeight: 1.3, position: 'relative' }}>
+                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 26, fontWeight: 600, color: '#F4F4F0', marginBottom: 16, lineHeight: 1.25 }}>
                   {p.heading}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.56)', lineHeight: 1.75, position: 'relative' }}>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.56)', lineHeight: 1.75 }}>
                   {p.body}
                 </p>
               </motion.div>
@@ -698,94 +581,77 @@ export default function Home() {
       </section>
 
       {/* ── DIMENSION DIVIDER (dark) ─────────────────────────────────────── */}
-      <div style={{ background: '#1E2227', paddingTop: 12, paddingBottom: 12 }}>
+      <div style={{ background: '#1E2227', paddingTop: 14, paddingBottom: 14 }}>
         <DimDivider label="SHEET 02 · 6 TOOLS · 1 PLATFORM" dark />
       </div>
 
-      {/* ── TOOLS SECTION (dark section, light cards) ──────────────────── */}
-      <section className="px-6 md:px-12 py-16" style={{ background: '#1E2227' }} ref={sectionRef}>
-        <div className="max-w-7xl mx-auto space-y-10">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      {/* ── TOOLS SECTION (dark section, full width) ──────────────────────── */}
+      <section className="px-6 md:px-16 lg:px-24 py-20" style={{ background: '#1E2227' }} ref={sectionRef}>
+        <div className="space-y-14">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <SectionHeader clause="CL. 2.0 — SCOPE OF TOOLS" title="Every phase of your construction, estimated" dark />
-            <div style={{ border: '1px solid rgba(31,78,121,0.4)', padding: '10px 16px', background: 'rgba(31,78,121,0.1)', flexShrink: 0, maxWidth: 380 }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#7BA7CC', letterSpacing: '0.05em', lineHeight: 1.5 }}>
+            <div style={{ border: '1px solid rgba(31,78,121,0.4)', padding: '14px 20px', background: 'rgba(31,78,121,0.1)', flexShrink: 0, maxWidth: 380 }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#7BA7CC', letterSpacing: '0.05em', lineHeight: 1.5 }}>
                 Professional IS-code compliant BOQ for each construction phase
               </p>
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(244,244,240,0.4)', marginTop: 3 }}>
+              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.4)', marginTop: 4 }}>
                 Exact quantities · Local market rates · Contractor-ready format
               </p>
             </div>
           </div>
 
-          {/* ── SUITE 1: VastuPro ────────────────────────────────────────── */}
+          {/* VastuPro featured card */}
           <div>
-            <div className="flex items-center gap-4 mb-5">
+            <div className="flex items-center gap-4 mb-6">
               <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  SUITE 1
-                </span>
-                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>
-                  Compliance &amp; Analysis
-                </span>
-                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid #14532D', color: '#14532D', letterSpacing: '0.04em' }}>
-                  FREE
-                </span>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>SUITE 1</span>
+                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 16, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>Compliance &amp; Analysis</span>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid #14532D', color: '#14532D', letterSpacing: '0.04em' }}>FREE</span>
               </div>
               <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
             </div>
 
-            {/* VastuPro featured card */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.35, ease: 'easeOut' }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
             >
               <Link href={VASTU_TOOL.href} style={{ textDecoration: 'none', display: 'block' }}>
                 <article style={{
                   border: '1px solid #C9A84C',
-                  padding: '28px 32px',
+                  padding: '40px 48px',
                   background: '#F4F4F0',
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 28,
+                  gap: 36,
                   cursor: 'pointer',
                   position: 'relative',
                   overflow: 'hidden',
-                  minHeight: 120,
+                  minHeight: 160,
                 }}>
-                  <span style={{ position: 'absolute', top: 8, right: 16, fontFamily: 'var(--font-plex-mono)', fontSize: 80, color: 'rgba(201,168,76,0.06)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
-                    P0
-                  </span>
+                  <span style={{ position: 'absolute', top: 8, right: 20, fontFamily: 'var(--font-plex-mono)', fontSize: 96, color: 'rgba(201,168,76,0.06)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>P0</span>
                   <div style={{ position: 'absolute', bottom: -10, right: -10, color: 'rgba(201,168,76,0.1)', pointerEvents: 'none', lineHeight: 0 }}>
                     <LargeVastuWatermark />
                   </div>
-                  <div style={{ width: 52, height: 52, flexShrink: 0 }}>
-                    <Image src="/vastupro-icon.png" alt="VastuPro" width={52} height={52} style={{ objectFit: 'contain' }} />
+                  <div style={{ width: 80, height: 80, flexShrink: 0 }}>
+                    <Image src="/vastupro-icon.png" alt="VastuPro" width={80} height={80} style={{ objectFit: 'contain' }} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 3 }}>
+                    <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
                       {VASTU_TOOL.descriptor}
                     </p>
-                    <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', marginBottom: 6 }}>
+                    <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 32, fontWeight: 700, color: '#1E2227', marginBottom: 8 }}>
                       {VASTU_TOOL.name}
                     </h3>
-                    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.63)', lineHeight: 1.65, maxWidth: 520 }}>
+                    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.63)', lineHeight: 1.65, maxWidth: 560 }}>
                       {VASTU_TOOL.desc}
                     </p>
                   </div>
                   <div style={{ flexShrink: 0 }}>
-                    <span style={{
-                      fontFamily: 'var(--font-plex-mono)',
-                      fontSize: 13,
-                      padding: '6px 14px',
-                      border: '1px solid #14532D',
-                      color: '#14532D',
-                      letterSpacing: '0.04em',
-                      display: 'block',
-                    }}>
+                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '8px 20px', border: '1px solid #14532D', color: '#14532D', letterSpacing: '0.04em', display: 'block' }}>
                       FREE →
                     </span>
                   </div>
@@ -794,29 +660,23 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* ── SUITE 2 DIVIDER ──────────────────────────────────────────── */}
-          <div style={{ paddingTop: 8, paddingBottom: 4 }}>
-            <div className="flex items-center gap-4">
+          {/* Suite 2 divider */}
+          <div style={{ paddingTop: 8 }}>
+            <div className="flex items-center gap-4 mb-3">
               <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  SUITE 2
-                </span>
-                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>
-                  Phase-wise Cost &amp; BOQ Estimation
-                </span>
-                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid rgba(31,78,121,0.55)', color: '#7BA7CC', letterSpacing: '0.04em' }}>
-                  ₹499 / REPORT
-                </span>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>SUITE 2</span>
+                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 16, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>Phase-wise Cost &amp; BOQ Estimation</span>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid rgba(31,78,121,0.55)', color: '#7BA7CC', letterSpacing: '0.04em' }}>₹499 / REPORT</span>
               </div>
               <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
             </div>
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.32)', textAlign: 'center', marginTop: 8 }}>
+            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.32)', textAlign: 'center' }}>
               IS-code verified BOQ · Exact quantities · CPWD labour rates · Contractor comparison
             </p>
           </div>
 
-          {/* 5 paid tools grid */}
+          {/* 5 paid tools — edge-to-edge grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {PAID_TOOLS.map((tool, i) => (
               <ToolCard key={tool.name} tool={tool} delay={i * 0.08} />
@@ -825,27 +685,27 @@ export default function Home() {
 
           {/* Bundle strip */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            style={{ border: '1px solid rgba(244,244,240,0.12)', padding: '20px 28px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            style={{ border: '1px solid rgba(244,244,240,0.12)', padding: '28px 40px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}
           >
             <div>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#7BA7CC', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#7BA7CC', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
                 COMPLETE BUNDLE — ALL 5 PAID TOOLS
               </p>
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.57)' }}>
+              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.57)' }}>
                 StructoPro · MasonPro · ElectroPro · PlumbPro · InteriorPro
                 {' '}&mdash; saves{' '}
                 <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹1,496</span> vs buying separately
               </p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 32, fontWeight: 500, color: '#F4F4F0' }}>₹2,999</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 500, color: '#F4F4F0' }}>₹2,999</span>
               <Link
                 href="/tools/structopro"
-                style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '10px 20px', borderRadius: 6, textDecoration: 'none', whiteSpace: 'nowrap' }}
+                style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '13px 24px', borderRadius: 6, textDecoration: 'none', whiteSpace: 'nowrap' }}
               >
                 Get Bundle →
               </Link>
@@ -859,28 +719,35 @@ export default function Home() {
         <DimDivider label="SHEET 03 · 4 STEPS TO CERTAINTY" />
       </div>
 
-      {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="grid-paper px-6 md:px-12 py-14">
-        <div className="max-w-7xl mx-auto space-y-10">
+      {/* ── HOW IT WORKS (full width) ────────────────────────────────────── */}
+      <section id="how-it-works" className="grid-paper px-6 md:px-16 lg:px-24 py-20">
+        <div className="space-y-14">
           <SectionHeader clause="CL. 3.0 — PROCESS" title="How NirmanShastra works" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0">
             {STEPS.map((step, i) => (
               <motion.div
                 key={step.rev}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.3, ease: 'easeOut', delay: i * 0.1 }}
-                style={{ borderTop: '2px solid #1F4E79', paddingTop: 16 }}
+                transition={{ duration: 0.35, ease: 'easeOut', delay: i * 0.1 }}
+                style={{
+                  borderTop: '3px solid #1F4E79',
+                  borderRight: i < 3 ? '1px solid rgba(30,34,39,0.1)' : 'none',
+                  paddingTop: 24,
+                  paddingRight: 32,
+                  paddingLeft: i === 0 ? 0 : 32,
+                  paddingBottom: 16,
+                }}
               >
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.06em', marginBottom: 10 }}>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: '#1F4E79', letterSpacing: '0.06em', marginBottom: 14 }}>
                   {step.rev}
                 </p>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 17, fontWeight: 600, color: '#1E2227', marginBottom: 10, lineHeight: 1.3 }}>
+                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 20, fontWeight: 600, color: '#1E2227', marginBottom: 12, lineHeight: 1.3 }}>
                   {step.heading}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.65)', lineHeight: 1.7 }}>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.65)', lineHeight: 1.7 }}>
                   {step.body}
                 </p>
               </motion.div>
@@ -894,14 +761,14 @@ export default function Home() {
         <DimDivider label="CHECKED AGAINST 25 IS CODES" />
       </div>
 
-      {/* ── IS CODE TRUST STRIP (Blueprint blue) ─────────────────────────── */}
-      <section className="px-6 md:px-12 py-14" style={{ background: '#1F4E79' }}>
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="space-y-1">
+      {/* ── IS CODE TRUST STRIP (full width) ─────────────────────────────── */}
+      <section className="px-6 md:px-16 lg:px-24 py-20" style={{ background: '#1F4E79' }}>
+        <div className="space-y-10">
+          <div className="space-y-2">
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               CL. 4.0 — CODE COMPLIANCE
             </p>
-            <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.2 }}>
+            <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: '#F4F4F0', lineHeight: 1.15 }}>
               Every calculation backed by Bureau of Indian Standards
             </h2>
           </div>
@@ -916,8 +783,8 @@ export default function Home() {
                 transition={{ duration: 0.2, delay: i * 0.02 }}
                 style={{
                   fontFamily: 'var(--font-plex-mono)',
-                  fontSize: 12,
-                  padding: '5px 12px',
+                  fontSize: 13,
+                  padding: '7px 14px',
                   border: '1px solid rgba(244,244,240,0.35)',
                   color: '#F4F4F0',
                   letterSpacing: '0.04em',
@@ -930,15 +797,15 @@ export default function Home() {
             ))}
           </div>
 
-          <div style={{ border: '1px solid rgba(244,244,240,0.2)', padding: '14px 18px', background: 'rgba(255,255,255,0.06)', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: 'rgba(244,244,240,0.55)', flexShrink: 0 }}>ⓘ</span>
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.72)', lineHeight: 1.65, margin: 0 }}>
+          <div style={{ border: '1px solid rgba(244,244,240,0.2)', padding: '18px 24px', background: 'rgba(255,255,255,0.06)', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 16, color: 'rgba(244,244,240,0.55)', flexShrink: 0 }}>ⓘ</span>
+            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(244,244,240,0.72)', lineHeight: 1.65, margin: 0 }}>
               IS code values in NirmanShastra are verified against BIS publications and locked at source.
               Every material quantity, mix ratio, and structural parameter traces back to a specific IS clause.
               M20 is <span style={{ fontFamily: 'var(--font-plex-mono)' }}>1:1.5:3</span> (not{' '}
               <span style={{ fontFamily: 'var(--font-plex-mono)' }}>1:2:4</span>). Dry volume factor for
               concrete is <span style={{ fontFamily: 'var(--font-plex-mono)' }}>1.54</span>. For mortar:{' '}
-              <span style={{ fontFamily: 'var(--font-plex-mono)' }}>1.1</span>. These are not negotiable.
+              <span style={{ fontFamily: 'var(--font-plex-mono)' }}>1.1</span>.
             </p>
           </div>
         </div>
@@ -949,45 +816,38 @@ export default function Home() {
         <DimDivider label="₹499 / REPORT · ₹2,999 / BUNDLE" />
       </div>
 
-      {/* ── PRICING SECTION ──────────────────────────────────────────────── */}
-      <section id="pricing" className="grid-paper px-6 md:px-12 py-14">
-        <div className="max-w-7xl mx-auto space-y-10">
+      {/* ── PRICING SECTION (full width) ─────────────────────────────────── */}
+      <section id="pricing" className="grid-paper px-6 md:px-16 lg:px-24 py-20">
+        <div className="space-y-14">
           <SectionHeader clause="CL. 5.0 — PRICING · LAUNCH 2026" title="Simple, report-by-report pricing" />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
 
             {/* Tier 1 — VastuPro FREE */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.3, delay: 0 }}
-              style={{ border: '1px solid #14532D', padding: '28px', background: '#F4F4F0', display: 'flex', flexDirection: 'column', gap: 16 }}
+              transition={{ duration: 0.35, delay: 0 }}
+              style={{ border: '1px solid #14532D', borderRight: 'none', padding: '40px', background: '#F4F4F0', display: 'flex', flexDirection: 'column', gap: 20 }}
             >
               <div>
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#14532D', letterSpacing: '0.07em', marginBottom: 6 }}>PHASE 0 — LEAD MAGNET</p>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>VastuPro</h3>
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.5)', marginBottom: 6 }}>Vastu Compliance Analyser</p>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 500, color: '#14532D', lineHeight: 1 }}>FREE</div>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginTop: 4 }}>forever · no payment required</p>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#14532D', letterSpacing: '0.07em', marginBottom: 8 }}>PHASE 0 — LEAD MAGNET</p>
+                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>VastuPro</h3>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>Vastu Compliance Analyser</p>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#14532D', lineHeight: 1 }}>FREE</div>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>forever · no payment required</p>
               </div>
-              <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {[
-                  'Vastu compliance analysis',
-                  '33 room types supported',
-                  '16-zone Vastu Mandala',
-                  'Score + remedies',
-                  'Full PDF report',
-                  'IS 4326:1993 seismic warnings',
-                ].map(f => (
-                  <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 8 }}>
+              <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {['Vastu compliance analysis','33 room types supported','16-zone Vastu Mandala','Score + remedies','Full PDF report','IS 4326:1993 seismic warnings'].map(f => (
+                  <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
                     <span style={{ color: '#14532D', fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
                   </li>
                 ))}
               </ul>
               <Link
                 href="/tools/vastu-pro"
-                style={{ display: 'block', textAlign: 'center', border: '1px solid #14532D', color: '#14532D', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '11px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
+                style={{ display: 'block', textAlign: 'center', border: '1px solid #14532D', color: '#14532D', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '14px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
               >
                 Start Free →
               </Link>
@@ -995,36 +855,29 @@ export default function Home() {
 
             {/* Tier 2 — Per Report ₹499 */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              style={{ border: '1px solid #1E2227', padding: '28px', background: '#F4F4F0', display: 'flex', flexDirection: 'column', gap: 16 }}
+              transition={{ duration: 0.35, delay: 0.1 }}
+              style={{ border: '1px solid #1E2227', padding: '40px', background: '#F4F4F0', display: 'flex', flexDirection: 'column', gap: 20 }}
             >
               <div>
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.07em', marginBottom: 6 }}>PER REPORT · ANY PAID TOOL</p>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Single Tool</h3>
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.5)', marginBottom: 6 }}>IS-Code BOQ Estimator</p>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹499</div>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginTop: 4 }}>per report · StructoPro to InteriorPro</p>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.07em', marginBottom: 8 }}>PER REPORT · ANY PAID TOOL</p>
+                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Single Tool</h3>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>IS-Code BOQ Estimator</p>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹499</div>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>per report · StructoPro to InteriorPro</p>
               </div>
-              <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {[
-                  'Exact material quantities',
-                  'Itemised cost breakdown',
-                  'IS code compliance panel',
-                  'CPWD labour cost calculator',
-                  'Contractor quote comparison',
-                  'PDF report with SVG drawings',
-                ].map(f => (
-                  <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 8 }}>
+              <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {['Exact material quantities','Itemised cost breakdown','IS code compliance panel','CPWD labour cost calculator','Contractor quote comparison','PDF report with SVG drawings'].map(f => (
+                  <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
                     <span style={{ color: '#1F4E79', fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
                   </li>
                 ))}
               </ul>
               <Link
                 href="/tools/structopro"
-                style={{ display: 'block', textAlign: 'center', background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '11px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
+                style={{ display: 'block', textAlign: 'center', background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '14px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
               >
                 Start with StructoPro →
               </Link>
@@ -1032,41 +885,34 @@ export default function Home() {
 
             {/* Tier 3 — Bundle ₹2,999 */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-              style={{ border: '2px solid #1E2227', padding: '28px', background: '#F4F4F0', display: 'flex', flexDirection: 'column', gap: 16, position: 'relative' }}
+              transition={{ duration: 0.35, delay: 0.2 }}
+              style={{ border: '2px solid #1E2227', borderLeft: 'none', padding: '40px', background: '#F4F4F0', display: 'flex', flexDirection: 'column', gap: 20, position: 'relative' }}
             >
-              <div style={{ position: 'absolute', top: -1, right: 18, background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '3px 10px', letterSpacing: '0.05em' }}>
+              <div style={{ position: 'absolute', top: -1, right: 18, background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '4px 12px', letterSpacing: '0.05em' }}>
                 BEST VALUE
               </div>
               <div>
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#8C3A22', letterSpacing: '0.07em', marginBottom: 6 }}>COMPLETE BUNDLE · ALL 5 PAID TOOLS</p>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Full Platform</h3>
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.5)', marginBottom: 6 }}>All 5 Phase Estimators</p>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹2,999</div>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginTop: 4 }}>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#8C3A22', letterSpacing: '0.07em', marginBottom: 8 }}>COMPLETE BUNDLE · ALL 5 PAID TOOLS</p>
+                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Full Platform</h3>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>All 5 Phase Estimators</p>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹2,999</div>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>
                   saves <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹1,496</span> vs buying individually
                 </p>
               </div>
-              <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {[
-                  'StructoPro + MasonPro',
-                  'ElectroPro + PlumbPro',
-                  'InteriorPro',
-                  'All quantities across all phases',
-                  'Cross-phase contractor comparison',
-                  'Grand Total Report (₹999) free',
-                ].map(f => (
-                  <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 8 }}>
+              <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {['StructoPro + MasonPro','ElectroPro + PlumbPro','InteriorPro','All quantities across all phases','Cross-phase contractor comparison','Grand Total Report (₹999) free'].map(f => (
+                  <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
                     <span style={{ color: '#8C3A22', fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
                   </li>
                 ))}
               </ul>
               <Link
                 href="/tools/structopro"
-                style={{ display: 'block', textAlign: 'center', background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '11px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
+                style={{ display: 'block', textAlign: 'center', background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '14px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
               >
                 Get Bundle →
               </Link>
@@ -1081,68 +927,61 @@ export default function Home() {
 
       {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer style={{ borderTop: '1px solid #1E2227', background: '#1E2227', marginTop: 0 }}>
-        <div className="max-w-7xl mx-auto" style={{ borderLeft: '1px solid rgba(244,244,240,0.1)', borderRight: '1px solid rgba(244,244,240,0.1)' }}>
-          <div className="grid grid-cols-2 md:grid-cols-4" style={{ borderBottom: '1px solid rgba(244,244,240,0.1)' }}>
+        <div style={{ borderLeft: '1px solid rgba(244,244,240,0.1)', borderRight: '1px solid rgba(244,244,240,0.1)' }}>
+          <div className="grid grid-cols-2 md:grid-cols-4 px-6 md:px-16 lg:px-24" style={{ borderBottom: '1px solid rgba(244,244,240,0.1)' }}>
 
-            {/* Tools column */}
-            <div style={{ padding: '28px 24px', borderRight: '1px solid rgba(244,244,240,0.1)' }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 14 }}>TOOLS</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ padding: '32px 0 32px 0', paddingRight: 40, borderRight: '1px solid rgba(244,244,240,0.1)' }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>TOOLS</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {ALL_TOOLS.map(t => (
-                  <Link key={t.name} href={t.href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.65)', textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Link key={t.name} href={t.href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     {t.name}
-                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: t.free ? '#14532D' : 'rgba(244,244,240,0.35)' }}>
-                      {t.free ? 'FREE' : '₹499'}
-                    </span>
+                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: t.free ? '#14532D' : 'rgba(244,244,240,0.35)' }}>{t.free ? 'FREE' : '₹499'}</span>
                   </Link>
                 ))}
               </div>
             </div>
 
-            {/* Company column */}
-            <div style={{ padding: '28px 24px', borderRight: '1px solid rgba(244,244,240,0.1)' }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 14 }}>COMPANY</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ padding: '32px 0 32px 40px', borderRight: '1px solid rgba(244,244,240,0.1)', paddingRight: 40 }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>COMPANY</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[['About', '#'], ['Contact', '#'], ['Blog', '#'], ['Careers', '#']].map(([label, href]) => (
-                  <a key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</a>
+                  <a key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</a>
                 ))}
               </div>
             </div>
 
-            {/* Legal column */}
-            <div style={{ padding: '28px 24px', borderRight: '1px solid rgba(244,244,240,0.1)' }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 14 }}>LEGAL</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ padding: '32px 0 32px 40px', borderRight: '1px solid rgba(244,244,240,0.1)', paddingRight: 40 }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>LEGAL</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[['Privacy Policy', '#'], ['Terms of Use', '#'], ['Disclaimer', '#'], ['IS Codes Used', '#']].map(([label, href]) => (
-                  <a key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</a>
+                  <a key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</a>
                 ))}
               </div>
             </div>
 
-            {/* DRG block */}
-            <div style={{ padding: '28px 24px' }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 14 }}>DRG BLOCK</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ padding: '32px 0 32px 40px' }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>DRG BLOCK</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
                   ['PROJECT', 'NIRMANSHASTRA'],
                   ['DRG NO.', 'NS-001'],
                   ['DATE', today],
                   ['REV', 'A'],
                 ].map(([k, v]) => (
-                  <div key={k} style={{ display: 'flex', gap: 8 }}>
-                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase', minWidth: 58, flexShrink: 0 }}>{k}</span>
-                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.8)' }}>{v}</span>
+                  <div key={k} style={{ display: 'flex', gap: 10 }}>
+                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase', minWidth: 60, flexShrink: 0 }}>{k}</span>
+                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(244,244,240,0.8)' }}>{v}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Bottom strip */}
-          <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-            <div>
-              <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 14, color: '#F4F4F0', fontWeight: 600 }}>NirmanShastra</span>
-              <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 11, color: 'rgba(244,244,240,0.4)', marginLeft: 8 }}>निर्माणशास्त्र</span>
+          <div className="px-6 md:px-16 lg:px-24" style={{ padding: '16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, paddingTop: 16, paddingBottom: 16 }}>
+            <div style={{ paddingLeft: 0 }}>
+              <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, color: '#F4F4F0', fontWeight: 600 }}>NirmanShastra</span>
+              <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 12, color: 'rgba(244,244,240,0.4)', marginLeft: 10 }}>निर्माणशास्त्र</span>
             </div>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.35)', letterSpacing: '0.04em' }}>
               Estimates are for budgeting reference only. Not for structural approval without licensed engineer.

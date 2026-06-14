@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import { seismicZoneFromState, MATERIAL_RATES, type ElectroInput } from '../electropro-engine'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -65,14 +65,14 @@ const INITIAL_TRADES: LabourTrade[] = [
 type AlertVariant = 'info' | 'caution' | 'error' | 'tip'
 function AlertBox({ variant, children }: { variant: AlertVariant; children: ReactNode }) {
   const styles: Record<AlertVariant, { bg: string; border: string; icon: string; iconColor: string }> = {
-    info:    { bg: '#1F4E7908', border: '#1F4E7940', icon: 'ⓘ', iconColor: '#1F4E79' },
-    caution: { bg: '#D99A0610', border: '#D99A0650', icon: '⚠', iconColor: '#D99A06' },
-    error:   { bg: '#8C3A2208', border: '#8C3A2240', icon: '✕', iconColor: '#8C3A22' },
-    tip:     { bg: '#14532D08', border: '#14532D40', icon: '✓', iconColor: '#14532D' },
+    info:    { bg: '#1F4E7908', border: '#1F4E79', icon: 'ⓘ', iconColor: '#1F4E79' },
+    caution: { bg: '#D99A0610', border: '#D99A06', icon: '⚠', iconColor: '#D99A06' },
+    error:   { bg: '#8C3A2208', border: '#8C3A22', icon: '✕', iconColor: '#8C3A22' },
+    tip:     { bg: '#14532D08', border: '#14532D', icon: '✓', iconColor: '#14532D' },
   }
   const s = styles[variant]
   return (
-    <div className="flex gap-2.5 p-3 rounded-[2px]" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+    <div className="flex gap-2.5 p-3" style={{ background: s.bg, borderLeft: `4px solid ${s.border}` }}>
       <span className="text-[13px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
       <div className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
     </div>
@@ -114,42 +114,16 @@ function ISBadge({ code }: { code: string }) {
   )
 }
 
-function StepBar() {
-  return (
-    <div className="flex items-center">
-      {(['REG', 'METHOD', 'DETAILS', 'RESULTS'] as const).map((step, i) => (
-        <div key={step} className="flex items-center">
-          <div className="flex items-center gap-1.5">
-            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] border"
-              style={{
-                background:  i < 2 ? '#14532D' : i === 2 ? '#1F4E79' : 'transparent',
-                borderColor: i < 2 ? '#14532D' : i === 2 ? '#1F4E79' : 'rgba(30,34,39,0.22)',
-                color:       i <= 2 ? '#fff' : 'rgba(30,34,39,0.35)',
-                fontFamily:  'var(--font-plex-mono)',
-              }}>
-              {i < 2 ? '✓' : i + 1}
-            </div>
-            <span className="text-[10px] uppercase tracking-widest hidden sm:inline"
-              style={{ fontFamily: 'var(--font-plex-mono)', color: i < 2 ? '#14532D' : i === 2 ? '#1F4E79' : 'rgba(30,34,39,0.3)' }}>
-              {step}
-            </span>
-          </div>
-          {i < 3 && <div className="w-5 h-px mx-1.5" style={{ background: 'rgba(30,34,39,0.14)' }} />}
-        </div>
-      ))}
-    </div>
-  )
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
   state:    string
   city:     string
   onSubmit: (input: ElectroInput) => void
+  onFormChange?: (data: Record<string, unknown>) => void
 }
 
-export default function BuildDetails({ state, city, onSubmit }: Props) {
+export default function BuildDetails({ state, city, onSubmit, onFormChange }: Props) {
   // S1 — Project Details
   const [projectName, setProjectName]   = useState('')
   const [localState, setLocalState]     = useState(state)
@@ -187,6 +161,15 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
   const [errors, setErrors]             = useState<Record<string, string>>({})
 
   const szInfo = seismicZoneFromState(localState)
+
+  // Live summary panel update
+  useEffect(() => {
+    if (!onFormChange) return
+    const v = parseFloat(buaPerFloor)
+    const sqft = (!v || v <= 0) ? 0 : buaUnit === 'sqm' ? v * SQFT_PER_SQM : v
+    const bua = Math.round(sqft * (parseInt(numFloors) || 1))
+    onFormChange({ bua, labourEnabled: includeLabour })
+  }, [buaPerFloor, buaUnit, numFloors, includeLabour, onFormChange])
 
   function toggleTip(id: string) { setOpenTip(prev => prev === id ? null : id) }
 
@@ -239,23 +222,16 @@ export default function BuildDetails({ state, city, onSubmit }: Props) {
     <div className="min-h-screen bg-sheet-white pb-12">
 
       {/* Page header */}
-      <div className="px-4 py-4" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
-        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest mb-0.5"
-              style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-              NIRMANSHASTRA · ELECTROPRO
-            </p>
-            <h1 className="text-[22px] font-bold"
-              style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
-              Build Details
-            </h1>
-          </div>
-          <StepBar />
-        </div>
+      <div className="py-8 px-6 md:px-10" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>
+          03 · ELECTRICAL
+        </p>
+        <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 600, color: '#1E2227', lineHeight: 1.2 }}>
+          Build Details
+        </h1>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 pt-6 space-y-6">
+      <div className="px-6 md:px-10 pt-6 space-y-6">
 
         {/* Location + seismic chip */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[2px]"

@@ -133,17 +133,17 @@ function Tip({ id, open, setOpen }: { id: string; open: string | null; setOpen: 
 function Sect({ title, badge, defaultOpen = true, children }: { title: string; badge?: string; defaultOpen?: boolean; children: ReactNode }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="rounded-[2px] border" style={{ borderColor: '#1E222720' }}>
+    <div style={{ border: '1px solid rgba(30,34,39,0.12)', borderLeft: '3px solid #1F4E79' }}>
       <button type="button" onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-black/5 transition-colors"
-        style={{ background: '#1E22270A' }}>
-        <div className="flex items-center gap-2">
-          <span className="text-[13px] font-semibold tracking-wide" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{title}</span>
-          {badge && <span className="text-[10px] px-2 py-0.5 rounded-[1px]" style={{ background: '#1F4E7918', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{badge}</span>}
+        className="w-full flex items-center justify-between px-6 py-4 text-left"
+        style={{ background: 'rgba(31,78,121,0.04)' }}>
+        <div className="flex items-center gap-3">
+          <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 16, fontWeight: 600, color: '#1F4E79' }}>{title}</span>
+          {badge && <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', background: 'rgba(31,78,121,0.12)', color: '#1F4E79' }}>{badge}</span>}
         </div>
-        <span className="text-[12px] opacity-50">{open ? '▲' : '▼'}</span>
+        <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.4)' }}>{open ? '▲' : '▼'}</span>
       </button>
-      {open && <div className="px-5 py-5 space-y-4">{children}</div>}
+      {open && <div className="px-6 py-6 space-y-5">{children}</div>}
     </div>
   )
 }
@@ -151,16 +151,16 @@ function Sect({ title, badge, defaultOpen = true, children }: { title: string; b
 type AlertVariant = 'info' | 'caution' | 'error' | 'tip'
 function AlertBox({ variant, children }: { variant: AlertVariant; children: ReactNode }) {
   const styles: Record<AlertVariant, { bg: string; border: string; icon: string; iconColor: string }> = {
-    info:    { bg: '#1F4E7908', border: '#1F4E7940', icon: 'ⓘ', iconColor: '#1F4E79' },
-    caution: { bg: '#D99A0610', border: '#D99A0650', icon: '⚠', iconColor: '#D99A06' },
-    error:   { bg: '#8C3A2208', border: '#8C3A2240', icon: '✕', iconColor: '#8C3A22' },
-    tip:     { bg: '#14532D08', border: '#14532D40', icon: '✓', iconColor: '#14532D' },
+    info:    { bg: 'rgba(31,78,121,0.05)',   border: '#1F4E79', icon: 'ⓘ', iconColor: '#1F4E79' },
+    caution: { bg: 'rgba(217,154,6,0.07)',   border: '#D99A06', icon: '⚠', iconColor: '#D99A06' },
+    error:   { bg: 'rgba(140,58,34,0.06)',   border: '#8C3A22', icon: '✕', iconColor: '#8C3A22' },
+    tip:     { bg: 'rgba(20,83,45,0.06)',    border: '#14532D', icon: '✓', iconColor: '#14532D' },
   }
   const s = styles[variant]
   return (
-    <div className="flex gap-2.5 p-3 rounded-[2px]" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
-      <span className="text-[13px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
-      <div className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
+    <div className="flex gap-3 p-4" style={{ background: s.bg, borderLeft: `4px solid ${s.border}` }}>
+      <span className="text-[15px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
+      <div className="text-[13px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
     </div>
   )
 }
@@ -256,11 +256,12 @@ interface Props {
   state: string
   city: string
   onSubmit: (input: StructoInput) => void
+  onFormChange?: (data: Record<string, unknown>) => void
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function BuildDetails({ state: initState, city: initCity, onSubmit }: Props) {
+export default function BuildDetails({ state: initState, city: initCity, onSubmit, onFormChange }: Props) {
   const [openTip, setOpenTip] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -322,6 +323,22 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
   const isStiltSoftStorey = parkingType === 'stilt' && ['III', 'IV', 'V'].includes(effectiveZone)
 
   const FLOOR_LABELS = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor']
+
+  // Report live form state to parent
+  useEffect(() => {
+    if (!onFormChange) return
+    const totalBUA = sameArea
+      ? (parseFloat(groundArea) || 0) * (numFloors + 1)
+      : floorRows.reduce((sum, r) => sum + (parseFloat(r.length) || 0) * (parseFloat(r.width) || 0), 0)
+    onFormChange({
+      floors: `G+${numFloors}`,
+      bua: Math.round(totalBUA),
+      siteCondition: siteCondition ?? undefined,
+      concreteGrade,
+      steelGrade,
+      labourEnabled: includeLabour,
+    })
+  }, [numFloors, sameArea, groundArea, floorRows, siteCondition, concreteGrade, steelGrade, includeLabour]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync floor rows when numFloors changes
   useEffect(() => {
@@ -389,10 +406,10 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
     onSubmit(input)
   }
 
-  const iCls = 'w-full px-3 py-2 rounded-[2px] border text-[13px] bg-white'
-  const iStyle = { borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }
+  const iCls = 'w-full px-4 rounded-[6px] border text-[14px] bg-white'
+  const iStyle = { borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)', minHeight: 48 }
   const monoStyle = { fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }
-  const lCls = 'block text-[12px] font-medium mb-1'
+  const lCls = 'block text-[13px] font-medium mb-2'
   const lStyle = { color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }
   const avgTag = (v: number | string, unit = '') => (
     <span className="text-[11px] ml-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>
@@ -401,10 +418,11 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
   )
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 max-w-3xl mx-auto py-6 px-4">
-      <div className="mb-4">
-        <h2 className="text-[20px] font-bold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>StructoPro — Build Details</h2>
-        <p className="text-[13px] mt-1" style={{ color: '#1E2227A0', fontFamily: 'var(--font-plex-sans)' }}>Fill all sections to generate your structural estimate</p>
+    <form onSubmit={handleSubmit} className="space-y-4 py-8 px-6 md:px-10">
+      <div className="mb-6">
+        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>P1 · RCC STRUCTURE ESTIMATOR</p>
+        <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 32, fontWeight: 700, color: '#1E2227', lineHeight: 1.15 }}>StructoPro — Build Details</h2>
+        <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.55)', marginTop: 6 }}>Fill all sections to generate your IS-code verified structural estimate</p>
       </div>
 
       {/* ── S1: Project Details ────────────────────────────────────────────────── */}

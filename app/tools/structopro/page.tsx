@@ -7,6 +7,8 @@ import MethodSelection from './components/MethodSelection'
 import BuildDetails from './components/BuildDetails'
 import ResultsPage from './components/ResultsPage'
 import { runCalculation, type StructoInput, type StructoResult } from './structopro-engine'
+import WizardStepBar from '@/components/ui/WizardStepBar'
+import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 
 const stepVariants = {
   initial: { opacity: 0, x: 18 },
@@ -25,8 +27,9 @@ interface SessionState {
 }
 
 export default function StructoProPage() {
-  const [step, setStep]       = useState<Step>('register')
-  const [session, setSession] = useState<SessionState>({
+  const [step, setStep]         = useState<Step>('register')
+  const [liveData, setLiveData] = useState<LiveSummaryData>({})
+  const [session, setSession]   = useState<SessionState>({
     regData:    {} as StructoRegData,
     contactId:  '',
     estimateId: null,
@@ -48,7 +51,6 @@ export default function StructoProPage() {
     setSession(prev => ({ ...prev, input, result }))
     setStep('results')
 
-    // Save estimate to Supabase (non-blocking)
     try {
       const res = await fetch('/api/structopro/save-estimate', {
         method:  'POST',
@@ -73,6 +75,7 @@ export default function StructoProPage() {
 
   function handleStartOver() {
     setStep('register')
+    setLiveData({})
     setSession({
       regData:    {} as StructoRegData,
       contactId:  '',
@@ -83,37 +86,59 @@ export default function StructoProPage() {
   }
 
   return (
-    <AnimatePresence mode="wait">
-      {step === 'register' && (
-        <motion.div key="register" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-          <RegistrationForm onSubmit={handleRegistration} />
-        </motion.div>
-      )}
-      {step === 'method' && (
-        <motion.div key="method" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-          <MethodSelection onSelect={handleMethod} />
-        </motion.div>
-      )}
-      {step === 'details' && (
-        <motion.div key="details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-          <BuildDetails
-            state={session.regData.state}
-            city={session.regData.city}
-            onSubmit={handleDetails}
-          />
-        </motion.div>
-      )}
-      {step === 'results' && session.result && session.input && (
-        <motion.div key="results" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-          <ResultsPage
-            result={session.result}
-            input={session.input}
-            estimateId={session.estimateId}
-            contactName={session.regData.name}
-            onStartOver={handleStartOver}
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div className="min-h-screen" style={{ background: '#F4F4F0' }}>
+      {/* Step bar — always visible */}
+      <WizardStepBar currentStep={step} toolName="StructoPro" toolPhase="P1" />
+
+      <AnimatePresence mode="wait">
+        {step === 'register' && (
+          <motion.div key="register" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+            <RegistrationForm onSubmit={handleRegistration} />
+          </motion.div>
+        )}
+
+        {step === 'method' && (
+          <motion.div key="method" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+            <MethodSelection onSelect={handleMethod} />
+          </motion.div>
+        )}
+
+        {step === 'details' && (
+          <motion.div key="details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+            {/* Two-column layout: form 55% + live summary 45% */}
+            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
+              <div style={{ flex: '0 0 55%', minWidth: 0 }}>
+                <BuildDetails
+                  state={session.regData.state}
+                  city={session.regData.city}
+                  onSubmit={handleDetails}
+                  onFormChange={setLiveData}
+                />
+              </div>
+              <div style={{ flex: '0 0 45%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+                <LiveSummaryPanel
+                  toolName="StructoPro"
+                  toolPhase="P1"
+                  regData={session.regData}
+                  liveData={liveData}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {step === 'results' && session.result && session.input && (
+          <motion.div key="results" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+            <ResultsPage
+              result={session.result}
+              input={session.input}
+              estimateId={session.estimateId}
+              contactName={session.regData.name}
+              onStartOver={handleStartOver}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
