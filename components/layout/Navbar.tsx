@@ -283,13 +283,22 @@ export default function Navbar() {
       <div className="flex items-center gap-3">
         {user ? (
           <>
-            <span style={{ ...mono, color: 'rgba(244,244,240,0.5)', fontSize: 11, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-              className="hidden sm:block">
-              {user.email}
+            <span
+              style={{ ...mono, color: 'rgba(244,244,240,0.5)', fontSize: 11, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+              className="hidden sm:block"
+            >
+              {user.user_metadata?.full_name || user.email}
             </span>
+            <Link
+              href="/reports"
+              style={{ ...mono, color: 'rgba(244,244,240,0.75)', fontSize: 12, textDecoration: 'none', letterSpacing: '0.05em', border: '1px solid rgba(244,244,240,0.18)', padding: '6px 12px', borderRadius: 6 }}
+              className="hidden sm:block"
+            >
+              My Reports
+            </Link>
             <button
               onClick={handleLogout}
-              style={{ ...mono, border: '1px solid rgba(244,244,240,0.2)', color: '#F4F4F0', fontSize: 11, padding: '6px 12px', borderRadius: 6, background: 'none', cursor: 'pointer' }}
+              style={{ ...mono, border: '1px solid rgba(244,244,240,0.2)', color: 'rgba(244,244,240,0.6)', fontSize: 11, padding: '6px 12px', borderRadius: 6, background: 'none', cursor: 'pointer' }}
             >
               Log Out
             </button>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient, createSupabaseClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,12 +10,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Required fields missing' }, { status: 400 })
     }
 
+    const sessionClient = await createSupabaseClient()
+    const { data: { user } } = await sessionClient.auth.getUser()
+
     const supabase = createServiceClient()
 
     const { data, error } = await supabase
       .from('estimates')
       .insert({
         contact_id:   contactId,
+        user_id:      user?.id ?? null,
         app_type:     'plumbpro',
         project_name: projectName,
         state:        state || null,

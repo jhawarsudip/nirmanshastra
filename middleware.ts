@@ -1,6 +1,15 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const PROTECTED_TOOL_ROUTES = [
+  '/tools/structopro',
+  '/tools/masonpro',
+  '/tools/electropro',
+  '/tools/plumbpro',
+  '/tools/interiorpro',
+  '/tools/vastu-pro',
+]
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -20,7 +29,18 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { pathname } = request.nextUrl
+  const isProtectedTool = PROTECTED_TOOL_ROUTES.some(r => pathname.startsWith(r))
+  const isReports = pathname.startsWith('/reports')
+
+  if ((isProtectedTool || isReports) && !user) {
+    const redirectUrl = new URL('/auth', request.url)
+    redirectUrl.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(redirectUrl)
+  }
+
   return supabaseResponse
 }
 

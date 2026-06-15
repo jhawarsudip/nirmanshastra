@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
+import type { User } from '@supabase/supabase-js'
 
 interface RegistrationData {
   name: string
@@ -50,17 +51,19 @@ export default function RegistrationForm({ onSubmit }: Props) {
   const [errors, setErrors] = useState<Partial<RegistrationData>>({})
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState('')
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
   const supabase = useMemo(() => createClient(), [])
 
-  // Pre-fill from logged-in user
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return
+      setLoggedInUser(data.user)
       const meta = data.user.user_metadata ?? {}
       setForm(prev => ({
         ...prev,
-        email: prev.email || data.user?.email || '',
-        name:  prev.name  || meta.full_name || meta.name || '',
+        email:  data.user?.email || prev.email,
+        name:   meta.full_name || meta.name || prev.name,
+        mobile: meta.mobile || prev.mobile,
       }))
     })
   }, [supabase])
@@ -72,9 +75,9 @@ export default function RegistrationForm({ onSubmit }: Props) {
 
   function validate(): boolean {
     const e: Partial<RegistrationData> = {}
-    if (!form.name.trim())  e.name    = 'Name is required'
+    if (!loggedInUser && !form.name.trim()) e.name = 'Name is required'
     if (!/^\d{10}$/.test(form.mobile)) e.mobile = 'Enter a valid 10-digit mobile number'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address'
+    if (!loggedInUser && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address'
     if (!form.state)        e.state   = 'State is required'
     if (!form.city.trim())  e.city    = 'City is required'
     if (!form.pinCode.trim()) e.pinCode = 'PIN code is required'
@@ -88,15 +91,20 @@ export default function RegistrationForm({ onSubmit }: Props) {
     if (!validate()) return
     setLoading(true)
     setApiError('')
+    const submitData = loggedInUser ? {
+      ...form,
+      name:  loggedInUser.user_metadata?.full_name || loggedInUser.user_metadata?.name || loggedInUser.email || form.name,
+      email: loggedInUser.email || form.email,
+    } : form
     try {
       const res = await fetch('/api/vastu-pro/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(submitData),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Registration failed')
-      onSubmit(form, json.contactId)
+      onSubmit(submitData as RegistrationData, json.contactId)
     } catch (err: unknown) {
       setApiError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
@@ -203,15 +211,29 @@ export default function RegistrationForm({ onSubmit }: Props) {
             </p>
           </div>
 
-          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Name | Mobile */}
-            {textField('name', 'Full Name', { placeholder: 'Ramesh Sharma', required: true })}
-            {textField('mobile', 'Mobile', { type: 'tel', placeholder: '9876543210', required: true })}
-
-            {/* Email — full width */}
-            <div className="sm:col-span-2">
-              {textField('email', 'Email', { type: 'email', placeholder: 'ramesh@example.com', required: true })}
+          {loggedInUser && (
+            <div className="mx-5 mt-4 px-4 py-3 rounded-[2px] flex items-center gap-3"
+              style={{ background: 'rgba(20,83,45,0.06)', border: '1px solid rgba(20,83,45,0.2)' }}>
+              <span style={{ color: '#14532D', fontSize: 14 }}>✓</span>
+              <div>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#14532D', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Signed in as {loggedInUser.user_metadata?.full_name || loggedInUser.email}
+                </p>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(30,34,39,0.5)', marginTop: 2 }}>
+                  Your name &amp; email are pre-filled from your account
+                </p>
+              </div>
             </div>
+          )}
+
+          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {!loggedInUser && textField('name', 'Full Name', { placeholder: 'Ramesh Sharma', required: true })}
+            {textField('mobile', 'Mobile', { type: 'tel', placeholder: '9876543210', required: true })}
+            {!loggedInUser && (
+              <div className="sm:col-span-2">
+                {textField('email', 'Email', { type: 'email', placeholder: 'ramesh@example.com', required: true })}
+              </div>
+            )}
 
             {/* State dropdown — full width */}
             <div className="sm:col-span-2 flex flex-col gap-1">
