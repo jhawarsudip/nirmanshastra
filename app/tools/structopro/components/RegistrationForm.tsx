@@ -108,10 +108,11 @@ export default function RegistrationForm({ onSubmit }: Props) {
           value={form[id]}
           onChange={e => set(id, e.target.value)}
           placeholder={placeholder}
-          className="border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint focus:ring-1 focus:ring-blueprint/30"
+          className="border rounded-[6px] px-3 text-[16px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint focus:ring-1 focus:ring-blueprint/30"
           style={{
             fontFamily: 'var(--font-plex-sans)',
             borderColor: errors[id] ? '#8C3A22' : 'rgba(30,34,39,0.4)',
+            height: '52px',
           }}
         />
         {errors[id] && (
@@ -124,9 +125,9 @@ export default function RegistrationForm({ onSubmit }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
+    <div className="w-full bg-sheet-white px-8 py-10">
       {/* StructoPro header */}
-      <div className="w-full max-w-xl mb-8">
+      <div className="w-full mb-8">
         <div
           className="rounded-[2px] mb-6"
           style={{ border: '1px solid #1E2227', background: '#1E2227', position: 'relative', overflow: 'hidden', padding: '28px 24px' }}
@@ -204,7 +205,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
       </div>
 
       {/* Form card */}
-      <form onSubmit={handleSubmit} className="w-full max-w-xl">
+      <form onSubmit={handleSubmit} className="w-full">
         <div className="border border-iron-ink rounded-[2px] bg-sheet-white">
           <div className="border-b border-iron-ink px-5 py-3">
             <p
@@ -244,10 +245,11 @@ export default function RegistrationForm({ onSubmit }: Props) {
                 id="state"
                 value={form.state}
                 onChange={e => { set('state', e.target.value); set('city', '') }}
-                className="border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
+                className="border rounded-[6px] px-3 text-[16px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
                 style={{
                   fontFamily: 'var(--font-plex-sans)',
                   borderColor: errors.state ? '#8C3A22' : 'rgba(30,34,39,0.4)',
+                  height: '52px',
                 }}
               >
                 <option value="">Select your state</option>

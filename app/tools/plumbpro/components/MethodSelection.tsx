@@ -20,8 +20,8 @@ function RiserMotif({ size = 32 }: { size?: number }) {
 
 export default function MethodSelection({ onSelect }: Props) {
   return (
-    <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-2xl">
+    <div className="w-full bg-sheet-white px-8 py-10">
+      <div className="w-full">
         <div className="mb-8">
           <p className="text-[10px] uppercase tracking-widest mb-1"
             style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>

@@ -6,8 +6,8 @@ interface Props {
 
 export default function MethodSelection({ onSelect }: Props) {
   return (
-    <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-2xl">
+    <div className="w-full bg-sheet-white px-8 py-10">
+      <div className="w-full">
         {/* Header */}
         <div className="mb-8 rounded-[2px] px-6 py-5 relative overflow-hidden"
           style={{ background: '#1E2227', border: '1px solid rgba(30,34,39,0.7)' }}>

@@ -93,21 +93,34 @@ export default function StructoProPage() {
       <AnimatePresence mode="wait">
         {step === 'register' && (
           <motion.div key="register" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <RegistrationForm onSubmit={handleRegistration} />
+            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
+              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+                <RegistrationForm onSubmit={handleRegistration} />
+              </div>
+              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+                <LiveSummaryPanel toolName="StructoPro" toolPhase="P1" regData={session.regData} liveData={liveData} />
+              </div>
+            </div>
           </motion.div>
         )}
 
         {step === 'method' && (
           <motion.div key="method" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <MethodSelection onSelect={handleMethod} />
+            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
+              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+                <MethodSelection onSelect={handleMethod} />
+              </div>
+              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+                <LiveSummaryPanel toolName="StructoPro" toolPhase="P1" regData={session.regData} liveData={liveData} />
+              </div>
+            </div>
           </motion.div>
         )}
 
         {step === 'details' && (
           <motion.div key="details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            {/* Two-column layout: form 55% + live summary 45% */}
             <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 55%', minWidth: 0 }}>
+              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
                 <BuildDetails
                   state={session.regData.state}
                   city={session.regData.city}
@@ -115,7 +128,7 @@ export default function StructoProPage() {
                   onFormChange={setLiveData}
                 />
               </div>
-              <div style={{ flex: '0 0 45%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel
                   toolName="StructoPro"
                   toolPhase="P1"

@@ -125,10 +125,11 @@ export default function RegistrationForm({ onSubmit }: Props) {
           value={form[id]}
           onChange={e => set(id, e.target.value)}
           placeholder={placeholder}
-          className="border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint focus:ring-1 focus:ring-blueprint/30"
+          className="border rounded-[6px] px-3 text-[16px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint focus:ring-1 focus:ring-blueprint/30"
           style={{
             fontFamily: 'var(--font-plex-sans)',
             borderColor: errors[id] ? '#8C3A22' : '#1E2227',
+            height: '52px',
           }}
         />
         {errors[id] && (
@@ -141,9 +142,9 @@ export default function RegistrationForm({ onSubmit }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
+    <div className="w-full bg-sheet-white px-8 py-10">
       {/* VastuPro header card */}
-      <div className="w-full max-w-xl mb-8">
+      <div className="w-full mb-8">
         <div className="rounded-[2px] p-6 mb-6" style={{ background: '#1E2227' }}>
           <Image src="/vastupro-icon.png" alt="VastuPro" width={64} height={64} className="mb-3" style={{ objectFit: 'contain' }} />
           <p className="text-[11px] uppercase tracking-widest mb-1"
@@ -193,7 +194,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
       </div>
 
       {/* Form card */}
-      <form onSubmit={handleSubmit} className="w-full max-w-xl">
+      <form onSubmit={handleSubmit} className="w-full">
         <div className="border border-iron-ink rounded-[2px] bg-sheet-white">
           <div className="border-b border-iron-ink px-5 py-3">
             <p className="text-[11px] uppercase tracking-widest"
@@ -225,10 +226,11 @@ export default function RegistrationForm({ onSubmit }: Props) {
                 id="state"
                 value={form.state}
                 onChange={e => { set('state', e.target.value); set('city', '') }}
-                className="border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
+                className="border rounded-[6px] px-3 text-[16px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
                 style={{
                   fontFamily: 'var(--font-plex-sans)',
                   borderColor: errors.state ? '#8C3A22' : '#1E2227',
+                  height: '52px',
                 }}
               >
                 <option value="">Select your state</option>
@@ -269,8 +271,8 @@ export default function RegistrationForm({ onSubmit }: Props) {
                 id="propertyType"
                 value={form.propertyType}
                 onChange={e => set('propertyType', e.target.value)}
-                className="border border-iron-ink rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
-                style={{ fontFamily: 'var(--font-plex-sans)' }}
+                className="border border-iron-ink rounded-[6px] px-3 text-[16px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
+                style={{ fontFamily: 'var(--font-plex-sans)', height: '52px' }}
               >
                 <option value="">Select type</option>
                 {PROPERTY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}

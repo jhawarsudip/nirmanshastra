@@ -445,9 +445,9 @@ export default function Home() {
     <main className="sheet-frame min-h-screen" style={{ background: '#F4F4F0' }}>
 
       {/* ── HERO (dark Iron Ink, full viewport width) ─────────────────────── */}
-      <div style={{ background: '#1E2227' }}>
+      <div style={{ background: '#1E2227', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <section className="px-6 md:px-16 lg:px-24 pt-20 pb-18">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 items-center" style={{ gridTemplateColumns: '55fr 45fr', gap: '4rem' }}>
 
             {/* Left — headline */}
             <motion.div
@@ -459,7 +459,7 @@ export default function Home() {
               <div>
                 <h1 style={{
                   fontFamily: 'var(--font-plex-serif)',
-                  fontSize: 'clamp(48px, 5.5vw, 80px)',
+                  fontSize: 'clamp(56px, 8vw, 96px)',
                   fontWeight: 700,
                   color: '#F4F4F0',
                   lineHeight: 1.02,
@@ -497,7 +497,7 @@ export default function Home() {
               <div className="flex flex-wrap gap-10 pt-4" style={{ borderTop: '1px solid rgba(244,244,240,0.1)' }}>
                 {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹2,999', 'Bundle']].map(([val, label]) => (
                   <div key={label}>
-                    <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 4vw, 56px)', fontWeight: 500, color: '#C9A84C', lineHeight: 1 }}>{val}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 500, color: '#C9A84C', lineHeight: 1 }}>{val}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 }}>{label}</div>
                   </div>
                 ))}
@@ -505,20 +505,20 @@ export default function Home() {
 
             </motion.div>
 
-            {/* Right — Building elevation illustration */}
+            {/* Right — Building elevation illustration (45% of viewport) */}
             <motion.div
-              className="flex items-center justify-center lg:justify-end"
+              className="flex items-center justify-end"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
               style={{ width: '100%' }}
             >
-              <div style={{ position: 'relative', width: '100%', maxWidth: 620, minHeight: 440 }}>
+              <div style={{ position: 'relative', width: '100%', minHeight: 500 }}>
                 <Image
                   src="/hero-illustration.png"
                   alt="NirmanShastra building elevation"
                   fill
-                  style={{ objectFit: 'contain' }}
+                  style={{ objectFit: 'contain', objectPosition: 'right center' }}
                   priority
                 />
               </div>
@@ -541,10 +541,10 @@ export default function Home() {
             {PROBLEMS.map((p, i) => (
               <motion.div
                 key={p.no}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.35, ease: 'easeOut', delay: i * 0.12 }}
+                transition={{ duration: 0.45, ease: 'easeOut', delay: i * 0.2 }}
                 style={{
                   borderLeft: i === 0 ? '1px solid rgba(244,244,240,0.1)' : 'none',
                   borderRight: '1px solid rgba(244,244,240,0.1)',
@@ -556,10 +556,10 @@ export default function Home() {
                   overflow: 'hidden',
                 }}
               >
-                {/* Big number — prominent foreground */}
+                {/* Big number — 120px Blueprint blue at 20% opacity */}
                 <div style={{
                   fontFamily: 'var(--font-plex-mono)',
-                  fontSize: 96,
+                  fontSize: 120,
                   color: 'rgba(31,78,121,0.2)',
                   fontWeight: 700,
                   lineHeight: 1,

@@ -177,7 +177,7 @@ export default function VastuProPage() {
         className="px-4 py-4"
         style={{ borderBottom: '1px solid rgba(201,168,76,0.15)' }}
       >
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <p
               className="text-[10px] uppercase tracking-widest mb-0.5"

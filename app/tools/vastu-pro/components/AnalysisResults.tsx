@@ -128,7 +128,7 @@ export default function AnalysisResults({
         className="px-4 py-4"
         style={{ background: '#1E2227', borderBottom: '1px solid rgba(201,168,76,0.2)' }}
       >
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 px-6 md:px-16 lg:px-24">
           <div>
             <p
               className="text-[10px] uppercase tracking-widest"
@@ -158,7 +158,7 @@ export default function AnalysisResults({
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="px-6 md:px-16 lg:px-24 py-8">
         {/* Score card */}
         <div
           className="rounded-[2px] p-5 mb-6"
