@@ -15,38 +15,41 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type UseType = 'Residential' | 'Commercial' | 'Parking'
+type UseType  = 'Residential' | 'Commercial' | 'Parking'
+type FloorType = 'Standard' | 'Cantilever' | 'Setback'
 
 interface FloorRow {
-  label: string
-  length: string
-  width: string
-  height: string
-  useType: UseType
+  label:     string
+  length:    string   // kept for potential future use
+  width:     string   // kept for potential future use
+  area:      string   // direct area input (used when sameArea=false)
+  height:    string
+  useType:   UseType
+  floorType: FloorType
 }
 
 interface LabourTrade {
-  id: string
-  name: string
-  workers: number
-  ratePerDay: number
-  indiaAvgRate: number
-  productivity: string
+  id:              string
+  name:            string
+  workers:         number
+  ratePerDay:      number
+  indiaAvgRate:    number
+  productivity:    string
   stdProductivity: string
-  active: boolean
-  daysManual: string
+  active:          boolean
+  daysManual:      string
 }
 
 interface CustomTrade {
-  id: string
-  name: string
-  workers: string
+  id:         string
+  name:       string
+  workers:    string
   ratePerDay: string
-  days: string
+  days:       string
 }
 
 interface CustomMaterial {
-  id: string
+  id:   string
   name: string
   rate: string
 }
@@ -59,27 +62,27 @@ const INDIA_AVG_2026 = {
 }
 
 const SITE_CARDS: { value: SiteCondition; label: string; icon: string; note: string }[] = [
-  { value: 'flat',         label: 'Flat Terrain',      icon: '▬', note: 'Level site, no cutting needed' },
-  { value: 'sloped_mild',  label: 'Mild Slope',         icon: '◣', note: 'Up to 10° — minor earthwork' },
-  { value: 'sloped_steep', label: 'Steep Slope',        icon: '◤', note: 'Over 10° — retaining walls likely' },
-  { value: 'rocky',        label: 'Rocky',              icon: '⬡', note: 'Hard rock — drilling, good bearing' },
-  { value: 'bcs',          label: 'Black Cotton Soil',  icon: '●', note: 'Expansive clay — special foundation' },
-  { value: 'soft_marshy',  label: 'Soft / Marshy',      icon: '≋', note: 'Low bearing — piling or raft likely' },
-  { value: 'waterlogged',  label: 'Waterlogged',        icon: '〰', note: 'Water table near surface' },
-  { value: 'coastal',      label: 'Coastal',            icon: '∿', note: 'Marine exposure — higher cover' },
+  { value: 'flat',         label: 'Flat Terrain',     icon: '▬', note: 'Level site, no cutting needed' },
+  { value: 'sloped_mild',  label: 'Mild Slope',        icon: '◣', note: 'Up to 10° — minor earthwork' },
+  { value: 'sloped_steep', label: 'Steep Slope',       icon: '◤', note: 'Over 10° — retaining walls likely' },
+  { value: 'rocky',        label: 'Rocky',             icon: '⬡', note: 'Hard rock — drilling, good bearing' },
+  { value: 'bcs',          label: 'Black Cotton Soil', icon: '●', note: 'Expansive clay — special foundation' },
+  { value: 'soft_marshy',  label: 'Soft / Marshy',     icon: '≋', note: 'Low bearing — piling or raft likely' },
+  { value: 'waterlogged',  label: 'Waterlogged',       icon: '〰', note: 'Water table near surface' },
+  { value: 'coastal',      label: 'Coastal',           icon: '∿', note: 'Marine exposure — higher cover' },
 ]
 
 const INITIAL_TRADES: LabourTrade[] = [
-  { id: 't1',  name: 'Bar Bender (Sariya Mistri)',  workers: 2, ratePerDay: 950,  indiaAvgRate: 950,  productivity: '600',  stdProductivity: '600 kg/day',       active: true,  daysManual: '' },
-  { id: 't2',  name: 'Shuttering Carpenter',         workers: 2, ratePerDay: 900,  indiaAvgRate: 900,  productivity: '100',  stdProductivity: '100 sqft/day',     active: true,  daysManual: '' },
-  { id: 't3',  name: 'Concreting Mason (RCC)',        workers: 2, ratePerDay: 900,  indiaAvgRate: 900,  productivity: '2.5',  stdProductivity: '2.5 m³/day',       active: true,  daysManual: '' },
-  { id: 't4',  name: 'Vibrator Operator',             workers: 1, ratePerDay: 800,  indiaAvgRate: 800,  productivity: '—',    stdProductivity: 'per pour',          active: true,  daysManual: '' },
+  { id: 't1',  name: 'Bar Bender (Sariya Mistri)',  workers: 2, ratePerDay: 950,  indiaAvgRate: 950,  productivity: '600',  stdProductivity: '600 kg steel/day',  active: true,  daysManual: '' },
+  { id: 't2',  name: 'Shuttering Carpenter',         workers: 2, ratePerDay: 900,  indiaAvgRate: 900,  productivity: '100',  stdProductivity: '100 sqft/day',      active: true,  daysManual: '' },
+  { id: 't3',  name: 'Concreting Mason (RCC)',        workers: 2, ratePerDay: 900,  indiaAvgRate: 900,  productivity: '2.5',  stdProductivity: '2.5 m³/day',        active: true,  daysManual: '' },
+  { id: 't4',  name: 'Vibrator Operator',             workers: 1, ratePerDay: 800,  indiaAvgRate: 800,  productivity: '—',    stdProductivity: 'same days as concreting', active: true,  daysManual: '' },
   { id: 't5',  name: 'Excavation Mason',              workers: 1, ratePerDay: 750,  indiaAvgRate: 750,  productivity: '3',    stdProductivity: '3 m³/day',          active: true,  daysManual: '' },
   { id: 't6',  name: 'Rock Cutting Crew',             workers: 0, ratePerDay: 3000, indiaAvgRate: 3000, productivity: '1',    stdProductivity: '1 m³/day',          active: false, daysManual: '' },
   { id: 't7',  name: 'Crane / Hoist Operator',        workers: 1, ratePerDay: 1100, indiaAvgRate: 1100, productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
   { id: 't8',  name: 'Concrete Pump Operator',        workers: 0, ratePerDay: 1100, indiaAvgRate: 1100, productivity: '—',    stdProductivity: 'per day',           active: false, daysManual: '' },
   { id: 't9',  name: 'General Helper / Beldar',       workers: 4, ratePerDay: 580,  indiaAvgRate: 580,  productivity: '—',    stdProductivity: 'ratio to masons',   active: true,  daysManual: '' },
-  { id: 't10', name: 'Curing / Water Man',            workers: 1, ratePerDay: 500,  indiaAvgRate: 500,  productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
+  { id: 't10', name: 'Curing / Water Man',            workers: 1, ratePerDay: 500,  indiaAvgRate: 500,  productivity: '—',    stdProductivity: 'floors × 14 days (IS 456)', active: true, daysManual: '' },
   { id: 't11', name: 'Night Watchman',                workers: 1, ratePerDay: 500,  indiaAvgRate: 500,  productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
   { id: 't12', name: 'Junior Site Engineer',          workers: 1, ratePerDay: 1500, indiaAvgRate: 1500, productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
   { id: 't13', name: 'Site Foreman',                  workers: 1, ratePerDay: 1200, indiaAvgRate: 1200, productivity: '—',    stdProductivity: 'per day',           active: true,  daysManual: '' },
@@ -87,25 +90,44 @@ const INITIAL_TRADES: LabourTrade[] = [
 ]
 
 const INFO: Record<string, { title: string; body: string; is?: string }> = {
-  seismic:     { title: 'Seismic Zone', body: 'Auto-detected from your state using IS 1893:2016 map. Zone V is highest risk (Himalayan belt, NE states). Higher zones need more steel and ductile detailing.', is: 'IS 1893:2016 Table 2' },
-  concrete:    { title: 'Concrete Grade', body: 'M20 = 20 MPa compressive strength at 28 days. IS 456:2000 mandates M20 minimum for RCC. Use M25 or above for columns in Zone III+.', is: 'IS 456:2000 Cl 6.1' },
-  steel:       { title: 'Steel Grade', body: 'Fe500D: 500 MPa yield + "D" means ductile (IS 13920:2016). Mandatory for all seismic zones III and above. Fe415 is obsolete for new construction.', is: 'IS 1786:2008 + IS 13920:2016' },
-  exposure:    { title: 'Exposure Class', body: 'Determines min cement content, w/c ratio, and cover. Mild = protected interior. Moderate = open air. Severe = coastal. Very Severe = splash zone. Auto-set from site condition.', is: 'IS 456:2000 Table 5' },
-  column:      { title: 'Column Size', body: 'Minimum 230×230mm for G+1. 300×300mm for G+3 to G+5. Larger columns improve lateral stability. Must be consistent floor-to-floor.', is: 'IS 456:2000 Cl 26.5.3' },
-  slab:        { title: 'Slab Thickness', body: 'Minimum 125mm for residential. Span÷26 for one-way simply supported (IS 456:2000 Cl 23.2). Increase for longer spans or heavy live loads.', is: 'IS 456:2000 Cl 23.2' },
-  foundation:  { title: 'Foundation Depth', body: 'Minimum 900mm below natural ground (IS 1904:2016 Cl 4.1). Increases for soft/expansive soils. Shallow foundations need bearing capacity > 100 kN/m².', is: 'IS 1904:2016 Cl 4.1' },
-  cover:       { title: 'Concrete Cover (read-only)', body: 'Auto-set from exposure class. IS 456:2000 Table 16: Mild=40mm, Moderate=45mm, Severe=50mm, Very Severe=55mm, Extreme=60mm. Cannot reduce below IS minimum.', is: 'IS 456:2000 Table 16' },
-  staircase:   { title: 'Staircase', body: 'NBC 2016 mandates: tread min 250mm, riser max 190mm, clear width min 900mm. Dog-leg is standard for residential. Open well suits G+3 and above.', is: 'NBC 2016 Part 3 Cl 4.2' },
-  oht:         { title: 'Overhead Tank', body: 'HDPE (IS 12701) tanks are lighter and leak-free. RCC tanks save material cost but add structural load and need RCC slab design. OHT = Daily demand × 0.67 (IS 1172:1993).', is: 'IS 1172:1993 + IS 12701' },
-  parapet:     { title: 'Parapet Wall', body: 'NBC 2016 minimum height 900mm for occupied terraces. The RCC band is structural — built with the slab pour. MasonPro handles brick/block parapet infill separately.', is: 'NBC 2016 Part 4 Cl 3.3' },
-  parking:     { title: 'Stilt Ground Floor', body: 'Stilt parking creates a soft storey — GF is much weaker than upper floors. IS 1893:2016 Cl 7.10 requires special structural design. Consult a structural engineer.', is: 'IS 1893:2016 Cl 7.10' },
-  cpwd:        { title: 'CPWD Productivity (Editable)', body: 'CPWD publishes standard output per worker per day. These are reference values — edit to match your site. Labour total shown only in your paid PDF report.', is: 'CPWD DSR 2023' },
+  seismic:         { title: 'Seismic Zone', body: 'Auto-detected from your state using IS 1893:2016. Zone V is highest risk (Himalayan belt, NE states). Higher zones need more steel and ductile detailing.', is: 'IS 1893:2016 Table 2' },
+  concrete:        { title: 'Concrete Grade', body: 'M20 = 20 MPa strength at 28 days. IS 456:2000 mandates M20 minimum for RCC. Use M25 or above for columns in Zone III+.', is: 'IS 456:2000 Cl 6.1' },
+  steel:           { title: 'Steel Grade', body: 'Fe500D: 500 MPa yield + "D" means ductile (IS 13920:2016). Mandatory for all seismic zones III and above. Fe500 is standard for Zone II.', is: 'IS 1786:2008 + IS 13920:2016' },
+  barsize:         { title: 'Bar Diameter', body: 'Main bars carry primary loads. Larger diameter bars reduce congestion in joints but are heavier. 16mm is standard for columns and beams in G+1 to G+3.', is: 'IS 456:2000 Cl 26.5' },
+  stirrup:         { title: 'Stirrup / Link Bar', body: 'Stirrups resist shear and confine concrete. 8mm @150mm spacing is standard for residential beams. IS 13920:2016 requires 6mm hooks for seismic zones.', is: 'IS 456:2000 Cl 26.5.1.6' },
+  pcc:             { title: 'PCC Below Foundation', body: 'Plain Cement Concrete levelling course below footing. M10 (1:3:6) is standard. Minimum 75mm thick (IS 456:2000). Provides clean working surface.', is: 'IS 456:2000 Cl 15.4' },
+  foundconc:       { title: 'Foundation Concrete Grade', body: 'IS 456:2000 mandates M20 minimum for mild exposure. M25 for moderate. Footings are always 50mm cover (Cl.26.4.2.2) regardless of exposure.', is: 'IS 456:2000 Cl 26.4.2.2' },
+  colconc:         { title: 'Column Concrete Grade', body: 'Columns carry maximum compressive loads. IS 456:2000 recommends M25 minimum for columns in Zone III+. Higher grade also improves column size efficiency.', is: 'IS 456:2000 Table 5' },
+  beamconc:        { title: 'Beam Concrete Grade', body: 'Beams are in bending — concrete grade affects crack width and deflection. M25 is standard residential. Do not use grade lower than foundation grade.', is: 'IS 456:2000 Cl 6.1' },
+  slabconc:        { title: 'Slab Concrete Grade', body: 'Slabs in mild exposure can use M20 minimum. M25 is safer for longer spans. Do not go below M20 — IS 456:2000 minimum for all RCC.', is: 'IS 456:2000 Cl 6.1' },
+  soilbearing:     { title: 'Soil Bearing Capacity', body: 'SBC determines foundation size and depth. Less than 100 kN/m² requires raft or pile foundation. Medium (150-200) is most common for Deccan plateau soils.', is: 'IS 1904:2016 Table 1' },
+  exposure:        { title: 'Exposure Class', body: 'Determines min cement content, w/c ratio, and cover. Mild = protected interior. Moderate = open air. Severe = coastal. Very Severe = splash zone.', is: 'IS 456:2000 Table 5' },
+  column:          { title: 'Column Size', body: 'Minimum 230×230mm for G+1. 300×300mm for G+3 to G+5. Larger columns improve lateral stability and must be consistent floor-to-floor.', is: 'IS 456:2000 Cl 26.5.3' },
+  slab:            { title: 'Slab Thickness', body: 'Minimum 125mm for residential. Span÷26 for one-way simply supported (IS 456:2000 Cl 23.2). Increase for longer spans or heavy live loads.', is: 'IS 456:2000 Cl 23.2' },
+  foundation:      { title: 'Foundation Depth', body: 'Minimum 0.5m below natural ground (IS 1904:2016). Practical minimum is 1.5m for frost-free stable soil. Increases for soft/expansive soils.', is: 'IS 1904:2016 Cl 4.1' },
+  plinth:          { title: 'Plinth Height', body: 'Height of plinth beam above ground level. NBC 2016 recommends minimum 450mm. 600mm protects against flooding and moisture ingress.', is: 'NBC 2016' },
+  cover:           { title: 'Concrete Cover (read-only)', body: 'Auto-set from exposure class. IS 456:2000 Table 16: Mild=40mm, Moderate=45mm, Severe=50mm, Very Severe=55mm, Extreme=60mm.', is: 'IS 456:2000 Table 16' },
+  staircase:       { title: 'Staircase', body: 'NBC 2016 mandates: tread min 250mm, riser max 190mm, clear width min 900mm. Dog-leg is standard for residential. Open well suits G+3 and above.', is: 'NBC 2016 Part 3 Cl 4.2' },
+  oht:             { title: 'Overhead Tank', body: 'HDPE (IS 12701) tanks are lighter and leak-free. RCC tanks save material cost but add structural load. OHT = Daily demand × 0.67 (IS 1172:1993).', is: 'IS 1172:1993 + IS 12701' },
+  parapet:         { title: 'Parapet Wall', body: 'NBC 2016 minimum height 900mm for occupied terraces. The RCC band is structural — built with the slab pour. MasonPro handles brick/block parapet infill.', is: 'NBC 2016 Part 4 Cl 3.3' },
+  parking:         { title: 'Stilt Ground Floor', body: 'Stilt parking creates a soft storey — GF is much weaker than upper floors. IS 1893:2016 Cl 7.10 requires special structural design.', is: 'IS 1893:2016 Cl 7.10' },
+  cpwd:            { title: 'CPWD Productivity (Editable)', body: 'CPWD publishes standard output per worker per day. These are reference values — edit to match your site. Labour total shown only in your paid PDF report.', is: 'CPWD DSR 2023' },
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function Tip({ id, open, setOpen }: { id: string; open: string | null; setOpen: (v: string | null) => void }) {
-  const tip = INFO[id]
+function Tip({
+  id,
+  infoId,
+  open,
+  setOpen,
+}: {
+  id:      string
+  infoId?: string
+  open:    string | null
+  setOpen: (v: string | null) => void
+}) {
+  const tip = INFO[infoId ?? id]
   if (!tip) return null
   const isOpen = open === id
   return (
@@ -151,10 +173,10 @@ function Sect({ title, badge, defaultOpen = true, children }: { title: string; b
 type AlertVariant = 'info' | 'caution' | 'error' | 'tip'
 function AlertBox({ variant, children }: { variant: AlertVariant; children: ReactNode }) {
   const styles: Record<AlertVariant, { bg: string; border: string; icon: string; iconColor: string }> = {
-    info:    { bg: 'rgba(31,78,121,0.05)',   border: '#1F4E79', icon: 'ⓘ', iconColor: '#1F4E79' },
-    caution: { bg: 'rgba(217,154,6,0.07)',   border: '#D99A06', icon: '⚠', iconColor: '#D99A06' },
-    error:   { bg: 'rgba(140,58,34,0.06)',   border: '#8C3A22', icon: '✕', iconColor: '#8C3A22' },
-    tip:     { bg: 'rgba(20,83,45,0.06)',    border: '#14532D', icon: '✓', iconColor: '#14532D' },
+    info:    { bg: 'rgba(31,78,121,0.05)',  border: '#1F4E79', icon: 'ⓘ', iconColor: '#1F4E79' },
+    caution: { bg: 'rgba(217,154,6,0.07)', border: '#D99A06', icon: '⚠', iconColor: '#D99A06' },
+    error:   { bg: 'rgba(140,58,34,0.06)', border: '#8C3A22', icon: '✕', iconColor: '#8C3A22' },
+    tip:     { bg: 'rgba(20,83,45,0.06)',  border: '#14532D', icon: '✓', iconColor: '#14532D' },
   }
   const s = styles[variant]
   return (
@@ -184,35 +206,40 @@ const REGIONAL_NOTES: Record<string, string> = {
   pccM10:      '₹2,800–3,200 in Tier-2 cities. ₹4,000+ in Mumbai/Chennai metro.',
 }
 
+// Fixed elevation diagram — Ground Floor at BOTTOM, floors stack upward
 function ElevationDiagram({ floorRows, sameArea, groundArea }: {
-  floorRows: { label: string; length: string; width: string; height: string }[]
-  sameArea: boolean
+  floorRows: { label: string; area: string; length: string; width: string; height: string }[]
+  sameArea:  boolean
   groundArea: string
 }) {
   const svgRef = useRef<SVGSVGElement>(null)
-  const floors = floorRows.map((f, i) => {
+  const floors = floorRows.map(f => {
     const area = sameArea
       ? (parseFloat(groundArea) || 0)
-      : (parseFloat(f.length) || 0) * (parseFloat(f.width) || 0)
+      : (parseFloat(f.area) || 0)
     const height = parseFloat(f.height) || 10
     return { label: f.label, area, height }
   })
   const validFloors = floors.filter(f => f.area > 0)
   if (validFloors.length === 0) return null
-  const maxArea = Math.max(...floors.map(f => f.area), 1)
-  const totalH = floors.reduce((s, f) => s + f.height, 0)
-  const svgH = 160
-  const svgW = 280
-  const maxBarW = 220
-  const baseY = svgH - 16
+  const maxArea  = Math.max(...floors.map(f => f.area), 1)
+  const totalH   = floors.reduce((s, f) => s + f.height, 0)
+  const svgH     = 160
+  const svgW     = 280
+  const maxBarW  = 220
+  const baseY    = svgH - 16
+
+  // Process Ground→Top: each floor stacks above the previous.
+  // curY starts at baseY (ground) and decrements upward.
   let curY = baseY
-  const floorRects = [...floors].reverse().map(f => {
+  const floorRects = floors.map(f => {
     const barW = (f.area / maxArea) * maxBarW
     const barH = Math.max(8, (f.height / totalH) * (svgH - 30))
     const rect = { x: (svgW - barW) / 2, y: curY - barH, w: barW, h: barH, label: f.label, area: f.area }
     curY -= barH
     return rect
-  }).reverse()
+  })
+
   return (
     <div className="mt-3 p-3 rounded-[2px]" style={{ border: '1px solid #1E222720', background: '#1E22270A' }}>
       <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
@@ -238,13 +265,12 @@ function ElevationDiagram({ floorRows, sameArea, groundArea }: {
             </text>
           </g>
         ))}
-        {/* dimension arrows */}
         <text x={svgW - 5} y={baseY + 12} textAnchor="end" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, fill: '#1E222760' }}>
           G.L.
         </text>
       </svg>
       <p className="text-[10px] text-center mt-1" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>
-        Bar width = floor area, bar height = floor-to-floor height
+        Ground floor at bottom · bar width = area · bar height = floor-to-floor height
       </p>
     </div>
   )
@@ -253,83 +279,99 @@ function ElevationDiagram({ floorRows, sameArea, groundArea }: {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface Props {
-  state: string
-  city: string
-  onSubmit: (input: StructoInput) => void
+  state:         string
+  city:          string
+  onSubmit:      (input: StructoInput) => void
   onFormChange?: (data: Record<string, unknown>) => void
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function BuildDetails({ state: initState, city: initCity, onSubmit, onFormChange }: Props) {
-  const [openTip, setOpenTip] = useState<string | null>(null)
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   // S1
   const [projectName, setProjectName] = useState('')
-  const [localState, setLocalState] = useState(initState || '')
-  const [localCity, setLocalCity] = useState(initCity || '')
-  const [seismicOverride, setSeismicOverride] = useState('')
+  const [localState, setLocalState]   = useState(initState || '')
+  const [localCity, setLocalCity]     = useState(initCity || '')
 
   // S2
-  const [numFloors, setNumFloors] = useState(1)
-  const [sameArea, setSameArea] = useState(true)
+  const [numFloors, setNumFloors]   = useState(1)
+  const [sameArea, setSameArea]     = useState(true)
   const [groundArea, setGroundArea] = useState('')
-  const [floorRows, setFloorRows] = useState<FloorRow[]>([
-    { label: 'Ground Floor', length: '', width: '', height: '10', useType: 'Residential' },
-    { label: 'First Floor',  length: '', width: '', height: '10', useType: 'Residential' },
+  const [floorRows, setFloorRows]   = useState<FloorRow[]>([
+    { label: 'Ground Floor', length: '', width: '', area: '', height: '10', useType: 'Residential', floorType: 'Standard' },
+    { label: 'First Floor',  length: '', width: '', area: '', height: '10', useType: 'Residential', floorType: 'Standard' },
   ])
 
   // S3
-  const [siteCondition, setSiteCondition] = useState<SiteCondition | null>(null)
+  const [siteCondition, setSiteCondition]       = useState<SiteCondition | null>(null)
   const [foundationOverride, setFoundationOverride] = useState('')
 
   // S4
   const [staircase, setStaircase] = useState({ include: true, type: 'dogleg' as 'straight'|'dogleg'|'open_well', widthMm: 1200, count: 1 })
-  const [oht, setOht] = useState({ include: true, type: 'hdpe' as 'hdpe'|'rcc' })
-  const [parapet, setParapet] = useState({ include: true, heightMm: 900 })
+  const [oht, setOht]             = useState({ include: true, type: 'hdpe' as 'hdpe'|'rcc' })
+  const [parapet, setParapet]     = useState({ include: true, heightMm: 900 })
   const [parkingType, setParkingType] = useState<'none'|'stilt'|'shed'>('none')
 
   // S5 — Tech Specs
-  const [concreteGrade, setConcreteGrade] = useState<ConcreteGrade>('M20')
-  const [steelGrade, setSteelGrade] = useState<SteelGrade>('Fe500D')
-  const [columnSize, setColumnSize] = useState('300×300mm')
-  const [slabThickness, setSlabThickness] = useState(125)
-  const [foundationDepth, setFoundationDepth] = useState(900)
+  const [seismicOverride, setSeismicOverride]           = useState('')
+  const [concreteGrade, setConcreteGrade]               = useState<ConcreteGrade>('M20')
+  const [steelGrade, setSteelGrade]                     = useState<SteelGrade>('Fe500')
+  const [columnMainBar, setColumnMainBar]               = useState('16mm')
+  const [beamMainBar, setBeamMainBar]                   = useState('16mm')
+  const [slabBar, setSlabBar]                           = useState('10mm')
+  const [stirrupBar, setStirrupBar]                     = useState('8mm')
+  const [columnSize, setColumnSize]                     = useState('350×350mm')
+  const [slabThickness, setSlabThickness]               = useState(125)
+  const [pccGrade, setPccGrade]                         = useState('M15')
+  const [foundationConcreteGrade, setFoundationConcreteGrade] = useState('M20')
+  const [columnConcreteGrade, setColumnConcreteGrade]   = useState('M25')
+  const [beamConcreteGrade, setBeamConcreteGrade]       = useState('M25')
+  const [slabConcreteGrade, setSlabConcreteGrade]       = useState('M20')
+  const [soilBearingCapacity, setSoilBearingCapacity]   = useState('Medium 150-200')
+  const [foundationDepthM, setFoundationDepthM]         = useState(1.5)
+  const [plinthHeight, setPlinthHeight]                 = useState(0.6)
 
   // S6 — Material Rates
-  const [rates, setRates] = useState({ ...INDIA_AVG_2026 })
+  const [rates, setRates]                   = useState({ ...INDIA_AVG_2026 })
   const [customMaterials, setCustomMaterials] = useState<CustomMaterial[]>([])
 
   // S7 — Contractor Quote
-  const [quoteMode, setQuoteMode] = useState<'total'|'materials'|'breakdown'>('total')
+  const [quoteMode, setQuoteMode]           = useState<'total'|'materials'|'breakdown'>('total')
   const [contractorName, setContractorName] = useState('')
   const [contractorTotal, setContractorTotal] = useState('')
   const [ctConcreteRate, setCtConcreteRate] = useState('')
-  const [ctSteelRate, setCtSteelRate] = useState('')
+  const [ctSteelRate, setCtSteelRate]       = useState('')
   const [ctFormworkRate, setCtFormworkRate] = useState('')
 
   // S8 — Labour
   const [includeLabour, setIncludeLabour] = useState(false)
-  const [trades, setTrades] = useState<LabourTrade[]>(INITIAL_TRADES)
-  const [customTrades, setCustomTrades] = useState<CustomTrade[]>([])
+  const [trades, setTrades]               = useState<LabourTrade[]>(INITIAL_TRADES)
+  const [customTrades, setCustomTrades]   = useState<CustomTrade[]>([])
 
   // ── Computed ──
-  const szInfo = seismicZoneFromState(localState)
+  const szInfo        = seismicZoneFromState(localState)
   const effectiveZone = seismicOverride || szInfo.zone
   const exposureClass: ExposureClass = siteCondition ? exposureFromSiteCondition(siteCondition) : 'mild'
   const foundationRec = siteCondition ? foundationFromSiteCondition(siteCondition, numFloors) : null
-  const coverMm = { mild: 40, moderate: 45, severe: 50, very_severe: 55, extreme: 60 }[exposureClass]
+  const coverMm       = { mild: 40, moderate: 45, severe: 50, very_severe: 55, extreme: 60 }[exposureClass]
   const isStiltSoftStorey = parkingType === 'stilt' && ['III', 'IV', 'V'].includes(effectiveZone)
+  const LARGE_MULTIZONE_STATES = ['Maharashtra', 'Uttar Pradesh', 'Rajasthan']
 
   const FLOOR_LABELS = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor']
+
+  const makeFloorRow = (label: string): FloorRow => ({
+    label, length: '', width: '', area: '', height: '10', useType: 'Residential', floorType: 'Standard',
+  })
 
   // Report live form state to parent
   useEffect(() => {
     if (!onFormChange) return
     const totalBUA = sameArea
       ? (parseFloat(groundArea) || 0) * (numFloors + 1)
-      : floorRows.reduce((sum, r) => sum + (parseFloat(r.length) || 0) * (parseFloat(r.width) || 0), 0)
+      : floorRows.reduce((sum, r) => sum + (parseFloat(r.area) || 0), 0)
     onFormChange({
       floors: `G+${numFloors}`,
       bua: Math.round(totalBUA),
@@ -347,7 +389,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       if (prev.length === count) return prev
       const next = [...prev]
       while (next.length < count) {
-        next.push({ label: FLOOR_LABELS[next.length] ?? `Floor ${next.length}`, length: '', width: '', height: '10', useType: 'Residential' })
+        next.push(makeFloorRow(FLOOR_LABELS[next.length] ?? `Floor ${next.length}`))
       }
       return next.slice(0, count)
     })
@@ -376,13 +418,13 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
     if (!siteCondition) errs.site = 'Select a site condition to continue'
     const buaSqft = parseFloat(groundArea) || 0
     if (sameArea && buaSqft < 100) errs.area = 'Enter a valid floor area (min 100 sqft)'
-    if (!sameArea && floorRows.some(r => !r.length || !r.width)) errs.floors = 'Enter length & width for all floors'
+    if (!sameArea && floorRows.some(r => !r.area || parseFloat(r.area) < 50)) errs.floors = 'Enter area (min 50 sqft) for all floors'
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
 
     const gfAreaSqft = sameArea
       ? parseFloat(groundArea) || 0
-      : (parseFloat(floorRows[0]?.length || '0') * parseFloat(floorRows[0]?.width || '0'))
+      : parseFloat(floorRows[0]?.area || '0')
 
     const input: StructoInput = {
       projectName,
@@ -401,7 +443,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       includeLabour,
       columnSize,
       slabThickness,
-      foundationDepth,
+      foundationDepth: Math.round(foundationDepthM * 1000),
     }
     onSubmit(input)
   }
@@ -415,6 +457,13 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
     <span className="text-[11px] ml-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>
       India Avg: {v}{unit}
     </span>
+  )
+
+  // Small select helper for technical specs
+  const specSelect = (value: string, onChange: (v: string) => void, opts: [string, string][], w = 'w-full') => (
+    <select className={`${w} px-3 py-2 rounded-[6px] border text-[13px]`} style={{ ...iStyle, ...monoStyle, minHeight: 40 }} value={value} onChange={e => onChange(e.target.value)}>
+      {opts.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+    </select>
   )
 
   return (
@@ -445,34 +494,15 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
           </div>
         </div>
 
-        {/* Seismic zone display + override */}
         {localState && (
           <div className="p-3 rounded-[2px]" style={{ background: '#1F4E7910', border: '1px solid #1F4E7930' }}>
-            <div className="flex items-center flex-wrap gap-3">
-              <div>
-                <span className="text-[11px] font-medium" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                  IS 1893:2016 — Auto-detected: Zone {szInfo.zone} (Z = {szInfo.zFactor})
-                </span>
-                <Tip id="seismic" open={openTip} setOpen={setOpenTip} />
-              </div>
-              <div className="flex items-center gap-2 ml-auto">
-                <span className="text-[11px]" style={{ color: '#1E2227A0', fontFamily: 'var(--font-plex-sans)' }}>Override:</span>
-                <select
-                  className="px-2 py-1 rounded-[2px] border text-[12px]"
-                  style={{ borderColor: '#1F4E7940', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', background: 'white' }}
-                  value={seismicOverride}
-                  onChange={e => setSeismicOverride(e.target.value)}
-                >
-                  <option value="">Auto (Zone {szInfo.zone})</option>
-                  {['II', 'III', 'IV', 'V'].map(z => <option key={z} value={z}>Zone {z}</option>)}
-                </select>
-              </div>
-            </div>
-            {seismicOverride && (
-              <p className="text-[11px] mt-1" style={{ color: '#D99A06', fontFamily: 'var(--font-plex-sans)' }}>
-                ⚠ Manual override active — using Zone {seismicOverride} for design
-              </p>
-            )}
+            <span className="text-[11px] font-medium" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              IS 1893:2016 — Auto-detected: Zone {szInfo.zone} (Z = {szInfo.zFactor})
+              {seismicOverride && seismicOverride !== szInfo.zone && (
+                <span className="ml-2" style={{ color: '#D99A06' }}> → Overridden to Zone {seismicOverride} in Technical Specifications</span>
+              )}
+            </span>
+            <Tip id="seismic" open={activeTooltip} setOpen={setActiveTooltip} />
           </div>
         )}
         {localState && ['Arunachal Pradesh','Assam','Manipur','Meghalaya','Mizoram','Nagaland','Sikkim','Tripura','Jammu and Kashmir','Ladakh','Uttarakhand','Himachal Pradesh'].includes(localState) && (
@@ -482,7 +512,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
         )}
         {localState && ['Maharashtra','Gujarat','Rajasthan','West Bengal','Goa','Kerala'].includes(localState) && (
           <AlertBox variant="info">
-            Zone III state. M20 minimum concrete + Fe500D preferred. Check your district-level zone map — some districts within Zone III states have local amendments.
+            Zone III state. M20 minimum concrete + Fe500D preferred. Check your district-level zone map — some districts have local amendments.
           </AlertBox>
         )}
       </Sect>
@@ -512,7 +542,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
         </div>
 
         <AlertBox variant="tip">
-          <strong>Different area per floor</strong> is common for L-shaped, T-shaped, or setback buildings. Select &quot;No&quot; below to enter each floor separately. If all floors are the same footprint, select &quot;Yes&quot; for faster entry.
+          <strong>Different area per floor</strong> is common for L-shaped, T-shaped, or setback buildings. Select &quot;No&quot; to enter each floor&apos;s area directly. Select &quot;Yes&quot; if all floors have the same footprint.
         </AlertBox>
 
         {sameArea ? (
@@ -524,39 +554,59 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
         ) : (
           <>
             <AlertBox variant="info">
-              Enter the built-up area (length × width of slab) for each floor. Balconies and cantilevers count. Do NOT include the area of the staircase landing if it is common.
+              Enter the built-up area (sq ft) for each floor. Balconies and cantilevers count. Select the floor type to help identify setback or cantilever floors.
             </AlertBox>
             <div className="overflow-x-auto">
               <table className="w-full text-[12px] border-collapse">
                 <thead>
                   <tr style={{ background: '#1E22270A' }}>
-                    {['Floor', 'Length (ft)', 'Width (ft)', 'Area (sqft)', 'Height (ft)', 'Use Type'].map(h => (
+                    {['Floor Level', 'Area (sq ft)', 'Type', 'Height (ft)', 'Diff from prev.'].map(h => (
                       <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {floorRows.map((row, idx) => {
-                    const area = (parseFloat(row.length) || 0) * (parseFloat(row.width) || 0)
+                    const currArea = parseFloat(row.area) || 0
+                    const prevArea = idx > 0 ? (parseFloat(floorRows[idx - 1].area) || 0) : null
+                    const diff = prevArea !== null ? currArea - prevArea : null
                     return (
                       <tr key={idx} style={{ borderBottom: '1px solid #1E222710' }}>
-                        <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
+                        <td className="px-3 py-2 font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
                         <td className="px-2 py-1">
-                          <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" value={row.length} onChange={e => updateFloorRow(idx, 'length', e.target.value)} />
+                          <input
+                            className="w-full px-2 py-1 rounded-[2px] border text-[13px]"
+                            style={{ ...iStyle, ...monoStyle, minHeight: 36 }}
+                            type="number"
+                            min="0"
+                            placeholder="e.g. 1200"
+                            value={row.area}
+                            onChange={e => updateFloorRow(idx, 'area', e.target.value)}
+                          />
                         </td>
                         <td className="px-2 py-1">
-                          <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" value={row.width} onChange={e => updateFloorRow(idx, 'width', e.target.value)} />
-                        </td>
-                        <td className="px-3 py-2" style={{ ...monoStyle, color: area > 0 ? '#1E2227' : '#1E222740' }}>{area > 0 ? area.toFixed(0) : '—'}</td>
-                        <td className="px-2 py-1">
-                          <input className="w-16 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={row.height} onChange={e => updateFloorRow(idx, 'height', e.target.value)} />
-                        </td>
-                        <td className="px-2 py-1">
-                          <select className="px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, fontFamily: 'var(--font-plex-sans)' }} value={row.useType} onChange={e => updateFloorRow(idx, 'useType', e.target.value as UseType)}>
-                            <option>Residential</option>
-                            <option>Commercial</option>
-                            <option>Parking</option>
+                          <select
+                            className="w-full px-2 py-1 rounded-[2px] border text-[12px]"
+                            style={{ ...iStyle, fontFamily: 'var(--font-plex-sans)', minHeight: 36 }}
+                            value={row.floorType}
+                            onChange={e => updateFloorRow(idx, 'floorType', e.target.value as FloorType)}
+                          >
+                            <option value="Standard">Standard</option>
+                            <option value="Cantilever">Cantilever</option>
+                            <option value="Setback">Setback</option>
                           </select>
+                        </td>
+                        <td className="px-2 py-1">
+                          <input
+                            className="w-16 px-2 py-1 rounded-[2px] border text-[12px]"
+                            style={{ ...iStyle, ...monoStyle, minHeight: 36 }}
+                            type="number"
+                            value={row.height}
+                            onChange={e => updateFloorRow(idx, 'height', e.target.value)}
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: diff === null ? '#1E222740' : diff > 0 ? '#14532D' : diff < 0 ? '#8C3A22' : '#1E2227' }}>
+                          {diff === null ? '—' : diff > 0 ? `+${diff.toFixed(0)} sqft` : diff < 0 ? `${diff.toFixed(0)} sqft` : '±0 sqft'}
                         </td>
                       </tr>
                     )
@@ -574,7 +624,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       {/* ── S3: Site Conditions ───────────────────────────────────────────────── */}
       <Sect title="3 — What is your site like?">
         <AlertBox variant="info">
-          Your site condition determines the foundation type and concrete cover thickness. If you are unsure, describe your site to a civil engineer before choosing — wrong foundation selection is expensive to fix later.
+          Your site condition determines the foundation type and concrete cover thickness. If you are unsure, describe your site to a civil engineer — wrong foundation selection is expensive to fix later.
         </AlertBox>
         {errors.site && <p className="text-[12px] mb-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>⚠ {errors.site}</p>}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -586,7 +636,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
               className="p-3 rounded-[2px] border text-left transition-all"
               style={{
                 borderColor: siteCondition === card.value ? '#1F4E79' : '#1E222720',
-                background: siteCondition === card.value ? '#1F4E7912' : 'white',
+                background:  siteCondition === card.value ? '#1F4E7912' : 'white',
               }}
             >
               <div className="text-[18px] mb-1">{card.icon}</div>
@@ -598,26 +648,25 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
 
         {siteCondition === 'bcs' && (
           <AlertBox variant="error">
-            <strong>Black Cotton Soil (BCS) detected.</strong> IS 1904:2016 requires under-reamed pile foundations. Conventional isolated footings MUST NOT be used — BCS swells with moisture and collapses in dry seasons. Geotechnical investigation (₹15,000–50,000) is mandatory before design.
+            <strong>Black Cotton Soil (BCS) detected.</strong> IS 1904:2016 requires under-reamed pile foundations. Conventional isolated footings MUST NOT be used — BCS swells with moisture and collapses in dry seasons. Geotechnical investigation (₹15,000–50,000) is mandatory.
           </AlertBox>
         )}
         {(siteCondition === 'soft_marshy' || siteCondition === 'waterlogged') && (
           <AlertBox variant="error">
-            <strong>Soft / waterlogged soil.</strong> Bearing capacity may be as low as 50 kN/m². Raft or pile foundation is likely required. Do NOT start construction without a soil test report — settlement cracks are irreversible.
+            <strong>Soft / waterlogged soil.</strong> Bearing capacity may be as low as 50 kN/m². Raft or pile foundation is likely required. Do NOT start construction without a soil test report.
           </AlertBox>
         )}
         {siteCondition === 'coastal' && (
           <AlertBox variant="caution">
-            <strong>Coastal exposure.</strong> IS 456:2000 Table 5 mandates M30 minimum concrete and 50mm cover for severe exposure. Salt ingress accelerates corrosion. Use stainless or epoxy-coated rebar for splash-zone members within 500m of sea.
+            <strong>Coastal exposure.</strong> IS 456:2000 Table 5 mandates M30 minimum concrete and 50mm cover. Salt ingress accelerates corrosion. Use stainless or epoxy-coated rebar within 500m of sea.
           </AlertBox>
         )}
         {siteCondition === 'rocky' && (
           <AlertBox variant="tip">
-            <strong>Rocky terrain — advantage.</strong> Hard rock has bearing capacity of 3,300 kN/m² (IS 1904:2016). Foundation costs will be lower. Drilling and rock-cutting is required but overall foundation is far safer and cheaper than raft.
+            <strong>Rocky terrain — advantage.</strong> Hard rock has bearing capacity of 3,300 kN/m² (IS 1904:2016). Foundation costs will be lower. Drilling and rock-cutting is required but the overall foundation is far safer.
           </AlertBox>
         )}
 
-        {/* Foundation recommendation */}
         {foundationRec && (
           <div className="mt-3 p-3 rounded-[2px]" style={{ background: '#14532D0A', border: '1px solid #14532D30' }}>
             <div className="flex items-start gap-2">
@@ -628,7 +677,6 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
                 {foundationRec.warning && <p className="text-[12px] mt-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>⚠ {foundationRec.warning}</p>}
               </div>
             </div>
-            {/* Override dropdown */}
             <div className="flex items-center gap-2 mt-3">
               <label className="text-[12px]" style={{ color: '#1E2227A0', fontFamily: 'var(--font-plex-sans)' }}>Override foundation type:</label>
               <select
@@ -658,7 +706,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
             <input type="checkbox" id="sc-stair" checked={staircase.include} onChange={e => setStaircase(s => ({ ...s, include: e.target.checked }))} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
             <label htmlFor="sc-stair" className="text-[13px] font-semibold cursor-pointer" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
               Staircase
-              <Tip id="staircase" open={openTip} setOpen={setOpenTip} />
+              <Tip id="staircase" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
           </div>
           {staircase.include && (
@@ -694,7 +742,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
             <input type="checkbox" id="sc-oht" checked={oht.include} onChange={e => setOht(o => ({ ...o, include: e.target.checked }))} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
             <label htmlFor="sc-oht" className="text-[13px] font-semibold cursor-pointer" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
               Overhead Tank (OHT)
-              <Tip id="oht" open={openTip} setOpen={setOpenTip} />
+              <Tip id="oht" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
           </div>
           {oht.include && (
@@ -717,7 +765,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
             <input type="checkbox" id="sc-parapet" checked={parapet.include} onChange={e => setParapet(p => ({ ...p, include: e.target.checked }))} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
             <label htmlFor="sc-parapet" className="text-[13px] font-semibold cursor-pointer" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
               Parapet (RCC band)
-              <Tip id="parapet" open={openTip} setOpen={setOpenTip} />
+              <Tip id="parapet" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
           </div>
           {parapet.include && (
@@ -740,7 +788,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
         <div className="p-4 rounded-[2px] border" style={{ borderColor: isStiltSoftStorey ? '#D99A0640' : '#1E222720' }}>
           <label className="block text-[13px] font-semibold mb-3" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
             Parking
-            <Tip id="parking" open={openTip} setOpen={setOpenTip} />
+            <Tip id="parking" open={activeTooltip} setOpen={setActiveTooltip} />
           </label>
           <div className="space-y-2">
             {([['none', 'No covered parking'], ['stilt', 'Stilt Ground Floor (open columns)'], ['shed', 'Separate parking shed']] as const).map(([val, label]) => (
@@ -754,43 +802,273 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
             <div className="mt-3 p-3 rounded-[2px]" style={{ background: '#D99A0610', border: '1.5px solid #D99A0660' }}>
               <p className="text-[12px] font-semibold" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>⚠ SOFT STOREY WARNING — IS 1893:2016 Cl 7.10</p>
               <p className="text-[12px] mt-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
-                Stilt ground floor in Seismic Zone {effectiveZone} creates a structural irregularity. A licensed structural engineer must design the stilt frame with special detailing. Prohibited in Zone V without engineer approval.
+                Stilt ground floor in Seismic Zone {effectiveZone} creates a structural irregularity. A licensed structural engineer must design the stilt frame with special detailing.
               </p>
             </div>
           )}
         </div>
       </Sect>
 
-      {/* ── S5: Technical Specifications (collapsed by default) ───────────────── */}
+      {/* ── S5: Technical Specifications ─────────────────────────────────────── */}
       <Sect title="Advanced Settings ▼ — Technical Specifications" defaultOpen={false}>
         <AlertBox variant="info">
-          These values are pre-set to <strong>IS-code safe defaults</strong> for residential construction. Change them only if your structural engineer has specified different values in a drawing or calculation sheet. Wrong values here will produce incorrect material quantities.
+          Pre-set to <strong>IS-code safe defaults</strong> for residential construction. Change only if your structural engineer has specified different values. Wrong values here will produce incorrect material quantities.
         </AlertBox>
+
+        {/* ── Seismic Zone ── */}
+        <div className="p-4 rounded-[2px]" style={{ background: '#1F4E7908', border: '1px solid #1F4E7920' }}>
+          <label className={lCls} style={lStyle}>
+            Seismic Zone (IS 1893:2016)
+            <Tip id="seismic" open={activeTooltip} setOpen={setActiveTooltip} />
+          </label>
+          <select
+            className={iCls}
+            style={{ ...iStyle, ...monoStyle }}
+            value={seismicOverride || szInfo.zone}
+            onChange={e => setSeismicOverride(e.target.value === szInfo.zone ? '' : e.target.value)}
+          >
+            <option value="II">Zone II — Low Risk (Karnataka, TN, AP, Telangana, MP, CG, Jharkhand, Odisha)</option>
+            <option value="III">Zone III — Moderate (Maharashtra, Gujarat, Rajasthan, WB, Goa, Kerala)</option>
+            <option value="IV">Zone IV — High (Delhi, Punjab, Haryana, Bihar, UP)</option>
+            <option value="V">Zone V — Very High / NE India (Uttarakhand, HP, Sikkim, all NE states, J&amp;K, Ladakh)</option>
+          </select>
+          <p className="text-[11px] mt-1.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+            Auto-detected: Zone {szInfo.zone} from {localState || 'selected state'}
+            {seismicOverride && seismicOverride !== szInfo.zone && <span className="ml-2 text-[#D99A06]">· Override active</span>}
+          </p>
+          {LARGE_MULTIZONE_STATES.includes(localState) && (
+            <p className="text-[11px] mt-1.5 leading-relaxed" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
+              ⚠ Large states (Maharashtra, UP, Rajasthan) span multiple zones — verify your city-level zone from IS 1893:2016 Annex E with your structural engineer.
+            </p>
+          )}
+        </div>
+
+        {/* ── Grade and Steel ── */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={lCls} style={lStyle}>
-              Concrete Grade
-              <Tip id="concrete" open={openTip} setOpen={setOpenTip} />
+              Overall Concrete Grade
+              <Tip id="concrete" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
-            <select className={iCls} style={{ ...iStyle, ...monoStyle }} value={concreteGrade} onChange={e => setConcreteGrade(e.target.value as ConcreteGrade)}>
-              {(['M20','M25','M30','M35','M40'] as ConcreteGrade[]).map(g => <option key={g} value={g}>{g}</option>)}
-            </select>
+            {specSelect(concreteGrade, v => setConcreteGrade(v as ConcreteGrade), [
+              ['M20','M20 — Minimum IS 456 RCC'],
+              ['M25','M25 — Zone III+ recommended'],
+              ['M30','M30 — Severe exposure'],
+              ['M35','M35 — Very severe exposure'],
+              ['M40','M40 — Extreme / coastal'],
+            ])}
             <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 456:2000 min for RCC: M20</p>
           </div>
           <div>
             <label className={lCls} style={lStyle}>
               Steel Grade
-              <Tip id="steel" open={openTip} setOpen={setOpenTip} />
+              <Tip id="steel" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
-            <select className={iCls} style={{ ...iStyle, ...monoStyle }} value={steelGrade} onChange={e => setSteelGrade(e.target.value as SteelGrade)}>
-              {(['Fe415','Fe500','Fe500D','Fe550D'] as SteelGrade[]).map(g => <option key={g} value={g}>{g}</option>)}
-            </select>
-            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 1786:2008 — Zone III+: use Fe500D</p>
+            {specSelect(steelGrade, v => setSteelGrade(v as SteelGrade), [
+              ['Fe415','Fe415 — Old standard'],
+              ['Fe500','Fe500 — Standard residential'],
+              ['Fe500D','Fe500D — Seismic Zone III-V (ductile)'],
+              ['Fe550D','Fe550D — High-rise seismic'],
+            ])}
+            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 13920:2016 — Zone III+: Fe500D mandatory</p>
+          </div>
+        </div>
+
+        {/* ── Bar Sizes ── */}
+        <div>
+          <p className="text-[11px] uppercase tracking-widest mb-3" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+            REINFORCEMENT BAR SIZES
+            <Tip id="barsize" open={activeTooltip} setOpen={setActiveTooltip} />
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label className={lCls} style={lStyle}>Column Main Bar</label>
+              {specSelect(columnMainBar, setColumnMainBar, [
+                ['12mm','12mm'],
+                ['16mm','16mm (default)'],
+                ['20mm','20mm'],
+                ['25mm','25mm'],
+              ])}
+            </div>
+            <div>
+              <label className={lCls} style={lStyle}>Beam Main Bar</label>
+              {specSelect(beamMainBar, setBeamMainBar, [
+                ['12mm','12mm'],
+                ['16mm','16mm (default)'],
+                ['20mm','20mm'],
+                ['25mm','25mm'],
+              ])}
+            </div>
+            <div>
+              <label className={lCls} style={lStyle}>Slab Bar</label>
+              {specSelect(slabBar, setSlabBar, [
+                ['8mm','8mm'],
+                ['10mm','10mm (default)'],
+                ['12mm','12mm'],
+              ])}
+            </div>
+            <div>
+              <label className={lCls} style={lStyle}>
+                Stirrup / Link Bar
+                <Tip id="stirrup" open={activeTooltip} setOpen={setActiveTooltip} />
+              </label>
+              {specSelect(stirrupBar, setStirrupBar, [
+                ['8mm','8mm (default)'],
+                ['10mm','10mm'],
+              ])}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Member Sizes ── */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={lCls} style={lStyle}>
+              Column Size
+              <Tip id="column" open={activeTooltip} setOpen={setActiveTooltip} />
+            </label>
+            {specSelect(columnSize, setColumnSize, [
+              ['230×230mm','230×230mm (G+1 to G+2)'],
+              ['300×300mm','300×300mm (G+3)'],
+              ['350×350mm','350×350mm (default)'],
+              ['400×400mm','400×400mm (heavy loads)'],
+              ['450×450mm','450×450mm (commercial)'],
+            ])}
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>
+              Slab Thickness
+              <Tip id="slab" open={activeTooltip} setOpen={setActiveTooltip} />
+            </label>
+            {specSelect(String(slabThickness), v => setSlabThickness(parseInt(v)), [
+              ['100','100mm'],
+              ['125','125mm (default)'],
+              ['150','150mm'],
+              ['175','175mm'],
+            ])}
+            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 456:2000 min: 125mm</p>
+          </div>
+        </div>
+
+        {/* ── Concrete Grades per Member ── */}
+        <div>
+          <p className="text-[11px] uppercase tracking-widest mb-3" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+            CONCRETE GRADES PER MEMBER (IS 456:2000)
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div>
+              <label className={lCls} style={lStyle}>
+                PCC Below Foundation
+                <Tip id="pcc" open={activeTooltip} setOpen={setActiveTooltip} />
+              </label>
+              {specSelect(pccGrade, setPccGrade, [
+                ['M10','M10 (1:3:6)'],
+                ['M15','M15 (1:2:4) — default'],
+              ])}
+            </div>
+            <div>
+              <label className={lCls} style={lStyle}>
+                Foundation Concrete
+                <Tip id="foundconc" open={activeTooltip} setOpen={setActiveTooltip} />
+              </label>
+              {specSelect(foundationConcreteGrade, setFoundationConcreteGrade, [
+                ['M20','M20 (default)'],
+                ['M25','M25'],
+                ['M30','M30'],
+              ])}
+            </div>
+            <div>
+              <label className={lCls} style={lStyle}>
+                Column Concrete
+                <Tip id="colconc" open={activeTooltip} setOpen={setActiveTooltip} />
+              </label>
+              {specSelect(columnConcreteGrade, setColumnConcreteGrade, [
+                ['M20','M20'],
+                ['M25','M25 (default)'],
+                ['M30','M30'],
+                ['M35','M35'],
+                ['M40','M40'],
+              ])}
+            </div>
+            <div>
+              <label className={lCls} style={lStyle}>
+                Beam Concrete
+                <Tip id="beamconc" open={activeTooltip} setOpen={setActiveTooltip} />
+              </label>
+              {specSelect(beamConcreteGrade, setBeamConcreteGrade, [
+                ['M20','M20'],
+                ['M25','M25 (default)'],
+                ['M30','M30'],
+                ['M35','M35'],
+              ])}
+            </div>
+            <div>
+              <label className={lCls} style={lStyle}>
+                Slab Concrete
+                <Tip id="slabconc" open={activeTooltip} setOpen={setActiveTooltip} />
+              </label>
+              {specSelect(slabConcreteGrade, setSlabConcreteGrade, [
+                ['M20','M20 (default)'],
+                ['M25','M25'],
+                ['M30','M30'],
+              ])}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Foundation & Soil ── */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={lCls} style={lStyle}>
+              Soil Bearing Capacity
+              <Tip id="soilbearing" open={activeTooltip} setOpen={setActiveTooltip} />
+            </label>
+            {specSelect(soilBearingCapacity, setSoilBearingCapacity, [
+              ['Very Soft <100','Very Soft &lt;100 kN/m²'],
+              ['Soft 100-150','Soft 100–150 kN/m²'],
+              ['Medium 150-200','Medium 150–200 kN/m² (default)'],
+              ['Stiff 200-300','Stiff 200–300 kN/m²'],
+              ['Hard Rock >300','Hard Rock &gt;300 kN/m²'],
+            ])}
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>
+              Foundation Depth (m)
+              <Tip id="foundation" open={activeTooltip} setOpen={setActiveTooltip} />
+            </label>
+            <input
+              className={iCls}
+              style={{ ...iStyle, ...monoStyle }}
+              type="number"
+              min="0.5"
+              max="5.0"
+              step="0.1"
+              value={foundationDepthM}
+              onChange={e => setFoundationDepthM(parseFloat(e.target.value) || 1.5)}
+            />
+            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 1904:2016 min: 0.5m · default 1.5m</p>
+          </div>
+          <div>
+            <label className={lCls} style={lStyle}>
+              Plinth Height (m)
+              <Tip id="plinth" open={activeTooltip} setOpen={setActiveTooltip} />
+            </label>
+            <input
+              className={iCls}
+              style={{ ...iStyle, ...monoStyle }}
+              type="number"
+              min="0.3"
+              max="1.5"
+              step="0.05"
+              value={plinthHeight}
+              onChange={e => setPlinthHeight(parseFloat(e.target.value) || 0.6)}
+            />
+            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>NBC 2016 recommendation: min 0.45m · default 0.6m</p>
           </div>
           <div>
             <label className={lCls} style={lStyle}>
               Exposure Class
-              <Tip id="exposure" open={openTip} setOpen={setOpenTip} />
+              <Tip id="exposure" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
             <div className="px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, background: '#F4F4F0', ...monoStyle }}>
               {exposureClass.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} (auto from site)
@@ -798,36 +1076,8 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
           </div>
           <div>
             <label className={lCls} style={lStyle}>
-              Column Size
-              <Tip id="column" open={openTip} setOpen={setOpenTip} />
-            </label>
-            <select className={iCls} style={{ ...iStyle, ...monoStyle }} value={columnSize} onChange={e => setColumnSize(e.target.value)}>
-              <option value="230×230mm">230×230mm (up to G+2)</option>
-              <option value="300×300mm">300×300mm (G+3 to G+5)</option>
-              <option value="350×350mm">350×350mm (heavy loads)</option>
-              <option value="400×400mm">400×400mm (commercial)</option>
-            </select>
-          </div>
-          <div>
-            <label className={lCls} style={lStyle}>
-              Slab Thickness (mm)
-              <Tip id="slab" open={openTip} setOpen={setOpenTip} />
-            </label>
-            <input className={iCls} style={{ ...iStyle, ...monoStyle }} type="number" min="100" max="250" value={slabThickness} onChange={e => setSlabThickness(parseInt(e.target.value) || 125)} />
-            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 456:2000 min: 125mm</p>
-          </div>
-          <div>
-            <label className={lCls} style={lStyle}>
-              Foundation Depth (mm)
-              <Tip id="foundation" open={openTip} setOpen={setOpenTip} />
-            </label>
-            <input className={iCls} style={{ ...iStyle, ...monoStyle }} type="number" min="600" max="3000" value={foundationDepth} onChange={e => setFoundationDepth(parseInt(e.target.value) || 900)} />
-            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 1904:2016 min: 900mm</p>
-          </div>
-          <div>
-            <label className={lCls} style={lStyle}>
               Concrete Cover (mm)
-              <Tip id="cover" open={openTip} setOpen={setOpenTip} />
+              <Tip id="cover" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
             <div className="px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, background: '#F4F4F0', ...monoStyle }}>
               {coverMm} mm (IS 456:2000 Table 16 — read-only)
@@ -839,15 +1089,15 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       {/* ── S6: Material Rates (collapsed by default) ─────────────────────────── */}
       <Sect title="Advanced Settings ▼ — Material Rates" badge="India Avg 2026" defaultOpen={false}>
         <AlertBox variant="tip">
-          <strong>India Average 2026</strong> rates are pre-loaded. Only edit if you have confirmed rates from your local supplier or a recent indent. Rates vary by 20–30% depending on your city and transport distance from source.
+          <strong>India Average 2026</strong> rates are pre-loaded. Edit only if you have confirmed rates from your local supplier. Rates vary 20–30% depending on city and transport distance.
         </AlertBox>
         <AlertBox variant="caution">
-          Get quotes from <strong>at least 3 suppliers</strong> before fixing rates. Contractor-supplied material is typically 8–15% above market rate — build this margin into your budget.
+          Get quotes from <strong>at least 3 suppliers</strong>. Contractor-supplied material is typically 8–15% above market rate.
         </AlertBox>
         <div className="grid grid-cols-2 gap-3">
           {[
             { key: 'cement',      label: 'Cement (₹/50kg bag)', unit: '/bag' },
-            { key: 'steel',       label: 'Steel TMT Fe500D (₹/kg)', unit: '/kg' },
+            { key: 'steel',       label: 'Steel TMT Fe500 (₹/kg)', unit: '/kg' },
             { key: 'sand',        label: 'Sand (₹/cft)', unit: '/cft' },
             { key: 'aggregate',   label: 'Aggregate 20mm (₹/cft)', unit: '/cft' },
             { key: 'formwork',    label: 'Formwork (₹/sqft BUA)', unit: '/sqft' },
@@ -876,7 +1126,6 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
           ))}
         </div>
 
-        {/* Custom materials */}
         {customMaterials.map((cm, idx) => (
           <div key={cm.id} className="flex items-end gap-2 mt-2">
             <div className="flex-1">
@@ -910,7 +1159,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
           Enter your contractor&apos;s quote now to <strong>compare it line-by-line</strong> against our IS-code calculated quantities after payment. We flag inflated quantities, missing items, and rate manipulation automatically.
         </AlertBox>
         <p className="text-[12px]" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
-          Enter your contractor&apos;s quote to compare against the estimate. Select what they provided:
+          Select what the contractor provided:
         </p>
         <div className="space-y-2">
           {([
@@ -926,49 +1175,39 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
         </div>
 
         <div className="space-y-3 mt-3 pt-3" style={{ borderTop: '1px solid #1E222715' }}>
-            <div>
-              <label className={lCls} style={lStyle}>Contractor / Company Name (optional)</label>
-              <input className={iCls} style={iStyle} placeholder="e.g. Mehta Construction Co." value={contractorName} onChange={e => setContractorName(e.target.value)} />
-            </div>
-
-            {quoteMode === 'total' && (
-              <div>
-                <label className={lCls} style={lStyle}>Total Quote (₹)</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                  <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={contractorTotal} onChange={e => setContractorTotal(e.target.value)} />
-                </div>
-              </div>
-            )}
-
-            {quoteMode === 'materials' && (
-              <div>
-                <label className={lCls} style={lStyle}>Materials Quote (₹)</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                  <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={contractorTotal} onChange={e => setContractorTotal(e.target.value)} />
-                </div>
-              </div>
-            )}
-
-            {quoteMode === 'breakdown' && (
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: 'Concrete rate (₹/m³)', val: ctConcreteRate, set: setCtConcreteRate },
-                  { label: 'Steel rate (₹/kg)', val: ctSteelRate, set: setCtSteelRate },
-                  { label: 'Formwork (₹/sqft)', val: ctFormworkRate, set: setCtFormworkRate },
-                ].map(({ label, val, set }) => (
-                  <div key={label}>
-                    <label className={lCls} style={lStyle}>{label}</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                      <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={val} onChange={e => set(e.target.value)} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div>
+            <label className={lCls} style={lStyle}>Contractor / Company Name (optional)</label>
+            <input className={iCls} style={iStyle} placeholder="e.g. Mehta Construction Co." value={contractorName} onChange={e => setContractorName(e.target.value)} />
           </div>
+
+          {(quoteMode === 'total' || quoteMode === 'materials') && (
+            <div>
+              <label className={lCls} style={lStyle}>{quoteMode === 'total' ? 'Total Quote (₹)' : 'Materials Quote (₹)'}</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={contractorTotal} onChange={e => setContractorTotal(e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {quoteMode === 'breakdown' && (
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: 'Concrete rate (₹/m³)', val: ctConcreteRate, set: setCtConcreteRate },
+                { label: 'Steel rate (₹/kg)',    val: ctSteelRate,    set: setCtSteelRate },
+                { label: 'Formwork (₹/sqft)',    val: ctFormworkRate, set: setCtFormworkRate },
+              ].map(({ label, val, set }) => (
+                <div key={label}>
+                  <label className={lCls} style={lStyle}>{label}</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                    <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={val} onChange={e => set(e.target.value)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </Sect>
 
       {/* ── S8: Labour ────────────────────────────────────────────────────────── */}
@@ -984,14 +1223,14 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
               <strong>CPWD DSR 2023 rates</strong> are government-procurement benchmarks. Private residential work typically differs by ±20–30%. The number of working days depends on curing intervals, monsoon shutdowns, festival breaks, sand bans, and local conditions — these cannot be predicted by software. <em>Labour total appears only in your paid PDF report.</em>
             </AlertBox>
             <AlertBox variant="tip">
-              <strong>Enter 0 workers</strong> to exclude any trade from the estimate entirely. This is equivalent to the − button — use whichever is faster for you.
+              <strong>Enter 0 workers</strong> to exclude any trade from the estimate entirely.
             </AlertBox>
 
             <div className="overflow-x-auto">
               <table className="w-full text-[12px] border-collapse">
                 <thead>
                   <tr style={{ background: '#1E22270A' }}>
-                    {['Active', 'Trade', 'Workers (enter 0 to exclude)', 'Rate/Day (₹)', 'CPWD Productivity (editable)', 'Days'].map(h => (
+                    {['Active', 'Trade', 'Workers', 'Rate/Day (₹)', 'CPWD Productivity (editable)', 'Days'].map(h => (
                       <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
                     ))}
                   </tr>
@@ -1034,7 +1273,8 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
                             placeholder={t.stdProductivity}
                           />
                           <span className="text-[11px] whitespace-nowrap" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>std: {t.stdProductivity}</span>
-                          <Tip id="cpwd" open={openTip} setOpen={setOpenTip} />
+                          {/* Unique id per row so only that row's tooltip opens */}
+                          <Tip id={`cpwd-${t.id}`} infoId="cpwd" open={activeTooltip} setOpen={setActiveTooltip} />
                         </div>
                       </td>
                       <td className="px-2 py-1">
