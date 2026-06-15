@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, type ReactNode } from 'react'
+import { useState, useEffect, useRef, useMemo, type ReactNode } from 'react'
 import {
   seismicZoneFromState,
   exposureFromSiteCondition,
@@ -187,6 +187,21 @@ function AlertBox({ variant, children }: { variant: AlertVariant; children: Reac
   )
 }
 
+interface ISBadge { variant: 'green' | 'amber' | 'red'; text: string }
+
+function ISBadgeComp({ variant, text }: ISBadge) {
+  const s = {
+    green: { bg: 'rgba(20,83,45,0.07)',   color: '#14532D', border: '1px solid #14532D30' },
+    amber: { bg: 'rgba(217,154,6,0.07)',  color: '#7C5500', border: '1px solid #D99A0640' },
+    red:   { bg: 'rgba(140,58,34,0.07)', color: '#8C3A22', border: '1px solid #8C3A2230' },
+  }[variant]
+  return (
+    <div className="text-[10px] px-2 py-1 rounded-[2px] leading-snug" style={{ background: s.bg, color: s.color, border: s.border, fontFamily: 'var(--font-plex-mono)' }}>
+      {text}
+    </div>
+  )
+}
+
 function RegionalNote({ children }: { children: string }) {
   return (
     <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
@@ -359,6 +374,74 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
   const coverMm       = { mild: 40, moderate: 45, severe: 50, very_severe: 55, extreme: 60 }[exposureClass]
   const isStiltSoftStorey = parkingType === 'stilt' && ['III', 'IV', 'V'].includes(effectiveZone)
   const LARGE_MULTIZONE_STATES = ['Maharashtra', 'Uttar Pradesh', 'Rajasthan']
+
+  // ── IS 1893:2016 / IS 456:2000 — Structural feasibility checks ──
+  const structuralChecks = useMemo(() => {
+    const perFloor: { badges: ISBadge[]; blockCalc: boolean }[] = floorRows.map(() => ({ badges: [], blockCalc: false }))
+    let blockCalculate = false
+    let hasIrregularity = false
+
+    if (!sameArea) {
+      for (let i = 1; i < floorRows.length; i++) {
+        const lowerSqft = parseFloat(floorRows[i - 1].area) || 0
+        const upperSqft = parseFloat(floorRows[i].area) || 0
+        if (lowerSqft <= 0 || upperSqft <= 0) continue
+
+        const lowerSideM = Math.sqrt(lowerSqft * 0.0929)
+        const upperSideM = Math.sqrt(upperSqft * 0.0929)
+        const dimensionRatio = upperSideM / lowerSideM
+        const cantileverM = Math.max(0, (upperSideM - lowerSideM) / 2)
+        const areaRatio = upperSqft / lowerSqft
+        const dimPct = Math.round((dimensionRatio - 1) * 100)
+        const areaPct = Math.round((areaRatio - 1) * 100)
+        const cantStr = cantileverM.toFixed(2)
+        const beamDepth = Math.ceil(cantileverM * 142)
+        const rowBadges: ISBadge[] = []
+        let rowBlock = false
+
+        // Check 1 — Vertical Geometric Irregularity (IS 1893:2016 Table 6)
+        if (dimensionRatio > 1.5) {
+          rowBadges.push({ variant: 'red', text: `⛔ IS 1893:2016 Table 6 — Severe Geometric Irregularity: Upper floor is ${dimPct}% wider. Transfer structure required. Static design method invalid.` })
+          hasIrregularity = true
+        } else if (dimensionRatio > 1.25) {
+          rowBadges.push({ variant: 'amber', text: `⚠️ IS 1893:2016 Table 6 — Geometric Irregularity: Upper floor is ${dimPct}% wider than floor below. Dynamic analysis mandatory in Zones III-V.` })
+          hasIrregularity = true
+        }
+
+        // Check 2 — Mass Irregularity (IS 1893:2016 Table 6)
+        if (areaRatio > 1.5) {
+          rowBadges.push({ variant: 'amber', text: `⚠️ IS 1893:2016 Table 6 — Mass Irregularity: ${floorRows[i].label} is ${areaPct}% heavier than floor below. Dynamic analysis mandatory in Zones III-V.` })
+          hasIrregularity = true
+        }
+
+        // Check 3 — Cantilever Limit (IS 456:2000 Cl 23.2.1)
+        if (cantileverM > 3) {
+          rowBadges.push({ variant: 'red', text: `⛔ IS 456:2000 Cl 23.2.1: ${cantStr}m cantilever requires ${beamDepth}mm deep beam — impractical for residential RCC. Pre-stressed concrete or steel truss required. Redesign floor areas.` })
+          rowBlock = true
+          blockCalculate = true
+          hasIrregularity = true
+        } else if (cantileverM > 1.5) {
+          rowBadges.push({ variant: 'amber', text: `⚠️ IS 456:2000 Cl 23.2.1: ${cantStr}m cantilever needs ${beamDepth}mm deep transfer beam. Specialist engineer required.` })
+          hasIrregularity = true
+        } else if (cantileverM > 0) {
+          rowBadges.push({ variant: 'green', text: `✓ Cantilever ${cantStr}m — standard range. Transfer beam min depth ${beamDepth}mm.` })
+        }
+
+        perFloor[i] = { badges: rowBadges, blockCalc: rowBlock }
+      }
+    }
+
+    // Check 5 — Slender Building (IS 1893:2016)
+    const totalHeightM = floorRows.reduce((sum, r) => sum + (parseFloat(r.height) || 10) * 0.3048, 0)
+    const areaValues = sameArea
+      ? [parseFloat(groundArea) || 0]
+      : floorRows.map(r => parseFloat(r.area) || 0).filter(v => v > 0)
+    const minAreaSqft = areaValues.length > 0 ? Math.min(...areaValues) : 0
+    const baseDimM = minAreaSqft > 0 ? Math.sqrt(minAreaSqft * 0.0929) : 0
+    const isSlender = baseDimM > 0 && totalHeightM > 5 * baseDimM
+
+    return { perFloor, blockCalculate, hasIrregularity, isSlender }
+  }, [sameArea, floorRows, groundArea])
 
   const FLOOR_LABELS = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor']
 
@@ -560,7 +643,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
               <table className="w-full text-[12px] border-collapse">
                 <thead>
                   <tr style={{ background: '#1E22270A' }}>
-                    {['Floor Level', 'Area (sq ft)', 'Type', 'Height (ft)', 'Diff from prev.'].map(h => (
+                    {['Floor Level', 'Area (sq ft)', 'Type', 'Height (ft)', 'Diff from prev.', 'IS Checks'].map(h => (
                       <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
                     ))}
                   </tr>
@@ -608,6 +691,17 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
                         <td className="px-3 py-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: diff === null ? '#1E222740' : diff > 0 ? '#14532D' : diff < 0 ? '#8C3A22' : '#1E2227' }}>
                           {diff === null ? '—' : diff > 0 ? `+${diff.toFixed(0)} sqft` : diff < 0 ? `${diff.toFixed(0)} sqft` : '±0 sqft'}
                         </td>
+                        <td className="px-3 py-2 min-w-[220px]">
+                          {idx === 0
+                            ? <span className="text-[10px]" style={{ color: '#1E222740', fontFamily: 'var(--font-plex-mono)' }}>Base floor — no upper comparison</span>
+                            : structuralChecks.perFloor[idx]?.badges.length > 0
+                              ? <div className="space-y-1">{structuralChecks.perFloor[idx].badges.map((b, bi) => <ISBadgeComp key={bi} variant={b.variant} text={b.text} />)}</div>
+                              : (parseFloat(floorRows[idx].area) > 0
+                                ? <span className="text-[10px]" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>✓ No irregularities detected</span>
+                                : <span className="text-[10px]" style={{ color: '#1E222740', fontFamily: 'var(--font-plex-mono)' }}>Enter area to check</span>
+                              )
+                          }
+                        </td>
                       </tr>
                     )
                   })}
@@ -616,6 +710,55 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
               {errors.floors && <p className="text-[11px] mt-1" style={{ color: '#8C3A22' }}>{errors.floors}</p>}
             </div>
           </>
+        )}
+
+        {/* ── IS Code Validation Summary ─────────────────────────────────────── */}
+        {/* Check 4 — Stilt Soft Storey */}
+        {isStiltSoftStorey && (
+          <div className="p-3 rounded-[2px]" style={{ background: 'rgba(217,154,6,0.07)', border: '1.5px solid #D99A0640' }}>
+            <p className="text-[12px] font-semibold" style={{ color: '#7C5500', fontFamily: 'var(--font-plex-mono)' }}>
+              ⚠️ IS 1893:2016 Cl 7.9: Open ground floor = Soft Storey. Columns must carry 2.5× normal seismic force in Zone {effectiveZone}. Structural engineer mandatory.
+            </p>
+          </div>
+        )}
+
+        {/* Check 5 — Slender Building */}
+        {structuralChecks.isSlender && (
+          <div className="p-3 rounded-[2px]" style={{ background: 'rgba(217,154,6,0.07)', border: '1.5px solid #D99A0640' }}>
+            <p className="text-[12px] font-semibold" style={{ color: '#7C5500', fontFamily: 'var(--font-plex-mono)' }}>
+              ⚠️ IS 1893:2016: Building height exceeds 5× base dimension. Wind overturning check per IS 875 Part 3 mandatory.
+            </p>
+          </div>
+        )}
+
+        {/* Block summary — one or more floors are infeasible */}
+        {structuralChecks.blockCalculate && (
+          <div className="p-4 rounded-[2px]" style={{ background: 'rgba(140,58,34,0.07)', border: '2px solid #8C3A22' }}>
+            <p className="text-[13px] font-bold mb-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
+              ⛔ Structural Design Issue Detected
+            </p>
+            <p className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              One or more floors have dimensions that cannot be safely built with standard RCC per IS 456:2000 and IS 1893:2016. Please revise floor areas or consult a licensed structural engineer before proceeding. NirmanShastra cannot estimate cost for structurally infeasible configurations.
+            </p>
+            <p className="text-[11px] mt-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
+              Ref: IS 456:2000 Cl 23.2.1 · IS 1893:2016 Table 6
+            </p>
+          </div>
+        )}
+
+        {/* Irregularity summary — issues exist but calculation not blocked */}
+        {structuralChecks.hasIrregularity && !structuralChecks.blockCalculate && (
+          <div className="p-4 rounded-[2px]" style={{ background: 'rgba(217,154,6,0.07)', border: '1.5px solid #D99A0660' }}>
+            <p className="text-[13px] font-bold mb-1" style={{ color: '#7C5500', fontFamily: 'var(--font-plex-mono)' }}>
+              ⚠️ Structural Irregularities Detected
+            </p>
+            <p className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              This building requires dynamic analysis per IS 1893:2016. This estimate is for budgeting reference only. A licensed structural engineer must validate the design before construction.
+            </p>
+            <p className="text-[11px] mt-2" style={{ color: '#7C5500', fontFamily: 'var(--font-plex-mono)' }}>
+              Ref: IS 456:2000 Cl 23.2.1 · IS 1893:2016 Table 6 · IS 1893:2016 Cl 7.9
+            </p>
+          </div>
         )}
 
         <ElevationDiagram floorRows={floorRows} sameArea={sameArea} groundArea={groundArea} />
@@ -1321,14 +1464,28 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       <div className="pt-2">
         <button
           type="submit"
+          disabled={structuralChecks.blockCalculate}
           className="w-full py-3 rounded-[2px] font-semibold text-[15px] transition-all"
-          style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}
+          style={{
+            background: structuralChecks.blockCalculate ? '#8C3A2240' : '#1F4E79',
+            color: structuralChecks.blockCalculate ? '#8C3A22' : '#F4F4F0',
+            fontFamily: 'var(--font-plex-sans)',
+            cursor: structuralChecks.blockCalculate ? 'not-allowed' : 'pointer',
+            border: structuralChecks.blockCalculate ? '1.5px solid #8C3A2260' : 'none',
+          }}
         >
-          Generate Structural Estimate →
+          {structuralChecks.blockCalculate ? '⛔ Fix Structural Issues to Continue' : 'Generate Structural Estimate →'}
         </button>
-        <p className="text-[11px] text-center mt-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
-          Free: grand total range + IS compliance checks. Itemised BOQ requires ₹499 unlock.
-        </p>
+        {structuralChecks.blockCalculate && (
+          <p className="text-[11px] text-center mt-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
+            One or more floors have infeasible cantilever dimensions. Revise floor areas above.
+          </p>
+        )}
+        {!structuralChecks.blockCalculate && (
+          <p className="text-[11px] text-center mt-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+            Free: grand total range + IS compliance checks. Itemised BOQ requires ₹499 unlock.
+          </p>
+        )}
       </div>
     </form>
   )
