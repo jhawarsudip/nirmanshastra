@@ -265,7 +265,7 @@ export default function Navbar() {
 
               <div style={{ borderTop: '1px solid rgba(244,244,240,0.1)', padding: '9px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.5)' }}>Bundle — 5 tools</span>
-                <span style={{ ...mono, fontSize: 12, color: '#8C3A22' }}>₹2,999</span>
+                <span style={{ ...mono, fontSize: 12, color: '#8C3A22' }}>₹1,999</span>
               </div>
             </div>
           )}

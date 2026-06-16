@@ -495,7 +495,7 @@ export default function Home() {
 
               {/* Stats row — huge Plex Mono numbers */}
               <div className="flex flex-wrap gap-10 pt-4" style={{ borderTop: '1px solid rgba(244,244,240,0.1)' }}>
-                {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹2,999', 'Bundle']].map(([val, label]) => (
+                {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹1,999', 'Bundle']].map(([val, label]) => (
                   <div key={label}>
                     <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 500, color: '#C9A84C', lineHeight: 1 }}>{val}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 }}>{label}</div>
@@ -698,11 +698,11 @@ export default function Home() {
               <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.57)' }}>
                 StructoPro · MasonPro · ElectroPro · PlumbPro · InteriorPro
                 {' '}&mdash; saves{' '}
-                <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹1,496</span> vs buying separately
+                <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹496</span> vs buying separately
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 500, color: '#F4F4F0' }}>₹2,999</span>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 500, color: '#F4F4F0' }}>₹1,999</span>
               <Link
                 href="/tools/structopro"
                 style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '13px 24px', borderRadius: 6, textDecoration: 'none', whiteSpace: 'nowrap' }}
@@ -813,7 +813,7 @@ export default function Home() {
 
       {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
       <div className="grid-paper py-3">
-        <DimDivider label="₹499 / REPORT · ₹2,999 / BUNDLE" />
+        <DimDivider label="₹499 / REPORT · ₹1,999 / BUNDLE" />
       </div>
 
       {/* ── PRICING SECTION (full width) ─────────────────────────────────── */}
@@ -883,7 +883,7 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            {/* Tier 3 — Bundle ₹2,999 */}
+            {/* Tier 3 — Bundle ₹1,999 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -898,9 +898,9 @@ export default function Home() {
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#8C3A22', letterSpacing: '0.07em', marginBottom: 8 }}>COMPLETE BUNDLE · ALL 5 PAID TOOLS</p>
                 <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Full Platform</h3>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>All 5 Phase Estimators</p>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹2,999</div>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹1,999</div>
                 <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>
-                  saves <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹1,496</span> vs buying individually
+                  saves <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹496</span> vs buying individually
                 </p>
               </div>
               <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>

@@ -1294,8 +1294,8 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
               </View>
               <View>
                 <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.inkA60 }}>Or bundle all 5 apps:</Text>
-                <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 13, color: T.blueprint }}>Rs. 2,999</Text>
-                <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.approvedGreen }}>Saves Rs. 1,496</Text>
+                <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 13, color: T.blueprint }}>Rs. 1,999</Text>
+                <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.approvedGreen }}>Saves Rs. 496</Text>
               </View>
             </View>
           </View>
