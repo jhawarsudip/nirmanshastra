@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import { createServiceClient } from '@/lib/supabase/server'
 
+const PAYMENT_BYPASS = true
+
 // HMAC SHA256 verification — Build Reference Section 6.
 // Key Secret used ONLY here, never exposed to client.
 function verifySignature(orderId: string, paymentId: string, signature: string): boolean {
@@ -22,10 +24,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Verify HMAC SHA256 signature
-    const isValid = verifySignature(razorpayOrderId, razorpayPaymentId, razorpaySignature)
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 })
+    // Verify HMAC SHA256 signature (skipped in bypass mode)
+    if (!PAYMENT_BYPASS) {
+      const isValid = verifySignature(razorpayOrderId, razorpayPaymentId, razorpaySignature)
+      if (!isValid) {
+        return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 })
+      }
     }
 
     const supabase = createServiceClient()

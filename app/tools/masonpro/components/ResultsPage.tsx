@@ -94,10 +94,12 @@ function BlurOverlay({ onClick }: { onClick: () => void }) {
   )
 }
 
+const PAYMENT_BYPASS = true
+
 export default function ResultsPage({ result, input, estimateId, contactName, onStartOver }: Props) {
   const [payStatus, setPayStatus] = useState<PayStatus>('idle')
   const [payError, setPayError]   = useState('')
-  const [isPaid, setIsPaid]       = useState(false)
+  const [isPaid, setIsPaid]       = useState(PAYMENT_BYPASS)
   const [orderId, setOrderId]     = useState<string | null>(null)
   const pollRef                   = useRef<ReturnType<typeof setInterval> | null>(null)
   const [pdfStatus, setPdfStatus] = useState<PdfStatus>('idle')
@@ -231,6 +233,17 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             TEST MODE — Razorpay sandbox. No real money charged. Use test card 4111 1111 1111 1111.
           </p>
         </div>
+
+        {/* Preview mode banner */}
+        {PAYMENT_BYPASS && (
+          <div className="px-4 py-2 rounded-[2px] flex items-center gap-2"
+            style={{ background: 'rgba(20,83,45,0.08)', border: '1px solid rgba(20,83,45,0.35)' }}>
+            <span style={{ color: '#14532D', fontSize: 13 }}>✓</span>
+            <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+              PREVIEW MODE — Full report visible for testing
+            </p>
+          </div>
+        )}
 
         {/* Grand total — FREE */}
         <div style={{ background: '#1E2227', padding: '56px 48px', textAlign: 'center' }}>
