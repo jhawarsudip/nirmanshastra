@@ -308,6 +308,43 @@ const LABOUR_RATES = {
   nightWatchman: { workers: 1, ratePerDay: 500,  sqmPerDay: null  },
 }
 
+// ─── NEW SCHEDULE TYPES ───────────────────────────────────────────────────────
+
+export interface RoomEntry {
+  id: string
+  name: string
+  lengthFt: number
+  widthFt: number
+  wallHeightM: number
+  wallType: 'external' | 'internal' | 'both'
+}
+
+export interface DoorEntry {
+  id: string
+  label: string
+  widthMm: number
+  heightMm: number
+  count: number
+  isCustom?: boolean
+}
+
+export interface WindowEntry {
+  id: string
+  label: string
+  widthMm: number
+  heightMm: number
+  count: number
+  isCustom?: boolean
+}
+
+export interface BalconyEntry {
+  id: string
+  name: string
+  lengthM: number
+  heightMm: number
+  thicknessMm: 115 | 230
+}
+
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
 export interface ComplianceCheck {
@@ -322,10 +359,10 @@ export interface MasonInput {
   state: string
   city: string
   externalWallType: ExternalWallType
-  externalWallAreaSqm: number
+  externalWallAreaSqm: number          // NET external wall area (after door/window deductions)
   includeInternal: boolean
   internalWallType?: InternalWallType
-  internalWallAreaSqm?: number
+  internalWallAreaSqm?: number         // NET internal wall area
   includePlaster: boolean
   includeWaterproofing: boolean
   terraceAreaSqft?: number
@@ -333,6 +370,63 @@ export interface MasonInput {
   terraceWpMethod?: WaterproofingMethod
   bathroomWpMethod?: BathroomWpMethod
   contractorQuote?: number
+
+  // Building overview
+  numFloors?: number
+  floorHeightM?: number
+
+  // Room schedule (for BOQ breakdown)
+  rooms?: RoomEntry[]
+  grossExternalWallAreaSqm?: number
+  grossInternalWallAreaSqm?: number
+  totalDoorDeductionSqm?: number
+  totalWindowDeductionSqm?: number
+  doors?: DoorEntry[]
+  windows?: WindowEntry[]
+
+  // Parapet wall
+  includeParapet?: boolean
+  parapetAreaSqm?: number
+  parapetPerimeterM?: number
+  parapetHeightMm?: number
+  parapetThicknessMm?: number
+
+  // Balcony parapet
+  includeBalcony?: boolean
+  balconies?: BalconyEntry[]
+  totalBalconyParapetAreaSqm?: number
+
+  // Compound wall
+  includeCompoundWall?: boolean
+  compoundWallAreaSqm?: number
+  compoundPerimeterM?: number
+  compoundHeightM?: number
+  compoundThicknessMm?: number
+  compoundGateWidthM?: number
+  compoundPillarCount?: number
+
+  // Sunshades
+  includeSunshades?: boolean
+  sunshadesCount?: number
+  sunshadeProjectionM?: number
+  sunshadeWidthM?: number
+  sunshadeThicknessMm?: number
+  includeSoldierCourse?: boolean
+
+  // Duct walls
+  includeDucts?: boolean
+  ductCount?: number
+  ductPerimeterM?: number
+  ductWallAreaSqm?: number
+
+  // Extended plaster flags
+  plasterInternal?: boolean
+  plasterExternal?: boolean
+  plasterCeiling?: boolean
+  plasterCompoundWall?: boolean
+  plasterParapet?: boolean
+  chickenMesh?: boolean
+  ceilingPlasterAreaSqm?: number
 }
 
 export interface BrickworkQuantities {
@@ -342,6 +436,14 @@ export interface BrickworkQuantities {
   internalBricksOrBlocks: number
   internalCementBags: number
   internalSandCft: number
+  // New line items
+  parapetBricksOrBlocks: number
+  parapetCementBags: number
+  parapetSandCft: number
+  balconyParapetBricksOrBlocks: number
+  compoundWallBricksOrBlocks: number
+  compoundPillarCount: number
+  ductWallBricksOrBlocks: number
 }
 
 export interface PlasterQuantities {
@@ -360,6 +462,10 @@ export interface WaterproofingCosts {
 export interface MasonCosts {
   externalBrickworkMaterial: number
   internalPartitionMaterial: number
+  parapetMaterial: number
+  balconyParapetMaterial: number
+  compoundWallMaterial: number
+  ductWallMaterial: number
   plasterMaterial: number
   waterproofing: number
   totalMaterial: number
@@ -501,6 +607,38 @@ export function runCalculation(input: MasonInput): MasonResult {
     }
   }
 
+  // ── Parapet wall brickwork ────────────────────────────────────────────────
+  const parapetAreaSqm = input.parapetAreaSqm ?? 0
+  const parapetThickness = input.parapetThicknessMm ?? 115
+  const parapetSpec = parapetThickness >= 200
+    ? extSpec
+    : (INTERNAL_WALL_SPECS[extWallType.startsWith('flyash') ? 'flyash_4_5' : extWallType.startsWith('aac') ? 'aac_100' : 'clay_4_5'])
+  const parapetBricksOrBlocks   = parapetAreaSqm > 0 ? Math.round(parapetSpec.unitsPerSqm * parapetAreaSqm) : 0
+  const parapetCementBags       = parapetAreaSqm > 0 ? Math.round(parapetSpec.cementBagsPerSqm * parapetAreaSqm * 10) / 10 : 0
+  const parapetSandCft          = parapetAreaSqm > 0 ? Math.round(parapetSpec.sandCftPerSqm   * parapetAreaSqm * 10) / 10 : 0
+
+  // ── Balcony parapet brickwork ─────────────────────────────────────────────
+  const balconyParapetAreaSqm       = input.totalBalconyParapetAreaSqm ?? 0
+  const balconyParapetBricksOrBlocks = balconyParapetAreaSqm > 0
+    ? Math.round(parapetSpec.unitsPerSqm * balconyParapetAreaSqm) : 0
+
+  // ── Compound wall brickwork ───────────────────────────────────────────────
+  const compoundAreaSqm = input.compoundWallAreaSqm ?? 0
+  const compoundThickness = input.compoundThicknessMm ?? 230
+  const compoundSpecMultiplier = compoundThickness >= 340 ? 1.5 : 1.0
+  const compoundBricksOrBlocks = compoundAreaSqm > 0
+    ? Math.round(extSpec.unitsPerSqm * compoundSpecMultiplier * compoundAreaSqm) : 0
+  const compoundCementBags = compoundAreaSqm > 0
+    ? Math.round(extSpec.cementBagsPerSqm * compoundSpecMultiplier * compoundAreaSqm * 10) / 10 : 0
+  const compoundSandCft = compoundAreaSqm > 0
+    ? Math.round(extSpec.sandCftPerSqm * compoundSpecMultiplier * compoundAreaSqm * 10) / 10 : 0
+  const compoundPillarCountVal = input.compoundPillarCount ?? 0
+
+  // ── Duct wall brickwork ───────────────────────────────────────────────────
+  const ductAreaSqm = input.ductWallAreaSqm ?? 0
+  const ductSpec = INTERNAL_WALL_SPECS.clay_4_5
+  const ductBricksOrBlocks = ductAreaSqm > 0 ? Math.round(ductSpec.unitsPerSqm * ductAreaSqm) : 0
+
   const brickworkQuantities: BrickworkQuantities = {
     externalBricksOrBlocks: extBricksOrBlocks,
     externalCementBags: extCementBags,
@@ -508,6 +646,13 @@ export function runCalculation(input: MasonInput): MasonResult {
     internalBricksOrBlocks: intBricksOrBlocks,
     internalCementBags: intCementBags,
     internalSandCft: intSandCft,
+    parapetBricksOrBlocks,
+    parapetCementBags,
+    parapetSandCft,
+    balconyParapetBricksOrBlocks,
+    compoundWallBricksOrBlocks: compoundBricksOrBlocks,
+    compoundPillarCount: compoundPillarCountVal,
+    ductWallBricksOrBlocks: ductBricksOrBlocks,
   }
 
   // ── Plaster quantities (IS 1661:1972 + 5% wastage) ───────────────────────
@@ -517,15 +662,25 @@ export function runCalculation(input: MasonInput): MasonResult {
 
   if (includePlaster) {
     const W = PLASTER.WASTAGE
-    // External plaster on both sides of external wall (2 × external area)
-    // Internal plaster on internal walls
-    const extPlasterArea = externalWallAreaSqm * 2 // both faces
-    const intPlasterArea = effectiveIntArea * 2
+    const doExt  = input.plasterExternal  !== false
+    const doInt  = input.plasterInternal  !== false
+    const doCeil = input.plasterCeiling   === true
+    const doComp = input.plasterCompoundWall === true
+    const doPar  = input.plasterParapet   === true
 
-    const extPlasterCement = Math.round(PLASTER.external.cementBagsPerSqm * extPlasterArea * W * 10) / 10
-    const extPlasterSand   = Math.round(PLASTER.external.sandCftPerSqm   * extPlasterArea * W * 10) / 10
-    const intPlasterCement = Math.round(PLASTER.internal.cementBagsPerSqm * intPlasterArea * W * 10) / 10
-    const intPlasterSand   = Math.round(PLASTER.internal.sandCftPerSqm   * intPlasterArea * W * 10) / 10
+    const extPlasterArea  = doExt  ? externalWallAreaSqm * 2 : 0
+    const intPlasterArea  = doInt  ? effectiveIntArea * 2 : 0
+    const ceilArea        = doCeil ? (input.ceilingPlasterAreaSqm ?? 0) : 0
+    const compPlasterArea = doComp ? (input.compoundWallAreaSqm ?? 0) * 2 : 0
+    const parPlasterArea  = doPar  ? parapetAreaSqm * 2 : 0
+    const totalExtPlaster = extPlasterArea + compPlasterArea + parPlasterArea
+
+    const extPlasterCement = Math.round(PLASTER.external.cementBagsPerSqm * totalExtPlaster  * W * 10) / 10
+    const extPlasterSand   = Math.round(PLASTER.external.sandCftPerSqm   * totalExtPlaster  * W * 10) / 10
+    const intPlasterCement = Math.round(PLASTER.internal.cementBagsPerSqm * intPlasterArea  * W * 10) / 10
+    const intPlasterSand   = Math.round(PLASTER.internal.sandCftPerSqm   * intPlasterArea  * W * 10) / 10
+    const ceilCement       = Math.round(PLASTER.ceiling.cementBagsPerSqm  * ceilArea        * W * 10) / 10
+    const ceilSand         = Math.round(PLASTER.ceiling.sandCftPerSqm    * ceilArea        * W * 10) / 10
 
     plasterQuantities = {
       externalPlasterCementBags: extPlasterCement,
@@ -533,8 +688,8 @@ export function runCalculation(input: MasonInput): MasonResult {
       internalPlasterCementBags: intPlasterCement,
       internalPlasterSandCft: intPlasterSand,
     }
-    plasterCementBagsTotal = extPlasterCement + intPlasterCement
-    plasterSandCftTotal    = extPlasterSand   + intPlasterSand
+    plasterCementBagsTotal = extPlasterCement + intPlasterCement + ceilCement
+    plasterSandCftTotal    = extPlasterSand   + intPlasterSand   + ceilSand
   }
 
   // ── Waterproofing costs (IS 2645:2003) ────────────────────────────────────
@@ -583,15 +738,38 @@ export function runCalculation(input: MasonInput): MasonResult {
     }
   }
 
+  // ── New material costs ────────────────────────────────────────────────────
+  const parapetBrickMat  = parapetBricksOrBlocks * unitRateForType(externalWallType)
+  const parapetCemCost   = parapetCementBags * (extWallType.startsWith('aac') ? DEFAULT_RATES.aacAdhesive : DEFAULT_RATES.cement)
+  const parapetSandCost  = parapetSandCft * DEFAULT_RATES.sand
+  const parapetMat       = Math.round(parapetBrickMat + parapetCemCost + parapetSandCost)
+
+  const balconyMat       = balconyParapetBricksOrBlocks * unitRateForType(externalWallType)
+
+  const compBrickMat     = compoundBricksOrBlocks * unitRateForType(externalWallType)
+  const compCemCost      = compoundCementBags * DEFAULT_RATES.cement
+  const compSandCost     = compoundSandCft * DEFAULT_RATES.sand
+  const compoundMat      = Math.round(compBrickMat + compCemCost + compSandCost)
+
+  const ductMat          = Math.round(
+    ductBricksOrBlocks * DEFAULT_RATES.clayBrick +
+    (ductSpec.cementBagsPerSqm * ductAreaSqm * DEFAULT_RATES.cement) +
+    (ductSpec.sandCftPerSqm    * ductAreaSqm * DEFAULT_RATES.sand)
+  )
+
   const plasterMat = Math.round(
     (plasterCementBagsTotal * DEFAULT_RATES.cement) + (plasterSandCftTotal * DEFAULT_RATES.sand)
   )
 
-  const totalMaterialCost = extBrickworkMat + intPartitionMat + plasterMat + wpTotal
+  const totalMaterialCost = extBrickworkMat + intPartitionMat + parapetMat + Math.round(balconyMat) + compoundMat + ductMat + plasterMat + wpTotal
 
   const costs: MasonCosts = {
     externalBrickworkMaterial: extBrickworkMat,
     internalPartitionMaterial: intPartitionMat,
+    parapetMaterial:           parapetMat,
+    balconyParapetMaterial:    Math.round(balconyMat),
+    compoundWallMaterial:      compoundMat,
+    ductWallMaterial:          ductMat,
     plasterMaterial: plasterMat,
     waterproofing: wpTotal,
     totalMaterial: totalMaterialCost,
