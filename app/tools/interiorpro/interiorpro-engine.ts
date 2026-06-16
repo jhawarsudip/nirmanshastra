@@ -160,12 +160,19 @@ export interface PaintSchedule {
 }
 
 export interface InteriorCosts {
-  flooringMaterial:      number
-  kitchenMaterial:       number
-  falseCeilingMaterial:  number
-  paintMaterial:         number
-  doorsMaterial:         number
-  totalMaterial:         number
+  flooringMaterial:          number
+  kitchenMaterial:           number
+  falseCeilingMaterial:      number
+  paintMaterial:             number
+  doorsMaterial:             number
+  bathroomWallTileMaterial:  number
+  kitchenDadoMaterial:       number
+  staircaseMaterial:         number
+  balconyFlooringMaterial:   number
+  externalPaintMaterial:     number
+  windowFramesMaterial:      number
+  grillworkMaterial:         number
+  totalMaterial:             number
 }
 
 export interface RoomBreakdown {
@@ -173,6 +180,13 @@ export interface RoomBreakdown {
   areaSqft:     number
   flooringCost: number
 }
+
+export type StaircaseRiserMaterial = 'granite' | 'marble' | 'ceramic' | 'ms_chequered' | 'hardwood'
+export type StaircaseTreadMaterial = 'granite' | 'marble' | 'ceramic' | 'ms_chequered' | 'hardwood'
+export type StaircaseRailingType   = 'ms_painted' | 'ss' | 'glass' | 'wooden'
+export type WindowFrameMaterial    = 'aluminium' | 'upvc' | 'wood' | 'ms'
+export type GrillMaterial          = 'ms_painted' | 'ss'
+export type BalconyTileType        = 'antiskid_ceramic' | 'vitrified' | 'natural_stone'
 
 export interface InteriorInput {
   state:              string
@@ -189,6 +203,47 @@ export interface InteriorInput {
   numDoors:           number
   contractorQuote?:   number
   includeLabour?:     boolean
+
+  // Bathroom wall tiling
+  bathroomTilingHeightFt?: number
+  bathroomWallTileRatePerSqft?: number
+  bathroomFloorAntiSkid?: boolean
+
+  // Kitchen wall dado
+  kitchenDadoHeightM?: number
+  kitchenLengthFt?: number
+  kitchenDadoRatePerSqft?: number
+
+  // Staircase
+  includeStaircase?: boolean
+  staircaseFlights?: number
+  stepsPerFlight?: number
+  riserMaterial?: StaircaseRiserMaterial
+  treadMaterial?: StaircaseTreadMaterial
+  railingType?: StaircaseRailingType
+
+  // Balcony flooring
+  balconyAreaSqft?: number
+  balconyTileType?: BalconyTileType
+  balconyTileRatePerSqft?: number
+
+  // External paint
+  externalWallAreaSqft?: number
+  externalPaintType?: string
+  externalPaintCoats?: number
+  externalPaintRatePerSqft?: number
+
+  // Window frames
+  numWindows?: number
+  windowFrameMaterial?: WindowFrameMaterial
+  windowMosquitoMesh?: boolean
+  windowRatePerUnit?: number
+
+  // Grillwork
+  numGrillWindows?: number
+  grillMaterial?: GrillMaterial
+  grillRatePerSqft?: number
+  grillAreaPerWindowSqft?: number
 }
 
 export interface InteriorResult {
@@ -206,12 +261,16 @@ export interface InteriorResult {
   }
 
   // Paid — blurred until payment
-  flooringSchedule:   FlooringSchedule
-  paintSchedule:      PaintSchedule
-  roomBreakdown:      RoomBreakdown[]
-  costs:              InteriorCosts
-  labourCost:         number
-  overheadCost:       number
+  flooringSchedule:    FlooringSchedule
+  paintSchedule:       PaintSchedule
+  roomBreakdown:       RoomBreakdown[]
+  costs:               InteriorCosts
+  labourCost:          number
+  overheadCost:        number
+  bathroomWallTileSqft:number
+  kitchenDadoSqft:     number
+  staircaseTotalRisers:number
+  staircaseTotalTreads:number
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -346,7 +405,92 @@ export function runCalculation(input: InteriorInput): InteriorResult {
   const falseCeilingMaterial = selectedGrade.falseCeilingCost
   const paintMaterial        = selectedGrade.paintCost
   const doorsMaterial        = selectedGrade.doorsCost
-  const totalMaterial        = flooringMaterial + kitchenMaterial + falseCeilingMaterial + paintMaterial + doorsMaterial
+
+  // Bathroom wall tiling (IS 2645:2003 — waterproofing mandatory in wet areas)
+  const bathTilingHtFt  = input.bathroomTilingHeightFt ?? 7
+  const bathPerimeterFt = Math.sqrt(bathroomArea) * 4  // approx perimeter from area
+  const bathroomWallTileSqft = Math.round(bathroomArea > 0
+    ? numBathrooms * (bathPerimeterFt * bathTilingHtFt - 20)   // minus ~20 sqft for door/ventilator
+    : 0)
+  const bathWallTileRate     = input.bathroomWallTileRatePerSqft ?? FLOORING_RATES[grade]
+  const bathroomWallTileMaterial = Math.round(bathroomWallTileSqft * bathWallTileRate * TILE_WASTAGE_FACTOR)
+
+  // Kitchen wall dado (IS 2645:2003 — waterproofing behind kitchen tiles mandatory)
+  const kitchenDadoHtM  = input.kitchenDadoHeightM ?? 0.6
+  const kitchenLenFt    = input.kitchenLengthFt ?? 0
+  const kitchenDadoSqft = Math.round(kitchenLenFt > 0
+    ? kitchenLenFt * (kitchenDadoHtM * 10.764)   // length × dado height in sqft
+    : 0)
+  const kitchenDadoRate  = input.kitchenDadoRatePerSqft ?? FLOORING_RATES[grade]
+  const kitchenDadoMaterial = Math.round(kitchenDadoSqft * kitchenDadoRate * TILE_WASTAGE_FACTOR)
+
+  // Staircase
+  const staircaseFlights   = input.staircaseFlights ?? 1
+  const stepsPerFlight     = input.stepsPerFlight ?? 13
+  const staircaseTotalRisers = input.includeStaircase ? staircaseFlights * stepsPerFlight : 0
+  const staircaseTotalTreads = staircaseTotalRisers
+  // Riser area: avg 200mm × 900mm = 0.18 sqm per riser = 1.94 sqft
+  // Tread area: avg 300mm × 900mm = 0.27 sqm per tread = 2.91 sqft
+  const riserAreaSqft = staircaseTotalRisers * 1.94
+  const treadAreaSqft = staircaseTotalTreads * 2.91
+  const staircaseRateRiser: Record<StaircaseRiserMaterial, number> = {
+    granite: 280, marble: 420, ceramic: 95, ms_chequered: 180, hardwood: 350,
+  }
+  const staircaseRateTread: Record<StaircaseTreadMaterial, number> = {
+    granite: 320, marble: 480, ceramic: 110, ms_chequered: 200, hardwood: 400,
+  }
+  const railingRatePerRiser: Record<StaircaseRailingType, number> = {
+    ms_painted: 2500, ss: 4500, glass: 6500, wooden: 3500,
+  }
+  const riserMat  = input.riserMaterial  ?? 'granite'
+  const treadMat  = input.treadMaterial  ?? 'granite'
+  const railingType = input.railingType  ?? 'ms_painted'
+  const staircaseMaterial = input.includeStaircase
+    ? Math.round(
+        riserAreaSqft * staircaseRateRiser[riserMat] +
+        treadAreaSqft * staircaseRateTread[treadMat] +
+        staircaseTotalRisers * railingRatePerRiser[railingType]
+      )
+    : 0
+
+  // Balcony flooring
+  const balconyAreaSqft  = input.balconyAreaSqft ?? 0
+  const balconyTileRate: Record<BalconyTileType, number> = {
+    antiskid_ceramic: 65, vitrified: 120, natural_stone: 220,
+  }
+  const balconyTileType = input.balconyTileType ?? 'antiskid_ceramic'
+  const balconyRatePerSqft = input.balconyTileRatePerSqft ?? balconyTileRate[balconyTileType]
+  const balconyFlooringMaterial = balconyAreaSqft > 0
+    ? Math.round(balconyAreaSqft * balconyRatePerSqft * TILE_WASTAGE_FACTOR)
+    : 0
+
+  // External paint
+  const extWallSqft   = input.externalWallAreaSqft ?? 0
+  const extPaintRate  = input.externalPaintRatePerSqft ?? 28  // ₹28/sqft for exterior emulsion
+  const extPaintCoats = input.externalPaintCoats ?? 2
+  const externalPaintMaterial = extWallSqft > 0
+    ? Math.round(extWallSqft * extPaintRate * (extPaintCoats / 2))
+    : 0
+
+  // Window frames
+  const numWindows    = input.numWindows ?? 0
+  const windowRate    = input.windowRatePerUnit ?? 8500  // avg aluminium window
+  const meshAdder     = input.windowMosquitoMesh ? 1200 : 0  // per window
+  const windowFramesMaterial = numWindows > 0
+    ? Math.round(numWindows * (windowRate + meshAdder))
+    : 0
+
+  // Grillwork
+  const numGrillWindows    = input.numGrillWindows ?? 0
+  const grillAreaPerWindow = input.grillAreaPerWindowSqft ?? 9  // ~3×3 ft per window
+  const grillRatePerSqft   = input.grillRatePerSqft ?? 180      // MS painted
+  const grillworkMaterial  = numGrillWindows > 0
+    ? Math.round(numGrillWindows * grillAreaPerWindow * grillRatePerSqft)
+    : 0
+
+  const totalMaterial = flooringMaterial + kitchenMaterial + falseCeilingMaterial + paintMaterial +
+    doorsMaterial + bathroomWallTileMaterial + kitchenDadoMaterial + staircaseMaterial +
+    balconyFlooringMaterial + externalPaintMaterial + windowFramesMaterial + grillworkMaterial
 
   const costs: InteriorCosts = {
     flooringMaterial,
@@ -354,6 +498,13 @@ export function runCalculation(input: InteriorInput): InteriorResult {
     falseCeilingMaterial,
     paintMaterial,
     doorsMaterial,
+    bathroomWallTileMaterial,
+    kitchenDadoMaterial,
+    staircaseMaterial,
+    balconyFlooringMaterial,
+    externalPaintMaterial,
+    windowFramesMaterial,
+    grillworkMaterial,
     totalMaterial,
   }
 
@@ -393,15 +544,18 @@ export function runCalculation(input: InteriorInput): InteriorResult {
   )
 
   // ── Grand total ranges ────────────────────────────────────────────────────
-  const overheadBasic    = Math.round((gradeComparison[0].totalMaterial + labourCost * 0.85) * 0.05)
-  const overheadStandard = Math.round((gradeComparison[1].totalMaterial + labourCost)        * 0.05)
-  const overheadPremium  = Math.round((gradeComparison[2].totalMaterial + labourCost * 1.10) * 0.05)
-  const overheadLuxury   = Math.round((gradeComparison[3].totalMaterial + labourCost * 1.20) * 0.05)
+  const extraMaterial = bathroomWallTileMaterial + kitchenDadoMaterial + staircaseMaterial +
+    balconyFlooringMaterial + externalPaintMaterial + windowFramesMaterial + grillworkMaterial
 
-  const totalBasic    = gradeComparison[0].totalMaterial + Math.round(labourCost * 0.85) + overheadBasic
-  const totalStandard = gradeComparison[1].totalMaterial + labourCost + overheadStandard
-  const totalPremium  = gradeComparison[2].totalMaterial + Math.round(labourCost * 1.10) + overheadPremium
-  const totalLuxury   = gradeComparison[3].totalMaterial + Math.round(labourCost * 1.20) + overheadLuxury
+  const overheadBasic    = Math.round((gradeComparison[0].totalMaterial + extraMaterial + labourCost * 0.85) * 0.05)
+  const overheadStandard = Math.round((gradeComparison[1].totalMaterial + extraMaterial + labourCost)        * 0.05)
+  const overheadPremium  = Math.round((gradeComparison[2].totalMaterial + extraMaterial + labourCost * 1.10) * 0.05)
+  const overheadLuxury   = Math.round((gradeComparison[3].totalMaterial + extraMaterial + labourCost * 1.20) * 0.05)
+
+  const totalBasic    = gradeComparison[0].totalMaterial + extraMaterial + Math.round(labourCost * 0.85) + overheadBasic
+  const totalStandard = gradeComparison[1].totalMaterial + extraMaterial + labourCost + overheadStandard
+  const totalPremium  = gradeComparison[2].totalMaterial + extraMaterial + Math.round(labourCost * 1.10) + overheadPremium
+  const totalLuxury   = gradeComparison[3].totalMaterial + extraMaterial + Math.round(labourCost * 1.20) + overheadLuxury
 
   const grandTotal  = { basic: totalBasic, standard: totalStandard, premium: totalPremium, luxury: totalLuxury }
   const perSqftCost = {
@@ -514,6 +668,10 @@ export function runCalculation(input: InteriorInput): InteriorResult {
     costs,
     labourCost,
     overheadCost: overheadStandard,
+    bathroomWallTileSqft,
+    kitchenDadoSqft,
+    staircaseTotalRisers,
+    staircaseTotalTreads,
   }
 }
 

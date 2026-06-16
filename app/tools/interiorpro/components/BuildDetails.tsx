@@ -14,6 +14,12 @@ import {
   type InteriorInput,
   type InteriorGrade,
   type InteriorMethod,
+  type StaircaseRiserMaterial,
+  type StaircaseTreadMaterial,
+  type StaircaseRailingType,
+  type WindowFrameMaterial,
+  type GrillMaterial,
+  type BalconyTileType,
 } from '../interiorpro-engine'
 
 // ─── Alert + Regional helpers ─────────────────────────────────────────────────
@@ -178,6 +184,40 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
   const [openTip, setOpenTip]                 = useState<string | null>(null)
   const [errors, setErrors]                   = useState<Record<string, string>>({})
 
+  // New sections
+  const [bathroomTilingHeightFt, setBathTilingHt]    = useState('7')
+  const [bathroomWallTileRate, setBathWallRate]       = useState('')
+  const [bathroomFloorAntiSkid, setBathAntiSkid]     = useState(true)
+
+  const [kitchenDadoHeightM, setKitchenDadoHt]       = useState('0.6')
+  const [kitchenLengthFt, setKitchenLenFt]           = useState('')
+  const [kitchenDadoRate, setKitchenDadoRate]        = useState('')
+
+  const [includeStaircase, setIncludeStaircase]      = useState(false)
+  const [staircaseFlights, setStaircaseFlights]      = useState('1')
+  const [stepsPerFlight, setStepsPerFlight]          = useState('13')
+  const [riserMaterial, setRiserMaterial]            = useState<StaircaseRiserMaterial>('granite')
+  const [treadMaterial, setTreadMaterial]            = useState<StaircaseTreadMaterial>('granite')
+  const [railingType, setRailingType]                = useState<StaircaseRailingType>('ms_painted')
+
+  const [balconyAreaSqft, setBalconyAreaSqft]        = useState('')
+  const [balconyTileType, setBalconyTileType]        = useState<BalconyTileType>('antiskid_ceramic')
+  const [balconyTileRate, setBalconyTileRate]        = useState('')
+
+  const [externalWallAreaSqft, setExtWallArea]       = useState('')
+  const [externalPaintCoats, setExtPaintCoats]       = useState('2')
+  const [externalPaintRate, setExtPaintRate]         = useState('28')
+
+  const [numWindows, setNumWindows]                  = useState('')
+  const [windowFrameMaterial, setWindowFrameMat]     = useState<WindowFrameMaterial>('aluminium')
+  const [windowMosquitoMesh, setWindowMesh]          = useState(false)
+  const [windowRatePerUnit, setWindowRate]           = useState('')
+
+  const [numGrillWindows, setNumGrillWindows]        = useState('')
+  const [grillMaterial, setGrillMaterial]            = useState<GrillMaterial>('ms_painted')
+  const [grillRatePerSqft, setGrillRate]             = useState('')
+  const [grillAreaPerWindow, setGrillAreaPerWindow]  = useState('9')
+
   const szInfo = seismicZoneFromState(localState)
 
   // Live summary panel update
@@ -256,6 +296,32 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
       numDoors:           parseInt(numDoors) || 0,
       contractorQuote:    contractorQuote ? parseFloat(contractorQuote) : undefined,
       includeLabour,
+      bathroomTilingHeightFt: parseFloat(bathroomTilingHeightFt) || 7,
+      bathroomWallTileRatePerSqft: bathroomWallTileRate ? parseFloat(bathroomWallTileRate) : undefined,
+      bathroomFloorAntiSkid,
+      kitchenDadoHeightM: parseFloat(kitchenDadoHeightM) || 0.6,
+      kitchenLengthFt:    kitchenLengthFt ? parseFloat(kitchenLengthFt) : undefined,
+      kitchenDadoRatePerSqft: kitchenDadoRate ? parseFloat(kitchenDadoRate) : undefined,
+      includeStaircase,
+      staircaseFlights:   parseInt(staircaseFlights) || 1,
+      stepsPerFlight:     parseInt(stepsPerFlight) || 13,
+      riserMaterial,
+      treadMaterial,
+      railingType,
+      balconyAreaSqft:    balconyAreaSqft ? parseFloat(balconyAreaSqft) : undefined,
+      balconyTileType,
+      balconyTileRatePerSqft: balconyTileRate ? parseFloat(balconyTileRate) : undefined,
+      externalWallAreaSqft: externalWallAreaSqft ? parseFloat(externalWallAreaSqft) : undefined,
+      externalPaintCoats:   parseInt(externalPaintCoats) || 2,
+      externalPaintRatePerSqft: parseFloat(externalPaintRate) || 28,
+      numWindows:           numWindows ? parseInt(numWindows) : undefined,
+      windowFrameMaterial,
+      windowMosquitoMesh,
+      windowRatePerUnit:    windowRatePerUnit ? parseFloat(windowRatePerUnit) : undefined,
+      numGrillWindows:      numGrillWindows ? parseInt(numGrillWindows) : undefined,
+      grillMaterial,
+      grillRatePerSqft:     grillRatePerSqft ? parseFloat(grillRatePerSqft) : undefined,
+      grillAreaPerWindowSqft: parseFloat(grillAreaPerWindow) || 9,
     })
   }
 
@@ -1117,6 +1183,415 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
               </p>
             </div>
           )}
+        </div>
+
+        {/* ── SECTION 13: BATHROOM WALL TILING ─────────────────────────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+            <div className="flex items-center gap-1">
+              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                13 — BATHROOM WALL TILING
+              </p>
+              <ISBadge code="IS 2645:2003" />
+            </div>
+          </div>
+          <div className="p-4 space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Tiling Height (ft)
+                </label>
+                <input type="number" value={bathroomTilingHeightFt}
+                  onChange={e => setBathTilingHt(e.target.value)}
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+                <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>Default 7ft (2.1m)</p>
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Tile Rate (₹/sqft) — optional
+                </label>
+                <input type="number" value={bathroomWallTileRate}
+                  onChange={e => setBathWallRate(e.target.value)}
+                  placeholder={`Auto (₹${FLOORING_RATES[grade]}/sqft for ${grade})`}
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+            </div>
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input type="checkbox" checked={bathroomFloorAntiSkid} onChange={() => setBathAntiSkid(v => !v)}
+                className="w-4 h-4" style={{ accentColor: '#1F4E79' }}
+              />
+              <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                Anti-skid floor tile for bathroom — IS 13630:2006 (coefficient of friction ≥ 0.6 for wet areas)
+              </span>
+            </label>
+            <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+              Ceramic 300×600mm standard for walls. IS 2645:2003: Waterproofing mandatory behind all bathroom wall tiles.
+            </p>
+          </div>
+        </div>
+
+        {/* ── SECTION 14: KITCHEN WALL DADO ──────────────────────────────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              14 — KITCHEN WALL DADO
+            </p>
+          </div>
+          <div className="p-4 space-y-3">
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Dado Height (m)
+                </label>
+                <input type="number" value={kitchenDadoHeightM} onChange={e => setKitchenDadoHt(e.target.value)}
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+                <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>Default 0.6m (2ft)</p>
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Kitchen Length (ft)
+                </label>
+                <input type="number" value={kitchenLengthFt} onChange={e => setKitchenLenFt(e.target.value)}
+                  placeholder="e.g. 12"
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Dado Rate (₹/sqft)
+                </label>
+                <input type="number" value={kitchenDadoRate} onChange={e => setKitchenDadoRate(e.target.value)}
+                  placeholder={`Auto (₹${FLOORING_RATES[grade]}/sqft)`}
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+            </div>
+            {kitchenLengthFt && parseFloat(kitchenLengthFt) > 0 && (
+              <p className="text-[12px]" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                Area: {Math.round(parseFloat(kitchenLengthFt) * parseFloat(kitchenDadoHeightM) * 10.764)} sqft dado area
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* ── SECTION 15: STAIRCASE ─────────────────────────────────────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: includeStaircase ? '1px solid rgba(30,34,39,0.12)' : 'none' }}>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div onClick={() => setIncludeStaircase(v => !v)}
+                className="w-10 h-6 rounded-full relative transition-colors cursor-pointer"
+                style={{ background: includeStaircase ? '#1F4E79' : 'rgba(30,34,39,0.2)' }}>
+                <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition-transform"
+                  style={{ transform: includeStaircase ? 'translateX(18px)' : 'translateX(2px)' }} />
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  15 — STAIRCASE FINISHING
+                </p>
+                {!includeStaircase && <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>Toggle to include staircase</p>}
+              </div>
+            </label>
+          </div>
+          {includeStaircase && (
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Flights</label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {['1','2','3'].map(n => (
+                      <button key={n} type="button" onClick={() => setStaircaseFlights(n)}
+                        className="py-2 rounded-[2px] text-[13px]"
+                        style={{ border: `1.5px solid ${staircaseFlights === n ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: staircaseFlights === n ? 'rgba(31,78,121,0.08)' : 'transparent', color: staircaseFlights === n ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Steps per Flight</label>
+                  <input type="number" value={stepsPerFlight} onChange={e => setStepsPerFlight(e.target.value)}
+                    className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                    style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Riser Material</label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {([
+                    ['granite',      'Granite',     '₹280/sqft'],
+                    ['marble',       'Marble',      '₹420/sqft'],
+                    ['ceramic',      'Ceramic',     '₹95/sqft'],
+                    ['ms_chequered', 'MS Chequered','₹180/sqft'],
+                    ['hardwood',     'Hardwood',    '₹350/sqft'],
+                  ] as [StaircaseRiserMaterial, string, string][]).map(([val, label, rate]) => (
+                    <button key={val} type="button" onClick={() => setRiserMaterial(val)}
+                      className="p-2 rounded-[2px] text-left"
+                      style={{ border: `1.5px solid ${riserMaterial === val ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`, background: riserMaterial === val ? 'rgba(31,78,121,0.07)' : 'transparent' }}>
+                      <p className="text-[12px]" style={{ color: riserMaterial === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                      <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{rate}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Tread Material</label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {([
+                    ['granite',      'Granite',     '₹320/sqft'],
+                    ['marble',       'Marble',      '₹480/sqft'],
+                    ['ceramic',      'Ceramic',     '₹110/sqft'],
+                    ['ms_chequered', 'MS Chequered','₹200/sqft'],
+                    ['hardwood',     'Hardwood',    '₹400/sqft'],
+                  ] as [StaircaseTreadMaterial, string, string][]).map(([val, label, rate]) => (
+                    <button key={val} type="button" onClick={() => setTreadMaterial(val)}
+                      className="p-2 rounded-[2px] text-left"
+                      style={{ border: `1.5px solid ${treadMaterial === val ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`, background: treadMaterial === val ? 'rgba(31,78,121,0.07)' : 'transparent' }}>
+                      <p className="text-[12px]" style={{ color: treadMaterial === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                      <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{rate}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Railing Type</label>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {([
+                    ['ms_painted', 'MS Painted', '₹2,500/step'],
+                    ['ss',         'SS',         '₹4,500/step'],
+                    ['glass',      'Glass',      '₹6,500/step'],
+                    ['wooden',     'Wooden',     '₹3,500/step'],
+                  ] as [StaircaseRailingType, string, string][]).map(([val, label, rate]) => (
+                    <button key={val} type="button" onClick={() => setRailingType(val)}
+                      className="p-2 rounded-[2px] text-left"
+                      style={{ border: `1.5px solid ${railingType === val ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`, background: railingType === val ? 'rgba(31,78,121,0.07)' : 'transparent' }}>
+                      <p className="text-[12px]" style={{ color: railingType === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                      <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{rate}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── SECTION 16: BALCONY FLOORING ──────────────────────────────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              16 — BALCONY FLOORING
+            </p>
+          </div>
+          <div className="p-4 space-y-3">
+            <div>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                Tile Type
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  ['antiskid_ceramic', 'Anti-Skid Ceramic', '₹65/sqft — IS 13630:2006'],
+                  ['vitrified',        'Vitrified',          '₹120/sqft'],
+                  ['natural_stone',    'Natural Stone',      '₹220/sqft (granite/slate)'],
+                ] as [BalconyTileType, string, string][]).map(([val, label, rate]) => (
+                  <button key={val} type="button" onClick={() => setBalconyTileType(val)}
+                    className="p-2.5 rounded-[2px] text-left"
+                    style={{ border: `1.5px solid ${balconyTileType === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: balconyTileType === val ? 'rgba(31,78,121,0.07)' : 'transparent' }}>
+                    <p className="text-[12px] font-medium" style={{ color: balconyTileType === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{rate}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Balcony Area (sqft)
+                </label>
+                <input type="number" value={balconyAreaSqft} onChange={e => setBalconyAreaSqft(e.target.value)}
+                  placeholder="e.g. 60"
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Rate Override (₹/sqft)
+                </label>
+                <input type="number" value={balconyTileRate} onChange={e => setBalconyTileRate(e.target.value)}
+                  placeholder="Leave blank for default"
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── SECTION 17: EXTERNAL PAINT ────────────────────────────────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+            <div className="flex items-center gap-1">
+              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                17 — EXTERNAL PAINT
+              </p>
+              <ISBadge code="IS 2395:1994" />
+            </div>
+          </div>
+          <div className="p-4 space-y-3">
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  External Wall Area (sqft)
+                </label>
+                <input type="number" value={externalWallAreaSqft} onChange={e => setExtWallArea(e.target.value)}
+                  placeholder="From MasonPro or manual"
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Coats
+                </label>
+                <div className="grid grid-cols-3 gap-1">
+                  {['1','2','3'].map(n => (
+                    <button key={n} type="button" onClick={() => setExtPaintCoats(n)}
+                      className="py-2 rounded-[2px] text-[13px]"
+                      style={{ border: `1.5px solid ${externalPaintCoats === n ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: externalPaintCoats === n ? 'rgba(31,78,121,0.08)' : 'transparent', color: externalPaintCoats === n ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Rate (₹/sqft)
+                </label>
+                <input type="number" value={externalPaintRate} onChange={e => setExtPaintRate(e.target.value)}
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+            </div>
+            <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+              IS 2395:1994: Use exterior-grade emulsion for outside walls. Alkali-resistant primer mandatory. Minimum 2 coats exterior emulsion.
+            </p>
+          </div>
+        </div>
+
+        {/* ── SECTION 18: WINDOW FRAMES ─────────────────────────────────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              18 — WINDOW FRAMES
+            </p>
+          </div>
+          <div className="p-4 space-y-3">
+            <div>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Frame Material</label>
+              <div className="grid grid-cols-4 gap-2">
+                {([
+                  ['aluminium', 'Aluminium', '~₹8,500/win'],
+                  ['upvc',      'UPVC',      '~₹12,000/win'],
+                  ['wood',      'Wood',      '~₹18,000/win'],
+                  ['ms',        'MS',        '~₹6,000/win'],
+                ] as [WindowFrameMaterial, string, string][]).map(([val, label, rate]) => (
+                  <button key={val} type="button" onClick={() => setWindowFrameMat(val)}
+                    className="p-2 rounded-[2px] text-left"
+                    style={{ border: `1.5px solid ${windowFrameMaterial === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: windowFrameMaterial === val ? 'rgba(31,78,121,0.07)' : 'transparent' }}>
+                    <p className="text-[12px]" style={{ color: windowFrameMaterial === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                    <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{rate}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>No. of Windows</label>
+                <input type="number" value={numWindows} onChange={e => setNumWindows(e.target.value)}
+                  placeholder="e.g. 8"
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Rate per Window (₹)</label>
+                <input type="number" value={windowRatePerUnit} onChange={e => setWindowRate(e.target.value)}
+                  placeholder="Auto by material"
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+              <div className="flex flex-col justify-center">
+                <label className="flex items-center gap-2 cursor-pointer mt-5">
+                  <input type="checkbox" checked={windowMosquitoMesh} onChange={() => setWindowMesh(v => !v)}
+                    className="w-4 h-4" style={{ accentColor: '#1F4E79' }}
+                  />
+                  <span className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Mosquito mesh (+₹1,200/win)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── SECTION 19: GRILLWORK ─────────────────────────────────────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              19 — GRILLWORK (WINDOW SAFETY GRILLS)
+            </p>
+          </div>
+          <div className="p-4 space-y-3">
+            <div>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Grill Material</label>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  ['ms_painted', 'MS Painted', '~₹180/sqft — most common'],
+                  ['ss',         'SS',          '~₹280/sqft — corrosion-resistant'],
+                ] as [GrillMaterial, string, string][]).map(([val, label, rate]) => (
+                  <button key={val} type="button" onClick={() => setGrillMaterial(val)}
+                    className="p-2.5 rounded-[2px] text-left"
+                    style={{ border: `1.5px solid ${grillMaterial === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: grillMaterial === val ? 'rgba(31,78,121,0.07)' : 'transparent' }}>
+                    <p className="text-[12px]" style={{ color: grillMaterial === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                    <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{rate}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Windows with Grills</label>
+                <input type="number" value={numGrillWindows} onChange={e => setNumGrillWindows(e.target.value)}
+                  placeholder="e.g. 6"
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Area/Window (sqft)</label>
+                <input type="number" value={grillAreaPerWindow} onChange={e => setGrillAreaPerWindow(e.target.value)}
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Rate (₹/sqft)</label>
+                <input type="number" value={grillRatePerSqft} onChange={e => setGrillRate(e.target.value)}
+                  placeholder={grillMaterial === 'ms_painted' ? '180' : '280'}
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Submit */}

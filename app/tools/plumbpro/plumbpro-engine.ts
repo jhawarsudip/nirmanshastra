@@ -137,16 +137,35 @@ export interface PipeSchedule {
   upvc110m:   number
 }
 
+export type WCType          = 'indian_orissa' | 'western_flush_tank' | 'western_flush_valve'
+export type WashBasinType   = 'wall_hung' | 'pedestal' | 'counter_top' | 'none'
+export type GeyserCapacity  = '15L' | '25L' | 'none'
+
+export interface BathroomSpec {
+  wcType:          WCType
+  washBasinType:   WashBasinType
+  hasShower:       boolean
+  hasBathtub:      boolean
+  geyserCapacity:  GeyserCapacity
+}
+
 export interface FixtureSchedule {
-  ewcPan:     number
-  washBasin:  number
-  kitchenSink:number
-  showerSet:  number
-  bibTap:     number
-  pillarTap:  number
-  floorTrap:  number
-  pTrap:      number
-  totalFixtures: number
+  ewcPan:         number
+  indianOrissa:   number
+  washBasin:      number
+  kitchenSink:    number
+  showerSet:      number
+  bathtubCount:   number
+  bibTap:         number
+  pillarTap:      number
+  floorTrap:      number
+  pTrap:          number
+  geysers15L:     number
+  geysers25L:     number
+  gardenTaps:     number
+  utilityInlets:  number
+  roPoint:        number
+  totalFixtures:  number
 }
 
 export interface PlumbCosts {
@@ -161,16 +180,22 @@ export interface PlumbCosts {
 }
 
 export interface PlumbInput {
-  state:          string
-  city:           string
-  numBedrooms:    number
-  numBathrooms:   number
-  numFloors:      number
-  buaPerFloorSqft:number
-  waterSource:    'municipal' | 'borewell'
-  includeSump:    boolean
+  state:            string
+  city:             string
+  numBedrooms:      number
+  numBathrooms:     number
+  numFloors:        number
+  buaPerFloorSqft:  number
+  waterSource:      'municipal' | 'borewell'
+  includeSump:      boolean
   contractorQuote?: number
   includeLabour?:   boolean
+  bathroomSpecs?:   BathroomSpec[]
+  hasUtilityArea?:  boolean
+  gardenTapCount?:  number
+  hasCarWash?:      boolean
+  hasOutdoorShower?:boolean
+  hasROPoint?:      boolean
 }
 
 export interface PlumbResult {
@@ -256,18 +281,38 @@ export function runCalculation(input: PlumbInput): PlumbResult {
   const pipeSchedule: PipeSchedule = { cpvc25m, cpvc32m, swr75m, swr110m, upvc110m }
 
   // ── Fixture schedule (PAID) ────────────────────────────────────────────────
-  const ewcPan      = numBathrooms
-  const washBasin   = numBathrooms
-  const kitchenSink = 1
-  const showerSet   = numBathrooms
-  const bibTap      = numBathrooms * 2
-  const pillarTap   = 2   // kitchen + utility
-  const floorTrap   = numBathrooms
-  const pTrap       = numBathrooms
-  const totalFixtures = ewcPan + washBasin + kitchenSink + showerSet + bibTap + pillarTap + floorTrap
+  const specs = input.bathroomSpecs ?? []
+  // Count from per-bathroom specs if provided, else use defaults
+  const westernEWCCount  = specs.filter(s => s.wcType === 'western_flush_tank' || s.wcType === 'western_flush_valve').length || numBathrooms
+  const indianPanCount   = specs.filter(s => s.wcType === 'indian_orissa').length
+  const ewcPan           = westernEWCCount
+  const indianOrissa     = indianPanCount
+  const washBasinCount   = specs.filter(s => s.washBasinType !== 'none').length || numBathrooms
+  const washBasin        = washBasinCount
+  const kitchenSink      = 1
+  const showerCount      = specs.filter(s => s.hasShower).length || numBathrooms
+  const showerSet        = showerCount
+  const bathtubCount     = specs.filter(s => s.hasBathtub).length
+  const bibTap           = numBathrooms * 2
+  const utilityExtra     = input.hasUtilityArea ? 1 : 0
+  const pillarTap        = 2 + utilityExtra   // kitchen + utility
+  const floorTrap        = numBathrooms
+  const pTrap            = numBathrooms
+  const geysers15L       = specs.filter(s => s.geyserCapacity === '15L').length
+  const geysers25L       = specs.filter(s => s.geyserCapacity === '25L').length
+  const gardenTaps       = input.gardenTapCount ?? 0
+  const utilityInlets    = input.hasUtilityArea ? 1 : 0  // 1 washing machine inlet
+  const carWashTaps      = input.hasCarWash ? 1 : 0
+  const outdoorShower    = input.hasOutdoorShower ? 1 : 0
+  const roPoint          = input.hasROPoint ? 1 : 0
+  const totalFixtures    = ewcPan + indianOrissa + washBasin + kitchenSink + showerSet + bathtubCount +
+    bibTap + pillarTap + floorTrap + gardenTaps + carWashTaps + outdoorShower + roPoint
 
   const fixtureSchedule: FixtureSchedule = {
-    ewcPan, washBasin, kitchenSink, showerSet, bibTap, pillarTap, floorTrap, pTrap, totalFixtures,
+    ewcPan, indianOrissa, washBasin, kitchenSink, showerSet, bathtubCount,
+    bibTap, pillarTap, floorTrap, pTrap,
+    geysers15L, geysers25L, gardenTaps, utilityInlets, roPoint,
+    totalFixtures,
   }
 
   // ── Material costs ────────────────────────────────────────────────────────

@@ -9,6 +9,10 @@ import {
   DRAINAGE_SLOPES,
   calcWaterDemand,
   type PlumbInput,
+  type BathroomSpec,
+  type WCType,
+  type WashBasinType,
+  type GeyserCapacity,
 } from '../plumbpro-engine'
 
 // ─── Alert + Regional helpers ─────────────────────────────────────────────────
@@ -154,6 +158,16 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
   const [waterSource, setWaterSource]     = useState<'municipal' | 'borewell'>('municipal')
   const [includeSump, setIncludeSump]     = useState(true)
 
+  // Per-bathroom specs
+  const [bathroomSpecs, setBathroomSpecs] = useState<BathroomSpec[]>([])
+
+  // Building-level outdoor/utility
+  const [hasUtilityArea, setHasUtilityArea]   = useState(false)
+  const [gardenTapCount, setGardenTapCount]   = useState('0')
+  const [hasCarWash, setHasCarWash]           = useState(false)
+  const [hasOutdoorShower, setHasOutdoorShower] = useState(false)
+  const [hasROPoint, setHasROPoint]           = useState(false)
+
   const [showTechSpecs, setShowTechSpecs] = useState(false)
   const [showRates, setShowRates]         = useState(false)
   const [rates, setRates]                 = useState({ ...MATERIAL_RATES })
@@ -188,6 +202,24 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
   const buaSqftPreview  = toBuaSqft(buaPerFloor, buaUnit)
   const numBedsInt      = parseInt(numBedrooms) || 0
   const numBathsInt     = parseInt(numBathrooms) || 0
+
+  // Keep bathroomSpecs length in sync with numBathsInt
+  useEffect(() => {
+    setBathroomSpecs(prev => {
+      if (prev.length === numBathsInt) return prev
+      if (numBathsInt > prev.length) {
+        const extras: BathroomSpec[] = Array.from({ length: numBathsInt - prev.length }, () => ({
+          wcType: 'western_flush_tank' as WCType,
+          washBasinType: 'pedestal' as WashBasinType,
+          hasShower: true,
+          hasBathtub: false,
+          geyserCapacity: '15L' as GeyserCapacity,
+        }))
+        return [...prev, ...extras]
+      }
+      return prev.slice(0, numBathsInt)
+    })
+  }, [numBathsInt])
   const numFloorsInt    = parseInt(numFloors) || 1
   const occupants       = numBedsInt * 2 + 1
   const lpcdRate        = WATER_DEMAND_LPCD[waterSource]
@@ -220,15 +252,21 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
   function handleSubmit() {
     if (!validate()) return
     onSubmit({
-      state:            localState,
-      city:             localCity,
-      numBedrooms:      numBedsInt,
-      numBathrooms:     numBathsInt,
-      numFloors:        numFloorsInt,
-      buaPerFloorSqft:  Math.round(toBuaSqft(buaPerFloor, buaUnit)),
+      state:              localState,
+      city:               localCity,
+      numBedrooms:        numBedsInt,
+      numBathrooms:       numBathsInt,
+      numFloors:          numFloorsInt,
+      buaPerFloorSqft:    Math.round(toBuaSqft(buaPerFloor, buaUnit)),
       waterSource,
       includeSump,
-      contractorQuote:  contractorQuote ? parseFloat(contractorQuote) : undefined,
+      bathroomSpecs:      bathroomSpecs.length > 0 ? bathroomSpecs : undefined,
+      hasUtilityArea,
+      gardenTapCount:     parseInt(gardenTapCount) || 0,
+      hasCarWash,
+      hasOutdoorShower,
+      hasROPoint,
+      contractorQuote:    contractorQuote ? parseFloat(contractorQuote) : undefined,
       includeLabour,
     })
   }
@@ -505,6 +543,209 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* ── SECTION 4b: PER-BATHROOM SPECIFICATION ────────────────────────── */}
+        {numBathsInt > 0 && (
+          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                04b — PER-BATHROOM SPECIFICATION
+              </p>
+            </div>
+            <div className="p-4 space-y-5">
+              {bathroomSpecs.map((spec, idx) => (
+                <div key={idx} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(31,78,121,0.2)', background: 'rgba(31,78,121,0.02)' }}>
+                  <p className="text-[11px] font-medium mb-3" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                    BATHROOM {idx + 1}
+                  </p>
+                  <div className="space-y-3">
+                    {/* WC Type */}
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>WC Type</label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {([
+                          ['indian_orissa',       'Indian Orissa Pan', 'IS 2556:1994'],
+                          ['western_flush_tank',  'Western + Flush Tank', 'IS 2556:1994'],
+                          ['western_flush_valve', 'Western + Flush Valve', 'High-pressure flush'],
+                        ] as [WCType, string, string][]).map(([val, label, sub]) => (
+                          <button key={val} type="button"
+                            onClick={() => setBathroomSpecs(prev => prev.map((s, i) => i === idx ? { ...s, wcType: val } : s))}
+                            className="p-1.5 rounded-[2px] text-left"
+                            style={{
+                              border: `1.5px solid ${spec.wcType === val ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`,
+                              background: spec.wcType === val ? 'rgba(31,78,121,0.07)' : 'transparent',
+                            }}>
+                            <p className="text-[11px] font-medium" style={{ color: spec.wcType === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                            <p className="text-[9px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{sub}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Wash Basin */}
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Wash Basin</label>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {([
+                          ['wall_hung',   'Wall-Hung'],
+                          ['pedestal',    'Pedestal'],
+                          ['counter_top', 'Counter-Top'],
+                          ['none',        'None'],
+                        ] as [WashBasinType, string][]).map(([val, label]) => (
+                          <button key={val} type="button"
+                            onClick={() => setBathroomSpecs(prev => prev.map((s, i) => i === idx ? { ...s, washBasinType: val } : s))}
+                            className="py-1.5 rounded-[2px] text-[11px] text-center"
+                            style={{
+                              border: `1.5px solid ${spec.washBasinType === val ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`,
+                              background: spec.washBasinType === val ? 'rgba(31,78,121,0.07)' : 'transparent',
+                              color: spec.washBasinType === val ? '#1F4E79' : '#1E2227',
+                              fontFamily: 'var(--font-plex-sans)',
+                            }}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Shower / Bathtub / Geyser */}
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Shower</label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={spec.hasShower}
+                            onChange={() => setBathroomSpecs(prev => prev.map((s, i) => i === idx ? { ...s, hasShower: !s.hasShower } : s))}
+                            className="w-4 h-4" style={{ accentColor: '#1F4E79' }}
+                          />
+                          <span className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Yes</span>
+                        </label>
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Bathtub</label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={spec.hasBathtub}
+                            onChange={() => setBathroomSpecs(prev => prev.map((s, i) => i === idx ? { ...s, hasBathtub: !s.hasBathtub } : s))}
+                            className="w-4 h-4" style={{ accentColor: '#1F4E79' }}
+                          />
+                          <span className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Yes</span>
+                        </label>
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Geyser</label>
+                        <div className="flex gap-1">
+                          {(['15L', '25L', 'none'] as GeyserCapacity[]).map(cap => (
+                            <button key={cap} type="button"
+                              onClick={() => setBathroomSpecs(prev => prev.map((s, i) => i === idx ? { ...s, geyserCapacity: cap } : s))}
+                              className="px-2 py-1 rounded-[2px] text-[11px]"
+                              style={{
+                                border: `1.5px solid ${spec.geyserCapacity === cap ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`,
+                                background: spec.geyserCapacity === cap ? 'rgba(31,78,121,0.07)' : 'transparent',
+                                color: spec.geyserCapacity === cap ? '#1F4E79' : '#1E2227',
+                                fontFamily: 'var(--font-plex-mono)',
+                              }}>
+                              {cap}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── SECTION 4c: OUTDOOR + UTILITY WATER POINTS ────────────────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              04c — OUTDOOR &amp; UTILITY WATER POINTS
+            </p>
+          </div>
+          <div className="p-4 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {/* Utility area */}
+              <label className="flex items-center gap-2.5 cursor-pointer p-2.5 rounded-[2px]"
+                style={{ border: `1.5px solid ${hasUtilityArea ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`, background: hasUtilityArea ? 'rgba(31,78,121,0.05)' : 'transparent' }}>
+                <input type="checkbox" checked={hasUtilityArea} onChange={() => setHasUtilityArea(v => !v)}
+                  className="w-4 h-4" style={{ accentColor: '#1F4E79' }}
+                />
+                <div>
+                  <p className="text-[12px] font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Utility Area</p>
+                  <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>Washing machine inlet + drain</p>
+                </div>
+              </label>
+              {/* Car wash */}
+              <label className="flex items-center gap-2.5 cursor-pointer p-2.5 rounded-[2px]"
+                style={{ border: `1.5px solid ${hasCarWash ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`, background: hasCarWash ? 'rgba(31,78,121,0.05)' : 'transparent' }}>
+                <input type="checkbox" checked={hasCarWash} onChange={() => setHasCarWash(v => !v)}
+                  className="w-4 h-4" style={{ accentColor: '#1F4E79' }}
+                />
+                <div>
+                  <p className="text-[12px] font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Car Wash Point</p>
+                  <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>External hose bib tap</p>
+                </div>
+              </label>
+              {/* Outdoor shower */}
+              <label className="flex items-center gap-2.5 cursor-pointer p-2.5 rounded-[2px]"
+                style={{ border: `1.5px solid ${hasOutdoorShower ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`, background: hasOutdoorShower ? 'rgba(31,78,121,0.05)' : 'transparent' }}>
+                <input type="checkbox" checked={hasOutdoorShower} onChange={() => setHasOutdoorShower(v => !v)}
+                  className="w-4 h-4" style={{ accentColor: '#1F4E79' }}
+                />
+                <div>
+                  <p className="text-[12px] font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Outdoor Shower</p>
+                  <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>Garden / terrace shower</p>
+                </div>
+              </label>
+              {/* RO point */}
+              <label className="flex items-center gap-2.5 cursor-pointer p-2.5 rounded-[2px]"
+                style={{ border: `1.5px solid ${hasROPoint ? '#1F4E79' : 'rgba(30,34,39,0.15)'}`, background: hasROPoint ? 'rgba(31,78,121,0.05)' : 'transparent' }}>
+                <input type="checkbox" checked={hasROPoint} onChange={() => setHasROPoint(v => !v)}
+                  className="w-4 h-4" style={{ accentColor: '#1F4E79' }}
+                />
+                <div>
+                  <p className="text-[12px] font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>RO / Water Purifier</p>
+                  <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>Dedicated inlet + drain</p>
+                </div>
+              </label>
+            </div>
+            {/* Garden taps */}
+            <div>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                Garden Taps
+              </label>
+              <div className="grid grid-cols-4 gap-2">
+                {['0','1','2','3'].map(n => (
+                  <button key={n} type="button" onClick={() => setGardenTapCount(n)}
+                    className="py-2 rounded-[2px] text-[13px] font-medium"
+                    style={{
+                      border: `1.5px solid ${gardenTapCount === n ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      background: gardenTapCount === n ? 'rgba(31,78,121,0.08)' : 'transparent',
+                      color: gardenTapCount === n ? '#1F4E79' : '#1E2227',
+                      fontFamily: 'var(--font-plex-mono)',
+                    }}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Pump head advisory */}
+            {numFloorsInt > 0 && (
+              <div className="p-3 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.04)', border: '1px solid rgba(31,78,121,0.2)' }}>
+                <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  PUMP HEAD ESTIMATE
+                </p>
+                {(() => {
+                  const head = numFloorsInt * 3 + 5  // floors × floor height + 5m safety
+                  const hp   = head <= 20 ? '0.5 HP' : head <= 35 ? '1 HP' : '1.5 HP'
+                  return (
+                    <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}>
+                      {numFloorsInt} floors × 3m + 5m safety = <strong>{head}m</strong> head → <strong>{hp}</strong> pump recommended
+                    </p>
+                  )
+                })()}
+              </div>
+            )}
           </div>
         </div>
 

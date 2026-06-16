@@ -93,6 +93,8 @@ export type InternalWallType =
 
 export type WaterproofingMethod = 'bbc' | 'membrane' | 'liquid' | 'ips' | 'none'
 export type BathroomWpMethod = 'cementitious' | 'crystalline' | 'pu' | 'none'
+export type RoofType = 'flat' | 'sloped' | 'mixed'
+export type SlopedRoofCovering = 'mangalore_tiles' | 'gi_sheet' | 'polycarbonate' | 'ms_truss'
 
 export interface WallTypeSpec {
   label: string
@@ -418,6 +420,13 @@ export interface MasonInput {
   ductCount?: number
   ductPerimeterM?: number
   ductWallAreaSqm?: number
+
+  // Roof type
+  roofType?: RoofType
+  slopedRoofCovering?: SlopedRoofCovering
+  gableWallAreaSqm?: number
+  ridgeLengthM?: number
+  terraceParapetCoping?: boolean
 
   // Extended plaster flags
   plasterInternal?: boolean

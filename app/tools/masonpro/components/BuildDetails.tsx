@@ -10,6 +10,8 @@ import {
   type WaterproofingMethod,
   type BathroomWpMethod,
   type MasonInput,
+  type RoofType,
+  type SlopedRoofCovering,
 } from '../masonpro-engine'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -208,10 +210,17 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
   const [compGateWidthM, setCompGateWidthM]   = useState('')
   const [compPillarOverride, setCompPillarOverride] = useState('')
 
-  // S9 — Plaster
+  // S9 — Roof type
+  const [roofType, setRoofType]                   = useState<RoofType>('flat')
+  const [slopedRoofCovering, setSlopedRoofCovering] = useState<SlopedRoofCovering>('mangalore_tiles')
+  const [gableWallAreaSqm, setGableWallAreaSqm]   = useState('')
+  const [ridgeLengthM, setRidgeLengthM]           = useState('')
+  const [terraceParapetCoping, setTerraceParapetCoping] = useState(false)
+
+  // S10 — Plaster
   const [plastering, setPlastering] = useState({ internal: true, external: true, ceiling: false })
 
-  // S10 — Waterproofing
+  // S11 — Waterproofing
   const [includeTerWP, setTerraceWP]       = useState(false)
   const [terraceArea, setTerraceArea]       = useState('')
   const [terraceWPMethod, setTerraceWPMethod] = useState<WaterproofingMethod>('bbc')
@@ -428,6 +437,11 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
       compoundThicknessMm: compThicknessMm,
       compoundGateWidthM: compGateF,
       compoundPillarCount: effectivePillarCount,
+      roofType,
+      slopedRoofCovering: roofType !== 'flat' ? slopedRoofCovering : undefined,
+      gableWallAreaSqm: roofType !== 'flat' ? (parseFloat(gableWallAreaSqm) || 0) : 0,
+      ridgeLengthM: roofType !== 'flat' ? (parseFloat(ridgeLengthM) || 0) : 0,
+      terraceParapetCoping: roofType !== 'sloped' ? terraceParapetCoping : false,
       contractorQuote: contractorTotal ? parseFloat(contractorTotal) : undefined,
     })
   }
@@ -1165,9 +1179,125 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
           )}
         </div>
 
-        {/* ── 09 PLASTERING ─────────────────────────────────────────────────── */}
+        {/* ── 09 ROOF TYPE ──────────────────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <SectionHeader num="09" title={`PLASTERING (IS 1661:1972)`} />
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+            <div className="flex items-center gap-1">
+              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                09 — ROOF TYPE
+              </p>
+              <ISBadge code="NBC 2016" />
+            </div>
+          </div>
+          <div className="p-4 space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                ['flat',   'Full Flat Terrace', 'RCC slab with parapet'],
+                ['sloped', 'Full Sloped Roof',  'Mangalore/GI/Poly/Truss'],
+                ['mixed',  'Mixed',             'Partial terrace + partial slope'],
+              ] as [RoofType, string, string][]).map(([val, label, sub]) => (
+                <button key={val} type="button" onClick={() => setRoofType(val)}
+                  className="p-3 rounded-[2px] text-left"
+                  style={{
+                    border: `1.5px solid ${roofType === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                    background: roofType === val ? 'rgba(31,78,121,0.07)' : 'transparent',
+                  }}>
+                  <p className="text-[13px] font-medium" style={{ color: roofType === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
+                </button>
+              ))}
+            </div>
+
+            {/* Flat / Mixed: terrace parapet coping */}
+            {(roofType === 'flat' || roofType === 'mixed') && (
+              <div>
+                <p className="text-[11px] mb-2" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  NBC 2016 Cl 3.6.2: Parapet min height 900mm above roof. Parapet brickwork auto-calculated from terrace area perimeter.
+                </p>
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <input type="checkbox" checked={terraceParapetCoping}
+                    onChange={() => setTerraceParapetCoping(v => !v)}
+                    className="w-4 h-4 rounded" style={{ accentColor: '#1F4E79' }}
+                  />
+                  <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                    Include terrace parapet coping (stone/PCC — protects parapet top from water ingress)
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {/* Sloped / Mixed: roof covering + gable wall + ridge */}
+            {(roofType === 'sloped' || roofType === 'mixed') && (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[11px] uppercase tracking-widest block mb-2"
+                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                    Roof Covering Type
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      ['mangalore_tiles', 'Mangalore Clay Tiles',  'IS 654:1992 · 10–14 tiles/sqm'],
+                      ['gi_sheet',        'GI Corrugated Sheet',   'Galvanised iron — 0.63mm min'],
+                      ['polycarbonate',   'Polycarbonate Sheet',   '6mm twin-wall — light + heat'],
+                      ['ms_truss',        'MS Truss (open frame)', 'Structural steel — specify cladding'],
+                    ] as [SlopedRoofCovering, string, string][]).map(([val, label, sub]) => (
+                      <button key={val} type="button" onClick={() => setSlopedRoofCovering(val)}
+                        className="p-2.5 rounded-[2px] text-left"
+                        style={{
+                          border: `1.5px solid ${slopedRoofCovering === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                          background: slopedRoofCovering === val ? 'rgba(31,78,121,0.07)' : 'transparent',
+                        }}>
+                        <p className="text-[12px] font-medium" style={{ color: slopedRoofCovering === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                        <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{sub}</p>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-2">
+                    <AlertBox variant="error">
+                      ⛔ Asbestos is banned in India under Environment Protection Act 1986. Cannot estimate asbestos roofing.
+                    </AlertBox>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest block mb-1"
+                      style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                      Gable Wall Area (sqm)
+                    </label>
+                    <input type="number" value={gableWallAreaSqm}
+                      onChange={e => setGableWallAreaSqm(e.target.value)}
+                      placeholder="e.g. 8"
+                      className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                    />
+                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                      Triangular wall area at each end of sloped roof
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest block mb-1"
+                      style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                      Ridge Length (m)
+                    </label>
+                    <input type="number" value={ridgeLengthM}
+                      onChange={e => setRidgeLengthM(e.target.value)}
+                      placeholder="e.g. 10"
+                      className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                    />
+                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                      Length of the ridge beam at roof apex
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── 10 PLASTERING ─────────────────────────────────────────────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <SectionHeader num="10" title={`PLASTERING (IS 1661:1972)`} />
           <div className="p-4">
             <div className="space-y-2">
               {([
@@ -1188,7 +1318,7 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
 
         {/* ── 10 WATERPROOFING ──────────────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <SectionHeader num="10" title={`WATERPROOFING (IS 2645:2003)`} />
+          <SectionHeader num="11" title={`WATERPROOFING (IS 2645:2003)`} />
           <div className="p-4 space-y-3">
             {/* Terrace */}
             <label className="flex items-center gap-3 cursor-pointer">
@@ -1391,7 +1521,7 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
 
         {/* ── 11 CONTRACTOR QUOTE ───────────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <SectionHeader num="11" title="CONTRACTOR QUOTE (OPTIONAL)" />
+          <SectionHeader num="12" title="CONTRACTOR QUOTE (OPTIONAL)" />
           <div className="p-4 space-y-3">
             <p className="text-[13px]" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
               Have a contractor quote? Enter it to compare after unlocking your report.

@@ -135,22 +135,29 @@ export interface DBPanelSchedule {
 }
 
 export interface WireSchedule {
-  size_1_5_m:   number
-  size_2_5_m:   number
-  size_4_0_m:   number
-  size_6_0_m:   number
-  size_10_0_m:  number
+  size_1_5_m:    number
+  size_2_5_m:    number
+  size_4_0_m:    number
+  size_6_0_m:    number
+  size_10_0_m:   number
+  coaxial_rg6_m: number
 }
 
 export interface PointSchedule {
-  lightPoints:   number
-  fanPoints:     number
-  powerPoints:   number
-  acPoints:      number
-  geyserPoints:  number
-  exhaustPoints: number
-  totalPoints:   number
+  lightPoints:     number
+  fanPoints:       number
+  regulatorPoints: number
+  powerPoints:     number
+  acPoints:        number
+  geyserPoints:    number
+  exhaustPoints:   number
+  tvPoints:        number
+  callBellPoints:  number
+  totalPoints:     number
 }
+
+export type ConduitType     = 'surface_pvc' | 'concealed'
+export type SwitchboardType = 'modular' | 'standard'
 
 export interface ElectroInput {
   state:            string
@@ -163,6 +170,11 @@ export interface ElectroInput {
   numEarthingPits?: number
   contractorQuote?: number
   includeLabour?:   boolean
+  numTVPoints?:     number
+  numCallBellPoints?: number
+  dbPanelPerFloor?: boolean
+  conduitType?:     ConduitType
+  switchboardType?: SwitchboardType
 }
 
 export interface ElectroCosts {
@@ -221,23 +233,38 @@ export function runCalculation(input: ElectroInput): ElectroResult {
     numAC,
     includeEarthing,
     numEarthingPits = 2,
+    numTVPoints,
+    numCallBellPoints,
+    dbPanelPerFloor = false,
+    conduitType = 'concealed',
+    switchboardType = 'modular',
   } = input
 
   const totalBuaSqft = buaPerFloorSqft * numFloors
 
   // ── Point schedule ────────────────────────────────────────────────────────
   // Thumb rules for residential (IS 732:2019 best practice)
-  const lightPoints   = Math.ceil(totalBuaSqft / 25)   // 1 per 25 sqft
-  const fanPoints     = Math.ceil(totalBuaSqft / 100)  // 1 per 100 sqft
-  const powerPoints   = Math.ceil(totalBuaSqft / 20)   // 1 per 20 sqft (15A sockets)
-  const acPoints      = numAC
-  const geyserPoints  = numBathrooms
-  const exhaustPoints = numBathrooms + 1                // bathrooms + kitchen
-  const totalPoints   = lightPoints + fanPoints + powerPoints + acPoints + geyserPoints + exhaustPoints
+  const lightPoints    = Math.ceil(totalBuaSqft / 25)   // 1 per 25 sqft
+  const fanPoints      = Math.ceil(totalBuaSqft / 100)  // 1 per 100 sqft
+  const regulatorPoints = fanPoints                      // 1 regulator per ceiling fan (auto)
+  const powerPoints    = Math.ceil(totalBuaSqft / 20)   // 1 per 20 sqft (15A sockets)
+  const acPoints       = numAC
+  const geyserPoints   = numBathrooms
+  // Exhaust: 1 per bathroom (auto) + kitchen (always 1) — each fan is 200mm / 6"
+  const exhaustPoints  = numBathrooms + 1
+  const tvPoints       = numTVPoints ?? Math.ceil(numFloors)   // default 1 per floor
+  const callBellPoints = numCallBellPoints ?? 1                 // default 1 call bell
+  const totalPoints    = lightPoints + fanPoints + powerPoints + acPoints + geyserPoints + exhaustPoints + tvPoints + callBellPoints
 
   const pointSchedule: PointSchedule = {
-    lightPoints, fanPoints, powerPoints, acPoints, geyserPoints, exhaustPoints, totalPoints,
+    lightPoints, fanPoints, regulatorPoints, powerPoints, acPoints,
+    geyserPoints, exhaustPoints, tvPoints, callBellPoints, totalPoints,
   }
+
+  // Conduit cost multiplier: concealed adds ~20% material (chasing walls vs surface clip)
+  const conduitMultiplier = conduitType === 'concealed' ? 1.2 : 1.0
+  // Switchboard type: modular boards cost more but cleaner installation
+  const switchboardRate = switchboardType === 'modular' ? MATERIAL_RATES.switchSocket : MATERIAL_RATES.switchSocket * 0.7
 
   // ── Load calculation ──────────────────────────────────────────────────────
   const lightLoad   = (lightPoints + exhaustPoints) * 40   // 40W avg per light point per room specs
@@ -322,12 +349,14 @@ export function runCalculation(input: ElectroInput): ElectroResult {
 
   // ── Wire schedule (PAID — blurred) ────────────────────────────────────────
   // Circuit-based wire quantities with 3 conductors (L+N+E) per HTML source formula
-  const wire_1_5_m  = Math.round(lightCircuits  * 15 * 3 * WIRE_WASTAGE)  // lighting circuits × 15m × 3
+  const wire_1_5_m  = Math.round((lightCircuits + exhaustPoints + regulatorPoints) * 15 * 3 * WIRE_WASTAGE)
   const wire_2_5_m  = Math.round(powerCircuits  * 15 * 3 * WIRE_WASTAGE)  // power circuits × 15m × 3
   const wire_4_0_m  = Math.round((acCircuits + geyserCircuits) * 12 * 3 * WIRE_WASTAGE)  // heavy circuits × 12m × 3
   const wire_6_0_m  = Math.round(numFloors * 12 * 3 * WIRE_WASTAGE)       // sub-panel risers × 12m × 3
   // Main incomer: max(6, ceil(demand÷3000)) × 5m × 3 conductors — no wastage factor
   const wire_10_0_m = Math.round(Math.max(6, Math.ceil(mainLoadW * 0.65 / 3000)) * 5 * 3)
+  // Coaxial RG6 for TV/cable points — ~15m per point with 15% wastage
+  const coaxial_rg6_m = Math.round(tvPoints * 15 * WIRE_WASTAGE)
 
   const wireSchedule: WireSchedule = {
     size_1_5_m: wire_1_5_m,
@@ -335,6 +364,7 @@ export function runCalculation(input: ElectroInput): ElectroResult {
     size_4_0_m: wire_4_0_m,
     size_6_0_m: wire_6_0_m,
     size_10_0_m: wire_10_0_m,
+    coaxial_rg6_m,
   }
 
   // ── Material costs ────────────────────────────────────────────────────────
@@ -349,7 +379,7 @@ export function runCalculation(input: ElectroInput): ElectroResult {
   // Conduit: 25mm for light/power wires, 32mm for heavy circuits — per HTML source formula
   const conduit25m = Math.round((wire_1_5_m + wire_2_5_m) / 3.2)
   const conduit32m = Math.round((wire_4_0_m + wire_6_0_m) / 2.2)
-  const conduitMaterial = Math.round(conduit25m * MATERIAL_RATES.conduit_25mm + conduit32m * MATERIAL_RATES.conduit_32mm)
+  const conduitMaterial = Math.round((conduit25m * MATERIAL_RATES.conduit_25mm + conduit32m * MATERIAL_RATES.conduit_32mm) * conduitMultiplier)
 
   // MCBs + RCCB — 10% spare count on all MCBs per HTML source
   const mcbLighting = Math.round(lightCircuits  * 1.1) * MATERIAL_RATES.mcb_6A
@@ -360,12 +390,14 @@ export function runCalculation(input: ElectroInput): ElectroResult {
   const rccbCost    = rccbRequired ? MATERIAL_RATES.rccb_40A : 0
   const mcbRccbMaterial = Math.round(mcbLighting + mcbPower + mcbAC + mcbGeyser + mainMCBCost + rccbCost)
 
-  const dbPanelMaterial = panelRate * numFloors  // one DB per floor
+  // DB panels: one main per building (default) or one per floor
+  const dbCount = dbPanelPerFloor ? numFloors : 1
+  const dbPanelMaterial = panelRate * dbCount
 
-  // Switch/socket fixtures
+  // Switch/socket fixtures — switchboard rate varies by modular vs standard
   const fixturesMaterial = Math.round(
-    (lightPoints + fanPoints + exhaustPoints) * MATERIAL_RATES.backBox +
-    powerPoints * (MATERIAL_RATES.switchSocket + MATERIAL_RATES.backBox) * 0.5  // not all points need full plates
+    (lightPoints + fanPoints + exhaustPoints + regulatorPoints + tvPoints + callBellPoints) * MATERIAL_RATES.backBox +
+    powerPoints * (switchboardRate + MATERIAL_RATES.backBox) * 0.5
   )
 
   // Earthing

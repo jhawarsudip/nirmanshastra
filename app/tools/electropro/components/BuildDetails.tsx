@@ -138,6 +138,13 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
   const [numBathrooms, setNumBathrooms] = useState('2')
   const [numAC, setNumAC]               = useState('2')
 
+  // S3b — Additional Points (new)
+  const [numTVPoints, setNumTVPoints]         = useState('')
+  const [numCallBellPoints, setCallBellPoints] = useState('1')
+  const [dbPanelPerFloor, setDbPanelPerFloor]  = useState(false)
+  const [conduitType, setConduitType]          = useState<'surface_pvc' | 'concealed'>('concealed')
+  const [switchboardType, setSwitchboardType]  = useState<'modular' | 'standard'>('modular')
+
   // S4 — Earthing
   const [includeEarthing, setEarthing]  = useState(true)
   const [numPits, setNumPits]           = useState('2')
@@ -205,15 +212,20 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
   function handleSubmit() {
     if (!validate()) return
     onSubmit({
-      state:            localState,
-      city:             localCity,
-      buaPerFloorSqft:  Math.round(toBuaSqft(buaPerFloor, buaUnit)),
-      numFloors:        Math.max(1, parseInt(numFloors) || 1),
-      numBathrooms:     Math.max(0, parseInt(numBathrooms) || 0),
-      numAC:            Math.max(0, parseInt(numAC) || 0),
+      state:              localState,
+      city:               localCity,
+      buaPerFloorSqft:    Math.round(toBuaSqft(buaPerFloor, buaUnit)),
+      numFloors:          Math.max(1, parseInt(numFloors) || 1),
+      numBathrooms:       Math.max(0, parseInt(numBathrooms) || 0),
+      numAC:              Math.max(0, parseInt(numAC) || 0),
       includeEarthing,
-      numEarthingPits:  includeEarthing ? (parseInt(numPits) || 2) : 0,
-      contractorQuote:  contractorQuote ? parseFloat(contractorQuote) : undefined,
+      numEarthingPits:    includeEarthing ? (parseInt(numPits) || 2) : 0,
+      numTVPoints:        numTVPoints ? parseInt(numTVPoints) : undefined,
+      numCallBellPoints:  parseInt(numCallBellPoints) || 1,
+      dbPanelPerFloor,
+      conduitType,
+      switchboardType,
+      contractorQuote:    contractorQuote ? parseFloat(contractorQuote) : undefined,
       includeLabour,
     })
   }
@@ -444,6 +456,121 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
                       fontFamily: 'var(--font-plex-mono)',
                     }}>
                     {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── SECTION 3b: ADDITIONAL POINTS + BUILDING ELECTRICAL SPEC ─────────── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              03b — ADDITIONAL POINTS &amp; BUILDING ELECTRICAL SPEC
+            </p>
+          </div>
+          <div className="p-4 space-y-5">
+            {/* TV / Cable points */}
+            <div>
+              <div className="flex items-center gap-1 mb-2">
+                <label className="text-[11px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  TV / Cable Points (Coaxial RG6)
+                </label>
+                <ISBadge code="IS 732:2019" />
+              </div>
+              <div className="flex items-center gap-3">
+                <input type="number" value={numTVPoints}
+                  onChange={e => setNumTVPoints(e.target.value)}
+                  placeholder={`Auto (${Math.max(1, parseInt(numFloors) || 1)} per floor)`}
+                  className="w-44 border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                />
+                <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>points (RG6 coaxial cable estimated)</span>
+              </div>
+            </div>
+            {/* Call bell */}
+            <div>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                Call Bell Points
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {['1','2','3'].map(n => (
+                  <button key={n} type="button" onClick={() => setCallBellPoints(n)}
+                    className="py-2 rounded-[2px] text-[13px] font-medium"
+                    style={{
+                      border: `1.5px solid ${numCallBellPoints === n ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      background: numCallBellPoints === n ? 'rgba(31,78,121,0.08)' : 'transparent',
+                      color: numCallBellPoints === n ? '#1F4E79' : '#1E2227',
+                      fontFamily: 'var(--font-plex-mono)',
+                    }}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* DB Panel location */}
+            <div>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                DB Panel Location
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  [false, 'One Main DB', 'Single panel for all floors — economical'],
+                  [true,  'One DB Per Floor', 'Separate panel per floor — better isolation'],
+                ] as [boolean, string, string][]).map(([val, label, sub]) => (
+                  <button key={String(val)} type="button" onClick={() => setDbPanelPerFloor(val)}
+                    className="p-2.5 rounded-[2px] text-left"
+                    style={{
+                      border: `1.5px solid ${dbPanelPerFloor === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      background: dbPanelPerFloor === val ? 'rgba(31,78,121,0.07)' : 'transparent',
+                    }}>
+                    <p className="text-[12px] font-medium" style={{ color: dbPanelPerFloor === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Conduit type */}
+            <div>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                Conduit Type
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  ['concealed',    'Concealed PVC', '+20% material, cleaner finish — IS 732:2019'],
+                  ['surface_pvc',  'Surface PVC',   'Clip-mounted, easier to modify later'],
+                ] as [typeof conduitType, string, string][]).map(([val, label, sub]) => (
+                  <button key={val} type="button" onClick={() => setConduitType(val)}
+                    className="p-2.5 rounded-[2px] text-left"
+                    style={{
+                      border: `1.5px solid ${conduitType === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      background: conduitType === val ? 'rgba(31,78,121,0.07)' : 'transparent',
+                    }}>
+                    <p className="text-[12px] font-medium" style={{ color: conduitType === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Switchboard type */}
+            <div>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                Switchboard Type
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  ['modular',  'Modular Plates', 'Anchor/Legrand/Havells — cleaner finish, costlier'],
+                  ['standard', 'Standard Boards', 'Bakelite or PVC boards — economical'],
+                ] as [typeof switchboardType, string, string][]).map(([val, label, sub]) => (
+                  <button key={val} type="button" onClick={() => setSwitchboardType(val)}
+                    className="p-2.5 rounded-[2px] text-left"
+                    style={{
+                      border: `1.5px solid ${switchboardType === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      background: switchboardType === val ? 'rgba(31,78,121,0.07)' : 'transparent',
+                    }}>
+                    <p className="text-[12px] font-medium" style={{ color: switchboardType === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
                   </button>
                 ))}
               </div>
