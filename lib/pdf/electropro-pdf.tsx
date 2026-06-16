@@ -189,6 +189,152 @@ function SLDDiagramSvg({ circuits }: { circuits: { label: string; ways: number }
   )
 }
 
+// ─── IS Code Checklist helpers ────────────────────────────────────────────────
+
+interface ChecklistItem {
+  status: 'pass' | 'advisory' | 'violation'
+  clause: string
+  description: string
+}
+
+function ChecklistRow({ item }: { item: ChecklistItem }) {
+  const cfg =
+    item.status === 'pass'
+      ? { label: 'PASS',      bg: T.greenBg,  border: T.approvedGreen, text: T.approvedGreen }
+      : item.status === 'advisory'
+      ? { label: 'ADVISORY',  bg: T.yellowBg, border: T.markingYellow, text: T.markingYellow }
+      : { label: 'VIOLATION', bg: T.oxideBg,  border: T.stampOxide,   text: T.stampOxide   }
+  return (
+    <View style={{
+      flexDirection: 'row', alignItems: 'flex-start', marginBottom: 5,
+      backgroundColor: cfg.bg,
+      borderLeftWidth: 3, borderLeftColor: cfg.border, borderLeftStyle: 'solid',
+      padding: 7,
+    }}>
+      <View style={{
+        borderWidth: 1, borderColor: cfg.border, borderStyle: 'solid',
+        paddingHorizontal: 4, paddingVertical: 1, marginRight: 8, marginTop: 1,
+      }}>
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: cfg.text, letterSpacing: 0.5 }}>
+          {cfg.label}
+        </Text>
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: cfg.text, marginBottom: 2 }}>
+          {item.clause}
+        </Text>
+        <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.45 }}>
+          {item.description}
+        </Text>
+      </View>
+    </View>
+  )
+}
+
+function ChecklistDisclaimer() {
+  return (
+    <View style={{
+      marginTop: 10, borderWidth: 1.5, borderColor: T.ironInk, borderStyle: 'solid',
+      backgroundColor: T.blueprintBg, padding: 10,
+    }}>
+      <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.blueprint, marginBottom: 4, letterSpacing: 0.5 }}>
+        DISCLAIMER — IS CODE COMPLIANCE CHECKLIST
+      </Text>
+      <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.6 }}>
+        This IS Code Compliance Checklist is generated automatically from your input parameters. It does not
+        constitute a Licensed Electrical Contractor&apos;s certificate. Actual installation must be executed by a
+        licensed electrician under IE Rules 1956. Municipal approval mandatory before energising.
+      </Text>
+    </View>
+  )
+}
+
+function ISCodeChecklistPage({ input, result }: Props) {
+  const totalLoadW = result.pointSchedule.lightPoints * 20 + result.pointSchedule.fanPoints * 75 +
+    result.pointSchedule.powerPoints * 250 + result.pointSchedule.acPoints * 1500 +
+    result.pointSchedule.geyserPoints * 2000 + result.pointSchedule.exhaustPoints * 20
+  const isThreePhase = totalLoadW > 5000
+  const rccbMissing = !result.dbPanelSchedule.rccbRequired && input.numBathrooms > 0
+
+  const items: ChecklistItem[] = [
+    {
+      status: 'pass',
+      clause: 'IS 732:2019 — Wire Sizing',
+      description: `Lighting/fan circuits: 1.5 sqmm Cu; power sockets: 2.5 sqmm Cu; AC/geyser: 4.0 sqmm Cu — per IS 732:2019 Table 1 current-carrying capacity.`,
+    },
+    {
+      status: result.dbPanelSchedule.rccbRequired ? 'pass' : 'advisory',
+      clause: 'IS 3043:2018 — RCCB / Earth Leakage Protection',
+      description: result.dbPanelSchedule.rccbRequired
+        ? `RCCB ${result.dbPanelSchedule.rccbRating} included for bathroom and outdoor circuits per IS 3043:2018 Cl 5.4. Trips at 30mA leakage.`
+        : `No bathrooms specified — RCCB not computed. If adding bathroom circuits later, RCCB 30mA mandatory per IS 3043:2018 Cl 5.4.`,
+    },
+    {
+      status: input.includeEarthing ? 'pass' : 'advisory',
+      clause: 'IS 3043:2018 — Earthing System',
+      description: input.includeEarthing
+        ? `${input.numEarthingPits ?? 2} earthing pit(s) included — plate earthing or pipe earthing per IS 3043:2018. Earth resistance must be < 1Ω.`
+        : `Earthing not included in estimate. IS 3043:2018 mandates earthing for all metallic enclosures and exposed conductive parts. Add before energising.`,
+    },
+    {
+      status: 'pass',
+      clause: 'IS 8828:2007 — MCB Ratings',
+      description: `Lighting MCBs: 6A; Power MCBs: 16A; AC/Geyser MCBs: 20A — per IS 8828:2007 breaking capacity and discrimination requirements.`,
+    },
+    {
+      status: 'pass',
+      clause: 'IE Rules 1956, Rule 50 — Licensed Electrician',
+      description: `All wiring must be executed by a licensed electrical contractor holding a valid IE licence. Contractor must submit a completion certificate before energising.`,
+    },
+    {
+      status: isThreePhase ? 'advisory' : 'pass',
+      clause: 'IS 732:2019 — Three-Phase Load Balance',
+      description: isThreePhase
+        ? `Total computed load ${(totalLoadW / 1000).toFixed(1)} kW exceeds single-phase threshold. Distribute loads across R/Y/B phases to maintain < 5% imbalance per IS 732:2019.`
+        : `Total computed load ${(totalLoadW / 1000).toFixed(1)} kW — single-phase supply likely adequate. Confirm with DISCOM before meter application.`,
+    },
+    {
+      status: 'advisory',
+      clause: 'IS 3043:2018 Cl 8 — Earth Resistance Test',
+      description: `Earth resistance must be tested with earth tester after installation. Acceptable limit: < 1Ω for main earth, < 5Ω for individual connections. Re-test annually.`,
+    },
+    {
+      status: input.numFloors >= 2 ? 'advisory' : 'pass',
+      clause: 'NBC 2016 Cl 10.6 — Lightning Protection',
+      description: input.numFloors >= 2
+        ? `${input.numFloors}-floor structure — evaluate lightning protection per NBC 2016 Cl 10.6. Structures > 9m height may require air terminals and down conductors.`
+        : `Single-floor structure — lightning protection not mandatory per NBC 2016. Consider surge protectors for electronic equipment.`,
+    },
+    {
+      status: rccbMissing ? 'violation' : 'pass',
+      clause: 'IS 3043:2018 — RCCB Mandatory for Bathrooms',
+      description: rccbMissing
+        ? `${input.numBathrooms} bathroom(s) detected — RCCB 30mA is MANDATORY per IS 3043:2018 Cl 5.4. Absence of RCCB creates shock hazard. Install before energising.`
+        : `RCCB requirement correctly assessed for ${input.numBathrooms} bathroom(s) in this estimate.`,
+    },
+  ]
+
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <PageHeader page={3} total={9} title="IS Code Compliance Checklist — Electrical Phase" />
+        <PageRule />
+        <Text style={[S.eyebrow, { marginBottom: 8 }]}>
+          IS 732:2019 · IS 3043:2018 · IS 8828:2007 · IE RULES 1956 · NBC 2016
+        </Text>
+
+        {items.map((item, i) => (
+          <ChecklistRow key={i} item={item} />
+        ))}
+
+        <ChecklistDisclaimer />
+
+        <View style={{ flex: 1 }} />
+      </View>
+    </Page>
+  )
+}
+
 // ─── PAGES ────────────────────────────────────────────────────────────────────
 
 function CoverPage({ input, result, contact, reportId, projectName, date }: Props) {
@@ -285,7 +431,7 @@ function LoadAnalysisPage({ input, result }: { input: ElectroInput; result: Elec
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={2} total={8} title="Load Analysis" />
+        <PageHeader page={2} total={9} title="Load Analysis" />
         <PageRule />
 
         <SectionEyebrow>BUILDING DETAILS</SectionEyebrow>
@@ -354,7 +500,7 @@ function SingleLineDiagramPage({ result }: { result: ElectroResult }) {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={3} total={8} title="Single Line Diagram — Schematic" />
+        <PageHeader page={4} total={9} title="Single Line Diagram — Schematic" />
         <PageRule />
 
         <Text style={[S.body, { marginBottom: 10, color: T.inkA60, fontSize: 8 }]}>
@@ -444,7 +590,7 @@ function DBPanelSchedulePage({ result }: { result: ElectroResult }) {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={4} total={8} title="DB Panel Schedule — IS 8828:2007" />
+        <PageHeader page={5} total={9} title="DB Panel Schedule — IS 8828:2007" />
         <PageRule />
 
         {/* Panel summary */}
@@ -517,7 +663,7 @@ function FloorWiringSchemPage({ input, result }: { input: ElectroInput; result: 
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={5} total={8} title="Floor Wiring Schematic — Reference Layout" />
+        <PageHeader page={6} total={9} title="Floor Wiring Schematic — Reference Layout" />
         <PageRule />
 
         <Text style={[S.body, { fontSize: 8, marginBottom: 10, color: T.inkA60 }]}>
@@ -594,7 +740,7 @@ function WireSchedulePage({ result }: { result: ElectroResult }) {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={6} total={8} title="Wire Schedule — IS 732:2019 + IS 694:2010" />
+        <PageHeader page={7} total={9} title="Wire Schedule — IS 732:2019 + IS 694:2010" />
         <PageRule />
 
         <SectionEyebrow>WIRE SCHEDULE (1.15 WASTAGE FACTOR — IS 732:2019)</SectionEyebrow>
@@ -653,7 +799,7 @@ function MaterialSchedulePage({ result }: { result: ElectroResult }) {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={7} total={8} title="Material Schedule — IS 8828:2007 · IS 3043:2018" />
+        <PageHeader page={8} total={9} title="Material Schedule — IS 8828:2007 · IS 3043:2018" />
         <PageRule />
 
         <SectionEyebrow>COMPLETE MATERIAL SCHEDULE — PUNE AVG 2026 RATES</SectionEyebrow>
@@ -722,7 +868,7 @@ function CostSummaryPage({ result, reportId }: { result: ElectroResult; reportId
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={8} total={8} title="Cost Summary + PlumbPro Cross-sell" />
+        <PageHeader page={9} total={9} title="Cost Summary + PlumbPro Cross-sell" />
         <PageRule />
 
         {/* Three-column cost summary */}
@@ -819,6 +965,7 @@ export default function ElectroProPDF(props: Props) {
     <Document title={`ElectroPro Report — ${props.reportId}`} author="NirmanShastra">
       <CoverPage {...props} />
       <LoadAnalysisPage input={props.input} result={props.result} />
+      <ISCodeChecklistPage {...props} />
       <SingleLineDiagramPage result={props.result} />
       <DBPanelSchedulePage result={props.result} />
       <FloorWiringSchemPage input={props.input} result={props.result} />

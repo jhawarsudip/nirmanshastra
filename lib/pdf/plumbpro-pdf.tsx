@@ -189,6 +189,153 @@ function RiserSvg() {
   )
 }
 
+// ─── IS Code Checklist helpers ────────────────────────────────────────────────
+
+interface ChecklistItem {
+  status: 'pass' | 'advisory' | 'violation'
+  clause: string
+  description: string
+}
+
+function ChecklistRow({ item }: { item: ChecklistItem }) {
+  const cfg =
+    item.status === 'pass'
+      ? { label: 'PASS',      bg: T.greenBg,  border: T.approvedGreen, text: T.approvedGreen }
+      : item.status === 'advisory'
+      ? { label: 'ADVISORY',  bg: T.yellowBg, border: T.markingYellow, text: T.markingYellow }
+      : { label: 'VIOLATION', bg: T.oxideBg,  border: T.stampOxide,   text: T.stampOxide   }
+  return (
+    <View style={{
+      flexDirection: 'row', alignItems: 'flex-start', marginBottom: 5,
+      backgroundColor: cfg.bg,
+      borderLeftWidth: 3, borderLeftColor: cfg.border, borderLeftStyle: 'solid',
+      padding: 7,
+    }}>
+      <View style={{
+        borderWidth: 1, borderColor: cfg.border, borderStyle: 'solid',
+        paddingHorizontal: 4, paddingVertical: 1, marginRight: 8, marginTop: 1,
+      }}>
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: cfg.text, letterSpacing: 0.5 }}>
+          {cfg.label}
+        </Text>
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: cfg.text, marginBottom: 2 }}>
+          {item.clause}
+        </Text>
+        <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.45 }}>
+          {item.description}
+        </Text>
+      </View>
+    </View>
+  )
+}
+
+function ChecklistDisclaimer() {
+  return (
+    <View style={{
+      marginTop: 10, borderWidth: 1.5, borderColor: T.ironInk, borderStyle: 'solid',
+      backgroundColor: T.blueprintBg, padding: 10,
+    }}>
+      <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.blueprint, marginBottom: 4, letterSpacing: 0.5 }}>
+        DISCLAIMER — IS CODE COMPLIANCE CHECKLIST
+      </Text>
+      <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.6 }}>
+        This IS Code Compliance Checklist is generated automatically from your input parameters. It does not
+        constitute a Plumbing Engineer&apos;s certificate. Actual installation must be carried out by a licensed
+        plumber. Municipal sanction and health department approval mandatory before occupation.
+      </Text>
+    </View>
+  )
+}
+
+function ISCodeChecklistPage({ input, result }: Props) {
+  const wd = result.waterDemand
+  const ohtAdequate = wd.ohtL >= wd.dailyDemandL * 0.5
+  const giViolation = result.compliance.find(c => c.detail?.toLowerCase().includes('gi') && c.status === 'fail')
+
+  const items: ChecklistItem[] = [
+    {
+      status: 'pass',
+      clause: 'IS 1172:1993 — Water Demand Calculation',
+      description: `${wd.occupants} occupants × ${wd.lpcd} LPCD = ${wd.dailyDemandL.toLocaleString('en-IN')} L/day — calculated per IS 1172:1993 residential norms (${input.waterSource === 'municipal' ? 'municipal' : 'borewell'} source).`,
+    },
+    {
+      status: ohtAdequate ? 'pass' : 'violation',
+      clause: 'IS 1172:1993 Cl 6 — OHT / Tank Capacity',
+      description: ohtAdequate
+        ? `OHT capacity ${wd.ohtL.toLocaleString('en-IN')} L = ${wd.ohtM3} m³ — meets IS 1172:1993 requirement of 2/3 daily demand for overhead storage.`
+        : `OHT ${wd.ohtL.toLocaleString('en-IN')} L is undersized. IS 1172:1993 requires minimum ${Math.round(wd.dailyDemandL * 0.67).toLocaleString('en-IN')} L. Increase tank size before procurement.`,
+    },
+    {
+      status: 'pass',
+      clause: 'IS 1742:1983 Cl 9 — Drainage Slopes',
+      description: `75mm SWR waste pipes at 1:48 slope (20.8mm/m); 110mm soil stack branches at 1:80 slope (12.5mm/m). Both per IS 1742:1983 Table 3 — self-cleansing velocity maintained.`,
+    },
+    {
+      status: 'pass',
+      clause: 'IS 15778:2007 — CPVC Supply Pipes',
+      description: `CPVC pipes specified for hot and cold water supply — rated for 93°C and 150 psi per IS 15778:2007. Suitable for all bathroom, kitchen, and riser applications.`,
+    },
+    {
+      status: input.includeSump ? 'pass' : 'advisory',
+      clause: 'IS 12701:1989 — HDPE Overhead Tank',
+      description: input.includeSump
+        ? `HDPE food-grade overhead tank included — ${wd.ohtL.toLocaleString('en-IN')} L capacity, covered, insect-proof per IS 12701:1989. Minimum 6-leg MS support.`
+        : `OHT specified — ensure IS 12701 HDPE food-grade tank is procured. Sump tank not included in estimate. Verify with structural engineer for rooftop load.`,
+    },
+    {
+      status: 'advisory',
+      clause: 'IS 1742:1983 Cl 10 — Vent Pipe Requirement',
+      description: `Soil stack must extend 900mm above roof level as vent pipe per IS 1742:1983 Cl 10. Anti-syphon vent required if soil stack length exceeds 6m. Confirm with plumber.`,
+    },
+    {
+      status: wd.ohtL < 1000 ? 'advisory' : 'pass',
+      clause: 'IS 1172:1993 — Tank Size vs Floors',
+      description: wd.ohtL < 1000
+        ? `OHT of ${wd.ohtL}L is small for ${input.numFloors}-floor building. Consider buffer sump to avoid supply disruptions during municipal water shutdown periods.`
+        : `Tank capacity ${wd.ohtM3} m³ sufficient for ${input.numFloors}-floor, ${wd.occupants}-occupant demand per IS 1172:1993.`,
+    },
+    {
+      status: 'advisory',
+      clause: 'IS 3043:2018 — Metallic Pipe Earthing',
+      description: `All metallic water supply pipes within 600mm of electrical circuits must be bonded to earth per IS 3043:2018 Cl 10. Coordinate with electrical contractor before finishing walls.`,
+    },
+    {
+      status: 'advisory',
+      clause: 'NBC 2016 Part 9 — Rainwater Harvesting',
+      description: `Buildings with plot area > 300 sqm must provide rainwater harvesting per NBC 2016 and most state building by-laws. Percolation pits or tank recharge recommended.`,
+    },
+    {
+      status: giViolation ? 'violation' : 'pass',
+      clause: 'IS 1239:2004 / IS 1742:1983 — GI Pipe Restriction',
+      description: giViolation
+        ? `GI (Galvanised Iron) pipes are NOT recommended for potable water supply — corrosion and scaling degrade water quality over 10-15 years. Replace with CPVC or uPVC per IS 15778:2007.`
+        : `No GI pipe issues detected. CPVC / uPVC supply and SWR drainage piping as specified meets IS 15778:2007 and IS 13592:2013 standards.`,
+    },
+  ]
+
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <PageHeader page={3} total={10} title="IS Code Compliance Checklist — Plumbing Phase" />
+        <PageRule />
+        <Text style={[S.eyebrow, { marginBottom: 8 }]}>
+          IS 1172:1993 · IS 1742:1983 · IS 15778:2007 · IS 12701:1989 · IS 3043:2018 · NBC 2016
+        </Text>
+
+        {items.map((item, i) => (
+          <ChecklistRow key={i} item={item} />
+        ))}
+
+        <ChecklistDisclaimer />
+
+        <View style={{ flex: 1 }} />
+      </View>
+    </Page>
+  )
+}
+
 // ─── PAGE 1: COVER ────────────────────────────────────────────────────────────
 
 function CoverPage({ input, result, contact, reportId, projectName, date }: Props) {
@@ -281,7 +428,7 @@ function WaterDemandPage({ input, result }: { input: PlumbInput; result: PlumbRe
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={2} total={9} title="Water Demand Calculation — IS 1172:1993" />
+        <PageHeader page={2} total={10} title="Water Demand Calculation — IS 1172:1993" />
         <PageRule />
 
         <SectionEyebrow>BUILDING DETAILS</SectionEyebrow>
@@ -366,7 +513,7 @@ function WaterSupplyRiserPage({ input, result }: { input: PlumbInput; result: Pl
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={3} total={9} title="Water Supply Riser Diagram — IS 1742:1983" />
+        <PageHeader page={4} total={10} title="Water Supply Riser Diagram — IS 1742:1983" />
         <PageRule />
 
         <Text style={[S.body, { fontSize: 8, marginBottom: 8, color: T.inkA60 }]}>
@@ -455,7 +602,7 @@ function DrainageLayoutPage({ input }: { input: PlumbInput; result: PlumbResult 
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={4} total={9} title="Drainage Layout — IS 1742:1983 Slopes" />
+        <PageHeader page={5} total={10} title="Drainage Layout — IS 1742:1983 Slopes" />
         <PageRule />
 
         <Text style={[S.body, { fontSize: 8, marginBottom: 8, color: T.inkA60 }]}>
@@ -545,7 +692,7 @@ function TankPumpPage({ input, result }: { input: PlumbInput; result: PlumbResul
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={5} total={9} title="Tank + Pump Schematic — IS 12701 · IS 1172:1993" />
+        <PageHeader page={6} total={10} title="Tank + Pump Schematic — IS 12701 · IS 1172:1993" />
         <PageRule />
 
         <Svg width="510" height="200" viewBox="0 0 510 200">
@@ -644,7 +791,7 @@ function PipeSchedulePage({ result }: { result: PlumbResult }) {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={6} total={9} title="Pipe Schedule — IS 1742:1983 · IS 15778:2007" />
+        <PageHeader page={7} total={10} title="Pipe Schedule — IS 1742:1983 · IS 15778:2007" />
         <PageRule />
 
         <SectionEyebrow>PIPE SCHEDULE — LOCKED DIAMETERS (IS 1742:1983)</SectionEyebrow>
@@ -733,7 +880,7 @@ function FixtureSchedulePage({ result }: { result: PlumbResult }) {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={7} total={9} title="Fixture Schedule — IS 771 · IS 2548 · IS 1795" />
+        <PageHeader page={8} total={10} title="Fixture Schedule — IS 771 · IS 2548 · IS 1795" />
         <PageRule />
 
         <SectionEyebrow>SANITARY FIXTURE SCHEDULE</SectionEyebrow>
@@ -862,7 +1009,7 @@ function QualityChecklistPage() {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={8} total={9} title="Site Quality Control Checklist — Plumbing" />
+        <PageHeader page={9} total={10} title="Site Quality Control Checklist — Plumbing" />
         <PageRule />
 
         <Text style={[S.body, { fontSize: 8, marginBottom: 8, color: T.inkA60 }]}>
@@ -933,7 +1080,7 @@ function CostSummaryPage({ result, reportId }: { result: PlumbResult; reportId: 
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={9} total={9} title="Cost Summary + InteriorPro Cross-sell" />
+        <PageHeader page={10} total={10} title="Cost Summary + InteriorPro Cross-sell" />
         <PageRule />
 
         <SectionEyebrow>COST SUMMARY — BASIC / STANDARD / PREMIUM</SectionEyebrow>
@@ -1029,6 +1176,7 @@ export default function PlumbProPDF(props: Props) {
     <Document title={`PlumbPro Report — ${props.reportId}`} author="NirmanShastra">
       <CoverPage {...props} />
       <WaterDemandPage    input={props.input} result={props.result} />
+      <ISCodeChecklistPage {...props} />
       <WaterSupplyRiserPage input={props.input} result={props.result} />
       <DrainageLayoutPage input={props.input} result={props.result} />
       <TankPumpPage       input={props.input} result={props.result} />

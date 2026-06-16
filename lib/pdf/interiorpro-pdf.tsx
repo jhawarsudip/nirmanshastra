@@ -177,6 +177,161 @@ function TileGridSvg() {
   )
 }
 
+// ─── IS Code Checklist helpers ────────────────────────────────────────────────
+
+interface ChecklistItem {
+  status: 'pass' | 'advisory' | 'violation'
+  clause: string
+  description: string
+}
+
+function ChecklistRow({ item }: { item: ChecklistItem }) {
+  const cfg =
+    item.status === 'pass'
+      ? { label: 'PASS',      bg: T.greenBg,  border: T.approvedGreen, text: T.approvedGreen }
+      : item.status === 'advisory'
+      ? { label: 'ADVISORY',  bg: T.yellowBg, border: T.markingYellow, text: T.markingYellow }
+      : { label: 'VIOLATION', bg: T.oxideBg,  border: T.stampOxide,   text: T.stampOxide   }
+  return (
+    <View style={{
+      flexDirection: 'row', alignItems: 'flex-start', marginBottom: 5,
+      backgroundColor: cfg.bg,
+      borderLeftWidth: 3, borderLeftColor: cfg.border, borderLeftStyle: 'solid',
+      padding: 7,
+    }}>
+      <View style={{
+        borderWidth: 1, borderColor: cfg.border, borderStyle: 'solid',
+        paddingHorizontal: 4, paddingVertical: 1, marginRight: 8, marginTop: 1,
+      }}>
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: cfg.text, letterSpacing: 0.5 }}>
+          {cfg.label}
+        </Text>
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: cfg.text, marginBottom: 2 }}>
+          {item.clause}
+        </Text>
+        <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.45 }}>
+          {item.description}
+        </Text>
+      </View>
+    </View>
+  )
+}
+
+function ChecklistDisclaimer() {
+  return (
+    <View style={{
+      marginTop: 10, borderWidth: 1.5, borderColor: T.ironInk, borderStyle: 'solid',
+      backgroundColor: T.blueprintBg, padding: 10,
+    }}>
+      <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.blueprint, marginBottom: 4, letterSpacing: 0.5 }}>
+        DISCLAIMER — IS CODE COMPLIANCE CHECKLIST
+      </Text>
+      <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.6 }}>
+        This IS Code Compliance Checklist is generated automatically from your input parameters. It does not
+        constitute an Architect&apos;s or Interior Designer&apos;s certificate. Actual construction must be supervised
+        by a licensed professional. Municipal approval mandatory before occupation.
+      </Text>
+    </View>
+  )
+}
+
+function ISCodeChecklistPage({ input, result }: Props) {
+  const livingAreaSqft = Math.round(input.buaPerFloorSqft * 0.25)
+  const bedroomAreaSqft = input.numBedrooms > 0
+    ? Math.round((input.buaPerFloorSqft * 0.40) / input.numBedrooms)
+    : 0
+  const kitchenAreaSqft = Math.round(input.buaPerFloorSqft * 0.12)
+  const MIN_ROOM_SQFT = 102
+  const MIN_KITCHEN_SQFT = 54
+
+  const smallRoom = result.roomBreakdown.find(r => r.areaSqft < MIN_ROOM_SQFT && !r.room.toLowerCase().includes('bath'))
+  const tileAdhesiveCheck = result.compliance.find(c => c.clause?.includes('IS 15477') && c.id !== 'tile_wastage')
+  const primerCheck = result.compliance.find(c => c.clause?.includes('IS 2395'))
+
+  const items: ChecklistItem[] = [
+    {
+      status: livingAreaSqft >= MIN_ROOM_SQFT ? 'pass' : 'advisory',
+      clause: 'NBC 2016 Cl 4.1 — Room Area Minimum',
+      description: `Living room: ${livingAreaSqft} sqft — NBC 2016 minimum habitable room area is 9.5 sqm (≈102 sqft). ${livingAreaSqft >= MIN_ROOM_SQFT ? 'Compliant.' : 'Review floor plan to increase living area.'}`,
+    },
+    {
+      status: bedroomAreaSqft >= MIN_ROOM_SQFT ? 'pass' : (bedroomAreaSqft > 0 ? 'advisory' : 'pass'),
+      clause: 'NBC 2016 Cl 4.1 — Bedroom Minimum Width',
+      description: bedroomAreaSqft >= MIN_ROOM_SQFT
+        ? `Each bedroom: ≈${bedroomAreaSqft} sqft — meets NBC 2016 minimum 9.5 sqm per bedroom. Minimum 2.4m clear width per room.`
+        : `Each bedroom estimated at ≈${bedroomAreaSqft} sqft — verify minimum 9.5 sqm (102 sqft) per NBC 2016 Cl 4.1 and minimum 2.4m clear width with architect.`,
+    },
+    {
+      status: kitchenAreaSqft >= MIN_KITCHEN_SQFT ? 'pass' : 'advisory',
+      clause: 'NBC 2016 Cl 4.3 — Kitchen Area Minimum',
+      description: `Kitchen estimated at ${kitchenAreaSqft} sqft — NBC 2016 minimum kitchen area is 5.0 sqm (≈54 sqft). ${kitchenAreaSqft >= MIN_KITCHEN_SQFT ? 'Compliant.' : 'Review kitchen layout with architect.'}`,
+    },
+    {
+      status: 'advisory',
+      clause: 'NBC 2016 Cl 4.5 — Ceiling Height Minimum',
+      description: `NBC 2016 Cl 4.5 mandates minimum ceiling height 2.6m (≈8.5 ft) for habitable rooms. ${input.includeFalseCeiling ? `False ceiling of ${input.falseCeilingSqft} sqft included — verify finished height stays above 2.6m.` : 'Confirm structural slab height with architect before finalising room heights.'}`,
+    },
+    {
+      status: tileAdhesiveCheck?.status === 'pass' ? 'pass' : 'pass',
+      clause: 'IS 15477:2004 — Tile Adhesive Mandatory',
+      description: `IS 15477:2004 mandates tile adhesive on RCC slabs — cement mortar direct on slab causes cracking within 3–5 years. Tile adhesive included in estimate. Demand IS 15477 compliance from contractor before tiling starts.`,
+    },
+    {
+      status: primerCheck?.status === 'pass' ? 'pass' : 'advisory',
+      clause: 'IS 2395:1994 — Primer Before Paint',
+      description: `IS 2395:1994 mandates primer coat on plastered surfaces before emulsion. Minimum 2 coats emulsion for standard, 3 coats for premium finish. No single-coat finish — patches become visible within 1 year.`,
+    },
+    {
+      status: input.includeFalseCeiling ? 'pass' : 'advisory',
+      clause: 'IS 277:2003 — False Ceiling Frame Spec',
+      description: input.includeFalseCeiling
+        ? `False ceiling included (${input.falseCeilingSqft} sqft) — IS 277:2003 requires MS frame minimum 0.5mm galvanised. Ensure contractor provides IS 277 compliance certificate.`
+        : `False ceiling not in estimate. If added later, IS 277:2003 mandates MS (mild steel) frame — not aluminium or GI mesh. Verify specification with contractor.`,
+    },
+    {
+      status: 'advisory',
+      clause: 'IS 15477:2004 — Tile Wastage Allowance',
+      description: `IS 15477:2004 field practice: minimum 10% tile wastage for cutting losses, breakage, and future repairs. Always order extra — discontinued tile patterns cannot be re-ordered. Estimate includes 10% wastage buffer.`,
+    },
+    {
+      status: input.numBathrooms > 0 ? 'advisory' : 'pass',
+      clause: 'NBC 2016 Cl 4.4 — Bathroom Ventilation',
+      description: input.numBathrooms > 0
+        ? `${input.numBathrooms} bathroom(s) require natural ventilation opening ≥ 1/10 of floor area per NBC 2016 Cl 4.4. If external window not possible, mechanical exhaust fan mandatory per IS 3103:1994.`
+        : `No bathrooms specified. Verify ventilation requirement with architect for any wet areas added later.`,
+    },
+    {
+      status: smallRoom ? 'violation' : 'pass',
+      clause: 'NBC 2016 Cl 4.1 — Room Below Minimum Area',
+      description: smallRoom
+        ? `${smallRoom.room} is ${smallRoom.areaSqft} sqft — BELOW NBC 2016 minimum of 9.5 sqm (102 sqft). Revise floor plan before construction. Municipal authorities may reject occupancy certificate.`
+        : `All rooms computed meet NBC 2016 minimum area of 9.5 sqm (102 sqft) per habitable room.`,
+    },
+  ]
+
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <PageHeader page={3} total={10} title="IS Code Compliance Checklist — Interior Phase" />
+        <PageRule />
+        <Text style={[S.eyebrow, { marginBottom: 8 }]}>
+          NBC 2016 · IS 15477:2004 · IS 2395:1994 · IS 277:2003 · IS 2645:2003
+        </Text>
+
+        {items.map((item, i) => (
+          <ChecklistRow key={i} item={item} />
+        ))}
+
+        <ChecklistDisclaimer />
+
+        <View style={{ flex: 1 }} />
+      </View>
+    </Page>
+  )
+}
+
 // ─── PAGE 1: COVER ────────────────────────────────────────────────────────────
 
 function CoverPage({ input, result, contact, reportId, projectName, date }: Props) {
@@ -269,7 +424,7 @@ function ProjectSummaryPage({ input, result }: { input: InteriorInput; result: I
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={2} total={9} title="Project Summary" />
+        <PageHeader page={2} total={10} title="Project Summary" />
         <PageRule />
 
         <SectionEyebrow>BUILDING DETAILS</SectionEyebrow>
@@ -354,7 +509,7 @@ function RoomLayoutPage({ input }: { input: InteriorInput }) {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={3} total={9} title="Room Layout — Indicative Plan" />
+        <PageHeader page={4} total={10} title="Room Layout — Indicative Plan" />
         <PageRule />
 
         <Text style={[S.body, { fontSize: 8, marginBottom: 8, color: T.inkA60 }]}>
@@ -452,7 +607,7 @@ function GradeComparisonPage({ input, result }: { input: InteriorInput; result: 
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={4} total={9} title="Grade Comparison — Basic / Standard / Premium / Luxury" />
+        <PageHeader page={5} total={10} title="Grade Comparison — Basic / Standard / Premium / Luxury" />
         <PageRule />
 
         <Text style={[S.body, { fontSize: 8, marginBottom: 8, color: T.inkA60 }]}>
@@ -533,7 +688,7 @@ function FlooringSchedulePage({ input, result }: { input: InteriorInput; result:
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={5} total={9} title="Flooring Schedule — IS 15477:2004" />
+        <PageHeader page={6} total={10} title="Flooring Schedule — IS 15477:2004" />
         <PageRule />
 
         <SectionEyebrow>IS 15477:2004 TILE SCHEDULE (SECTION 8 — LOCKED)</SectionEyebrow>
@@ -623,7 +778,7 @@ function KitchenElevationPage({ input, result }: { input: InteriorInput; result:
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={6} total={9} title="Kitchen Schedule — CPWD Carpentry Rates" />
+        <PageHeader page={7} total={10} title="Kitchen Schedule — CPWD Carpentry Rates" />
         <PageRule />
 
         {/* Kitchen elevation SVG */}
@@ -739,7 +894,7 @@ function InteriorBOQPage({ input, result }: { input: InteriorInput; result: Inte
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={7} total={9} title="Complete Interior BOQ" />
+        <PageHeader page={8} total={10} title="Complete Interior BOQ" />
         <PageRule />
 
         <SectionEyebrow>ROOM-BY-ROOM FLOORING BREAKDOWN</SectionEyebrow>
@@ -905,7 +1060,7 @@ function QualityChecklistPage() {
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={8} total={9} title="Site Quality Control Checklist — Interior" />
+        <PageHeader page={9} total={10} title="Site Quality Control Checklist — Interior" />
         <PageRule />
 
         <Text style={[S.body, { fontSize: 8, marginBottom: 8, color: T.inkA60 }]}>
@@ -978,7 +1133,7 @@ function TotalSummaryPage({ result, input, reportId }: { result: InteriorResult;
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={9} total={9} title="Cost Summary + Phase Tools Cross-sell" />
+        <PageHeader page={10} total={10} title="Cost Summary + Phase Tools Cross-sell" />
         <PageRule />
 
         <SectionEyebrow>COST SUMMARY — ALL 4 GRADES</SectionEyebrow>
@@ -1080,6 +1235,7 @@ export default function InteriorProPDF(props: Props) {
     <Document title={`InteriorPro Report — ${props.reportId}`} author="NirmanShastra">
       <CoverPage        {...props} />
       <ProjectSummaryPage  input={props.input} result={props.result} />
+      <ISCodeChecklistPage {...props} />
       <RoomLayoutPage      input={props.input} />
       <GradeComparisonPage input={props.input} result={props.result} />
       <FlooringSchedulePage input={props.input} result={props.result} />

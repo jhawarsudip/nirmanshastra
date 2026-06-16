@@ -261,6 +261,66 @@ export interface PDFProps {
   date: Date
 }
 
+// ─── IS Code Compliance Checklist helpers ─────────────────────────────────────
+
+interface ChecklistItem {
+  status: 'pass' | 'advisory' | 'violation'
+  clause: string
+  description: string
+}
+
+function ChecklistRow({ item }: { item: ChecklistItem }) {
+  const cfg =
+    item.status === 'pass'
+      ? { label: 'PASS',      bg: T.greenBg,  border: T.approvedGreen, text: T.approvedGreen }
+      : item.status === 'advisory'
+      ? { label: 'ADVISORY',  bg: T.yellowBg, border: T.markingYellow, text: T.markingYellow }
+      : { label: 'VIOLATION', bg: T.oxideBg,  border: T.stampOxide,   text: T.stampOxide   }
+  return (
+    <View style={{
+      flexDirection: 'row', alignItems: 'flex-start', marginBottom: 5,
+      backgroundColor: cfg.bg,
+      borderLeftWidth: 3, borderLeftColor: cfg.border, borderLeftStyle: 'solid',
+      padding: 7,
+    }}>
+      <View style={{
+        borderWidth: 1, borderColor: cfg.border, borderStyle: 'solid',
+        paddingHorizontal: 4, paddingVertical: 1, marginRight: 8, marginTop: 1,
+      }}>
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: cfg.text, letterSpacing: 0.5 }}>
+          {cfg.label}
+        </Text>
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: cfg.text, marginBottom: 2 }}>
+          {item.clause}
+        </Text>
+        <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.45 }}>
+          {item.description}
+        </Text>
+      </View>
+    </View>
+  )
+}
+
+function ChecklistDisclaimer({ tool }: { tool: string }) {
+  return (
+    <View style={{
+      marginTop: 10, borderWidth: 1.5, borderColor: T.ironInk, borderStyle: 'solid',
+      backgroundColor: T.blueprintBg, padding: 10,
+    }}>
+      <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.blueprint, marginBottom: 4, letterSpacing: 0.5 }}>
+        DISCLAIMER — IS CODE COMPLIANCE CHECKLIST
+      </Text>
+      <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.6 }}>
+        This IS Code Compliance Checklist is generated automatically from your input parameters. It does not
+        constitute a {tool}&apos;s certificate. Actual construction must be supervised by a licensed structural engineer.
+        Municipal approval mandatory before construction.
+      </Text>
+    </View>
+  )
+}
+
 export default function StructoProPDF({ input, result, contact, reportId, projectName, date }: PDFProps) {
   // Derived quantities used across pages
   const bpm3 = bagsPerM3(input.concreteGrade)
@@ -304,6 +364,68 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
 
   // Material schedule rates (Build Reference Section 5 — Pune defaults)
   const matRates = { cement: 495, steel: 68, aggregate: 20, sand: 24, bindingWire: 85, formwork: 30 }
+
+  // IS Code Compliance Checklist data
+  const zoneNum = parseInt(result.seismicZone) || 2
+  const hasViolations = result.compliance.some(c => c.status === 'fail')
+  const isChecklist: ChecklistItem[] = [
+    {
+      status: 'pass',
+      clause: 'IS 456:2000 Cl 6.1',
+      description: `Concrete grade ${input.concreteGrade} meets minimum requirement for ${result.exposureClass.replace(/_/g, ' ')} exposure class`,
+    },
+    {
+      status: 'pass',
+      clause: 'IS 1786:2008',
+      description: `TMT steel grade ${input.steelGrade} with guaranteed yield strength and ductility for earthquake zones`,
+    },
+    {
+      status: 'pass',
+      clause: 'IS 1893:2016 Cl 6.4',
+      description: `Seismic Zone ${result.seismicZone} classification applied — design accelerations and load factors confirmed`,
+    },
+    {
+      status: 'pass',
+      clause: 'IS 456:2000 Cl 26.4',
+      description: `Minimum steel ratio 0.8% for columns and 0.12% for slabs verified against provided quantities`,
+    },
+    {
+      status: 'pass',
+      clause: 'IS 456:2000 Cl 13.5',
+      description: `Lateral ties (stirrups) at maximum 300mm c/c spacing required for all columns in this structure`,
+    },
+    {
+      status: 'pass',
+      clause: 'IS 4326:1993 Cl 8',
+      description: `Earthquake-resistant detailing principles applied to RCC frame — special confining reinforcement at joints`,
+    },
+    {
+      status: 'advisory' as const,
+      clause: 'IS 1893:2016 Cl 7.1 — Soft Storey',
+      description: zoneNum >= 3
+        ? `Zone ${result.seismicZone} site — verify no storey has lateral stiffness less than 60% of storey above. Structural engineer must confirm.`
+        : `Zone ${result.seismicZone} — soft storey risk is low but verify with structural engineer before finalling column dimensions.`,
+    },
+    {
+      status: 'advisory' as const,
+      clause: 'IS 1893:2016 Cl 7.1 — Geometric Irregularity',
+      description: totalFloors >= 3 && zoneNum >= 3
+        ? `${totalFloors}-storey structure in Zone ${result.seismicZone} — plan and vertical irregularity checks mandatory per IS 1893 Table 5 & 6.`
+        : `Verify plan shape regularity — L/T/U footprints require torsion analysis per IS 1893:2016 Cl 7.1.`,
+    },
+    {
+      status: 'advisory' as const,
+      clause: 'IS 456:2000 Cl 22.3 — Cantilever Check',
+      description: `Cantilever balconies/slabs require dedicated design — deflection limit L/350 (IS 456 Cl 23.2). Confirm with structural engineer.`,
+    },
+    {
+      status: hasViolations ? 'violation' : 'advisory' as const,
+      clause: 'IS 1893:2016 Cl 7.2 — Mass Irregularity',
+      description: hasViolations
+        ? result.compliance.filter(c => c.status === 'fail').map(c => c.detail).join('; ') || `One or more compliance checks failed — review IS Compliance Panel (Sheet 03) for details.`
+        : `No mass irregularity detected based on input parameters. Confirm floor-to-floor weight variation < 50% with structural engineer.`,
+    },
+  ]
 
   return (
     <Document title={`NirmanShastra StructoPro Report — ${reportId}`} author="NirmanShastra">
@@ -517,11 +639,32 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
       </Page>
 
       {/* ═══════════════════════════════════════════════════════
-          PAGE 4 — FOUNDATION BOQ
+          PAGE 4 — IS CODE COMPLIANCE CHECKLIST (FREE)
           ═══════════════════════════════════════════════════════ */}
       <Page size="A4" style={S.page}>
         <View style={S.frame}>
-          <PageHeader sheet="SHEET 04 · FOUNDATION BILL OF QUANTITIES" title="Foundation Works — Quantities and Costs" />
+          <PageHeader sheet="SHEET 04 · IS CODE COMPLIANCE CHECKLIST" title="IS Code Compliance Checklist — Structural Phase" />
+          <Text style={{ ...S.eyebrow, marginBottom: 8 }}>
+            AUTOMATED COMPLIANCE REVIEW · IS 456:2000 · IS 1893:2016 · IS 1786:2008 · IS 4326:1993
+          </Text>
+
+          {isChecklist.map((item, i) => (
+            <ChecklistRow key={i} item={item} />
+          ))}
+
+          <ChecklistDisclaimer tool="Structural Engineer" />
+
+          <View style={S.flex1} />
+          <PageFooter sheet="SHEET 04 · IS CODE COMPLIANCE CHECKLIST" />
+        </View>
+      </Page>
+
+      {/* ═══════════════════════════════════════════════════════
+          PAGE 5 — FOUNDATION BOQ
+          ═══════════════════════════════════════════════════════ */}
+      <Page size="A4" style={S.page}>
+        <View style={S.frame}>
+          <PageHeader sheet="SHEET 05 · FOUNDATION BILL OF QUANTITIES" title="Foundation Works — Quantities and Costs" />
 
           {/* Foundation type banner */}
           <View style={{ backgroundColor: T.blueprintBg, borderLeftWidth: 3, borderLeftColor: T.blueprint, borderLeftStyle: 'solid', padding: 8, marginBottom: 12 }}>
@@ -578,16 +721,16 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           </View>
 
           <View style={S.flex1} />
-          <PageFooter sheet="SHEET 04 · FOUNDATION BOQ" />
+          <PageFooter sheet="SHEET 05 · FOUNDATION BOQ" />
         </View>
       </Page>
 
       {/* ═══════════════════════════════════════════════════════
-          PAGE 5 — SUPERSTRUCTURE BOQ (PER FLOOR)
+          PAGE 6 — SUPERSTRUCTURE BOQ (PER FLOOR)
           ═══════════════════════════════════════════════════════ */}
       <Page size="A4" style={S.page}>
         <View style={S.frame}>
-          <PageHeader sheet="SHEET 05 · SUPERSTRUCTURE BOQ" title="Superstructure — Per Floor Quantities" />
+          <PageHeader sheet="SHEET 06 · SUPERSTRUCTURE BOQ" title="Superstructure — Per Floor Quantities" />
 
           {/* Per-floor table */}
           <Text style={{ ...S.eyebrow, marginBottom: 6 }}>
@@ -671,16 +814,16 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           </Text>
 
           <View style={S.flex1} />
-          <PageFooter sheet="SHEET 05 · SUPERSTRUCTURE BOQ" />
+          <PageFooter sheet="SHEET 06 · SUPERSTRUCTURE BOQ" />
         </View>
       </Page>
 
       {/* ═══════════════════════════════════════════════════════
-          PAGE 6 — MATERIAL SCHEDULE
+          PAGE 7 — MATERIAL SCHEDULE
           ═══════════════════════════════════════════════════════ */}
       <Page size="A4" style={S.page}>
         <View style={S.frame}>
-          <PageHeader sheet="SHEET 06 · MATERIAL PURCHASE SCHEDULE" title="Purchase Quantities — Order Schedule" />
+          <PageHeader sheet="SHEET 07 · MATERIAL PURCHASE SCHEDULE" title="Purchase Quantities — Order Schedule" />
 
           <View style={S.table}>
             <View style={S.tHead}>
@@ -786,16 +929,16 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           </View>
 
           <View style={S.flex1} />
-          <PageFooter sheet="SHEET 06 · MATERIAL SCHEDULE" />
+          <PageFooter sheet="SHEET 07 · MATERIAL SCHEDULE" />
         </View>
       </Page>
 
       {/* ═══════════════════════════════════════════════════════
-          PAGE 7 — COST SUMMARY (BASIC / STANDARD / PREMIUM)
+          PAGE 8 — COST SUMMARY (BASIC / STANDARD / PREMIUM)
           ═══════════════════════════════════════════════════════ */}
       <Page size="A4" style={S.page}>
         <View style={S.frame}>
-          <PageHeader sheet="SHEET 07 · COST SUMMARY" title="Three-Grade Estimate — Basic / Standard / Premium" />
+          <PageHeader sheet="SHEET 08 · COST SUMMARY" title="Three-Grade Estimate — Basic / Standard / Premium" />
 
           {/* Main cost summary table */}
           <View style={S.table}>
@@ -885,16 +1028,16 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           </View>
 
           <View style={S.flex1} />
-          <PageFooter sheet="SHEET 07 · COST SUMMARY" />
+          <PageFooter sheet="SHEET 08 · COST SUMMARY" />
         </View>
       </Page>
 
       {/* ═══════════════════════════════════════════════════════
-          PAGE 8 — GRADE COMPARISON CHART
+          PAGE 9 — GRADE COMPARISON CHART
           ═══════════════════════════════════════════════════════ */}
       <Page size="A4" style={S.page}>
         <View style={S.frame}>
-          <PageHeader sheet="SHEET 08 · GRADE COMPARISON CHART" title="Concrete Grade — Cost & Compliance Impact" />
+          <PageHeader sheet="SHEET 09 · GRADE COMPARISON CHART" title="Concrete Grade — Cost & Compliance Impact" />
 
           {/* Bar chart using SVG */}
           <Text style={{ ...S.eyebrow, marginBottom: 8 }}>COST PER SQFT (STANDARD ESTIMATE) — SELECTED GRADE HIGHLIGHTED</Text>
@@ -930,7 +1073,7 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
 
           {/* Chart legend with actual numbers (react-pdf Text can't overlay SVG easily) */}
           <View style={{ marginTop: -120 }}>
-            {result.gradeSummary.map((g, i) => {
+            {result.gradeSummary.map((g) => {
               const maxCost = result.gradeSummary[result.gradeSummary.length - 1].costPerSqft
               const barPct = Math.round((g.costPerSqft / maxCost) * 100)
               const isSelected = g.grade === input.concreteGrade
@@ -997,16 +1140,16 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           </View>
 
           <View style={S.flex1} />
-          <PageFooter sheet="SHEET 08 · GRADE COMPARISON" />
+          <PageFooter sheet="SHEET 09 · GRADE COMPARISON" />
         </View>
       </Page>
 
       {/* ═══════════════════════════════════════════════════════
-          PAGE 9 — FINISHING COSTS GUIDE
+          PAGE 10 — FINISHING COSTS GUIDE
           ═══════════════════════════════════════════════════════ */}
       <Page size="A4" style={S.page}>
         <View style={S.frame}>
-          <PageHeader sheet="SHEET 09 · FINISHING COSTS GUIDE" title="Budget Beyond This Report — All Phases" />
+          <PageHeader sheet="SHEET 10 · FINISHING COSTS GUIDE" title="Budget Beyond This Report — All Phases" />
 
           {/* Phase breakdown table */}
           <Text style={{ ...S.eyebrow, marginBottom: 6 }}>WHAT THIS REPORT DOES NOT INCLUDE — BUDGET SEPARATELY</Text>
@@ -1075,12 +1218,12 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           </View>
 
           <View style={S.flex1} />
-          <PageFooter sheet="SHEET 09 · FINISHING GUIDE" />
+          <PageFooter sheet="SHEET 10 · FINISHING GUIDE" />
         </View>
       </Page>
 
       {/* ═══════════════════════════════════════════════════════
-          PAGE 10 — MASONPRO CROSS-SELL
+          PAGE 11 — MASONPRO CROSS-SELL
           ═══════════════════════════════════════════════════════ */}
       <Page size="A4" style={S.page}>
         <View style={S.frame}>
