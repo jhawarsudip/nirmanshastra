@@ -612,7 +612,7 @@ export function runCalculation(input: MasonInput): MasonResult {
   const parapetThickness = input.parapetThicknessMm ?? 115
   const parapetSpec = parapetThickness >= 200
     ? extSpec
-    : (INTERNAL_WALL_SPECS[extWallType.startsWith('flyash') ? 'flyash_4_5' : extWallType.startsWith('aac') ? 'aac_100' : 'clay_4_5'])
+    : (INTERNAL_WALL_SPECS[externalWallType.startsWith('flyash') ? 'flyash_4_5' : externalWallType.startsWith('aac') ? 'aac_100' : 'clay_4_5'])
   const parapetBricksOrBlocks   = parapetAreaSqm > 0 ? Math.round(parapetSpec.unitsPerSqm * parapetAreaSqm) : 0
   const parapetCementBags       = parapetAreaSqm > 0 ? Math.round(parapetSpec.cementBagsPerSqm * parapetAreaSqm * 10) / 10 : 0
   const parapetSandCft          = parapetAreaSqm > 0 ? Math.round(parapetSpec.sandCftPerSqm   * parapetAreaSqm * 10) / 10 : 0
@@ -625,7 +625,8 @@ export function runCalculation(input: MasonInput): MasonResult {
   // ── Compound wall brickwork ───────────────────────────────────────────────
   const compoundAreaSqm = input.compoundWallAreaSqm ?? 0
   const compoundThickness = input.compoundThicknessMm ?? 230
-  const compoundSpecMultiplier = compoundThickness >= 340 ? 1.5 : 1.0
+  // 230mm (9" full brick) = 1.0×, 115mm (4.5" one brick) = 0.5× per IS 2212:1991
+  const compoundSpecMultiplier = compoundThickness <= 115 ? 0.5 : 1.0
   const compoundBricksOrBlocks = compoundAreaSqm > 0
     ? Math.round(extSpec.unitsPerSqm * compoundSpecMultiplier * compoundAreaSqm) : 0
   const compoundCementBags = compoundAreaSqm > 0
@@ -740,7 +741,7 @@ export function runCalculation(input: MasonInput): MasonResult {
 
   // ── New material costs ────────────────────────────────────────────────────
   const parapetBrickMat  = parapetBricksOrBlocks * unitRateForType(externalWallType)
-  const parapetCemCost   = parapetCementBags * (extWallType.startsWith('aac') ? DEFAULT_RATES.aacAdhesive : DEFAULT_RATES.cement)
+  const parapetCemCost   = parapetCementBags * (externalWallType.startsWith('aac') ? DEFAULT_RATES.aacAdhesive : DEFAULT_RATES.cement)
   const parapetSandCost  = parapetSandCft * DEFAULT_RATES.sand
   const parapetMat       = Math.round(parapetBrickMat + parapetCemCost + parapetSandCost)
 
