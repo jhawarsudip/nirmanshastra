@@ -234,6 +234,7 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
   const [brickClass, setBrickClass]       = useState<BrickClass>('7.5')
   const [showRates, setShowRates]         = useState(false)
   const [rates, setRates]                 = useState({ ...INDIA_AVG_RATES })
+  const [subStep, setSubStep] = useState<'3a' | '3b' | '3c'>('3a')
 
   // Contractor + Labour
   const [contractorName, setCtName]       = useState('')
@@ -484,6 +485,34 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
 
       <div className="px-6 md:px-10 pt-6 space-y-6">
 
+        {/* Progress Indicator */}
+        <div className="flex items-center flex-wrap gap-x-0.5 gap-y-2 pb-4 overflow-x-auto" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+          {([
+            { label: '1 REG',        done: true,                                 active: false },
+            { label: '2 METHOD',     done: true,                                 active: false },
+            { label: '3a STRUCTURE', done: subStep === '3b' || subStep === '3c', active: subStep === '3a' },
+            { label: '3b MATERIALS', done: subStep === '3c',                     active: subStep === '3b' },
+            { label: '3c LABOUR',    done: false,                                active: subStep === '3c' },
+            { label: '4 RESULTS',    done: false,                                active: false },
+          ] as { label: string; done: boolean; active: boolean }[]).map((step, i, arr) => (
+            <div key={step.label} className="flex items-center">
+              <span className="text-[10px] px-2 py-0.5 rounded-[2px]" style={{
+                fontFamily: 'var(--font-plex-mono)',
+                background: step.active ? '#1F4E79' : step.done ? 'rgba(20,83,45,0.08)' : 'rgba(30,34,39,0.05)',
+                color: step.active ? '#fff' : step.done ? '#14532D' : 'rgba(30,34,39,0.35)',
+                border: `1px solid ${step.active ? 'transparent' : step.done ? 'rgba(20,83,45,0.2)' : 'rgba(30,34,39,0.12)'}`,
+                whiteSpace: 'nowrap',
+              }}>
+                {step.done ? '✓ ' : ''}{step.label}
+              </span>
+              {i < arr.length - 1 && (
+                <span style={{ color: 'rgba(30,34,39,0.25)', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '0 3px' }}>—</span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {subStep === '3a' && (<>
         {/* Location chip */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[2px]"
           style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)' }}>
@@ -1454,74 +1483,71 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
           )}
         </div>
 
-        {/* ── ADVANCED: MATERIAL RATES ──────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <button type="button" onClick={() => setShowRates(v => !v)}
-            className="w-full px-4 py-3 flex items-center justify-between">
-            <div>
-              <p className="text-[11px] uppercase tracking-widest text-left"
-                style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                ADVANCED — MATERIAL RATES
-              </p>
-              {!showRates && (
-                <p className="text-[11px] text-left mt-0.5" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
-                  ✓ India Average 2026 · Edit if you have local quotes
-                </p>
-              )}
-            </div>
-            <span style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{showRates ? '▲' : '▼'}</span>
-          </button>
-          {showRates && (
-            <div className="px-4 pb-4 space-y-3" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <div className="pt-3 space-y-2">
-                <AlertBox variant="tip">
-                  <strong>India Average 2026</strong> rates pre-loaded. Get 3 supplier quotes before finalising — brick rates vary 30–40% across states.
-                </AlertBox>
-                <AlertBox variant="caution">
-                  Contractor-supplied brick is typically 10–20% above market. Always ask for supply bill separately.
-                </AlertBox>
-              </div>
-              {([
-                ['clayBrick',   'Clay modular brick',     '₹/1000', 9500],
-                ['flyAshBrick', 'Fly ash brick',          '₹/1000', 7000],
-                ['aacBlock',    'AAC block',              '₹/cft',     55],
-                ['cement',      'Cement (OPC)',           '₹/bag',    410],
-                ['sand',        'Sand',                   '₹/cft',     28],
-                ['wpCompound',  'Waterproofing compound', '₹/kg',     230],
-              ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
-                <div key={key}>
-                  <div className="flex items-center gap-3">
-                    <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                      <input type="number" value={rates[key]}
-                        onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                        style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
-                      <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                        {unit} · Avg ₹{avg.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  </div>
-                  {MASON_REGIONAL_NOTES[key] && (
-                    <p className="text-[11px] mt-0.5 ml-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
-                      {MASON_REGIONAL_NOTES[key]}
-                    </p>
-                  )}
-                </div>
-              ))}
-              <button type="button" onClick={() => setRates({ ...INDIA_AVG_RATES })}
-                className="text-[11px] px-3 py-1.5 rounded-[2px] transition-all"
-                style={{ border: '1px solid rgba(30,34,39,0.2)', color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)', background: 'transparent' }}>
-                Reset to India Average
-              </button>
-            </div>
-          )}
-        </div>
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button type="button" onClick={() => setSubStep('3b')}
+              className="flex-1 py-3 rounded-[6px] font-semibold text-[15px]"
+              style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}>
+              Continue to Material Rates →
+            </button>
+          </div>
+        </>)}
 
-        {/* ── 11 CONTRACTOR QUOTE ───────────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <SectionHeader num="12" title="CONTRACTOR QUOTE (OPTIONAL)" />
+        {subStep === '3b' && (<>
+          <div>
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3b · MATERIAL RATES</p>
+            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Enter Your Local Material Rates</h3>
+          </div>
+          <div className="p-4 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.05)', border: '1px solid rgba(31,78,121,0.2)' }}>
+            <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              <strong>Why local rates matter:</strong> We calculate exact quantities using IS codes — quantities are universal. But material prices vary by 20–40% between cities. Enter your local rates to get an accurate cost estimate for your location.
+            </p>
+          </div>
+          <AlertBox variant="tip">
+            <strong>India Average 2026</strong> rates pre-loaded. Get 3 supplier quotes before finalising — brick rates vary 30–40% across states.
+          </AlertBox>
+          <AlertBox variant="caution">
+            Contractor-supplied brick is typically 10–20% above market. Always ask for supply bill separately.
+          </AlertBox>
+          <div className="space-y-3">
+            {([
+              ['clayBrick',   'Clay modular brick',     '₹/1000', 9500],
+              ['flyAshBrick', 'Fly ash brick',          '₹/1000', 7000],
+              ['aacBlock',    'AAC block',              '₹/cft',     55],
+              ['cement',      'Cement (OPC)',           '₹/bag',    410],
+              ['sand',        'Sand',                   '₹/cft',     28],
+              ['wpCompound',  'Waterproofing compound', '₹/kg',     230],
+            ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
+              <div key={key} className="p-3 rounded-[2px] border" style={{ borderColor: 'rgba(30,34,39,0.15)', background: '#fff' }}>
+                <div className="flex items-center gap-3">
+                  <label className="text-[13px] flex-1 font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                    <input type="number" value={rates[key]}
+                      onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
+                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                      {unit} · India Avg ₹{avg.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+                {MASON_REGIONAL_NOTES[key] && (
+                  <p className="text-[11px] mt-1" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
+                    {MASON_REGIONAL_NOTES[key]}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+          <button type="button" onClick={() => setRates({ ...INDIA_AVG_RATES })}
+            className="text-[11px] px-3 py-1.5 rounded-[2px] transition-all"
+            style={{ border: '1px solid rgba(30,34,39,0.2)', color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)', background: 'transparent' }}>
+            Reset to India Average
+          </button>
+
+          {/* Contractor Quote */}
+          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
+            <SectionHeader num="12" title="CONTRACTOR QUOTE (OPTIONAL)" />
           <div className="p-4 space-y-3">
             <p className="text-[13px]" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
               Have a contractor quote? Enter it to compare after unlocking your report.
@@ -1555,25 +1581,53 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
           </div>
         </div>
 
-        {/* ── ADVANCED: LABOUR ──────────────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" checked={includeLabour} onChange={() => setIncludeLabour(v => !v)}
-                className="w-4 h-4 rounded" style={{ accentColor: '#1F4E79' }} />
-              <div>
-                <p className="text-[11px] uppercase tracking-widest"
-                  style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                  ADVANCED — INCLUDE LABOUR COST
-                </p>
-                <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
-                  Add CPWD-based labour cost to your total
-                </p>
-              </div>
-            </label>
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button type="button" onClick={() => setSubStep('3c')}
+              className="flex-1 py-3 rounded-[6px] font-semibold text-[15px]"
+              style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}>
+              Continue to Labour →
+            </button>
+            <button type="button" onClick={handleSubmit}
+              className="flex-1 py-3 rounded-[6px] font-semibold text-[15px] transition-all"
+              style={{ background: 'transparent', color: '#8C3A22', border: '1.5px solid #8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
+              Skip Labour — Calculate Now →
+            </button>
           </div>
+        </>)}
+
+        {subStep === '3c' && (<>
+          <div>
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3c · LABOUR ESTIMATION</p>
+            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Include Labour Cost? (Optional)</h3>
+          </div>
+          <div className="p-4 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.05)', border: '1px solid rgba(31,78,121,0.2)' }}>
+            <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              Labour costs vary significantly with season (monsoon shutdowns, festival breaks), location, and site conditions. CPWD DSR 2023 rates are government benchmarks — actual rates typically differ by ±20–30%.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setIncludeLabour(true)}
+              className="p-4 rounded-[2px] text-left transition-all"
+              style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+            >
+              <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
+              <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Use CPWD DSR 2023 rates. Edit workers, rates, and productivity per trade. Labour appears only in paid PDF report.</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIncludeLabour(false)}
+              className="p-4 rounded-[2px] text-left transition-all"
+              style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+            >
+              <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Skip — Material Cost Only</p>
+              <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour later from your contractor quote.</p>
+            </button>
+          </div>
+
           {includeLabour && (
-            <div className="p-4 space-y-4">
+            <div className="space-y-4">
               <AlertBox variant="caution">
                 <strong>CPWD DSR 2023 rates.</strong> Curing intervals (IS 2212:1991: minimum 7 days), monsoon shutdowns, festival breaks, sand bans — no software can predict these. Masonry starts 60–90 days after RCC pour.
               </AlertBox>
@@ -1652,14 +1706,13 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
               </button>
             </div>
           )}
-        </div>
 
-        {/* Submit */}
-        <button type="button" onClick={handleSubmit}
-          className="w-full py-3.5 rounded-[6px] text-[14px] font-semibold text-white"
-          style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
-          Calculate My Masonry Cost →
-        </button>
+          <button type="button" onClick={handleSubmit}
+            className="w-full py-3.5 rounded-[6px] text-[14px] font-semibold text-white"
+            style={{ background: '#1F4E79', fontFamily: 'var(--font-plex-sans)' }}>
+            Calculate My Estimate →
+          </button>
+        </>)}
       </div>
     </div>
   )

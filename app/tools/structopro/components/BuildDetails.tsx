@@ -361,6 +361,9 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
   const [ctSteelRate, setCtSteelRate]       = useState('')
   const [ctFormworkRate, setCtFormworkRate] = useState('')
 
+  // Sub-step navigation
+  const [subStep, setSubStep] = useState<'3a' | '3b' | '3c'>('3a')
+
   // S8 — Labour
   const [includeLabour, setIncludeLabour] = useState(false)
   const [trades, setTrades]               = useState<LabourTrade[]>(INITIAL_TRADES)
@@ -495,8 +498,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
     setCustomTrades(prev => [...prev, { id: `ct-${Date.now()}`, name: '', workers: '1', ratePerDay: '', days: '' }])
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  function handleSubmit() {
     const errs: Record<string, string> = {}
     if (!siteCondition) errs.site = 'Select a site condition to continue'
     const buaSqft = parseFloat(groundArea) || 0
@@ -550,12 +552,41 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
   )
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 py-8 px-6 md:px-10">
-      <div className="mb-6">
+    <form onSubmit={e => e.preventDefault()} className="space-y-4 py-8 px-6 md:px-10">
+      <div className="mb-2">
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>P1 · RCC STRUCTURE ESTIMATOR</p>
         <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 32, fontWeight: 700, color: '#1E2227', lineHeight: 1.15 }}>StructoPro — Build Details</h2>
         <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.55)', marginTop: 6 }}>Fill all sections to generate your IS-code verified structural estimate</p>
       </div>
+
+      {/* ── Progress Indicator ─────────────────────────────────────────────────── */}
+      <div className="flex items-center flex-wrap gap-x-0.5 gap-y-2 pb-4 overflow-x-auto" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        {([
+          { label: '1 REG',        done: true,                                 active: false },
+          { label: '2 METHOD',     done: true,                                 active: false },
+          { label: '3a STRUCTURE', done: subStep === '3b' || subStep === '3c', active: subStep === '3a' },
+          { label: '3b MATERIALS', done: subStep === '3c',                     active: subStep === '3b' },
+          { label: '3c LABOUR',    done: false,                                active: subStep === '3c' },
+          { label: '4 RESULTS',    done: false,                                active: false },
+        ] as { label: string; done: boolean; active: boolean }[]).map((step, i, arr) => (
+          <div key={step.label} className="flex items-center">
+            <span className="text-[10px] px-2 py-0.5 rounded-[2px]" style={{
+              fontFamily: 'var(--font-plex-mono)',
+              background: step.active ? '#1F4E79' : step.done ? 'rgba(20,83,45,0.08)' : 'rgba(30,34,39,0.05)',
+              color: step.active ? '#fff' : step.done ? '#14532D' : 'rgba(30,34,39,0.35)',
+              border: `1px solid ${step.active ? 'transparent' : step.done ? 'rgba(20,83,45,0.2)' : 'rgba(30,34,39,0.12)'}`,
+              whiteSpace: 'nowrap',
+            }}>
+              {step.done ? '✓ ' : ''}{step.label}
+            </span>
+            {i < arr.length - 1 && (
+              <span style={{ color: 'rgba(30,34,39,0.25)', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '0 3px' }}>—</span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {subStep === '3a' && (<>
 
       {/* ── S1: Project Details ────────────────────────────────────────────────── */}
       <Sect title="1 — Where is your plot and what is the project?">
@@ -952,8 +983,8 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
         </div>
       </Sect>
 
-      {/* ── S5: Technical Specifications ─────────────────────────────────────── */}
-      <Sect title="Advanced Settings ▼ — Technical Specifications" defaultOpen={false}>
+      {/* ── S5: Advanced Technical Specifications (collapsed) ─────────────────── */}
+      <Sect title="Advanced Technical Specifications ▼" badge="IS Code Defaults Applied ✓" defaultOpen={false}>
         <AlertBox variant="info">
           Pre-set to <strong>IS-code safe defaults</strong> for residential construction. Change only if your structural engineer has specified different values. Wrong values here will produce incorrect material quantities.
         </AlertBox>
@@ -1229,8 +1260,101 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
         </div>
       </Sect>
 
-      {/* ── S6: Material Rates (collapsed by default) ─────────────────────────── */}
-      <Sect title="Advanced Settings ▼ — Material Rates" badge="India Avg 2026" defaultOpen={false}>
+      {/* ── Step 3a: Continue button ─────────────────────────────────────────── */}
+      <div className="pt-2">
+        <button
+          type="button"
+          onClick={() => setSubStep('3b')}
+          className="w-full py-3 rounded-[6px] font-semibold text-[15px] transition-all"
+          style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}
+        >
+          Continue to Material Rates →
+        </button>
+      </div>
+      </>)}
+
+      {/* ── Step 3b: Material Rates ──────────────────────────────────────────── */}
+      {subStep === '3b' && (<>
+        <div>
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3b · MATERIAL RATES</p>
+          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Enter Your Local Material Rates</h3>
+        </div>
+
+        <div className="p-4 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.05)', border: '1px solid rgba(31,78,121,0.2)' }}>
+          <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            <strong>Why local rates matter:</strong> We calculate exact quantities using IS codes — quantities are universal. But material prices vary by 20–40% between cities. Enter your local dealer rates for an accurate budget. India averages are pre-filled as a starting point.
+          </p>
+        </div>
+
+        <AlertBox variant="caution">
+          Get quotes from <strong>at least 3 suppliers</strong>. Contractor-supplied material is typically 8–15% above market rate.
+        </AlertBox>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {[
+            { key: 'cement',      label: 'Cement',            unit: '₹/50kg bag', avg: INDIA_AVG_2026.cement,      tip: 'OPC 43/53. Fly ash PPC is cheaper but slower cure. IS 456:2000 permits both.' },
+            { key: 'steel',       label: 'Steel TMT Fe500',   unit: '₹/kg',       avg: INDIA_AVG_2026.steel,       tip: 'Fe500D preferred in seismic zones III–V. IS 1786:2008.' },
+            { key: 'sand',        label: 'Sand (M-sand)',     unit: '₹/cft',      avg: INDIA_AVG_2026.sand,        tip: 'River sand or M-sand. IS 383:2016. Prices vary 40% by region.' },
+            { key: 'aggregate',   label: 'Aggregate 20mm',    unit: '₹/cft',      avg: INDIA_AVG_2026.aggregate,   tip: '20mm coarse aggregate. IS 383:2016.' },
+            { key: 'formwork',    label: 'Formwork',          unit: '₹/sqft BUA', avg: INDIA_AVG_2026.formwork,    tip: 'Shuttering material estimate per sqft of built-up area.' },
+            { key: 'antiTermite', label: 'Anti-termite',      unit: '₹/sqft',     avg: INDIA_AVG_2026.antiTermite, tip: 'IS 6313 treatment mandatory in termite-prone zones.' },
+            { key: 'bindingWire', label: 'Binding Wire',      unit: '₹/kg',       avg: INDIA_AVG_2026.bindingWire, tip: 'Annealed wire 1.6mm. IS 280.' },
+            { key: 'pccM10',      label: 'PCC M10 lean mix',  unit: '₹/m³',       avg: INDIA_AVG_2026.pccM10,      tip: 'Plain cement concrete below footing. 1:3:6 mix.' },
+          ].map(({ key, label, unit, avg, tip }) => (
+            <div key={key} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(30,34,39,0.15)', background: '#fff' }}>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div>
+                  <p className="text-[13px] font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{unit}</p>
+                </div>
+                <span className="text-[11px] px-2 py-0.5 rounded-[2px] whitespace-nowrap" style={{ background: 'rgba(30,34,39,0.05)', color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  India Avg: ₹{avg}
+                </span>
+              </div>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <input
+                  type="number"
+                  className="w-full pl-7 pr-3 py-2 rounded-[6px] border text-[13px]"
+                  style={{ borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227', fontFamily: 'var(--font-plex-mono)', background: '#fff' }}
+                  min="0"
+                  value={rates[key as keyof typeof rates]}
+                  onChange={e => setRates(r => ({ ...r, [key]: parseFloat(e.target.value) || 0 }))}
+                />
+              </div>
+              <p className="text-[11px] mt-1.5" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>{tip}</p>
+              {REGIONAL_NOTES[key] && <RegionalNote>{REGIONAL_NOTES[key]}</RegionalNote>}
+            </div>
+          ))}
+        </div>
+
+        {customMaterials.map((cm, idx) => (
+          <div key={cm.id} className="flex items-end gap-2 mt-2">
+            <div className="flex-1">
+              <label className={lCls} style={lStyle}>Material Name</label>
+              <input className={iCls} style={iStyle} placeholder="e.g. AAC blocks" value={cm.name} onChange={e => setCustomMaterials(prev => prev.map((m, i) => i === idx ? { ...m, name: e.target.value } : m))} />
+            </div>
+            <div className="w-36">
+              <label className={lCls} style={lStyle}>Rate</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <input className="w-full pl-7 pr-3 py-2 rounded-[6px] border text-[13px]" style={{ ...iStyle, fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }} type="number" value={cm.rate} onChange={e => setCustomMaterials(prev => prev.map((m, i) => i === idx ? { ...m, rate: e.target.value } : m))} />
+              </div>
+            </div>
+            <button type="button" onClick={() => setCustomMaterials(prev => prev.filter((_, i) => i !== idx))} className="px-3 py-2 text-[12px] rounded-[6px]" style={{ color: '#8C3A22', border: '1px solid #8C3A2230' }}>Remove</button>
+          </div>
+        ))}
+
+        <div className="flex gap-3 pt-1">
+          <button type="button" onClick={addCustomMaterial} className="px-4 py-2 rounded-[6px] text-[12px] font-medium transition-colors" style={{ background: '#1F4E7912', color: '#1F4E79', border: '1px solid #1F4E7930', fontFamily: 'var(--font-plex-sans)' }}>
+            + Add Material
+          </button>
+          <button type="button" onClick={() => setRates({ ...INDIA_AVG_2026 })} className="px-4 py-2 rounded-[6px] text-[12px] transition-colors" style={{ color: '#1E222780', border: '1px solid #1E222730', fontFamily: 'var(--font-plex-sans)' }}>
+            Reset to India Average
+          </button>
+        </div>
+
+        <Sect title="Contractor Quote (Optional)" defaultOpen={false}>
         <AlertBox variant="tip">
           <strong>India Average 2026</strong> rates are pre-loaded. Edit only if you have confirmed rates from your local supplier. Rates vary 20–30% depending on city and transport distance.
         </AlertBox>
@@ -1353,32 +1477,78 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
         </div>
       </Sect>
 
-      {/* ── S8: Labour ────────────────────────────────────────────────────────── */}
-      <Sect title="Advanced Settings ▼ — Labour Estimation (Optional)">
-        <div className="flex items-center gap-3">
-          <input type="checkbox" id="inclLabour" checked={includeLabour} onChange={e => setIncludeLabour(e.target.checked)} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
-          <label htmlFor="inclLabour" className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Include labour cost in estimate</label>
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <button
+            type="button"
+            onClick={() => setSubStep('3c')}
+            className="flex-1 py-3 rounded-[6px] font-semibold text-[15px] transition-all"
+            style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}
+          >
+            Continue to Labour →
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="flex-1 py-3 rounded-[6px] font-semibold text-[15px] transition-all"
+            style={{ background: 'transparent', color: '#8C3A22', border: '1.5px solid #8C3A22', fontFamily: 'var(--font-plex-sans)' }}
+          >
+            Skip Labour — Calculate Now →
+          </button>
+        </div>
+      </>)}
+
+      {/* ── Step 3c: Labour ──────────────────────────────────────────────────── */}
+      {subStep === '3c' && (<>
+        <div>
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3c · LABOUR ESTIMATION</p>
+          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Include Labour Cost? (Optional)</h3>
         </div>
 
-        {includeLabour && (
-          <>
-            <AlertBox variant="caution">
-              <strong>CPWD DSR 2023 rates</strong> are government-procurement benchmarks. Private residential work typically differs by ±20–30%. The number of working days depends on curing intervals, monsoon shutdowns, festival breaks, sand bans, and local conditions — these cannot be predicted by software. <em>Labour total appears only in your paid PDF report.</em>
-            </AlertBox>
-            <AlertBox variant="tip">
-              <strong>Enter 0 workers</strong> to exclude any trade from the estimate entirely.
-            </AlertBox>
+        <div className="p-4 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.05)', border: '1px solid rgba(31,78,121,0.2)' }}>
+          <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            Labour costs vary significantly with season (monsoon shutdowns, festival breaks), location, and site conditions. CPWD DSR 2023 rates are government benchmarks — actual rates typically differ by ±20–30%.
+          </p>
+        </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-[12px] border-collapse">
-                <thead>
-                  <tr style={{ background: '#1E22270A' }}>
-                    {['Active', 'Trade', 'Workers', 'Rate/Day (₹)', 'CPWD Productivity (editable)', 'Days'].map(h => (
-                      <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setIncludeLabour(true)}
+            className="p-4 rounded-[2px] text-left transition-all"
+            style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+          >
+            <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
+            <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Use CPWD DSR 2023 rates. Edit workers, rates, and productivity per trade. Labour appears only in paid PDF report.</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIncludeLabour(false)}
+            className="p-4 rounded-[2px] text-left transition-all"
+            style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+          >
+            <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Skip — Material Cost Only</p>
+            <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour later from your contractor quote.</p>
+          </button>
+        </div>
+
+        {includeLabour && (<>
+          <AlertBox variant="caution">
+            <strong>CPWD DSR 2023 rates</strong> are government-procurement benchmarks. Private residential work typically differs by ±20–30%. The number of working days depends on curing intervals, monsoon shutdowns, festival breaks, sand bans, and local conditions — these cannot be predicted by software. <em>Labour total appears only in your paid PDF report.</em>
+          </AlertBox>
+          <AlertBox variant="tip">
+            <strong>Enter 0 workers</strong> to exclude any trade from the estimate entirely.
+          </AlertBox>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-[12px] border-collapse">
+              <thead>
+                <tr style={{ background: '#1E22270A' }}>
+                  {['Active', 'Trade', 'Workers', 'Rate/Day (₹)', 'CPWD Productivity (editable)', 'Days'].map(h => (
+                    <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
                   {trades.map(t => (
                     <tr key={t.id} style={{ borderBottom: '1px solid #1E222710', opacity: t.active ? 1 : 0.45 }}>
                       <td className="px-3 py-2">
@@ -1458,35 +1628,35 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
             </p>
           </>
         )}
-      </Sect>
 
-      {/* ── Submit ────────────────────────────────────────────────────────────── */}
-      <div className="pt-2">
-        <button
-          type="submit"
-          disabled={structuralChecks.blockCalculate}
-          className="w-full py-3 rounded-[2px] font-semibold text-[15px] transition-all"
-          style={{
-            background: structuralChecks.blockCalculate ? '#8C3A2240' : '#1F4E79',
-            color: structuralChecks.blockCalculate ? '#8C3A22' : '#F4F4F0',
-            fontFamily: 'var(--font-plex-sans)',
-            cursor: structuralChecks.blockCalculate ? 'not-allowed' : 'pointer',
-            border: structuralChecks.blockCalculate ? '1.5px solid #8C3A2260' : 'none',
-          }}
-        >
-          {structuralChecks.blockCalculate ? '⛔ Fix Structural Issues to Continue' : 'Generate Structural Estimate →'}
-        </button>
-        {structuralChecks.blockCalculate && (
-          <p className="text-[11px] text-center mt-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
-            One or more floors have infeasible cantilever dimensions. Revise floor areas above.
-          </p>
-        )}
-        {!structuralChecks.blockCalculate && (
-          <p className="text-[11px] text-center mt-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
-            Free: grand total range + IS compliance checks. Itemised BOQ requires ₹499 unlock.
-          </p>
-        )}
-      </div>
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={structuralChecks.blockCalculate}
+            className="w-full py-3 rounded-[2px] font-semibold text-[15px] transition-all"
+            style={{
+              background: structuralChecks.blockCalculate ? '#8C3A2240' : '#1F4E79',
+              color: structuralChecks.blockCalculate ? '#8C3A22' : '#F4F4F0',
+              fontFamily: 'var(--font-plex-sans)',
+              cursor: structuralChecks.blockCalculate ? 'not-allowed' : 'pointer',
+              border: structuralChecks.blockCalculate ? '1.5px solid #8C3A2260' : 'none',
+            }}
+          >
+            {structuralChecks.blockCalculate ? '⛔ Fix Structural Issues to Continue' : 'Calculate My Estimate →'}
+          </button>
+          {structuralChecks.blockCalculate && (
+            <p className="text-[11px] text-center mt-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
+              One or more floors have infeasible cantilever dimensions. Revise floor areas above.
+            </p>
+          )}
+          {!structuralChecks.blockCalculate && (
+            <p className="text-[11px] text-center mt-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+              Free: grand total range + IS compliance checks. Itemised BOQ requires ₹499 unlock.
+            </p>
+          )}
+        </div>
+      </>)}
     </form>
   )
 }
