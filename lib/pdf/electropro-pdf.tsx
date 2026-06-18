@@ -958,6 +958,72 @@ function CostSummaryPage({ result, reportId }: { result: ElectroResult; reportId
   )
 }
 
+// ─── Engineering Behind the Calculation page ─────────────────────────────────
+
+function EngineeringMethodPage({ reportId }: { reportId: string }) {
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <Text style={S.eyebrow}>APPENDIX — CALCULATION METHODOLOGY</Text>
+        <Text style={S.h2}>The Engineering Behind the Calculation</Text>
+        <View style={S.rule} />
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 4 }}>WIRE SIZING (IS 732:2019)</Text>
+        {[
+          'Lighting circuits: 1.5 sqmm FR PVC copper — max 800W per circuit',
+          'Power socket circuits: 2.5 sqmm FR PVC copper — max 3000W per circuit',
+          'AC/Geyser circuits: 4.0 sqmm FR PVC copper — dedicated circuit mandatory',
+          'Sub-panel feeder: 6.0 sqmm',
+          'Main incomer: 10.0 sqmm',
+          'Wastage factor: 1.15 applied to all wire lengths',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>MCB RATINGS (IS 8828:2007)</Text>
+        {[
+          'Lighting circuit: 6A MCB',
+          'Power socket circuit: 16A MCB',
+          'AC circuit: 20A MCB',
+          'Geyser circuit: 20A MCB',
+          'Main incomer: rated per total load',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>MANDATORY SAFETY (IS 732:2019 + CEA Regulations 2010)</Text>
+        {[
+          '30mA RCCB: mandatory for all bathroom and outdoor circuits',
+          'Earth resistance: maximum 1 ohm (IS 3043:2018)',
+          'All metallic enclosures must be earthed',
+          'Licensed electrician mandatory — CEA Regulations 2010',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <View style={{ marginTop: 12, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 8 }}>
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>IS CODES USED</Text>
+          {[
+            'IS 732:2019 — Code of Practice for Electrical Wiring Installations',
+            'IS 8828:2007 — Miniature Circuit Breakers',
+            'IS 3043:2018 — Code of Practice for Earthing',
+            'IS 12640 — Residual Current Circuit Breakers',
+            'CEA Regulations 2010 — Measures relating to Safety and Electric Supply',
+          ].map((t, i) => (
+            <Text key={i} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, color: T.inkA60, lineHeight: 1.6, marginBottom: 1 }}>{t}</Text>
+          ))}
+        </View>
+
+        <View style={{ flex: 1 }} />
+
+        <View style={{ marginTop: 8, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 6 }}>
+          <Text style={S.monoSm}>NIRMANSHASTRA · ELECTROPRO · {reportId}</Text>
+        </View>
+      </View>
+    </Page>
+  )
+}
+
 // ─── DOCUMENT EXPORT ──────────────────────────────────────────────────────────
 
 export default function ElectroProPDF(props: Props) {
@@ -972,6 +1038,7 @@ export default function ElectroProPDF(props: Props) {
       <WireSchedulePage result={props.result} />
       <MaterialSchedulePage result={props.result} />
       <CostSummaryPage result={props.result} reportId={props.reportId} />
+      <EngineeringMethodPage reportId={props.reportId} />
     </Document>
   )
 }

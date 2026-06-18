@@ -1333,6 +1333,91 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
         </View>
       </Page>
 
+      {/* ═══════════════════════════════════════════════════════
+          FINAL PAGE — THE ENGINEERING BEHIND THE CALCULATION
+          ═══════════════════════════════════════════════════════ */}
+      <Page size="A4" style={S.page}>
+        <View style={S.frame}>
+          <Text style={S.eyebrow}>APPENDIX — CALCULATION METHODOLOGY</Text>
+          <Text style={S.h2}>The Engineering Behind the Calculation</Text>
+          <View style={S.rule} />
+
+          {/* Concrete */}
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 4 }}>CONCRETE QUANTITIES (IS 456:2000)</Text>
+          {[
+            'M20 mix ratio 1:1.5:3 — dry volume factor 1.54 — yields 8.07 bags cement + 11.22 cft sand + 22.44 cft aggregate per m³',
+            'M25 mix ratio 1:1:2 — yields 11.00 bags cement per m³',
+            'Formula: wet volume × 1.54 = dry volume. Cement bags = dry volume × (1/(1+1.5+3)) × (1440/50)',
+          ].map((t, i) => (
+            <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+          ))}
+
+          {/* Steel */}
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>STEEL QUANTITIES (IS 1786:2008, density 7850 kg/m³)</Text>
+          {[
+            'Footing: 0.5% of concrete volume = 39.25 kg/m³',
+            'Plinth beam: 1.5% = 117.75 kg/m³',
+            'Column: 2.5% = 196.25 kg/m³',
+            'Beam: 1.5% = 117.75 kg/m³ (150 kg/m³ with wastage)',
+            'Slab: 1.0% = 78.5 kg/m³',
+            'Overall thumb rule: 4 kg steel per sqft BUA for G+1 to G+3',
+          ].map((t, i) => (
+            <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+          ))}
+
+          {/* Excavation */}
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>EXCAVATION</Text>
+          <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• Volume = footing area × foundation depth × 1.3 (side slope factor)</Text>
+
+          {/* Formwork */}
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>FORMWORK (IS 456:2000 Cl 14)</Text>
+          {[
+            'Column faces: 4 × column perimeter × column height',
+            'Beam soffits: beam width × beam span',
+            'Slab: slab area',
+          ].map((t, i) => (
+            <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+          ))}
+
+          {/* CPWD Labour */}
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>CPWD LABOUR PRODUCTIVITY</Text>
+          {[
+            'Bar Bender: 600 kg steel per worker per day',
+            'Shuttering Carpenter: 100 sqft formwork per worker per day',
+            'Concreting Mason: 2.5 m³ concrete per mason per day',
+            'Curing period: columns 7 days, beams 14 days, slabs 14 days (IS 456:2000 Cl 13.5)',
+          ].map((t, i) => (
+            <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+          ))}
+
+          {/* IS Codes */}
+          <View style={{ marginTop: 12, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 8 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>IS CODES USED IN THIS REPORT</Text>
+            {[
+              'IS 456:2000 — Plain and Reinforced Concrete',
+              'IS 1786:2008 — High Strength Deformed Steel Bars',
+              'IS 1893:2016 — Criteria for Earthquake Resistant Design',
+              'IS 1904:2016 — Design and Construction of Foundations',
+              'IS 13920:2016 — Ductile Detailing of RCC Structures',
+              'IS 875:2015 — Code of Practice for Design Loads',
+            ].map((t, i) => (
+              <Text key={i} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, color: T.inkA60, lineHeight: 1.6, marginBottom: 1 }}>{t}</Text>
+            ))}
+          </View>
+
+          <View style={S.flex1} />
+
+          {/* Disclaimer */}
+          <View style={{ marginTop: 8, borderTopWidth: 1, borderTopColor: T.ironInk, borderTopStyle: 'solid', paddingTop: 8, backgroundColor: T.oxideBg, padding: 8 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.stampOxide, marginBottom: 3, letterSpacing: 0.5 }}>DISCLAIMER</Text>
+            <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.5 }}>
+              This report is for budgeting purposes only. Actual construction must be supervised by a licensed structural engineer.
+              Quantities are calculated using standard IS code formulas and may vary by ±5% based on actual site conditions.
+            </Text>
+          </View>
+        </View>
+      </Page>
+
     </Document>
   )
 }

@@ -1169,6 +1169,71 @@ function CostSummaryPage({ result, reportId }: { result: PlumbResult; reportId: 
   )
 }
 
+// ─── Engineering Behind the Calculation page ─────────────────────────────────
+
+function EngineeringMethodPage({ reportId }: { reportId: string }) {
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <Text style={S.eyebrow}>APPENDIX — CALCULATION METHODOLOGY</Text>
+        <Text style={S.h2}>The Engineering Behind the Calculation</Text>
+        <View style={S.rule} />
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 4 }}>WATER DEMAND (IS 1172:1993)</Text>
+        {[
+          'Residential municipal supply: 135 LPCD minimum',
+          'Residential borewell supply: 150 LPCD minimum',
+          'Overhead tank capacity: daily demand × 0.67',
+          'Sump tank capacity: daily demand × 0.33 (recommended)',
+          'Formula: tank litres = occupants × LPCD × 0.67',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>DRAINAGE DESIGN (IS 1742:1983)</Text>
+        {[
+          'Soil stack minimum diameter: 110mm SWR',
+          'Waste pipe minimum diameter: 75mm SWR',
+          'Minimum slope 75mm pipe: 1:48 (2.08%)',
+          'Minimum slope 110mm stack: 1:80 (1.25%)',
+          'Trap seal minimum: 50mm water seal',
+          'Vent pipe: mandatory for stacks above 2 floors',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>PIPE SIZING</Text>
+        {[
+          'Supply pipe sizing based on fixture units per IS 2065:1983',
+          'Minimum supply pipe to fixture: 15mm CPVC',
+          'Main riser: sized per total fixture units served',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <View style={{ marginTop: 12, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 8 }}>
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>IS CODES USED</Text>
+          {[
+            'IS 1172:1993 — Basic Requirements for Water Supply, Drainage and Sanitation',
+            'IS 1742:1983 — Code of Practice for Building Drainage',
+            'IS 2065:1983 — Code of Practice for Water Supply in Buildings',
+            'IS 15778 — CPVC Pipes and Fittings',
+            'IS 12701 — Polyethylene Tanks for Water Storage',
+          ].map((t, i) => (
+            <Text key={i} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, color: T.inkA60, lineHeight: 1.6, marginBottom: 1 }}>{t}</Text>
+          ))}
+        </View>
+
+        <View style={{ flex: 1 }} />
+
+        <View style={{ marginTop: 8, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 6 }}>
+          <Text style={S.monoSm}>NIRMANSHASTRA · PLUMBPRO · {reportId}</Text>
+        </View>
+      </View>
+    </Page>
+  )
+}
+
 // ─── DOCUMENT EXPORT ──────────────────────────────────────────────────────────
 
 export default function PlumbProPDF(props: Props) {
@@ -1184,6 +1249,7 @@ export default function PlumbProPDF(props: Props) {
       <FixtureSchedulePage result={props.result} />
       <QualityChecklistPage />
       <CostSummaryPage    result={props.result} reportId={props.reportId} />
+      <EngineeringMethodPage reportId={props.reportId} />
     </Document>
   )
 }

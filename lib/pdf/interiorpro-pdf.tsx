@@ -1228,6 +1228,78 @@ function TotalSummaryPage({ result, input, reportId }: { result: InteriorResult;
   )
 }
 
+// ─── Engineering Behind the Calculation page ─────────────────────────────────
+
+function EngineeringMethodPage({ reportId }: { reportId: string }) {
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <Text style={S.eyebrow}>APPENDIX — CALCULATION METHODOLOGY</Text>
+        <Text style={S.h2}>The Engineering Behind the Calculation</Text>
+        <View style={S.rule} />
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 4 }}>FLOORING QUANTITIES</Text>
+        {[
+          'Tile wastage: minimum 10% added to all tile quantities (standard practice, IS recommendation)',
+          'Adhesive coverage: 1 bag (20kg) covers approximately 4-5 sqm',
+          'Grout: 1 kg covers approximately 3-4 sqm for 300×600mm tiles',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>PAINT QUANTITIES (IS 2395:1992)</Text>
+        {[
+          'Coverage: premium emulsion 40-50 sqft per litre per coat',
+          'Primer: mandatory first coat on all surfaces',
+          'Standard: 1 coat primer + 2 coats emulsion',
+          'Paint area formula: carpet area × 3.5 (approximate wall + ceiling area)',
+          'Quantity: paint area (sqft) × 0.18 litres per sqft for 2 coats + primer',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>FALSE CEILING (NBC 2016 + IS 277)</Text>
+        {[
+          'MS frame: mandatory — minimum 0.5mm thickness',
+          'Minimum room height after false ceiling: 2.75m (NBC 2016 Cl 4.4)',
+          'GI sections: 0.5mm minimum for partition and ceiling systems',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>ROOM MINIMUMS (NBC 2016)</Text>
+        {[
+          'Habitable room: minimum 9.5 sqm area, minimum 2.4m width',
+          'Kitchen: minimum 4.5 sqm area, minimum 1.8m width',
+          'Bathroom: minimum 1.8 sqm area',
+          'WC: minimum 1.1 sqm area',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <View style={{ marginTop: 12, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 8 }}>
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>IS CODES USED</Text>
+          {[
+            'IS 2395:1992 — Code of Practice for Painting of Buildings',
+            'IS 15477 — Adhesives for Ceramic Tiles',
+            'IS 277 — Galvanised Steel Sheets',
+            'NBC 2016 — National Building Code of India',
+            'IS 2547:1976 — Gypsum Plaster Boards',
+          ].map((t, i) => (
+            <Text key={i} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, color: T.inkA60, lineHeight: 1.6, marginBottom: 1 }}>{t}</Text>
+          ))}
+        </View>
+
+        <View style={{ flex: 1 }} />
+
+        <View style={{ marginTop: 8, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 6 }}>
+          <Text style={S.monoSm}>NIRMANSHASTRA · INTERIORPRO · {reportId}</Text>
+        </View>
+      </View>
+    </Page>
+  )
+}
+
 // ─── DOCUMENT EXPORT ──────────────────────────────────────────────────────────
 
 export default function InteriorProPDF(props: Props) {
@@ -1243,6 +1315,7 @@ export default function InteriorProPDF(props: Props) {
       <InteriorBOQPage     input={props.input} result={props.result} />
       <QualityChecklistPage />
       <TotalSummaryPage    result={props.result} input={props.input} reportId={props.reportId} />
+      <EngineeringMethodPage reportId={props.reportId} />
     </Document>
   )
 }

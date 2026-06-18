@@ -1125,6 +1125,70 @@ function PageCostSummary({ result, reportId, date }: Props & { reportId: string 
   )
 }
 
+// ─── Engineering Behind the Calculation page ─────────────────────────────────
+
+function PageEngineeringMethod({ reportId }: { reportId: string }) {
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <Text style={S.eyebrow}>APPENDIX — CALCULATION METHODOLOGY</Text>
+        <Text style={S.h2}>The Engineering Behind the Calculation</Text>
+        <View style={S.rule} />
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 4 }}>BRICK QUANTITIES (IS 1077:1992, IS 2212:1991)</Text>
+        {[
+          'Modular brick 190×90×90mm: 9" wall = 100 bricks/sqm, 4.5" wall = 50 bricks/sqm',
+          'Non-modular brick 230×115×75mm: 9" wall = 90 bricks/sqm, 4.5" wall = 48 bricks/sqm',
+          'AAC block 200mm: 8.33 blocks/sqm',
+          'Hollow concrete block 200mm: 12.5 blocks/sqm',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>MORTAR QUANTITIES (IS 2250:1981)</Text>
+        {[
+          '9" modular wall 1:6 mortar: 0.20 bags cement + 2.13 cft sand per sqm',
+          '4.5" partition 1:4 mortar: 0.10 bags cement + 0.72 cft sand per sqm',
+          'Dry volume factor for mortar: 1.1',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>PLASTER QUANTITIES (IS 1661:1972)</Text>
+        {[
+          'Internal 12mm 1:4: 0.078 bags cement + 0.50 cft sand per sqm',
+          'External 15mm 1:4: 0.098 bags cement + 0.63 cft sand per sqm',
+          'Ceiling 6mm 1:3: 0.042 bags cement + 0.20 cft sand per sqm',
+          'Add 5% wastage to all plaster quantities',
+        ].map((t, i) => (
+          <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
+        ))}
+
+        <View style={{ marginTop: 12, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 8 }}>
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>IS CODES USED</Text>
+          {[
+            'IS 1077:1992 — Common Burnt Clay Building Bricks',
+            'IS 2212:1991 — Code of Practice for Brickwork',
+            'IS 2250:1981 — Code of Practice for Masonry Mortars',
+            'IS 1661:1972 — Code of Practice for Application of Cement Plaster',
+            'IS 1905:1987 — Structural Use of Unreinforced Masonry',
+            'IS 4326:1993 — Earthquake Resistant Design of Buildings',
+            'IS 2645:2003 — Integral Waterproofing Compounds',
+          ].map((t, i) => (
+            <Text key={i} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, color: T.inkA60, lineHeight: 1.6, marginBottom: 1 }}>{t}</Text>
+          ))}
+        </View>
+
+        <View style={{ flex: 1 }} />
+
+        <View style={{ marginTop: 8, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 6 }}>
+          <Text style={S.monoSm}>NIRMANSHASTRA · MASONPRO · {reportId}</Text>
+        </View>
+      </View>
+    </Page>
+  )
+}
+
 // ─── Main document ────────────────────────────────────────────────────────────
 
 export default function MasonProPDF(props: Props) {
@@ -1145,6 +1209,7 @@ export default function MasonProPDF(props: Props) {
       <PagePlasterBOQ        {...props} reportId={props.reportId} />
       <PageSiteQCChecklist   reportId={props.reportId} />
       <PageCostSummary       {...props} reportId={props.reportId} />
+      <PageEngineeringMethod reportId={props.reportId} />
     </Document>
   )
 }

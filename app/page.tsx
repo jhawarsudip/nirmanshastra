@@ -755,6 +755,95 @@ export default function Home() {
       </section>
 
       {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
+      <div style={{ background: '#1E2227', paddingTop: 14, paddingBottom: 14 }}>
+        <DimDivider label="FREE CALCULATORS vs NIRMANSHASTRA" dark />
+      </div>
+
+      {/* ── COMPARISON TABLE ─────────────────────────────────────────────── */}
+      <section className="px-6 md:px-16 lg:px-24 py-20" style={{ background: '#1E2227' }}>
+        <div className="space-y-10">
+          <SectionHeader
+            clause="CL. 3.5 — COMPETITIVE COMPARISON"
+            title="Why NirmanShastra beats free calculators"
+            dark
+          />
+          <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.6)', lineHeight: 1.65, maxWidth: 680 }}>
+            Free online calculators steal your phone number and sell it to contractors. Here&apos;s what you actually get.
+          </p>
+
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-plex-sans)', fontSize: 14 }}>
+              <thead>
+                <tr>
+                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.45)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 200 }}>Feature</th>
+                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#EF4444', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 260 }}>Free Online Calculators</th>
+                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', background: 'rgba(31,78,121,0.15)', minWidth: 280 }}>NirmanShastra (₹499/phase)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  {
+                    feature: 'Calculation method',
+                    free: 'Per sqft thumb rule — meaningless averages',
+                    ns: 'Exact item-wise BOQ based on IS 456, IS 732, IS 1172',
+                  },
+                  {
+                    feature: 'Material quantities',
+                    free: 'Vague guesses (₹8L for cement)',
+                    ns: 'Exact: 412 bags OPC 53, 2.4 tonnes Fe500D steel',
+                  },
+                  {
+                    feature: 'IS Code compliance',
+                    free: 'None — not even mentioned',
+                    ns: '25 IS codes verified, every quantity traceable to a specific clause',
+                  },
+                  {
+                    feature: 'Contractor accountability',
+                    free: 'Zero — they sell your data to contractors',
+                    ns: 'Line-by-line comparison — catch overcharging to the decimal',
+                  },
+                  {
+                    feature: 'Local rates',
+                    free: 'Fixed city averages you cannot change',
+                    ns: 'You enter local dealer rates — India average pre-filled as benchmark',
+                  },
+                  {
+                    feature: 'CPWD labour',
+                    free: 'Not included',
+                    ns: '14 CPWD trades, productivity rates, fully editable',
+                  },
+                  {
+                    feature: 'PDF report',
+                    free: 'No PDF — just a number on screen',
+                    ns: 'Professional 10-page PDF with BOQ, IS compliance, site checklist',
+                  },
+                  {
+                    feature: 'Your data',
+                    free: 'Sold to contractor lead networks',
+                    ns: 'Never sold. Your project data is yours.',
+                  },
+                ].map((row, i) => (
+                  <tr key={row.feature} style={{ background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
+                    <td style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.75)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', borderRight: '1px solid rgba(244,244,240,0.08)', verticalAlign: 'top' }}>{row.feature}</td>
+                    <td style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.5)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', borderRight: '1px solid rgba(244,244,240,0.08)', verticalAlign: 'top' }}>
+                      <span style={{ color: '#EF4444', fontWeight: 700, marginRight: 8 }}>✗</span>{row.free}
+                    </td>
+                    <td style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.85)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', background: 'rgba(31,78,121,0.1)', verticalAlign: 'top' }}>
+                      <span style={{ color: '#1F4E79', fontWeight: 700, marginRight: 8 }}>✓</span>{row.ns}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 13, color: 'rgba(244,244,240,0.45)', letterSpacing: '0.04em', borderTop: '1px solid rgba(244,244,240,0.1)', paddingTop: 20 }}>
+            The math is universal. IS codes don&apos;t change by city. Only the rates do — and you control those.
+          </p>
+        </div>
+      </section>
+
+      {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
       <div className="py-3">
         <DimDivider label="CHECKED AGAINST 25 IS CODES" />
       </div>
