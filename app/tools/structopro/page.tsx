@@ -6,7 +6,10 @@ import RegistrationForm, { type StructoRegData } from './components/Registration
 import MethodSelection from './components/MethodSelection'
 import BuildDetails from './components/BuildDetails'
 import ResultsPage from './components/ResultsPage'
+import VerticalExtensionDetails from './components/VerticalExtensionDetails'
+import VEResultsPage from './components/VEResultsPage'
 import { runCalculation, type StructoInput, type StructoResult } from './structopro-engine'
+import { runVECalculation, type VEInput, type VEResult } from './structopro-ve-engine'
 import WizardStepBar from '@/components/ui/WizardStepBar'
 import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 
@@ -16,7 +19,7 @@ const stepVariants = {
   exit:    { opacity: 0, x: -18, transition: { duration: 0.18, ease: 'easeIn' as const } },
 }
 
-type Step = 'register' | 'method' | 'details' | 'results'
+type Step = 'register' | 'method' | 'details' | 'results' | 've_details' | 've_results'
 
 interface SessionState {
   regData:    StructoRegData
@@ -24,6 +27,8 @@ interface SessionState {
   estimateId: string | null
   input:      StructoInput | null
   result:     StructoResult | null
+  veInput:    VEInput | null
+  veResult:   VEResult | null
 }
 
 export default function StructoProPage() {
@@ -35,6 +40,8 @@ export default function StructoProPage() {
     estimateId: null,
     input:      null,
     result:     null,
+    veInput:    null,
+    veResult:   null,
   })
 
   function handleRegistration(data: StructoRegData, contactId: string) {
@@ -42,8 +49,9 @@ export default function StructoProPage() {
     setStep('method')
   }
 
-  function handleMethod(method: 'design_myself') {
+  function handleMethod(method: 'design_myself' | 'vertical_extension') {
     if (method === 'design_myself') setStep('details')
+    else if (method === 'vertical_extension') setStep('ve_details')
   }
 
   async function handleDetails(input: StructoInput) {
@@ -73,6 +81,33 @@ export default function StructoProPage() {
     }
   }
 
+  async function handleVEDetails(veInput: VEInput) {
+    const veResult = runVECalculation(veInput)
+    setSession(prev => ({ ...prev, veInput, veResult }))
+    setStep('ve_results')
+
+    try {
+      const res = await fetch('/api/structopro/save-estimate', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contactId:   session.contactId,
+          projectName: veInput.projectName || session.regData.projectName,
+          state:       veInput.state,
+          city:        veInput.city,
+          inputData:   { ...veInput, estimateType: 'vertical_extension' },
+          resultData:  veResult,
+        }),
+      })
+      const json = await res.json()
+      if (json.estimateId) {
+        setSession(prev => ({ ...prev, estimateId: json.estimateId }))
+      }
+    } catch (err) {
+      console.error('Failed to save VE estimate:', err)
+    }
+  }
+
   function handleStartOver() {
     setStep('register')
     setLiveData({})
@@ -82,13 +117,15 @@ export default function StructoProPage() {
       estimateId: null,
       input:      null,
       result:     null,
+      veInput:    null,
+      veResult:   null,
     })
   }
 
   return (
     <div className="min-h-screen" style={{ background: '#F4F4F0' }}>
       {/* Step bar — always visible */}
-      <WizardStepBar currentStep={step} toolName="StructoPro" toolPhase="P1" />
+      <WizardStepBar currentStep={step === 've_details' || step === 've_results' ? 'details' : step} toolName="StructoPro" toolPhase="P1" />
 
       <AnimatePresence mode="wait">
         {step === 'register' && (
@@ -140,11 +177,45 @@ export default function StructoProPage() {
           </motion.div>
         )}
 
+        {step === 've_details' && (
+          <motion.div key="ve_details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
+              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+                <VerticalExtensionDetails
+                  state={session.regData.state}
+                  city={session.regData.city}
+                  onSubmit={handleVEDetails}
+                />
+              </div>
+              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+                <LiveSummaryPanel
+                  toolName="StructoPro"
+                  toolPhase="P1"
+                  regData={session.regData}
+                  liveData={liveData}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {step === 'results' && session.result && session.input && (
           <motion.div key="results" variants={stepVariants} initial="initial" animate="animate" exit="exit">
             <ResultsPage
               result={session.result}
               input={session.input}
+              estimateId={session.estimateId}
+              contactName={session.regData.name}
+              onStartOver={handleStartOver}
+            />
+          </motion.div>
+        )}
+
+        {step === 've_results' && session.veResult && session.veInput && (
+          <motion.div key="ve_results" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+            <VEResultsPage
+              result={session.veResult}
+              input={session.veInput}
               estimateId={session.estimateId}
               contactName={session.regData.name}
               onStartOver={handleStartOver}

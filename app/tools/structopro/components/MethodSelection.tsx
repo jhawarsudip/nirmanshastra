@@ -1,7 +1,7 @@
 'use client'
 
 interface Props {
-  onSelect: (method: 'design_myself') => void
+  onSelect: (method: 'design_myself' | 'vertical_extension') => void
 }
 
 export default function MethodSelection({ onSelect }: Props) {
@@ -179,18 +179,19 @@ export default function MethodSelection({ onSelect }: Props) {
             </div>
           </div>
 
-          {/* Card 3 — Add Floors (Coming Soon) */}
-          <div
-            className="rounded-[2px] p-5 relative overflow-hidden"
+          {/* Card 3 — Add Floors (active) */}
+          <button
+            onClick={() => onSelect('vertical_extension')}
+            className="text-left rounded-[2px] p-5 relative overflow-hidden transition-all"
             style={{
-              border: '1px solid rgba(217,154,6,0.35)',
-              background: 'rgba(217,154,6,0.03)',
+              border: '2px solid rgba(217,154,6,0.55)',
+              background: 'rgba(217,154,6,0.04)',
             }}
           >
             <div className="mb-3">
               <span
                 className="text-[52px] font-bold leading-none select-none"
-                style={{ color: 'rgba(217,154,6,0.06)', fontFamily: 'var(--font-plex-mono)' }}
+                style={{ color: 'rgba(217,154,6,0.08)', fontFamily: 'var(--font-plex-mono)' }}
               >
                 P1
               </span>
@@ -203,23 +204,23 @@ export default function MethodSelection({ onSelect }: Props) {
             </div>
             <p
               className="text-[12px] uppercase tracking-widest mb-2"
-              style={{ color: 'rgba(30,34,39,0.35)', fontFamily: 'var(--font-plex-mono)' }}
+              style={{ color: '#8C5A00', fontFamily: 'var(--font-plex-mono)' }}
             >
               Add Floors to Existing
             </p>
             <p
               className="text-[13px] leading-relaxed"
-              style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}
+              style={{ color: 'rgba(30,34,39,0.65)', fontFamily: 'var(--font-plex-sans)' }}
             >
-              Estimate cost of additional floors on your current structure. Includes IS safety checks.
+              Estimate cost of additional floors on your current structure. Includes IS column safety checks and splice bar schedule.
             </p>
             <div
               className="mt-4 inline-block px-3 py-1 rounded-[2px] text-[11px]"
-              style={{ background: 'rgba(30,34,39,0.1)', color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}
+              style={{ background: '#D99A06', color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}
             >
-              COMING SOON
+              START →
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </div>
