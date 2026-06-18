@@ -6,7 +6,8 @@ import {
   IBM_Plex_Sans_Devanagari,
 } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/layout/Navbar"
+import AIChatbox from "@/app/components/AIChatbox";
 
 const plexSerif = IBM_Plex_Serif({
   variable: "--font-plex-serif",
@@ -55,6 +56,7 @@ export default function RootLayout({
         </div>
         <Navbar />
         {children}
+        <AIChatbox />
       </body>
     </html>
   );
