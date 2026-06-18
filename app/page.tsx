@@ -70,18 +70,18 @@ const ALL_TOOLS = [VASTU_TOOL, ...PAID_TOOLS]
 const PROBLEMS = [
   {
     no: '01',
-    heading: 'Contractors quote without IS codes',
-    body: 'Most residential estimates use thumb rules and verbal norms, not IS 456 or IS 732. You have no standardised baseline to verify against.',
+    heading: "Your contractor's quote is a black box",
+    body: "Most contractors give lump-sum quotes. No breakdown. No quantities. No way to verify if they're stealing cement bags or inflating steel tonnage.",
   },
   {
     no: '02',
-    heading: 'Quantity inflation is invisible',
-    body: 'Inflated brick counts, wrong mortar ratios, oversized pipe diameters — all buried inside a single lump-sum figure. A detailed breakdown would expose them instantly.',
+    heading: 'Per square foot pricing hides fraud',
+    body: '₹1,800/sqft sounds simple. But it hides inflated brick counts, wrong mortar ratios, oversized pipe diameters — all ways contractors pad their pockets invisibly.',
   },
   {
     no: '03',
     heading: 'Five phases, zero unified picture',
-    body: 'Structure, masonry, electrical, plumbing, interior — five contractors, five quotations, no reconciled total and no way to track where the budget went.',
+    body: 'Structure, masonry, electrical, plumbing, interior — five contractors, five quotations, no reconciled total. You have no idea where ₹15 lakhs went.',
   },
 ]
 
@@ -89,22 +89,22 @@ const STEPS = [
   {
     rev: 'REV A',
     heading: 'Answer plain questions',
-    body: 'No engineering degree required. IS codes run silently in the background. Rates pre-filled from city databases.',
+    body: 'Answer plain questions about your building — no engineering degree required.',
   },
   {
     rev: 'REV B',
     heading: 'See IS compliance live',
-    body: 'Every estimate auto-checks against 25 IS codes. Green / amber / red badges appear as you fill in project details.',
+    body: 'See live IS code compliance checks as you fill in details.',
   },
   {
     rev: 'REV C',
-    heading: 'Unlock exact quantities',
-    body: 'Pay ₹499. See cement bags, steel kg, wire metres, pipe lengths, brick counts — line by line with labour costs.',
+    heading: 'Enter your local rates',
+    body: 'Enter your local material rates — we show India averages as a starting point.',
   },
   {
     rev: 'REV D',
-    heading: 'Compare your contractor',
-    body: 'Paste their quote. Get a line-by-line comparison showing exactly where it diverges from the IS-code baseline.',
+    heading: 'Get exact quantities',
+    body: 'Get exact quantities your contractor cannot argue with — backed by Bureau of Indian Standards.',
   },
 ]
 
@@ -473,9 +473,7 @@ export default function Home() {
               </div>
 
               <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.65, maxWidth: 540 }}>
-                India&rsquo;s first IS-code construction cost estimation platform.
-                Know exact material quantities, catch contractor inflation, and build your home
-                with engineering certainty — phase by phase.
+                Stop your contractor from overcharging you. Get exact material quantities backed by Indian Standards.
               </p>
 
               <div className="flex flex-wrap gap-4">
@@ -919,9 +917,6 @@ export default function Home() {
             </motion.div>
           </div>
 
-          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.4)', letterSpacing: '0.03em' }}>
-            Launch pricing valid Jun 2026. Prices increase to ₹999 / ₹799 / ₹699 from Month 4. Never discount below launch price.
-          </p>
         </div>
       </section>
 
