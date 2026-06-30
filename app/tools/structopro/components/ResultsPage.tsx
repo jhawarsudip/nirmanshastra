@@ -213,7 +213,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         amount:      json.amount,
         currency:    json.currency || 'INR',
         name:        'NirmanShastra',
-        description: 'StructoPro Report — Phase 1 RCC Structure',
+        description: 'StructurePro Report — Phase 1 RCC Structure',
         order_id:    json.orderId,
         prefill: {
           name:    contactName,

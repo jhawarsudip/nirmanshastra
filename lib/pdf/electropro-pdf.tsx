@@ -868,7 +868,7 @@ function CostSummaryPage({ result, reportId }: { result: ElectroResult; reportId
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
-        <PageHeader page={9} total={9} title="Cost Summary + PlumbPro Cross-sell" />
+        <PageHeader page={9} total={9} title="Cost Summary + PlumbingPro Cross-sell" />
         <PageRule />
 
         {/* Three-column cost summary */}
@@ -921,11 +921,11 @@ function CostSummaryPage({ result, reportId }: { result: ElectroResult; reportId
 
         {/* PlumbPro cross-sell */}
         <View style={{ marginTop: 16, borderWidth: 2, borderColor: T.ironInk, padding: 12, backgroundColor: T.sheetWhite }}>
-          <Text style={[S.eyebrow, { color: T.blueprint, marginBottom: 4 }]}>PHASE 4 — PLUMBPRO · ₹499</Text>
+          <Text style={[S.eyebrow, { color: T.blueprint, marginBottom: 4 }]}>PHASE 4 — PLUMBINGPRO · ₹499</Text>
           <Text style={[S.h2, { fontSize: 13, marginBottom: 4 }]}>Electrical conduit is done. Now estimate your plumbing.</Text>
           <Text style={[S.body, { marginBottom: 8 }]}>
             Plumbing must be coordinated with electrical work before plastering begins.
-            Use PlumbPro to estimate pipe lengths, tank sizes, pump HP, and fixture counts —
+            Use PlumbingPro to estimate pipe lengths, tank sizes, pump HP, and fixture counts —
             before your plumber quotes you.
           </Text>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
@@ -1140,7 +1140,7 @@ function BranchCircuitSLDPage({ result, reportId }: { result: ElectroResult; rep
 
 export default function ElectroProPDF(props: Props) {
   return (
-    <Document title={`ElectroPro Report — ${props.reportId}`} author="NirmanShastra">
+    <Document title={`ElectricalPro Report — ${props.reportId}`} author="NirmanShastra">
       <CoverPage {...props} />
       <LoadAnalysisPage input={props.input} result={props.result} />
       <ISCodeChecklistPage {...props} />

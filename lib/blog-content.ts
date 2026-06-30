@@ -55,11 +55,11 @@ Step 3: Multiply by 8.07 to get the expected cement bags for M20.
 
 Step 4: Compare with the contractor's quoted bags. A variance of more than 10% needs an explanation.
 
-NirmanShastra's StructoPro tool does this calculation automatically — it applies IS 456:2000 norms to your exact floor area, soil type, and seismic zone, and produces a quantity table you can place beside any contractor's quote.
+NirmanShastra's StructurePro tool does this calculation automatically — it applies IS 456:2000 norms to your exact floor area, soil type, and seismic zone, and produces a quantity table you can place beside any contractor's quote.
 
 ---
 
-*Try StructoPro to generate your IS 456:2000 compliant quantity schedule before accepting any contractor quote.*`,
+*Try StructurePro to generate your IS 456:2000 compliant quantity schedule before accepting any contractor quote.*`,
   },
   {
     slug: 'm20-vs-m25-concrete-grade',
@@ -108,11 +108,11 @@ A contractor who quotes M20 for your footing in a coastal city is giving you und
 
 IS 1893:2016 (seismic code) combined with IS 13920:2016 (ductile detailing) requires M20 minimum for ductile frame structures in Zones III–V. In practice, for Seismic Zone IV and V cities like Delhi, Srinagar, Guwahati, and Patna, structural engineers will specify M25 or higher even for internal elements, because ductility is governed partly by concrete strength.
 
-StructoPro auto-selects your seismic zone from your state and flags the concrete grade requirement in its IS compliance panel, so you know exactly what your location mandates — before you speak to a single contractor.
+StructurePro auto-selects your seismic zone from your state and flags the concrete grade requirement in its IS compliance panel, so you know exactly what your location mandates — before you speak to a single contractor.
 
 ---
 
-*Use StructoPro to see the correct concrete grade for your specific location, soil, and exposure class — backed by IS 456:2000 Table 5.*`,
+*Use StructurePro to see the correct concrete grade for your specific location, soil, and exposure class — backed by IS 456:2000 Table 5.*`,
   },
   {
     slug: 'steel-theft-construction-sites',
@@ -161,7 +161,7 @@ Example: You have 12mm bars. You weigh 5 bars each 6 metres long. Total weight s
 
 ## The Numbers That Matter for Your Building
 
-For a typical 1,000 sq ft residential building, StructoPro calculates steel quantities per IS code norms:
+For a typical 1,000 sq ft residential building, StructurePro calculates steel quantities per IS code norms:
 - **Column reinforcement:** 196.25 kg per cubic metre of column concrete
 - **Footing reinforcement:** 39.25 kg per cubic metre of footing concrete
 - **Plinth beam / floor beam:** 117.75 kg per cubic metre of beam concrete
@@ -176,7 +176,7 @@ If your contractor's steel quantity is more than 10% below these IS-derived benc
 
 ---
 
-*Generate your IS 1786:2008 compliant steel schedule with StructoPro before placing any material order.*`,
+*Generate your IS 1786:2008 compliant steel schedule with StructurePro before placing any material order.*`,
   },
   {
     slug: 'seismic-zones-india-is-1893',
@@ -230,11 +230,11 @@ Before your foundation is poured, ask:
 
 A legitimate structural engineer will answer these immediately. If they can't, find another engineer.
 
-StructoPro automatically detects your seismic zone from your state, applies the correct IS 1893:2016 parameters, and flags any items in the IS compliance panel that need attention for your zone level.
+StructurePro automatically detects your seismic zone from your state, applies the correct IS 1893:2016 parameters, and flags any items in the IS compliance panel that need attention for your zone level.
 
 ---
 
-*Know your seismic zone and its structural requirements before you build. Try StructoPro for an IS 1893:2016 compliant structural estimate.*`,
+*Know your seismic zone and its structural requirements before you build. Try StructurePro for an IS 1893:2016 compliant structural estimate.*`,
   },
   {
     slug: 'per-sqft-pricing-contractor-fraud',
@@ -281,7 +281,7 @@ Before signing any construction contract:
 
 **3. Get independent quantity verification.** A structural engineer or quantity surveyor can verify the BOQ against approved drawings. The fee is typically ₹5,000–15,000 — cheap against the exposure of a ₹50 lakh contract.
 
-**4. Use NirmanShastra to generate your own BOQ baseline.** StructoPro produces an IS 456:2000 compliant structural BOQ for your specific floor area and zone. Place it beside the contractor's quote and look for gaps.
+**4. Use NirmanShastra to generate your own BOQ baseline.** StructurePro produces an IS 456:2000 compliant structural BOQ for your specific floor area and zone. Place it beside the contractor's quote and look for gaps.
 
 ## The Comparison You Can Actually Make
 
@@ -293,7 +293,7 @@ Now you are comparing like for like. The second quote might be worth every rupee
 
 ---
 
-*Generate your own IS-code based BOQ with StructoPro — so you can compare contractor quotes on equal terms.*`,
+*Generate your own IS-code based BOQ with StructurePro — so you can compare contractor quotes on equal terms.*`,
   },
   {
     slug: 'rccb-electrical-safety-is-732-2019',
@@ -349,11 +349,11 @@ Ask your electrical contractor to provide the following in writing:
 3. Earth electrode specification and expected resistance
 4. Wire specification — copper, IS 694:2010 grade, minimum 1.5mm² for lighting and 2.5mm² for power circuits
 
-NirmanShastra's ElectroPro tool generates an IS 732:2019 compliant electrical schedule with room-by-room point loads, wire specifications, and protection device requirements for your floor plan.
+NirmanShastra's ElectricalPro tool generates an IS 732:2019 compliant electrical schedule with room-by-room point loads, wire specifications, and protection device requirements for your floor plan.
 
 ---
 
-*Get an IS 732:2019 compliant electrical estimate for your home — try ElectroPro.*`,
+*Get an IS 732:2019 compliant electrical estimate for your home — try ElectricalPro.*`,
   },
   {
     slug: 'water-requirements-is-1172-1993',
@@ -412,11 +412,11 @@ Step 4: Account for peak demand. IS 1172 uses a peak factor of 1.8 for domestic 
 
 Once you know daily requirement, IS 1172 helps you size pipe diameters too. The main rising main from sump to overhead tank should carry the full daily refill in 2 hours — which determines the pipe diameter and pump head requirement.
 
-NirmanShastra's PlumbPro tool takes your family size, floor count, and municipal supply schedule, applies IS 1172:1993 norms, and produces a complete plumbing schedule with tank sizes, pipe diameters, and fixture counts.
+NirmanShastra's PlumbingPro tool takes your family size, floor count, and municipal supply schedule, applies IS 1172:1993 norms, and produces a complete plumbing schedule with tank sizes, pipe diameters, and fixture counts.
 
 ---
 
-*Size your water storage correctly from day one — try PlumbPro for an IS 1172:1993 compliant plumbing estimate.*`,
+*Size your water storage correctly from day one — try PlumbingPro for an IS 1172:1993 compliant plumbing estimate.*`,
   },
   {
     slug: 'vastu-vedic-architecture-16-zones',

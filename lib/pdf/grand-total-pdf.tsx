@@ -107,10 +107,10 @@ function phaseLabel(appType: string): string {
 
 function phaseShort(appType: string): string {
   const map: Record<string, string> = {
-    structopro:  'StructoPro',
-    masonpro:    'MasonPro',
-    electropro:  'ElectroPro',
-    plumbpro:    'PlumbPro',
+    structopro:  'StructurePro',
+    masonpro:    'MasonryPro',
+    electropro:  'ElectricalPro',
+    plumbpro:    'PlumbingPro',
     interiorpro: 'InteriorPro',
   }
   return map[appType] ?? appType
@@ -865,13 +865,13 @@ export default function GrandTotalPDF({ contact, reportId, projectName, date, ph
             Phase Interdependencies
           </Text>
           {[
-            { from: 'StructoPro → MasonPro',    note: 'Column spacing sets masonry panel dimensions. Seismic zone determines if seismic bands are mandatory (IS 4326:1993).' },
-            { from: 'StructoPro → ElectroPro',  note: 'Slab thickness and beam depths determine conduit routing paths.' },
-            { from: 'StructoPro → PlumbPro',    note: 'Sunken slab depths for bathrooms are set at the structural design stage.' },
-            { from: 'MasonPro → ElectroPro',    note: 'Conduit must be embedded before plastering. Coordinate chase depths with plaster thickness.' },
-            { from: 'MasonPro → PlumbPro',      note: 'Pipe chases in 9-inch walls must be planned before brickwork starts.' },
-            { from: 'ElectroPro → InteriorPro', note: 'DB panel location determines kitchen backsplash tile layout. Fixture positions set before tiling.' },
-            { from: 'PlumbPro → InteriorPro',   note: 'Sanitary fixture positions, floor traps, and waste pipe heights must be confirmed before flooring starts.' },
+            { from: 'StructurePro → MasonryPro',    note: 'Column spacing sets masonry panel dimensions. Seismic zone determines if seismic bands are mandatory (IS 4326:1993).' },
+            { from: 'StructurePro → ElectricalPro',  note: 'Slab thickness and beam depths determine conduit routing paths.' },
+            { from: 'StructurePro → PlumbingPro',    note: 'Sunken slab depths for bathrooms are set at the structural design stage.' },
+            { from: 'MasonryPro → ElectricalPro',    note: 'Conduit must be embedded before plastering. Coordinate chase depths with plaster thickness.' },
+            { from: 'MasonryPro → PlumbingPro',      note: 'Pipe chases in 9-inch walls must be planned before brickwork starts.' },
+            { from: 'ElectricalPro → InteriorPro', note: 'DB panel location determines kitchen backsplash tile layout. Fixture positions set before tiling.' },
+            { from: 'PlumbingPro → InteriorPro',   note: 'Sanitary fixture positions, floor traps, and waste pipe heights must be confirmed before flooring starts.' },
           ].map(row => (
             <View key={row.from} style={{ marginBottom: 7 }}>
               <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, marginBottom: 2 }}>{row.from}</Text>

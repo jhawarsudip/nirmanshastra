@@ -162,7 +162,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
       const options = {
         key: json.keyId, amount: json.amount, currency: json.currency || 'INR',
         name: 'NirmanShastra',
-        description: 'StructoPro VE Report — Add Floors Estimate',
+        description: 'StructurePro VE Report — Add Floors Estimate',
         order_id: json.orderId,
         prefill: { name: contactName, contact: input.state },
         notes: { estimateId },
@@ -316,7 +316,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
 
           <div className="mt-3 p-3 rounded-[2px]" style={{ background: 'rgba(30,34,39,0.04)', border: '1px solid rgba(30,34,39,0.1)' }}>
             <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
-              <strong>Scope of this estimate:</strong> New floor materials only (concrete + steel + formwork). Excludes: foundation strengthening, existing structure repairs, masonry/plaster/finishing, electrical, plumbing, scaffold/hoist rental. These are estimated by MasonPro, ElectroPro, and PlumbPro.
+              <strong>Scope of this estimate:</strong> New floor materials only (concrete + steel + formwork). Excludes: foundation strengthening, existing structure repairs, masonry/plaster/finishing, electrical, plumbing, scaffold/hoist rental. These are estimated by MasonryPro, ElectricalPro, and PlumbingPro.
             </p>
           </div>
         </div>

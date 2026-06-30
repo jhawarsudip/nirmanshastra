@@ -83,8 +83,8 @@ export function getEmailContent(
             ${p('Your report includes:')}
             ${ul(['16-zone Vastu Mandala analysis', 'Room-by-room compliance scores', 'Technical and actionable remedies', 'General Vastu guidelines for your home'])}
             ${p(`<b>Now that your Vastu layout is mapped</b>, the next critical step is understanding exactly what your RCC structure will cost — before your contractor gives you a quote.`)}
-            ${p(`${mono('Phase 1 → RCC Structure')}: StructoPro gives you IS-code-verified material quantities and a contractor comparison report for <b>₹499</b>.`)}
-            ${ctaButton('Estimate My Structure Cost → StructoPro ₹499', `${BASE_URL}/structopro`)}
+            ${p(`${mono('Phase 1 → RCC Structure')}: StructurePro gives you IS-code-verified material quantities and a contractor comparison report for <b>₹499</b>.`)}
+            ${ctaButton('Estimate My Structure Cost → StructurePro ₹499', `${BASE_URL}/structopro`)}
           `),
         }
       }
@@ -103,7 +103,7 @@ export function getEmailContent(
               `${mono('Formwork:')} Labour for shuttering and de-shuttering often not itemised — check if included.`,
               `${mono('Vibration:')} Mechanical vibrator use is mandatory per IS 456. Hand-rodding is not acceptable for structural concrete.`,
             ])}
-            ${p('StructoPro gives you exact IS-code quantities so you can verify every line of your contractor\'s quote.')}
+            ${p('StructurePro gives you exact IS-code quantities so you can verify every line of your contractor\'s quote.')}
             ${ctaButton('Get My Structure Estimate → ₹499', `${BASE_URL}/structopro`)}
           `),
         }
@@ -122,8 +122,8 @@ export function getEmailContent(
               `Starting masonry too early causes cracks at RCC-brick junctions`,
             ])}
             ${p(`If your contractor is proposing to start masonry in 3 weeks, ask for the IS code basis. The correct window is ${mono('60–90 days')}.`)}
-            ${p('When Phase 2 begins, use MasonPro to verify brick counts, mortar ratios, and plastering quantities before your contractor starts.')}
-            ${ctaButton('Estimate Masonry Cost → MasonPro ₹499', `${BASE_URL}/masonpro`)}
+            ${p('When Phase 2 begins, use MasonryPro to verify brick counts, mortar ratios, and plastering quantities before your contractor starts.')}
+            ${ctaButton('Estimate Masonry Cost → MasonryPro ₹499', `${BASE_URL}/masonpro`)}
           `),
         }
       }
@@ -138,16 +138,16 @@ export function getEmailContent(
               'IS 732:2019 mandates circuit-wise load calculations before wiring',
               '1.5 sqmm minimum for lighting; 2.5 sqmm for power sockets; 4.0 sqmm for AC/Geyser',
               'RCCB 30mA mandatory for all bathroom circuits',
-              'ElectroPro gives you a DB panel schedule and wire schedule to verify against contractor quote',
+              'ElectricalPro gives you a DB panel schedule and wire schedule to verify against contractor quote',
             ])}
             ${p('<b>Phase 4 — Plumbing</b> (6–10% of total project cost):')}
             ${ul([
               'IS 1172:1993: 135 LPCD for municipal supply; tank size = daily demand × 0.67',
               '110mm SWR for soil stacks; 75mm for waste pipes',
-              'PlumbPro generates a pipe schedule and fixture count — verify against your plumber\'s quote',
+              'PlumbingPro generates a pipe schedule and fixture count — verify against your plumber\'s quote',
             ])}
-            ${ctaButton('Estimate Electrical → ElectroPro ₹499', `${BASE_URL}/electropro`)}
-            ${ctaButton('Estimate Plumbing → PlumbPro ₹499', `${BASE_URL}/plumbpro`)}
+            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/electropro`)}
+            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/plumbpro`)}
           `),
         }
       }
@@ -164,7 +164,7 @@ export function getEmailContent(
               'Flooring: ₹65–₹650 per sqft depending on grade',
               'InteriorPro gives you a complete BOQ with grade comparison across all interior items',
             ])}
-            ${p(`<b>Bundle offer:</b> Get all 5 paid reports (StructoPro + MasonPro + ElectroPro + PlumbPro + InteriorPro) for ${mono('₹1,999')} — saving ₹496 vs buying individually.`)}
+            ${p(`<b>Bundle offer:</b> Get all 5 paid reports (StructurePro + MasonryPro + ElectricalPro + PlumbingPro + InteriorPro) for ${mono('₹1,999')} — saving ₹496 vs buying individually.`)}
             ${ctaButton('Estimate Interiors → InteriorPro ₹499', `${BASE_URL}/interiorpro`)}
             ${ctaButton('Get All 5 Reports → Bundle ₹1,999', `${BASE_URL}/#pricing`, '#1F4E79')}
           `),
@@ -177,14 +177,14 @@ export function getEmailContent(
     case 'structopro': {
       if (dayNumber === 0) {
         return {
-          subject: 'Your StructoPro Report + MasonPro Is Next | NirmanShastra',
+          subject: 'Your StructurePro Report + MasonryPro Is Next | NirmanShastra',
           html: wrap(`
-            ${h2(`Your StructoPro Report is Ready, ${firstName}`)}
+            ${h2(`Your StructurePro Report is Ready, ${firstName}`)}
             ${p('Your Phase 1 RCC Structure estimate has been generated. It includes IS-code-verified material quantities, a contractor comparison, and full BOQ across foundation and superstructure.')}
             ${p('Your report covers:')}
             ${ul(['Foundation BOQ (excavation, PCC, steel, concrete, formwork)', 'Superstructure BOQ per floor per member', 'Material purchase schedule (cement bags, steel by diameter, aggregate, sand)', 'Cost summary in Basic / Standard / Premium bands'])}
-            ${p(`<b>Next: Phase 2 — Masonry</b>. Brickwork begins 60–90 days after your RCC pour per IS 456:2000. MasonPro gives you IS-code-verified brick counts, mortar ratios, and plastering quantities so you can verify your mason's quote line by line.`)}
-            ${ctaButton('Estimate Masonry → MasonPro ₹499', `${BASE_URL}/masonpro`)}
+            ${p(`<b>Next: Phase 2 — Masonry</b>. Brickwork begins 60–90 days after your RCC pour per IS 456:2000. MasonryPro gives you IS-code-verified brick counts, mortar ratios, and plastering quantities so you can verify your mason's quote line by line.`)}
+            ${ctaButton('Estimate Masonry → MasonryPro ₹499', `${BASE_URL}/masonpro`)}
           `),
         }
       }
@@ -193,7 +193,7 @@ export function getEmailContent(
           subject: 'Contractor Tips: 6 Things to Check on Your Structure Quote | NirmanShastra',
           html: wrap(`
             ${h2(`6 Structure Quote Checks, ${firstName}`)}
-            ${p('Your StructoPro report has the IS-code quantities. Here are the 6 most common ways contractors inflate or omit in RCC structure quotes:')}
+            ${p('Your StructurePro report has the IS-code quantities. Here are the 6 most common ways contractors inflate or omit in RCC structure quotes:')}
             ${ul([
               `${mono('Concrete grade substitution:')} M15 quoted instead of IS 456:2000 minimum M20. Each grade step saves contractor ~15% on cement.`,
               `${mono('Steel weight manipulation:')} Short-weight bars (actual 9.8kg where 10kg claimed) are common in unorganised supply chains. Ask for mill test certificates.`,
@@ -202,8 +202,8 @@ export function getEmailContent(
               `${mono('Curing cost exclusion:')} 14-day curing requires a dedicated water person. Often not included in labour quotes.`,
               `${mono('Formwork type:')} Wooden formwork vs steel shuttering has different costs and reuse counts. Confirm which is quoted.`,
             ])}
-            ${p('Your StructoPro report has the exact IS-code quantities. Use it as your verification checklist when reviewing contractor quotes.')}
-            ${ctaButton('Estimate Masonry → MasonPro ₹499', `${BASE_URL}/masonpro`)}
+            ${p('Your StructurePro report has the exact IS-code quantities. Use it as your verification checklist when reviewing contractor quotes.')}
+            ${ctaButton('Estimate Masonry → MasonryPro ₹499', `${BASE_URL}/masonpro`)}
           `),
         }
       }
@@ -219,8 +219,8 @@ export function getEmailContent(
               '4–6 weeks structural stabilisation before brick-laying begins',
             ])}
             ${p(`<b>If your contractor is proposing to start in 2–4 weeks, this is within range if your pour completed 30–60 days ago.</b> The critical check is that all slab formwork has been struck.`)}
-            ${p('Before your mason gives you a quote, use MasonPro to generate your IS-code brick count, mortar schedule, and plaster BOQ.')}
-            ${ctaButton('Estimate Masonry → MasonPro ₹499', `${BASE_URL}/masonpro`)}
+            ${p('Before your mason gives you a quote, use MasonryPro to generate your IS-code brick count, mortar schedule, and plaster BOQ.')}
+            ${ctaButton('Estimate Masonry → MasonryPro ₹499', `${BASE_URL}/masonpro`)}
           `),
         }
       }
@@ -230,10 +230,10 @@ export function getEmailContent(
           html: wrap(`
             ${h2(`Electrical & Plumbing Are Next, ${firstName}`)}
             ${p('As masonry wraps up, electrical rough-in and plumbing rough-in typically run in parallel. Both phases involve concealed work — mistakes are expensive to fix after plastering.')}
-            ${p('<b>Electrical rough-in (Phase 3):</b> Conduit laying, DB box mounting, wire pulling — done before plastering. ElectroPro generates your IS 732:2019-based wire schedule and DB panel configuration.')}
-            ${p('<b>Plumbing rough-in (Phase 4):</b> Supply piping, drainage slopes, soil stack installation — done before screed. PlumbPro generates your IS 1172:1993-based pipe schedule and fixture count.')}
-            ${ctaButton('Estimate Electrical → ElectroPro ₹499', `${BASE_URL}/electropro`)}
-            ${ctaButton('Estimate Plumbing → PlumbPro ₹499', `${BASE_URL}/plumbpro`)}
+            ${p('<b>Electrical rough-in (Phase 3):</b> Conduit laying, DB box mounting, wire pulling — done before plastering. ElectricalPro generates your IS 732:2019-based wire schedule and DB panel configuration.')}
+            ${p('<b>Plumbing rough-in (Phase 4):</b> Supply piping, drainage slopes, soil stack installation — done before screed. PlumbingPro generates your IS 1172:1993-based pipe schedule and fixture count.')}
+            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/electropro`)}
+            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/plumbpro`)}
           `),
         }
       }
@@ -244,7 +244,7 @@ export function getEmailContent(
             ${h2(`Interior Estimate + Bundle, ${firstName}`)}
             ${p('Your structure, masonry, electrical, and plumbing phases are likely complete or nearing completion. Phase 5 Interior is where final costs land.')}
             ${p(`<b>InteriorPro</b> covers kitchen, flooring, false ceiling, paint, doors, and tiles — with a complete BOQ at your selected grade (Basic to Luxury).`)}
-            ${p(`<b>Bundle offer:</b> All 5 paid reports for ${mono('₹1,999')} — saves ₹496 versus buying individually. If you have already purchased StructoPro, your remaining bundle price is reduced automatically.`)}
+            ${p(`<b>Bundle offer:</b> All 5 paid reports for ${mono('₹1,999')} — saves ₹496 versus buying individually. If you have already purchased StructurePro, your remaining bundle price is reduced automatically.`)}
             ${ctaButton('Estimate Interiors → InteriorPro ₹499', `${BASE_URL}/interiorpro`)}
             ${ctaButton('Complete Bundle → ₹1,999', `${BASE_URL}/#pricing`, '#1F4E79')}
           `),
@@ -257,14 +257,14 @@ export function getEmailContent(
     case 'masonpro': {
       if (dayNumber === 0) {
         return {
-          subject: 'Your MasonPro Report + Electrical Phase Next | NirmanShastra',
+          subject: 'Your MasonryPro Report + Electrical Phase Next | NirmanShastra',
           html: wrap(`
-            ${h2(`Your MasonPro Report is Ready, ${firstName}`)}
+            ${h2(`Your MasonryPro Report is Ready, ${firstName}`)}
             ${p('Your Phase 2 Masonry estimate is ready with IS-code-verified quantities for brickwork, plastering, and waterproofing.')}
             ${p('Your report includes:')}
             ${ul(['Wall BOQ with brick counts, mortar bags, and cement', 'Plastering BOQ per room (internal 12mm 1:4, external 15mm 1:4, ceiling 6mm 1:3)', 'Waterproofing BOQ for terrace and bathrooms', '8 wall type cost comparison at your city rates'])}
-            ${p('<b>Next: Phase 3 — Electrical rough-in</b>. This runs parallel to or just after plastering. ElectroPro gives you a DB panel schedule and IS 732:2019-compliant wire schedule to verify your electrician\'s quote.')}
-            ${ctaButton('Estimate Electrical → ElectroPro ₹499', `${BASE_URL}/electropro`)}
+            ${p('<b>Next: Phase 3 — Electrical rough-in</b>. This runs parallel to or just after plastering. ElectricalPro gives you a DB panel schedule and IS 732:2019-compliant wire schedule to verify your electrician\'s quote.')}
+            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/electropro`)}
           `),
         }
       }
@@ -283,8 +283,8 @@ export function getEmailContent(
               `${mono('Plaster timing:')} Minimum 14 days after brickwork before external plaster. 21 days preferred.`,
               `${mono('Chicken mesh:')} Mandatory at every RCC-brick junction before plastering. Prevents cracking at interface.`,
             ])}
-            ${p('Your MasonPro report includes the IS 2212:1991 masonry practice checklist for your contractor.')}
-            ${ctaButton('Estimate Electrical → ElectroPro ₹499', `${BASE_URL}/electropro`)}
+            ${p('Your MasonryPro report includes the IS 2212:1991 masonry practice checklist for your contractor.')}
+            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/electropro`)}
           `),
         }
       }
@@ -302,8 +302,8 @@ export function getEmailContent(
               'Wire pulling: after plastering is dry (7–14 days)',
               'DB panel installation + testing: after wire pulling',
             ])}
-            ${p('If your masonry is now nearing completion, this is exactly the right time to plan electrical rough-in. ElectroPro generates a circuit-wise load calculation, DB schedule, and wire schedule per IS 732:2019.')}
-            ${ctaButton('Estimate Electrical → ElectroPro ₹499', `${BASE_URL}/electropro`)}
+            ${p('If your masonry is now nearing completion, this is exactly the right time to plan electrical rough-in. ElectricalPro generates a circuit-wise load calculation, DB schedule, and wire schedule per IS 732:2019.')}
+            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/electropro`)}
           `),
         }
       }
@@ -321,8 +321,8 @@ export function getEmailContent(
               `Waste pipe minimum: ${mono('75mm SWR')} for bath + kitchen`,
               `Minimum slope: 1:48 (2%) for 75mm pipes; 1:80 (1.25%) for 110mm`,
             ])}
-            ${p('PlumbPro generates your pipe schedule, fixture count, tank sizing, and pump HP — so you can verify against your plumber\'s quote line by line.')}
-            ${ctaButton('Estimate Plumbing → PlumbPro ₹499', `${BASE_URL}/plumbpro`)}
+            ${p('PlumbingPro generates your pipe schedule, fixture count, tank sizing, and pump HP — so you can verify against your plumber\'s quote line by line.')}
+            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/plumbpro`)}
           `),
         }
       }
@@ -347,14 +347,14 @@ export function getEmailContent(
     case 'electropro': {
       if (dayNumber === 0) {
         return {
-          subject: 'Your ElectroPro Report + Plumbing Phase Next | NirmanShastra',
+          subject: 'Your ElectricalPro Report + Plumbing Phase Next | NirmanShastra',
           html: wrap(`
-            ${h2(`Your ElectroPro Report is Ready, ${firstName}`)}
+            ${h2(`Your ElectricalPro Report is Ready, ${firstName}`)}
             ${p('Your Phase 3 Electrical estimate is ready with IS 732:2019-compliant circuit load calculations, DB panel schedule, and wire schedule.')}
             ${p('Your report includes:')}
             ${ul(['Circuit-wise load analysis (lighting, power, AC, geyser circuits)', 'DB panel schedule with MCB ratings and number of ways', 'Wire schedule per room per circuit (sizes per IS 732:2019)', 'Testing and commissioning checklist'])}
-            ${p('<b>Next: Phase 4 — Plumbing</b>. Plumbing rough-in runs parallel with or just after electrical. PlumbPro gives you IS 1172:1993-based pipe schedule, tank sizing, and fixture count — so you can verify your plumber\'s quote.')}
-            ${ctaButton('Estimate Plumbing → PlumbPro ₹499', `${BASE_URL}/plumbpro`)}
+            ${p('<b>Next: Phase 4 — Plumbing</b>. Plumbing rough-in runs parallel with or just after electrical. PlumbingPro gives you IS 1172:1993-based pipe schedule, tank sizing, and fixture count — so you can verify your plumber\'s quote.')}
+            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/plumbpro`)}
           `),
         }
       }
@@ -367,12 +367,12 @@ export function getEmailContent(
             ${ul([
               `${mono('Licence verification:')} Your electrician must hold a valid Class B licence issued by the state electrical licensing board. Unlicensed electrical work voids home insurance and is illegal.`,
               `${mono('RCCB mandatory:')} IS 732:2019 requires a 30mA RCCB on all bathroom and kitchen circuits. This is non-negotiable.`,
-              `${mono('Wire sizes:')} Confirm the actual gauge being pulled matches your ElectroPro report. Undersized wires for power circuits are the #1 cause of residential fires.`,
+              `${mono('Wire sizes:')} Confirm the actual gauge being pulled matches your ElectricalPro report. Undersized wires for power circuits are the #1 cause of residential fires.`,
               `${mono('Earth continuity:')} IS 3043:2018 requires earthing resistance <1 ohm. Ask for a test certificate after installation.`,
               `${mono('Circuit labelling:')} Every MCB in the DB panel must be labelled. This is required for maintenance and emergency response.`,
             ])}
-            ${p('Your ElectroPro report includes the DB panel schedule with circuit-wise MCB ratings. Use it to verify the panel as installed.')}
-            ${ctaButton('Estimate Plumbing → PlumbPro ₹499', `${BASE_URL}/plumbpro`)}
+            ${p('Your ElectricalPro report includes the DB panel schedule with circuit-wise MCB ratings. Use it to verify the panel as installed.')}
+            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/plumbpro`)}
           `),
         }
       }
@@ -389,7 +389,7 @@ export function getEmailContent(
               `${mono('Pump + motor wiring:')} The submersible pump or pressure pump wiring (typically 4–6sqmm) must be routed before plumbing pump installation.`,
             ])}
             ${p('If your plumbing rough-in has not yet been estimated, do it now before finalising electrical point locations.')}
-            ${ctaButton('Estimate Plumbing → PlumbPro ₹499', `${BASE_URL}/plumbpro`)}
+            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/plumbpro`)}
             ${ctaButton('Estimate Interiors → InteriorPro ₹499', `${BASE_URL}/interiorpro`)}
           `),
         }
@@ -419,7 +419,7 @@ export function getEmailContent(
           html: wrap(`
             ${h2(`Bundle Offer for ${firstName}`)}
             ${p('Your project is in the final phases. If you haven\'t already estimated masonry, plumbing, or interior costs, the complete bundle gives you all 5 IS-code reports at the best price.')}
-            ${p(`<b>All 5 paid reports</b> (StructoPro + MasonPro + ElectroPro + PlumbPro + InteriorPro) for ${mono('₹1,999')} — saving ₹496 versus buying individually at ₹499 each.`)}
+            ${p(`<b>All 5 paid reports</b> (StructurePro + MasonryPro + ElectricalPro + PlumbingPro + InteriorPro) for ${mono('₹1,999')} — saving ₹496 versus buying individually at ₹499 each.`)}
             ${p('Each report includes: IS-code material quantities, contractor comparison, phase-specific BOQ, and IS compliance panel.')}
             ${ctaButton('Get All 5 Reports → Bundle ₹1,999', `${BASE_URL}/#pricing`)}
           `),
@@ -432,9 +432,9 @@ export function getEmailContent(
     case 'plumbpro': {
       if (dayNumber === 0) {
         return {
-          subject: 'Your PlumbPro Report + Interior Phase Next | NirmanShastra',
+          subject: 'Your PlumbingPro Report + Interior Phase Next | NirmanShastra',
           html: wrap(`
-            ${h2(`Your PlumbPro Report is Ready, ${firstName}`)}
+            ${h2(`Your PlumbingPro Report is Ready, ${firstName}`)}
             ${p('Your Phase 4 Plumbing estimate is ready with IS 1172:1993-verified pipe schedule, tank sizing, pump HP, and fixture count.')}
             ${p('Your report includes:')}
             ${ul(['Water demand calculation (LPCD × occupants = daily demand)', 'Tank size and pump HP as per IS 1172', 'Cold water supply riser diagram', 'Drainage layout with IS slope requirements', 'Complete pipe + fixture schedule'])}
@@ -456,7 +456,7 @@ export function getEmailContent(
               `${mono('Pump motor:')} If a submersible pump is used, a dry-run protection float switch is mandatory. Without it, the pump burns out when the sump runs dry.`,
               `${mono('Water meter:')} Install a water meter on the supply line from OHT to building. This lets you detect pipe leaks early (sudden meter reading without usage).`,
             ])}
-            ${p('Your PlumbPro report includes tank sizing calculations per IS 1172 and pump HP recommendations for your daily demand.')}
+            ${p('Your PlumbingPro report includes tank sizing calculations per IS 1172 and pump HP recommendations for your daily demand.')}
             ${ctaButton('Estimate Interiors → InteriorPro ₹499', `${BASE_URL}/interiorpro`)}
           `),
         }
@@ -488,8 +488,8 @@ export function getEmailContent(
           html: wrap(`
             ${h2(`Bundle Offer, ${firstName}`)}
             ${p('All structural and MEP phases are complete or winding down. If you need estimates for any remaining phases, the bundle is the most economical option.')}
-            ${p(`<b>All 5 paid reports</b> for ${mono('₹1,999')} — saving ₹496. Includes StructoPro, MasonPro, ElectroPro, PlumbPro, and InteriorPro.`)}
-            ${p('Already purchased PlumbPro? Your remaining bundle price is reduced. See the pricing page for your loyalty discount.')}
+            ${p(`<b>All 5 paid reports</b> for ${mono('₹1,999')} — saving ₹496. Includes StructurePro, MasonryPro, ElectricalPro, PlumbingPro, and InteriorPro.`)}
+            ${p('Already purchased PlumbingPro? Your remaining bundle price is reduced. See the pricing page for your loyalty discount.')}
             ${ctaButton('Get Bundle → ₹1,999', `${BASE_URL}/#pricing`)}
             ${ctaButton('Estimate Interiors → InteriorPro ₹499', `${BASE_URL}/interiorpro`)}
           `),
@@ -501,7 +501,7 @@ export function getEmailContent(
           html: wrap(`
             ${h2(`Bundle Upgrade for ${firstName}`)}
             ${p('You have been on NirmanShastra for four months. If your project spans multiple phases and you need reports for phases you haven\'t estimated yet, this is the right time.')}
-            ${p(`<b>Complete bundle:</b> All 5 paid reports for ${mono('₹1,999')}. Your existing PlumbPro purchase counts toward the bundle price.`)}
+            ${p(`<b>Complete bundle:</b> All 5 paid reports for ${mono('₹1,999')}. Your existing PlumbingPro purchase counts toward the bundle price.`)}
             ${p('The bundle also unlocks the Grand Total Report (₹999 separately, FREE with all 5) — a 15-page integrated cost report across all phases with a phase timeline and grand total breakdown.')}
             ${ctaButton('Upgrade to Bundle → ₹1,999', `${BASE_URL}/#pricing`)}
           `),
@@ -569,7 +569,7 @@ export function getEmailContent(
           html: wrap(`
             ${h2(`Complete Your Project Documentation, ${firstName}`)}
             ${p('If you are planning to build additional rooms, a new floor, or renovate other parts of your property, all 5 IS-code reports are available as a bundle.')}
-            ${p(`<b>Bundle:</b> StructoPro + MasonPro + ElectroPro + PlumbPro + InteriorPro for ${mono('₹1,999')} + Grand Total Report FREE.`)}
+            ${p(`<b>Bundle:</b> StructurePro + MasonryPro + ElectricalPro + PlumbingPro + InteriorPro for ${mono('₹1,999')} + Grand Total Report FREE.`)}
             ${p('Your existing InteriorPro purchase reduces the bundle price. See the pricing page for your loyalty discount.')}
             ${ctaButton('See Bundle Pricing', `${BASE_URL}/#pricing`)}
           `),

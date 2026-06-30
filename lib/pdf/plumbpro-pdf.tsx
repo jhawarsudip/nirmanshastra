@@ -1332,7 +1332,7 @@ function PlumbingRiserSchematicPage({ input, result, reportId }: { input: PlumbI
 
 export default function PlumbProPDF(props: Props) {
   return (
-    <Document title={`PlumbPro Report — ${props.reportId}`} author="NirmanShastra">
+    <Document title={`PlumbingPro Report — ${props.reportId}`} author="NirmanShastra">
       <CoverPage {...props} />
       <WaterDemandPage    input={props.input} result={props.result} />
       <ISCodeChecklistPage {...props} />

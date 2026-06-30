@@ -160,14 +160,14 @@ export default function RegistrationForm({ onSubmit }: Props) {
               <line x1="118" y1="128" x2="118" y2="160" stroke="#F4F4F0" strokeWidth="2.5" />
             </svg>
           </div>
-          <div className="mb-4"><Image src="/plumbpro-icon.png" alt="PlumbPro" width={64} height={64} style={{ objectFit: 'contain' }} /></div>
+          <div className="mb-4"><Image src="/plumbpro-icon.png" alt="PlumbingPro" width={64} height={64} style={{ objectFit: 'contain' }} /></div>
           <p className="text-[11px] uppercase tracking-widest mb-2"
             style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 4 · ₹499 REPORT
           </p>
           <h1 className="font-bold leading-tight mb-2"
             style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}>
-            PlumbPro
+            PlumbingPro
           </h1>
           <p className="text-[14px]"
             style={{ color: 'rgba(244,244,240,0.55)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>

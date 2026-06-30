@@ -430,7 +430,7 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
   ]
 
   return (
-    <Document title={`NirmanShastra StructoPro Report — ${reportId}`} author="NirmanShastra">
+    <Document title={`NirmanShastra StructurePro Report — ${reportId}`} author="NirmanShastra">
 
       {/* ═══════════════════════════════════════════════════════
           PAGE 1 — COVER
@@ -1164,10 +1164,10 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
               <Text style={{ ...S.tHeader, width: 80 }}>TOOL</Text>
             </View>
             {[
-              { phase: 'Phase 2', work: 'Brickwork + Masonry (9" + 4.5" walls)', pctLow: 20, pctHigh: 25, tool: 'MasonPro' },
-              { phase: 'Phase 2', work: 'Plaster + Waterproofing (IS 2645:2003)', pctLow: 8, pctHigh: 10, tool: 'MasonPro' },
-              { phase: 'Phase 3', work: 'Electrical Wiring + DB Panel (IS 732:2019)', pctLow: 8, pctHigh: 12, tool: 'ElectroPro' },
-              { phase: 'Phase 4', work: 'Plumbing + Drainage (IS 1172:1993)', pctLow: 6, pctHigh: 10, tool: 'PlumbPro' },
+              { phase: 'Phase 2', work: 'Brickwork + Masonry (9" + 4.5" walls)', pctLow: 20, pctHigh: 25, tool: 'MasonryPro' },
+              { phase: 'Phase 2', work: 'Plaster + Waterproofing (IS 2645:2003)', pctLow: 8, pctHigh: 10, tool: 'MasonryPro' },
+              { phase: 'Phase 3', work: 'Electrical Wiring + DB Panel (IS 732:2019)', pctLow: 8, pctHigh: 12, tool: 'ElectricalPro' },
+              { phase: 'Phase 4', work: 'Plumbing + Drainage (IS 1172:1993)', pctLow: 6, pctHigh: 10, tool: 'PlumbingPro' },
               { phase: 'Phase 5', work: 'Flooring, Kitchen, False Ceiling', pctLow: 10, pctHigh: 15, tool: 'InteriorPro' },
               { phase: 'Phase 5', work: 'Paint + Wall Finish (0.18L/sqft BUA)', pctLow: 4, pctHigh: 6, tool: 'InteriorPro' },
               { phase: '—', work: 'Doors + Windows (all frames + glazing)', pctLow: 8, pctHigh: 12, tool: '—' },
@@ -1378,7 +1378,7 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
 
           {/* Cross-sell content */}
           <Text style={{ ...S.eyebrow, marginTop: 8, marginBottom: 4 }}>NEXT — PHASE 2</Text>
-          <Text style={S.h2}>MasonPro — Masonry Cost Estimate</Text>
+          <Text style={S.h2}>MasonryPro — Masonry Cost Estimate</Text>
           <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 10, color: T.inkA60, marginBottom: 14, lineHeight: 1.6 }}>
             Your RCC structure estimate is complete. The next phase of construction is masonry —
             brickwork, plaster, and waterproofing. Masonry can begin 60-90 days after the RCC pour
@@ -1387,7 +1387,7 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
 
           {/* MasonPro features */}
           <View style={{ borderWidth: 1.5, borderColor: T.blueprint, borderStyle: 'solid', padding: 14, backgroundColor: T.blueprintBg, marginBottom: 14 }}>
-            <Text style={{ ...S.eyebrow, marginBottom: 8 }}>WHAT MASONPRO CALCULATES — IS 1077:1992 · IS 2212:1991 · IS 2645:2003</Text>
+            <Text style={{ ...S.eyebrow, marginBottom: 8 }}>WHAT MASONRYPRO CALCULATES — IS 1077:1992 · IS 2212:1991 · IS 2645:2003</Text>
             <View style={{ flexDirection: 'row', gap: 12 }}>
               <View style={{ flex: 1 }}>
                 {[
@@ -1436,7 +1436,7 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
             <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5 }}>
               Masonry starts 60-90 days after RCC pour — NOT 21 days as often quoted by contractors.
               IS 456:2000 requires minimum curing, then formwork stripping, then surface preparation.
-              Use this waiting period to prepare your MasonPro estimate so you have the quantities ready before masons arrive.
+              Use this waiting period to prepare your MasonryPro estimate so you have the quantities ready before masons arrive.
             </Text>
           </View>
 

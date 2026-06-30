@@ -48,7 +48,7 @@ const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'How much does it cost?',
         answer:
-          'VastuPro (Vastu compliance analysis) is completely free — no payment, no signup required. Each of the five paid estimation tools (StructoPro, MasonPro, ElectroPro, PlumbPro, InteriorPro) costs ₹499 per report. A bundle of all five costs ₹1,999.',
+          'VastuPro (Vastu compliance analysis) is completely free — no payment, no signup required. Each of the five paid estimation tools (StructurePro, MasonryPro, ElectricalPro, PlumbingPro, InteriorPro) costs ₹499 per report. A bundle of all five costs ₹1,999.',
       },
       {
         question: 'What do I get for ₹499?',
@@ -74,22 +74,22 @@ const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'What IS codes does NirmanShastra use?',
         answer:
-          'Each tool is built on the relevant Indian Standards: StructoPro uses IS 456:2000 (concrete) and IS 1893:2016 (seismic); MasonPro uses IS 1077:1992 (bricks) and IS 2250:1981 (mortar); ElectroPro uses IS 732:2019 (wiring); PlumbPro uses IS 1172:1993 (water requirements) and IS 4985:2000 (CPVC pipes); VastuPro uses the Vastu Purusha Mandala framework.',
+          'Each tool is built on the relevant Indian Standards: StructurePro uses IS 456:2000 (concrete) and IS 1893:2016 (seismic); MasonryPro uses IS 1077:1992 (bricks) and IS 2250:1981 (mortar); ElectricalPro uses IS 732:2019 (wiring); PlumbingPro uses IS 1172:1993 (water requirements) and IS 4985:2000 (CPVC pipes); VastuPro uses the Vastu Purusha Mandala framework.',
       },
       {
         question: 'Are the IS code values accurate and up to date?',
         answer:
-          'Yes. The core IS values — cement consumption, steel quantities, brick counts, mortar ratios — are locked from the published IS documents and are never altered. The StructoPro engine uses M20 = 8.07 bags/m³, column steel = 196.25 kg/m³, and other values exactly as specified in the standards.',
+          'Yes. The core IS values — cement consumption, steel quantities, brick counts, mortar ratios — are locked from the published IS documents and are never altered. The StructurePro engine uses M20 = 8.07 bags/m³, column steel = 196.25 kg/m³, and other values exactly as specified in the standards.',
       },
       {
         question: 'Why does my seismic zone matter for the structural estimate?',
         answer:
-          'IS 1893:2016 assigns different design lateral forces to each seismic zone. Higher zones (IV and V, covering Delhi, Guwahati, Srinagar) require more steel detailing and potentially higher concrete grades per IS 13920:2016. StructoPro auto-detects your seismic zone from your state and applies the correct parameters.',
+          'IS 1893:2016 assigns different design lateral forces to each seismic zone. Higher zones (IV and V, covering Delhi, Guwahati, Srinagar) require more steel detailing and potentially higher concrete grades per IS 13920:2016. StructurePro auto-detects your seismic zone from your state and applies the correct parameters.',
       },
       {
         question: 'What does the IS compliance panel check?',
         answer:
-          'StructoPro checks six IS compliance items: concrete grade vs IS 456 exposure class, minimum steel ratio, cover requirements per IS 456 Clause 26.4, seismic zone adequacy per IS 1893, foundation depth vs soil type, and minimum slab thickness. Each check returns a PASS / ADVISORY / FAIL stamp with the relevant IS clause cited.',
+          'StructurePro checks six IS compliance items: concrete grade vs IS 456 exposure class, minimum steel ratio, cover requirements per IS 456 Clause 26.4, seismic zone adequacy per IS 1893, foundation depth vs soil type, and minimum slab thickness. Each check returns a PASS / ADVISORY / FAIL stamp with the relevant IS clause cited.',
       },
     ],
   },

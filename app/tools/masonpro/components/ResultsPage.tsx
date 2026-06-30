@@ -172,7 +172,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         amount:      json.amount,
         currency:    json.currency || 'INR',
         name:        'NirmanShastra',
-        description: 'MasonPro Report — Phase 2 Masonry',
+        description: 'MasonryPro Report — Phase 2 Masonry',
         order_id:    json.orderId,
         prefill: { name: contactName, contact: input.state },
         notes: { estimateId },

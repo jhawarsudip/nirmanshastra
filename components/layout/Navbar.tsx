@@ -109,10 +109,10 @@ const COMPLIANCE_TOOLS = [
 ]
 
 const ESTIMATION_TOOLS = [
-  { phase: 'P1', name: 'StructoPro',  descriptor: 'Structural Cost & BOQ Estimator',  href: '/tools/structopro',   free: false },
-  { phase: 'P2', name: 'MasonPro',    descriptor: 'Masonry Cost & BOQ Estimator',      href: '/tools/masonpro',     free: false },
-  { phase: 'P3', name: 'ElectroPro',  descriptor: 'Electrical Cost & BOQ Estimator',   href: '/tools/electropro',   free: false },
-  { phase: 'P4', name: 'PlumbPro',    descriptor: 'Plumbing Cost & BOQ Estimator',     href: '/tools/plumbpro',     free: false },
+  { phase: 'P1', name: 'StructurePro',  descriptor: 'Structural Cost & BOQ Estimator',  href: '/tools/structopro',   free: false },
+  { phase: 'P2', name: 'MasonryPro',   descriptor: 'Masonry Cost & BOQ Estimator',      href: '/tools/masonpro',     free: false },
+  { phase: 'P3', name: 'ElectricalPro', descriptor: 'Electrical Cost & BOQ Estimator',  href: '/tools/electropro',   free: false },
+  { phase: 'P4', name: 'PlumbingPro',  descriptor: 'Plumbing Cost & BOQ Estimator',     href: '/tools/plumbpro',     free: false },
   { phase: 'P5', name: 'InteriorPro', descriptor: 'Interior Cost & BOQ Estimator',     href: '/tools/interiorpro',  free: false },
 ]
 

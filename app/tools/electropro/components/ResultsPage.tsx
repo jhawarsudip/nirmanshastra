@@ -171,7 +171,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         amount:      json.amount,
         currency:    json.currency || 'INR',
         name:        'NirmanShastra',
-        description: 'ElectroPro Report — Phase 3 Electrical',
+        description: 'ElectricalPro Report — Phase 3 Electrical',
         order_id:    json.orderId,
         prefill: { name: contactName, contact: input.state },
         notes: { estimateId },

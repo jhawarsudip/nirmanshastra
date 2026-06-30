@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const CODES_BY_TOOL = [
   {
-    tool: 'StructoPro',
+    tool: 'StructurePro',
     phase: 'P1',
     desc: 'RCC Structure Cost Estimator',
     codes: [
@@ -40,7 +40,7 @@ const CODES_BY_TOOL = [
       {
         code: 'IS 2911:2010',
         title: 'Design and Construction of Pile Foundations',
-        governs: 'Pile foundation parameters used in StructoPro for marshy and black cotton soil conditions.',
+        governs: 'Pile foundation parameters used in StructurePro for marshy and black cotton soil conditions.',
       },
       {
         code: 'IS 875:2015',
@@ -60,7 +60,7 @@ const CODES_BY_TOOL = [
     ],
   },
   {
-    tool: 'MasonPro',
+    tool: 'MasonryPro',
     phase: 'P2',
     desc: 'Masonry Cost Estimator',
     codes: [
@@ -112,7 +112,7 @@ const CODES_BY_TOOL = [
     ],
   },
   {
-    tool: 'ElectroPro',
+    tool: 'ElectricalPro',
     phase: 'P3',
     desc: 'Electrical Cost Estimator',
     codes: [
@@ -139,14 +139,14 @@ const CODES_BY_TOOL = [
     ],
   },
   {
-    tool: 'PlumbPro',
+    tool: 'PlumbingPro',
     phase: 'P4',
     desc: 'Plumbing Cost Estimator',
     codes: [
       {
         code: 'IS 1172:1993',
         title: 'Code of Basic Requirements for Water Supply, Drainage and Sanitation',
-        governs: 'Water demand rates (135 LPCD municipal, 150 LPCD borewell), tank sizing formula (daily demand × 0.67), and minimum fixture requirements — the basis of PlumbPro\'s free water demand calculator.',
+        governs: 'Water demand rates (135 LPCD municipal, 150 LPCD borewell), tank sizing formula (daily demand × 0.67), and minimum fixture requirements — the basis of PlumbingPro\'s free water demand calculator.',
       },
       {
         code: 'IS 1742:1983',

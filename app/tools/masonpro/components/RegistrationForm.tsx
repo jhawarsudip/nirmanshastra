@@ -139,14 +139,14 @@ export default function RegistrationForm({ onSubmit }: Props) {
               ))}
             </svg>
           </div>
-          <Image src="/masonpro-icon.png" alt="MasonPro" width={64} height={64} className="mb-4" style={{ objectFit: 'contain' }} />
+          <Image src="/masonpro-icon.png" alt="MasonryPro" width={64} height={64} className="mb-4" style={{ objectFit: 'contain' }} />
           <p className="text-[11px] uppercase tracking-widest mb-2"
             style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 2 · ₹499 REPORT
           </p>
           <h1 className="font-bold leading-tight mb-2"
             style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}>
-            MasonPro
+            MasonryPro
           </h1>
           <p className="text-[14px]"
             style={{ color: 'rgba(244,244,240,0.55)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>

@@ -109,7 +109,7 @@ const INFO: Record<string, { title: string; body: string; is?: string }> = {
   cover:           { title: 'Concrete Cover (read-only)', body: 'Auto-set from exposure class. IS 456:2000 Table 16: Mild=40mm, Moderate=45mm, Severe=50mm, Very Severe=55mm, Extreme=60mm.', is: 'IS 456:2000 Table 16' },
   staircase:       { title: 'Staircase', body: 'NBC 2016 mandates: tread min 250mm, riser max 190mm, clear width min 900mm. Dog-leg is standard for residential. Open well suits G+3 and above.', is: 'NBC 2016 Part 3 Cl 4.2' },
   oht:             { title: 'Overhead Tank', body: 'HDPE (IS 12701) tanks are lighter and leak-free. RCC tanks save material cost but add structural load. OHT = Daily demand × 0.67 (IS 1172:1993).', is: 'IS 1172:1993 + IS 12701' },
-  parapet:         { title: 'Parapet Wall', body: 'NBC 2016 minimum height 900mm for occupied terraces. The RCC band is structural — built with the slab pour. MasonPro handles brick/block parapet infill.', is: 'NBC 2016 Part 4 Cl 3.3' },
+  parapet:         { title: 'Parapet Wall', body: 'NBC 2016 minimum height 900mm for occupied terraces. The RCC band is structural — built with the slab pour. MasonryPro handles brick/block parapet infill.', is: 'NBC 2016 Part 4 Cl 3.3' },
   parking:         { title: 'Stilt Ground Floor', body: 'Stilt parking creates a soft storey — GF is much weaker than upper floors. IS 1893:2016 Cl 7.10 requires special structural design.', is: 'IS 1893:2016 Cl 7.10' },
   cpwd:            { title: 'CPWD Productivity (Editable)', body: 'CPWD publishes standard output per worker per day. These are reference values — edit to match your site. Labour total shown only in your paid PDF report.', is: 'CPWD DSR 2023' },
 }
@@ -555,7 +555,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
     <form onSubmit={e => e.preventDefault()} className="space-y-4 py-8 px-6 md:px-10">
       <div className="mb-2">
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>P1 · RCC STRUCTURE ESTIMATOR</p>
-        <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 32, fontWeight: 700, color: '#1E2227', lineHeight: 1.15 }}>StructoPro — Build Details</h2>
+        <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 32, fontWeight: 700, color: '#1E2227', lineHeight: 1.15 }}>StructurePro — Build Details</h2>
         <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.55)', marginTop: 6 }}>Fill all sections to generate your IS-code verified structural estimate</p>
       </div>
 
@@ -952,7 +952,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
                 </div>
               </div>
               <p className="text-[12px]" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
-                Note: RCC band built during structural pour. Brick/block infill covered by MasonPro.
+                Note: RCC band built during structural pour. Brick/block infill covered by MasonryPro.
               </p>
             </div>
           )}

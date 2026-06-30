@@ -29,28 +29,28 @@ const VASTU_TOOL = {
 
 const PAID_TOOLS = [
   {
-    phase: 'P1', name: 'StructoPro',
+    phase: 'P1', name: 'StructurePro',
     descriptor: 'Structural Cost & BOQ Estimator',
     tagline: 'Structural Cost',
     desc: 'Foundations, columns, beams, slabs per IS 456:2000. M20 / M25 / M30 grades.',
     price: '₹499', free: false, href: '/tools/structopro',
   },
   {
-    phase: 'P2', name: 'MasonPro',
+    phase: 'P2', name: 'MasonryPro',
     descriptor: 'Masonry Cost & BOQ Estimator',
     tagline: 'Masonry Cost',
     desc: 'All 8 wall types — brick, AAC, hollow block — plaster and waterproofing per IS 1077:1992.',
     price: '₹499', free: false, href: '/tools/masonpro',
   },
   {
-    phase: 'P3', name: 'ElectroPro',
+    phase: 'P3', name: 'ElectricalPro',
     descriptor: 'Electrical Cost & BOQ Estimator',
     tagline: 'Electrical Cost',
     desc: 'Wiring, DB panels, earthing per IS 732:2019. Circuit-by-circuit breakdown.',
     price: '₹499', free: false, href: '/tools/electropro',
   },
   {
-    phase: 'P4', name: 'PlumbPro',
+    phase: 'P4', name: 'PlumbingPro',
     descriptor: 'Plumbing Cost & BOQ Estimator',
     tagline: 'Plumbing Cost',
     desc: 'Water supply, drainage, sanitary fixtures per IS 1172:1993. Tank sizing included.',
@@ -338,10 +338,10 @@ function SectionHeader({ clause, title, dark = false }: { clause: string; title:
 
 const motifMap: Record<string, React.ReactElement> = {
   P0: <Image src="/vastupro-icon.png"    alt="VastuPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
-  P1: <Image src="/structopro-icon.png"  alt="StructoPro"  width={80} height={80} style={{ objectFit: 'contain' }} />,
-  P2: <Image src="/masonpro-icon.png"    alt="MasonPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
-  P3: <Image src="/electropro-icon.png"  alt="ElectroPro"  width={80} height={80} style={{ objectFit: 'contain' }} />,
-  P4: <Image src="/plumbpro-icon.png"    alt="PlumbPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P1: <Image src="/structopro-icon.png"  alt="StructurePro"  width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P2: <Image src="/masonpro-icon.png"    alt="MasonryPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P3: <Image src="/electropro-icon.png"  alt="ElectricalPro"  width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P4: <Image src="/plumbpro-icon.png"    alt="PlumbingPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
   P5: <Image src="/interiorpro-icon.png" alt="InteriorPro" width={80} height={80} style={{ objectFit: 'contain' }} />,
 }
 
@@ -741,7 +741,7 @@ export default function Home() {
                 COMPLETE BUNDLE — ALL 5 PAID TOOLS
               </p>
               <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.57)' }}>
-                StructoPro · MasonPro · ElectroPro · PlumbPro · InteriorPro
+                StructurePro · MasonryPro · ElectricalPro · PlumbingPro · InteriorPro
                 {' '}&mdash; saves{' '}
                 <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹496</span> vs buying separately
               </p>
@@ -1000,7 +1000,7 @@ export default function Home() {
                 <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Single Tool</h3>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>IS-Code BOQ Estimator</p>
                 <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹499</div>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>per report · StructoPro to InteriorPro</p>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>per report · StructurePro to InteriorPro</p>
               </div>
               <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {['Exact material quantities','Itemised cost breakdown','IS code compliance panel','CPWD labour cost calculator','Contractor quote comparison','PDF report with SVG drawings'].map(f => (
@@ -1013,7 +1013,7 @@ export default function Home() {
                 href="/tools/structopro"
                 style={{ display: 'block', textAlign: 'center', background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '14px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
               >
-                Start with StructoPro →
+                Start with StructurePro →
               </Link>
             </motion.div>
 
@@ -1038,7 +1038,7 @@ export default function Home() {
                 </p>
               </div>
               <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {['StructoPro + MasonPro','ElectroPro + PlumbPro','InteriorPro','All quantities across all phases','Cross-phase contractor comparison','Grand Total Report (₹999) free'].map(f => (
+                {['StructurePro + MasonryPro','ElectricalPro + PlumbingPro','InteriorPro','All quantities across all phases','Cross-phase contractor comparison','Grand Total Report (₹999) free'].map(f => (
                   <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
                     <span style={{ color: '#8C3A22', fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
                   </li>

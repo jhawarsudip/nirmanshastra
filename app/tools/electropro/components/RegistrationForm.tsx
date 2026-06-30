@@ -170,14 +170,14 @@ export default function RegistrationForm({ onSubmit }: Props) {
               ))}
             </svg>
           </div>
-          <div className="mb-4"><Image src="/electropro-icon.png" alt="ElectroPro" width={64} height={64} style={{ objectFit: 'contain' }} /></div>
+          <div className="mb-4"><Image src="/electropro-icon.png" alt="ElectricalPro" width={64} height={64} style={{ objectFit: 'contain' }} /></div>
           <p className="text-[11px] uppercase tracking-widest mb-2"
             style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
             PHASE 3 · ₹499 REPORT
           </p>
           <h1 className="font-bold leading-tight mb-2"
             style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}>
-            ElectroPro
+            ElectricalPro
           </h1>
           <p className="text-[14px]"
             style={{ color: 'rgba(244,244,240,0.55)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>

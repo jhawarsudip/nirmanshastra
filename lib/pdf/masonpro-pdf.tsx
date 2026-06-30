@@ -401,8 +401,8 @@ function PageCover({ input, result, contact, reportId, projectName, date }: Prop
         <PageHeader reportId={reportId} page={1} total={11} />
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <View style={{ flex: 1 }}>
-            <Text style={[S.eyebrow, { fontSize: 9, marginBottom: 8 }]}>MASONPRO · PHASE 2 — MASONRY</Text>
-            <Text style={S.h1}>MasonPro</Text>
+            <Text style={[S.eyebrow, { fontSize: 9, marginBottom: 8 }]}>MASONRYPRO · PHASE 2 — MASONRY</Text>
+            <Text style={S.h1}>MasonryPro</Text>
             <Text style={[S.h2, { color: T.blueprint, marginTop: 2 }]}>Phase 2 Masonry</Text>
             <Text style={[S.body, { marginTop: 4, color: T.inkA60 }]}>
               IS 1077:1992 · IS 2212:1991 · IS 12894:2002 · IS 2185:2005 · IS 4326:1993 · IS 1661:1972 · IS 2645:2003
@@ -1104,10 +1104,10 @@ function PageCostSummary({ result, reportId, date }: Props & { reportId: string 
           borderWidth: 1, borderColor: T.blueprint, borderStyle: 'solid',
           padding: 12, marginTop: 16,
         }}>
-          <Text style={[S.eyebrow, { color: T.blueprint, marginBottom: 4 }]}>NEXT — PHASE 3: ELECTROPRO</Text>
+          <Text style={[S.eyebrow, { color: T.blueprint, marginBottom: 4 }]}>NEXT — PHASE 3: ELECTRICALPRO</Text>
           <Text style={[S.h3, { color: T.blueprint }]}>Electrical wiring comes immediately after masonry.</Text>
           <Text style={[S.body, { color: T.inkA60, marginTop: 4 }]}>
-            Conduit laying and wiring must be done before wall plaster is applied. Use ElectroPro to estimate
+            Conduit laying and wiring must be done before wall plaster is applied. Use ElectricalPro to estimate
             wire lengths, MCB ratings, DB schedule, and earthing before your electrician quotes you.
           </Text>
           <Text style={[S.mono, { color: T.blueprint, marginTop: 8, fontSize: 8 }]}>
@@ -1117,7 +1117,7 @@ function PageCostSummary({ result, reportId, date }: Props & { reportId: string 
 
         <View style={{ marginTop: 12 }}>
           <Text style={[S.monoSm, { color: T.inkA35 }]}>
-            Report generated: {date.toLocaleString('en-IN')} · {reportId} · NirmanShastra MasonPro Phase 2{'\n'}
+            Report generated: {date.toLocaleString('en-IN')} · {reportId} · NirmanShastra MasonryPro Phase 2{'\n'}
             IS 1077:1992 + IS 2212:1991 + IS 1661:1972 + IS 2645:2003 + IS 4326:1993 · Pune 2026 rates{'\n'}
             For estimation only. Verify quantities with structural drawings before procurement.
           </Text>
@@ -1293,7 +1293,7 @@ function WallSectionSchematicPage({ reportId }: { reportId: string }) {
 export default function MasonProPDF(props: Props) {
   return (
     <Document
-      title={`MasonPro Report — ${props.reportId}`}
+      title={`MasonryPro Report — ${props.reportId}`}
       author="NirmanShastra"
       subject="Phase 2 Masonry Cost Estimate — IS 1077:1992 + IS 2212:1991"
     >

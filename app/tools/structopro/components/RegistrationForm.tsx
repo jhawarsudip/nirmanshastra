@@ -157,7 +157,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
               <text x="84" y="34" fontSize="14" fill="#F4F4F0" fontFamily="monospace">C1</text>
             </svg>
           </div>
-          <Image src="/structopro-icon.png" alt="StructoPro" width={64} height={64} className="mb-4" style={{ objectFit: 'contain' }} />
+          <Image src="/structopro-icon.png" alt="StructurePro" width={64} height={64} className="mb-4" style={{ objectFit: 'contain' }} />
           <p
             className="text-[11px] uppercase tracking-widest mb-2"
             style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}
@@ -168,7 +168,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
             className="font-bold leading-tight mb-2"
             style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}
           >
-            StructoPro
+            StructurePro
           </h1>
           <p
             className="text-[14px]"

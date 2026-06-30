@@ -34,10 +34,10 @@ declare global {
 const PAYMENT_BYPASS = true
 
 const TOOLS: { key: AppTypeKey; phase: string; name: string; label: string; href: string }[] = [
-  { key: 'structopro',  phase: 'P1', name: 'StructoPro',  label: 'Phase 1 — RCC Structure', href: '/tools/structopro'  },
-  { key: 'masonpro',    phase: 'P2', name: 'MasonPro',    label: 'Phase 2 — Masonry',       href: '/tools/masonpro'    },
-  { key: 'electropro',  phase: 'P3', name: 'ElectroPro',  label: 'Phase 3 — Electrical',    href: '/tools/electropro'  },
-  { key: 'plumbpro',    phase: 'P4', name: 'PlumbPro',    label: 'Phase 4 — Plumbing',      href: '/tools/plumbpro'    },
+  { key: 'structopro',  phase: 'P1', name: 'StructurePro',  label: 'Phase 1 — RCC Structure', href: '/tools/structopro'  },
+  { key: 'masonpro',    phase: 'P2', name: 'MasonryPro',   label: 'Phase 2 — Masonry',       href: '/tools/masonpro'    },
+  { key: 'electropro',  phase: 'P3', name: 'ElectricalPro', label: 'Phase 3 — Electrical',   href: '/tools/electropro'  },
+  { key: 'plumbpro',    phase: 'P4', name: 'PlumbingPro',  label: 'Phase 4 — Plumbing',      href: '/tools/plumbpro'    },
   { key: 'interiorpro', phase: 'P5', name: 'InteriorPro', label: 'Phase 5 — Interior',      href: '/tools/interiorpro' },
 ]
 
