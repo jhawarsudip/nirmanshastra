@@ -468,10 +468,6 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const today = new Date().toLocaleDateString('en-IN', {
-    day: '2-digit', month: 'short', year: 'numeric',
-  })
-
   const sectionRef = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   const heroIllustrationY = useTransform(scrollY, [0, 700], [0, -90])
@@ -1098,7 +1094,7 @@ export default function Home() {
       {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer style={{ borderTop: '1px solid #1E2227', background: '#1E2227', marginTop: 0 }}>
         <div style={{ borderLeft: '1px solid rgba(244,244,240,0.1)', borderRight: '1px solid rgba(244,244,240,0.1)' }}>
-          <div className="grid grid-cols-2 md:grid-cols-4 px-6 md:px-16 lg:px-24" style={{ borderBottom: '1px solid rgba(244,244,240,0.1)' }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 px-6 md:px-16 lg:px-24" style={{ borderBottom: '1px solid rgba(244,244,240,0.1)' }}>
 
             <div style={{ padding: '32px 0 32px 0', paddingRight: 40, borderRight: '1px solid rgba(244,244,240,0.1)' }}>
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>TOOLS</p>
@@ -1115,34 +1111,17 @@ export default function Home() {
             <div style={{ padding: '32px 0 32px 40px', borderRight: '1px solid rgba(244,244,240,0.1)', paddingRight: 40 }}>
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>COMPANY</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {[['About', '#'], ['Contact', '#'], ['Blog', '#'], ['Careers', '#']].map(([label, href]) => (
-                  <a key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</a>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ padding: '32px 0 32px 40px', borderRight: '1px solid rgba(244,244,240,0.1)', paddingRight: 40 }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>LEGAL</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {[['Privacy Policy', '#'], ['Terms of Use', '#'], ['Disclaimer', '#'], ['IS Codes Used', '#']].map(([label, href]) => (
-                  <a key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</a>
+                {[['About', '/about'], ['Contact', '/contact'], ['Blog', '/blog'], ['Careers', '/careers']].map(([label, href]) => (
+                  <Link key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</Link>
                 ))}
               </div>
             </div>
 
             <div style={{ padding: '32px 0 32px 40px' }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>DRG BLOCK</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {[
-                  ['PROJECT', 'NIRMANSHASTRA'],
-                  ['DRG NO.', 'NS-001'],
-                  ['DATE', today],
-                  ['REV', 'A'],
-                ].map(([k, v]) => (
-                  <div key={k} style={{ display: 'flex', gap: 10 }}>
-                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase', minWidth: 60, flexShrink: 0 }}>{k}</span>
-                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(244,244,240,0.8)' }}>{v}</span>
-                  </div>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>LEGAL</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[['Privacy Policy', '/privacy-policy'], ['Terms of Use', '/terms-of-use'], ['Disclaimer', '/disclaimer'], ['IS Codes Used', '/is-codes-used']].map(([label, href]) => (
+                  <Link key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</Link>
                 ))}
               </div>
             </div>
