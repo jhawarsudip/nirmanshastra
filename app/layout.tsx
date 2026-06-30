@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   IBM_Plex_Serif,
   IBM_Plex_Sans,
@@ -8,6 +8,8 @@ import {
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar"
 import AIChatbox from "@/app/components/AIChatbox";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import InstallPrompt from "@/components/InstallPrompt";
 
 const plexSerif = IBM_Plex_Serif({
   variable: "--font-plex-serif",
@@ -36,6 +38,22 @@ const plexDevanagari = IBM_Plex_Sans_Devanagari({
 export const metadata: Metadata = {
   title: "NirmanShastra — Build With Certainty",
   description: "India's IS-code backed construction cost estimation platform",
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'NirmanShastra',
+  },
+  icons: {
+    apple: '/icon-192.png',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#1E2227',
+  width: 'device-width',
+  initialScale: 1,
+  minimumScale: 1,
 };
 
 export default function RootLayout({
@@ -57,6 +75,8 @@ export default function RootLayout({
         <Navbar />
         {children}
         <AIChatbox />
+        <InstallPrompt />
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );
