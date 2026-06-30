@@ -1006,6 +1006,41 @@ export default function Home() {
             </motion.div>
           </div>
 
+          {/* Grand Total Report — standalone card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.35, delay: 0.3 }}
+            style={{ border: '1px solid #1E2227', padding: '32px 40px', background: '#F4F4F0', display: 'flex', flexWrap: 'wrap', gap: 32, alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}
+          >
+            <div style={{ position: 'absolute', top: -1, left: 24, background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '4px 12px', letterSpacing: '0.05em' }}>
+              MASTER REPORT
+            </div>
+            <div style={{ flex: '1 1 400px' }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.07em', marginBottom: 8, marginTop: 8 }}>COMBINE ALL 5 PHASES · ONE MASTER BOQ</p>
+              <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', marginBottom: 6 }}>Grand Total Report</h3>
+              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(30,34,39,0.6)', lineHeight: 1.6, maxWidth: 500 }}>
+                Combine all 5 phases into one master report. Phase-wise cost breakdown, construction timeline Gantt chart,
+                combined IS code compliance, and a 12-page contractor-ready PDF.
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12 }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 36, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹999</div>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginTop: 4 }}>
+                  Free with bundle · ₹2,495 saved vs individual
+                </p>
+              </div>
+              <Link
+                href="/tools/grand-total"
+                style={{ display: 'block', textAlign: 'center', background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '12px 28px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em', whiteSpace: 'nowrap' }}
+              >
+                Generate Grand Total Report →
+              </Link>
+            </div>
+          </motion.div>
+
         </div>
       </section>
 

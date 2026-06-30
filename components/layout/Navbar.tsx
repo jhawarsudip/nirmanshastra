@@ -109,11 +109,15 @@ const COMPLIANCE_TOOLS = [
 ]
 
 const ESTIMATION_TOOLS = [
-  { phase: 'P1', name: 'StructoPro',  descriptor: 'Structural Cost & BOQ Estimator',  href: '/tools/structopro',  free: false },
-  { phase: 'P2', name: 'MasonPro',    descriptor: 'Masonry Cost & BOQ Estimator',      href: '/tools/masonpro',    free: false },
-  { phase: 'P3', name: 'ElectroPro',  descriptor: 'Electrical Cost & BOQ Estimator',   href: '/tools/electropro',  free: false },
-  { phase: 'P4', name: 'PlumbPro',    descriptor: 'Plumbing Cost & BOQ Estimator',     href: '/tools/plumbpro',    free: false },
-  { phase: 'P5', name: 'InteriorPro', descriptor: 'Interior Cost & BOQ Estimator',     href: '/tools/interiorpro', free: false },
+  { phase: 'P1', name: 'StructoPro',  descriptor: 'Structural Cost & BOQ Estimator',  href: '/tools/structopro',   free: false },
+  { phase: 'P2', name: 'MasonPro',    descriptor: 'Masonry Cost & BOQ Estimator',      href: '/tools/masonpro',     free: false },
+  { phase: 'P3', name: 'ElectroPro',  descriptor: 'Electrical Cost & BOQ Estimator',   href: '/tools/electropro',   free: false },
+  { phase: 'P4', name: 'PlumbPro',    descriptor: 'Plumbing Cost & BOQ Estimator',     href: '/tools/plumbpro',     free: false },
+  { phase: 'P5', name: 'InteriorPro', descriptor: 'Interior Cost & BOQ Estimator',     href: '/tools/interiorpro',  free: false },
+]
+
+const REPORTS_TOOLS = [
+  { phase: 'GT', name: 'Grand Total Report', descriptor: 'Master Project Report — All 5 Phases', href: '/tools/grand-total', price: '₹999' },
 ]
 
 export default function Navbar() {
@@ -259,6 +263,31 @@ export default function Navbar() {
                   </div>
                   <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#1F4E79', border: '1px solid #1F4E79', letterSpacing: '0.04em', flexShrink: 0 }}>
                     ₹499
+                  </span>
+                </Link>
+              ))}
+
+              {/* Section 3: Reports */}
+              <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderTop: '1px solid rgba(244,244,240,0.1)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
+                <span style={{ ...mono, fontSize: 9, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Master Reports
+                </span>
+              </div>
+              {REPORTS_TOOLS.map(t => (
+                <Link
+                  key={t.name}
+                  href={t.href}
+                  onClick={() => setToolsOpen(false)}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', textDecoration: 'none', gap: 10 }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {t.descriptor}
+                    </div>
+                  </div>
+                  <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#8C3A22', border: '1px solid #8C3A22', letterSpacing: '0.04em', flexShrink: 0 }}>
+                    {t.price}
                   </span>
                 </Link>
               ))}
