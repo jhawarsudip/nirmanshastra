@@ -1236,9 +1236,9 @@ function EngineeringMethodPage({ reportId }: { reportId: string }) {
 
 // ─── Plumbing Riser Schematic Page ───────────────────────────────────────────
 
-function PlumbingRiserSchematicPage({ result, reportId }: { result: PlumbResult; reportId: string }) {
+function PlumbingRiserSchematicPage({ input, result, reportId }: { input: PlumbInput; result: PlumbResult; reportId: string }) {
   const ohtL = result.waterDemand.ohtL
-  const floors = result.waterDemand.numFloors ?? 2
+  const floors = input.numFloors ?? 2
   const floorYPositions = [80, 145, 210].slice(0, Math.min(floors + 1, 3))
   return (
     <Page size="A4" style={S.page}>
@@ -1343,7 +1343,7 @@ export default function PlumbProPDF(props: Props) {
       <FixtureSchedulePage result={props.result} />
       <QualityChecklistPage />
       <CostSummaryPage    result={props.result} reportId={props.reportId} />
-      <PlumbingRiserSchematicPage result={props.result} reportId={props.reportId} />
+      <PlumbingRiserSchematicPage input={props.input} result={props.result} reportId={props.reportId} />
       <EngineeringMethodPage reportId={props.reportId} />
     </Document>
   )
