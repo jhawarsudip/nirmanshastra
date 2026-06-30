@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useMemo } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -185,16 +186,26 @@ export default function Navbar() {
       {/* Logo — 5 rapid clicks opens admin modal */}
       <button
         onClick={handleLogoClick}
-        className="flex flex-col leading-none flex-shrink-0"
+        className="flex items-center gap-2 leading-none flex-shrink-0"
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
         aria-label="NirmanShastra home"
       >
-        <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, lineHeight: 1.1 }}>
-          <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
-        </span>
-        <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 11, color: '#C9A84C', opacity: 0.7, marginTop: 1 }}>
-          निर्माणशास्त्र
-        </span>
+        <Image
+          src="/logo-mark-reversed.png"
+          alt=""
+          width={128}
+          height={128}
+          style={{ width: 32, height: 32, flexShrink: 0 }}
+          priority
+        />
+        <div className="flex flex-col">
+          <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, lineHeight: 1.1 }}>
+            <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
+          </span>
+          <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 11, color: '#C9A84C', opacity: 0.7, marginTop: 1 }}>
+            निर्माणशास्त्र
+          </span>
+        </div>
       </button>
 
       {/* Centre nav */}
