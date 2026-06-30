@@ -4,8 +4,10 @@
 
 import React from 'react'
 import {
+  Circle,
   Document,
   Font,
+  Line,
   Page,
   Rect,
   StyleSheet,
@@ -1189,6 +1191,103 @@ function PageEngineeringMethod({ reportId }: { reportId: string }) {
   )
 }
 
+// ─── Wall Section Schematic Page ─────────────────────────────────────────────
+
+function WallSectionSchematicPage({ reportId }: { reportId: string }) {
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+          <View>
+            <Text style={S.eyebrow}>NIRMANSHASTRA · MASONPRO · IS 2212:1991 · IS 4326:1993</Text>
+            <Text style={S.h2}>Wall Section Detail — Schematic</Text>
+          </View>
+          <View style={{ borderWidth: 1, borderColor: T.inkA35, borderStyle: 'solid', padding: 5 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>NOT FOR CONSTRUCTION</Text>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>SCHEMATIC ONLY</Text>
+          </View>
+        </View>
+        <View style={S.rule} />
+
+        {/* Wall cross-section SVG */}
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>
+          9&quot; BRICK WALL — ENGLISH BOND — CROSS SECTION
+        </Text>
+        <Svg viewBox="0 0 440 260" style={{ width: 396, height: 234 }}>
+          {/* Left internal plaster */}
+          <Rect x={10} y={10} width={14} height={200} fill={T.inkA15} stroke={T.ironInk} strokeWidth={0.5} />
+          {/* Wall body outline */}
+          <Rect x={24} y={10} width={165} height={200} fill="none" stroke={T.ironInk} strokeWidth={1.2} />
+          {/* Mortar joints (horizontal) */}
+          <Line x1={24} y1={48} x2={189} y2={48} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={24} y1={86} x2={189} y2={86} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={24} y1={112} x2={189} y2={112} strokeWidth={0.7} stroke={T.ironInk} />
+          {/* RC Seismic Band */}
+          <Rect x={24} y={112} width={165} height={28} fill={T.blueprintBg} stroke={T.blueprint} strokeWidth={1} />
+          <Text x={32} y={123} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.blueprint }}>RC SEISMIC BAND — IS 4326:1993</Text>
+          <Text x={32} y={133} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>Mandatory Seismic Zone III-V</Text>
+          <Line x1={24} y1={140} x2={189} y2={140} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={24} y1={178} x2={189} y2={178} strokeWidth={0.7} stroke={T.ironInk} />
+          {/* Stretcher course vertical joints — course 1 */}
+          <Line x1={79} y1={10} x2={79} y2={48} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={134} y1={10} x2={134} y2={48} strokeWidth={0.7} stroke={T.ironInk} />
+          {/* Header course vertical joints — course 2 */}
+          <Line x1={65} y1={48} x2={65} y2={86} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={106} y1={48} x2={106} y2={86} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={148} y1={48} x2={148} y2={86} strokeWidth={0.7} stroke={T.ironInk} />
+          {/* Stretcher — course 3 */}
+          <Line x1={79} y1={86} x2={79} y2={112} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={134} y1={86} x2={134} y2={112} strokeWidth={0.7} stroke={T.ironInk} />
+          {/* Stretcher — course 4 (below seismic band) */}
+          <Line x1={79} y1={140} x2={79} y2={178} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={134} y1={140} x2={134} y2={178} strokeWidth={0.7} stroke={T.ironInk} />
+          {/* Header — course 5 */}
+          <Line x1={65} y1={178} x2={65} y2={210} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={106} y1={178} x2={106} y2={210} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={148} y1={178} x2={148} y2={210} strokeWidth={0.7} stroke={T.ironInk} />
+          {/* Right external plaster */}
+          <Rect x={189} y={10} width={16} height={200} fill={T.inkA15} stroke={T.ironInk} strokeWidth={0.5} />
+          {/* Plaster labels */}
+          <Text x={1} y={100} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>12mm</Text>
+          <Text x={1} y={108} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }}>Int.</Text>
+          <Text x={208} y={100} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>15mm</Text>
+          <Text x={208} y={108} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }}>Ext.</Text>
+          {/* Wall width dimension */}
+          <Line x1={24} y1={222} x2={189} y2={222} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={24} y1={218} x2={24} y2={226} strokeWidth={0.7} stroke={T.ironInk} />
+          <Line x1={189} y1={218} x2={189} y2={226} strokeWidth={0.7} stroke={T.ironInk} />
+          <Text x={72} y={234} style={{ fontFamily: 'IBMPlexMono', fontSize: 7, fill: T.ironInk }}>230mm (9&quot; wall)</Text>
+          {/* Course type labels */}
+          <Text x={196} y={32} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Stretcher</Text>
+          <Text x={196} y={70} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Header</Text>
+          <Text x={196} y={102} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Stretcher</Text>
+          <Text x={196} y={162} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Stretcher</Text>
+          <Text x={196} y={196} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Header</Text>
+          {/* IS ref line */}
+          <Text x={10} y={252} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.inkA60 }}>
+            IS 2212:1991 English Bond · 1:6 C:S Mortar · 10mm joints · IS 1661:1972 Plaster · IS 4326:1993 Seismic Band
+          </Text>
+        </Svg>
+
+        {/* Disclaimer */}
+        <View style={{ marginTop: 12, borderWidth: 1, borderColor: T.stampOxide, borderStyle: 'solid', padding: 7, backgroundColor: T.oxideBg }}>
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.stampOxide, letterSpacing: 0.5, marginBottom: 3 }}>
+            DISCLAIMER — SCHEMATIC ONLY
+          </Text>
+          <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 7.5, color: T.ironInk, lineHeight: 1.5 }}>
+            This schematic is for illustrative purposes only. Wall section design and seismic band requirements must be verified by a licensed structural engineer per IS 4326:1993 and local seismic zone classification.
+          </Text>
+        </View>
+
+        <View style={{ flex: 1 }} />
+        <View style={{ marginTop: 8, borderTopWidth: 0.5, borderTopColor: T.inkA35, borderTopStyle: 'solid', paddingTop: 6 }}>
+          <Text style={S.monoSm}>NIRMANSHASTRA · MASONPRO · {reportId} · SCHEMATIC</Text>
+        </View>
+      </View>
+    </Page>
+  )
+}
+
 // ─── Main document ────────────────────────────────────────────────────────────
 
 export default function MasonProPDF(props: Props) {
@@ -1209,6 +1308,7 @@ export default function MasonProPDF(props: Props) {
       <PagePlasterBOQ        {...props} reportId={props.reportId} />
       <PageSiteQCChecklist   reportId={props.reportId} />
       <PageCostSummary       {...props} reportId={props.reportId} />
+      <WallSectionSchematicPage reportId={props.reportId} />
       <PageEngineeringMethod reportId={props.reportId} />
     </Document>
   )

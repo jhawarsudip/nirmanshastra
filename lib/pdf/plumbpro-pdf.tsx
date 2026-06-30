@@ -1234,6 +1234,100 @@ function EngineeringMethodPage({ reportId }: { reportId: string }) {
   )
 }
 
+// ─── Plumbing Riser Schematic Page ───────────────────────────────────────────
+
+function PlumbingRiserSchematicPage({ result, reportId }: { result: PlumbResult; reportId: string }) {
+  const ohtL = result.waterDemand.ohtL
+  const floors = result.waterDemand.numFloors ?? 2
+  const floorYPositions = [80, 145, 210].slice(0, Math.min(floors + 1, 3))
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+          <View>
+            <Text style={S.eyebrow}>NIRMANSHASTRA · PLUMBPRO · IS 1172:1993 · IS 1742:1983</Text>
+            <Text style={S.h2}>Plumbing Riser Diagram — Schematic</Text>
+          </View>
+          <View style={{ borderWidth: 1, borderColor: T.inkA35, borderStyle: 'solid', padding: 5 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>NOT FOR CONSTRUCTION</Text>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>LICENSED PLUMBER REQUIRED</Text>
+          </View>
+        </View>
+        <View style={S.rule} />
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>
+          COMBINED SUPPLY & DRAINAGE RISER — SCHEMATIC
+        </Text>
+        <Svg viewBox="0 0 440 380" style={{ width: 396, height: 342 }}>
+          {/* OVERHEAD TANK */}
+          <Rect x={120} y={10} width={100} height={28} fill={T.blueprintBg} stroke={T.blueprint} strokeWidth={1.2} />
+          <Text x={125} y={24} style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, fill: T.blueprint }}>HDPE TANK</Text>
+          <Text x={125} y={33} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.inkA60 }}>{ohtL}L — IS 12701</Text>
+
+          {/* Supply riser (main vertical — 32mm CPVC) */}
+          <Line x1={170} y1={38} x2={170} y2={285} strokeWidth={2} stroke={T.ironInk} />
+          <Text x={172} y={280} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>32mm CPVC</Text>
+
+          {/* Floor branches (supply) */}
+          {floorYPositions.map((y, i) => (
+            <React.Fragment key={`fl-${i}`}>
+              <Line x1={170} y1={y} x2={270} y2={y} strokeWidth={1.2} stroke={T.blueprint} />
+              <Text x={275} y={y + 4} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>
+                {i === 0 ? 'Ground Fl.' : `Floor ${i}`} — Cold Supply — 20mm CPVC
+              </Text>
+            </React.Fragment>
+          ))}
+
+          {/* Drainage stack (110mm SWR) */}
+          <Line x1={90} y1={38} x2={90} y2={320} strokeWidth={2} stroke={T.ironInk} strokeDasharray="6,3" />
+          <Text x={50} y={180} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.inkA60 }}>110mm</Text>
+          <Text x={50} y={188} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.inkA60 }}>SWR Stack</Text>
+          <Text x={50} y={196} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>1:80 slope</Text>
+
+          {/* Floor drain connections to drainage stack */}
+          {floorYPositions.map((y, i) => (
+            <React.Fragment key={`dr-${i}`}>
+              <Line x1={90} y1={y + 10} x2={140} y2={y + 10} strokeWidth={0.8} stroke={T.inkA60} strokeDasharray="3,3" />
+            </React.Fragment>
+          ))}
+
+          {/* SUMP */}
+          <Rect x={70} y={320} width={100} height={28} fill="none" stroke={T.ironInk} strokeWidth={1.2} />
+          <Text x={80} y={335} style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, fill: T.ironInk }}>SUMP TANK</Text>
+          <Text x={80} y={344} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.inkA60 }}>IS 12701 HDPE</Text>
+
+          {/* Pump (circle P between sump and OHT) */}
+          <Circle cx={170} cy={310} r={12} fill={T.sheetWhite} stroke={T.ironInk} strokeWidth={1} />
+          <Text x={164} y={314} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, fill: T.ironInk }}>P</Text>
+          <Line x1={120} y1={320} x2={158} y2={316} strokeWidth={1} stroke={T.ironInk} />
+          <Line x1={170} y1={298} x2={170} y2={285} strokeWidth={1.5} stroke={T.ironInk} />
+          <Text x={185} y={314} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.inkA60 }}>{result.waterDemand.pumpHPStandard}</Text>
+
+          {/* Earth / IS codes at bottom */}
+          <Text x={10} y={368} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.inkA60 }}>
+            IS 1172:1993 Water Demand · IS 1742:1983 Drainage · IS 15778:2007 CPVC · IS 12701 HDPE Tank
+          </Text>
+        </Svg>
+
+        {/* Disclaimer */}
+        <View style={{ marginTop: 10, borderWidth: 1, borderColor: T.stampOxide, borderStyle: 'solid', padding: 7, backgroundColor: T.oxideBg }}>
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.stampOxide, letterSpacing: 0.5, marginBottom: 3 }}>
+            DISCLAIMER — SCHEMATIC ONLY
+          </Text>
+          <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 7.5, color: T.ironInk, lineHeight: 1.5 }}>
+            Schematic only. Actual drawings must be prepared by a licensed plumbing engineer with site-specific pipe sizing and drainage slope calculations per IS 1172:1993 and IS 1742:1983.
+          </Text>
+        </View>
+
+        <View style={{ flex: 1 }} />
+        <View style={{ marginTop: 8, borderTopWidth: 0.5, borderTopColor: T.inkA35, borderTopStyle: 'solid', paddingTop: 6 }}>
+          <Text style={S.monoSm}>NIRMANSHASTRA · PLUMBPRO · {reportId} · SCHEMATIC</Text>
+        </View>
+      </View>
+    </Page>
+  )
+}
+
 // ─── DOCUMENT EXPORT ──────────────────────────────────────────────────────────
 
 export default function PlumbProPDF(props: Props) {
@@ -1249,6 +1343,7 @@ export default function PlumbProPDF(props: Props) {
       <FixtureSchedulePage result={props.result} />
       <QualityChecklistPage />
       <CostSummaryPage    result={props.result} reportId={props.reportId} />
+      <PlumbingRiserSchematicPage result={props.result} reportId={props.reportId} />
       <EngineeringMethodPage reportId={props.reportId} />
     </Document>
   )

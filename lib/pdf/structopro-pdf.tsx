@@ -4,8 +4,10 @@
 
 import React from 'react'
 import {
+  Circle,
   Document,
   Font,
+  Line,
   Page,
   Rect,
   StyleSheet,
@@ -1219,6 +1221,134 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
 
           <View style={S.flex1} />
           <PageFooter sheet="SHEET 10 · FINISHING GUIDE" />
+        </View>
+      </Page>
+
+      {/* ═══════════════════════════════════════════════════════
+          PAGE — FOUNDATION & COLUMN LAYOUT — SCHEMATIC
+          ═══════════════════════════════════════════════════════ */}
+      <Page size="A4" style={S.page}>
+        <View style={S.frame}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+            <View>
+              <Text style={S.eyebrow}>NIRMANSHASTRA · STRUCTOPRO · IS 456:2000</Text>
+              <Text style={S.h2}>Foundation & Column Layout — Schematic</Text>
+            </View>
+            <View style={{ borderWidth: 1, borderColor: T.inkA35, borderStyle: 'solid', padding: 5 }}>
+              <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>NOT FOR CONSTRUCTION</Text>
+              <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>LICENSED ENGINEER REQUIRED</Text>
+            </View>
+          </View>
+          <View style={S.rule} />
+
+          <View style={{ flexDirection: 'row', gap: 16 }}>
+            {/* Left: Footing plan (top view) */}
+            <View style={{ flex: 3 }}>
+              <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>
+                ISOLATED FOOTING PLAN — SCHEMATIC (NOT FOR CONSTRUCTION)
+              </Text>
+              <Svg viewBox="0 0 300 285" style={{ width: 228, height: 217 }}>
+                {/* Column centrelines (light) */}
+                <Line x1={50} y1={0} x2={50} y2={268} strokeWidth={0.35} stroke={T.inkA35} strokeDasharray="3,3" />
+                <Line x1={150} y1={0} x2={150} y2={268} strokeWidth={0.35} stroke={T.inkA35} strokeDasharray="3,3" />
+                <Line x1={250} y1={0} x2={250} y2={268} strokeWidth={0.35} stroke={T.inkA35} strokeDasharray="3,3" />
+                <Line x1={0} y1={50} x2={295} y2={50} strokeWidth={0.35} stroke={T.inkA35} strokeDasharray="3,3" />
+                <Line x1={0} y1={150} x2={295} y2={150} strokeWidth={0.35} stroke={T.inkA35} strokeDasharray="3,3" />
+                <Line x1={0} y1={250} x2={295} y2={250} strokeWidth={0.35} stroke={T.inkA35} strokeDasharray="3,3" />
+                {/* Plinth beams (wide lines) */}
+                <Line x1={50} y1={50} x2={250} y2={50} strokeWidth={5} stroke={T.inkA15} />
+                <Line x1={50} y1={150} x2={250} y2={150} strokeWidth={5} stroke={T.inkA15} />
+                <Line x1={50} y1={250} x2={250} y2={250} strokeWidth={5} stroke={T.inkA15} />
+                <Line x1={50} y1={50} x2={50} y2={250} strokeWidth={5} stroke={T.inkA15} />
+                <Line x1={150} y1={50} x2={150} y2={250} strokeWidth={5} stroke={T.inkA15} />
+                <Line x1={250} y1={50} x2={250} y2={250} strokeWidth={5} stroke={T.inkA15} />
+                {/* Row 1 footings + columns */}
+                <Rect x={30} y={30} width={40} height={40} fill="none" stroke={T.ironInk} strokeWidth={1} />
+                <Rect x={45} y={45} width={10} height={10} fill={T.ironInk} />
+                <Rect x={130} y={30} width={40} height={40} fill="none" stroke={T.ironInk} strokeWidth={1} />
+                <Rect x={145} y={45} width={10} height={10} fill={T.ironInk} />
+                <Rect x={230} y={30} width={40} height={40} fill="none" stroke={T.ironInk} strokeWidth={1} />
+                <Rect x={245} y={45} width={10} height={10} fill={T.ironInk} />
+                {/* Row 2 footings + columns */}
+                <Rect x={30} y={130} width={40} height={40} fill="none" stroke={T.ironInk} strokeWidth={1} />
+                <Rect x={45} y={145} width={10} height={10} fill={T.ironInk} />
+                <Rect x={130} y={130} width={40} height={40} fill="none" stroke={T.ironInk} strokeWidth={1} />
+                <Rect x={145} y={145} width={10} height={10} fill={T.ironInk} />
+                <Rect x={230} y={130} width={40} height={40} fill="none" stroke={T.ironInk} strokeWidth={1} />
+                <Rect x={245} y={145} width={10} height={10} fill={T.ironInk} />
+                {/* Row 3 footings + columns */}
+                <Rect x={30} y={230} width={40} height={40} fill="none" stroke={T.ironInk} strokeWidth={1} />
+                <Rect x={45} y={245} width={10} height={10} fill={T.ironInk} />
+                <Rect x={130} y={230} width={40} height={40} fill="none" stroke={T.ironInk} strokeWidth={1} />
+                <Rect x={145} y={245} width={10} height={10} fill={T.ironInk} />
+                <Rect x={230} y={230} width={40} height={40} fill="none" stroke={T.ironInk} strokeWidth={1} />
+                <Rect x={245} y={245} width={10} height={10} fill={T.ironInk} />
+                {/* Column labels */}
+                <Text x={46} y={10} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.blueprint }}>C1</Text>
+                <Text x={146} y={10} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.blueprint }}>C2</Text>
+                <Text x={246} y={10} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.blueprint }}>C3</Text>
+                {/* Dimension line */}
+                <Line x1={50} y1={276} x2={150} y2={276} strokeWidth={0.7} stroke={T.ironInk} />
+                <Line x1={50} y1={272} x2={50} y2={280} strokeWidth={0.7} stroke={T.ironInk} />
+                <Line x1={150} y1={272} x2={150} y2={280} strokeWidth={0.7} stroke={T.ironInk} />
+                <Text x={78} y={285} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.ironInk }}>3.5m (typ.)</Text>
+                {/* Plinth beam label */}
+                <Text x={62} y={147} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Plinth beam</Text>
+              </Svg>
+              <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, color: T.inkA60, marginTop: 3 }}>
+                FOOTING: 1200×1200mm · COLUMN: 300×300mm · BEAM: 230×350mm
+              </Text>
+            </View>
+
+            {/* Right: Column cross-section */}
+            <View style={{ flex: 2 }}>
+              <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>
+                COLUMN SECTION — 300×300mm
+              </Text>
+              <Svg viewBox="0 0 160 245" style={{ width: 136, height: 208 }}>
+                {/* Column outline */}
+                <Rect x={30} y={20} width={100} height={210} fill={T.sheetWhite} stroke={T.ironInk} strokeWidth={1.5} />
+                {/* Stirrups */}
+                <Line x1={35} y1={55} x2={125} y2={55} strokeWidth={0.8} stroke={T.ironInk} />
+                <Line x1={35} y1={95} x2={125} y2={95} strokeWidth={0.8} stroke={T.ironInk} />
+                <Line x1={35} y1={135} x2={125} y2={135} strokeWidth={0.8} stroke={T.ironInk} />
+                <Line x1={35} y1={175} x2={125} y2={175} strokeWidth={0.8} stroke={T.ironInk} />
+                <Line x1={35} y1={215} x2={125} y2={215} strokeWidth={0.8} stroke={T.ironInk} />
+                {/* Fe500D rebar circles at corners */}
+                <Circle cx={42} cy={32} r={5} fill={T.ironInk} />
+                <Circle cx={118} cy={32} r={5} fill={T.ironInk} />
+                <Circle cx={42} cy={218} r={5} fill={T.ironInk} />
+                <Circle cx={118} cy={218} r={5} fill={T.ironInk} />
+                {/* 40mm cover dimension */}
+                <Line x1={8} y1={32} x2={37} y2={32} strokeWidth={0.7} stroke={T.blueprint} />
+                <Line x1={8} y1={28} x2={8} y2={36} strokeWidth={0.7} stroke={T.blueprint} />
+                <Text x={2} y={26} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>40mm</Text>
+                <Text x={2} y={33} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }}>cover</Text>
+                {/* Labels */}
+                <Text x={55} y={12} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.blueprint }}>300×300mm</Text>
+                <Text x={131} y={36} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Fe500D</Text>
+                <Text x={131} y={130} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Stirrups</Text>
+                <Text x={131} y={137} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>@150c/c</Text>
+              </Svg>
+              <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, color: T.inkA60, marginTop: 3 }}>
+                IS 456:2000 Cl.26.5{'\n'}M20 concrete · Fe500D bars
+              </Text>
+            </View>
+          </View>
+
+          {/* Disclaimer */}
+          <View style={{ marginTop: 14, borderWidth: 1, borderColor: T.stampOxide, borderStyle: 'solid', padding: 8, backgroundColor: T.oxideBg }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.stampOxide, letterSpacing: 0.5, marginBottom: 3 }}>
+              DISCLAIMER — SCHEMATIC ONLY
+            </Text>
+            <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 7.5, color: T.ironInk, lineHeight: 1.5 }}>
+              This schematic is for illustrative purposes only. Actual structural drawings must be prepared by a licensed structural engineer.
+              Footing dimensions, column reinforcement, and grid spacing must be designed per IS 456:2000 and IS 1904:2016 based on soil bearing capacity from site investigation.
+            </Text>
+          </View>
+
+          <View style={S.flex1} />
+          <PageFooter sheet="SCHEMATIC · FOUNDATION & COLUMN LAYOUT" />
         </View>
       </Page>
 

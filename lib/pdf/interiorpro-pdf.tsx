@@ -4,16 +4,17 @@
 
 import React from 'react'
 import {
+  Circle,
   Document,
   Font,
+  Line,
   Page,
+  Path,
+  Rect,
   StyleSheet,
+  Svg,
   Text,
   View,
-  Svg,
-  Line,
-  Rect,
-  Path,
 } from '@react-pdf/renderer'
 
 import type { InteriorInput, InteriorResult } from '@/app/tools/interiorpro/interiorpro-engine'
@@ -1300,6 +1301,135 @@ function EngineeringMethodPage({ reportId }: { reportId: string }) {
   )
 }
 
+// ─── Room Layout Area Schedule Page ──────────────────────────────────────────
+
+function AreaSchedulePage({ input, reportId }: { input: InteriorInput; reportId: string }) {
+  const bua = input.buaPerFloorSqft
+  const livingArea    = Math.round(bua * 0.28)
+  const kitchenArea   = Math.round(bua * 0.12)
+  const bedroomArea   = input.numBedrooms  > 0 ? Math.round(bua * 0.44 / input.numBedrooms)  : 0
+  const bathroomArea  = input.numBathrooms > 0 ? Math.round(bua * 0.10 / input.numBathrooms) : 0
+
+  const flooringMap: Record<string, string> = {
+    basic:    'Ceramic Tiles (IS 15477:2004)',
+    standard: 'Vitrified Tiles (IS 15477:2004)',
+    premium:  'Marble / Granite (IS 1237:1980)',
+    luxury:   'Italian Marble (IS 1237:1980)',
+  }
+  const paintMap: Record<string, string> = {
+    basic:    'Distemper (IS 428:1969)',
+    standard: 'Interior Emulsion (IS 2395:1994)',
+    premium:  'Premium Emulsion (IS 2395:1994)',
+    luxury:   'Texture / Designer Paint',
+  }
+  const flooring = flooringMap[input.grade] ?? 'Vitrified Tiles'
+  const paint    = paintMap[input.grade]    ?? 'Interior Emulsion'
+  const gradeStr = gradeLabel(input.grade).toUpperCase()
+
+  const rooms = [
+    { name: 'Living Room', area: livingArea },
+    { name: 'Kitchen', area: kitchenArea },
+    ...Array.from({ length: input.numBedrooms  }, (_, i) => ({ name: `Bedroom ${i + 1}`,  area: bedroomArea  })),
+    ...Array.from({ length: input.numBathrooms }, (_, i) => ({ name: `Bathroom ${i + 1}`, area: bathroomArea })),
+  ]
+
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+          <View>
+            <Text style={S.eyebrow}>NIRMANSHASTRA · INTERIORPRO · IS 15477:2004</Text>
+            <Text style={S.h2}>Room Layout — Area Schedule</Text>
+          </View>
+          <View style={{ borderWidth: 1, borderColor: T.inkA35, borderStyle: 'solid', padding: 5 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>GRADE: {gradeStr}</Text>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>BUA: {bua} SQFT/FL</Text>
+          </View>
+        </View>
+        <View style={S.rule} />
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>
+          SCHEMATIC FLOOR PLAN — ROOM LAYOUT (NOT TO SCALE)
+        </Text>
+        <Svg viewBox="0 0 390 205" style={{ width: 351, height: 185 }}>
+          {/* Living Room */}
+          <Rect x={0} y={0} width={140} height={140} fill={T.blueprintBg} stroke={T.ironInk} strokeWidth={1} />
+          <Text x={20} y={63} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, fill: T.blueprint }}>LIVING ROOM</Text>
+          <Text x={20} y={75} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.inkA60 }}>{livingArea} sqft</Text>
+          {/* Kitchen */}
+          <Rect x={0} y={140} width={140} height={60} fill={T.yellowBg} stroke={T.ironInk} strokeWidth={1} />
+          <Text x={15} y={168} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, fill: T.markingYellow }}>KITCHEN</Text>
+          <Text x={15} y={180} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.inkA60 }}>{kitchenArea} sqft</Text>
+          {/* Bedroom 1 */}
+          <Rect x={145} y={0} width={245} height={100} fill={T.greenBg} stroke={T.ironInk} strokeWidth={1} />
+          <Text x={200} y={45} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, fill: T.approvedGreen }}>BEDROOM 1</Text>
+          <Text x={200} y={57} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.inkA60 }}>{bedroomArea} sqft</Text>
+          {/* Bedroom 2 */}
+          <Rect x={145} y={100} width={175} height={100} fill={T.greenBg} stroke={T.ironInk} strokeWidth={1} />
+          <Text x={165} y={148} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, fill: T.approvedGreen }}>BEDROOM 2</Text>
+          <Text x={165} y={160} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.inkA60 }}>{bedroomArea} sqft</Text>
+          {/* Bathroom (hatched lines to indicate wet area) */}
+          <Rect x={320} y={100} width={70} height={100} fill={T.sheetWhite} stroke={T.ironInk} strokeWidth={1} />
+          <Line x1={320} y1={100} x2={390} y2={170} strokeWidth={0.4} stroke={T.inkA35} />
+          <Line x1={320} y1={120} x2={390} y2={190} strokeWidth={0.4} stroke={T.inkA35} />
+          <Line x1={320} y1={140} x2={390} y2={200} strokeWidth={0.4} stroke={T.inkA35} />
+          <Line x1={320} y1={160} x2={375} y2={200} strokeWidth={0.4} stroke={T.inkA35} />
+          <Line x1={320} y1={180} x2={355} y2={200} strokeWidth={0.4} stroke={T.inkA35} />
+          <Line x1={335} y1={100} x2={390} y2={155} strokeWidth={0.4} stroke={T.inkA35} />
+          <Line x1={355} y1={100} x2={390} y2={135} strokeWidth={0.4} stroke={T.inkA35} />
+          <Line x1={375} y1={100} x2={390} y2={115} strokeWidth={0.4} stroke={T.inkA35} />
+          <Text x={325} y={153} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.ironInk }}>BATH</Text>
+          <Text x={323} y={162} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>{bathroomArea} sqft</Text>
+          {/* Legend */}
+          <Rect x={5} y={195} width={10} height={6} fill={T.blueprintBg} stroke={T.ironInk} strokeWidth={0.5} />
+          <Text x={18} y={201} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Living</Text>
+          <Rect x={65} y={195} width={10} height={6} fill={T.greenBg} stroke={T.ironInk} strokeWidth={0.5} />
+          <Text x={78} y={201} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Bedroom</Text>
+          <Rect x={135} y={195} width={10} height={6} fill={T.yellowBg} stroke={T.ironInk} strokeWidth={0.5} />
+          <Text x={148} y={201} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Kitchen</Text>
+          <Rect x={200} y={195} width={10} height={6} fill={T.sheetWhite} stroke={T.ironInk} strokeWidth={0.5} />
+          <Text x={213} y={201} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Bathroom (hatched)</Text>
+        </Svg>
+
+        {/* Finish Schedule Table */}
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.blueprint, letterSpacing: 1, marginTop: 10, marginBottom: 5 }}>
+          FINISH SCHEDULE — {gradeStr} GRADE
+        </Text>
+        <View style={{ borderWidth: 1, borderColor: T.inkA35, borderStyle: 'solid' }}>
+          <View style={{ flexDirection: 'row', backgroundColor: T.ironInk, paddingVertical: 4 }}>
+            <Text style={{ flex: 2, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.sheetWhite, paddingHorizontal: 6 }}>ROOM</Text>
+            <Text style={{ flex: 3, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.sheetWhite, paddingHorizontal: 6 }}>FLOORING TYPE</Text>
+            <Text style={{ flex: 1, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.sheetWhite, paddingHorizontal: 6 }}>GRADE</Text>
+            <Text style={{ flex: 2, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.sheetWhite, paddingHorizontal: 6 }}>PAINT TYPE</Text>
+          </View>
+          {rooms.map((room, i) => (
+            <View key={i} style={{
+              flexDirection: 'row',
+              borderTopWidth: 0.5,
+              borderTopColor: T.inkA15,
+              borderTopStyle: 'solid',
+              backgroundColor: i % 2 === 0 ? T.sheetWhite : 'rgba(30,34,39,0.025)',
+              paddingVertical: 3,
+            }}>
+              <Text style={{ flex: 2, fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, paddingHorizontal: 6 }}>
+                {room.name} ({room.area} sqft)
+              </Text>
+              <Text style={{ flex: 3, fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, paddingHorizontal: 6 }}>{flooring}</Text>
+              <Text style={{ flex: 1, fontFamily: 'IBMPlexMono', fontSize: 7, color: T.blueprint, paddingHorizontal: 6 }}>{gradeStr}</Text>
+              <Text style={{ flex: 2, fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, paddingHorizontal: 6 }}>{paint}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={{ flex: 1 }} />
+        <View style={{ marginTop: 8, borderTopWidth: 0.5, borderTopColor: T.inkA35, borderTopStyle: 'solid', paddingTop: 6 }}>
+          <Text style={S.monoSm}>NIRMANSHASTRA · INTERIORPRO · {reportId} · SCHEMATIC — IS 15477:2004 · IS 2395:1994</Text>
+        </View>
+      </View>
+    </Page>
+  )
+}
+
 // ─── DOCUMENT EXPORT ──────────────────────────────────────────────────────────
 
 export default function InteriorProPDF(props: Props) {
@@ -1315,6 +1445,7 @@ export default function InteriorProPDF(props: Props) {
       <InteriorBOQPage     input={props.input} result={props.result} />
       <QualityChecklistPage />
       <TotalSummaryPage    result={props.result} input={props.input} reportId={props.reportId} />
+      <AreaSchedulePage    input={props.input} reportId={props.reportId} />
       <EngineeringMethodPage reportId={props.reportId} />
     </Document>
   )

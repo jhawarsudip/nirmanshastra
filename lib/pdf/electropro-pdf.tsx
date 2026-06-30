@@ -1024,6 +1024,118 @@ function EngineeringMethodPage({ reportId }: { reportId: string }) {
   )
 }
 
+// ─── Branch Circuit SLD Schematic Page ───────────────────────────────────────
+
+function BranchCircuitSLDPage({ result, reportId }: { result: ElectroResult; reportId: string }) {
+  const mcb = result.dbPanelSchedule.mainMCBRating
+  return (
+    <Page size="A4" style={S.page}>
+      <View style={S.frame}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+          <View>
+            <Text style={S.eyebrow}>NIRMANSHASTRA · ELECTROPRO · IS 732:2019</Text>
+            <Text style={S.h2}>Single Line Diagram — Schematic</Text>
+          </View>
+          <View style={{ borderWidth: 1, borderColor: T.inkA35, borderStyle: 'solid', padding: 5 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>NOT FOR CONSTRUCTION</Text>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60 }}>LICENSED ELECTRICIAN REQUIRED</Text>
+          </View>
+        </View>
+        <View style={S.rule} />
+
+        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>
+          VERTICAL SLD — BRANCH CIRCUIT DETAIL
+        </Text>
+        <Svg viewBox="0 0 480 410" style={{ width: 432, height: 369 }}>
+          {/* Incomer from supply */}
+          <Line x1={240} y1={0} x2={240} y2={20} strokeWidth={2} stroke={T.ironInk} />
+          {/* INCOMER box */}
+          <Rect x={150} y={20} width={180} height={28} fill={T.sheetWhite} stroke={T.ironInk} strokeWidth={1.2} />
+          <Text x={170} y={38} style={{ fontFamily: 'IBMPlexMono', fontSize: 7, fill: T.ironInk }}>INCOMER — IS 732:2019</Text>
+          {/* Line to MAIN SWITCH */}
+          <Line x1={240} y1={48} x2={240} y2={78} strokeWidth={2} stroke={T.ironInk} />
+          {/* MAIN SWITCH box */}
+          <Rect x={150} y={78} width={180} height={28} fill={T.sheetWhite} stroke={T.ironInk} strokeWidth={1.2} />
+          <Text x={185} y={96} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, fill: T.ironInk }}>MAIN SWITCH</Text>
+          {/* Earth line from MAIN SWITCH */}
+          <Line x1={330} y1={92} x2={380} y2={92} strokeWidth={1} stroke={T.approvedGreen} />
+          <Line x1={380} y1={92} x2={380} y2={340} strokeWidth={1} stroke={T.approvedGreen} strokeDasharray="4,3" />
+          <Text x={384} y={170} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.approvedGreen }}>EARTH</Text>
+          <Text x={384} y={179} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.approvedGreen }}>IS 3043:2018</Text>
+          <Text x={384} y={188} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.approvedGreen }}>max 1 ohm</Text>
+          {/* Line to MAIN MCB */}
+          <Line x1={240} y1={106} x2={240} y2={136} strokeWidth={2} stroke={T.ironInk} />
+          {/* MAIN MCB box */}
+          <Rect x={150} y={136} width={180} height={28} fill={T.sheetWhite} stroke={T.ironInk} strokeWidth={1.2} />
+          <Text x={160} y={154} style={{ fontFamily: 'IBMPlexMono', fontSize: 7, fill: T.ironInk }}>MAIN MCB — {mcb}</Text>
+          {/* Line to bus bar */}
+          <Line x1={240} y1={164} x2={240} y2={190} strokeWidth={2} stroke={T.ironInk} />
+          {/* Bus bar */}
+          <Line x1={40} y1={190} x2={430} y2={190} strokeWidth={3} stroke={T.ironInk} />
+          {/* Branch 1: Lighting Circuit — 6A MCB — 1.5sqmm */}
+          <Line x1={80} y1={190} x2={80} y2={245} strokeWidth={1.2} stroke={T.blueprint} />
+          <Circle cx={80} cy={245} r={7} fill="none" stroke={T.blueprint} strokeWidth={1} />
+          <Line x1={80} y1={252} x2={80} y2={300} strokeWidth={1.2} stroke={T.blueprint} strokeDasharray="3,3" />
+          <Rect x={50} y={300} width={60} height={40} fill={T.blueprintBg} stroke={T.blueprint} strokeWidth={0.8} />
+          <Text x={55} y={313} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>LIGHTING</Text>
+          <Text x={55} y={322} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }}>6A MCB</Text>
+          <Text x={55} y={331} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>1.5 sqmm</Text>
+          {/* Branch 2: Power Circuit — 16A MCB — 2.5sqmm */}
+          <Line x1={185} y1={190} x2={185} y2={245} strokeWidth={1.2} stroke={T.blueprint} />
+          <Circle cx={185} cy={245} r={7} fill="none" stroke={T.blueprint} strokeWidth={1} />
+          <Line x1={185} y1={252} x2={185} y2={300} strokeWidth={1.2} stroke={T.blueprint} strokeDasharray="3,3" />
+          <Rect x={155} y={300} width={60} height={40} fill={T.blueprintBg} stroke={T.blueprint} strokeWidth={0.8} />
+          <Text x={160} y={313} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>POWER</Text>
+          <Text x={160} y={322} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }}>16A MCB</Text>
+          <Text x={160} y={331} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>2.5 sqmm</Text>
+          {/* Branch 3: AC Circuit — 20A MCB — 4.0sqmm — RCCB 30mA */}
+          <Line x1={290} y1={190} x2={290} y2={245} strokeWidth={1.2} stroke={T.blueprint} />
+          <Circle cx={290} cy={245} r={7} fill="none" stroke={T.blueprint} strokeWidth={1} />
+          <Rect x={276} y={253} width={28} height={14} fill={T.oxideBg} stroke={T.stampOxide} strokeWidth={0.8} />
+          <Text x={279} y={263} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.stampOxide }}>RCCB</Text>
+          <Line x1={290} y1={267} x2={290} y2={300} strokeWidth={1.2} stroke={T.blueprint} strokeDasharray="3,3" />
+          <Rect x={260} y={300} width={60} height={50} fill={T.blueprintBg} stroke={T.blueprint} strokeWidth={0.8} />
+          <Text x={265} y={313} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>A/C CIRCUIT</Text>
+          <Text x={265} y={322} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }}>20A MCB</Text>
+          <Text x={265} y={331} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>4.0 sqmm</Text>
+          <Text x={265} y={340} style={{ fontFamily: 'IBMPlexMono', fontSize: 4.5, fill: T.stampOxide }}>RCCB 30mA</Text>
+          {/* Branch 4: Geyser — 20A MCB — 4.0sqmm — RCCB 30mA */}
+          <Line x1={395} y1={190} x2={360} y2={190} strokeWidth={1.2} stroke={T.blueprint} />
+          <Line x1={360} y1={190} x2={360} y2={245} strokeWidth={1.2} stroke={T.blueprint} />
+          <Circle cx={360} cy={245} r={7} fill="none" stroke={T.blueprint} strokeWidth={1} />
+          <Rect x={346} y={253} width={28} height={14} fill={T.oxideBg} stroke={T.stampOxide} strokeWidth={0.8} />
+          <Text x={349} y={263} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.stampOxide }}>RCCB</Text>
+          <Line x1={360} y1={267} x2={360} y2={300} strokeWidth={1.2} stroke={T.blueprint} strokeDasharray="3,3" />
+          <Rect x={330} y={300} width={60} height={50} fill={T.blueprintBg} stroke={T.blueprint} strokeWidth={0.8} />
+          <Text x={335} y={313} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>GEYSER</Text>
+          <Text x={335} y={322} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }}>20A MCB</Text>
+          <Text x={335} y={331} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>4.0 sqmm</Text>
+          <Text x={335} y={340} style={{ fontFamily: 'IBMPlexMono', fontSize: 4.5, fill: T.stampOxide }}>RCCB 30mA</Text>
+          {/* IS ref */}
+          <Text x={10} y={400} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.inkA60 }}>
+            IS 732:2019 · IS 3043:2018 Earthing · IS 12640 RCCB · CEA Regulations 2010
+          </Text>
+        </Svg>
+
+        {/* Disclaimer */}
+        <View style={{ marginTop: 10, borderWidth: 1, borderColor: T.markingYellow, borderStyle: 'solid', padding: 7, backgroundColor: T.yellowBg }}>
+          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.markingYellow, letterSpacing: 0.5, marginBottom: 3 }}>
+            IS 732:2019 CL 5 — DISCLAIMER
+          </Text>
+          <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 7.5, color: T.ironInk, lineHeight: 1.5 }}>
+            Schematic only. Actual SLD must be prepared by a licensed electrical engineer and approved by local electrical inspector before energising.
+          </Text>
+        </View>
+
+        <View style={{ flex: 1 }} />
+        <View style={{ marginTop: 8, borderTopWidth: 0.5, borderTopColor: T.inkA35, borderTopStyle: 'solid', paddingTop: 6 }}>
+          <Text style={S.monoSm}>NIRMANSHASTRA · ELECTROPRO · {reportId} · SCHEMATIC</Text>
+        </View>
+      </View>
+    </Page>
+  )
+}
+
 // ─── DOCUMENT EXPORT ──────────────────────────────────────────────────────────
 
 export default function ElectroProPDF(props: Props) {
@@ -1038,6 +1150,7 @@ export default function ElectroProPDF(props: Props) {
       <WireSchedulePage result={props.result} />
       <MaterialSchedulePage result={props.result} />
       <CostSummaryPage result={props.result} reportId={props.reportId} />
+      <BranchCircuitSLDPage result={props.result} reportId={props.reportId} />
       <EngineeringMethodPage reportId={props.reportId} />
     </Document>
   )
