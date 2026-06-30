@@ -56,7 +56,8 @@
       "Bash(mkdir -p /Users/sudipjhawar/nirmanshastra/app/api/masonpro/generate-pdf)",
       "Bash(npx next *)",
       "Bash(awk NR==930,NR==936 *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(npm list *)"
     ]
   }
 }

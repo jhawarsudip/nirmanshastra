@@ -3,10 +3,12 @@
 // IS 2645:2003 (waterproofing) + NBC 2016 — Section 17 locked values
 
 import React from 'react'
+import path from 'path'
 import {
   Circle,
   Document,
   Font,
+  Image,
   Line,
   Page,
   Path,
@@ -16,6 +18,8 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer'
+
+const LOGO_MARK = path.join(process.cwd(), 'public', 'icon-512.png')
 
 import type { InteriorInput, InteriorResult } from '@/app/tools/interiorpro/interiorpro-engine'
 import { formatLakhs, gradeLabel } from '@/app/tools/interiorpro/interiorpro-engine'
@@ -414,6 +418,8 @@ function CoverPage({ input, result, contact, reportId, projectName, date }: Prop
           This report is for estimation purposes only. Not a substitute for licensed interior designer&apos;s drawings.
           All IS code values as per Build Reference Section 8 and 17 — LOCKED.
         </Text>
+
+        <Image src={LOGO_MARK} style={{ position: 'absolute', bottom: 20, right: 20, width: 100, height: 100, opacity: 0.07 }} />
       </View>
     </Page>
   )

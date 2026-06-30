@@ -3,9 +3,11 @@
 // Design tokens from NirmanShastra_Design_Spec.md
 
 import React from 'react'
+import path from 'path'
 import {
   Document,
   Font,
+  Image,
   Page,
   Rect,
   StyleSheet,
@@ -14,6 +16,8 @@ import {
   View,
   Line,
 } from '@react-pdf/renderer'
+
+const LOGO_MARK = path.join(process.cwd(), 'public', 'icon-512.png')
 
 // ─── Font registration ────────────────────────────────────────────────────────
 const CDN = 'https://cdn.jsdelivr.net/npm/@ibm/plex@6.4.0'
@@ -575,6 +579,8 @@ export default function GrandTotalPDF({ contact, reportId, projectName, date, ph
 
           {/* Title block */}
           <TitleBlock reportId={reportId} projectName={projectName} date={date} />
+
+          <Image src={LOGO_MARK} style={{ position: 'absolute', bottom: 20, right: 20, width: 100, height: 100, opacity: 0.07 }} />
         </View>
       </Page>
 

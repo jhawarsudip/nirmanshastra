@@ -3,10 +3,12 @@
 // IS code values from Build Reference Section 8 — LOCKED
 
 import React from 'react'
+import path from 'path'
 import {
   Circle,
   Document,
   Font,
+  Image,
   Line,
   Page,
   Rect,
@@ -15,6 +17,8 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer'
+
+const LOGO_MARK = path.join(process.cwd(), 'public', 'icon-512.png')
 
 import type {
   ComplianceCheck,
@@ -531,6 +535,8 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           </View>
 
           <PageFooter sheet="SHEET 01 · COVER" />
+
+          <Image src={LOGO_MARK} style={{ position: 'absolute', bottom: 20, right: 20, width: 100, height: 100, opacity: 0.07 }} />
         </View>
       </Page>
 

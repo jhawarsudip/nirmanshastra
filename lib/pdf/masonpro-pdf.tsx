@@ -3,10 +3,12 @@
 // IS values from Build Reference Section 8 — LOCKED
 
 import React from 'react'
+import path from 'path'
 import {
   Circle,
   Document,
   Font,
+  Image,
   Line,
   Page,
   Rect,
@@ -15,6 +17,8 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer'
+
+const LOGO_MARK = path.join(process.cwd(), 'public', 'icon-512.png')
 
 import type { MasonInput, MasonResult, ComplianceCheck } from '@/app/tools/masonpro/masonpro-engine'
 import { EXTERNAL_WALL_SPECS, formatLakhs } from '@/app/tools/masonpro/masonpro-engine'
@@ -463,6 +467,8 @@ function PageCover({ input, result, contact, reportId, projectName, date }: Prop
         <Text style={[S.monoSm, { color: T.inkA35, textAlign: 'center' }]}>
           Schematic for estimation reference only. Not for construction without engineer approval. IS 1077:1992 + IS 2212:1991 + IS 1661:1972.
         </Text>
+
+        <Image src={LOGO_MARK} style={{ position: 'absolute', bottom: 20, right: 20, width: 100, height: 100, opacity: 0.07 }} />
       </View>
     </Page>
   )
