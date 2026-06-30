@@ -244,14 +244,17 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         )}
 
         {/* Grand total — FREE */}
-        <div style={{ background: '#1E2227', padding: '56px 48px', textAlign: 'center' }}>
+        <div style={{ background: '#1E2227', position: 'relative', overflow: 'hidden' }}>
+          <div className="results-blob-1" aria-hidden="true" />
+          <div className="results-blob-2" aria-hidden="true" />
+          <div style={{ position: 'relative', zIndex: 1, padding: '56px 48px', textAlign: 'center', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', background: 'rgba(30,34,39,0.18)' }}>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
             PHASE 4 — PLUMBING · {input.city}, {input.state}
           </p>
           <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(244,244,240,0.55)', marginBottom: 16 }}>
             {r.totalBuaSqft.toFixed(0)} sqft · {input.numFloors} floor{input.numFloors > 1 ? 's' : ''} · {input.numBathrooms} bathroom{input.numBathrooms > 1 ? 's' : ''}
           </p>
-          <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(64px,8vw,96px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1, marginBottom: 8 }}>
+          <div className="grand-total-pulse" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(64px,8vw,96px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1, marginBottom: 8 }}>
             <CountUp to={r.grandTotal.standard} format={formatLakhs} />
           </div>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 13, color: 'rgba(244,244,240,0.35)', marginBottom: 36 }}>standard estimate</p>
@@ -278,7 +281,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               </div>
             ))}
           </div>
-        </div>
+          </div>{/* /glass inner */}
+        </div>{/* /gradient mesh outer */}
 
         {/* IS 1172:1993 Water Demand — FREE (unique feature) */}
         <div className="border rounded-[2px]"
