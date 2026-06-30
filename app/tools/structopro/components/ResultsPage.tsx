@@ -294,7 +294,18 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         )}
 
         {/* ── GRAND TOTAL — FREE, ALWAYS VISIBLE ── */}
-        <div style={{ background: '#1E2227', padding: '56px 48px', textAlign: 'center', position: 'relative' }}>
+        <div style={{ background: '#1E2227', position: 'relative', overflow: 'hidden' }}>
+          <div className="results-blob-1" aria-hidden="true" />
+          <div className="results-blob-2" aria-hidden="true" />
+          <div style={{
+            position: 'relative',
+            zIndex: 1,
+            padding: '56px 48px',
+            textAlign: 'center',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            background: 'rgba(30,34,39,0.18)',
+          }}>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
             PHASE 1 — RCC STRUCTURE · {input.city}, {input.state} · IS 456:2000
           </p>
@@ -303,7 +314,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           </p>
 
           {/* Grand Total — dominant number */}
-          <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(64px,8vw,96px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1, marginBottom: 8 }}>
+          <div className="grand-total-pulse" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(64px,8vw,96px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1, marginBottom: 8 }}>
             <CountUp to={r.grandTotal.standard} format={formatLakhs} />
           </div>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: 'rgba(244,244,240,0.4)', marginBottom: 36 }}>
@@ -347,7 +358,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             <span>·</span>
             <span>{r.foundationRecommendation.label}</span>
           </div>
-        </div>
+          </div>{/* /glass inner */}
+        </div>{/* /gradient mesh outer */}
 
         {/* ── IS COMPLIANCE PANEL — FREE ── */}
         <div style={{ border: '1px solid rgba(30,34,39,0.15)' }}>

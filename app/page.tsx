@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DATA
@@ -321,11 +321,11 @@ function DimDivider({ label, animated = false, dark = false }: { label: string; 
 
 function SectionHeader({ clause, title, dark = false }: { clause: string; title: string; dark?: boolean }) {
   return (
-    <div className="space-y-2">
-      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: dark ? '#6BA3CC' : '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+    <div className="space-y-3">
+      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: dark ? '#6BA3CC' : '#1F4E79', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
         {clause}
       </p>
-      <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: dark ? '#F4F4F0' : '#1E2227', lineHeight: 1.15 }}>
+      <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: dark ? '#F4F4F0' : '#1E2227', lineHeight: 1.15, letterSpacing: '0.01em' }}>
         {title}
       </h2>
     </div>
@@ -355,77 +355,110 @@ const largeMotifMap: Record<string, React.ReactElement> = {
 }
 
 function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [rotX, setRotX] = useState(0)
+  const [rotY, setRotY] = useState(0)
+  const [isHover, setIsHover] = useState(false)
+
+  function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2)
+    const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2)
+    setRotX(-dy * 8)
+    setRotY(dx * 8)
+  }
+
+  function onMouseLeave() {
+    setRotX(0)
+    setRotY(0)
+    setIsHover(false)
+  }
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.4, ease: 'easeOut', delay }}
+      transition={{ duration: 0.45, ease: 'easeOut', delay }}
     >
-      <Link href={tool.href} style={{ textDecoration: 'none', display: 'block' }}>
-        <article
-          style={{
-            border: `1px solid ${tool.free ? '#C9A84C' : 'rgba(30,34,39,0.75)'}`,
-            padding: '32px',
-            background: '#F4F4F0',
-            position: 'relative',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 20,
-            minHeight: 340,
-            cursor: 'pointer',
-            transition: 'border-color 0.15s, transform 0.15s',
-          }}
-        >
-          <div style={{
-            position: 'absolute',
-            bottom: -10,
-            right: -10,
-            color: tool.free ? 'rgba(201,168,76,0.11)' : 'rgba(30,34,39,0.09)',
-            pointerEvents: 'none',
-            lineHeight: 0,
-          }}>
-            {largeMotifMap[tool.phase]}
-          </div>
-
-          <span style={{ position: 'absolute', top: 8, right: 16, fontFamily: 'var(--font-plex-mono)', fontSize: 64, color: 'rgba(30,34,39,0.04)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
-            {tool.phase}
-          </span>
-
-          <div style={{ color: tool.free ? '#C9A84C' : '#1E2227', width: 80, height: 80, flexShrink: 0 }}>
-            {motifMap[tool.phase]}
-          </div>
-
-          <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
-              {tool.descriptor}
-            </p>
-            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 10, lineHeight: 1.1 }}>
-              {tool.name}
-            </h3>
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.63)', lineHeight: 1.7 }}>
-              {tool.desc}
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{
-              fontFamily: 'var(--font-plex-mono)',
-              fontSize: 14,
-              padding: '5px 14px',
-              border: `1px solid ${tool.free ? '#14532D' : '#1F4E79'}`,
-              color: tool.free ? '#14532D' : '#1F4E79',
-              letterSpacing: '0.04em',
+      <div
+        ref={cardRef}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
+        onMouseEnter={() => setIsHover(true)}
+        style={{
+          transform: `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(${isHover ? -4 : 0}px)`,
+          transition: 'transform 0.18s ease-out, box-shadow 0.18s ease-out',
+          boxShadow: isHover
+            ? '0 8px 16px rgba(30,34,39,0.14), 0 20px 40px rgba(30,34,39,0.08), 0 0 0 1px rgba(201,168,76,0.12)'
+            : '0 1px 0 rgba(30,34,39,0.06)',
+        }}
+      >
+        <Link href={tool.href} style={{ textDecoration: 'none', display: 'block' }}>
+          <article
+            style={{
+              border: `1px solid ${tool.free ? '#C9A84C' : 'rgba(30,34,39,0.75)'}`,
+              padding: '32px',
+              background: '#F4F4F0',
+              position: 'relative',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 20,
+              minHeight: 340,
+              cursor: 'pointer',
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              bottom: -10,
+              right: -10,
+              color: tool.free ? 'rgba(201,168,76,0.11)' : 'rgba(30,34,39,0.09)',
+              pointerEvents: 'none',
+              lineHeight: 0,
             }}>
-              {tool.price}
+              {largeMotifMap[tool.phase]}
+            </div>
+
+            <span style={{ position: 'absolute', top: 8, right: 16, fontFamily: 'var(--font-plex-mono)', fontSize: 64, color: 'rgba(30,34,39,0.04)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
+              {tool.phase}
             </span>
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.35)' }}>
-              {tool.phase} ›
-            </span>
-          </div>
-        </article>
-      </Link>
+
+            <div style={{ color: tool.free ? '#C9A84C' : '#1E2227', width: 80, height: 80, flexShrink: 0 }}>
+              {motifMap[tool.phase]}
+            </div>
+
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                {tool.descriptor}
+              </p>
+              <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 10, lineHeight: 1.1, letterSpacing: '0.01em' }}>
+                {tool.name}
+              </h3>
+              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.63)', lineHeight: 1.7 }}>
+                {tool.desc}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{
+                fontFamily: 'var(--font-plex-mono)',
+                fontSize: 14,
+                padding: '5px 14px',
+                border: `1px solid ${tool.free ? '#14532D' : '#1F4E79'}`,
+                color: tool.free ? '#14532D' : '#1F4E79',
+                letterSpacing: '0.04em',
+              }}>
+                {tool.price}
+              </span>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.35)' }}>
+                {tool.phase} ›
+              </span>
+            </div>
+          </article>
+        </Link>
+      </div>
     </motion.div>
   )
 }
@@ -440,23 +473,30 @@ export default function Home() {
   })
 
   const sectionRef = useRef<HTMLDivElement>(null)
+  const { scrollY } = useScroll()
+  const heroIllustrationY = useTransform(scrollY, [0, 700], [0, -90])
 
   return (
     <main className="sheet-frame min-h-screen" style={{ background: '#F4F4F0' }}>
 
       {/* ── HERO (dark Iron Ink, full viewport width) ─────────────────────── */}
-      <div style={{ background: '#1E2227', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <section className="px-6 md:px-16 lg:px-24 pt-20 pb-18">
+      <div style={{ background: '#1E2227', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+        {/* Gradient mesh blobs — very low saturation, slow drift */}
+        <div className="hero-blob-1" aria-hidden="true" />
+        <div className="hero-blob-2" aria-hidden="true" />
+        <div className="hero-blob-3" aria-hidden="true" />
+
+        <section className="px-6 md:px-16 lg:px-24 pt-20 pb-20" style={{ position: 'relative', zIndex: 1 }}>
           <div className="grid grid-cols-1 items-center" style={{ gridTemplateColumns: '55fr 45fr', gap: '4rem' }}>
 
             {/* Left — headline */}
             <motion.div
-              className="space-y-10"
-              initial={{ opacity: 0, y: 24 }}
+              className="space-y-14"
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
-              <div>
+              <div style={{ paddingBottom: 8 }}>
                 <h1 style={{
                   fontFamily: 'var(--font-plex-serif)',
                   fontSize: 'clamp(56px, 8vw, 96px)',
@@ -464,15 +504,16 @@ export default function Home() {
                   color: '#F4F4F0',
                   lineHeight: 1.02,
                   letterSpacing: '-0.02em',
+                  marginBottom: 20,
                 }}>
                   Build With Certainty.
                 </h1>
-                <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 24, color: '#C9A84C', marginTop: 14, letterSpacing: '0.01em' }}>
+                <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 24, color: '#C9A84C', letterSpacing: '0.01em' }}>
                   निर्माणशास्त्र
                 </p>
               </div>
 
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.65, maxWidth: 540 }}>
+              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.7, maxWidth: 540 }}>
                 Stop your contractor from overcharging you. Get exact material quantities backed by Indian Standards.
               </p>
 
@@ -491,8 +532,18 @@ export default function Home() {
                 </a>
               </div>
 
-              {/* Stats row — huge Plex Mono numbers */}
-              <div className="flex flex-wrap gap-10 pt-4" style={{ borderTop: '1px solid rgba(244,244,240,0.1)' }}>
+              {/* Stats row — frosted glass card with huge Plex Mono numbers */}
+              <div
+                className="flex flex-wrap gap-10"
+                style={{
+                  padding: '24px 28px',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.10)',
+                  borderRadius: 2,
+                }}
+              >
                 {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹1,999', 'Bundle']].map(([val, label]) => (
                   <div key={label}>
                     <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 500, color: '#C9A84C', lineHeight: 1 }}>{val}</div>
@@ -503,13 +554,13 @@ export default function Home() {
 
             </motion.div>
 
-            {/* Right — Building elevation illustration (45% of viewport) */}
+            {/* Right — Building elevation illustration with parallax */}
             <motion.div
               className="flex items-center justify-end"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
-              style={{ width: '100%' }}
+              style={{ width: '100%', y: heroIllustrationY }}
             >
               <div style={{ position: 'relative', width: '100%', minHeight: 500 }}>
                 <Image
@@ -531,18 +582,18 @@ export default function Home() {
       </div>
 
       {/* ── PROBLEM SECTION (dark, full width) ──────────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 py-20" style={{ background: '#1E2227' }}>
-        <div className="space-y-14">
+      <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1E2227' }}>
+        <div className="space-y-16">
           <SectionHeader clause="CL. 1.0 — WHY BUDGETS FAIL" title="The three problems no contractor will tell you" dark />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
             {PROBLEMS.map((p, i) => (
               <motion.div
                 key={p.no}
-                initial={{ opacity: 0, y: 60 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.45, ease: 'easeOut', delay: i * 0.2 }}
+                transition={{ duration: 0.45, ease: 'easeOut', delay: i * 0.15 }}
                 style={{
                   borderLeft: i === 0 ? '1px solid rgba(244,244,240,0.1)' : 'none',
                   borderRight: '1px solid rgba(244,244,240,0.1)',
@@ -569,7 +620,7 @@ export default function Home() {
                 <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 26, fontWeight: 600, color: '#F4F4F0', marginBottom: 16, lineHeight: 1.25 }}>
                   {p.heading}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.56)', lineHeight: 1.75 }}>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.56)', lineHeight: 1.7 }}>
                   {p.body}
                 </p>
               </motion.div>
@@ -584,7 +635,7 @@ export default function Home() {
       </div>
 
       {/* ── TOOLS SECTION (dark section, full width) ──────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 py-20" style={{ background: '#1E2227' }} ref={sectionRef}>
+      <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1E2227' }} ref={sectionRef}>
         <div className="space-y-14">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <SectionHeader clause="CL. 2.0 — SCOPE OF TOOLS" title="Every phase of your construction, estimated" dark />
@@ -718,7 +769,7 @@ export default function Home() {
       </div>
 
       {/* ── HOW IT WORKS (full width) ────────────────────────────────────── */}
-      <section id="how-it-works" className="grid-paper px-6 md:px-16 lg:px-24 py-20">
+      <section id="how-it-works" className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
           <SectionHeader clause="CL. 3.0 — PROCESS" title="How NirmanShastra works" />
 
@@ -726,10 +777,10 @@ export default function Home() {
             {STEPS.map((step, i) => (
               <motion.div
                 key={step.rev}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.35, ease: 'easeOut', delay: i * 0.1 }}
+                transition={{ duration: 0.4, ease: 'easeOut', delay: i * 0.1 }}
                 style={{
                   borderTop: '3px solid #1F4E79',
                   borderRight: i < 3 ? '1px solid rgba(30,34,39,0.1)' : 'none',
@@ -745,7 +796,7 @@ export default function Home() {
                 <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 20, fontWeight: 600, color: '#1E2227', marginBottom: 12, lineHeight: 1.3 }}>
                   {step.heading}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.65)', lineHeight: 1.7 }}>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.65)', lineHeight: 1.75 }}>
                   {step.body}
                 </p>
               </motion.div>
@@ -760,7 +811,7 @@ export default function Home() {
       </div>
 
       {/* ── COMPARISON TABLE ─────────────────────────────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 py-20" style={{ background: '#1E2227' }}>
+      <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1E2227' }}>
         <div className="space-y-10">
           <SectionHeader
             clause="CL. 3.5 — COMPETITIVE COMPARISON"
@@ -849,7 +900,7 @@ export default function Home() {
       </div>
 
       {/* ── IS CODE TRUST STRIP (full width) ─────────────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 py-20" style={{ background: '#1F4E79' }}>
+      <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1F4E79' }}>
         <div className="space-y-10">
           <div className="space-y-2">
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -904,7 +955,7 @@ export default function Home() {
       </div>
 
       {/* ── PRICING SECTION (full width) ─────────────────────────────────── */}
-      <section id="pricing" className="grid-paper px-6 md:px-16 lg:px-24 py-20">
+      <section id="pricing" className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
           <SectionHeader clause="CL. 5.0 — PRICING · LAUNCH 2026" title="Simple, report-by-report pricing" />
 

@@ -21,6 +21,7 @@ body {
   background-color: #F4F4F0;
   color: #1E2227;
   font-family: var(--font-plex-sans), system-ui, sans-serif;
+  line-height: 1.7;
 }
 
 /* Sheet frame — 1px Iron Ink border on the left and right edges of the
@@ -58,6 +59,110 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .hero-title-block {
+    animation: none;
+  }
+}
+
+/* ── HERO GRADIENT MESH ───────────────────────────────────────────────────── */
+@keyframes blobFloat1 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  40%       { transform: translate(6%, 8%) scale(1.04); }
+  70%       { transform: translate(-3%, 5%) scale(0.97); }
+}
+@keyframes blobFloat2 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  35%       { transform: translate(-7%, -6%) scale(0.96); }
+  65%       { transform: translate(4%, -5%) scale(1.06); }
+}
+@keyframes blobFloat3 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  50%       { transform: translate(5%, -7%) scale(1.03); }
+}
+
+.hero-blob-1 {
+  position: absolute;
+  width: 65%;
+  height: 65%;
+  top: -15%;
+  left: -20%;
+  background: radial-gradient(ellipse at center, rgba(31,78,121,0.22) 0%, transparent 70%);
+  animation: blobFloat1 20s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hero-blob-2 {
+  position: absolute;
+  width: 55%;
+  height: 55%;
+  bottom: -15%;
+  right: -15%;
+  background: radial-gradient(ellipse at center, rgba(31,78,121,0.16) 0%, transparent 70%);
+  animation: blobFloat2 22s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hero-blob-3 {
+  position: absolute;
+  width: 45%;
+  height: 45%;
+  top: 25%;
+  right: 20%;
+  background: radial-gradient(ellipse at center, rgba(201,168,76,0.07) 0%, transparent 65%);
+  animation: blobFloat3 18s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Results Grand Total gradient blobs */
+.results-blob-1 {
+  position: absolute;
+  width: 70%;
+  height: 120%;
+  top: -10%;
+  left: -20%;
+  background: radial-gradient(ellipse at center, rgba(31,78,121,0.20) 0%, transparent 65%);
+  animation: blobFloat1 20s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.results-blob-2 {
+  position: absolute;
+  width: 55%;
+  height: 110%;
+  top: -5%;
+  right: -15%;
+  background: radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 65%);
+  animation: blobFloat2 22s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Grand Total number reveal pulse */
+@keyframes grandTotalPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.grand-total-pulse {
+  animation: grandTotalPulse 1.4s ease-in-out 0.8s 1 both;
+}
+
+/* Disable gradient animations on mobile and for users who prefer reduced motion */
+@media (max-width: 767px) {
+  .hero-blob-1, .hero-blob-2, .hero-blob-3,
+  .results-blob-1, .results-blob-2 {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-blob-1, .hero-blob-2, .hero-blob-3,
+  .results-blob-1, .results-blob-2,
+  .grand-total-pulse {
     animation: none;
   }
 }
