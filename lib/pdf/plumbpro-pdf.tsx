@@ -25,29 +25,28 @@ import type { PlumbInput, PlumbResult } from '@/app/tools/plumbpro/plumbpro-engi
 import { formatLakhs } from '@/app/tools/plumbpro/plumbpro-engine'
 
 // ─── Font registration ────────────────────────────────────────────────────────
-const CDN = 'https://cdn.jsdelivr.net/npm/@ibm/plex@6.4.0'
+const F = (name: string) => path.join(process.cwd(), 'public/fonts', name)
 
+Font.register({
+  family: 'IBMPlexSans',
+  fonts: [
+    { src: F('IBMPlexSans-Regular.ttf'), fontWeight: 400 },
+    { src: F('IBMPlexSans-Medium.ttf'),  fontWeight: 500 },
+    { src: F('IBMPlexSans-Bold.ttf'),    fontWeight: 700 },
+  ],
+})
 Font.register({
   family: 'IBMPlexMono',
   fonts: [
-    { src: `${CDN}/IBM-Plex-Mono/fonts/complete/ttf/IBMPlexMono-Regular.ttf`, fontWeight: 400 },
-    { src: `${CDN}/IBM-Plex-Mono/fonts/complete/ttf/IBMPlexMono-Medium.ttf`,  fontWeight: 500 },
-    { src: `${CDN}/IBM-Plex-Mono/fonts/complete/ttf/IBMPlexMono-Bold.ttf`,    fontWeight: 700 },
+    { src: F('IBMPlexMono-Regular.ttf'), fontWeight: 400 },
+    { src: F('IBMPlexMono-Bold.ttf'),    fontWeight: 700 },
   ],
 })
 Font.register({
   family: 'IBMPlexSerif',
   fonts: [
-    { src: `${CDN}/IBM-Plex-Serif/fonts/complete/ttf/IBMPlexSerif-SemiBold.ttf`, fontWeight: 600 },
-    { src: `${CDN}/IBM-Plex-Serif/fonts/complete/ttf/IBMPlexSerif-Bold.ttf`,     fontWeight: 700 },
-  ],
-})
-Font.register({
-  family: 'IBMPlexSans',
-  fonts: [
-    { src: `${CDN}/IBM-Plex-Sans/fonts/complete/ttf/IBMPlexSans-Regular.ttf`,  fontWeight: 400 },
-    { src: `${CDN}/IBM-Plex-Sans/fonts/complete/ttf/IBMPlexSans-Medium.ttf`,   fontWeight: 500 },
-    { src: `${CDN}/IBM-Plex-Sans/fonts/complete/ttf/IBMPlexSans-SemiBold.ttf`, fontWeight: 600 },
+    { src: F('IBMPlexSerif-Regular.ttf'), fontWeight: 400 },
+    { src: F('IBMPlexSerif-Bold.ttf'),    fontWeight: 700 },
   ],
 })
 Font.registerHyphenationCallback(word => [word])
