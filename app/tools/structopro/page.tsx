@@ -164,6 +164,7 @@ export default function StructoProPage() {
                   projectName={session.regData.projectName}
                   onSubmit={handleDetails}
                   onFormChange={setLiveData}
+                  onBack={() => setStep('method')}
                 />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>

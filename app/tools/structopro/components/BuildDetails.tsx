@@ -299,11 +299,12 @@ interface Props {
   projectName?:  string
   onSubmit:      (input: StructoInput) => void
   onFormChange?: (data: Record<string, unknown>) => void
+  onBack?:       () => void
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function BuildDetails({ state: initState, city: initCity, projectName: initProjectName, onSubmit, onFormChange }: Props) {
+export default function BuildDetails({ state: initState, city: initCity, projectName: initProjectName, onSubmit, onFormChange, onBack }: Props) {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -499,13 +500,20 @@ export default function BuildDetails({ state: initState, city: initCity, project
     setCustomTrades(prev => [...prev, { id: `ct-${Date.now()}`, name: '', workers: '1', ratePerDay: '', days: '' }])
   }
 
-  function handleSubmit() {
+  function validate3a(): boolean {
     const errs: Record<string, string> = {}
     if (!siteCondition) errs.site = 'Select a site condition to continue'
-    const buaSqft = parseFloat(groundArea) || 0
-    if (sameArea && buaSqft < 100) errs.area = 'Enter a valid floor area (min 100 sqft)'
+    if (sameArea && (!groundArea || parseFloat(groundArea) < 100)) errs.area = 'Enter a valid floor area (min 100 sqft)'
     if (!sameArea && floorRows.some(r => !r.area || parseFloat(r.area) < 50)) errs.floors = 'Enter area (min 50 sqft) for all floors'
-    if (Object.keys(errs).length) { setErrors(errs); return }
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  function handleSubmit() {
+    if (!validate3a()) {
+      setSubStep('3a')
+      return
+    }
     setErrors({})
 
     const gfAreaSqft = sameArea
@@ -589,6 +597,13 @@ export default function BuildDetails({ state: initState, city: initCity, project
       </div>
 
       {subStep === '3a' && (<>
+
+      {onBack && (
+        <button type="button" onClick={onBack}
+          style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+          ← Change Method
+        </button>
+      )}
 
       {/* ── S1: Project Details ────────────────────────────────────────────────── */}
       <Sect title="1 — Where is your plot and what is the project?">
@@ -1263,7 +1278,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
       <div className="pt-2">
         <button
           type="button"
-          onClick={() => setSubStep('3b')}
+          onClick={() => { if (validate3a()) setSubStep('3b') }}
           className="w-full py-3 rounded-[6px] font-semibold text-[15px] transition-all"
           style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}
         >
@@ -1274,6 +1289,10 @@ export default function BuildDetails({ state: initState, city: initCity, project
 
       {/* ── Step 3b: Material Rates ──────────────────────────────────────────── */}
       {subStep === '3b' && (<>
+        <button type="button" onClick={() => setSubStep('3a')}
+          style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+          ← Back to Structure Details
+        </button>
         <div>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3b · MATERIAL RATES</p>
           <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Enter Your Local Material Rates</h3>
@@ -1498,6 +1517,10 @@ export default function BuildDetails({ state: initState, city: initCity, project
 
       {/* ── Step 3c: Labour ──────────────────────────────────────────────────── */}
       {subStep === '3c' && (<>
+        <button type="button" onClick={() => setSubStep('3b')}
+          style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+          ← Back to Material Rates
+        </button>
         <div>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3c · LABOUR ESTIMATION</p>
           <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Include Labour Cost? (Optional)</h3>

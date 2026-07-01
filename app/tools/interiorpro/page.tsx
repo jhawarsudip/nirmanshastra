@@ -123,6 +123,7 @@ export default function InteriorProPage() {
                   city={session.regData.city}
                   onSubmit={handleDetails}
                   onFormChange={setLiveData}
+                  onBack={() => setStep('method')}
                 />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>

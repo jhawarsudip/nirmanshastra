@@ -165,9 +165,10 @@ interface Props {
   city: string
   onSubmit: (input: MasonInput) => void
   onFormChange?: (data: Record<string, unknown>) => void
+  onBack?: () => void
 }
 
-export default function BuildDetails({ state, city, onSubmit, onFormChange }: Props) {
+export default function BuildDetails({ state, city, onSubmit, onFormChange, onBack }: Props) {
 
   // S1 — Project Details
   const [projectName, setProjectName] = useState('')
@@ -358,7 +359,7 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
     setCustomTrades(prev => prev.map(t => t.id === id ? { ...t, [key]: val } : t))
   }
 
-  function validate(): boolean {
+  function validate3a(): boolean {
     const e: Record<string, string> = {}
     if (rooms.length === 0) e.rooms = 'Add at least one room / floor area'
     else if (grossExtSqm <= 0) e.rooms = 'Enter valid dimensions for at least one room'
@@ -368,7 +369,10 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
   }
 
   function handleSubmit() {
-    if (!validate()) return
+    if (!validate3a()) {
+      setSubStep('3a')
+      return
+    }
 
     const doorsForEngine = [
       ...DOOR_PRESETS.map(p => ({
@@ -513,6 +517,12 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
         </div>
 
         {subStep === '3a' && (<>
+        {onBack && (
+          <button type="button" onClick={onBack}
+            style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+            ← Change Method
+          </button>
+        )}
         {/* Location chip */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[2px]"
           style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)' }}>
@@ -1484,7 +1494,7 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
         </div>
 
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <button type="button" onClick={() => setSubStep('3b')}
+            <button type="button" onClick={() => { if (validate3a()) setSubStep('3b') }}
               className="flex-1 py-3 rounded-[6px] font-semibold text-[15px]"
               style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}>
               Continue to Material Rates →
@@ -1493,6 +1503,10 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
         </>)}
 
         {subStep === '3b' && (<>
+          <button type="button" onClick={() => setSubStep('3a')}
+            style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+            ← Back to Structure Details
+          </button>
           <div>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3b · MATERIAL RATES</p>
             <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Enter Your Local Material Rates</h3>
@@ -1596,6 +1610,10 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange }: Pr
         </>)}
 
         {subStep === '3c' && (<>
+          <button type="button" onClick={() => setSubStep('3b')}
+            style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+            ← Back to Material Rates
+          </button>
           <div>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3c · LABOUR ESTIMATION</p>
             <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Include Labour Cost? (Optional)</h3>
