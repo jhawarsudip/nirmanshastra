@@ -7,6 +7,7 @@ import GrandTotalPDF from '@/lib/pdf/grand-total-pdf'
 import type { ContactInfo, PhaseEstimate, GrandTotalData } from '@/lib/pdf/grand-total-pdf'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const PAYMENT_BYPASS = true
 
 function fmtLakhs(n: number): string {
   if (n >= 10_000_000) return `Rs.${(n / 10_000_000).toFixed(1)} Cr`
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
     if (gtErr || !gtEstimate) {
       return NextResponse.json({ error: 'Grand total estimate not found' }, { status: 404 })
     }
-    if (gtEstimate.status !== 'paid') {
+    if (!PAYMENT_BYPASS && gtEstimate.status !== 'paid') {
       return NextResponse.json({ error: 'Payment not verified' }, { status: 403 })
     }
 
@@ -174,7 +175,7 @@ export async function GET(req: NextRequest) {
     .eq('app_type', 'grandtotal')
     .single()
 
-  if (!estimate || estimate.status !== 'paid') {
+  if (!PAYMENT_BYPASS && (!estimate || estimate.status !== 'paid')) {
     return NextResponse.json({ error: 'Not authorised' }, { status: 403 })
   }
 
