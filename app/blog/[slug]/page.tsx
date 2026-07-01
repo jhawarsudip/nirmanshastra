@@ -336,7 +336,7 @@ export default async function ArticlePage({ params }: PageProps) {
               APPLY THIS KNOWLEDGE
             </div>
             <div style={{ ...serif, fontSize: 18, fontWeight: 600, color: '#1E2227', marginBottom: 6 }}>
-              Calculate your exact costs — Try StructoPro Free
+              Calculate your exact costs — Try StructurePro Free
             </div>
             <div style={{ ...sans, fontSize: 13, color: 'rgba(30,34,39,0.55)', lineHeight: 1.5 }}>
               IS 456:2000 compliant structural BOQ. Know your quantities before you speak to any contractor.
@@ -357,7 +357,7 @@ export default async function ArticlePage({ params }: PageProps) {
               whiteSpace: 'nowrap',
             }}
           >
-            Try StructoPro →
+            Try StructurePro →
           </Link>
         </div>
       </div>

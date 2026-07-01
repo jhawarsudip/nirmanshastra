@@ -90,7 +90,7 @@ export default function BlogPage() {
               whiteSpace: 'nowrap',
             }}
           >
-            Try StructoPro Free →
+            Try StructurePro Free →
           </Link>
         </div>
       </div>

@@ -90,7 +90,7 @@ export default function TermsOfUsePage() {
             <P>Our current pricing (as of June 2026):</P>
             <UL items={[
               'VastuPro — Free forever, no payment required',
-              'StructoPro, MasonPro, ElectroPro, PlumbPro, InteriorPro — ₹499 per report',
+              'StructurePro, MasonryPro, ElectricalPro, PlumbingPro, InteriorPro — ₹499 per report',
               'Complete bundle (all 5 paid tools) — ₹1,999',
               'Grand Total Report (combines all 5 phases) — ₹999, or free if all 5 tools purchased individually',
             ]} />
