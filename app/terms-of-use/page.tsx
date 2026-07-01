@@ -64,8 +64,8 @@ export default function TermsOfUsePage() {
         </div>
       </div>
 
-      <section className="px-6 md:px-16 lg:px-24 py-20">
-        <div style={{ maxWidth: 800 }}>
+      <section className="py-20">
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
 
           <div className="grid-paper" style={{ border: '1px solid rgba(30,34,39,0.15)', padding: '20px 24px', marginBottom: 48 }}>
             <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.75)', lineHeight: 1.75 }}>

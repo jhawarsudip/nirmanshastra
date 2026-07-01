@@ -23,8 +23,8 @@ export default function AboutPage() {
       </div>
 
       {/* Main content */}
-      <section className="px-6 md:px-16 lg:px-24 py-20">
-        <div style={{ maxWidth: 760 }}>
+      <section className="py-20">
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
 
           {/* Founder bio block */}
           <div style={{ borderLeft: '3px solid #1F4E79', paddingLeft: 28, marginBottom: 48 }}>

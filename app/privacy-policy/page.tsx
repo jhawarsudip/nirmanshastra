@@ -64,8 +64,8 @@ export default function PrivacyPolicyPage() {
         </div>
       </div>
 
-      <section className="px-6 md:px-16 lg:px-24 py-20">
-        <div style={{ maxWidth: 800 }}>
+      <section className="py-20">
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
 
           {/* Disclaimer notice */}
           <div className="grid-paper" style={{ border: '1px solid rgba(217,154,6,0.4)', background: 'rgba(217,154,6,0.06)', padding: '20px 24px', marginBottom: 48, display: 'flex', gap: 14, alignItems: 'flex-start' }}>

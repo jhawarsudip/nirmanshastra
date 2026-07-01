@@ -62,8 +62,8 @@ export default function ContactPage() {
         </div>
       </div>
 
-      <section className="px-6 md:px-16 lg:px-24 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16" style={{ maxWidth: 960 }}>
+      <section className="py-20">
+        <div className="max-w-5xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-12">
 
           {/* Contact form */}
           <div>

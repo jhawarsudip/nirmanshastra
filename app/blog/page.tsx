@@ -48,7 +48,7 @@ export default function BlogPage() {
       </div>
 
       {/* Articles grid */}
-      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '48px 24px 80px' }}>
+      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-12 pb-20">
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',

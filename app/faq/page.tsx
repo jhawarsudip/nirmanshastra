@@ -235,7 +235,7 @@ export default function FaqPage() {
 
       {/* Category tabs */}
       <div style={{ borderBottom: '1px solid rgba(30,34,39,0.12)', background: '#F4F4F0', position: 'sticky', top: 52, zIndex: 20 }}>
-        <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 0, overflowX: 'auto' }}>
+        <div className="max-w-5xl mx-auto px-6 md:px-12" style={{ display: 'flex', gap: 0, overflowX: 'auto' }}>
           {FAQ_CATEGORIES.map(cat => {
             const isActive = cat.code === activeCategory
             return (
@@ -266,7 +266,7 @@ export default function FaqPage() {
       </div>
 
       {/* FAQ content */}
-      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '48px 24px 80px', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 280px', gap: 60, alignItems: 'start' }}>
+      <div className="max-w-5xl mx-auto px-6 md:px-12" style={{ paddingTop: 48, paddingBottom: 80, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 280px', gap: 60, alignItems: 'start' }}>
 
         {/* Questions */}
         <div>

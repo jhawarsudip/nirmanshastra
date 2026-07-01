@@ -309,7 +309,7 @@ export default async function ArticlePage({ params }: PageProps) {
       </div>
 
       {/* Article body */}
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: '48px 24px 64px' }}>
+      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-12 pb-16">
         {/* Excerpt lead */}
         <p style={{ ...sans, fontSize: 17, color: 'rgba(30,34,39,0.7)', lineHeight: 1.7, margin: '0 0 36px', borderLeft: '3px solid #1F4E79', paddingLeft: 16 }}>
           {article.excerpt}
@@ -320,7 +320,7 @@ export default async function ArticlePage({ params }: PageProps) {
       </div>
 
       {/* CTA card */}
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 24px 64px' }}>
+      <div className="max-w-5xl mx-auto px-6 md:px-12 pb-16">
         <div style={{
           border: '1px solid rgba(30,34,39,0.15)',
           padding: '28px 28px',
@@ -365,7 +365,7 @@ export default async function ArticlePage({ params }: PageProps) {
       {/* Related articles */}
       {related.length > 0 && (
         <div style={{ borderTop: '1px solid rgba(30,34,39,0.1)', padding: '48px 24px 64px' }}>
-          <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <div className="max-w-5xl mx-auto px-6 md:px-12">
             <div style={{ ...mono, fontSize: 10, color: 'rgba(30,34,39,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 }}>
               RELATED ARTICLES
             </div>

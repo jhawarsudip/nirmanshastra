@@ -22,8 +22,8 @@ export default function DisclaimerPage() {
         </div>
       </div>
 
-      <section className="px-6 md:px-16 lg:px-24 py-20">
-        <div style={{ maxWidth: 800 }}>
+      <section className="py-20">
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
 
           {/* Primary warning box */}
           <div style={{ border: '2px solid #8C3A22', padding: '28px 32px', marginBottom: 48, background: 'rgba(140,58,34,0.04)' }}>

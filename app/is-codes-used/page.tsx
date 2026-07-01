@@ -234,7 +234,8 @@ export default function ISCodesPage() {
       </div>
 
       {/* Code sections */}
-      <section className="px-6 md:px-16 lg:px-24 py-16">
+      <section className="py-16">
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 56 }}>
           {CODES_BY_TOOL.map(tool => (
             <div key={tool.tool}>
@@ -305,6 +306,7 @@ export default function ISCodesPage() {
             <Link href="/disclaimer" style={{ color: '#1F4E79' }}>Disclaimer</Link>{' '}·{' '}
             <Link href="/terms-of-use" style={{ color: '#1F4E79' }}>Terms of Use</Link>
           </p>
+        </div>
         </div>
       </section>
     </main>
