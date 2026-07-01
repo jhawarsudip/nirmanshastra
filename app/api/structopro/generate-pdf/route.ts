@@ -55,23 +55,36 @@ export async function POST(req: NextRequest) {
       state:   contact.state   ?? '',
     }
 
+    if (!estimate.input_data || !estimate.result_data) {
+      return NextResponse.json(
+        { error: 'Estimate data incomplete — please recalculate and pay again' },
+        { status: 400 }
+      )
+    }
+
     const input    = estimate.input_data  as StructoInput
     const result   = estimate.result_data as StructoResult
     const reportId = `NS-SP-${estimateId.slice(0, 8).toUpperCase()}`
     const projectName = estimate.project_name ?? 'My Project'
 
     // 3. Generate PDF buffer
-    const pdfElement = React.createElement(StructoProPDF, {
-      input,
-      result,
-      contact: contactInfo,
-      reportId,
-      projectName,
-      date: new Date(),
-    })
-    // renderToBuffer expects ReactElement<DocumentProps>; our component returns Document
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfBuffer = await renderToBuffer(pdfElement as any)
+    let pdfBuffer: Buffer
+    try {
+      const pdfElement = React.createElement(StructoProPDF, {
+        input,
+        result,
+        contact: contactInfo,
+        reportId,
+        projectName,
+        date: new Date(),
+      })
+      // renderToBuffer expects ReactElement<DocumentProps>; our component returns Document
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pdfBuffer = await renderToBuffer(pdfElement as any)
+    } catch (pdfErr) {
+      console.error('PDF render error:', pdfErr)
+      return NextResponse.json({ error: 'PDF generation failed — estimate data may be malformed' }, { status: 500 })
+    }
 
     // 4. Ensure storage bucket exists (public — reports identified by UUID)
     const { error: bucketErr } = await supabase.storage.createBucket('reports', {

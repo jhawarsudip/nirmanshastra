@@ -161,6 +161,7 @@ export default function StructoProPage() {
                 <BuildDetails
                   state={session.regData.state}
                   city={session.regData.city}
+                  projectName={session.regData.projectName}
                   onSubmit={handleDetails}
                   onFormChange={setLiveData}
                 />

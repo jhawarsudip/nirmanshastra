@@ -329,10 +329,10 @@ function ChecklistDisclaimer({ tool }: { tool: string }) {
 
 export default function StructoProPDF({ input, result, contact, reportId, projectName, date }: PDFProps) {
   // Derived quantities used across pages
-  const bpm3 = bagsPerM3(input.concreteGrade)
-  const totalConcreteM3 = result.quantities.cementBags / bpm3
-  const gndM2 = input.groundFloorAreaSqft / 10.764
-  const totalFloors = input.numFloors + 1
+  const bpm3 = bagsPerM3(input?.concreteGrade ?? 'M20')
+  const totalConcreteM3 = (result?.quantities?.cementBags ?? 0) / (bpm3 || 1)
+  const gndM2 = (input?.groundFloorAreaSqft ?? 0) / 10.764
+  const totalFloors = (input?.numFloors ?? 0) + 1
 
   // Foundation quantities (IS 456:2000 Section 8 — footing 0.50% steel = 39.25 kg/m³)
   const footingAreaM2 = gndM2 * 0.15
@@ -341,17 +341,17 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
   const fndConcreteM3 = footingAreaM2 * 0.45
   const fndSteelKg = Math.round(fndConcreteM3 * 39.25)
   const shutteringM2 = footingAreaM2 * 3.0
-  const antiTermiteSqft = input.groundFloorAreaSqft
+  const antiTermiteSqft = input?.groundFloorAreaSqft ?? 0
   const backfillM3 = Math.max(0, excavM3 * 0.6)
 
   // Superstructure
   const superConcreteM3 = Math.max(0, totalConcreteM3 - fndConcreteM3 - pccM3)
-  const superSteelKg = Math.max(0, result.quantities.steelKg - fndSteelKg)
+  const superSteelKg = Math.max(0, (result?.quantities?.steelKg ?? 0) - fndSteelKg)
   const plinthConcreteM3 = superConcreteM3 * 0.08
   const plinthSteelKg = Math.round(plinthConcreteM3 * 117.75)  // IS 456 Sect 8: plinth beam 1.5%
   const regularConcreteM3 = (superConcreteM3 - plinthConcreteM3) / totalFloors
   const regularSteelKg = Math.round((superSteelKg - plinthSteelKg) / totalFloors)
-  const regularFormworkSqft = Math.round(result.quantities.formworkSqft / totalFloors)
+  const regularFormworkSqft = Math.round((result?.quantities?.formworkSqft ?? 0) / totalFloors)
 
   // Foundation BOQ costs
   const RATES = {

@@ -77,6 +77,7 @@ export interface StructoInput {
   city: string
   numFloors: number           // 0=G, 1=G+1, …, 5=G+5
   groundFloorAreaSqft: number
+  perFloorAreas?: number[]    // per-floor areas in sqft (when sameArea=false); length = numFloors+1
   siteCondition: SiteCondition
   concreteGrade: ConcreteGrade
   steelGrade: SteelGrade
@@ -280,7 +281,9 @@ export function runCalculation(input: StructoInput): StructoResult {
 
   // Total BUA
   const totalFloors = numFloors + 1   // G = 1 floor, G+1 = 2 floors, …
-  const totalBUA = groundFloorAreaSqft * totalFloors
+  const totalBUA = (input.perFloorAreas && input.perFloorAreas.length > 0)
+    ? input.perFloorAreas.reduce((sum, a) => sum + (a || 0), 0)
+    : groundFloorAreaSqft * totalFloors
   const ff = floorFactor(numFloors)
   const gradeFactor = GRADE_COST_FACTOR[concreteGrade]
 
@@ -329,11 +332,12 @@ export function runCalculation(input: StructoInput): StructoResult {
   }
 
   // Grand total range (Basic / Standard / Premium)
-  const labourCostBasic    = Math.round(totalMaterialCost * 0.15)
-  const labourCostStandard = Math.round(totalMaterialCost * 0.28)
-  const labourCostPremium  = Math.round(totalMaterialCost * 0.38)
+  const withLabour = input.includeLabour !== false
+  const labourCostBasic    = withLabour ? Math.round(totalMaterialCost * 0.15) : 0
+  const labourCostStandard = withLabour ? Math.round(totalMaterialCost * 0.28) : 0
+  const labourCostPremium  = withLabour ? Math.round(totalMaterialCost * 0.38) : 0
   const overheadBasic      = Math.round((totalMaterialCost + labourCostBasic)    * 0.05)
-  const overheadStandard   = Math.round((totalMaterialCost + labourCostStandard) * 0.05)
+  const overheadStandard   = Math.round((totalMaterialCost + labourCostStandard) * (withLabour ? 0.05 : 0.10))
   const overheadPremium    = Math.round((totalMaterialCost + labourCostPremium)  * 0.15)
 
   const totalBasic    = totalMaterialCost + labourCostBasic    + overheadBasic
@@ -439,7 +443,7 @@ export function runCalculation(input: StructoInput): StructoResult {
     gradeSummary,
     quantities,
     costs,
-    labourCost:   Math.round(labourCostStandard),
+    labourCost:   withLabour ? Math.round(labourCostStandard) : 0,
     overheadCost: Math.round(overheadStandard),
   }
 }

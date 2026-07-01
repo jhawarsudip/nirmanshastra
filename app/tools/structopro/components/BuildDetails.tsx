@@ -296,18 +296,19 @@ function ElevationDiagram({ floorRows, sameArea, groundArea }: {
 interface Props {
   state:         string
   city:          string
+  projectName?:  string
   onSubmit:      (input: StructoInput) => void
   onFormChange?: (data: Record<string, unknown>) => void
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function BuildDetails({ state: initState, city: initCity, onSubmit, onFormChange }: Props) {
+export default function BuildDetails({ state: initState, city: initCity, projectName: initProjectName, onSubmit, onFormChange }: Props) {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // S1
-  const [projectName, setProjectName] = useState('')
+  // S1 — projectName comes from registration; read-only here (no duplicate input)
+  const projectName = initProjectName ?? ''
   const [localState, setLocalState]   = useState(initState || '')
   const [localCity, setLocalCity]     = useState(initCity || '')
 
@@ -517,6 +518,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       city: localCity,
       numFloors,
       groundFloorAreaSqft: gfAreaSqft,
+      perFloorAreas: !sameArea ? floorRows.map(r => parseFloat(r.area) || 0) : undefined,
       siteCondition: siteCondition!,
       concreteGrade,
       steelGrade,
@@ -591,10 +593,6 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
       {/* ── S1: Project Details ────────────────────────────────────────────────── */}
       <Sect title="1 — Where is your plot and what is the project?">
         <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <label className={lCls} style={lStyle}>Project Name</label>
-            <input className={iCls} style={iStyle} placeholder="e.g. Sharma Residence, Pune" value={projectName} onChange={e => setProjectName(e.target.value)} />
-          </div>
           <div>
             <label className={lCls} style={lStyle}>State</label>
             <select className={iCls} style={iStyle} value={localState} onChange={e => { setLocalState(e.target.value); setSeismicOverride('') }}>
@@ -899,7 +897,8 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
                 <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>NBC min: 900mm</p>
               </div>
               <div>
-                <label className={lCls} style={lStyle}>Number of staircases</label>
+                <label className={lCls} style={lStyle}>Staircases per floor</label>
+                <p className="text-[11px] mb-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>(same staircase continues through all floors)</p>
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={() => setStaircase(s => ({ ...s, count: Math.max(1, s.count - 1) }))} className="w-8 h-8 rounded-[2px] border flex items-center justify-center text-lg" style={{ borderColor: '#1E222730' }}>−</button>
                   <span className="text-[14px] font-semibold w-8 text-center" style={monoStyle}>{staircase.count}</span>
@@ -1526,7 +1525,7 @@ export default function BuildDetails({ state: initState, city: initCity, onSubmi
             className="p-4 rounded-[2px] text-left transition-all"
             style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
           >
-            <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Skip — Material Cost Only</p>
+            <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Exclude Labour Cost — show material quantities only</p>
             <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour later from your contractor quote.</p>
           </button>
         </div>
