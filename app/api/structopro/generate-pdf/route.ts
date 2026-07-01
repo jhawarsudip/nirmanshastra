@@ -8,12 +8,13 @@ import type { ContactInfo } from '@/lib/pdf/structopro-pdf'
 import type { StructoInput, StructoResult } from '@/app/tools/structopro/structopro-engine'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const PAYMENT_BYPASS = true
+const PAYMENT_BYPASS = process.env.PAYMENT_BYPASS === 'true' || true
 
 // POST /api/structopro/generate-pdf
 // Called from ResultsPage after payment is confirmed.
 // Verifies estimate is paid server-side before generating.
 export async function POST(req: NextRequest) {
+  console.log('PDF generation starting, bypass mode: true')
   try {
     const { estimateId } = await req.json()
     if (!estimateId) {
