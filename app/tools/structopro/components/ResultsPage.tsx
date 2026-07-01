@@ -1115,7 +1115,6 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             {activeTab === 'by_floor' && (
               !isPaid ? (() => {
                 const numF = input.numFloors + 1
-                const areaPerFloor = totalBUA / numF
                 const floorNames = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor']
                 const previewRows = Math.min(2, numF)
                 const lockedRows  = numF - previewRows
@@ -1134,7 +1133,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       </thead>
                       <tbody>
                         {Array.from({ length: previewRows }, (_, i) => {
-                          const share = 1 / numF
+                          const floorArea = input.perFloorAreas?.[i] ?? (totalBUA / numF)
+                          const share = totalBUA > 0 ? floorArea / totalBUA : 1 / numF
                           const cem  = Math.round(r.quantities.cementBags * share)
                           const stl  = Math.round(r.quantities.steelKg * share)
                           const conc = (r.quantities.cementBags * share / 8.07).toFixed(2)
@@ -1142,7 +1142,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           return (
                             <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
                               <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{floorNames[i] ?? `Floor ${i}`}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(areaPerFloor).toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(floorArea).toLocaleString('en-IN')}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{cem.toLocaleString('en-IN')}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{stl.toLocaleString('en-IN')}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{conc}</td>
@@ -1159,7 +1159,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                             <tbody>
                               {Array.from({ length: lockedRows }, (_, j) => {
                                 const i = j + previewRows
-                                const share = 1 / numF
+                                const floorArea = input.perFloorAreas?.[i] ?? (totalBUA / numF)
+                                const share = totalBUA > 0 ? floorArea / totalBUA : 1 / numF
                                 const cem  = Math.round(r.quantities.cementBags * share)
                                 const stl  = Math.round(r.quantities.steelKg * share)
                                 const conc = (r.quantities.cementBags * share / 8.07).toFixed(2)
@@ -1167,7 +1168,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                                 return (
                                   <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
                                     <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{floorNames[i] ?? `Floor ${i}`}</td>
-                                    <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(areaPerFloor).toLocaleString('en-IN')}</td>
+                                    <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(floorArea).toLocaleString('en-IN')}</td>
                                     <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{cem.toLocaleString('en-IN')}</td>
                                     <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{stl.toLocaleString('en-IN')}</td>
                                     <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{conc}</td>
@@ -1212,10 +1213,10 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     <tbody>
                       {(() => {
                         const numFloors = input.numFloors + 1
-                        const areaPerFloor = totalBUA / numFloors
                         const floorNames = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor']
                         return Array.from({ length: numFloors }, (_, i) => {
-                          const share = 1 / numFloors
+                          const floorArea = input.perFloorAreas?.[i] ?? (totalBUA / numFloors)
+                          const share = totalBUA > 0 ? floorArea / totalBUA : 1 / numFloors
                           const cem  = Math.round(r.quantities.cementBags * share)
                           const stl  = Math.round(r.quantities.steelKg * share)
                           const conc = (r.quantities.cementBags * share / 8.07).toFixed(2)
@@ -1223,7 +1224,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           return (
                             <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
                               <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{floorNames[i] ?? `Floor ${i}`}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(areaPerFloor).toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(floorArea).toLocaleString('en-IN')}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{cem.toLocaleString('en-IN')}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{stl.toLocaleString('en-IN')}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{conc}</td>

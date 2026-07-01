@@ -360,8 +360,8 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
   const foundationBOQ = [
     { desc: 'Excavation in ordinary/hard soil for footings', unit: 'm³', qty: excavM3, rate: RATES.excav },
     { desc: 'PCC M10 (1:3:6) blinding layer — 75mm thick', unit: 'm³', qty: pccM3, rate: RATES.pcc },
-    { desc: `RCC ${input.concreteGrade} concrete for isolated footings`, unit: 'm³', qty: fndConcreteM3, rate: RATES.rcc },
-    { desc: `TMT ${input.steelGrade} steel reinforcement for footings`, unit: 'kg', qty: fndSteelKg, rate: RATES.steel },
+    { desc: `RCC ${input?.concreteGrade ?? 'M20'} concrete for isolated footings`, unit: 'm³', qty: fndConcreteM3, rate: RATES.rcc },
+    { desc: `TMT ${input?.steelGrade ?? 'Fe500'} steel reinforcement for footings`, unit: 'kg', qty: fndSteelKg, rate: RATES.steel },
     { desc: 'Wooden/steel shuttering and formwork for footings', unit: 'm²', qty: shutteringM2, rate: RATES.shutter },
     { desc: 'Anti-termite soil treatment (chemical barrier)', unit: 'sqft', qty: antiTermiteSqft, rate: RATES.antiTermite },
     { desc: 'Earth backfilling and mechanical compaction', unit: 'm³', qty: backfillM3, rate: RATES.backfill },
@@ -372,13 +372,13 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
   const matRates = { cement: 495, steel: 68, aggregate: 20, sand: 24, bindingWire: 85, formwork: 30 }
 
   // IS Code Compliance Checklist data
-  const zoneNum = parseInt(result.seismicZone) || 2
-  const hasViolations = result.compliance.some(c => c.status === 'fail')
+  const zoneNum = parseInt(result?.seismicZone ?? '2') || 2
+  const hasViolations = (result?.compliance ?? []).some(c => c.status === 'fail')
   const isChecklist: ChecklistItem[] = [
     {
       status: 'pass',
       clause: 'IS 456:2000 Cl 6.1',
-      description: `Concrete grade ${input.concreteGrade} meets minimum requirement for ${result.exposureClass.replace(/_/g, ' ')} exposure class`,
+      description: `Concrete grade ${input?.concreteGrade ?? 'M20'} meets minimum requirement for ${(result?.exposureClass ?? 'mild').replace(/_/g, ' ')} exposure class`,
     },
     {
       status: 'pass',
@@ -482,10 +482,10 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           {/* Stats row */}
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
             {[
-              { label: 'FLOORS',        value: floorsLabel(input.numFloors) },
-              { label: 'TOTAL BUA',     value: `${num(result.totalBUA)} sqft` },
-              { label: 'SEISMIC ZONE',  value: `IS Zone ${result.seismicZone}` },
-              { label: 'EXPOSURE',      value: result.exposureClass.replace('_', ' ').toUpperCase() },
+              { label: 'FLOORS',        value: floorsLabel(input?.numFloors ?? 0) },
+              { label: 'TOTAL BUA',     value: `${num(result?.totalBUA ?? 0)} sqft` },
+              { label: 'SEISMIC ZONE',  value: `IS Zone ${result?.seismicZone ?? '2'}` },
+              { label: 'EXPOSURE',      value: (result?.exposureClass ?? 'mild').replace('_', ' ').toUpperCase() },
             ].map(s => (
               <View key={s.label} style={{ flex: 1, borderWidth: 1, borderColor: T.inkA15, borderStyle: 'solid', padding: 6 }}>
                 <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60, marginBottom: 3, letterSpacing: 0.5 }}>
@@ -501,13 +501,13 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           {/* Grand total preview */}
           <View style={{ backgroundColor: T.blueprintBg, borderWidth: 1.5, borderColor: T.blueprint, borderStyle: 'solid', padding: 10, marginBottom: 12 }}>
             <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.blueprint, letterSpacing: 0.5, marginBottom: 4 }}>
-              STRUCTURE COST ESTIMATE · {input.concreteGrade} · {input.steelGrade}
+              STRUCTURE COST ESTIMATE · {input?.concreteGrade ?? 'M20'} · {input?.steelGrade ?? 'Fe500'}
             </Text>
             <View style={{ flexDirection: 'row', gap: 20 }}>
               {[
-                { label: 'BASIC',    v: result.grandTotal.basic },
-                { label: 'STANDARD', v: result.grandTotal.standard },
-                { label: 'PREMIUM',  v: result.grandTotal.premium },
+                { label: 'BASIC',    v: result?.grandTotal?.basic ?? 0 },
+                { label: 'STANDARD', v: result?.grandTotal?.standard ?? 0 },
+                { label: 'PREMIUM',  v: result?.grandTotal?.premium ?? 0 },
               ].map(g => (
                 <View key={g.label}>
                   <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.blueprint, letterSpacing: 0.5 }}>{g.label}</Text>
@@ -523,9 +523,9 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <View style={{ flex: 1, paddingRight: 20 }}>
               <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.inkA60, lineHeight: 1.5 }}>
-                Foundation: {result.foundationRecommendation.label} ({result.foundationRecommendation.isCode})
+                Foundation: {result?.foundationRecommendation?.label ?? 'Isolated Footing'} ({result?.foundationRecommendation?.isCode ?? 'IS 1904:2016'})
               </Text>
-              {result.foundationRecommendation.warning && (
+              {result?.foundationRecommendation?.warning && (
                 <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.stampOxide, marginTop: 2 }}>
                   {result.foundationRecommendation.warning}
                 </Text>
@@ -964,16 +964,18 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
                 prem: result.costs.total,
               },
               {
-                label: 'Labour (CPWD rates) — 15% / 28% / 38% of material',
-                basic: Math.round(result.costs.total * 0.15),
-                std: Math.round(result.costs.total * 0.28),
-                prem: Math.round(result.costs.total * 0.38),
+                label: input?.includeLabour
+                  ? 'Labour (CPWD rates) — 15% / 28% / 38% of material'
+                  : 'Labour — excluded (self-managed / owner-builder)',
+                basic: input?.includeLabour ? Math.round((result?.costs?.total ?? 0) * 0.15) : 0,
+                std:   input?.includeLabour ? Math.round((result?.costs?.total ?? 0) * 0.28) : 0,
+                prem:  input?.includeLabour ? Math.round((result?.costs?.total ?? 0) * 0.38) : 0,
               },
               {
                 label: 'Contractor overhead + margin — 5% / 10% / 15%',
-                basic: Math.round((result.costs.total + result.costs.total * 0.15) * 0.05),
-                std:   Math.round((result.costs.total + result.costs.total * 0.28) * 0.10),
-                prem:  Math.round((result.costs.total + result.costs.total * 0.38) * 0.15),
+                basic: Math.round(((result?.costs?.total ?? 0) + (input?.includeLabour ? (result?.costs?.total ?? 0) * 0.15 : 0)) * 0.05),
+                std:   Math.round(((result?.costs?.total ?? 0) + (input?.includeLabour ? (result?.costs?.total ?? 0) * 0.28 : 0)) * 0.10),
+                prem:  Math.round(((result?.costs?.total ?? 0) + (input?.includeLabour ? (result?.costs?.total ?? 0) * 0.38 : 0)) * 0.15),
               },
             ].map((r, i) => (
               <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
@@ -986,16 +988,16 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
             {/* Grand total row */}
             <View style={S.tTotalRow}>
               <Text style={{ ...S.tCell, flex: 1, fontWeight: 600 }}>GRAND TOTAL</Text>
-              <Text style={{ ...S.tCellMono, width: 110, fontWeight: 700 }}>{num(result.grandTotal.basic)}</Text>
-              <Text style={{ ...S.tCellMono, width: 110, fontWeight: 700, color: T.blueprint }}>{num(result.grandTotal.standard)}</Text>
-              <Text style={{ ...S.tCellMono, width: 110, fontWeight: 700 }}>{num(result.grandTotal.premium)}</Text>
+              <Text style={{ ...S.tCellMono, width: 110, fontWeight: 700 }}>{num(result?.grandTotal?.basic ?? 0)}</Text>
+              <Text style={{ ...S.tCellMono, width: 110, fontWeight: 700, color: T.blueprint }}>{num(result?.grandTotal?.standard ?? 0)}</Text>
+              <Text style={{ ...S.tCellMono, width: 110, fontWeight: 700 }}>{num(result?.grandTotal?.premium ?? 0)}</Text>
             </View>
             {/* Per sqft row */}
             <View style={{ ...S.tRow, backgroundColor: T.blueprintBg }}>
               <Text style={{ ...S.tCell, flex: 1 }}>Per sqft cost (on Total BUA)</Text>
-              <Text style={{ ...S.tCellMono, width: 110 }}>Rs.{num(result.perSqftCost.basic)}/sqft</Text>
-              <Text style={{ ...S.tCellMono, width: 110, color: T.blueprint }}>Rs.{num(result.perSqftCost.standard)}/sqft</Text>
-              <Text style={{ ...S.tCellMono, width: 110 }}>Rs.{num(result.perSqftCost.premium)}/sqft</Text>
+              <Text style={{ ...S.tCellMono, width: 110 }}>Rs.{num(result?.perSqftCost?.basic ?? 0)}/sqft</Text>
+              <Text style={{ ...S.tCellMono, width: 110, color: T.blueprint }}>Rs.{num(result?.perSqftCost?.standard ?? 0)}/sqft</Text>
+              <Text style={{ ...S.tCellMono, width: 110 }}>Rs.{num(result?.perSqftCost?.premium ?? 0)}/sqft</Text>
             </View>
           </View>
 

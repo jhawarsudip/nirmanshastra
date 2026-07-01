@@ -332,7 +332,8 @@ export function runCalculation(input: StructoInput): StructoResult {
   }
 
   // Grand total range (Basic / Standard / Premium)
-  const withLabour = input.includeLabour !== false
+  // Use !!flag so that undefined (missing from saved estimate) defaults to excluded, not included
+  const withLabour = !!input.includeLabour
   const labourCostBasic    = withLabour ? Math.round(totalMaterialCost * 0.15) : 0
   const labourCostStandard = withLabour ? Math.round(totalMaterialCost * 0.28) : 0
   const labourCostPremium  = withLabour ? Math.round(totalMaterialCost * 0.38) : 0

@@ -82,7 +82,10 @@ export async function POST(req: NextRequest) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       pdfBuffer = await renderToBuffer(pdfElement as any)
     } catch (pdfErr) {
-      console.error('PDF render error:', pdfErr)
+      console.error('PDF render error:', pdfErr instanceof Error ? pdfErr.message : pdfErr)
+      console.error('PDF render stack:', pdfErr instanceof Error ? pdfErr.stack : '')
+      console.error('PDF input snapshot:', JSON.stringify(input, null, 2).slice(0, 2000))
+      console.error('PDF result snapshot:', JSON.stringify(result, null, 2).slice(0, 2000))
       return NextResponse.json({ error: 'PDF generation failed — estimate data may be malformed' }, { status: 500 })
     }
 
@@ -159,7 +162,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ pdfUrl, reportId, emailSent, success: true })
   } catch (err) {
-    console.error('generate-pdf error:', err)
+    console.error('generate-pdf error:', err instanceof Error ? err.message : err)
+    console.error('generate-pdf stack:', err instanceof Error ? err.stack : '')
     return NextResponse.json({ error: 'PDF generation failed' }, { status: 500 })
   }
 }
