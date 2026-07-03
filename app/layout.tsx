@@ -36,8 +36,12 @@ const plexDevanagari = IBM_Plex_Sans_Devanagari({
 });
 
 export const metadata: Metadata = {
-  title: "NirmanShastra — Build With Certainty",
-  description: "India's IS-code backed construction cost estimation platform",
+  metadataBase: new URL('https://nirmanshastra.in'),
+  title: {
+    default: "NirmanShastra — IS-Code Construction Cost Estimator | Stop Contractor Overcharging",
+    template: "%s | NirmanShastra",
+  },
+  description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. ₹499/report, homeowners across India.",
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
@@ -46,6 +50,27 @@ export const metadata: Metadata = {
   },
   icons: {
     apple: '/icon-192.png',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    url: 'https://nirmanshastra.in',
+    siteName: 'NirmanShastra',
+    title: "NirmanShastra — IS-Code Construction Cost Estimator | Stop Contractor Overcharging",
+    description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. ₹499/report, homeowners across India.",
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'NirmanShastra — India’s IS-Code Construction Cost Estimator',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "NirmanShastra — IS-Code Construction Cost Estimator",
+    description: "Exact material quantities and IS-code verified construction cost estimates for Indian homeowners. ₹499/report.",
   },
 };
 

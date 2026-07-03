@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'IS Codes Used — NirmanShastra',
-  description: 'All 25 Indian Standards (IS codes) used across NirmanShastra tools — organised by tool, with code numbers, full titles, and scope descriptions.',
+  title: 'IS Codes Used in Construction Estimation — 25 Indian Standards',
+  description: 'All 25 IS codes used across NirmanShastra tools: IS 456:2000 (concrete), IS 1786:2008 (steel), IS 1893:2016 (seismic), IS 732:2019 (electrical), IS 1172:1993 (plumbing) and more — with full titles and scope.',
 }
 
 const CODES_BY_TOOL = [
