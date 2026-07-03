@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import { FileCheck, HardHat, IndianRupee, ShieldCheck } from 'lucide-react'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DATA
@@ -105,6 +106,29 @@ const STEPS = [
     rev: 'REV D',
     heading: 'Get exact quantities',
     body: 'Get exact quantities your contractor cannot argue with — backed by Bureau of Indian Standards.',
+  },
+]
+
+const PILLARS = [
+  {
+    Icon: FileCheck,
+    title: 'IS Code Traceable',
+    body: "Every number in your report traces back to a specific Indian Standard clause — not a contractor's gut feeling. Concrete mix design under IS 456:2000. Steel percentages under IS 1786:2008. Seismic compliance under IS 1893:2016. Check any figure against the code yourself.",
+  },
+  {
+    Icon: HardHat,
+    title: 'Built by an Engineer, Not a Marketer',
+    body: 'Founded by a NITian civil engineer with hands-on experience at a leading real estate construction company. NirmanShastra exists because contractor quotes are opaque by design — this tool makes them checkable.',
+  },
+  {
+    Icon: IndianRupee,
+    title: 'Transparent Pricing, No Hidden Tiers',
+    body: "₹499 per detailed report. No subscription trap, no 'contact sales' for basic numbers. See the free grand-total range first, pay only if you want the itemised breakdown.",
+  },
+  {
+    Icon: ShieldCheck,
+    title: 'Your Data, Your Report',
+    body: 'No commissions from contractors, no kickbacks from material suppliers. The numbers you get are calculated from IS codes and your inputs — nothing else influences them.',
   },
 ]
 
@@ -625,7 +649,64 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── DIMENSION DIVIDER (dark) ─────────────────────────────────────── */}
+      {/* ── DIMENSION DIVIDER (dark → light) ────────────────────────────── */}
+      <div style={{ background: '#1E2227', paddingTop: 14, paddingBottom: 14 }}>
+        <DimDivider label="CL. 1.5 — WHY NIRMANSHASTRA" dark />
+      </div>
+
+      {/* ── WHY NIRMANSHASTRA — trust pillars ──────────────────────────── */}
+      <section className="grid-paper px-6 md:px-16 lg:px-24 py-28">
+        <div className="space-y-14">
+          <SectionHeader clause="CL. 1.5 — TRUST" title="Why NirmanShastra" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {PILLARS.map((pillar, i) => {
+              const { Icon } = pillar
+              return (
+                <motion.div
+                  key={pillar.title}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: i * 0.1 }}
+                  style={{
+                    border: '1px solid rgba(30,34,39,0.15)',
+                    borderTop: '3px solid #1F4E79',
+                    padding: '32px',
+                    background: '#F4F4F0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 16,
+                  }}
+                >
+                  <div style={{ color: '#1F4E79' }}>
+                    <Icon size={28} strokeWidth={1.5} />
+                  </div>
+                  <h3 style={{
+                    fontFamily: 'var(--font-plex-serif)',
+                    fontSize: 20,
+                    fontWeight: 600,
+                    color: '#1E2227',
+                    lineHeight: 1.25,
+                  }}>
+                    {pillar.title}
+                  </h3>
+                  <p style={{
+                    fontFamily: 'var(--font-plex-sans)',
+                    fontSize: 15,
+                    color: 'rgba(30,34,39,0.65)',
+                    lineHeight: 1.75,
+                  }}>
+                    {pillar.body}
+                  </p>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── DIMENSION DIVIDER (light → dark) ────────────────────────────── */}
       <div style={{ background: '#1E2227', paddingTop: 14, paddingBottom: 14 }}>
         <DimDivider label="SHEET 02 · 6 TOOLS · 1 PLATFORM" dark />
       </div>
