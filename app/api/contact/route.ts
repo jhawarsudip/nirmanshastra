@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       html: `
         <p>Hi ${nameStr},</p>
         <p>Thank you for reaching out. We have received your message and will reply within 24–48 hours on business days.</p>
-        <p>— Sudip Jhawar, NirmanShastra</p>
+        <p>— The NirmanShastra Team</p>
       `,
     })
 

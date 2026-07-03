@@ -127,7 +127,7 @@ export default function TermsOfUsePage() {
           </Section>
 
           <Section clause="§ 6.0 — LIMITATION OF LIABILITY" title="Limitation of liability">
-            <P>To the maximum extent permitted by applicable law, NirmanShastra and its operator (Sudip Jhawar) shall not be liable for:</P>
+            <P>To the maximum extent permitted by applicable law, NirmanShastra and its operator shall not be liable for:</P>
             <UL items={[
               'Any construction outcome, structural failure, cost overrun, or defect that arises from reliance on our estimates without independent structural engineering review',
               'Any loss of data, revenue, or profit arising from use of or inability to use the service',

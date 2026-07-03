@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'About NirmanShastra — Built by a Civil Engineer',
-  description: 'The founder story: NIT Silchar civil engineer, ex-Sobha Limited, building IS-code-verified construction cost transparency for every Indian homeowner.',
+  description: 'The founder story: a NITian civil engineer building IS-code-verified construction cost transparency for every Indian homeowner.',
 }
 
 export default function AboutPage() {
@@ -32,7 +32,7 @@ export default function AboutPage() {
               THE FOUNDER
             </p>
             <p style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 600, color: '#1E2227', lineHeight: 1.4, margin: 0 }}>
-              Sudip Jhawar — Civil Engineer, NIT Silchar. Former Sobha Limited. Based in Vrindavan, India.
+              The Founder — a NITian civil engineer, formerly at a leading real estate construction company, based in India.
             </p>
           </div>
 
@@ -44,7 +44,7 @@ export default function AboutPage() {
             </p>
 
             <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(30,34,39,0.8)', lineHeight: 1.85 }}>
-              I studied civil engineering at NIT Silchar, then spent years at Sobha Limited — one of India&rsquo;s most respected construction companies — where I learned what rigorous quantity estimation actually looks like. At Sobha, a BOQ is not a vague per-sqft guess. It is a precise document: so many bags of OPC 53, so many kilograms of Fe500D steel, so many cubic metres of M20 concrete poured to IS 456:2000 specifications. Every number traces back to a code clause. Every clause is verifiable.
+              I am a NITian civil engineer who then worked at a leading real estate construction company — one of India&rsquo;s most respected — where I learned what rigorous quantity estimation actually looks like. There, a BOQ is not a vague per-sqft guess. It is a precise document: so many bags of OPC 53, so many kilograms of Fe500D steel, so many cubic metres of M20 concrete poured to IS 456:2000 specifications. Every number traces back to a code clause. Every clause is verifiable.
             </p>
 
             <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(30,34,39,0.8)', lineHeight: 1.85 }}>
@@ -87,7 +87,7 @@ export default function AboutPage() {
             </p>
 
             <p style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 16, fontWeight: 600, color: '#1E2227', fontStyle: 'italic' }}>
-              — Sudip Jhawar, Vrindavan
+              — The Founder, India
             </p>
           </div>
 

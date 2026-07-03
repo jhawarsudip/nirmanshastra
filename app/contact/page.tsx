@@ -57,7 +57,7 @@ export default function ContactPage() {
             Contact
           </h1>
           <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.6)', marginTop: 12, maxWidth: 500 }}>
-            Based in Vrindavan, India — serving homeowners across India.
+            Based in India — serving homeowners across India.
           </p>
         </div>
       </div>
@@ -182,7 +182,7 @@ export default function ContactPage() {
                   <div>
                     <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(30,34,39,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 5 }}>LOCATION</p>
                     <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(30,34,39,0.75)' }}>
-                      Vrindavan, Uttar Pradesh, India
+                      Uttar Pradesh, India
                     </p>
                   </div>
                   <div>

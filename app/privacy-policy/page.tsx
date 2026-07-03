@@ -76,7 +76,7 @@ export default function PrivacyPolicyPage() {
           </div>
 
           <Section clause="§ 1.0 — DATA CONTROLLER" title="Who we are">
-            <P>NirmanShastra is operated by Sudip Jhawar, an individual civil engineer based in Vrindavan, Uttar Pradesh, India. When you use NirmanShastra tools, you are sharing your data with us as the data controller.</P>
+            <P>NirmanShastra is operated by The Founder, an individual civil engineer based in Uttar Pradesh, India. When you use NirmanShastra tools, you are sharing your data with us as the data controller.</P>
             <P>Contact for privacy concerns: <a href="mailto:reports@nirmanshastra.in" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>reports@nirmanshastra.in</a></P>
           </Section>
 
