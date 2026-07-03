@@ -1,11 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState, useMemo } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
+import { StructureIcon } from '@/components/icons/StructureIcon'
+import { MasonryIcon } from '@/components/icons/MasonryIcon'
+import { ElectricalIcon } from '@/components/icons/ElectricalIcon'
+import { PlumbingIcon } from '@/components/icons/PlumbingIcon'
+import { InteriorIcon } from '@/components/icons/InteriorIcon'
+import { VastuIcon } from '@/components/icons/VastuIcon'
 
 // ── Admin password modal ──────────────────────────────────────────────────────
 
@@ -103,6 +109,15 @@ function AdminModal({ onClose }: { onClose: () => void }) {
       </div>
     </div>
   )
+}
+
+const PHASE_ICONS: Record<string, React.ReactElement> = {
+  P0: <VastuIcon size={20} />,
+  P1: <StructureIcon size={20} />,
+  P2: <MasonryIcon size={20} />,
+  P3: <ElectricalIcon size={20} />,
+  P4: <PlumbingIcon size={20} />,
+  P5: <InteriorIcon size={20} />,
 }
 
 const COMPLIANCE_TOOLS = [
@@ -243,6 +258,9 @@ export default function Navbar() {
                   onClick={() => setToolsOpen(false)}
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', textDecoration: 'none', gap: 10 }}
                 >
+                  <div style={{ width: 20, height: 20, flexShrink: 0, opacity: 0.85 }}>
+                    {PHASE_ICONS[t.phase]}
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -268,6 +286,9 @@ export default function Navbar() {
                   onClick={() => setToolsOpen(false)}
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', borderTop: i > 0 ? '1px solid rgba(244,244,240,0.06)' : undefined, textDecoration: 'none', gap: 10 }}
                 >
+                  <div style={{ width: 20, height: 20, flexShrink: 0, opacity: 0.85 }}>
+                    {PHASE_ICONS[t.phase]}
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

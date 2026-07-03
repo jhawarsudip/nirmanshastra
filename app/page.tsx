@@ -5,6 +5,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { FileCheck, HardHat, IndianRupee, ShieldCheck } from 'lucide-react'
+import { StructureIcon } from '@/components/icons/StructureIcon'
+import { MasonryIcon } from '@/components/icons/MasonryIcon'
+import { ElectricalIcon } from '@/components/icons/ElectricalIcon'
+import { PlumbingIcon } from '@/components/icons/PlumbingIcon'
+import { InteriorIcon } from '@/components/icons/InteriorIcon'
+import { VastuIcon } from '@/components/icons/VastuIcon'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DATA
@@ -361,12 +367,12 @@ function SectionHeader({ clause, title, dark = false }: { clause: string; title:
 // ─────────────────────────────────────────────────────────────────────────────
 
 const motifMap: Record<string, React.ReactElement> = {
-  P0: <Image src="/vastupro-icon.png"    alt="VastuPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
-  P1: <Image src="/structopro-icon.png"  alt="StructurePro"  width={80} height={80} style={{ objectFit: 'contain' }} />,
-  P2: <Image src="/masonpro-icon.png"    alt="MasonryPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
-  P3: <Image src="/electropro-icon.png"  alt="ElectricalPro"  width={80} height={80} style={{ objectFit: 'contain' }} />,
-  P4: <Image src="/plumbpro-icon.png"    alt="PlumbingPro"    width={80} height={80} style={{ objectFit: 'contain' }} />,
-  P5: <Image src="/interiorpro-icon.png" alt="InteriorPro" width={80} height={80} style={{ objectFit: 'contain' }} />,
+  P0: <VastuIcon size={48} />,
+  P1: <StructureIcon size={48} />,
+  P2: <MasonryIcon size={48} />,
+  P3: <ElectricalIcon size={48} />,
+  P4: <PlumbingIcon size={48} />,
+  P5: <InteriorIcon size={48} />,
 }
 
 const largeMotifMap: Record<string, React.ReactElement> = {
@@ -449,7 +455,7 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
               {tool.phase}
             </span>
 
-            <div style={{ color: tool.free ? '#C9A84C' : '#1E2227', width: 80, height: 80, flexShrink: 0 }}>
+            <div style={{ width: 48, height: 48, flexShrink: 0 }}>
               {motifMap[tool.phase]}
             </div>
 
@@ -762,8 +768,8 @@ export default function Home() {
                   <div style={{ position: 'absolute', bottom: -10, right: -10, color: 'rgba(201,168,76,0.1)', pointerEvents: 'none', lineHeight: 0 }}>
                     <LargeVastuWatermark />
                   </div>
-                  <div style={{ width: 80, height: 80, flexShrink: 0 }}>
-                    <Image src="/vastupro-icon.png" alt="VastuPro" width={80} height={80} style={{ objectFit: 'contain' }} />
+                  <div style={{ width: 56, height: 56, flexShrink: 0 }}>
+                    <VastuIcon size={56} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
