@@ -102,8 +102,9 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   const [isPaid, setIsPaid]       = useState(PAYMENT_BYPASS)
   const [orderId, setOrderId]     = useState<string | null>(null)
   const pollRef                   = useRef<ReturnType<typeof setInterval> | null>(null)
-  const [pdfStatus, setPdfStatus] = useState<PdfStatus>('idle')
-  const [pdfUrl, setPdfUrl]       = useState<string | null>(null)
+  const [pdfStatus, setPdfStatus]     = useState<PdfStatus>('idle')
+  const [pdfUrl, setPdfUrl]           = useState<string | null>(null)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
     if (document.querySelector('script[src*="checkout.razorpay.com"]')) return
@@ -152,6 +153,27 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   }, [estimateId])
 
   useEffect(() => { if (isPaid) generatePdf() }, [isPaid, generatePdf])
+
+  const downloadPdf = useCallback(async () => {
+    if (!pdfUrl || isDownloading) return
+    setIsDownloading(true)
+    try {
+      const res = await fetch(pdfUrl)
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'NirmanShastra-MasonryPro-Report.pdf'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      window.open(pdfUrl, '_blank')
+    } finally {
+      setIsDownloading(false)
+    }
+  }, [pdfUrl, isDownloading])
 
   async function handleUnlock() {
     if (!estimateId) { setPayError('Estimate not saved yet. Please wait a moment and try again.'); return }
@@ -421,7 +443,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               </p>
             </div>
             <div className="p-4">
-              <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
+              <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
                     <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
@@ -471,7 +493,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                 BRICKWORK QUANTITIES (IS 1077:1992 + IS 2212:1991)
               </p>
-              <table className="w-full text-[13px] mb-4" style={{ borderCollapse: 'collapse' }}>
+              <table className="w-full text-[13px] mb-4" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
                     {['Item', 'Qty', 'Unit', 'Cost (₹)'].map(h => (
@@ -584,16 +606,25 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       {r.costs.totalMaterial.toLocaleString('en-IN')}
                     </td>
                   </tr>
-                  <tr>
-                    <td colSpan={3} className="py-1 text-[12px]"
-                      style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
-                      Labour (CPWD rates — brickwork + plaster + WP)
-                    </td>
-                    <td className="py-1 text-right text-[12px]"
-                      style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>
-                      {r.labourCost.toLocaleString('en-IN')}
-                    </td>
-                  </tr>
+                  {input.includeLabour !== false ? (
+                    <tr>
+                      <td colSpan={3} className="py-1 text-[12px]"
+                        style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
+                        Labour (CPWD rates — brickwork + plaster + WP)
+                      </td>
+                      <td className="py-1 text-right text-[12px]"
+                        style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>
+                        {r.labourCost.toLocaleString('en-IN')}
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="py-1 text-[11px]"
+                        style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', fontStyle: 'italic' }}>
+                        Labour cost not included in this estimate
+                      </td>
+                    </tr>
+                  )}
                   <tr>
                     <td colSpan={3} className="py-1 text-[12px]"
                       style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
@@ -739,14 +770,16 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               </div>
             )}
             {pdfStatus === 'ready' && pdfUrl && (
-              <a href={pdfUrl} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-[6px] text-[14px] font-semibold text-white no-underline"
-                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
+              <button
+                onClick={downloadPdf}
+                disabled={isDownloading}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-[6px] text-[14px] font-semibold text-white"
+                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)', border: 'none', cursor: isDownloading ? 'wait' : 'pointer', opacity: isDownloading ? 0.7 : 1 }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Download PDF Report
-              </a>
+                {isDownloading ? 'Downloading…' : 'Download PDF Report'}
+              </button>
             )}
             {pdfStatus === 'error' && (
               <div className="flex items-center gap-2 flex-wrap">

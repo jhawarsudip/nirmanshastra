@@ -13,6 +13,7 @@ const PAYMENT_BYPASS = true
 // POST /api/electropro/generate-pdf
 // Verifies estimate is 'paid' server-side before generating PDF.
 export async function POST(req: NextRequest) {
+  console.log('PDF generation starting, bypass mode: true')
   try {
     const { estimateId } = await req.json()
     if (!estimateId) {
@@ -61,16 +62,25 @@ export async function POST(req: NextRequest) {
     const projectName = estimate.project_name ?? 'My Project'
 
     // 3. Generate PDF
-    const pdfElement = React.createElement(ElectroProPDF, {
-      input,
-      result,
-      contact: contactInfo,
-      reportId,
-      projectName,
-      date: new Date(),
-    })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfBuffer = await renderToBuffer(pdfElement as any)
+    let pdfBuffer: Buffer
+    try {
+      const pdfElement = React.createElement(ElectroProPDF, {
+        input,
+        result,
+        contact: contactInfo,
+        reportId,
+        projectName,
+        date: new Date(),
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pdfBuffer = await renderToBuffer(pdfElement as any)
+    } catch (pdfErr) {
+      console.error('PDF render error:', pdfErr instanceof Error ? pdfErr.message : pdfErr)
+      console.error('PDF render stack:', pdfErr instanceof Error ? pdfErr.stack : '')
+      console.error('PDF input snapshot:', JSON.stringify(input, null, 2).slice(0, 2000))
+      console.error('PDF result snapshot:', JSON.stringify(result, null, 2).slice(0, 2000))
+      return NextResponse.json({ error: 'PDF generation failed — estimate data may be malformed' }, { status: 500 })
+    }
 
     // 4. Ensure storage bucket
     const { error: bucketErr } = await supabase.storage.createBucket('reports', {
@@ -113,18 +123,22 @@ export async function POST(req: NextRequest) {
       console.error('Report table upsert error:', reportErr)
     }
 
-    // 8. Send email via Resend — ElectroPro: D0 PDF + PlumbPro cross-sell
+    // 8. Send email via Resend
     let emailSent = false
     if (contactInfo.email) {
       try {
-        const { error: emailErr } = await resend.emails.send({
+        console.log('[NS-PDF-EMAIL] Attempting email send to:', contactInfo.email)
+        console.log('[NS-PDF-EMAIL] RESEND_API_KEY set:', !!process.env.RESEND_API_KEY)
+        console.log('[NS-PDF-EMAIL] RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL)
+        const emailResult = await resend.emails.send({
           from:    process.env.RESEND_FROM_EMAIL!,
           to:      contactInfo.email,
-          subject: `Your ElectroPro Report is Ready — ${reportId}`,
+          subject: `Your ElectricalPro Report is Ready — ${reportId}`,
           html:    buildEmailHtml(contactInfo.name, reportId, pdfUrl),
         })
-        if (emailErr) {
-          console.error('Resend error:', emailErr)
+        console.log('[NS-PDF-EMAIL] Email result:', JSON.stringify(emailResult))
+        if (emailResult.error) {
+          console.error('Resend error:', emailResult.error)
         } else {
           emailSent = true
           await supabase
@@ -133,7 +147,8 @@ export async function POST(req: NextRequest) {
             .eq('estimate_id', estimateId)
         }
       } catch (emailEx) {
-        console.error('Email send exception:', emailEx)
+        console.error('[NS-PDF-EMAIL] Email send exception:', emailEx)
+        // Email failure is silent to user — PDF download still works
       }
     }
 
@@ -145,7 +160,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ pdfUrl, reportId, emailSent, success: true })
   } catch (err) {
-    console.error('electropro generate-pdf error:', err)
+    console.error('electropro generate-pdf error:', err instanceof Error ? err.message : err)
+    console.error('electropro generate-pdf stack:', err instanceof Error ? err.stack : '')
     return NextResponse.json({ error: 'PDF generation failed' }, { status: 500 })
   }
 }
@@ -181,7 +197,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ pdfUrl: null, success: false })
 }
 
-// ─── Email template — ElectroPro D0 PDF + PlumbPro cross-sell ────────────────
+// ─── Email template — ElectricalPro D0 PDF + PlumbingPro cross-sell ──────────
 function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nirmanshastra.in'
   return `<!DOCTYPE html>
@@ -189,7 +205,7 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Your ElectroPro Report</title>
+  <title>Your ElectricalPro Report</title>
 </head>
 <body style="margin:0;padding:0;background:#F4F4F0;font-family:'IBM Plex Sans',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F4F0;padding:32px 0;">
@@ -207,7 +223,7 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
                     <p style="margin:2px 0 0;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;">Build With Certainty</p>
                   </td>
                   <td align="right">
-                    <span style="display:inline-block;border:1px solid #1F4E79;padding:4px 10px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;">PHASE 3 &middot; ELECTROPRO</span>
+                    <span style="display:inline-block;border:1px solid #1F4E79;padding:4px 10px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;">PHASE 3 &middot; ELECTRICALPRO</span>
                   </td>
                 </tr>
               </table>
@@ -218,18 +234,18 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
           <tr>
             <td style="padding:28px 28px 20px;">
               <p style="margin:0 0 6px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">REPORT READY</p>
-              <h1 style="margin:0 0 16px;font-family:'IBM Plex Serif',Georgia,serif;font-size:22px;color:#1E2227;font-weight:700;">Your ElectroPro Report is Ready</h1>
+              <h1 style="margin:0 0 16px;font-family:'IBM Plex Serif',Georgia,serif;font-size:22px;color:#1E2227;font-weight:700;">Your ElectricalPro Report is Ready</h1>
 
               <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#1E2227;line-height:1.6;">Dear ${name},</p>
               <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#1E2227;line-height:1.6;">
-                Thank you for using NirmanShastra ElectroPro. Your Phase 3 Electrical cost estimate report
+                Thank you for using NirmanShastra ElectricalPro. Your Phase 3 Electrical cost estimate report
                 (<strong style="font-family:'IBM Plex Mono',Courier,monospace;">${reportId}</strong>) is ready for download.
               </p>
 
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
                 <tr>
                   <td style="background:#EBF0F7;border:1px solid #1F4E79;padding:14px 20px;">
-                    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;letter-spacing:1px;">8-PAGE IS 732:2019 + IS 3043:2018 REPORT INCLUDES:</p>
+                    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;letter-spacing:1px;">10+ PAGE IS 732:2019 + IS 3043:2018 REPORT INCLUDES:</p>
                     <ul style="margin:8px 0 0;padding:0 0 0 18px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;line-height:1.8;">
                       <li>Load analysis — point schedule by type and floor</li>
                       <li>Single line diagram (SLD) schematic</li>
@@ -263,20 +279,19 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
 
               <hr style="border:none;border-top:1px solid #D0D2D4;margin:20px 0;"/>
 
-              <!-- PlumbPro cross-sell — Section 21: ElectroPro D0 PDF + Plumbo -->
               <p style="margin:0 0 6px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">NEXT STEP — PHASE 4</p>
               <p style="margin:0 0 10px;font-family:'IBM Plex Serif',Georgia,serif;font-size:16px;color:#1E2227;font-weight:600;">
                 Electrical conduit is done. Now estimate your plumbing.
               </p>
               <p style="margin:0 0 12px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;line-height:1.6;">
                 Plumbing must be coordinated with electrical conduit layout before plastering begins.
-                Use PlumbPro to estimate water demand (IS 1172:1993), tank sizes, pump HP,
+                Use PlumbingPro to estimate water demand (IS 1172:1993), tank sizes, pump HP,
                 pipe schedule by diameter, and fixture counts — before your plumber quotes you.
               </p>
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 12px;">
                 <tr>
                   <td style="border:1px solid #1E2227;padding:12px 16px;">
-                    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">PLUMBPRO PHASE 4 INCLUDES:</p>
+                    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">PLUMBINGPRO PHASE 4 INCLUDES:</p>
                     <ul style="margin:8px 0 0;padding:0 0 0 18px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;line-height:1.8;">
                       <li>IS 1172:1993 water demand calculation</li>
                       <li>Overhead + sump tank sizing</li>
@@ -291,7 +306,7 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
               </table>
               <p style="margin:0;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;">
                 <a href="${appUrl}/tools/plumbpro" style="color:#1F4E79;text-decoration:underline;font-weight:600;">
-                  Try PlumbPro Phase 4 &rarr; Rs.499
+                  Try PlumbingPro Phase 4 &rarr; Rs.499
                 </a>
               </p>
             </td>

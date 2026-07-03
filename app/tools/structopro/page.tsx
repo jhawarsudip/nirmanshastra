@@ -125,7 +125,7 @@ export default function StructoProPage() {
   return (
     <div className="min-h-screen" style={{ background: '#F4F4F0' }}>
       {/* Step bar — always visible */}
-      <WizardStepBar currentStep={step === 've_details' || step === 've_results' ? 'details' : step} toolName="StructoPro" toolPhase="P1" />
+      <WizardStepBar currentStep={step === 've_details' || step === 've_results' ? 'details' : step} toolName="StructurePro" toolPhase="P1" />
 
       <AnimatePresence mode="wait">
         {step === 'register' && (
@@ -135,7 +135,7 @@ export default function StructoProPage() {
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="StructoPro" toolPhase="P1" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -148,7 +148,7 @@ export default function StructoProPage() {
                 <MethodSelection onSelect={handleMethod} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="StructoPro" toolPhase="P1" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -169,7 +169,7 @@ export default function StructoProPage() {
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel
-                  toolName="StructoPro"
+                  toolName="StructurePro"
                   toolPhase="P1"
                   regData={session.regData}
                   liveData={liveData}
@@ -191,7 +191,7 @@ export default function StructoProPage() {
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel
-                  toolName="StructoPro"
+                  toolName="StructurePro"
                   toolPhase="P1"
                   regData={session.regData}
                   liveData={liveData}

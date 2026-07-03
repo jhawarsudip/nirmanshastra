@@ -1514,7 +1514,7 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange, onBa
                   External Wall Area (sqft)
                 </label>
                 <input type="number" value={externalWallAreaSqft} onChange={e => setExtWallArea(e.target.value)}
-                  placeholder="From MasonPro or manual"
+                  placeholder="From MasonryPro or manual"
                   className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
                   style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
                 />

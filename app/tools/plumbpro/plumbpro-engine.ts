@@ -370,9 +370,10 @@ export function runCalculation(input: PlumbInput): PlumbResult {
   const testingCost     = LABOUR.testing.ratePerDay   // 1 day flush test
   const watchmanCost    = Math.ceil(plumberDays) * LABOUR.nightWatchman.ratePerDay
 
-  const labourCost = Math.round(
+  const labourCostRaw = Math.round(
     plumberCost + helperCost + fitterCost + excavCost + testingCost + watchmanCost
   )
+  const labourCost = input.includeLabour !== false ? labourCostRaw : 0
 
   // ── Grand total ranges ────────────────────────────────────────────────────
   const overheadBasic    = Math.round((totalMaterial + labourCost * 0.85) * 0.05)

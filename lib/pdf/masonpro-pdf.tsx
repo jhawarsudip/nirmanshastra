@@ -460,7 +460,38 @@ function PageCover({ input, result, contact, reportId, projectName, date }: Prop
           ))}
         </View>
 
-        <View style={{ flex: 1 }} />
+        {/* Report Contents Index */}
+        <View style={{ marginTop: 10, borderWidth: 1, borderColor: T.inkA15, borderStyle: 'solid' }}>
+          <View style={{ backgroundColor: T.ironInk, paddingVertical: 5, paddingHorizontal: 10 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.sheetWhite, letterSpacing: 1 }}>
+              REPORT CONTENTS — MASONRYPRO · IS 1077:1992 + IS 2212:1991
+            </Text>
+          </View>
+          {[
+            { sheet: 'SHEET 01', title: 'IS Compliance Panel',      desc: '7 automated IS code checks with PASS / ADVISORY / FAIL stamps' },
+            { sheet: 'SHEET 02', title: 'Project Summary',          desc: 'Client details, site specs, and wall type confirmation' },
+            { sheet: 'SHEET 03', title: 'Wall Section Diagram',     desc: 'Mortar joint detail, unit dimensions, IS code reference markings' },
+            { sheet: 'SHEET 04', title: 'Wall Type Comparison',     desc: '8 wall systems compared by cost per sqm and IS compliance rating' },
+            { sheet: 'SHEET 05', title: 'Waterproofing Detail',     desc: 'Terrace + bathroom waterproofing detail per IS 2645:2003' },
+            { sheet: 'SHEET 06', title: 'Brickwork BOQ',            desc: 'Quantities, cement bags, sand volume by wall zone' },
+            { sheet: 'SHEET 07', title: 'Plastering BOQ',           desc: 'Internal 12mm + external 15mm — material and labour breakdown' },
+            { sheet: 'SHEET 08', title: 'Site QC Checklist',        desc: 'IS-code mandated site quality checks for contractor briefing' },
+            { sheet: 'SHEET 09', title: 'Cost Summary',             desc: 'Basic / Standard / Premium estimate with per sqft rate comparison' },
+            { sheet: 'SHEET 10–11', title: 'Engineering Methodology', desc: 'Complete IS derivations — mortar, plaster, waterproofing, code references' },
+          ].map((r, i) => (
+            <View key={r.sheet} style={{
+              flexDirection: 'row', paddingVertical: 4, paddingHorizontal: 10,
+              borderBottomWidth: i < 9 ? 0.5 : 0, borderBottomColor: T.inkA15, borderBottomStyle: 'solid',
+              backgroundColor: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.02)',
+            }}>
+              <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.blueprint, width: 68 }}>{r.sheet}</Text>
+              <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, fontWeight: 600, color: T.ironInk, width: 130 }}>{r.title}</Text>
+              <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 7.5, color: T.inkA60, flex: 1, lineHeight: 1.4 }}>{r.desc}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={{ height: 10 }} />
 
         <View style={[S.rule, { marginBottom: 6 }]} />
         <Text style={[S.monoSm, { color: T.inkA35, textAlign: 'center' }]}>

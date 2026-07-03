@@ -13,6 +13,7 @@ const PAYMENT_BYPASS = true
 // POST /api/plumbpro/generate-pdf
 // Verifies estimate is 'paid' server-side before generating PDF.
 export async function POST(req: NextRequest) {
+  console.log('PDF generation starting, bypass mode: true')
   try {
     const { estimateId } = await req.json()
     if (!estimateId) {
@@ -61,16 +62,25 @@ export async function POST(req: NextRequest) {
     const projectName = estimate.project_name ?? 'My Project'
 
     // 3. Generate PDF
-    const pdfElement = React.createElement(PlumbProPDF, {
-      input,
-      result,
-      contact: contactInfo,
-      reportId,
-      projectName,
-      date: new Date(),
-    })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfBuffer = await renderToBuffer(pdfElement as any)
+    let pdfBuffer: Buffer
+    try {
+      const pdfElement = React.createElement(PlumbProPDF, {
+        input,
+        result,
+        contact: contactInfo,
+        reportId,
+        projectName,
+        date: new Date(),
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pdfBuffer = await renderToBuffer(pdfElement as any)
+    } catch (pdfErr) {
+      console.error('PDF render error:', pdfErr instanceof Error ? pdfErr.message : pdfErr)
+      console.error('PDF render stack:', pdfErr instanceof Error ? pdfErr.stack : '')
+      console.error('PDF input snapshot:', JSON.stringify(input, null, 2).slice(0, 2000))
+      console.error('PDF result snapshot:', JSON.stringify(result, null, 2).slice(0, 2000))
+      return NextResponse.json({ error: 'PDF generation failed — estimate data may be malformed' }, { status: 500 })
+    }
 
     // 4. Ensure storage bucket
     const { error: bucketErr } = await supabase.storage.createBucket('reports', {
@@ -113,18 +123,22 @@ export async function POST(req: NextRequest) {
       console.error('Report table upsert error:', reportErr)
     }
 
-    // 8. Send email via Resend — PlumbPro: D0 PDF + InteriorPro cross-sell
+    // 8. Send email via Resend
     let emailSent = false
     if (contactInfo.email) {
       try {
-        const { error: emailErr } = await resend.emails.send({
+        console.log('[NS-PDF-EMAIL] Attempting email send to:', contactInfo.email)
+        console.log('[NS-PDF-EMAIL] RESEND_API_KEY set:', !!process.env.RESEND_API_KEY)
+        console.log('[NS-PDF-EMAIL] RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL)
+        const emailResult = await resend.emails.send({
           from:    process.env.RESEND_FROM_EMAIL!,
           to:      contactInfo.email,
-          subject: `Your PlumbPro Report is Ready — ${reportId}`,
+          subject: `Your PlumbingPro Report is Ready — ${reportId}`,
           html:    buildEmailHtml(contactInfo.name, reportId, pdfUrl),
         })
-        if (emailErr) {
-          console.error('Resend error:', emailErr)
+        console.log('[NS-PDF-EMAIL] Email result:', JSON.stringify(emailResult))
+        if (emailResult.error) {
+          console.error('Resend error:', emailResult.error)
         } else {
           emailSent = true
           await supabase
@@ -133,7 +147,8 @@ export async function POST(req: NextRequest) {
             .eq('estimate_id', estimateId)
         }
       } catch (emailEx) {
-        console.error('Email send exception:', emailEx)
+        console.error('[NS-PDF-EMAIL] Email send exception:', emailEx)
+        // Email failure is silent to user — PDF download still works
       }
     }
 
@@ -145,7 +160,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ pdfUrl, reportId, emailSent, success: true })
   } catch (err) {
-    console.error('plumbpro generate-pdf error:', err)
+    console.error('plumbpro generate-pdf error:', err instanceof Error ? err.message : err)
+    console.error('plumbpro generate-pdf stack:', err instanceof Error ? err.stack : '')
     return NextResponse.json({ error: 'PDF generation failed' }, { status: 500 })
   }
 }
@@ -181,7 +197,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ pdfUrl: null, success: false })
 }
 
-// ─── Email template — PlumbPro D0 PDF + InteriorPro cross-sell ───────────────
+// ─── Email template — PlumbingPro D0 PDF + InteriorPro cross-sell ─────────────
 function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nirmanshastra.in'
   return `<!DOCTYPE html>
@@ -189,7 +205,7 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Your PlumbPro Report</title>
+  <title>Your PlumbingPro Report</title>
 </head>
 <body style="margin:0;padding:0;background:#F4F4F0;font-family:'IBM Plex Sans',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F4F0;padding:32px 0;">
@@ -207,7 +223,7 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
                     <p style="margin:2px 0 0;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;">Build With Certainty</p>
                   </td>
                   <td align="right">
-                    <span style="display:inline-block;border:1px solid #1F4E79;padding:4px 10px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;">PHASE 4 &middot; PLUMBPRO</span>
+                    <span style="display:inline-block;border:1px solid #1F4E79;padding:4px 10px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;">PHASE 4 &middot; PLUMBINGPRO</span>
                   </td>
                 </tr>
               </table>
@@ -218,18 +234,18 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
           <tr>
             <td style="padding:28px 28px 20px;">
               <p style="margin:0 0 6px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">REPORT READY</p>
-              <h1 style="margin:0 0 16px;font-family:'IBM Plex Serif',Georgia,serif;font-size:22px;color:#1E2227;font-weight:700;">Your PlumbPro Report is Ready</h1>
+              <h1 style="margin:0 0 16px;font-family:'IBM Plex Serif',Georgia,serif;font-size:22px;color:#1E2227;font-weight:700;">Your PlumbingPro Report is Ready</h1>
 
               <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#1E2227;line-height:1.6;">Dear ${name},</p>
               <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#1E2227;line-height:1.6;">
-                Thank you for using NirmanShastra PlumbPro. Your Phase 4 Plumbing cost estimate report
+                Thank you for using NirmanShastra PlumbingPro. Your Phase 4 Plumbing cost estimate report
                 (<strong style="font-family:'IBM Plex Mono',Courier,monospace;">${reportId}</strong>) is ready for download.
               </p>
 
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
                 <tr>
                   <td style="background:#EBF0F7;border:1px solid #1F4E79;padding:14px 20px;">
-                    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;letter-spacing:1px;">9-PAGE IS 1172:1993 + IS 1742:1983 REPORT INCLUDES:</p>
+                    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;letter-spacing:1px;">10+ PAGE IS 1172:1993 + IS 1742:1983 REPORT INCLUDES:</p>
                     <ul style="margin:8px 0 0;padding:0 0 0 18px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;line-height:1.8;">
                       <li>Water demand calculation — IS 1172:1993 (daily demand, tank size, pump HP)</li>
                       <li>Water supply riser diagram — IS 1742:1983 pipe diameters</li>
@@ -263,7 +279,6 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
 
               <hr style="border:none;border-top:1px solid #D0D2D4;margin:20px 0;"/>
 
-              <!-- InteriorPro cross-sell — Section 21: PlumbPro D0 PDF + Interior -->
               <p style="margin:0 0 6px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">NEXT STEP — PHASE 5</p>
               <p style="margin:0 0 10px;font-family:'IBM Plex Serif',Georgia,serif;font-size:16px;color:#1E2227;font-weight:600;">
                 Plumbing is done. Now estimate your interior fit-out.

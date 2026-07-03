@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { createSupabaseClient } from '@/lib/supabase/server'
 
 const APP_LABELS: Record<string, string> = {
-  structopro:  'StructoPro',
-  masonpro:    'MasonPro',
-  electropro:  'ElectroPro',
-  plumbpro:    'PlumbPro',
+  structopro:  'StructurePro',
+  masonpro:    'MasonryPro',
+  electropro:  'ElectricalPro',
+  plumbpro:    'PlumbingPro',
   interiorpro: 'InteriorPro',
   vastupro:    'VastuPro',
 }
@@ -118,7 +118,7 @@ export default async function ReportsPage() {
                 letterSpacing: '0.04em',
               }}
             >
-              Start with StructoPro →
+              Start with StructurePro →
             </Link>
           </div>
         ) : (

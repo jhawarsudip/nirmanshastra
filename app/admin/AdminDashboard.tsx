@@ -49,10 +49,10 @@ const serif: React.CSSProperties = { fontFamily: 'var(--font-plex-serif)' }
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'vastupro',   label: 'VastuPro'   },
-  { id: 'structopro', label: 'StructoPro' },
-  { id: 'masonpro',   label: 'MasonPro'   },
-  { id: 'electropro', label: 'ElectroPro' },
-  { id: 'plumbpro',   label: 'PlumbPro'   },
+  { id: 'structopro', label: 'StructurePro'  },
+  { id: 'masonpro',   label: 'MasonryPro'   },
+  { id: 'electropro', label: 'ElectricalPro' },
+  { id: 'plumbpro',   label: 'PlumbingPro'  },
   { id: 'interiorpro',label: 'InteriorPro'},
 ]
 

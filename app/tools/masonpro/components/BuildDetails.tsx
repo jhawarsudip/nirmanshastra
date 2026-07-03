@@ -448,6 +448,7 @@ export default function BuildDetails({ state, city, onSubmit, onFormChange, onBa
       ridgeLengthM: roofType !== 'flat' ? (parseFloat(ridgeLengthM) || 0) : 0,
       terraceParapetCoping: roofType !== 'sloped' ? terraceParapetCoping : false,
       contractorQuote: contractorTotal ? parseFloat(contractorTotal) : undefined,
+      includeLabour,
     })
   }
 

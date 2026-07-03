@@ -431,9 +431,10 @@ export function runCalculation(input: ElectroInput): ElectroResult {
   const testingCost      = testingDays * LABOUR.testing.ratePerDay
   const watchmanCost     = Math.ceil(electricianDays) * LABOUR.nightWatchman.ratePerDay
 
-  const labourCost = Math.round(
+  const labourCostRaw = Math.round(
     electricianCost + wiremanCost + conduitCost + dbCost + helperCost + testingCost + watchmanCost
   )
+  const labourCost = input.includeLabour !== false ? labourCostRaw : 0
 
   // ── Grand total ranges ────────────────────────────────────────────────────
   const overheadBasic    = Math.round((totalMaterial + labourCost * 0.85) * 0.05)

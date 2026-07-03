@@ -87,7 +87,7 @@ export default function ElectroProPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#F4F4F0' }}>
-      <WizardStepBar currentStep={step} toolName="ElectroPro" toolPhase="P3" />
+      <WizardStepBar currentStep={step} toolName="ElectricalPro" toolPhase="P3" />
 
       <AnimatePresence mode="wait">
         {step === 'register' && (
@@ -97,7 +97,7 @@ export default function ElectroProPage() {
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="ElectroPro" toolPhase="P3" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="ElectricalPro" toolPhase="P3" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -109,7 +109,7 @@ export default function ElectroProPage() {
                 <MethodSelection onSelect={handleMethod} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="ElectroPro" toolPhase="P3" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="ElectricalPro" toolPhase="P3" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -128,7 +128,7 @@ export default function ElectroProPage() {
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel
-                  toolName="ElectroPro"
+                  toolName="ElectricalPro"
                   toolPhase="P3"
                   regData={session.regData}
                   liveData={liveData}

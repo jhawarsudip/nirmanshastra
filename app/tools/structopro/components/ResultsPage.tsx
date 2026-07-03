@@ -1329,7 +1329,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               Unlock Full IS-Code BOQ<br />+ Professional PDF
             </h2>
             <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.55)', marginBottom: 36, maxWidth: 500, margin: '0 auto 36px' }}>
-              Exact quantities, local market rates, contractor comparison, and a 10-page IS-code PDF report
+              Exact quantities, local market rates, contractor comparison, and a 10+ page IS-code PDF report
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, maxWidth: 480, margin: '0 auto' }}>
@@ -1369,7 +1369,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             )}
 
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginTop: 28 }}>
-              {['IS 456:2000 calculations', 'Itemised BOQ', 'Contractor comparison', '10-page PDF report'].map(f => (
+              {['IS 456:2000 calculations', 'Itemised BOQ', 'Contractor comparison', '10+ page PDF report'].map(f => (
                 <span key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.45)', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ color: '#14532D', fontWeight: 700 }}>✓</span>{f}
                 </span>
@@ -1388,7 +1388,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               ✓ PAYMENT SUCCESSFUL — REPORT UNLOCKED
             </p>
             <p className="text-[13px] mb-4" style={{ color: 'rgba(30,34,39,0.65)', fontFamily: 'var(--font-plex-sans)' }}>
-              Your full estimate is now visible above. Download your 10-page IS-code PDF report below.
+              Your full estimate is now visible above. Download your 10+ page IS-code PDF report below.
             </p>
 
             {/* PDF download area */}

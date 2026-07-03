@@ -415,6 +415,9 @@ export interface MasonInput {
   sunshadeThicknessMm?: number
   includeSoldierCourse?: boolean
 
+  // Labour inclusion
+  includeLabour?: boolean
+
   // Duct walls
   includeDucts?: boolean
   ductCount?: number
@@ -818,7 +821,8 @@ export function runCalculation(input: MasonInput): MasonResult {
   const totalDays = Math.max(brickworkDays, 30)
   const overheadLabour = totalDays * (LABOUR_RATES.foreman.ratePerDay + LABOUR_RATES.nightWatchman.ratePerDay)
 
-  const labourCost = Math.round(brickworkLabour + plasterLabour + wpLabour + overheadLabour)
+  const labourCostRaw = Math.round(brickworkLabour + plasterLabour + wpLabour + overheadLabour)
+  const labourCost = input.includeLabour !== false ? labourCostRaw : 0
 
   // ── Grand total range ─────────────────────────────────────────────────────
   const overheadBasic    = Math.round((totalMaterialCost + labourCost * 0.85) * 0.05)

@@ -7,10 +7,10 @@ import { createClient } from '@/lib/supabase/client'
 type AuthMode = 'login' | 'signup' | 'reset'
 
 const TOOL_NAMES: Record<string, string> = {
-  '/tools/structopro':  'StructoPro',
-  '/tools/masonpro':    'MasonPro',
-  '/tools/electropro':  'ElectroPro',
-  '/tools/plumbpro':    'PlumbPro',
+  '/tools/structopro':  'StructurePro',
+  '/tools/masonpro':    'MasonryPro',
+  '/tools/electropro':  'ElectricalPro',
+  '/tools/plumbpro':    'PlumbingPro',
   '/tools/interiorpro': 'InteriorPro',
   '/tools/vastu-pro':   'VastuPro',
 }

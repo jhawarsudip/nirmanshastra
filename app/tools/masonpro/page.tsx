@@ -87,7 +87,7 @@ export default function MasonProPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#F4F4F0' }}>
-      <WizardStepBar currentStep={step} toolName="MasonPro" toolPhase="P2" />
+      <WizardStepBar currentStep={step} toolName="MasonryPro" toolPhase="P2" />
 
       <AnimatePresence mode="wait">
         {step === 'register' && (
@@ -97,7 +97,7 @@ export default function MasonProPage() {
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="MasonPro" toolPhase="P2" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -109,7 +109,7 @@ export default function MasonProPage() {
                 <MethodSelection onSelect={handleMethod} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="MasonPro" toolPhase="P2" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -128,7 +128,7 @@ export default function MasonProPage() {
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel
-                  toolName="MasonPro"
+                  toolName="MasonryPro"
                   toolPhase="P2"
                   regData={session.regData}
                   liveData={liveData}

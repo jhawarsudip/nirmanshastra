@@ -87,7 +87,7 @@ export default function PlumbProPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#F4F4F0' }}>
-      <WizardStepBar currentStep={step} toolName="PlumbPro" toolPhase="P4" />
+      <WizardStepBar currentStep={step} toolName="PlumbingPro" toolPhase="P4" />
 
       <AnimatePresence mode="wait">
         {step === 'register' && (
@@ -97,7 +97,7 @@ export default function PlumbProPage() {
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="PlumbPro" toolPhase="P4" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="PlumbingPro" toolPhase="P4" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -109,7 +109,7 @@ export default function PlumbProPage() {
                 <MethodSelection onSelect={handleMethod} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="PlumbPro" toolPhase="P4" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="PlumbingPro" toolPhase="P4" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -128,7 +128,7 @@ export default function PlumbProPage() {
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel
-                  toolName="PlumbPro"
+                  toolName="PlumbingPro"
                   toolPhase="P4"
                   regData={session.regData}
                   liveData={liveData}

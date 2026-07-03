@@ -538,10 +538,11 @@ export function runCalculation(input: InteriorInput): InteriorResult {
   const totalDays      = Math.max(floorTileDays, carpenterDays) + painterDays + falseCeilDays
   const supervisorCost = totalDays * LABOUR.supervisor.ratePerDay
 
-  const labourCost = Math.round(
+  const labourCostRaw = Math.round(
     floorTileCost + wallTileCost + tileHelperCost + carpenterCost +
     painterCost + falseCeilCost + elecCost + helperCost + supervisorCost
   )
+  const labourCost = input.includeLabour !== false ? labourCostRaw : 0
 
   // ── Grand total ranges ────────────────────────────────────────────────────
   const extraMaterial = bathroomWallTileMaterial + kitchenDadoMaterial + staircaseMaterial +

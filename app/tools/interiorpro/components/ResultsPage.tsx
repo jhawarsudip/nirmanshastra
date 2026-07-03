@@ -109,8 +109,9 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   const [isPaid, setIsPaid]       = useState(PAYMENT_BYPASS)
   const [orderId, setOrderId]     = useState<string | null>(null)
   const pollRef                   = useRef<ReturnType<typeof setInterval> | null>(null)
-  const [pdfStatus, setPdfStatus] = useState<PdfStatus>('idle')
-  const [pdfUrl, setPdfUrl]       = useState<string | null>(null)
+  const [pdfStatus, setPdfStatus]     = useState<PdfStatus>('idle')
+  const [pdfUrl, setPdfUrl]           = useState<string | null>(null)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
     if (document.querySelector('script[src*="checkout.razorpay.com"]')) return
@@ -159,6 +160,27 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   }, [estimateId])
 
   useEffect(() => { if (isPaid) generatePdf() }, [isPaid, generatePdf])
+
+  const downloadPdf = useCallback(async () => {
+    if (!pdfUrl || isDownloading) return
+    setIsDownloading(true)
+    try {
+      const res = await fetch(pdfUrl)
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'NirmanShastra-InteriorPro-Report.pdf'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      window.open(pdfUrl, '_blank')
+    } finally {
+      setIsDownloading(false)
+    }
+  }, [pdfUrl, isDownloading])
 
   async function handleUnlock() {
     if (!estimateId) { setPayError('Estimate not saved yet. Please wait a moment and try again.'); return }
@@ -302,7 +324,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             </p>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-[12px]" style={{ borderCollapse: 'collapse', minWidth: 480 }}>
+            <table className="w-full text-[12px]" style={{ borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 480 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(31,78,121,0.2)' }}>
                   <th className="text-left py-2 px-4 text-[9px] uppercase tracking-widest"
@@ -466,7 +488,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               </p>
             </div>
             <div className="p-4">
-              <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
+              <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
                     <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
@@ -517,7 +539,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                 FLOORING SCHEDULE — IS 15477:2004 (TILE ADHESIVE · POLYMER GROUT)
               </p>
-              <table className="w-full text-[13px] mb-5" style={{ borderCollapse: 'collapse' }}>
+              <table className="w-full text-[13px] mb-5" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <tbody>
                   {[
                     { label: 'Total BUA (flooring area)', value: `${r.flooringSchedule.totalBuaSqft.toLocaleString('en-IN')} sqft` },
@@ -540,7 +562,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                 ROOM-BY-ROOM BREAKDOWN — {GRADE_LABELS[input.grade].toUpperCase()} GRADE
               </p>
-              <table className="w-full text-[13px] mb-5" style={{ borderCollapse: 'collapse' }}>
+              <table className="w-full text-[13px] mb-5" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
                     {['Room', 'Area (sqft)', 'Flooring Cost (₹)'].map(h => (
@@ -567,7 +589,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                 PAINT SCHEDULE — IS 2395:1994
               </p>
-              <table className="w-full text-[13px] mb-5" style={{ borderCollapse: 'collapse' }}>
+              <table className="w-full text-[13px] mb-5" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <tbody>
                   {[
                     { label: 'Emulsion paint (0.18L/sqft BUA — IS 2395:1994)', value: `${r.paintSchedule.paintLitres} litres` },
@@ -588,7 +610,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                 COMPLETE BOQ — {GRADE_LABELS[input.grade].toUpperCase()} GRADE
               </p>
-              <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
+              <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <tbody>
                   {[
                     { label: `Flooring (${r.flooringSchedule.withWastageSqft.toLocaleString('en-IN')} sqft with wastage)`, cost: r.costs.flooringMaterial },
@@ -606,12 +628,21 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     <td className="py-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>Total Material</td>
                     <td className="py-2 text-right font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{r.costs.totalMaterial.toLocaleString('en-IN')}</td>
                   </tr>
-                  <tr>
-                    <td className="py-1 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
-                      Labour (CPWD — tile mason + carpenter + painter + false ceiling + supervisor)
-                    </td>
-                    <td className="py-1 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>{r.labourCost.toLocaleString('en-IN')}</td>
-                  </tr>
+                  {input.includeLabour !== false ? (
+                    <tr>
+                      <td className="py-1 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
+                        Labour (CPWD — tile mason + carpenter + painter + false ceiling + supervisor)
+                      </td>
+                      <td className="py-1 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>{r.labourCost.toLocaleString('en-IN')}</td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td colSpan={2} className="py-1 text-[11px]"
+                        style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', fontStyle: 'italic' }}>
+                        Labour cost not included in this estimate
+                      </td>
+                    </tr>
+                  )}
                   <tr>
                     <td className="py-1 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>Contractor overhead + margin (8%)</td>
                     <td className="py-1 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>{r.overheadCost.toLocaleString('en-IN')}</td>
@@ -748,14 +779,16 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               </div>
             )}
             {pdfStatus === 'ready' && pdfUrl && (
-              <a href={pdfUrl} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-[6px] text-[14px] font-semibold text-white no-underline"
-                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
+              <button
+                onClick={downloadPdf}
+                disabled={isDownloading}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-[6px] text-[14px] font-semibold text-white"
+                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)', border: 'none', cursor: isDownloading ? 'wait' : 'pointer', opacity: isDownloading ? 0.7 : 1 }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Download PDF Report
-              </a>
+                {isDownloading ? 'Downloading…' : 'Download PDF Report'}
+              </button>
             )}
             {pdfStatus === 'error' && (
               <div className="flex items-center gap-2 flex-wrap">

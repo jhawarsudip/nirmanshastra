@@ -862,7 +862,7 @@ export default function Home() {
                   {
                     feature: 'PDF report',
                     free: 'No PDF — just a number on screen',
-                    ns: 'Professional 10-page PDF with BOQ, IS compliance, site checklist',
+                    ns: 'Professional 10+ page PDF with BOQ, IS compliance, site checklist',
                   },
                   {
                     feature: 'Your data',

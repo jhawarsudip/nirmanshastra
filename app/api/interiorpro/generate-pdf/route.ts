@@ -271,7 +271,7 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
               </p>
               <p style="margin:0 0 12px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;line-height:1.6;">
                 Each phase of construction has hidden overcharging risks. NirmanShastra tools cover all 6 phases —
-                from structure (StructoPro) to masonry, electrical, plumbing, and now interiors.
+                from structure (StructurePro) to masonry, electrical, plumbing, and now interiors.
                 Each ₹499 report pays for itself the first time you catch a contractor overcharging.
               </p>
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 12px;">
@@ -279,10 +279,10 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
                   <td style="border:1px solid #1E2227;padding:12px 16px;">
                     <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">NIRMANSHASTRA PHASE TOOLS — ₹499 EACH:</p>
                     <ul style="margin:8px 0 0;padding:0 0 0 18px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;line-height:1.8;">
-                      <li>Phase 1: StructoPro — RCC frame, beam-column, slab (IS 456:2000)</li>
-                      <li>Phase 2: MasonPro — brickwork, plaster, block masonry (IS 1905:1987)</li>
-                      <li>Phase 3: ElectroPro — wiring, DB, earthing, solar (IS 732:1989)</li>
-                      <li>Phase 4: PlumbPro — water supply, drainage, tanks (IS 1742:1983)</li>
+                      <li>Phase 1: StructurePro — RCC frame, beam-column, slab (IS 456:2000)</li>
+                      <li>Phase 2: MasonryPro — brickwork, plaster, block masonry (IS 1905:1987)</li>
+                      <li>Phase 3: ElectricalPro — wiring, DB, earthing, solar (IS 732:1989)</li>
+                      <li>Phase 4: PlumbingPro — water supply, drainage, tanks (IS 1742:1983)</li>
                       <li>Phase 5: InteriorPro — flooring, paint, kitchen, false ceiling ✓ Done</li>
                     </ul>
                   </td>

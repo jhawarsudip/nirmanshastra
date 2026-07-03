@@ -1201,10 +1201,10 @@ function TotalSummaryPage({ result, input, reportId }: { result: InteriorResult;
           <Text style={[S.h2, { fontSize: 12, marginBottom: 6 }]}>Each phase has hidden overcharging risks. Cover all 5.</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
             {[
-              { phase: 'Ph 1', name: 'StructoPro', note: 'IS 456:2000 RCC' },
-              { phase: 'Ph 2', name: 'MasonPro',   note: 'IS 1905:1987 brickwork' },
-              { phase: 'Ph 3', name: 'ElectroPro', note: 'IS 732:1989 wiring' },
-              { phase: 'Ph 4', name: 'PlumbPro',   note: 'IS 1742:1983 drainage' },
+              { phase: 'Ph 1', name: 'StructurePro',  note: 'IS 456:2000 RCC' },
+              { phase: 'Ph 2', name: 'MasonryPro',    note: 'IS 1905:1987 brickwork' },
+              { phase: 'Ph 3', name: 'ElectricalPro', note: 'IS 732:1989 wiring' },
+              { phase: 'Ph 4', name: 'PlumbingPro',   note: 'IS 1742:1983 drainage' },
               { phase: 'Ph 5', name: 'InteriorPro',note: 'IS 15477:2004 ✓ Done' },
             ].map(t => (
               <View key={t.name} style={{
