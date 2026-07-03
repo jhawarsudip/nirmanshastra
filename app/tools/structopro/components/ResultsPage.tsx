@@ -119,6 +119,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   const pollRef                     = useRef<ReturnType<typeof setInterval> | null>(null)
   const [pdfStatus, setPdfStatus]   = useState<PdfStatus>('idle')
   const [pdfUrl, setPdfUrl]         = useState<string | null>(null)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   type ResultTab = 'raw_materials' | 'steel_schedule' | 'concrete' | 'labour' | 'by_floor'
   const [activeTab, setActiveTab]   = useState<ResultTab>('raw_materials')
@@ -183,6 +184,29 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
       setPdfStatus('error')
     }
   }, [estimateId])
+
+  // Download PDF as blob to force browser download instead of opening in tab
+  const downloadPdf = useCallback(async () => {
+    if (!pdfUrl || isDownloading) return
+    setIsDownloading(true)
+    try {
+      const res = await fetch(pdfUrl)
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'NirmanShastra-StructurePro-Report.pdf'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      // Fallback to opening in tab if blob fetch fails
+      window.open(pdfUrl, '_blank')
+    } finally {
+      setIsDownloading(false)
+    }
+  }, [pdfUrl, isDownloading])
 
   // Trigger PDF generation after payment confirmed
   useEffect(() => {
@@ -1383,18 +1407,28 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             )}
 
             {pdfStatus === 'ready' && pdfUrl && (
-              <a
-                href={pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-[6px] text-[14px] font-semibold text-white no-underline"
-                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}
+              <button
+                onClick={downloadPdf}
+                disabled={isDownloading}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-[6px] text-[14px] font-semibold text-white cursor-pointer disabled:opacity-60"
+                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)', border: 'none' }}
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Download PDF Report
-              </a>
+                {isDownloading ? (
+                  <>
+                    <svg className="animate-spin" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" strokeDasharray="10 6" />
+                    </svg>
+                    Preparing download…
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    Download PDF Report
+                  </>
+                )}
+              </button>
             )}
 
             {pdfStatus === 'error' && (

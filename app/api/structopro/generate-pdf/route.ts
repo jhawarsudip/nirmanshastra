@@ -136,14 +136,18 @@ export async function POST(req: NextRequest) {
     let emailSent = false
     if (contactInfo.email) {
       try {
-        const { error: emailErr } = await resend.emails.send({
+        console.log('[NS-PDF-EMAIL] Attempting email send to:', contactInfo.email)
+        console.log('[NS-PDF-EMAIL] RESEND_API_KEY set:', !!process.env.RESEND_API_KEY)
+        console.log('[NS-PDF-EMAIL] RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL)
+        const emailResult = await resend.emails.send({
           from:    process.env.RESEND_FROM_EMAIL!,
           to:      contactInfo.email,
           subject: `Your StructoPro Report is Ready — ${reportId}`,
           html:    buildEmailHtml(contactInfo.name, reportId, pdfUrl),
         })
-        if (emailErr) {
-          console.error('Resend error:', emailErr)
+        console.log('[NS-PDF-EMAIL] Email result:', JSON.stringify(emailResult))
+        if (emailResult.error) {
+          console.error('Resend error:', emailResult.error)
         } else {
           emailSent = true
           await supabase
@@ -152,7 +156,8 @@ export async function POST(req: NextRequest) {
             .eq('estimate_id', estimateId)
         }
       } catch (emailEx) {
-        console.error('Email send exception:', emailEx)
+        console.error('[NS-PDF-EMAIL] Email send exception:', emailEx)
+        // Email failure is silent to user — PDF download still works
       }
     }
 

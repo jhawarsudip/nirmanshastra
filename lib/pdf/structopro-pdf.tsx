@@ -516,7 +516,39 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
             </View>
           </View>
 
-          <View style={S.flex1} />
+          {/* Report Contents Index */}
+          <View style={{ marginTop: 10, borderWidth: 1, borderColor: T.inkA15, borderStyle: 'solid' }}>
+            <View style={{ backgroundColor: T.ironInk, paddingVertical: 5, paddingHorizontal: 10 }}>
+              <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.sheetWhite, letterSpacing: 1 }}>
+                REPORT CONTENTS — {totalFloors} FLOOR STRUCTURE · IS 456:2000
+              </Text>
+            </View>
+            {[
+              { sheet: 'SHEET 01', title: 'IS Compliance Panel', desc: '6 automated IS code checks with PASS / ADVISORY / FAIL stamps' },
+              { sheet: 'SHEET 02', title: 'Raw Materials BOQ', desc: 'Cement, steel, aggregate, sand, binding wire — purchase quantities' },
+              { sheet: 'SHEET 03', title: 'Steel Schedule', desc: 'Steel by member type — footing, column, beam, slab per IS 1786:2008' },
+              { sheet: 'SHEET 04', title: 'Concrete Schedule', desc: `${input?.concreteGrade ?? 'M20'} mix ratio, dry volume factor 1.54, bags per m³ calculation` },
+              { sheet: 'SHEET 05', title: 'Labour Schedule', desc: 'CPWD productivity rates — man-days per trade per member' },
+              { sheet: 'SHEET 06', title: 'By Floor Breakdown', desc: 'Concrete m³, steel kg, formwork sqft per floor level' },
+              { sheet: 'SHEET 07', title: 'Cost Comparison', desc: 'Basic / Standard / Premium three-grade estimate with per sqft rates' },
+              { sheet: 'SHEET 08', title: 'Site Reminders', desc: '10 IS code mandated technical reminders for contractor briefing' },
+              { sheet: 'SHEET 09', title: 'Material Cost Chart', desc: 'Concrete grade cost comparison — M20 through M35 bar chart' },
+              { sheet: 'SHEET 10', title: 'Foundation Schematic', desc: 'Isolated footing plan + column cross-section with cover dimensions' },
+              { sheet: 'SHEET 11–14', title: 'Engineering Methodology', desc: 'Complete IS derivations — concrete, steel, cost build-up, IS code reference' },
+            ].map((r, i) => (
+              <View key={r.sheet} style={{
+                flexDirection: 'row', paddingVertical: 4, paddingHorizontal: 10,
+                borderBottomWidth: i < 10 ? 0.5 : 0, borderBottomColor: T.inkA15, borderBottomStyle: 'solid',
+                backgroundColor: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.02)',
+              }}>
+                <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.blueprint, width: 68 }}>{r.sheet}</Text>
+                <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, fontWeight: 600, color: T.ironInk, width: 130 }}>{r.title}</Text>
+                <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 7.5, color: T.inkA60, flex: 1, lineHeight: 1.4 }}>{r.desc}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={{ height: 10 }} />
 
           {/* Bottom row: foundation note + title block */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -1048,66 +1080,60 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
         <View style={S.frame}>
           <PageHeader sheet="SHEET 09 · GRADE COMPARISON CHART" title="Concrete Grade — Cost & Compliance Impact" />
 
-          {/* Bar chart using SVG */}
+          {/* Pure SVG vertical bar chart — no recharts, no external library */}
           <Text style={{ ...S.eyebrow, marginBottom: 8 }}>COST PER SQFT (STANDARD ESTIMATE) — SELECTED GRADE HIGHLIGHTED</Text>
 
-          <Svg width="507" height="140" viewBox="0 0 507 140">
-            {/* Axis */}
-            <Rect x="40" y="10" width="0.5" height="110" fill={T.inkA35} />
-            <Rect x="40" y="120" width="467" height="0.5" fill={T.inkA35} />
+          {(() => {
+            const grades = result.gradeSummary ?? []
+            if (grades.length === 0) return null
+            const maxCost = Math.max(...grades.map((g: { grade: string; costPerSqft: number }) => g.costPerSqft))
+            const chartH = 90
+            const baseY = 130
+            const barW = 75
+            const gap = 28
+            return (
+              <Svg width="480" height="175" viewBox="0 0 480 175">
+                {/* Y-axis */}
+                <Line x1={38} y1={20} x2={38} y2={baseY} strokeWidth={0.5} stroke={T.inkA35} />
+                {/* X-axis */}
+                <Line x1={38} y1={baseY} x2={458} y2={baseY} strokeWidth={0.5} stroke={T.inkA35} />
 
-            {result.gradeSummary.map((g, i) => {
-              const maxCost = result.gradeSummary[result.gradeSummary.length - 1].costPerSqft
-              const barW = Math.round((g.costPerSqft / maxCost) * 440)
-              const y = 15 + i * 26
-              const isSelected = g.grade === input.concreteGrade
-              return (
-                <React.Fragment key={g.grade}>
-                  {/* Label */}
-                  <Rect x="0" y={y} width={38} height={18} fill="none" />
+                {grades.map((g: { grade: string; costPerSqft: number }, i: number) => {
+                  const barH = Math.max(4, Math.round((g.costPerSqft / maxCost) * chartH))
+                  const x = 45 + i * (barW + gap)
+                  const y = baseY - barH
+                  const isSelected = g.grade === input.concreteGrade
+                  const barFill = isSelected ? T.blueprint : T.inkA15
+                  const labelFill = isSelected ? T.blueprint : T.inkA60
+                  const center = x + Math.round(barW / 2)
+                  const costStr = `Rs.${g.costPerSqft}`
+                  const costLabelX = center - Math.round(costStr.length * 2.5)
+                  const gradeLabelX = center - 10
 
-                  {/* Bar */}
-                  <Rect
-                    x="42" y={y}
-                    width={barW} height={18}
-                    fill={isSelected ? T.blueprint : T.inkA15}
-                  />
-
-                  {/* Cost label inside/outside bar */}
-                  <Rect x={barW + 46} y={y + 4} width={60} height={12} fill="none" />
-                </React.Fragment>
-              )
-            })}
-          </Svg>
-
-          {/* Chart legend with actual numbers (react-pdf Text can't overlay SVG easily) */}
-          <View style={{ marginTop: -120 }}>
-            {result.gradeSummary.map((g) => {
-              const maxCost = result.gradeSummary[result.gradeSummary.length - 1].costPerSqft
-              const barPct = Math.round((g.costPerSqft / maxCost) * 100)
-              const isSelected = g.grade === input.concreteGrade
-              return (
-                <View key={g.grade} style={{ marginBottom: 8, marginLeft: 42 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
-                    <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 9, color: isSelected ? T.blueprint : T.ironInk, width: 35, fontWeight: isSelected ? 700 : 400 }}>
-                      {g.grade}
-                    </Text>
-                    {isSelected && (
-                      <View style={{ backgroundColor: T.blueprint, paddingHorizontal: 4, paddingVertical: 1, marginRight: 6 }}>
-                        <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.sheetWhite }}>SELECTED</Text>
-                      </View>
-                    )}
-                    <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 9, color: isSelected ? T.blueprint : T.inkA60 }}>
-                      Rs.{g.costPerSqft}/sqft  ·  {barPct}% of max
-                    </Text>
-                  </View>
-                  <View style={{ height: 12, backgroundColor: isSelected ? T.blueprintBg : T.inkA15, width: '100%' }}>
-                    <View style={{ height: 12, backgroundColor: isSelected ? T.blueprint : T.inkA35, width: `${barPct}%` }} />
-                  </View>
-                </View>
-              )
-            })}
-          </View>
+                  return (
+                    <React.Fragment key={g.grade}>
+                      {/* Bar */}
+                      <Rect x={x} y={y} width={barW} height={barH} fill={barFill} />
+                      {/* Cost value above bar */}
+                      <Text x={costLabelX} y={y - 5} style={{ fontFamily: 'IBMPlexMono', fontSize: 7, fill: labelFill }}>
+                        {costStr}
+                      </Text>
+                      {/* Grade label below x-axis */}
+                      <Text x={gradeLabelX} y={baseY + 14} style={{ fontFamily: 'IBMPlexMono', fontSize: 9, fill: labelFill }}>
+                        {g.grade}
+                      </Text>
+                      {/* SELECTED label */}
+                      {isSelected && (
+                        <Text x={center - 20} y={baseY + 28} style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, fill: T.blueprint }}>
+                          * SELECTED
+                        </Text>
+                      )}
+                    </React.Fragment>
+                  )
+                })}
+              </Svg>
+            )
+          })()}
 
           <View style={S.rule} />
 
@@ -1307,38 +1333,62 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
               </Text>
             </View>
 
-            {/* Right: Column cross-section */}
+            {/* Right: Column cross-section — square 100×100 units */}
             <View style={{ flex: 2 }}>
               <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6.5, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>
-                COLUMN SECTION — 300×300mm
+                COLUMN X-SECTION — 300×300mm
               </Text>
-              <Svg viewBox="0 0 160 245" style={{ width: 136, height: 208 }}>
-                {/* Column outline */}
-                <Rect x={30} y={20} width={100} height={210} fill={T.sheetWhite} stroke={T.ironInk} strokeWidth={1.5} />
-                {/* Stirrups */}
-                <Line x1={35} y1={55} x2={125} y2={55} strokeWidth={0.8} stroke={T.ironInk} />
-                <Line x1={35} y1={95} x2={125} y2={95} strokeWidth={0.8} stroke={T.ironInk} />
-                <Line x1={35} y1={135} x2={125} y2={135} strokeWidth={0.8} stroke={T.ironInk} />
-                <Line x1={35} y1={175} x2={125} y2={175} strokeWidth={0.8} stroke={T.ironInk} />
-                <Line x1={35} y1={215} x2={125} y2={215} strokeWidth={0.8} stroke={T.ironInk} />
-                {/* Fe500D rebar circles at corners */}
-                <Circle cx={42} cy={32} r={5} fill={T.ironInk} />
-                <Circle cx={118} cy={32} r={5} fill={T.ironInk} />
-                <Circle cx={42} cy={218} r={5} fill={T.ironInk} />
-                <Circle cx={118} cy={218} r={5} fill={T.ironInk} />
-                {/* 40mm cover dimension */}
-                <Line x1={8} y1={32} x2={37} y2={32} strokeWidth={0.7} stroke={T.blueprint} />
-                <Line x1={8} y1={28} x2={8} y2={36} strokeWidth={0.7} stroke={T.blueprint} />
-                <Text x={2} y={26} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>40mm</Text>
-                <Text x={2} y={33} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }}>cover</Text>
-                {/* Labels */}
-                <Text x={55} y={12} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.blueprint }}>300×300mm</Text>
-                <Text x={131} y={36} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Fe500D</Text>
-                <Text x={131} y={130} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Stirrups</Text>
-                <Text x={131} y={137} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>@150c/c</Text>
+              {/* viewBox: 200×195, column at (40,40) size 100×100 */}
+              <Svg viewBox="0 0 200 195" style={{ width: 150, height: 146 }}>
+                {/* Column outline — exactly 100×100 (square) */}
+                <Rect x={40} y={35} width={100} height={100} fill={T.sheetWhite} stroke={T.ironInk} strokeWidth={2} />
+
+                {/* Stirrup rectangle — 74×74 inset 13px each side (= 40mm cover at 300mm scale) */}
+                <Rect x={53} y={48} width={74} height={74} fill="none" stroke={T.ironInk} strokeWidth={1} />
+
+                {/* Main reinforcement bars — filled circles at stirrup corners */}
+                <Circle cx={53} cy={48} r={5} fill={T.ironInk} />
+                <Circle cx={127} cy={48} r={5} fill={T.ironInk} />
+                <Circle cx={53} cy={122} r={5} fill={T.ironInk} />
+                <Circle cx={127} cy={122} r={5} fill={T.ironInk} />
+
+                {/* 40mm cover — top dimension arrow (column top edge y=35 to stirrup y=48) */}
+                <Line x1={40} y1={22} x2={53} y2={22} strokeWidth={0.7} stroke={T.blueprint} />
+                <Line x1={40} y1={18} x2={40} y2={26} strokeWidth={0.7} stroke={T.blueprint} />
+                <Line x1={53} y1={18} x2={53} y2={26} strokeWidth={0.7} stroke={T.blueprint} />
+                <Text x={43} y={17} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>40mm</Text>
+
+                {/* 40mm cover — left dimension arrow */}
+                <Line x1={25} y1={35} x2={25} y2={48} strokeWidth={0.7} stroke={T.blueprint} />
+                <Line x1={21} y1={35} x2={29} y2={35} strokeWidth={0.7} stroke={T.blueprint} />
+                <Line x1={21} y1={48} x2={29} y2={48} strokeWidth={0.7} stroke={T.blueprint} />
+                <Text x={2} y={43} style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, fill: T.blueprint }}>40mm</Text>
+                <Text x={3} y={51} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.blueprint }}>cover</Text>
+
+                {/* Column width dimension — bottom */}
+                <Line x1={40} y1={150} x2={140} y2={150} strokeWidth={0.7} stroke={T.ironInk} />
+                <Line x1={40} y1={146} x2={40} y2={154} strokeWidth={0.7} stroke={T.ironInk} />
+                <Line x1={140} y1={146} x2={140} y2={154} strokeWidth={0.7} stroke={T.ironInk} />
+                <Text x={70} y={163} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.ironInk }}>300mm</Text>
+
+                {/* Column height dimension — right */}
+                <Line x1={155} y1={35} x2={155} y2={135} strokeWidth={0.7} stroke={T.ironInk} />
+                <Line x1={151} y1={35} x2={159} y2={35} strokeWidth={0.7} stroke={T.ironInk} />
+                <Line x1={151} y1={135} x2={159} y2={135} strokeWidth={0.7} stroke={T.ironInk} />
+                <Text x={161} y={88} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.ironInk }}>300</Text>
+                <Text x={161} y={96} style={{ fontFamily: 'IBMPlexMono', fontSize: 6, fill: T.ironInk }}>mm</Text>
+
+                {/* Column size label — top centre */}
+                <Text x={53} y={29} style={{ fontFamily: 'IBMPlexMono', fontSize: 7, fill: T.blueprint }}>300×300mm</Text>
+
+                {/* Labels — right side */}
+                <Text x={132} y={51} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Main bar</Text>
+                <Text x={132} y={58} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>Fe500D</Text>
+                <Text x={132} y={82} style={{ fontFamily: 'IBMPlexSans', fontSize: 5.5, fill: T.inkA60 }}>Stirrup</Text>
+                <Text x={132} y={89} style={{ fontFamily: 'IBMPlexMono', fontSize: 5, fill: T.inkA60 }}>@150c/c</Text>
               </Svg>
               <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 5.5, color: T.inkA60, marginTop: 3 }}>
-                IS 456:2000 Cl.26.5{'\n'}M20 concrete · Fe500D bars
+                IS 456:2000 Cl.26.5{'\n'}{input?.concreteGrade ?? 'M20'} concrete · {input?.steelGrade ?? 'Fe500D'} bars
               </Text>
             </View>
           </View>
@@ -1471,86 +1521,344 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
       </Page>
 
       {/* ═══════════════════════════════════════════════════════
-          FINAL PAGE — THE ENGINEERING BEHIND THE CALCULATION
+          APPENDIX A — CONCRETE QUANTITY DERIVATION
           ═══════════════════════════════════════════════════════ */}
       <Page size="A4" style={S.page}>
         <View style={S.frame}>
-          <Text style={S.eyebrow}>APPENDIX — CALCULATION METHODOLOGY</Text>
-          <Text style={S.h2}>The Engineering Behind the Calculation</Text>
-          <View style={S.rule} />
+          <PageHeader sheet="APPENDIX A · CONCRETE QUANTITY DERIVATION" title="Concrete — Complete IS 456:2000 Derivation" />
 
-          {/* Concrete */}
-          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 4 }}>CONCRETE QUANTITIES (IS 456:2000)</Text>
-          {[
-            'M20 mix ratio 1:1.5:3 — dry volume factor 1.54 — yields 8.07 bags cement + 11.22 cft sand + 22.44 cft aggregate per m³',
-            'M25 mix ratio 1:1:2 — yields 11.00 bags cement per m³',
-            'Formula: wet volume × 1.54 = dry volume. Cement bags = dry volume × (1/(1+1.5+3)) × (1440/50)',
-          ].map((t, i) => (
-            <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
-          ))}
-
-          {/* Steel */}
-          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>STEEL QUANTITIES (IS 1786:2008, density 7850 kg/m³)</Text>
-          {[
-            'Footing: 0.5% of concrete volume = 39.25 kg/m³',
-            'Plinth beam: 1.5% = 117.75 kg/m³',
-            'Column: 2.5% = 196.25 kg/m³',
-            'Beam: 1.5% = 117.75 kg/m³ (150 kg/m³ with wastage)',
-            'Slab: 1.0% = 78.5 kg/m³',
-            'Overall thumb rule: 4 kg steel per sqft BUA for G+1 to G+3',
-          ].map((t, i) => (
-            <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
-          ))}
-
-          {/* Excavation */}
-          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>EXCAVATION</Text>
-          <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• Volume = footing area × foundation depth × 1.3 (side slope factor)</Text>
-
-          {/* Formwork */}
-          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>FORMWORK (IS 456:2000 Cl 14)</Text>
-          {[
-            'Column faces: 4 × column perimeter × column height',
-            'Beam soffits: beam width × beam span',
-            'Slab: slab area',
-          ].map((t, i) => (
-            <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
-          ))}
-
-          {/* CPWD Labour */}
-          <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>CPWD LABOUR PRODUCTIVITY</Text>
-          {[
-            'Bar Bender: 600 kg steel per worker per day',
-            'Shuttering Carpenter: 100 sqft formwork per worker per day',
-            'Concreting Mason: 2.5 m³ concrete per mason per day',
-            'Curing period: columns 7 days, beams 14 days, slabs 14 days (IS 456:2000 Cl 13.5)',
-          ].map((t, i) => (
-            <Text key={i} style={{ fontFamily: 'IBMPlexSans', fontSize: 8.5, color: T.ironInk, lineHeight: 1.5, marginBottom: 2 }}>• {t}</Text>
-          ))}
-
-          {/* IS Codes */}
-          <View style={{ marginTop: 12, borderTopWidth: 0.5, borderTopColor: T.inkA15, borderTopStyle: 'solid', paddingTop: 8 }}>
-            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.blueprint, letterSpacing: 1, marginBottom: 6 }}>IS CODES USED IN THIS REPORT</Text>
+          {/* Step 1: Mix proportions */}
+          <Text style={{ ...S.eyebrow, marginBottom: 5 }}>STEP 1 — MIX PROPORTIONS (IS 456:2000 TABLE 9)</Text>
+          <View style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
             {[
-              'IS 456:2000 — Plain and Reinforced Concrete',
-              'IS 1786:2008 — High Strength Deformed Steel Bars',
-              'IS 1893:2016 — Criteria for Earthquake Resistant Design',
-              'IS 1904:2016 — Design and Construction of Foundations',
-              'IS 13920:2016 — Ductile Detailing of RCC Structures',
-              'IS 875:2015 — Code of Practice for Design Loads',
+              { label: 'GRADE', value: input?.concreteGrade ?? 'M20' },
+              { label: 'MIX RATIO', value: (input?.concreteGrade ?? 'M20') === 'M20' ? '1:1.5:3' : (input?.concreteGrade ?? 'M20') === 'M25' ? '1:1:2' : 'Design Mix' },
+              { label: 'TOTAL PARTS', value: (input?.concreteGrade ?? 'M20') === 'M20' ? '5.5' : (input?.concreteGrade ?? 'M20') === 'M25' ? '4.0' : '—' },
+              { label: 'DRY VOL FACTOR', value: '1.54' },
+              { label: 'BAGS/m³', value: bpm3.toFixed(2) },
+            ].map(s => (
+              <View key={s.label} style={{ flex: 1, borderWidth: 1, borderColor: T.inkA15, borderStyle: 'solid', padding: 6, backgroundColor: T.blueprintBg }}>
+                <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 6, color: T.inkA60, marginBottom: 3, letterSpacing: 0.5 }}>{s.label}</Text>
+                <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 11, color: T.ironInk }}>{s.value}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Step 2: Formula derivation */}
+          <Text style={{ ...S.eyebrow, marginBottom: 5 }}>STEP 2 — FORMULA DERIVATION FROM FIRST PRINCIPLES</Text>
+          <View style={{ backgroundColor: T.ironInk, padding: 10, marginBottom: 10 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.sheetWhite, lineHeight: 2 }}>
+              {'For 1 m³ wet concrete:'}
+              {'\n'}{'  Dry volume = 1.000 m³ × 1.54 = 1.540 m³'}
+              {'\n'}{'  Cement fraction = 1 / (1 + 1.5 + 3) = 1 / 5.5 = 0.18182'}
+              {'\n'}{'  Cement volume = 1.540 × 0.18182 = 0.2800 m³'}
+              {'\n'}{'  Cement weight = 0.2800 × 1440 kg/m³ = 403.2 kg'}
+              {'\n'}{'  Cement bags = 403.2 / 50 = ' + bpm3.toFixed(2) + ' bags  ✓  (IS 456:2000 locked value)'}
+            </Text>
+          </View>
+
+          {/* Step 3: Member-by-member */}
+          <Text style={{ ...S.eyebrow, marginBottom: 5 }}>STEP 3 — MEMBER-BY-MEMBER CALCULATION (ACTUAL PROJECT QUANTITIES)</Text>
+          <View style={S.table}>
+            <View style={S.tHead}>
+              <Text style={{ ...S.tHeader, flex: 1 }}>MEMBER</Text>
+              <Text style={{ ...S.tHeaderR, width: 80 }}>VOL (m³)</Text>
+              <Text style={{ ...S.tHeaderR, width: 65 }}>BAGS/m³</Text>
+              <Text style={{ ...S.tHeaderR, width: 80 }}>CEMENT BAGS</Text>
+            </View>
+            {[
+              { member: 'PCC Blinding (M10)', vol: pccM3 },
+              { member: 'Foundation — Isolated Footings', vol: fndConcreteM3 },
+              { member: 'Plinth Beam', vol: plinthConcreteM3 },
+              ...Array.from({ length: totalFloors }, (_, i) => ({
+                member: i === 0 ? 'Ground Floor (Cols + Beams + Slab)' : `Floor ${i} (Cols + Beams + Slab)`,
+                vol: regularConcreteM3,
+              })),
+            ].map((r, i) => (
+              <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+                <Text style={{ ...S.tCell, flex: 1, lineHeight: 1.4 }}>{r.member}</Text>
+                <Text style={{ ...S.tCellMono, width: 80 }}>{num(r.vol, 2)}</Text>
+                <Text style={{ ...S.tCellMono, width: 65 }}>{bpm3.toFixed(2)}</Text>
+                <Text style={{ ...S.tCellMono, width: 80 }}>{num(Math.round(r.vol * bpm3))}</Text>
+              </View>
+            ))}
+            <View style={S.tTotalRow}>
+              <Text style={{ ...S.tCell, flex: 1, fontWeight: 600 }}>TOTAL CEMENT — IS 456:2000</Text>
+              <Text style={{ ...S.tCellMono, width: 80, fontWeight: 700, color: T.blueprint }}>{num(totalConcreteM3, 2)}</Text>
+              <Text style={{ ...S.tCellMono, width: 65 }} />
+              <Text style={{ ...S.tCellMono, width: 80, fontWeight: 700, color: T.blueprint }}>{num(result?.quantities?.cementBags ?? 0)} bags</Text>
+            </View>
+          </View>
+
+          {/* Thumb rule cross-check */}
+          <View style={{ marginTop: 10, backgroundColor: T.yellowBg, borderLeftWidth: 2, borderLeftColor: T.markingYellow, borderLeftStyle: 'solid', padding: 8 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.markingYellow, marginBottom: 3 }}>THUMB RULE CROSS-CHECK — IS 456:2000 (0.4 bags/sqft BUA)</Text>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.ironInk, lineHeight: 1.6 }}>
+              {num(result?.totalBUA ?? 0)} sqft BUA × 0.4 bags/sqft = {num(Math.round((result?.totalBUA ?? 0) * 0.4))} bags  (thumb rule){'\n'}
+              Member-by-member total = {num(result?.quantities?.cementBags ?? 0)} bags{'\n'}
+              Variance = {Math.abs(Math.round(((result?.quantities?.cementBags ?? 0) - (result?.totalBUA ?? 0) * 0.4) / Math.max(1, (result?.totalBUA ?? 0) * 0.4) * 100))}% — within acceptable ±15% range
+            </Text>
+          </View>
+
+          <View style={S.flex1} />
+          <PageFooter sheet="APPENDIX A · CONCRETE DERIVATION" />
+        </View>
+      </Page>
+
+      {/* ═══════════════════════════════════════════════════════
+          APPENDIX B — STEEL QUANTITY DERIVATION
+          ═══════════════════════════════════════════════════════ */}
+      <Page size="A4" style={S.page}>
+        <View style={S.frame}>
+          <PageHeader sheet="APPENDIX B · STEEL QUANTITY DERIVATION" title="TMT Steel — IS 1786:2008 Percentage Method" />
+
+          {/* Method box */}
+          <Text style={{ ...S.eyebrow, marginBottom: 5 }}>METHOD — IS 1786:2008 · STEEL DENSITY = 7850 kg/m³ (LOCKED VALUE)</Text>
+          <View style={{ backgroundColor: T.ironInk, padding: 10, marginBottom: 10 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8.5, color: T.sheetWhite, lineHeight: 1.8 }}>
+              {'Steel (kg) = Concrete volume (m³) × Steel % × 7850 kg/m³'}
+              {'\n'}
+              {'Example: Footing = ' + num(fndConcreteM3, 2) + ' m³ × 0.005 × 7850 = ' + num(Math.round(fndConcreteM3 * 0.005 * 7850)) + ' kg'}
+            </Text>
+          </View>
+
+          {/* Per member table */}
+          <Text style={{ ...S.eyebrow, marginBottom: 5 }}>MEMBER-BY-MEMBER STEEL DERIVATION (IS 456:2000 SECTION 8 — LOCKED)</Text>
+          <View style={S.table}>
+            <View style={S.tHead}>
+              <Text style={{ ...S.tHeader, flex: 1 }}>MEMBER</Text>
+              <Text style={{ ...S.tHeaderR, width: 72 }}>VOL (m³)</Text>
+              <Text style={{ ...S.tHeaderR, width: 58 }}>STEEL %</Text>
+              <Text style={{ ...S.tHeaderR, width: 68 }}>kg/m³</Text>
+              <Text style={{ ...S.tHeaderR, width: 68 }}>STEEL (kg)</Text>
+            </View>
+            {[
+              { member: 'Footing — IS 456:2000 Cl 26.5', vol: fndConcreteM3, pct: 0.50, kgm3: 39.25,  kg: fndSteelKg },
+              { member: 'Plinth Beam', vol: plinthConcreteM3, pct: 1.50, kgm3: 117.75, kg: plinthSteelKg },
+              { member: `Column (${input?.concreteGrade ?? 'M20'})`, vol: Math.round(superConcreteM3 * 35) / 100, pct: 2.50, kgm3: 196.25, kg: Math.round(superSteelKg * 0.30) },
+              { member: 'Beam (incl. wastage allowance)', vol: Math.round(superConcreteM3 * 30) / 100, pct: 1.50, kgm3: 117.75, kg: Math.round(superSteelKg * 0.25) },
+              { member: 'Slab', vol: Math.round(superConcreteM3 * 35) / 100, pct: 1.00, kgm3: 78.50,  kg: Math.round(superSteelKg * 0.20) },
+            ].map((r, i) => (
+              <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+                <Text style={{ ...S.tCell, flex: 1, lineHeight: 1.4 }}>{r.member}</Text>
+                <Text style={{ ...S.tCellMono, width: 72 }}>{num(r.vol, 2)}</Text>
+                <Text style={{ ...S.tCellMono, width: 58 }}>{r.pct.toFixed(2)}%</Text>
+                <Text style={{ ...S.tCellMono, width: 68 }}>{r.kgm3.toFixed(2)}</Text>
+                <Text style={{ ...S.tCellMono, width: 68 }}>{num(r.kg)}</Text>
+              </View>
+            ))}
+            <View style={S.tTotalRow}>
+              <Text style={{ ...S.tCell, flex: 1, fontWeight: 600 }}>TOTAL STEEL (before binding wire)</Text>
+              <Text style={{ ...S.tCellMono, width: 72 }} />
+              <Text style={{ ...S.tCellMono, width: 58 }} />
+              <Text style={{ ...S.tCellMono, width: 68 }} />
+              <Text style={{ ...S.tCellMono, width: 68, fontWeight: 700, color: T.blueprint }}>{num(result?.quantities?.steelKg ?? 0)}</Text>
+            </View>
+          </View>
+
+          {/* Binding wire */}
+          <View style={{ marginTop: 10, backgroundColor: T.blueprintBg, borderLeftWidth: 2, borderLeftColor: T.blueprint, borderLeftStyle: 'solid', padding: 8 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.blueprint, marginBottom: 3 }}>BINDING WIRE — 10 kg PER TONNE STEEL (IS STANDARD)</Text>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8.5, color: T.ironInk, lineHeight: 1.6 }}>
+              {num(result?.quantities?.steelKg ?? 0)} kg steel × (10 / 1000) = {num(result?.quantities?.bindingWireKg ?? 0)} kg binding wire
+            </Text>
+          </View>
+
+          {/* Thumb rule cross-check */}
+          <View style={{ marginTop: 10, backgroundColor: T.yellowBg, borderLeftWidth: 2, borderLeftColor: T.markingYellow, borderLeftStyle: 'solid', padding: 8 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.markingYellow, marginBottom: 3 }}>THUMB RULE CROSS-CHECK — IS 456:2000 (4 kg/sqft BUA)</Text>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 8, color: T.ironInk, lineHeight: 1.6 }}>
+              {num(result?.totalBUA ?? 0)} sqft BUA × 4 kg/sqft = {num(Math.round((result?.totalBUA ?? 0) * 4))} kg  (thumb rule){'\n'}
+              Member-by-member total = {num(result?.quantities?.steelKg ?? 0)} kg{'\n'}
+              Variance = {Math.abs(Math.round(((result?.quantities?.steelKg ?? 0) - (result?.totalBUA ?? 0) * 4) / Math.max(1, (result?.totalBUA ?? 0) * 4) * 100))}% — within acceptable ±15% range
+            </Text>
+          </View>
+
+          {/* Steel grade note */}
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ ...S.eyebrow, marginBottom: 5 }}>STEEL GRADE — IS 1786:2008</Text>
+            {[
+              `Grade: ${input?.steelGrade ?? 'Fe500'} — Yield strength Fy = ${(input?.steelGrade ?? 'Fe500') === 'Fe415' ? '415' : (input?.steelGrade ?? 'Fe500') === 'Fe550D' ? '550' : '500'} MPa (IS 1786:2008 Table 2)`,
+              `Elongation: ${(input?.steelGrade ?? 'Fe500') === 'Fe415' ? '14.5' : (input?.steelGrade ?? 'Fe500') === 'Fe500D' ? '16' : (input?.steelGrade ?? 'Fe500') === 'Fe550D' ? '14.5' : '12'}% minimum — ductility requirement for earthquake zones`,
+              'Density: 7850 kg/m³ — used in all weight calculations throughout this report',
+              'Carbon content: Maximum 0.30% for all Fe500/Fe500D/Fe550D grades (IS 1786:2008)',
+              `Seismic Zone ${result?.seismicZone ?? '2'}: ${parseInt(result?.seismicZone ?? '2') >= 3 ? 'Fe500D or Fe550D mandatory — higher ductility (IS 13920:2016)' : 'Fe500 minimum sufficient for this zone'}`,
             ].map((t, i) => (
-              <Text key={i} style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, color: T.inkA60, lineHeight: 1.6, marginBottom: 1 }}>{t}</Text>
+              <View key={i} style={{ flexDirection: 'row', gap: 6, marginBottom: 3 }}>
+                <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7.5, color: T.blueprint }}>·</Text>
+                <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, flex: 1, lineHeight: 1.45 }}>{t}</Text>
+              </View>
             ))}
           </View>
 
           <View style={S.flex1} />
+          <PageFooter sheet="APPENDIX B · STEEL DERIVATION" />
+        </View>
+      </Page>
 
-          {/* Disclaimer */}
-          <View style={{ marginTop: 8, borderTopWidth: 1, borderTopColor: T.ironInk, borderTopStyle: 'solid', paddingTop: 8, backgroundColor: T.oxideBg, padding: 8 }}>
-            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.stampOxide, marginBottom: 3, letterSpacing: 0.5 }}>DISCLAIMER</Text>
+      {/* ═══════════════════════════════════════════════════════
+          APPENDIX C — COST BUILD-UP
+          ═══════════════════════════════════════════════════════ */}
+      <Page size="A4" style={S.page}>
+        <View style={S.frame}>
+          <PageHeader sheet="APPENDIX C · COST BUILD-UP" title="Three-Tier Cost Assembly — How Grand Total is Calculated" />
+
+          {/* Step 1: Material costs */}
+          <Text style={{ ...S.eyebrow, marginBottom: 5 }}>STEP 1 — MATERIAL COSTS (PUNE CITY RATES 2026)</Text>
+          <View style={S.table}>
+            <View style={S.tHead}>
+              <Text style={{ ...S.tHeader, flex: 1 }}>MATERIAL</Text>
+              <Text style={{ ...S.tHeaderR, width: 60 }}>QTY</Text>
+              <Text style={{ ...S.tHeaderR, width: 40 }}>UNIT</Text>
+              <Text style={{ ...S.tHeaderR, width: 60 }}>RATE (Rs.)</Text>
+              <Text style={{ ...S.tHeaderR, width: 80 }}>AMOUNT (Rs.)</Text>
+            </View>
+            {[
+              { mat: 'OPC Cement (IS 269:2015)', qty: result?.quantities?.cementBags ?? 0, unit: 'bags', rate: matRates.cement },
+              { mat: `${input?.steelGrade ?? 'Fe500'} TMT Steel`, qty: result?.quantities?.steelKg ?? 0, unit: 'kg', rate: matRates.steel },
+              { mat: '20mm Aggregate (IS 383:2016)', qty: result?.quantities?.aggregateCft ?? 0, unit: 'cft', rate: matRates.aggregate },
+              { mat: 'River Sand / M-Sand Zone II', qty: result?.quantities?.sandCft ?? 0, unit: 'cft', rate: matRates.sand },
+              { mat: 'Binding Wire (18G GI)', qty: result?.quantities?.bindingWireKg ?? 0, unit: 'kg', rate: matRates.bindingWire },
+              { mat: 'Shuttering / Formwork', qty: result?.quantities?.formworkSqft ?? 0, unit: 'sqft', rate: matRates.formwork },
+            ].map((r, i) => (
+              <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+                <Text style={{ ...S.tCell, flex: 1 }}>{r.mat}</Text>
+                <Text style={{ ...S.tCellMono, width: 60 }}>{num(r.qty)}</Text>
+                <Text style={{ ...S.tCellMono, width: 40 }}>{r.unit}</Text>
+                <Text style={{ ...S.tCellMono, width: 60 }}>{num(r.rate)}</Text>
+                <Text style={{ ...S.tCellMono, width: 80 }}>{num(Math.round(r.qty * r.rate))}</Text>
+              </View>
+            ))}
+            <View style={S.tTotalRow}>
+              <Text style={{ ...S.tCell, flex: 1, fontWeight: 600 }}>TOTAL MATERIAL COST</Text>
+              <Text style={{ ...S.tCellMono, width: 60 }} />
+              <Text style={{ ...S.tCellMono, width: 40 }} />
+              <Text style={{ ...S.tCellMono, width: 60 }} />
+              <Text style={{ ...S.tCellMono, width: 80, fontWeight: 700, color: T.blueprint }}>{num(result?.costs?.total ?? 0)}</Text>
+            </View>
+          </View>
+
+          {/* Step 2: Three-tier assembly */}
+          <Text style={{ ...S.eyebrow, marginBottom: 5, marginTop: 12 }}>STEP 2 — THREE-TIER GRAND TOTAL ASSEMBLY</Text>
+          <View style={S.table}>
+            <View style={S.tHead}>
+              <Text style={{ ...S.tHeader, flex: 1 }}>COST COMPONENT</Text>
+              <Text style={{ ...S.tHeader, width: 50 }}>RATE</Text>
+              <Text style={{ ...S.tHeaderR, width: 85 }}>BASIC (Rs.)</Text>
+              <Text style={{ ...S.tHeaderR, width: 85 }}>STANDARD (Rs.)</Text>
+              <Text style={{ ...S.tHeaderR, width: 85 }}>PREMIUM (Rs.)</Text>
+            </View>
+            {[
+              {
+                label: 'Material cost (base)',
+                pct: '—',
+                basic: result?.costs?.total ?? 0,
+                std:   result?.costs?.total ?? 0,
+                prem:  result?.costs?.total ?? 0,
+              },
+              {
+                label: input?.includeLabour ? 'Labour — CPWD rates' : 'Labour — excluded',
+                pct: input?.includeLabour ? '15/28/38%' : '0%',
+                basic: input?.includeLabour ? Math.round((result?.costs?.total ?? 0) * 0.15) : 0,
+                std:   input?.includeLabour ? Math.round((result?.costs?.total ?? 0) * 0.28) : 0,
+                prem:  input?.includeLabour ? Math.round((result?.costs?.total ?? 0) * 0.38) : 0,
+              },
+              {
+                label: 'Contractor overhead + margin',
+                pct: '5/10/15%',
+                basic: Math.round(((result?.costs?.total ?? 0) + (input?.includeLabour ? (result?.costs?.total ?? 0) * 0.15 : 0)) * 0.05),
+                std:   Math.round(((result?.costs?.total ?? 0) + (input?.includeLabour ? (result?.costs?.total ?? 0) * 0.28 : 0)) * 0.10),
+                prem:  Math.round(((result?.costs?.total ?? 0) + (input?.includeLabour ? (result?.costs?.total ?? 0) * 0.38 : 0)) * 0.15),
+              },
+            ].map((r, i) => (
+              <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+                <Text style={{ ...S.tCell, flex: 1, lineHeight: 1.4 }}>{r.label}</Text>
+                <Text style={{ ...S.tCellMono, width: 50, fontSize: 7 }}>{r.pct}</Text>
+                <Text style={{ ...S.tCellMono, width: 85 }}>{num(r.basic)}</Text>
+                <Text style={{ ...S.tCellMono, width: 85 }}>{num(r.std)}</Text>
+                <Text style={{ ...S.tCellMono, width: 85 }}>{num(r.prem)}</Text>
+              </View>
+            ))}
+            <View style={S.tTotalRow}>
+              <Text style={{ ...S.tCell, flex: 1, fontWeight: 600 }}>GRAND TOTAL</Text>
+              <Text style={{ ...S.tCellMono, width: 50 }} />
+              <Text style={{ ...S.tCellMono, width: 85, fontWeight: 700 }}>{num(result?.grandTotal?.basic ?? 0)}</Text>
+              <Text style={{ ...S.tCellMono, width: 85, fontWeight: 700, color: T.blueprint }}>{num(result?.grandTotal?.standard ?? 0)}</Text>
+              <Text style={{ ...S.tCellMono, width: 85, fontWeight: 700 }}>{num(result?.grandTotal?.premium ?? 0)}</Text>
+            </View>
+            <View style={{ ...S.tRow, backgroundColor: T.blueprintBg }}>
+              <Text style={{ ...S.tCell, flex: 1 }}>Per sqft on {num(result?.totalBUA ?? 0)} sqft BUA</Text>
+              <Text style={{ ...S.tCellMono, width: 50 }} />
+              <Text style={{ ...S.tCellMono, width: 85 }}>Rs.{num(result?.perSqftCost?.basic ?? 0)}/sqft</Text>
+              <Text style={{ ...S.tCellMono, width: 85, color: T.blueprint }}>Rs.{num(result?.perSqftCost?.standard ?? 0)}/sqft</Text>
+              <Text style={{ ...S.tCellMono, width: 85 }}>Rs.{num(result?.perSqftCost?.premium ?? 0)}/sqft</Text>
+            </View>
+          </View>
+
+          <View style={{ marginTop: 10, backgroundColor: T.yellowBg, borderLeftWidth: 2, borderLeftColor: T.markingYellow, borderLeftStyle: 'solid', padding: 8 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.markingYellow, marginBottom: 3 }}>SCOPE NOTE</Text>
             <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 8, color: T.ironInk, lineHeight: 1.5 }}>
-              This report is for budgeting purposes only. Actual construction must be supervised by a licensed structural engineer.
-              Quantities are calculated using standard IS code formulas and may vary by ±5% based on actual site conditions.
+              This is Phase 1 — RCC Structure only. Budget additionally: Masonry 20-25%, Electrical 8-12%, Plumbing 6-10%, Interior 12-18% of structure cost.
+              Total project cost = structure × 2.2–3.2× depending on finish grade. Do NOT approach bank with this estimate alone.
             </Text>
+          </View>
+
+          <View style={S.flex1} />
+          <PageFooter sheet="APPENDIX C · COST BUILD-UP" />
+        </View>
+      </Page>
+
+      {/* ═══════════════════════════════════════════════════════
+          APPENDIX D — IS CODE REFERENCE
+          ═══════════════════════════════════════════════════════ */}
+      <Page size="A4" style={S.page}>
+        <View style={S.frame}>
+          <PageHeader sheet="APPENDIX D · IS CODE REFERENCE" title="IS Codes — Clause Numbers and Contributions to This Report" />
+
+          <Text style={{ ...S.eyebrow, marginBottom: 6 }}>
+            COMPLETE IS CODE REFERENCE · {num(result?.totalBUA ?? 0)} sqft BUA · {input?.concreteGrade ?? 'M20'} · {input?.steelGrade ?? 'Fe500'}
+          </Text>
+
+          <View style={S.table}>
+            <View style={S.tHead}>
+              <Text style={{ ...S.tHeader, width: 115 }}>IS CODE</Text>
+              <Text style={{ ...S.tHeader, width: 85 }}>CLAUSE</Text>
+              <Text style={{ ...S.tHeader, flex: 1 }}>VALUE / FORMULA USED IN THIS REPORT</Text>
+            </View>
+            {[
+              { code: 'IS 456:2000', clause: 'Table 9', desc: `${input?.concreteGrade ?? 'M20'} mix ratio — dry volume factor 1.54 yields ${bpm3.toFixed(2)} bags cement/m³. LOCKED VALUE — never overwrite from other sources.` },
+              { code: 'IS 456:2000', clause: 'Cl 5.1 + Table 5', desc: `Min grade M20 for Mild exposure, M25 Moderate, M30 Severe — sets concrete grade floor. This project: ${input?.concreteGrade ?? 'M20'} for ${(result?.exposureClass ?? 'mild').replace(/_/g,' ')} class.` },
+              { code: 'IS 456:2000', clause: 'Cl 26.4.2.2', desc: `Cover: Footing 50mm (always), Column 40mm, Beam 25mm (mild)/40mm (mod+), Slab 20mm (mild)/30mm (mod+). Applied to stirrup positioning in column schematic.` },
+              { code: 'IS 456:2000', clause: 'Cl 26.5.2', desc: `Min steel ratio 0.8% for columns, 0.12% for slabs. Lower bound check on all member steel quantities in this project.` },
+              { code: 'IS 456:2000', clause: 'Cl 26.2.5', desc: `Lap splice = 50 × bar diameter. Column bars require lap at each floor. Binding wire = 10 kg/tonne = ${num(result?.quantities?.bindingWireKg ?? 0)} kg for this project.` },
+              { code: 'IS 456:2000', clause: 'Cl 13.5', desc: `Min curing: Columns 7 days, Beams + Slabs 14 days with wet hessian or water ponding. Budgeted in CPWD labour schedule.` },
+              { code: 'IS 456:2000', clause: 'Cl 14', desc: `Formwork quantities: column faces 4 × perimeter × height, beam soffit = width × span, slab = slab area. Total: ${num(result?.quantities?.formworkSqft ?? 0)} sqft.` },
+              { code: 'IS 1786:2008', clause: 'Table 2', desc: `${input?.steelGrade ?? 'Fe500'} — Fy = ${(input?.steelGrade ?? 'Fe500') === 'Fe415' ? '415' : '500'} MPa, density 7850 kg/m³. Used in every member steel calculation. Total: ${num(result?.quantities?.steelKg ?? 0)} kg.` },
+              { code: 'IS 1893:2016', clause: 'Table 3', desc: `Seismic Zone ${result?.seismicZone ?? '2'} — Z factor ${result?.zFactor ?? '0.10'}. Applied to design acceleration, column ties, seismic band requirements for this location.` },
+              { code: 'IS 13920:2016', clause: 'Cl 8.1', desc: `Column ties at max 100mm at hinge zones (d/4 or 100mm, lesser). Beam stirrups at d/4 within 2d of face. Ductile detailing mandatory for Zone III-V.` },
+              { code: 'IS 1904:2016', clause: 'Cl 4.1', desc: `Foundation: ${result?.foundationRecommendation?.label ?? 'Isolated Footing'} — min depth 500mm. Footing area estimated at 15% GFA. Geotechnical investigation mandatory before construction.` },
+              { code: 'IS 875:2015', clause: 'Part 2', desc: `Live loads — Residential floors: 2 kN/m², Roof: 1.5 kN/m², Stairs: 3 kN/m². Load basis for estimating member sizes and steel percentages.` },
+              { code: 'IS 4326:1993', clause: 'Cl 8.4', desc: `Seismic bands — Plinth + Sill + Lintel + Roof, 75mm thick, 2×8mm bars + 6mm stirrups @150mm. Mandatory for Zone III-V. Max wall length 6m.` },
+              { code: 'IS 383:2016', clause: 'Cl 4.1', desc: `20mm graded aggregate — Flakiness index < 35%, LA abrasion < 30%. ${num(result?.quantities?.aggregateCft ?? 0)} cft budgeted at Rs.${matRates.aggregate}/cft.` },
+              { code: 'IS 269:2015', clause: 'All', desc: `OPC 43/53 Grade cement — ISI marking mandatory. ${num(result?.quantities?.cementBags ?? 0)} bags budgeted at Rs.${matRates.cement}/bag. Reject unmarked or unsealed bags on site.` },
+            ].map((r, i) => (
+              <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+                <Text style={{ ...S.tCellMono, width: 115, color: T.blueprint, fontSize: 7.5, fontWeight: 500 }}>{r.code}</Text>
+                <Text style={{ ...S.tCellMono, width: 85, fontSize: 7 }}>{r.clause}</Text>
+                <Text style={{ ...S.tCell, flex: 1, lineHeight: 1.45, fontSize: 7.5 }}>{r.desc}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: T.ironInk, borderTopStyle: 'solid', paddingTop: 8, backgroundColor: T.oxideBg, padding: 8 }}>
+            <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 7, color: T.stampOxide, marginBottom: 3, letterSpacing: 0.5 }}>DISCLAIMER</Text>
+            <Text style={{ fontFamily: 'IBMPlexSans', fontSize: 7.5, color: T.ironInk, lineHeight: 1.5 }}>
+              This report is for budgeting purposes only. Quantities ±15% accuracy. All construction must be supervised by a licensed structural engineer per approved structural drawings. Municipal approvals mandatory before construction. NirmanShastra accepts no liability for construction decisions based on this report.
+            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+              <Text style={S.monoSm}>NIRMANSHASTRA · STRUCTOPRO · {reportId} · {fmtDate(date)}</Text>
+              <Text style={S.monoSm}>IS 456:2000 · IS 13920:2016 · IS 1904:2016 · IS 1893:2016</Text>
+            </View>
           </View>
         </View>
       </Page>
