@@ -430,24 +430,66 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       <Pie data={pieItems} cx={100} cy={100} innerRadius={52} outerRadius={82} paddingAngle={2} dataKey="value">
                         {pieItems.map((item, i) => <Cell key={i} fill={item.color} />)}
                       </Pie>
-                      <Tooltip
-                        formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`}
-                        contentStyle={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, background: '#F4F4F0', border: '1px solid #1F4E79', borderRadius: 2 }}
-                      />
+                      {isPaid && (
+                        <Tooltip
+                          formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`}
+                          contentStyle={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, background: '#F4F4F0', border: '1px solid #1F4E79', borderRadius: 2 }}
+                        />
+                      )}
                     </PieChart>
                   </div>
-                  <div className="flex flex-col gap-2 flex-1">
+                  <div className="flex flex-col gap-1 flex-1">
+                    {/* Column headers */}
+                    <div className="flex items-center gap-2 mb-1 pb-1" style={{ borderBottom: '1px solid rgba(30,34,39,0.08)' }}>
+                      <div className="w-3 h-3 shrink-0" style={{ visibility: 'hidden' }} />
+                      <span className="text-[10px] flex-1" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Material</span>
+                      <span className="text-[10px] w-10 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>%</span>
+                      <span className="text-[10px] w-28 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Amount</span>
+                    </div>
                     {pieItems.map(item => {
                       const pct = total > 0 ? Math.round((item.value / total) * 100) : 0
                       return (
                         <div key={item.name} className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-[1px] shrink-0" style={{ background: item.color }} />
                           <span className="text-[12px] flex-1" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>{item.name}</span>
-                          <span className="text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{pct}%</span>
-                          <span className="text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.45)' }}>₹{item.value.toLocaleString('en-IN')}</span>
+                          <span
+                            className="text-[12px] font-medium w-10 text-right"
+                            style={{
+                              fontFamily: 'var(--font-plex-mono)',
+                              color: '#1E2227',
+                              filter: isPaid ? 'none' : 'blur(6px)',
+                              userSelect: isPaid ? 'auto' : 'none',
+                              transition: 'filter 0.3s',
+                            }}
+                          >{pct}%</span>
+                          <span
+                            className="text-[11px] w-28 text-right"
+                            style={{
+                              fontFamily: 'var(--font-plex-mono)',
+                              color: 'rgba(30,34,39,0.45)',
+                              filter: isPaid ? 'none' : 'blur(6px)',
+                              userSelect: isPaid ? 'auto' : 'none',
+                              transition: 'filter 0.3s',
+                            }}
+                          >₹{item.value.toLocaleString('en-IN')}</span>
                         </div>
                       )
                     })}
+                    {!isPaid && (
+                      <div className="mt-2 flex items-center gap-1.5">
+                        <svg width="11" height="13" viewBox="0 0 11 13" fill="none" style={{ flexShrink: 0 }}>
+                          <rect x="1" y="5" width="9" height="7" rx="1" stroke="#8C3A22" strokeWidth="1.2" fill="none"/>
+                          <path d="M3.5 5V3.5a2 2 0 0 1 4 0V5" stroke="#8C3A22" strokeWidth="1.2" fill="none"/>
+                          <circle cx="5.5" cy="8.5" r="1" fill="#8C3A22"/>
+                        </svg>
+                        <button
+                          onClick={handleUnlock}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8C3A22', fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: 0, letterSpacing: '0.02em' }}
+                        >
+                          Unlock full report — ₹499
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </>
               )
