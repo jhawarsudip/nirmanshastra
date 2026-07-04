@@ -567,6 +567,60 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           </ol>
         </div>
 
+        {/* ── HOW THIS IS CALCULATED — FREE ── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              HOW THIS IS CALCULATED — FORMULAS &amp; IS CLAUSES
+            </p>
+          </div>
+          <ol className="p-4 space-y-4">
+            {[
+              {
+                clause: 'IS 456:2000 Table 9',
+                formula: 'Cement (bags) = BUA × 0.40 bags/sqft × Floor Factor × Grade Factor',
+                note: 'Dry volume factor 1.54 (wet→dry). Floor Factor: G=0.85, G+1 to G+3=1.00, G+4=1.08, G+5=1.12. Grade Factor: M20=1.00, M25=1.12, M30=1.22.',
+              },
+              {
+                clause: 'IS 1786:2008 · IS 456:2000',
+                formula: 'Steel (kg) = BUA × 4 kg/sqft × Floor Factor',
+                note: 'By member: Footing 0.50% → 39.25 kg/m³ · Column 2.50% → 196.25 · Beam 1.50% → 117.75 · Slab 1.00% → 78.50. Steel density 7,850 kg/m³.',
+              },
+              {
+                clause: 'IS 456:2000 Table 9 — M20 mix 1:1.5:3',
+                formula: 'Aggregate (cft) = BUA × 1.35 cft/sqft × Floor Factor',
+                note: 'Coarse aggregate 20mm. M20 = 22.44 cft/m³ concrete volume. M25 = 14.96 cft/m³.',
+              },
+              {
+                clause: 'IS 456:2000 Table 9',
+                formula: 'Sand (cft) = BUA × 1.80 cft/sqft × Floor Factor',
+                note: 'River sand or M-sand. M20 = 11.22 cft/m³; M25 = 7.48 cft/m³ concrete volume.',
+              },
+              {
+                clause: 'IS 1786:2008',
+                formula: 'Binding wire (kg) = Steel (kg) ÷ 1,000 × 12 kg/tonne',
+                note: 'GI binding wire. IS code value is 10 kg/tonne; 12 kg/tonne used here to allow 20% site wastage.',
+              },
+              {
+                clause: 'IS 1904:2016 · Min foundation depth 500mm',
+                formula: 'Foundation cost (₹) = Ground floor area (sqft) × Avg rate (₹/sqft)',
+                note: 'Rate by type: Isolated ₹220–350 · Strip ₹200–320 · Raft ₹350–550 · Under-reamed pile ₹400–600 per sqft.',
+              },
+            ].map((item, i) => (
+              <li key={i} className="flex gap-3">
+                <span className="shrink-0 mt-0.5 text-[10px] w-5 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <p className="text-[10px] font-medium mb-0.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>{item.clause}</p>
+                  <p className="text-[12px] font-medium mb-0.5" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
         {/* ── DETAILED RESULTS — TABBED ── */}
         <div className="border rounded-[2px] overflow-hidden" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
           {/* Tab bar */}
@@ -1447,6 +1501,26 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             )}
           </div>
         )}
+
+        {/* ── NEXT TOOL NUDGE ── */}
+        <div className="rounded-[2px] p-5" style={{ border: '1px solid #1F4E79', background: 'rgba(31,78,121,0.04)' }}>
+          <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+            NEXT — PHASE 2
+          </p>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            Get your Masonry quantities — MasonPro →
+          </p>
+          <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+            Now that your structure is sized, get exact brick and mortar quantities with MasonPro. Masonry is 20–25% of total project cost — the most common area for contractor overcharging.
+          </p>
+          <a
+            href="/tools/masonpro"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
+            style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
+          >
+            Start MasonPro →
+          </a>
+        </div>
 
         {/* Start over */}
         <div className="text-center pt-2">

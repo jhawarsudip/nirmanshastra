@@ -434,6 +434,55 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           </ol>
         </div>
 
+        {/* ── HOW THIS IS CALCULATED — FREE ── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              HOW THIS IS CALCULATED — FORMULAS &amp; IS CLAUSES
+            </p>
+          </div>
+          <ol className="p-4 space-y-4">
+            {[
+              {
+                clause: 'IS 1077:1992 · IS 2212:1991',
+                formula: 'Bricks (9" modular wall) = 100 bricks/sqm × Net wall area (sqm)',
+                note: 'Net area = gross wall area − door/window deductions. Modular 190×90×90mm. Non-modular 230×115×75mm = 90 bricks/sqm. 1:6 mortar (M4 grade IS 2250:1981).',
+              },
+              {
+                clause: 'IS 2212:1991 — Mortar dry factor = 1.1',
+                formula: 'Cement (mortar) = 0.20 bags/sqm × Wall area · Mortar dry factor 1.1',
+                note: 'Mortar dry factor is 1.1, NOT 1.54 (that is for concrete). 4.5" partition wall: 0.10 bags/sqm at 1:4 mortar. AAC uses thin-bed adhesive — no sand.',
+              },
+              {
+                clause: 'IS 1661:1972 Cl 8',
+                formula: 'Plaster cement (internal, 12mm, 1:4) = 0.078 bags/sqm × Plaster area × 1.05',
+                note: 'External 15mm 1:4 = 0.098 bags/sqm. Ceiling 6mm 1:3 = 0.042 bags/sqm. 5% wastage mandatory. Chicken mesh at all RCC–brick junctions.',
+              },
+              {
+                clause: 'IS 2645:2003 — Terrace waterproofing',
+                formula: 'Waterproofing cost (₹) = Avg rate (₹/sqft) × Terrace area (sqft)',
+                note: 'BBC ₹155–225 · APP Membrane ₹120–175 · Liquid ₹85–130 · IPS ₹110–155 per sqft. Bathroom sunken: Cementitious ₹88–145 · Crystalline ₹145–220 per sqft.',
+              },
+              {
+                clause: 'IS 2250:1981 — Mortar grades',
+                formula: 'M1 (1:3) · M2 (1:4, load-bearing min) · M3 (1:5) · M4 (1:6, non-load-bearing min)',
+                note: 'Load-bearing walls minimum M2 (1:4). 1:8 or weaker mortar used on site = defect. Most common mason fraud: quoting 1:4 but laying 1:8.',
+              },
+            ].map((item, i) => (
+              <li key={i} className="flex gap-3">
+                <span className="shrink-0 mt-0.5 text-[10px] w-5 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <p className="text-[10px] font-medium mb-0.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>{item.clause}</p>
+                  <p className="text-[12px] font-medium mb-0.5" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
         {/* PROOF-OF-WORK: first 2 BOQ rows always visible */}
         {!isPaid && (
           <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
@@ -794,6 +843,26 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             )}
           </div>
         )}
+
+        {/* ── NEXT TOOL NUDGE ── */}
+        <div className="rounded-[2px] p-5" style={{ border: '1px solid #1F4E79', background: 'rgba(31,78,121,0.04)' }}>
+          <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+            NEXT — PHASE 3
+          </p>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            Get your Electrical quantities — ElectroPro →
+          </p>
+          <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+            With your walls up, calculate circuits, DB panel, wire lengths and earthing costs with ElectroPro. Electrical is 8–12% of total project cost and the phase most skipped in estimates.
+          </p>
+          <a
+            href="/tools/electropro"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
+            style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
+          >
+            Start ElectroPro →
+          </a>
+        </div>
 
         <div className="text-center pt-2">
           <button onClick={onStartOver} className="text-[12px] underline"

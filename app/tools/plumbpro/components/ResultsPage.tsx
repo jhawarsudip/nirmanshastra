@@ -423,6 +423,55 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           </ol>
         </div>
 
+        {/* ── HOW THIS IS CALCULATED — FREE ── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              HOW THIS IS CALCULATED — FORMULAS &amp; IS CLAUSES
+            </p>
+          </div>
+          <ol className="p-4 space-y-4">
+            {[
+              {
+                clause: 'IS 1172:1993 — Water demand per capita',
+                formula: 'Daily demand (L) = Occupants × LPCD · Occupants = (Bathrooms × 2) + 2',
+                note: 'Municipal supply: 135 LPCD (IS 1172:1993 Table 1). Borewell: 150 LPCD. Occupant estimate: 2 persons per bathroom + 2 for common areas.',
+              },
+              {
+                clause: 'IS 1172:1993 — Tank sizing',
+                formula: 'OHT capacity (L) = Daily demand × 0.67 · UGT capacity (L) = Daily demand × 1.00',
+                note: 'OHT holds 67% of daily demand (IS 1172:1993). UGT holds full day. Sump + OHT two-stage system recommended for >4 floors. Round up to nearest commercial size (1000L, 2000L, 5000L).',
+              },
+              {
+                clause: 'IS 1742:1983 — Pump sizing',
+                formula: 'Pump flow (LPH) = OHT capacity × 2 · Static head (m) = Floors × 3.5 m + 6 m',
+                note: 'Fill OHT in 30 minutes → flow = OHT × 2. Total head = static head + friction (20% allowance). HP = (Flow/3600) × Head × 9.81 ÷ (0.70 × 746). 70% pump efficiency assumed.',
+              },
+              {
+                clause: 'IS 1742:1983 Cl 5.2 — Soil & waste pipes',
+                formula: 'Soil stack: 110mm SWR at 1:80 slope · Waste branch: 75mm SWR at 1:48 slope',
+                note: 'IS 1742:1983 mandates minimum 100mm soil stack for WCs. 1:80 fall for stacks, 1:48 for branch wastes. P-traps at every fixture. Vent stack required for buildings > 2 floors.',
+              },
+              {
+                clause: 'IS 15477:2004 — CPVC pipe sizing',
+                formula: 'Domestic supply: 15mm CPVC for taps, 20mm for risers, 25mm for main lines',
+                note: 'IS 15477:2004 for CPVC pipes. Hot water: CPVC only (not uPVC). External: uPVC IS 4985. Pipe lengths include 15% fitting wastage factor.',
+              },
+            ].map((item, i) => (
+              <li key={i} className="flex gap-3">
+                <span className="shrink-0 mt-0.5 text-[10px] w-5 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <p className="text-[10px] font-medium mb-0.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>{item.clause}</p>
+                  <p className="text-[12px] font-medium mb-0.5" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
         {/* PROOF-OF-WORK: first 2 BOQ rows always visible */}
         {!isPaid && (
           <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
@@ -770,6 +819,26 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             )}
           </div>
         )}
+
+        {/* ── NEXT TOOL NUDGE ── */}
+        <div className="rounded-[2px] p-5" style={{ border: '1px solid #1F4E79', background: 'rgba(31,78,121,0.04)' }}>
+          <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+            NEXT — PHASE 5
+          </p>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            Get your Interior quantities — InteriorPro →
+          </p>
+          <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+            Plumbing is costed. Complete your estimate with flooring, paint, kitchen, and false ceiling with InteriorPro. Finishes are 30–40% of total project cost.
+          </p>
+          <a
+            href="/tools/interiorpro"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
+            style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
+          >
+            Start InteriorPro →
+          </a>
+        </div>
 
         <div className="text-center pt-2">
           <button onClick={onStartOver} className="text-[12px] underline"

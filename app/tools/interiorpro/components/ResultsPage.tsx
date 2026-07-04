@@ -479,6 +479,55 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           </ol>
         </div>
 
+        {/* ── HOW THIS IS CALCULATED — FREE ── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              HOW THIS IS CALCULATED — FORMULAS &amp; IS CLAUSES
+            </p>
+          </div>
+          <ol className="p-4 space-y-4">
+            {[
+              {
+                clause: 'IS 8828:2007 — Ceramic tile installation',
+                formula: 'Tiles (sqft with wastage) = Floor area (sqft) × 1.10 · Tile adhesive (bags) = Area × 1.10 × 0.42 kg/sqft ÷ 20 kg/bag',
+                note: 'IS 8828:2007 mandates 10% wastage for cuts, breaks, and pattern matching. Adhesive rate 0.42 kg/sqft. 20 kg bag coverage ≈ 47 sqft. Anti-fracture membrane for heating systems.',
+              },
+              {
+                clause: 'IS 2395:1994 — Paint coverage',
+                formula: 'Paint (L) = BUA (sqft) × 0.18 L/sqft · Wall area (sqm) = BUA × 3.4',
+                note: 'IS 2395:1994 Cl 5.3: emulsion coverage ≈ 10–12 sqm/L per coat (2 coats standard). 0.18 L/sqft BUA is the thumb rule for full internal + external painting. Primer coat separate.',
+              },
+              {
+                clause: 'IS 277:2003 — False ceiling (GI framing)',
+                formula: 'Basic false ceiling area = BUA × 0.20 · Standard/Premium/Luxury = BUA × 0.70',
+                note: 'IS 277:2003 for GI sheet framing. Basic: living + dining only (20% BUA). Standard/Premium/Luxury: full house (70% BUA). Grid spacing 600×600mm standard.',
+              },
+              {
+                clause: 'Modular kitchen — rate per sqft of BUA',
+                formula: 'Kitchen cost (₹) = Rate (₹/sqft BUA) × BUA (sqft)',
+                note: 'Basic ₹1,200 · Standard ₹2,200 · Premium ₹3,800 · Luxury ₹7,500 per sqft of BUA. Includes cabinets, countertop, and hardware. Does not include appliances.',
+              },
+              {
+                clause: 'Flooring — rate per sqft',
+                formula: 'Flooring cost (₹) = Rate (₹/sqft) × Floor area (sqft with wastage)',
+                note: 'Basic ₹65 · Standard ₹120 · Premium ₹265 · Luxury ₹650 per sqft. Includes material and labour. Tile sizes above 800×800mm carry 15% upcharge for extra cuts.',
+              },
+            ].map((item, i) => (
+              <li key={i} className="flex gap-3">
+                <span className="shrink-0 mt-0.5 text-[10px] w-5 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <p className="text-[10px] font-medium mb-0.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>{item.clause}</p>
+                  <p className="text-[12px] font-medium mb-0.5" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
         {/* PROOF-OF-WORK: first 2 BOQ rows always visible */}
         {!isPaid && (
           <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
@@ -803,6 +852,26 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             )}
           </div>
         )}
+
+        {/* ── NEXT TOOL NUDGE ── */}
+        <div className="rounded-[2px] p-5" style={{ border: '1px solid #1F4E79', background: 'rgba(31,78,121,0.04)' }}>
+          <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+            NEXT — GRAND TOTAL
+          </p>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            Combine all phases — Grand Total →
+          </p>
+          <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+            You&apos;ve estimated all 5 phases. Now bring StructoPro, MasonPro, ElectroPro, PlumbPro, and InteriorPro together into a single project cost summary.
+          </p>
+          <a
+            href="/tools/grand-total"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
+            style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
+          >
+            View Grand Total →
+          </a>
+        </div>
 
         <div className="text-center pt-2">
           <button onClick={onStartOver} className="text-[12px] underline"

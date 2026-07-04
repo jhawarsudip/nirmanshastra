@@ -468,6 +468,55 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           </ol>
         </div>
 
+        {/* ── HOW THIS IS CALCULATED — FREE ── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+            <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+              HOW THIS IS CALCULATED — FORMULAS &amp; IS CLAUSES
+            </p>
+          </div>
+          <ol className="p-4 space-y-4">
+            {[
+              {
+                clause: 'IS 732:2019 Cl 7.3 — Point load density',
+                formula: 'Light points = BUA ÷ 25 sqft · Fan points = BUA ÷ 100 sqft · Power points = BUA ÷ 20 sqft',
+                note: 'IS 732:2019 mandates minimum one light and one fan per 25 sqm. One 5A socket per 20 sqm. Counts are rounded up to nearest whole number.',
+              },
+              {
+                clause: 'IS 732:2019 Cl 9.4 — Circuit loading',
+                formula: 'Lighting circuits = ⌈(Light load W + Fan load W) ÷ 800 W⌉',
+                note: 'Max 800 W per lighting circuit (IS 732:2019). Power circuits = ⌈Power load ÷ 3,000 W⌉. AC and geyser each get dedicated 20A circuits.',
+              },
+              {
+                clause: 'IS 732:2019 — Wire sizing',
+                formula: '1.5 sqmm = Lighting circuits × 15m × 3 runs × 1.15 · 2.5 sqmm = Power circuits × 15m × 3 × 1.15',
+                note: '15% wastage factor (WIRE_WASTAGE = 1.15). 4.0 sqmm for AC + geyser circuits: (AC circuits + Geyser circuits) × 12m × 3 runs × 1.15.',
+              },
+              {
+                clause: 'IS 732:2019 Cl 9.5 — DB panel',
+                formula: 'DB size = Total circuits × 1.25 → rounded up to nearest standard (6/8/12/16/20/24/32 way)',
+                note: 'Standard DB sizes: 6, 8, 12, 16, 20, 24, 32 way. 65% demand factor used for main MCB sizing. Always include 25% spare ways for future loads.',
+              },
+              {
+                clause: 'IS 3043:2018 — Earthing',
+                formula: 'Earth electrode: plate 600×600×6mm GI or pipe 50mm dia × 3m length · resistance ≤ 1Ω for hospitals, ≤ 5Ω standard',
+                note: 'IS 3043:2018 mandates earthing at every DB. TN-S system preferred for residential. Equipotential bonding at bathrooms and kitchens.',
+              },
+            ].map((item, i) => (
+              <li key={i} className="flex gap-3">
+                <span className="shrink-0 mt-0.5 text-[10px] w-5 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <p className="text-[10px] font-medium mb-0.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>{item.clause}</p>
+                  <p className="text-[12px] font-medium mb-0.5" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
         {/* Blurred quantities section — PAID */}
         {/* PROOF-OF-WORK: first 2 BOQ rows always visible */}
         {!isPaid && (
@@ -820,6 +869,26 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             )}
           </div>
         )}
+
+        {/* ── NEXT TOOL NUDGE ── */}
+        <div className="rounded-[2px] p-5" style={{ border: '1px solid #1F4E79', background: 'rgba(31,78,121,0.04)' }}>
+          <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+            NEXT — PHASE 4
+          </p>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            Get your Plumbing quantities — PlumbPro →
+          </p>
+          <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+            Wire runs are done. Now size your water tanks, soil stacks, and pipes with PlumbPro. Plumbing errors discovered post-construction cost 3–5× more to fix.
+          </p>
+          <a
+            href="/tools/plumbpro"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
+            style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
+          >
+            Start PlumbPro →
+          </a>
+        </div>
 
         <div className="text-center pt-2">
           <button onClick={onStartOver} className="text-[12px] underline"
