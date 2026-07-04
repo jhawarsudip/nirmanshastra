@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { animate } from 'framer-motion'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import Link from 'next/link'
 import { type StructoResult, type StructoInput, formatLakhs } from '../structopro-engine'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
@@ -269,7 +270,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         },
         modal: {
           ondismiss: () => {
-            if (payStatus === 'open') setPayStatus('idle')
+            setPayStatus(prev => (prev === 'open' || prev === 'creating') ? 'idle' : prev)
+            setPayError('Payment was not completed. Click "Unlock Report" to try again.')
           },
         },
       }
@@ -301,7 +303,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         >
           <span style={{ color: '#D99A06', fontSize: 13 }}>⚠</span>
           <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
-            TEST MODE — Razorpay sandbox. No real money charged. Use test card 4111 1111 1111 1111.
+            TEST MODE — Live Razorpay at ₹1. Use a real UPI or bank card. Test cards do not work on live keys. Revert amount to 49900 before launch.
           </p>
         </div>
 
@@ -1453,10 +1455,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                  payStatus === 'polling'   ? 'Confirming payment…' :
                  'Unlock Report — ₹499'}
               </button>
-              <div style={{ width: '100%', padding: '14px 20px', border: '1px dashed rgba(244,244,240,0.2)', textAlign: 'center' }}>
+              <Link
+                href="/#pricing"
+                style={{ display: 'block', width: '100%', padding: '14px 20px', border: '1px dashed rgba(244,244,240,0.2)', textAlign: 'center', textDecoration: 'none', cursor: 'pointer' }}
+              >
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', marginBottom: 2 }}>Or save ₹496</p>
                 <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.7)' }}>Complete Bundle — All 5 Apps <span style={{ fontFamily: 'var(--font-plex-mono)', color: '#F4F4F0' }}>₹1,999</span></p>
-              </div>
+              </Link>
             </div>
 
             {payError && (

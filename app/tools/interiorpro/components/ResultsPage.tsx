@@ -11,6 +11,7 @@ import {
   KITCHEN_RATES,
   FALSE_CEILING_RATES,
 } from '../interiorpro-engine'
+import Link from 'next/link'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 declare global {
@@ -228,7 +229,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             setPayError(err instanceof Error ? err.message : 'Payment verification failed.')
           }
         },
-        modal: { ondismiss: () => { if (payStatus === 'open') setPayStatus('idle') } },
+        modal: { ondismiss: () => { setPayStatus(prev => (prev === 'open' || prev === 'creating') ? 'idle' : prev); setPayError('Payment was not completed. Click "Unlock Report" to try again.') } },
       }
       if (!window.Razorpay) throw new Error('Payment SDK not loaded. Please refresh and try again.')
       new window.Razorpay(options).open()
@@ -260,7 +261,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           style={{ background: 'rgba(217,154,6,0.1)', border: '1px solid rgba(217,154,6,0.4)' }}>
           <span style={{ color: '#D99A06', fontSize: 13 }}>⚠</span>
           <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
-            TEST MODE — Razorpay sandbox. No real money charged. Use test card 4111 1111 1111 1111.
+            TEST MODE — Live Razorpay at ₹1. Use a real UPI or bank card. Test cards do not work on live keys. Revert amount to 49900 before launch.
           </p>
         </div>
 
@@ -787,10 +788,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                  payStatus === 'polling'   ? 'Confirming payment…' :
                  'Unlock Report — ₹499'}
               </button>
-              <div style={{ width: '100%', padding: '14px 20px', border: '1px dashed rgba(244,244,240,0.2)', textAlign: 'center' }}>
+              <Link
+                href="/#pricing"
+                style={{ display: 'block', width: '100%', padding: '14px 20px', border: '1px dashed rgba(244,244,240,0.2)', textAlign: 'center', textDecoration: 'none', cursor: 'pointer' }}
+              >
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', marginBottom: 2 }}>Or save ₹496</p>
                 <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.7)' }}>Complete Bundle — All 5 Apps <span style={{ fontFamily: 'var(--font-plex-mono)', color: '#F4F4F0' }}>₹1,999</span></p>
-              </div>
+              </Link>
             </div>
             {payError && (
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: '#D99A06', marginTop: 12 }}>⚠ {payError}</p>

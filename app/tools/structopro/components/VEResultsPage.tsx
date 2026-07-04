@@ -185,7 +185,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
             setPayStatus('error'); setPayError(err instanceof Error ? err.message : 'Verification failed.')
           }
         },
-        modal: { ondismiss: () => { if (payStatus === 'open') setPayStatus('idle') } },
+        modal: { ondismiss: () => { setPayStatus(prev => (prev === 'open' || prev === 'creating') ? 'idle' : prev); setPayError('Payment was not completed. Click "Unlock Report" to try again.') } },
       }
       if (!window.Razorpay) throw new Error('Payment SDK not loaded. Please refresh and try again.')
       new window.Razorpay(options).open()
@@ -214,7 +214,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
           style={{ background: 'rgba(217,154,6,0.1)', border: '1px solid rgba(217,154,6,0.4)' }}>
           <span style={{ color: '#D99A06', fontSize: 13 }}>⚠</span>
           <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
-            TEST MODE — Razorpay sandbox. No real money charged. Use test card 4111 1111 1111 1111.
+            TEST MODE — Live Razorpay at ₹1. Use a real UPI or bank card. Test cards do not work on live keys. Revert amount to 49900 before launch.
           </p>
         </div>
 
