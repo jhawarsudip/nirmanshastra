@@ -9,15 +9,17 @@ import ResultsPage from './components/ResultsPage'
 import { runCalculation, type PlumbInput, type PlumbResult } from './plumbpro-engine'
 import WizardStepBar from '@/components/ui/WizardStepBar'
 import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
+import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
 
-type Step = 'register' | 'method' | 'details' | 'results'
+type Step = 'register' | 'project_pick' | 'method' | 'details' | 'results'
 
 interface SessionState {
-  regData:    PlumbRegData
-  contactId:  string
-  estimateId: string | null
-  input:      PlumbInput | null
-  result:     PlumbResult | null
+  regData:         PlumbRegData
+  contactId:       string
+  estimateId:      string | null
+  input:           PlumbInput | null
+  result:          PlumbResult | null
+  selectedProject: SelectedProject | null
 }
 
 const stepVariants = {
@@ -30,15 +32,21 @@ export default function PlumbProPage() {
   const [step, setStep]         = useState<Step>('register')
   const [liveData, setLiveData] = useState<LiveSummaryData>({})
   const [session, setSession]   = useState<SessionState>({
-    regData:    {} as PlumbRegData,
-    contactId:  '',
-    estimateId: null,
-    input:      null,
-    result:     null,
+    regData:         {} as PlumbRegData,
+    contactId:       '',
+    estimateId:      null,
+    input:           null,
+    result:          null,
+    selectedProject: null,
   })
 
   function handleRegistration(data: PlumbRegData, contactId: string) {
     setSession(prev => ({ ...prev, regData: data, contactId }))
+    setStep('project_pick')
+  }
+
+  function handleProjectSelect(project: SelectedProject | null) {
+    setSession(prev => ({ ...prev, selectedProject: project }))
     setStep('method')
   }
 
@@ -52,16 +60,50 @@ export default function PlumbProPage() {
     setStep('results')
 
     try {
+      // PlumbPro numFloors: 1=G, 2=G+1 … normalized total floors
+      const dbNumFloors = input.numFloors
+      let projectId = session.selectedProject?.projectId ?? null
+
+      if (session.selectedProject && projectId) {
+        const sp = session.selectedProject
+        const patch: Record<string, unknown> = {}
+        if (input.state !== sp.state)        patch.state        = input.state
+        if (input.city  !== sp.city)         patch.city         = input.city
+        if (dbNumFloors !== sp.numFloors)    patch.num_floors   = dbNumFloors
+        if (input.projectName !== sp.projectName) patch.project_name = input.projectName
+        if (Object.keys(patch).length > 0) {
+          fetch(`/api/projects/${projectId}`, {
+            method:  'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(patch),
+          }).catch(console.error)
+        }
+      } else {
+        const projRes = await fetch('/api/projects', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectName: input.projectName || session.regData.projectName,
+            city:        input.city,
+            state:       input.state,
+            numFloors:   dbNumFloors,
+          }),
+        })
+        const projJson = await projRes.json()
+        projectId = projJson.projectId ?? null
+      }
+
       const res = await fetch('/api/plumbpro/save-estimate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contactId:   session.contactId,
-          projectName: session.regData.projectName,
+          projectName: input.projectName || session.regData.projectName,
           state:       input.state,
           city:        input.city,
           inputData:   input,
           resultData:  result,
+          projectId,
         }),
       })
       const json = await res.json()
@@ -77,11 +119,12 @@ export default function PlumbProPage() {
     setStep('register')
     setLiveData({})
     setSession({
-      regData:    {} as PlumbRegData,
-      contactId:  '',
-      estimateId: null,
-      input:      null,
-      result:     null,
+      regData:         {} as PlumbRegData,
+      contactId:       '',
+      estimateId:      null,
+      input:           null,
+      result:          null,
+      selectedProject: null,
     })
   }
 
@@ -95,6 +138,18 @@ export default function PlumbProPage() {
             <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
               <div style={{ flex: '0 0 58%', minWidth: 0 }}>
                 <RegistrationForm onSubmit={handleRegistration} />
+              </div>
+              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+                <LiveSummaryPanel toolName="PlumbingPro" toolPhase="P4" regData={session.regData} liveData={liveData} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+        {step === 'project_pick' && (
+          <motion.div key="project_pick" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
+              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+                <ProjectPicker onSelect={handleProjectSelect} toolName="PlumbingPro" />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel toolName="PlumbingPro" toolPhase="P4" regData={session.regData} liveData={liveData} />
@@ -119,8 +174,9 @@ export default function PlumbProPage() {
             <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
               <div style={{ flex: '0 0 58%', minWidth: 0 }}>
                 <BuildDetails
-                  state={session.regData.state}
-                  city={session.regData.city}
+                  state={session.selectedProject?.state ?? session.regData.state}
+                  city={session.selectedProject?.city ?? session.regData.city}
+                  initialProject={session.selectedProject ?? undefined}
                   onSubmit={handleDetails}
                   onFormChange={setLiveData}
                   onBack={() => setStep('method')}

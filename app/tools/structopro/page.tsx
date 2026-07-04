@@ -12,6 +12,7 @@ import { runCalculation, type StructoInput, type StructoResult } from './structo
 import { runVECalculation, type VEInput, type VEResult } from './structopro-ve-engine'
 import WizardStepBar from '@/components/ui/WizardStepBar'
 import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
+import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
 
 const stepVariants = {
   initial: { opacity: 0, x: 18 },
@@ -19,33 +20,40 @@ const stepVariants = {
   exit:    { opacity: 0, x: -18, transition: { duration: 0.18, ease: 'easeIn' as const } },
 }
 
-type Step = 'register' | 'method' | 'details' | 'results' | 've_details' | 've_results'
+type Step = 'register' | 'project_pick' | 'method' | 'details' | 'results' | 've_details' | 've_results'
 
 interface SessionState {
-  regData:    StructoRegData
-  contactId:  string
-  estimateId: string | null
-  input:      StructoInput | null
-  result:     StructoResult | null
-  veInput:    VEInput | null
-  veResult:   VEResult | null
+  regData:         StructoRegData
+  contactId:       string
+  estimateId:      string | null
+  input:           StructoInput | null
+  result:          StructoResult | null
+  veInput:         VEInput | null
+  veResult:        VEResult | null
+  selectedProject: SelectedProject | null
 }
 
 export default function StructoProPage() {
   const [step, setStep]         = useState<Step>('register')
   const [liveData, setLiveData] = useState<LiveSummaryData>({})
   const [session, setSession]   = useState<SessionState>({
-    regData:    {} as StructoRegData,
-    contactId:  '',
-    estimateId: null,
-    input:      null,
-    result:     null,
-    veInput:    null,
-    veResult:   null,
+    regData:         {} as StructoRegData,
+    contactId:       '',
+    estimateId:      null,
+    input:           null,
+    result:          null,
+    veInput:         null,
+    veResult:        null,
+    selectedProject: null,
   })
 
   function handleRegistration(data: StructoRegData, contactId: string) {
     setSession(prev => ({ ...prev, regData: data, contactId }))
+    setStep('project_pick')
+  }
+
+  function handleProjectSelect(project: SelectedProject | null) {
+    setSession(prev => ({ ...prev, selectedProject: project }))
     setStep('method')
   }
 
@@ -60,16 +68,60 @@ export default function StructoProPage() {
     setStep('results')
 
     try {
+      // Normalize floors for projects table: StructoPro numFloors is G+ count, total = numFloors+1
+      const dbNumFloors = input.numFloors + 1
+      const dbPerFloorAreas = input.perFloorAreas
+        ? input.perFloorAreas
+        : (input.groundFloorAreaSqft > 0 ? [input.groundFloorAreaSqft] : null)
+
+      let projectId = session.selectedProject?.projectId ?? null
+
+      if (session.selectedProject && projectId) {
+        // Write back only changed shared fields
+        const sp = session.selectedProject
+        const patch: Record<string, unknown> = {}
+        if (input.state !== sp.state)          patch.state        = input.state
+        if (input.city  !== sp.city)           patch.city         = input.city
+        if (dbNumFloors !== sp.numFloors)      patch.num_floors   = dbNumFloors
+        // compare perFloorAreas arrays
+        const spAreas = sp.perFloorAreas
+        const areasChanged = JSON.stringify(dbPerFloorAreas) !== JSON.stringify(spAreas)
+        if (areasChanged) patch.per_floor_areas = dbPerFloorAreas
+        if (Object.keys(patch).length > 0) {
+          fetch(`/api/projects/${projectId}`, {
+            method:  'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(patch),
+          }).catch(console.error)
+        }
+      } else {
+        // Create new project
+        const projRes = await fetch('/api/projects', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectName:    input.projectName,
+            city:           input.city,
+            state:          input.state,
+            numFloors:      dbNumFloors,
+            perFloorAreas:  dbPerFloorAreas,
+          }),
+        })
+        const projJson = await projRes.json()
+        projectId = projJson.projectId ?? null
+      }
+
       const res = await fetch('/api/structopro/save-estimate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contactId:   session.contactId,
-          projectName: session.regData.projectName,
+          projectName: input.projectName,
           state:       input.state,
           city:        input.city,
           inputData:   input,
           resultData:  result,
+          projectId,
         }),
       })
       const json = await res.json()
@@ -112,13 +164,14 @@ export default function StructoProPage() {
     setStep('register')
     setLiveData({})
     setSession({
-      regData:    {} as StructoRegData,
-      contactId:  '',
-      estimateId: null,
-      input:      null,
-      result:     null,
-      veInput:    null,
-      veResult:   null,
+      regData:         {} as StructoRegData,
+      contactId:       '',
+      estimateId:      null,
+      input:           null,
+      result:          null,
+      veInput:         null,
+      veResult:        null,
+      selectedProject: null,
     })
   }
 
@@ -133,6 +186,19 @@ export default function StructoProPage() {
             <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
               <div style={{ flex: '0 0 58%', minWidth: 0 }}>
                 <RegistrationForm onSubmit={handleRegistration} />
+              </div>
+              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" regData={session.regData} liveData={liveData} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {step === 'project_pick' && (
+          <motion.div key="project_pick" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
+              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+                <ProjectPicker onSelect={handleProjectSelect} toolName="StructurePro" />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" regData={session.regData} liveData={liveData} />
@@ -159,9 +225,10 @@ export default function StructoProPage() {
             <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
               <div style={{ flex: '0 0 58%', minWidth: 0 }}>
                 <BuildDetails
-                  state={session.regData.state}
-                  city={session.regData.city}
-                  projectName={session.regData.projectName}
+                  state={session.selectedProject?.state ?? session.regData.state}
+                  city={session.selectedProject?.city ?? session.regData.city}
+                  projectName={session.selectedProject?.projectName ?? session.regData.projectName}
+                  initialProject={session.selectedProject ?? undefined}
                   onSubmit={handleDetails}
                   onFormChange={setLiveData}
                   onBack={() => setStep('method')}

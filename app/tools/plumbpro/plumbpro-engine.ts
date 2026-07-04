@@ -180,6 +180,7 @@ export interface PlumbCosts {
 }
 
 export interface PlumbInput {
+  projectName?:     string
   state:            string
   city:             string
   numBedrooms:      number

@@ -293,18 +293,42 @@ function ElevationDiagram({ floorRows, sameArea, groundArea }: {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface Props {
-  state:         string
+interface ProjectInitData {
+  projectId:     string
+  projectName:   string
   city:          string
-  projectName?:  string
-  onSubmit:      (input: StructoInput) => void
-  onFormChange?: (data: Record<string, unknown>) => void
-  onBack?:       () => void
+  state:         string
+  numFloors:     number | null   // normalized: total floors (G=1, G+1=2 …)
+  perFloorAreas: number[] | null
+}
+
+interface Props {
+  state:          string
+  city:           string
+  projectName?:   string
+  initialProject?: ProjectInitData
+  onSubmit:       (input: StructoInput) => void
+  onFormChange?:  (data: Record<string, unknown>) => void
+  onBack?:        () => void
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function initFloorRowsFromAreas(areas: number[], FLOOR_LABELS: string[]): FloorRow[] {
+  return areas.map((area, idx) => ({
+    label:     FLOOR_LABELS[idx] ?? `Floor ${idx}`,
+    length:    '',
+    width:     '',
+    area:      area > 0 ? area.toString() : '',
+    height:    '10',
+    useType:   'Residential' as UseType,
+    floorType: 'Standard' as FloorType,
+  }))
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function BuildDetails({ state: initState, city: initCity, projectName: initProjectName, onSubmit, onFormChange, onBack }: Props) {
+export default function BuildDetails({ state: initState, city: initCity, projectName: initProjectName, initialProject, onSubmit, onFormChange, onBack }: Props) {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -313,14 +337,33 @@ export default function BuildDetails({ state: initState, city: initCity, project
   const [localState, setLocalState]   = useState(initState || '')
   const [localCity, setLocalCity]     = useState(initCity || '')
 
-  // S2
-  const [numFloors, setNumFloors]   = useState(1)
-  const [sameArea, setSameArea]     = useState(true)
-  const [groundArea, setGroundArea] = useState('')
-  const [floorRows, setFloorRows]   = useState<FloorRow[]>([
-    { label: 'Ground Floor', length: '', width: '', area: '', height: '10', useType: 'Residential', floorType: 'Standard' },
-    { label: 'First Floor',  length: '', width: '', area: '', height: '10', useType: 'Residential', floorType: 'Standard' },
-  ])
+  // S2 — initialProject provides numFloors (total floors, so convert: G+ = total-1)
+  const initNumFloors = initialProject?.numFloors != null ? Math.max(0, initialProject.numFloors - 1) : 1
+  const initAreas     = initialProject?.perFloorAreas ?? null
+  const initSameArea  = !initAreas || initAreas.length <= 1
+  const initGroundArea = initAreas?.length === 1 && initAreas[0] > 0 ? initAreas[0].toString() : ''
+
+  const FLOOR_LABELS_INIT = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor']
+
+  const [numFloors, setNumFloors]   = useState(initNumFloors)
+  const [sameArea, setSameArea]     = useState(initSameArea)
+  const [groundArea, setGroundArea] = useState(initGroundArea)
+  const [floorRows, setFloorRows]   = useState<FloorRow[]>(() => {
+    if (initAreas && initAreas.length > 1) {
+      return initFloorRowsFromAreas(initAreas, FLOOR_LABELS_INIT)
+    }
+    // Default: numFloors+1 rows (ground + upper floors)
+    const count = initNumFloors + 1
+    return Array.from({ length: count }, (_, idx) => ({
+      label:     FLOOR_LABELS_INIT[idx] ?? `Floor ${idx}`,
+      length:    '',
+      width:     '',
+      area:      '',
+      height:    '10',
+      useType:   'Residential' as UseType,
+      floorType: 'Standard' as FloorType,
+    }))
+  })
 
   // S3
   const [siteCondition, setSiteCondition]       = useState<SiteCondition | null>(null)

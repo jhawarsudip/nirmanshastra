@@ -160,21 +160,34 @@ function monoVal(v: string | number) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-interface Props {
-  state: string
-  city: string
-  onSubmit: (input: MasonInput) => void
-  onFormChange?: (data: Record<string, unknown>) => void
-  onBack?: () => void
+interface ProjectInitData {
+  projectId:     string
+  projectName:   string
+  city:          string
+  state:         string
+  numFloors:     number | null   // normalized: total floors (G=1, G+1=2 …)
+  perFloorAreas: number[] | null
 }
 
-export default function BuildDetails({ state, city, onSubmit, onFormChange, onBack }: Props) {
+interface Props {
+  state:           string
+  city:            string
+  initialProject?: ProjectInitData
+  onSubmit:        (input: MasonInput) => void
+  onFormChange?:   (data: Record<string, unknown>) => void
+  onBack?:         () => void
+}
+
+export default function BuildDetails({ state, city, initialProject, onSubmit, onFormChange, onBack }: Props) {
 
   // S1 — Project Details
-  const [projectName, setProjectName] = useState('')
-  const [numFloors, setNumFloors]     = useState(1)
-  const [localState, setLocalState]   = useState(state)
-  const [localCity, setLocalCity]     = useState(city)
+  // MasonPro numFloors: 0=G, 1=G+1 → from DB total floors: G+ = totalFloors-1
+  const initNumFloors = initialProject?.numFloors != null ? Math.max(0, initialProject.numFloors - 1) : 1
+
+  const [projectName, setProjectName] = useState(initialProject?.projectName ?? '')
+  const [numFloors, setNumFloors]     = useState(initNumFloors)
+  const [localState, setLocalState]   = useState(initialProject?.state ?? state)
+  const [localCity, setLocalCity]     = useState(initialProject?.city ?? city)
 
   // S2 — Wall type (global)
   const [extWallType, setExtWallType] = useState<ExternalWallType>('clay_modular_9')

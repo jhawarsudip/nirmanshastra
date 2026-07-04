@@ -358,6 +358,7 @@ export interface ComplianceCheck {
 }
 
 export interface MasonInput {
+  projectName?: string
   state: string
   city: string
   externalWallType: ExternalWallType

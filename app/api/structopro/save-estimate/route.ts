@@ -15,6 +15,8 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServiceClient()
 
+    const { projectId } = body
+
     const { data, error } = await supabase
       .from('estimates')
       .insert({
@@ -26,6 +28,7 @@ export async function POST(req: NextRequest) {
         city:         city || null,
         input_data:   inputData,
         result_data:  resultData,
+        project_id:   projectId ?? null,
         status:       'complete',
       })
       .select('id')

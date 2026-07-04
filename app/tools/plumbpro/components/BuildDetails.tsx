@@ -136,22 +136,38 @@ function ISBadge({ code }: { code: string }) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-interface Props {
-  state:    string
-  city:     string
-  onSubmit: (input: PlumbInput) => void
-  onFormChange?: (data: Record<string, unknown>) => void
-  onBack?: () => void
+interface ProjectInitData {
+  projectId:     string
+  projectName:   string
+  city:          string
+  state:         string
+  numFloors:     number | null   // normalized: total floors (G=1, G+1=2 …)
+  perFloorAreas: number[] | null
 }
 
-export default function BuildDetails({ state, city, onSubmit, onFormChange, onBack }: Props) {
-  const [projectName, setProjectName]     = useState('')
-  const [localState, setLocalState]       = useState(state)
-  const [localCity, setLocalCity]         = useState(city)
+interface Props {
+  state:           string
+  city:            string
+  initialProject?: ProjectInitData
+  onSubmit:        (input: PlumbInput) => void
+  onFormChange?:   (data: Record<string, unknown>) => void
+  onBack?:         () => void
+}
 
-  const [buaPerFloor, setBuaPerFloor]     = useState('')
+export default function BuildDetails({ state, city, initialProject, onSubmit, onFormChange, onBack }: Props) {
+  // PlumbPro numFloors string: '1'=G, '2'=G+1 … same as normalized total floors
+  const initNumFloors   = initialProject?.numFloors != null ? String(initialProject.numFloors) : '1'
+  const initBuaPerFloor = initialProject?.perFloorAreas?.length
+    ? String(initialProject.perFloorAreas[0])
+    : ''
+
+  const [projectName, setProjectName]     = useState(initialProject?.projectName ?? '')
+  const [localState, setLocalState]       = useState(initialProject?.state ?? state)
+  const [localCity, setLocalCity]         = useState(initialProject?.city ?? city)
+
+  const [buaPerFloor, setBuaPerFloor]     = useState(initBuaPerFloor)
   const [buaUnit, setBuaUnit]             = useState<AreaUnit>('sqft')
-  const [numFloors, setNumFloors]         = useState('1')
+  const [numFloors, setNumFloors]         = useState(initNumFloors)
 
   const [numBedrooms, setNumBedrooms]     = useState('2')
   const [numBathrooms, setNumBathrooms]   = useState('2')

@@ -189,6 +189,7 @@ export type GrillMaterial          = 'ms_painted' | 'ss'
 export type BalconyTileType        = 'antiskid_ceramic' | 'vitrified' | 'natural_stone'
 
 export interface InteriorInput {
+  projectName?:       string
   state:              string
   city:               string
   method:             InteriorMethod

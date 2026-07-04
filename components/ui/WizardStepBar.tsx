@@ -3,7 +3,7 @@
 const STEP_LABELS = ['Registration', 'Method', 'Build Details', 'Results']
 
 interface WizardStepBarProps {
-  currentStep: 'register' | 'method' | 'details' | 'results'
+  currentStep: string
   toolName: string
   toolPhase: string
 }

@@ -4,7 +4,7 @@ import { createServiceClient, createSupabaseClient } from '@/lib/supabase/server
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { contactId, projectName, state, city, inputData, resultData } = body
+    const { contactId, projectName, state, city, inputData, resultData, projectId } = body
 
     if (!contactId || !projectName || !inputData || !resultData) {
       return NextResponse.json({ error: 'Required fields missing' }, { status: 400 })
@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
         city:         city  || null,
         input_data:   inputData,
         result_data:  resultData,
+        project_id:   projectId ?? null,
         status:       'complete',
       })
       .select('id')

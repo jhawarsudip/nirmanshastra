@@ -160,6 +160,7 @@ export type ConduitType     = 'surface_pvc' | 'concealed'
 export type SwitchboardType = 'modular' | 'standard'
 
 export interface ElectroInput {
+  projectName?:     string
   state:            string
   city:             string
   buaPerFloorSqft:  number
