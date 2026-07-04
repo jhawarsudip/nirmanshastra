@@ -59,7 +59,9 @@
       "Bash(python3 *)",
       "Bash(npm list *)",
       "Bash(grep -E '\\\\.\\(tsx|ts\\)$')",
-      "Bash(vercel logs *)"
+      "Bash(vercel logs *)",
+      "Read(//Users/sudipjhawar/.supabase/**)",
+      "Read(//Users/sudipjhawar/.config/supabase/**)"
     ]
   }
 }
