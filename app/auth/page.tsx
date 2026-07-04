@@ -28,6 +28,12 @@ function AuthContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+  const [city, setCity] = useState('')
+  const [pincode, setPincode] = useState('')
+  const [pincodeError, setPincodeError] = useState('')
+  const [consentPartners, setConsentPartners] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
@@ -56,15 +62,28 @@ function AuthContent() {
         if (error) throw error
         setMessage('Check your email for a password reset link. It may take a few minutes to arrive.')
       } else {
+        let valid = true
+        if (!/^\d{10}$/.test(phone)) {
+          setPhoneError('Enter a valid 10-digit Indian mobile number')
+          valid = false
+        }
+        if (!/^\d{6}$/.test(pincode)) {
+          setPincodeError('Enter a valid 6-digit PIN code')
+          valid = false
+        }
+        if (!valid) { setLoading(false); return }
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: name } },
+          options: { data: { full_name: name, mobile: phone, city, pincode, consent_material_partners: consentPartners } },
         })
         if (error) throw error
         setMessage('Account created! Check your email to confirm, then log in.')
         setMode('login')
         setPassword('')
+        setPhone('')
+        setCity('')
+        setPincode('')
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
@@ -77,6 +96,8 @@ function AuthContent() {
     setMode(m)
     setError('')
     setMessage('')
+    setPhoneError('')
+    setPincodeError('')
   }
 
   return (
@@ -134,23 +155,116 @@ function AuthContent() {
 
         <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
           {mode === 'signup' && (
-            <div className="flex flex-col gap-1">
-              <label
-                className="text-[11px] uppercase tracking-widest"
-                style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
+            <>
+              <div className="flex flex-col gap-1">
+                <label
+                  className="text-[11px] uppercase tracking-widest"
+                  style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
+                >
+                  Full Name <span style={{ color: '#8C3A22' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
+                  placeholder="Ramesh Sharma"
+                  className="border border-iron-ink rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
+                  style={{ fontFamily: 'var(--font-plex-sans)' }}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label
+                  className="text-[11px] uppercase tracking-widest"
+                  style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
+                >
+                  Mobile Number <span style={{ color: '#8C3A22' }}>*</span>
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={e => { setPhone(e.target.value); if (phoneError) setPhoneError('') }}
+                  required
+                  placeholder="9876543210"
+                  maxLength={10}
+                  className="border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
+                  style={{ fontFamily: 'var(--font-plex-sans)', borderColor: phoneError ? '#8C3A22' : '#1E2227' }}
+                />
+                {phoneError && (
+                  <span className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
+                    {phoneError}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <label
+                  className="text-[11px] uppercase tracking-widest"
+                  style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
+                >
+                  Your City <span style={{ color: '#8C3A22' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  required
+                  placeholder="e.g. Pune"
+                  className="border border-iron-ink rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
+                  style={{ fontFamily: 'var(--font-plex-sans)' }}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label
+                  className="text-[11px] uppercase tracking-widest"
+                  style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
+                >
+                  PIN Code <span style={{ color: '#8C3A22' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={pincode}
+                  onChange={e => { setPincode(e.target.value); if (pincodeError) setPincodeError('') }}
+                  required
+                  placeholder="411001"
+                  maxLength={6}
+                  className="border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: pincodeError ? '#8C3A22' : '#1E2227' }}
+                />
+                {pincodeError && (
+                  <span className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
+                    {pincodeError}
+                  </span>
+                )}
+              </div>
+
+              {/* Opt-in consent — visually distinct bordered box */}
+              <div
+                style={{
+                  border: '1px solid rgba(30,34,39,0.18)',
+                  borderRadius: 6,
+                  padding: '14px 16px',
+                  background: 'rgba(31,78,121,0.04)',
+                }}
               >
-                Full Name <span style={{ color: '#8C3A22' }}>*</span>
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-                placeholder="Ramesh Sharma"
-                className="border border-iron-ink rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
-                style={{ fontFamily: 'var(--font-plex-sans)' }}
-              />
-            </div>
+                <label style={{ display: 'flex', gap: 10, cursor: 'pointer', alignItems: 'flex-start' }}>
+                  <input
+                    type="checkbox"
+                    checked={consentPartners}
+                    onChange={e => setConsentPartners(e.target.checked)}
+                    style={{ marginTop: 3, accentColor: '#1F4E79', flexShrink: 0, width: 15, height: 15 }}
+                  />
+                  <div>
+                    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: '#1E2227', lineHeight: 1.5, marginBottom: 5 }}>
+                      Share my city with construction material partners for relevant offers{' '}
+                      <span style={{ color: 'rgba(30,34,39,0.42)', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>(optional)</span>
+                    </p>
+                    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(30,34,39,0.52)', lineHeight: 1.65 }}>
+                      If checked, we may share your city (not your phone number or exact address) with cement, steel, or other construction material companies for partnership offers. You can withdraw this anytime from your profile.
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </>
           )}
 
           <div className="flex flex-col gap-1">

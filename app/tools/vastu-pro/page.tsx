@@ -20,11 +20,8 @@ type Step = 'register' | 'plan' | 'results'
 
 type RegData = {
   name: string
-  mobile: string
   email: string
-  address: string
   city: string
-  pinCode: string
   state: string
   propertyType: string
   plotSize: string

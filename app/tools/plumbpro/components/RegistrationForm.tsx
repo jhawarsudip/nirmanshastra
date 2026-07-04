@@ -8,13 +8,10 @@ import type { User } from '@supabase/supabase-js'
 
 export interface PlumbRegData {
   name:        string
-  mobile:      string
   email:       string
   projectName: string
   state:       string
   city:        string
-  pinCode:     string
-  address:     string
 }
 
 interface Props {
@@ -22,8 +19,7 @@ interface Props {
 }
 
 const EMPTY: PlumbRegData = {
-  name: '', mobile: '', email: '', projectName: '',
-  state: '', city: '', pinCode: '', address: '',
+  name: '', email: '', projectName: '', state: '', city: '',
 }
 
 // PlumbPro SVG motif — riser line with trap symbol (IS 1742:1983)
@@ -64,11 +60,10 @@ export default function RegistrationForm({ onSubmit }: Props) {
       const meta = data.user.user_metadata ?? {}
       setForm(prev => ({
         ...prev,
-        email:  data.user?.email || prev.email,
-        name:   meta.full_name || meta.name || prev.name,
-        mobile: meta.mobile || prev.mobile,
-        state:  meta.state  || prev.state,
-        city:   meta.city   || prev.city,
+        email: data.user?.email || prev.email,
+        name:  meta.full_name || meta.name || prev.name,
+        state: meta.state || prev.state,
+        city:  meta.city  || prev.city,
       }))
     })
   }, [supabase])
@@ -81,13 +76,10 @@ export default function RegistrationForm({ onSubmit }: Props) {
   function validate(): boolean {
     const e: Partial<PlumbRegData> = {}
     if (!loggedInUser && !form.name.trim()) e.name = 'Name is required'
-    if (!/^\d{10}$/.test(form.mobile)) e.mobile = 'Enter a valid 10-digit mobile number'
     if (!loggedInUser && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address'
     if (!form.projectName.trim()) e.projectName = 'Project name is required'
-    if (!form.state)          e.state   = 'State is required'
-    if (!form.city.trim())    e.city    = 'City is required'
-    if (!form.pinCode.trim()) e.pinCode = 'PIN code is required'
-    if (!form.address.trim()) e.address = 'Address is required'
+    if (!form.state)       e.state = 'State is required'
+    if (!form.city.trim()) e.city  = 'City is required'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -226,7 +218,6 @@ export default function RegistrationForm({ onSubmit }: Props) {
 
           <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {!loggedInUser && field('name', 'Full Name', { placeholder: 'Ramesh Sharma', required: true })}
-            {field('mobile', 'Mobile', { type: 'tel', placeholder: '9876543210', required: true })}
             {!loggedInUser && (
               <div className="sm:col-span-2">
                 {field('email', 'Email', { type: 'email', placeholder: 'ramesh@example.com', required: true })}
@@ -241,7 +232,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
                 State <span style={{ color: '#8C3A22' }}>*</span>
               </label>
               <select id="state" value={form.state}
-                onChange={e => { set('state', e.target.value); set('city', '') }}
+                onChange={e => set('state', e.target.value)}
                 className="border rounded-[6px] px-3 text-[16px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
                 style={{ fontFamily: 'var(--font-plex-sans)', borderColor: errors.state ? '#8C3A22' : 'rgba(30,34,39,0.4)', height: '52px' }}>
                 <option value="">Select your state</option>
@@ -253,15 +244,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
                 </span>
               )}
             </div>
-            {form.state && (
-              <>
-                {field('city',    'City',     { placeholder: 'e.g. Pune',  required: true })}
-                {field('pinCode', 'PIN Code', { placeholder: '411001',      required: true })}
-              </>
-            )}
-            <div className="sm:col-span-2">
-              {field('address', 'Site Address', { placeholder: 'Plot no., Street, Area', required: true })}
-            </div>
+            {form.state && field('city', 'City', { placeholder: 'e.g. Pune', required: true })}
           </div>
 
           <div className="border-t border-iron-ink px-5 py-4">

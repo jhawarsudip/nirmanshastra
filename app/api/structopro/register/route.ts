@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createSupabaseClient, createServiceClient } from '@/lib/supabase/server'
 import { scheduleEmailSequences } from '@/lib/email-sequences'
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, mobile, email, projectName, state, city, pinCode, address } = body
+    const { name, email, projectName, state, city } = body
 
-    if (!name || !mobile || !email || !projectName || !state || !city || !pinCode || !address) {
+    if (!name || !email || !projectName || !state || !city) {
       return NextResponse.json({ error: 'Required fields missing' }, { status: 400 })
     }
+
+    // Get mobile from authenticated user's profile if available
+    let mobile: string | null = null
+    try {
+      const authClient = await createSupabaseClient()
+      const { data: { user } } = await authClient.auth.getUser()
+      mobile = user?.user_metadata?.mobile || null
+    } catch { /* unauthenticated — mobile stays null */ }
 
     const supabase = createServiceClient()
 
@@ -19,9 +27,7 @@ export async function POST(req: NextRequest) {
         name,
         mobile,
         email,
-        address,
         city,
-        pin_code: pinCode,
         state,
         source:   'StructoPro',
         status:   'registered',

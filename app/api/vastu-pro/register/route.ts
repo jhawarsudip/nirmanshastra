@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createSupabaseClient, createServiceClient } from '@/lib/supabase/server'
 import { scheduleEmailSequences } from '@/lib/email-sequences'
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, mobile, email, address, city, pinCode, state, propertyType, plotSize } = body
+    const { name, email, state, city, propertyType, plotSize } = body
 
-    if (!name || !mobile || !email || !state || !city || !pinCode || !address) {
+    if (!name || !email || !state || !city) {
       return NextResponse.json({ error: 'Required fields missing' }, { status: 400 })
     }
+
+    let mobile: string | null = null
+    try {
+      const authClient = await createSupabaseClient()
+      const { data: { user } } = await authClient.auth.getUser()
+      mobile = user?.user_metadata?.mobile || null
+    } catch { /* unauthenticated — mobile stays null */ }
 
     const supabase = createServiceClient()
 
@@ -19,14 +26,12 @@ export async function POST(req: NextRequest) {
         name,
         mobile,
         email,
-        address: address || null,
         city,
-        pin_code: pinCode || null,
-        state: state || null,
+        state,
         property_type: propertyType || null,
-        plot_size: plotSize || null,
-        source: 'VastuPro',
-        status: 'registered',
+        plot_size:     plotSize     || null,
+        source:        'VastuPro',
+        status:        'registered',
       })
       .select('id')
       .single()

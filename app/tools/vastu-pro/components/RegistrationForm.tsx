@@ -7,11 +7,8 @@ import type { User } from '@supabase/supabase-js'
 
 interface RegistrationData {
   name: string
-  mobile: string
   email: string
-  address: string
   city: string
-  pinCode: string
   state: string
   propertyType: string
   plotSize: string
@@ -42,8 +39,7 @@ const INDIAN_STATES = [
 ]
 
 const EMPTY: RegistrationData = {
-  name: '', mobile: '', email: '', address: '',
-  city: '', pinCode: '', state: '', propertyType: '', plotSize: '',
+  name: '', email: '', city: '', state: '', propertyType: '', plotSize: '',
 }
 
 export default function RegistrationForm({ onSubmit }: Props) {
@@ -61,9 +57,9 @@ export default function RegistrationForm({ onSubmit }: Props) {
       const meta = data.user.user_metadata ?? {}
       setForm(prev => ({
         ...prev,
-        email:  data.user?.email || prev.email,
-        name:   meta.full_name || meta.name || prev.name,
-        mobile: meta.mobile || prev.mobile,
+        email: data.user?.email || prev.email,
+        name:  meta.full_name || meta.name || prev.name,
+        city:  meta.city || prev.city,
       }))
     })
   }, [supabase])
@@ -76,12 +72,9 @@ export default function RegistrationForm({ onSubmit }: Props) {
   function validate(): boolean {
     const e: Partial<RegistrationData> = {}
     if (!loggedInUser && !form.name.trim()) e.name = 'Name is required'
-    if (!/^\d{10}$/.test(form.mobile)) e.mobile = 'Enter a valid 10-digit mobile number'
     if (!loggedInUser && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address'
-    if (!form.state)        e.state   = 'State is required'
-    if (!form.city.trim())  e.city    = 'City is required'
-    if (!form.pinCode.trim()) e.pinCode = 'PIN code is required'
-    if (!form.address.trim()) e.address = 'Address is required'
+    if (!form.state)       e.state = 'State is required'
+    if (!form.city.trim()) e.city  = 'City is required'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -228,7 +221,6 @@ export default function RegistrationForm({ onSubmit }: Props) {
 
           <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {!loggedInUser && textField('name', 'Full Name', { placeholder: 'Ramesh Sharma', required: true })}
-            {textField('mobile', 'Mobile', { type: 'tel', placeholder: '9876543210', required: true })}
             {!loggedInUser && (
               <div className="sm:col-span-2">
                 {textField('email', 'Email', { type: 'email', placeholder: 'ramesh@example.com', required: true })}
@@ -247,7 +239,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
               <select
                 id="state"
                 value={form.state}
-                onChange={e => { set('state', e.target.value); set('city', '') }}
+                onChange={e => set('state', e.target.value)}
                 className="border rounded-[6px] px-3 text-[16px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
                 style={{
                   fontFamily: 'var(--font-plex-sans)',
@@ -267,18 +259,8 @@ export default function RegistrationForm({ onSubmit }: Props) {
               )}
             </div>
 
-            {/* City + PIN — appear once state is selected */}
-            {form.state && (
-              <>
-                {textField('city', 'City', { placeholder: 'e.g. Pune', required: true })}
-                {textField('pinCode', 'PIN Code', { placeholder: '411001', required: true })}
-              </>
-            )}
-
-            {/* Address — full width, required */}
-            <div className="sm:col-span-2">
-              {textField('address', 'Address', { placeholder: 'Plot no., Street, Area', required: true })}
-            </div>
+            {/* City — appears once state is selected */}
+            {form.state && textField('city', 'City', { placeholder: 'e.g. Pune', required: true })}
 
             {/* Property Type */}
             <div className="flex flex-col gap-1">

@@ -83,14 +83,22 @@ export default function PrivacyPolicyPage() {
           <Section clause="§ 2.0 — DATA WE COLLECT" title="What data we collect">
             <P>We collect the following categories of personal data:</P>
             <UL items={[
-              'Name, mobile number, and email address — collected at registration for each tool',
-              'Property address, city, pin code, and state — collected to contextualise your estimate',
+              'Name and email address — collected when you register to use any tool',
+              'Phone number (Indian mobile), home city, and PIN code — collected once at account sign-up and stored against your profile',
+              'Project city and state — collected per project inside each tool, to apply the correct regional material rates to your estimate',
               'Property type and approximate plot size — used in calculations',
               'Project details you enter in tool forms — floor plans, material specifications, quantities entered by you',
               'Payment information — we do not store card details; Razorpay processes payments directly',
               'Usage data — pages visited, tool steps completed, browser type, device type (collected automatically by our hosting provider, Vercel)',
             ]} />
             <P>We do not collect Aadhaar numbers, PAN, bank account details, or any other sensitive financial or government identification.</P>
+          </Section>
+
+          <Section clause="§ 2.1 — OPTIONAL DATA SHARING" title="Optional data sharing with material partners">
+            <P>At sign-up, and in your Account Settings, you may choose to opt into the following sharing arrangement. This is entirely optional and is not required to register or use any NirmanShastra tool. The default state is unchecked — no sharing occurs unless you explicitly enable it.</P>
+            <P><strong>What may be shared:</strong> If you check the opt-in box, we may share your home city (the city you provided at sign-up) with cement manufacturers, steel suppliers, or other construction material companies who partner with us to offer relevant deals or information to users building in your city.</P>
+            <P><strong>What is never shared under this consent:</strong> Your phone number, PIN code, email address, project details, and any other personal information are never shared with material partners — not under this consent and not on any other basis. Only your city name.</P>
+            <P><strong>How to withdraw:</strong> You can withdraw this consent at any time by visiting your <strong>Account Settings</strong> page and unchecking the preference box. Withdrawal takes effect immediately; we will not initiate new sharing of your city after withdrawal, though we cannot recall data already transmitted to partners before the withdrawal date.</P>
           </Section>
 
           <Section clause="§ 3.0 — HOW WE USE YOUR DATA" title="How we use your data">
