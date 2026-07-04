@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { loadProjectFromSession } from '@/lib/project-session'
 
 // Normalized project data shared across tools.
 // num_floors = total floors including ground (G=1, G+1=2 …)
@@ -40,9 +41,30 @@ export default function ProjectPicker({ onSelect, toolName }: Props) {
   useEffect(() => {
     let cancelled = false
 
+    function showLocal() {
+      const local = loadProjectFromSession()
+      if (!cancelled) {
+        if (local) {
+          setProjects([{
+            projectId:     local.projectId,
+            projectName:   local.projectName,
+            city:          local.city,
+            state:         local.state,
+            numFloors:     local.numFloors,
+            perFloorAreas: local.perFloorAreas,
+          }])
+          setLoading(false)
+        } else {
+          onSelect(null)
+        }
+      }
+    }
+
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { if (!cancelled) onSelect(null); return }
+
+      // Non-auth users: no DB access possible, fall back to localStorage
+      if (!user) { showLocal(); return }
 
       try {
         const res = await fetch('/api/projects')
@@ -58,14 +80,16 @@ export default function ProjectPicker({ onSelect, toolName }: Props) {
         }))
         if (!cancelled) {
           if (list.length === 0) {
-            onSelect(null)
+            // Auth user but no DB rows (table may not exist yet, or no prior projects):
+            // try localStorage so we can still show the cross-tool picker
+            showLocal()
           } else {
             setProjects(list)
             setLoading(false)
           }
         }
       } catch {
-        if (!cancelled) onSelect(null)
+        if (!cancelled) showLocal()
       }
     }
 

@@ -13,6 +13,7 @@ import { runVECalculation, type VEInput, type VEResult } from './structopro-ve-e
 import WizardStepBar from '@/components/ui/WizardStepBar'
 import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
+import { saveProjectToSession } from '@/lib/project-session'
 
 const stepVariants = {
   initial: { opacity: 0, x: 18 },
@@ -67,13 +68,24 @@ export default function StructoProPage() {
     setSession(prev => ({ ...prev, input, result }))
     setStep('results')
 
-    try {
-      // Normalize floors for projects table: StructoPro numFloors is G+ count, total = numFloors+1
-      const dbNumFloors = input.numFloors + 1
-      const dbPerFloorAreas = input.perFloorAreas
-        ? input.perFloorAreas
-        : (input.groundFloorAreaSqft > 0 ? [input.groundFloorAreaSqft] : null)
+    // Normalize floors: StructoPro numFloors is G+ count, total = numFloors+1
+    const dbNumFloors = input.numFloors + 1
+    const dbPerFloorAreas = input.perFloorAreas
+      ? input.perFloorAreas
+      : (input.groundFloorAreaSqft > 0 ? [input.groundFloorAreaSqft] : null)
 
+    // Persist project to localStorage immediately — works for both auth and non-auth users,
+    // and survives the case where the projects DB table doesn't yet exist.
+    saveProjectToSession({
+      projectId:     session.selectedProject?.projectId ?? '',
+      projectName:   input.projectName || session.regData.projectName || '',
+      city:          input.city,
+      state:         input.state,
+      numFloors:     dbNumFloors,
+      perFloorAreas: dbPerFloorAreas,
+    })
+
+    try {
       let projectId = session.selectedProject?.projectId ?? null
 
       if (session.selectedProject && projectId) {

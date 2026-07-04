@@ -10,6 +10,7 @@ import { runCalculation, type InteriorInput, type InteriorResult } from './inter
 import WizardStepBar from '@/components/ui/WizardStepBar'
 import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
+import { saveProjectToSession } from '@/lib/project-session'
 
 type Step = 'register' | 'project_pick' | 'method' | 'details' | 'results'
 
@@ -59,9 +60,19 @@ export default function InteriorProPage() {
     setSession(prev => ({ ...prev, input, result }))
     setStep('results')
 
+    // InteriorPro numFloors: 1=G, 2=G+1 … normalized total floors
+    const dbNumFloors = input.numFloors
+
+    saveProjectToSession({
+      projectId:     session.selectedProject?.projectId ?? '',
+      projectName:   input.projectName || session.regData.projectName,
+      city:          input.city,
+      state:         input.state,
+      numFloors:     dbNumFloors,
+      perFloorAreas: null,
+    })
+
     try {
-      // InteriorPro numFloors: 1=G, 2=G+1 … normalized total floors
-      const dbNumFloors = input.numFloors
       let projectId = session.selectedProject?.projectId ?? null
 
       if (session.selectedProject && projectId) {

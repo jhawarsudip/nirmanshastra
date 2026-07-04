@@ -10,6 +10,7 @@ import { runCalculation, type MasonInput, type MasonResult } from './masonpro-en
 import WizardStepBar from '@/components/ui/WizardStepBar'
 import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
+import { saveProjectToSession } from '@/lib/project-session'
 
 type Step = 'register' | 'project_pick' | 'method' | 'details' | 'results'
 
@@ -59,9 +60,19 @@ export default function MasonryProPage() {
     setSession(prev => ({ ...prev, input, result }))
     setStep('results')
 
+    // MasonryPro numFloors: 0=G, 1=G+1 → normalize: total = numFloors+1
+    const dbNumFloors = (input.numFloors ?? 1) + 1
+
+    saveProjectToSession({
+      projectId:     session.selectedProject?.projectId ?? '',
+      projectName:   input.projectName || session.regData.projectName,
+      city:          input.city,
+      state:         input.state,
+      numFloors:     dbNumFloors,
+      perFloorAreas: null,
+    })
+
     try {
-      // MasonryPro numFloors: 0=G, 1=G+1 → normalize: total = numFloors+1
-      const dbNumFloors = (input.numFloors ?? 1) + 1
       let projectId = session.selectedProject?.projectId ?? null
 
       if (session.selectedProject && projectId) {
