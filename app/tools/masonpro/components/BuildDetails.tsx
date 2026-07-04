@@ -181,7 +181,7 @@ interface Props {
 export default function BuildDetails({ state, city, initialProject, onSubmit, onFormChange, onBack }: Props) {
 
   // S1 — Project Details
-  // MasonPro numFloors: 0=G, 1=G+1 → from DB total floors: G+ = totalFloors-1
+  // MasonryPro numFloors: 0=G, 1=G+1 → from DB total floors: G+ = totalFloors-1
   const initNumFloors = initialProject?.numFloors != null ? Math.max(0, initialProject.numFloors - 1) : 1
 
   const [projectName, setProjectName] = useState(initialProject?.projectName ?? '')

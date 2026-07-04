@@ -28,7 +28,7 @@ const stepVariants = {
   exit:    { opacity: 0, x: -18, transition: { duration: 0.18, ease: 'easeIn' as const } },
 }
 
-export default function MasonProPage() {
+export default function MasonryProPage() {
   const [step, setStep]         = useState<Step>('register')
   const [liveData, setLiveData] = useState<LiveSummaryData>({})
   const [session, setSession]   = useState<SessionState>({
@@ -60,7 +60,7 @@ export default function MasonProPage() {
     setStep('results')
 
     try {
-      // MasonPro numFloors: 0=G, 1=G+1 → normalize: total = numFloors+1
+      // MasonryPro numFloors: 0=G, 1=G+1 → normalize: total = numFloors+1
       const dbNumFloors = (input.numFloors ?? 1) + 1
       let projectId = session.selectedProject?.projectId ?? null
 

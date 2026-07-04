@@ -1,4 +1,4 @@
-// MasonPro calculation engine
+// MasonryPro calculation engine
 // IS 1077:1992 + IS 2212:1991 + IS 12894:2002 + IS 2185:2005 + IS 4326:1993 + IS 1661:1972 + IS 2645:2003
 // Build Reference Section 8 — LOCKED values. Do not alter.
 

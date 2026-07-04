@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
-import MasonProPDF from '@/lib/pdf/masonpro-pdf'
+import MasonryProPDF from '@/lib/pdf/masonpro-pdf'
 import type { ContactInfo } from '@/lib/pdf/masonpro-pdf'
 import type { MasonInput, MasonResult } from '@/app/tools/masonpro/masonpro-engine'
 
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     // 3. Generate PDF
     let pdfBuffer: Buffer
     try {
-      const pdfElement = React.createElement(MasonProPDF, {
+      const pdfElement = React.createElement(MasonryProPDF, {
         input,
         result,
         contact: contactInfo,

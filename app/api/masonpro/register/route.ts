@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
         city,
         pin_code: pinCode,
         state,
-        source:   'MasonPro',
+        source:   'MasonryPro',
         status:   'registered',
       })
       .select('id')
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ contactId: data.id, success: true })
   } catch (err) {
-    console.error('MasonPro register error:', err)
+    console.error('MasonryPro register error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

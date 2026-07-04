@@ -1,4 +1,4 @@
-// MasonPro 9-page PDF — @react-pdf/renderer
+// MasonryPro 9-page PDF — @react-pdf/renderer
 // Design tokens from NirmanShastra_Design_Spec.md
 // IS values from Build Reference Section 8 — LOCKED
 
@@ -1326,7 +1326,7 @@ function WallSectionSchematicPage({ reportId }: { reportId: string }) {
 
 // ─── Main document ────────────────────────────────────────────────────────────
 
-export default function MasonProPDF(props: Props) {
+export default function MasonryProPDF(props: Props) {
   return (
     <Document
       title={`MasonryPro Report — ${props.reportId}`}

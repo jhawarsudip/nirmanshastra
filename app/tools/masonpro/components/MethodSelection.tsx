@@ -4,7 +4,7 @@ interface Props {
   onSelect: () => void
 }
 
-// MasonPro brick hatch SVG motif
+// MasonryPro brick hatch SVG motif
 function BrickHatch({ size = 32 }: { size?: number }) {
   return (
     <svg width={size} height={Math.round(size * 0.75)} viewBox="0 0 32 24" aria-hidden="true">
@@ -27,7 +27,7 @@ export default function MethodSelection({ onSelect }: Props) {
         <div className="mb-8">
           <p className="text-[10px] uppercase tracking-widest mb-1"
             style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-            NIRMANSHASTRA · MASONPRO
+            NIRMANSHASTRA · MASONRYPRO
           </p>
           <h2 className="text-[28px] font-bold"
             style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}>
