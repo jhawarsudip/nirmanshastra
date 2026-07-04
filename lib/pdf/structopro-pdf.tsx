@@ -1442,7 +1442,7 @@ export default function StructoProPDF({ input, result, contact, reportId, projec
             (IS 456:2000 curing + stripping + surface preparation).
           </Text>
 
-          {/* MasonPro features */}
+          {/* MasonryPro features */}
           <View style={{ borderWidth: 1.5, borderColor: T.blueprint, borderStyle: 'solid', padding: 14, backgroundColor: T.blueprintBg, marginBottom: 14 }}>
             <Text style={{ ...S.eyebrow, marginBottom: 8 }}>WHAT MASONRYPRO CALCULATES — IS 1077:1992 · IS 2212:1991 · IS 2645:2003</Text>
             <View style={{ flexDirection: 'row', gap: 12 }}>

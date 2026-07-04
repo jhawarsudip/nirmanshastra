@@ -1508,17 +1508,17 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             NEXT — PHASE 2
           </p>
           <p className="text-[14px] font-semibold mb-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
-            Get your Masonry quantities — MasonPro →
+            Get your Masonry quantities — MasonryPro →
           </p>
           <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
-            Now that your structure is sized, get exact brick and mortar quantities with MasonPro. Masonry is 20–25% of total project cost — the most common area for contractor overcharging.
+            Now that your structure is sized, get exact brick and mortar quantities with MasonryPro. Masonry is 20–25% of total project cost — the most common area for contractor overcharging.
           </p>
           <a
             href="/tools/masonpro"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
             style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
           >
-            Start MasonPro →
+            Start MasonryPro →
           </a>
         </div>
 

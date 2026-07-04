@@ -862,7 +862,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             Combine all phases — Grand Total →
           </p>
           <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
-            You&apos;ve estimated all 5 phases. Now bring StructoPro, MasonPro, ElectroPro, PlumbPro, and InteriorPro together into a single project cost summary.
+            You&apos;ve estimated all 5 phases. Now bring StructoPro, MasonryPro, ElectroPro, PlumbPro, and InteriorPro together into a single project cost summary.
           </p>
           <a
             href="/tools/grand-total"
