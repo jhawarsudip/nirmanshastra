@@ -6,9 +6,9 @@ import { createServiceClient } from '@/lib/supabase/server'
 import ElectroProPDF from '@/lib/pdf/electropro-pdf'
 import type { ContactInfo } from '@/lib/pdf/electropro-pdf'
 import type { ElectroInput, ElectroResult } from '@/app/tools/electropro/electropro-engine'
+import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const PAYMENT_BYPASS = true
 
 // POST /api/electropro/generate-pdf
 // Verifies estimate is 'paid' server-side before generating PDF.

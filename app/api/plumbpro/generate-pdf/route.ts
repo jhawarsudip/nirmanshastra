@@ -6,9 +6,9 @@ import { createServiceClient } from '@/lib/supabase/server'
 import PlumbProPDF from '@/lib/pdf/plumbpro-pdf'
 import type { ContactInfo } from '@/lib/pdf/plumbpro-pdf'
 import type { PlumbInput, PlumbResult } from '@/app/tools/plumbpro/plumbpro-engine'
+import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const PAYMENT_BYPASS = true
 
 // POST /api/plumbpro/generate-pdf
 // Verifies estimate is 'paid' server-side before generating PDF.

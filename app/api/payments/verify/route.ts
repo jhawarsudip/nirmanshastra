@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import { createServiceClient } from '@/lib/supabase/server'
-
-const PAYMENT_BYPASS = true
+import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 // HMAC SHA256 verification — Build Reference Section 6.
 // Key Secret used ONLY here, never exposed to client.

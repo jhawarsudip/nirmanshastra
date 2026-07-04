@@ -5,9 +5,9 @@ import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
 import GrandTotalPDF from '@/lib/pdf/grand-total-pdf'
 import type { ContactInfo, PhaseEstimate, GrandTotalData } from '@/lib/pdf/grand-total-pdf'
+import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const PAYMENT_BYPASS = true
 
 function fmtLakhs(n: number): string {
   if (n >= 10_000_000) return `Rs.${(n / 10_000_000).toFixed(1)} Cr`

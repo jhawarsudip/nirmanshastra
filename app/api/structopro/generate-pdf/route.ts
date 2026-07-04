@@ -6,9 +6,9 @@ import { createServiceClient } from '@/lib/supabase/server'
 import StructoProPDF from '@/lib/pdf/structopro-pdf'
 import type { ContactInfo } from '@/lib/pdf/structopro-pdf'
 import type { StructoInput, StructoResult } from '@/app/tools/structopro/structopro-engine'
+import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const PAYMENT_BYPASS = process.env.PAYMENT_BYPASS === 'true' || true
 
 // POST /api/structopro/generate-pdf
 // Called from ResultsPage after payment is confirmed.

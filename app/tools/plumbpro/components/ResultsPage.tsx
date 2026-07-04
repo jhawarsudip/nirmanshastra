@@ -7,6 +7,7 @@ import {
   type PlumbInput,
   formatLakhs,
 } from '../plumbpro-engine'
+import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 declare global {
   interface Window {
@@ -93,7 +94,6 @@ function BlurOverlay({ onClick }: { onClick: () => void }) {
   )
 }
 
-const PAYMENT_BYPASS = true
 
 export default function ResultsPage({ result, input, estimateId, contactName, onStartOver }: Props) {
   const [payStatus, setPayStatus] = useState<PayStatus>('idle')
@@ -182,7 +182,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
       const res = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estimateId, amount: 49900 }),
+        // TEMPORARY - testing real payment flow at ₹1, revert to 49900 before real launch
+        body: JSON.stringify({ estimateId, amount: 100 }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not create order')

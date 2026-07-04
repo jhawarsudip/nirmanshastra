@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { animate } from 'framer-motion'
 import { type VEResult, type VEInput } from '../structopro-ve-engine'
 import { formatLakhs } from '../structopro-engine'
+import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 // ─── CountUp ─────────────────────────────────────────────────────────────────
 
@@ -90,7 +91,6 @@ interface Props {
 type PayStatus = 'idle' | 'creating' | 'open' | 'verifying' | 'polling' | 'paid' | 'error'
 type PdfStatus = 'idle' | 'generating' | 'ready' | 'error'
 
-const PAYMENT_BYPASS = true
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -154,7 +154,8 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
     try {
       const res  = await fetch('/api/payments/create-order', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estimateId, amount: 49900 }),
+        // TEMPORARY - testing real payment flow at ₹1, revert to 49900 before real launch
+        body: JSON.stringify({ estimateId, amount: 100 }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not create order')

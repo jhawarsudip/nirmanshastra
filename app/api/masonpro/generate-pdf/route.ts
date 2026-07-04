@@ -6,9 +6,9 @@ import { createServiceClient } from '@/lib/supabase/server'
 import MasonryProPDF from '@/lib/pdf/masonpro-pdf'
 import type { ContactInfo } from '@/lib/pdf/masonpro-pdf'
 import type { MasonInput, MasonResult } from '@/app/tools/masonpro/masonpro-engine'
+import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const PAYMENT_BYPASS = true
 
 // POST /api/masonpro/generate-pdf
 // Verifies estimate is 'paid' server-side before generating PDF.

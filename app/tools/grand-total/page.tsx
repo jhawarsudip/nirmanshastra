@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
+import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,8 +31,6 @@ declare global {
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const PAYMENT_BYPASS = true
 
 const TOOLS: { key: AppTypeKey; phase: string; name: string; label: string; href: string }[] = [
   { key: 'structopro',  phase: 'P1', name: 'StructurePro',  label: 'Phase 1 — RCC Structure', href: '/tools/structopro'  },
