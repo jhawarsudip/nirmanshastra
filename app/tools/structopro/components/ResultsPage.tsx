@@ -95,7 +95,7 @@ function BlurOverlay({ onClick }: { onClick: () => void }) {
           ₹499 · UNLOCK TO VIEW
         </p>
         <p className="text-[13px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
-          Exact quantities, itemised costs, and contractor comparison
+          Know exactly where your money goes — before your contractor does.
         </p>
         <button
           onClick={onClick}
