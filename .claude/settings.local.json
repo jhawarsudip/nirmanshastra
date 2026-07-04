@@ -58,7 +58,8 @@
       "Bash(awk NR==930,NR==936 *)",
       "Bash(python3 *)",
       "Bash(npm list *)",
-      "Bash(grep -E '\\\\.\\(tsx|ts\\)$')"
+      "Bash(grep -E '\\\\.\\(tsx|ts\\)$')",
+      "Bash(vercel logs *)"
     ]
   }
 }
