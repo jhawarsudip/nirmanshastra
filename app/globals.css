@@ -360,8 +360,22 @@ footer :focus-visible {
 }
 
 /* ── SECTION ACCENT — italic Fraunces on 1–2 words per major section h2 ───── */
+/* Blueprint underline is always-visible (not time-animated) because these spans
+   may be off-screen on load — unlike hero-accent which is always above the fold. */
 .section-accent {
   font-style: italic;
+  display: inline-block;
+  position: relative;
+  vertical-align: baseline;
+}
+.section-accent::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #1F4E79;
 }
 
 /* ── NAV LINK HOVER ───────────────────────────────────────────────────────── */
@@ -388,4 +402,58 @@ footer :focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .nav-link,
   .nav-link::after { transition: none; }
+}
+
+/* ── BUTTON 3D — hover lift + active press depth ────────────────────────────
+   Applied to all primary/secondary CTA Link elements on the homepage.
+   GPU-only: only transform and box-shadow animate (no width/height/layout).
+   prefers-reduced-motion: transitions fully disabled. */
+.btn-3d {
+  display: inline-block;
+  will-change: transform;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .btn-3d:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 34, 39, 0.24), 0 2px 8px rgba(30, 34, 39, 0.14) !important;
+  }
+  .btn-3d:active {
+    transform: perspective(600px) rotateX(5deg) scale(0.97);
+    box-shadow: 0 1px 4px rgba(30, 34, 39, 0.12) !important;
+    transition-duration: 80ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-3d {
+    transition: none;
+    will-change: auto;
+  }
+}
+
+/* ── FOOTER COLUMN 3D LIFT ───────────────────────────────────────────────────
+   Applies a depth-lift to the TOOLS / COMPANY / LEGAL column containers.
+   Consistent with the button hover treatment above.
+   On dark footer background, a Blueprint-tinted ring conveys elevation. */
+.footer-col-3d {
+  will-change: transform;
+  transition: transform 220ms ease-out, box-shadow 220ms ease-out;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .footer-col-3d:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(10, 12, 14, 0.45),
+                0 0 0 1px rgba(31, 78, 121, 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-col-3d {
+    transition: none;
+    will-change: auto;
+  }
 }

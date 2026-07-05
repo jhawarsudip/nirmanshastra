@@ -686,12 +686,14 @@ export default function Home() {
               >
                 <Link
                   href="/tools/vastu-pro"
+                  className="btn-3d"
                   style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '15px 32px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', letterSpacing: '0.02em', fontWeight: 500 }}
                 >
                   Start Free — VastuPro
                 </Link>
                 <a
                   href="#pricing"
+                  className="btn-3d"
                   style={{ border: '1px solid rgba(244,244,240,0.3)', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '15px 32px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', background: 'transparent', letterSpacing: '0.02em' }}
                 >
                   See Pricing ↓
@@ -911,6 +913,7 @@ export default function Home() {
               <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 500, color: '#F4F4F0' }}>₹1,999</span>
               <Link
                 href="/tools/structopro"
+                className="btn-3d"
                 style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '13px 24px', borderRadius: 6, textDecoration: 'none', whiteSpace: 'nowrap' }}
               >
                 Get Bundle →
@@ -928,7 +931,7 @@ export default function Home() {
       {/* ── HOW IT WORKS (full width) ────────────────────────────────────── */}
       <section id="how-it-works" className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
-          <SectionHeader clause="CL. 3.0 — PROCESS" title="How NirmanShastra works" />
+          <SectionHeader clause="CL. 3.0 — PROCESS" title={<>How NirmanShastra <span className="section-accent">works</span></>} />
 
           {/* Connector line — draws left to right before cards reveal */}
           <motion.div
@@ -981,7 +984,7 @@ export default function Home() {
         <div className="space-y-10">
           <SectionHeader
             clause="CL. 3.5 — COMPETITIVE COMPARISON"
-            title="Why NirmanShastra beats free calculators"
+            title={<>Why NirmanShastra <span className="section-accent">beats</span> free calculators</>}
             dark
           />
           <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 16, color: 'rgba(244,244,240,0.6)', lineHeight: 1.65, maxWidth: 680 }}>
@@ -1073,7 +1076,7 @@ export default function Home() {
               CL. 4.0 — CODE COMPLIANCE
             </p>
             <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: '#F4F4F0', lineHeight: 1.15 }}>
-              Every calculation backed by Bureau of Indian Standards
+              Every calculation <span className="section-accent">backed</span> by Bureau of Indian Standards
             </h2>
           </div>
 
@@ -1123,7 +1126,7 @@ export default function Home() {
       {/* ── PRICING SECTION (full width) ─────────────────────────────────── */}
       <section id="pricing" className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
-          <SectionHeader clause="CL. 5.0 — PRICING · LAUNCH 2026" title="Simple, report-by-report pricing" />
+          <SectionHeader clause="CL. 5.0 — PRICING · LAUNCH 2026" title={<>Simple, <span className="section-accent">report-by-report</span> pricing</>} />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
 
@@ -1151,6 +1154,7 @@ export default function Home() {
               </ul>
               <Link
                 href="/tools/vastu-pro"
+                className="btn-3d"
                 style={{ display: 'block', textAlign: 'center', border: '1px solid #14532D', color: '#14532D', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '14px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
               >
                 Start Free →
@@ -1181,6 +1185,7 @@ export default function Home() {
               </ul>
               <Link
                 href="/tools/structopro"
+                className="btn-3d"
                 style={{ display: 'block', textAlign: 'center', background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '14px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
               >
                 Start with StructurePro →
@@ -1216,6 +1221,7 @@ export default function Home() {
               </ul>
               <Link
                 href="/tools/structopro"
+                className="btn-3d"
                 style={{ display: 'block', textAlign: 'center', background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '14px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em' }}
               >
                 Get Bundle →
@@ -1251,6 +1257,7 @@ export default function Home() {
               </div>
               <Link
                 href="/tools/grand-total"
+                className="btn-3d"
                 style={{ display: 'block', textAlign: 'center', background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 13, padding: '12px 28px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.03em', whiteSpace: 'nowrap' }}
               >
                 Generate Grand Total Report →
@@ -1294,7 +1301,7 @@ export default function Home() {
           style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}
         >
           {/* Column 1: TOOLS */}
-          <div style={{
+          <div className="footer-col-3d" style={{
             padding: '28px 28px 32px',
             borderTop: '2px solid #1F4E79',
             borderRight: '1px solid rgba(244,244,240,0.07)',
@@ -1318,7 +1325,7 @@ export default function Home() {
           </div>
 
           {/* Column 2: COMPANY */}
-          <div style={{
+          <div className="footer-col-3d" style={{
             padding: '28px 28px 32px',
             borderTop: '2px solid #1F4E79',
             borderRight: '1px solid rgba(244,244,240,0.07)',
@@ -1332,7 +1339,7 @@ export default function Home() {
           </div>
 
           {/* Column 3: LEGAL */}
-          <div style={{
+          <div className="footer-col-3d" style={{
             padding: '28px 28px 32px',
             borderTop: '2px solid #1F4E79',
             borderRight: '1px solid rgba(244,244,240,0.07)',
