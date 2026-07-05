@@ -1,4 +1,6 @@
-export function VastuIcon({ size = 48 }: { size?: number }) {
+import { motion } from 'framer-motion'
+
+export function VastuIcon({ size = 48, animated = false }: { size?: number; animated?: boolean }) {
   const cx = 24, cy = 24, rOuter = 20, rInner = 6
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true">
@@ -22,8 +24,13 @@ export function VastuIcon({ size = 48 }: { size?: number }) {
           />
         )
       })}
-      {/* North pointer — filled triangle at top of N spoke */}
-      <polygon points={`${cx},2 ${cx - 3},9 ${cx + 3},9`} fill="#C9A84C" />
+      {/* North pointer — rises slightly on hover like a compass finding north */}
+      <motion.polygon
+        points={`${cx},2 ${cx - 3},9 ${cx + 3},9`}
+        fill="#C9A84C"
+        animate={{ y: animated ? [0, -2.5, 0] : 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+      />
     </svg>
   )
 }

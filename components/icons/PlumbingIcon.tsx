@@ -1,8 +1,16 @@
-export function PlumbingIcon({ size = 48 }: { size?: number }) {
+import { motion } from 'framer-motion'
+
+export function PlumbingIcon({ size = 48, animated = false }: { size?: number; animated?: boolean }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      {/* Vertical pipe */}
-      <line x1="16" y1="6" x2="16" y2="30" stroke="#2D6E6E" strokeWidth="2.5" strokeLinecap="square" vectorEffect="non-scaling-stroke" />
+      {/* Vertical pipe — flow draw-in on hover (strokeDashoffset 24→0) */}
+      <motion.line
+        x1="16" y1="6" x2="16" y2="30"
+        stroke="#2D6E6E" strokeWidth="2.5" strokeLinecap="square" vectorEffect="non-scaling-stroke"
+        strokeDasharray="24"
+        animate={{ strokeDashoffset: animated ? [24, 0] : 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      />
       {/* 90° elbow */}
       <path d="M16,30 Q16,42 28,42" stroke="#2D6E6E" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
       {/* Horizontal pipe */}

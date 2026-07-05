@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react'
 import Link from 'next/link'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { FileCheck, HardHat, IndianRupee, ShieldCheck } from 'lucide-react'
 import { StructureIcon } from '@/components/icons/StructureIcon'
 import { MasonryIcon } from '@/components/icons/MasonryIcon'
@@ -307,13 +307,17 @@ function SectionHeader({ clause, title, dark = false }: { clause: string; title:
 // TOOL CARD
 // ─────────────────────────────────────────────────────────────────────────────
 
-const motifMap: Record<string, React.ReactElement> = {
-  P0: <VastuIcon size={48} />,
-  P1: <StructureIcon size={48} />,
-  P2: <MasonryIcon size={48} />,
-  P3: <ElectricalIcon size={48} />,
-  P4: <PlumbingIcon size={48} />,
-  P5: <InteriorIcon size={48} />,
+function getToolIcon(phase: string, animated: boolean, size = 48): React.ReactElement | null {
+  const props = { size, animated }
+  switch (phase) {
+    case 'P0': return <VastuIcon {...props} />
+    case 'P1': return <StructureIcon {...props} />
+    case 'P2': return <MasonryIcon {...props} />
+    case 'P3': return <ElectricalIcon {...props} />
+    case 'P4': return <PlumbingIcon {...props} />
+    case 'P5': return <InteriorIcon {...props} />
+    default: return null
+  }
 }
 
 const largeMotifMap: Record<string, React.ReactElement> = {
@@ -326,13 +330,16 @@ const largeMotifMap: Record<string, React.ReactElement> = {
 }
 
 function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number }) {
+  const prefersReducedMotion = useReducedMotion()
   const cardRef = useRef<HTMLDivElement>(null)
   const [rotX, setRotX] = useState(0)
   const [rotY, setRotY] = useState(0)
   const [isHover, setIsHover] = useState(false)
 
+  const animated = isHover && !prefersReducedMotion
+
   function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (!cardRef.current) return
+    if (!cardRef.current || prefersReducedMotion) return
     const rect = cardRef.current.getBoundingClientRect()
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2)
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2)
@@ -348,10 +355,10 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
+      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.45, ease: 'easeOut', delay }}
+      transition={{ duration: 0.45, ease: 'easeOut', delay: prefersReducedMotion ? 0 : delay }}
     >
       <div
         ref={cardRef}
@@ -359,10 +366,13 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
         onMouseLeave={onMouseLeave}
         onMouseEnter={() => setIsHover(true)}
         style={{
-          transform: `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(${isHover ? -4 : 0}px)`,
+          transform: prefersReducedMotion
+            ? undefined
+            : `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(${isHover ? -6 : 0}px)`,
           transition: 'transform 0.18s ease-out, box-shadow 0.18s ease-out',
-          boxShadow: isHover
-            ? '0 8px 16px rgba(30,34,39,0.14), 0 20px 40px rgba(30,34,39,0.08), 0 0 0 1px rgba(201,168,76,0.12)'
+          willChange: 'transform',
+          boxShadow: isHover && !prefersReducedMotion
+            ? '0 10px 24px rgba(30,34,39,0.18), 0 24px 48px rgba(30,34,39,0.10), 0 0 0 1px rgba(201,168,76,0.14)'
             : '0 1px 0 rgba(30,34,39,0.06)',
         }}
       >
@@ -397,7 +407,7 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
             </span>
 
             <div style={{ width: 48, height: 48, flexShrink: 0 }}>
-              {motifMap[tool.phase]}
+              {getToolIcon(tool.phase, animated)}
             </div>
 
             <div style={{ flex: 1 }}>
@@ -502,9 +512,11 @@ function TitleBlock() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Home() {
+  const prefersReducedMotion = useReducedMotion()
   const sectionRef = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   const heroIllustrationY = useTransform(scrollY, [0, 700], [0, -90])
+  const [vastuHover, setVastuHover] = useState(false)
 
   return (
     <main className="sheet-frame min-h-screen" style={{ background: '#F4F4F0' }}>
@@ -739,11 +751,23 @@ export default function Home() {
             </div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+              whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
             >
+              <div
+                onMouseEnter={() => setVastuHover(true)}
+                onMouseLeave={() => setVastuHover(false)}
+                style={{
+                  transform: !prefersReducedMotion && vastuHover ? 'translateY(-5px)' : undefined,
+                  transition: 'transform 0.18s ease-out, box-shadow 0.18s ease-out',
+                  willChange: 'transform',
+                  boxShadow: !prefersReducedMotion && vastuHover
+                    ? '0 10px 24px rgba(30,34,39,0.16), 0 0 0 1px rgba(201,168,76,0.3)'
+                    : undefined,
+                }}
+              >
               <Link href={VASTU_TOOL.href} style={{ textDecoration: 'none', display: 'block' }}>
                 <article style={{
                   border: '1px solid #C9A84C',
@@ -763,7 +787,7 @@ export default function Home() {
                     <LargeVastuWatermark />
                   </div>
                   <div style={{ width: 56, height: 56, flexShrink: 0 }}>
-                    <VastuIcon size={56} />
+                    <VastuIcon size={56} animated={vastuHover && !prefersReducedMotion} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
@@ -783,6 +807,7 @@ export default function Home() {
                   </div>
                 </article>
               </Link>
+              </div>
             </motion.div>
           </div>
 
