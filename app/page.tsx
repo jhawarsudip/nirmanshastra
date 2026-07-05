@@ -355,10 +355,10 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
 
   return (
     <motion.div
-      initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
-      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 48, scale: 0.97 }}
+      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.45, ease: 'easeOut', delay: prefersReducedMotion ? 0 : delay }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: prefersReducedMotion ? 0 : delay }}
     >
       <div
         ref={cardRef}
@@ -455,10 +455,10 @@ function PillarCard({ pillar, delay = 0 }: { pillar: (typeof PILLARS)[0]; delay?
 
   return (
     <motion.div
-      initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
-      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 30, scale: 0.96 }}
+      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.45, ease: 'easeOut', delay: prefersReducedMotion ? 0 : delay }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: prefersReducedMotion ? 0 : delay }}
     >
       <div
         onMouseEnter={() => setIsHover(true)}
@@ -504,6 +504,59 @@ function PillarCard({ pillar, delay = 0 }: { pillar: (typeof PILLARS)[0]; delay?
           {pillar.body}
         </p>
       </div>
+    </motion.div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROBLEM CARD — hover state per card (copy locked)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ProblemCard({ problem, index }: { problem: (typeof PROBLEMS)[0]; index: number }) {
+  const prefersReducedMotion = useReducedMotion()
+  const [isHover, setIsHover] = useState(false)
+
+  return (
+    <motion.div
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 50, scale: 0.97 }}
+      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: prefersReducedMotion ? 0 : index * 0.15 }}
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+      style={{
+        borderLeft: index === 0 ? `1px solid ${isHover ? 'rgba(31,78,121,0.45)' : 'rgba(244,244,240,0.1)'}` : 'none',
+        borderRight: `1px solid ${isHover ? 'rgba(31,78,121,0.45)' : 'rgba(244,244,240,0.1)'}`,
+        borderTop: `1px solid ${isHover ? 'rgba(31,78,121,0.45)' : 'rgba(244,244,240,0.1)'}`,
+        borderBottom: `1px solid ${isHover ? 'rgba(31,78,121,0.45)' : 'rgba(244,244,240,0.1)'}`,
+        padding: '48px 40px',
+        background: isHover && !prefersReducedMotion ? 'rgba(31,78,121,0.07)' : 'rgba(255,255,255,0.02)',
+        position: 'relative',
+        overflow: 'hidden',
+        transform: isHover && !prefersReducedMotion ? 'translateY(-4px)' : undefined,
+        boxShadow: isHover && !prefersReducedMotion ? '0 12px 32px rgba(0,0,0,0.3)' : undefined,
+        transition: 'border-color 200ms ease, background 200ms ease, transform 200ms ease, box-shadow 200ms ease',
+        willChange: 'transform',
+      }}
+    >
+      <div style={{
+        fontFamily: 'var(--font-plex-mono)',
+        fontSize: 120,
+        color: isHover && !prefersReducedMotion ? 'rgba(31,78,121,0.28)' : 'rgba(31,78,121,0.2)',
+        fontWeight: 700,
+        lineHeight: 1,
+        userSelect: 'none',
+        marginBottom: 24,
+        transition: 'color 200ms ease',
+      }}>
+        {problem.no}
+      </div>
+      <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 26, fontWeight: 600, color: '#F4F4F0', marginBottom: 16, lineHeight: 1.25 }}>
+        {problem.heading}
+      </h3>
+      <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.56)', lineHeight: 1.7 }}>
+        {problem.body}
+      </p>
     </motion.div>
   )
 }
@@ -592,14 +645,14 @@ export default function Home() {
         <section className="px-6 md:px-16 lg:px-24 pt-20 pb-20" style={{ position: 'relative', zIndex: 1 }}>
           <div className="grid grid-cols-1 items-center" style={{ gridTemplateColumns: '55fr 45fr', gap: '4rem' }}>
 
-            {/* Left — headline */}
-            <motion.div
-              className="space-y-14"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
-              <div style={{ paddingBottom: 8 }}>
+            {/* Left — staged entrance: headline → subtitle → CTAs → stats */}
+            <div className="space-y-14">
+              <motion.div
+                style={{ paddingBottom: 8 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 60 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+              >
                 <h1 style={{
                   fontFamily: 'var(--font-plex-serif)',
                   fontSize: 'clamp(56px, 8vw, 96px)',
@@ -614,13 +667,23 @@ export default function Home() {
                 <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 24, color: '#C9A84C', letterSpacing: '0.01em' }}>
                   निर्माणशास्त्र
                 </p>
-              </div>
+              </motion.div>
 
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.7, maxWidth: 540 }}>
+              <motion.p
+                style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.7, maxWidth: 540 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut', delay: 0.25 }}
+              >
                 Stop your contractor from overcharging you. Get exact material quantities backed by Indian Standards.
-              </p>
+              </motion.p>
 
-              <div className="flex flex-wrap gap-4">
+              <motion.div
+                className="flex flex-wrap gap-4"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, ease: 'easeOut', delay: 0.4 }}
+              >
                 <Link
                   href="/tools/vastu-pro"
                   style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '15px 32px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', letterSpacing: '0.02em', fontWeight: 500 }}
@@ -633,10 +696,10 @@ export default function Home() {
                 >
                   See Pricing ↓
                 </a>
-              </div>
+              </motion.div>
 
               {/* Stats row — clean ink-bordered callout, no glass */}
-              <div
+              <motion.div
                 className="flex flex-wrap gap-10"
                 style={{
                   padding: '24px 28px',
@@ -644,6 +707,9 @@ export default function Home() {
                   border: '1px solid rgba(244,244,240,0.18)',
                   borderRadius: 0,
                 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut', delay: 0.55 }}
               >
                 {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹1,999', 'Bundle']].map(([val, label]) => (
                   <div key={label}>
@@ -651,16 +717,15 @@ export default function Home() {
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 }}>{label}</div>
                   </div>
                 ))}
-              </div>
-
-            </motion.div>
+              </motion.div>
+            </div>
 
             {/* Right — Engineering title block + building elevation SVG */}
             <motion.div
               className="flex flex-col justify-center gap-8"
-              initial={{ opacity: 0, x: 24 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, x: 60 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
               style={{ width: '100%', y: heroIllustrationY }}
             >
               <TitleBlock />
@@ -684,42 +749,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
             {PROBLEMS.map((p, i) => (
-              <motion.div
-                key={p.no}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.45, ease: 'easeOut', delay: i * 0.15 }}
-                style={{
-                  borderLeft: i === 0 ? '1px solid rgba(244,244,240,0.1)' : 'none',
-                  borderRight: '1px solid rgba(244,244,240,0.1)',
-                  borderTop: '1px solid rgba(244,244,240,0.1)',
-                  borderBottom: '1px solid rgba(244,244,240,0.1)',
-                  padding: '48px 40px',
-                  background: 'rgba(255,255,255,0.02)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* Big number — 120px Blueprint blue at 20% opacity */}
-                <div style={{
-                  fontFamily: 'var(--font-plex-mono)',
-                  fontSize: 120,
-                  color: 'rgba(31,78,121,0.2)',
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  userSelect: 'none',
-                  marginBottom: 24,
-                }}>
-                  {p.no}
-                </div>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 26, fontWeight: 600, color: '#F4F4F0', marginBottom: 16, lineHeight: 1.25 }}>
-                  {p.heading}
-                </h3>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.56)', lineHeight: 1.7 }}>
-                  {p.body}
-                </p>
-              </motion.div>
+              <ProblemCard key={p.no} problem={p} index={i} />
             ))}
           </div>
         </div>
@@ -900,14 +930,23 @@ export default function Home() {
         <div className="space-y-14">
           <SectionHeader clause="CL. 3.0 — PROCESS" title="How NirmanShastra works" />
 
+          {/* Connector line — draws left to right before cards reveal */}
+          <motion.div
+            initial={prefersReducedMotion ? false : { scaleX: 0 }}
+            whileInView={prefersReducedMotion ? undefined : { scaleX: 1 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            style={{ height: 1, background: 'linear-gradient(to right, #1F4E79 60%, rgba(31,78,121,0))', transformOrigin: 'left center', marginBottom: 8 }}
+          />
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0">
             {STEPS.map((step, i) => (
               <motion.div
                 key={step.rev}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 32 }}
+                whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.4, ease: 'easeOut', delay: i * 0.1 }}
+                transition={{ duration: 0.45, ease: 'easeOut', delay: prefersReducedMotion ? 0 : i * 0.1 }}
                 style={{
                   borderTop: '3px solid #1F4E79',
                   borderRight: i < 3 ? '1px solid rgba(30,34,39,0.1)' : 'none',
@@ -1223,54 +1262,137 @@ export default function Home() {
       </section>
 
       {/* ── FOOTER ───────────────────────────────────────────────────────── */}
-      <footer style={{ borderTop: '1px solid #1E2227', background: '#1E2227', marginTop: 0 }}>
-        <div style={{ borderLeft: '1px solid rgba(244,244,240,0.1)', borderRight: '1px solid rgba(244,244,240,0.1)' }}>
-          <div className="grid grid-cols-2 md:grid-cols-3 px-6 md:px-16 lg:px-24" style={{ borderBottom: '1px solid rgba(244,244,240,0.1)' }}>
+      <footer style={{ borderTop: '1px solid rgba(244,244,240,0.12)', background: '#1E2227', marginTop: 0 }}>
 
-            <div style={{ padding: '32px 0 32px 0', paddingRight: 40, borderRight: '1px solid rgba(244,244,240,0.1)' }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>TOOLS</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {ALL_TOOLS.map(t => (
-                  <Link key={t.name} href={t.href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {t.name}
-                    <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: t.free ? '#14532D' : 'rgba(244,244,240,0.35)' }}>{t.free ? 'FREE' : '₹499'}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+        {/* Sheet reference eyebrow — echoes section-header clause numbering */}
+        <div style={{
+          borderBottom: '1px solid rgba(244,244,240,0.07)',
+          padding: '9px 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            SHEET NS-WEB-01 · REV A · NIRMANSHASTRA.IN
+          </span>
+          <span style={{
+            fontFamily: 'var(--font-plex-mono)',
+            fontSize: 9,
+            color: 'rgba(31,78,121,0.75)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            border: '1px solid rgba(31,78,121,0.28)',
+            padding: '2px 10px',
+          }}>
+            BUILD WITH CERTAINTY
+          </span>
+        </div>
 
-            <div style={{ padding: '32px 0 32px 40px', borderRight: '1px solid rgba(244,244,240,0.1)', paddingRight: 40 }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>COMPANY</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {[['About', '/about'], ['Contact', '/contact'], ['Blog', '/blog'], ['Careers', '/careers']].map(([label, href]) => (
-                  <Link key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</Link>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ padding: '32px 0 32px 40px' }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>LEGAL</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {[['Privacy Policy', '/privacy-policy'], ['Terms of Use', '/terms-of-use'], ['Disclaimer', '/disclaimer'], ['IS Codes Used', '/is-codes-used']].map(([label, href]) => (
-                  <Link key={label} href={href} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.65)', textDecoration: 'none' }}>{label}</Link>
-                ))}
-              </div>
+        {/* 4-column title-block grid — per Design Spec §5B */}
+        <div
+          className="grid grid-cols-2 lg:grid-cols-4"
+          style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}
+        >
+          {/* Column 1: TOOLS */}
+          <div style={{
+            padding: '28px 28px 32px',
+            borderTop: '2px solid #1F4E79',
+            borderRight: '1px solid rgba(244,244,240,0.07)',
+          }}>
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(31,78,121,0.75)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>TOOLS</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+              {ALL_TOOLS.map(t => (
+                <Link
+                  key={t.name}
+                  href={t.href}
+                  className="footer-link"
+                  style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
+                  {t.name}
+                  <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: t.free ? '#14532D' : 'rgba(244,244,240,0.28)', flexShrink: 0, marginLeft: 8 }}>
+                    {t.free ? 'FREE' : '₹499'}
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
 
-          <div className="px-6 md:px-16 lg:px-24" style={{ padding: '16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, paddingTop: 16, paddingBottom: 16 }}>
-            <div style={{ paddingLeft: 0 }}>
-              <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, color: '#F4F4F0', fontWeight: 600 }}>NirmanShastra</span>
-              <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 12, color: 'rgba(244,244,240,0.4)', marginLeft: 10 }}>निर्माणशास्त्र</span>
+          {/* Column 2: COMPANY */}
+          <div style={{
+            padding: '28px 28px 32px',
+            borderTop: '2px solid #1F4E79',
+            borderRight: '1px solid rgba(244,244,240,0.07)',
+          }}>
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(31,78,121,0.75)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>COMPANY</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+              {[['About', '/about'], ['Contact', '/contact'], ['Blog', '/blog'], ['Careers', '/careers']].map(([label, href]) => (
+                <Link key={label} href={href} className="footer-link" style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, textDecoration: 'none' }}>{label}</Link>
+              ))}
             </div>
-            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.35)', letterSpacing: '0.04em' }}>
-              Estimates are for budgeting reference only. Not for structural approval without licensed engineer.
-            </p>
-            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.35)', letterSpacing: '0.04em' }}>
-              © {new Date().getFullYear()} NirmanShastra
-            </p>
+          </div>
+
+          {/* Column 3: LEGAL */}
+          <div style={{
+            padding: '28px 28px 32px',
+            borderTop: '2px solid #1F4E79',
+            borderRight: '1px solid rgba(244,244,240,0.07)',
+          }}>
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(31,78,121,0.75)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>LEGAL</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+              {[['Privacy Policy', '/privacy-policy'], ['Terms of Use', '/terms-of-use'], ['Disclaimer', '/disclaimer'], ['IS Codes Used', '/is-codes-used']].map(([label, href]) => (
+                <Link key={label} href={href} className="footer-link" style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, textDecoration: 'none' }}>{label}</Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Column 4: DRAWING INFO — mini title block per Design Spec §5B */}
+          <div style={{
+            padding: '28px 28px 32px',
+            borderTop: '2px solid rgba(31,78,121,0.45)',
+          }}>
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(31,78,121,0.55)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>DRAWING INFO</p>
+            <div style={{ border: '1px solid rgba(244,244,240,0.09)', display: 'flex', flexDirection: 'column' }}>
+              {([
+                ['DRG NO.', 'NS-WEB-01'],
+                ['DRAWN BY', 'NIRMANSHASTRA'],
+                ['CHECKED', 'IS 456 · 875 · 732'],
+                ['DATE', String(new Date().getFullYear())],
+                ['REV', 'A'],
+              ] as [string, string][]).map(([label, value], i, arr) => (
+                <div key={label} style={{ display: 'flex', borderBottom: i < arr.length - 1 ? '1px solid rgba(244,244,240,0.07)' : 'none' }}>
+                  <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.28)', letterSpacing: '0.07em', textTransform: 'uppercase', padding: '7px 10px', borderRight: '1px solid rgba(244,244,240,0.07)', minWidth: 82, flexShrink: 0 }}>
+                    {label}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.55)', padding: '7px 10px', letterSpacing: '0.03em' }}>
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* Bottom bar — wordmark + disclaimer + copyright */}
+        <div style={{
+          padding: '14px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 8,
+        }}>
+          <div>
+            <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, color: '#F4F4F0', fontWeight: 600 }}>NirmanShastra</span>
+            <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 12, color: 'rgba(244,244,240,0.32)', marginLeft: 10 }}>निर्माणशास्त्र</span>
+          </div>
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', letterSpacing: '0.04em' }}>
+            Estimates are for budgeting reference only. Not for structural approval without licensed engineer.
+          </p>
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', letterSpacing: '0.04em' }}>
+            © {new Date().getFullYear()} NirmanShastra
+          </p>
+        </div>
+
       </footer>
     </main>
   )
