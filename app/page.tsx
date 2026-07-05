@@ -445,6 +445,70 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// PILLAR CARD — Trust section (visual/motion upgrade; copy locked)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function PillarCard({ pillar, delay = 0 }: { pillar: (typeof PILLARS)[0]; delay?: number }) {
+  const prefersReducedMotion = useReducedMotion()
+  const [isHover, setIsHover] = useState(false)
+  const { Icon } = pillar
+
+  return (
+    <motion.div
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
+      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.45, ease: 'easeOut', delay: prefersReducedMotion ? 0 : delay }}
+    >
+      <div
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+        style={{
+          border: '1px solid rgba(30,34,39,0.15)',
+          borderTop: '3px solid #1F4E79',
+          padding: '32px',
+          background: '#F4F4F0',
+          display: 'flex',
+          flexDirection: 'column',
+          transform: isHover && !prefersReducedMotion ? 'translateY(-4px)' : 'translateY(0)',
+          boxShadow: isHover && !prefersReducedMotion
+            ? '0 8px 20px rgba(30,34,39,0.12), 0 2px 6px rgba(30,34,39,0.07), 0 0 0 1px rgba(31,78,121,0.35)'
+            : '0 1px 0 rgba(30,34,39,0.06)',
+          transition: 'transform 0.2s ease-out, box-shadow 0.2s ease-out',
+          willChange: 'transform',
+        }}
+      >
+        {/* Icon — 32px, Blueprint, 20px bottom margin separates it from title block */}
+        <div style={{ color: '#1F4E79', marginBottom: 20 }}>
+          <Icon size={32} strokeWidth={1.5} />
+        </div>
+        {/* Title — top of H3 spec range (22px) at 700 weight for stronger hierarchy */}
+        <h3 style={{
+          fontFamily: 'var(--font-plex-serif)',
+          fontSize: 22,
+          fontWeight: 700,
+          color: '#1E2227',
+          lineHeight: 1.25,
+          marginBottom: 12,
+        }}>
+          {pillar.title}
+        </h3>
+        {/* Body — unchanged */}
+        <p style={{
+          fontFamily: 'var(--font-plex-sans)',
+          fontSize: 15,
+          color: 'rgba(30,34,39,0.65)',
+          lineHeight: 1.75,
+          flex: 1,
+        }}>
+          {pillar.body}
+        </p>
+      </div>
+    </motion.div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ENGINEERING TITLE BLOCK (Design Spec § 5.A)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -672,48 +736,9 @@ export default function Home() {
           <SectionHeader clause="CL. 1.5 — TRUST" title="Why NirmanShastra" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {PILLARS.map((pillar, i) => {
-              const { Icon } = pillar
-              return (
-                <motion.div
-                  key={pillar.title}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-40px' }}
-                  transition={{ duration: 0.4, ease: 'easeOut', delay: i * 0.1 }}
-                  style={{
-                    border: '1px solid rgba(30,34,39,0.15)',
-                    borderTop: '3px solid #1F4E79',
-                    padding: '32px',
-                    background: '#F4F4F0',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 16,
-                  }}
-                >
-                  <div style={{ color: '#1F4E79' }}>
-                    <Icon size={28} strokeWidth={1.5} />
-                  </div>
-                  <h3 style={{
-                    fontFamily: 'var(--font-plex-serif)',
-                    fontSize: 20,
-                    fontWeight: 600,
-                    color: '#1E2227',
-                    lineHeight: 1.25,
-                  }}>
-                    {pillar.title}
-                  </h3>
-                  <p style={{
-                    fontFamily: 'var(--font-plex-sans)',
-                    fontSize: 15,
-                    color: 'rgba(30,34,39,0.65)',
-                    lineHeight: 1.75,
-                  }}>
-                    {pillar.body}
-                  </p>
-                </motion.div>
-              )
-            })}
+            {PILLARS.map((pillar, i) => (
+              <PillarCard key={pillar.title} pillar={pillar} delay={i * 0.08} />
+            ))}
           </div>
         </div>
       </section>

@@ -61,7 +61,12 @@
       "Bash(grep -E '\\\\.\\(tsx|ts\\)$')",
       "Bash(vercel logs *)",
       "Read(//Users/sudipjhawar/.supabase/**)",
-      "Read(//Users/sudipjhawar/.config/supabase/**)"
+      "Read(//Users/sudipjhawar/.config/supabase/**)",
+      "Read(//Users/sudipjhawar/.claude/**)",
+      "Read(//Users/sudipjhawar/.claude/plugins/**)",
+      "Bash(gh api *)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
