@@ -10,6 +10,7 @@ import { ElectricalIcon } from '@/components/icons/ElectricalIcon'
 import { PlumbingIcon } from '@/components/icons/PlumbingIcon'
 import { InteriorIcon } from '@/components/icons/InteriorIcon'
 import { VastuIcon } from '@/components/icons/VastuIcon'
+import HeroIllustration from '@/components/HeroIllustration'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DATA
@@ -259,65 +260,6 @@ function LargeInteriorWatermark() {
             stroke="currentColor" strokeWidth="1.2" opacity=".55" />
         ))
       ).flat()}
-    </svg>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SVG ENGINEERING ILLUSTRATION
-// ─────────────────────────────────────────────────────────────────────────────
-
-function HouseConstructionSVG() {
-  const INK = '#F4F4F0'
-  const D = 'rgba(244,244,240,0.5)'
-  const GLS = 'rgba(244,244,240,0.06)'
-  const WAL = 'rgba(244,244,240,0.03)'
-  const SLB = 'rgba(244,244,240,0.09)'
-  return (
-    <svg width="100%" viewBox="0 0 520 325" fill="none" aria-hidden="true" style={{ opacity: 0.82 }}>
-      <line x1="32" y1="275" x2="488" y2="275" stroke={INK} strokeWidth="1.5" />
-      {Array.from({ length: 15 }, (_, i) => (
-        <line key={i} x1={80 + i * 28} y1="275" x2={66 + i * 28} y2="291" stroke={INK} strokeWidth="0.8" opacity="0.28" />
-      ))}
-      <rect x="62" y="252" width="396" height="23" stroke={INK} strokeWidth="1.2" fill={SLB} />
-      <rect x="68" y="137" width="384" height="115" stroke={INK} strokeWidth="1.5" fill={WAL} />
-      <rect x="60" y="125" width="400" height="12" stroke={INK} strokeWidth="1.2" fill={SLB} />
-      <rect x="68" y="24" width="384" height="101" stroke={INK} strokeWidth="1.5" fill={WAL} />
-      <rect x="60" y="8" width="400" height="16" stroke={INK} strokeWidth="1.2" fill={SLB} />
-      <line x1="60" y1="8" x2="460" y2="8" stroke={INK} strokeWidth="2" />
-      <line x1="68" y1="8" x2="68" y2="252" stroke={INK} strokeWidth="2" />
-      <line x1="452" y1="8" x2="452" y2="252" stroke={INK} strokeWidth="2" />
-      <line x1="97" y1="163" x2="184" y2="163" stroke={INK} strokeWidth="1.2" />
-      <rect x="103" y="165" width="75" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
-      <line x1="140" y1="165" x2="140" y2="222" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="103" y1="193" x2="178" y2="193" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="97" y1="222" x2="184" y2="222" stroke={INK} strokeWidth="1.2" />
-      <text x="140" y="242" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W1</text>
-      <line x1="336" y1="163" x2="423" y2="163" stroke={INK} strokeWidth="1.2" />
-      <rect x="342" y="165" width="75" height="57" stroke={INK} strokeWidth="1.1" fill={GLS} />
-      <line x1="379" y1="165" x2="379" y2="222" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="342" y1="193" x2="417" y2="193" stroke={INK} strokeWidth="0.6" opacity="0.7" />
-      <line x1="336" y1="222" x2="423" y2="222" stroke={INK} strokeWidth="1.2" />
-      <text x="379" y="242" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">W2</text>
-      <line x1="224" y1="163" x2="296" y2="163" stroke={INK} strokeWidth="1.2" />
-      <path d="M231,178 Q231,160 260,160 Q289,160 289,178" stroke={INK} strokeWidth="1" fill="none" />
-      <rect x="231" y="178" width="58" height="74" stroke={INK} strokeWidth="1.1" fill="rgba(244,244,240,0.05)" />
-      <line x1="260" y1="178" x2="260" y2="252" stroke={INK} strokeWidth="0.7" opacity="0.7" />
-      <line x1="220" y1="252" x2="300" y2="252" stroke={INK} strokeWidth="1.5" />
-      <text x="260" y="242" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">D1</text>
-      <line x1="470" y1="8" x2="470" y2="275" stroke={D} strokeWidth="0.8" />
-      <line x1="463" y1="8" x2="477" y2="8" stroke={D} strokeWidth="0.8" />
-      <line x1="463" y1="275" x2="477" y2="275" stroke={D} strokeWidth="0.8" />
-      <text x="484" y="141" fontSize="7" fill={D} fontFamily="monospace" textAnchor="middle" transform="rotate(-90 484 141)" letterSpacing="0.5">7500</text>
-      <line x1="68" y1="292" x2="452" y2="292" stroke={D} strokeWidth="0.8" />
-      <line x1="68" y1="285" x2="68" y2="299" stroke={D} strokeWidth="0.8" />
-      <line x1="452" y1="285" x2="452" y2="299" stroke={D} strokeWidth="0.8" />
-      <text x="260" y="307" fontSize="7.5" fill={D} fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">10800</text>
-      <text x="458" y="200" fontSize="7" fill={D} fontFamily="monospace" letterSpacing="0.5">GF</text>
-      <text x="458" y="80" fontSize="7" fill={D} fontFamily="monospace" letterSpacing="0.5">FF</text>
-      <text x="68" y="321" fontSize="6.5" fill={INK} fontFamily="monospace" letterSpacing="0.6" opacity="0.45">
-        NORTH ELEVATION · SCALE 1:100 · RCC FRAMED STRUCTURE · IS 456:2000 · DRG NS-EL-01
-      </text>
     </svg>
   )
 }
@@ -647,7 +589,7 @@ export default function Home() {
             >
               <TitleBlock />
               <div style={{ opacity: 0.88 }}>
-                <HouseConstructionSVG />
+                <HeroIllustration />
               </div>
             </motion.div>
           </div>
