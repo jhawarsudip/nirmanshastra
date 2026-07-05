@@ -10,6 +10,7 @@ import VerticalExtensionDetails from './components/VerticalExtensionDetails'
 import VEResultsPage from './components/VEResultsPage'
 import { runCalculation, type StructoInput, type StructoResult } from './structopro-engine'
 import { runVECalculation, type VEInput, type VEResult } from './structopro-ve-engine'
+import StructureBackground from '@/components/backgrounds/StructureBackground'
 import WizardStepBar from '@/components/ui/WizardStepBar'
 import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
@@ -188,7 +189,9 @@ export default function StructoProPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F4F4F0' }}>
+    <div className="min-h-screen" style={{ background: '#F4F4F0', position: 'relative' }}>
+      <StructureBackground />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Step bar — always visible */}
       <WizardStepBar currentStep={step === 've_details' || step === 've_results' ? 'details' : step} toolName="StructurePro" toolPhase="P1" />
 
@@ -304,6 +307,7 @@ export default function StructoProPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   )
 }

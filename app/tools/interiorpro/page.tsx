@@ -7,6 +7,7 @@ import MethodSelection from './components/MethodSelection'
 import BuildDetails from './components/BuildDetails'
 import ResultsPage from './components/ResultsPage'
 import { runCalculation, type InteriorInput, type InteriorResult } from './interiorpro-engine'
+import InteriorBackground from '@/components/backgrounds/InteriorBackground'
 import WizardStepBar from '@/components/ui/WizardStepBar'
 import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
@@ -140,7 +141,9 @@ export default function InteriorProPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F4F4F0' }}>
+    <div className="min-h-screen" style={{ background: '#F4F4F0', position: 'relative' }}>
+      <InteriorBackground />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       <WizardStepBar currentStep={step} toolName="InteriorPro" toolPhase="P5" />
 
       <AnimatePresence mode="wait">
@@ -216,6 +219,7 @@ export default function InteriorProPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   )
 }

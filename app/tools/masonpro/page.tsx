@@ -7,6 +7,7 @@ import MethodSelection from './components/MethodSelection'
 import BuildDetails from './components/BuildDetails'
 import ResultsPage from './components/ResultsPage'
 import { runCalculation, type MasonInput, type MasonResult } from './masonpro-engine'
+import MasonryBackground from '@/components/backgrounds/MasonryBackground'
 import WizardStepBar from '@/components/ui/WizardStepBar'
 import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
@@ -140,7 +141,9 @@ export default function MasonryProPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F4F4F0' }}>
+    <div className="min-h-screen" style={{ background: '#F4F4F0', position: 'relative' }}>
+      <MasonryBackground />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       <WizardStepBar currentStep={step} toolName="MasonryPro" toolPhase="P2" />
 
       <AnimatePresence mode="wait">
@@ -216,6 +219,7 @@ export default function MasonryProPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   )
 }

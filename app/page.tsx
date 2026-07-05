@@ -11,6 +11,7 @@ import { PlumbingIcon } from '@/components/icons/PlumbingIcon'
 import { InteriorIcon } from '@/components/icons/InteriorIcon'
 import { VastuIcon } from '@/components/icons/VastuIcon'
 import HeroIllustration from '@/components/HeroIllustration'
+import HomepageBackground from '@/components/backgrounds/HomepageBackground'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DATA
@@ -636,7 +637,9 @@ export default function Home() {
   const [vastuHover, setVastuHover] = useState(false)
 
   return (
-    <main className="sheet-frame min-h-screen" style={{ background: '#F4F4F0' }}>
+    <main className="sheet-frame min-h-screen" style={{ background: '#F4F4F0', position: 'relative' }}>
+      <HomepageBackground />
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* ── HERO (dark Iron Ink, full viewport width) ─────────────────────── */}
       <div style={{ background: '#1E2227', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
@@ -1401,6 +1404,7 @@ export default function Home() {
         </div>
 
       </footer>
+      </div>
     </main>
   )
 }

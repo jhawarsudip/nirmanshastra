@@ -15,6 +15,7 @@ import {
   type PlacedMarker,
   type VastuAnalysis,
 } from './vastu-engine'
+import VastuBackground from '@/components/backgrounds/VastuBackground'
 
 type Step = 'register' | 'plan' | 'results'
 
@@ -168,7 +169,9 @@ export default function VastuProPage() {
 
   // ── Step: Plan ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen" style={{ background: '#1E2227' }}>
+    <div className="min-h-screen" style={{ background: '#1E2227', position: 'relative' }}>
+      <VastuBackground />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Page header */}
       <div
         className="px-4 py-4"
@@ -331,6 +334,7 @@ export default function VastuProPage() {
           </div>
 
         </div>
+      </div>
       </div>
     </div>
   )
