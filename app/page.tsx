@@ -2,7 +2,6 @@
 
 import React, { useRef, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { FileCheck, HardHat, IndianRupee, ShieldCheck } from 'lucide-react'
 import { StructureIcon } from '@/components/icons/StructureIcon'
@@ -494,6 +493,69 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ENGINEERING TITLE BLOCK (Design Spec § 5.A)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function TitleBlock() {
+  const now = new Date()
+  const dd = String(now.getDate()).padStart(2, '0')
+  const mmm = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][now.getMonth()]
+  const dateStr = `${dd} ${mmm} ${now.getFullYear()}`
+
+  const rows: [string, string][] = [
+    ['PROJECT',  'YOUR HOME'],
+    ['DRG NO.',  'NS-001'],
+    ['DRAWN BY', 'NIRMANSHASTRA'],
+    ['CHECKED',  'IS 456 · 1077 · 732'],
+    ['AGAINST',  '· 1172 · 1893'],
+    ['SCALE',    '1:1 COST CERTAINTY'],
+    ['DATE',     `${dateStr}   REV A`],
+  ]
+
+  return (
+    <div
+      className="hero-title-block"
+      style={{ border: '1px solid rgba(244,244,240,0.32)', width: '100%' }}
+    >
+      {rows.map(([label, value], i) => (
+        <div
+          key={label}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '108px 1fr',
+            borderBottom: i < rows.length - 1 ? '1px solid rgba(244,244,240,0.1)' : 'none',
+            padding: '9px 16px',
+          }}
+        >
+          <span style={{
+            fontFamily: 'var(--font-plex-mono)',
+            fontSize: 9,
+            color: 'rgba(244,244,240,0.38)',
+            letterSpacing: '0.09em',
+            textTransform: 'uppercase',
+            lineHeight: 1.5,
+          }}>
+            {label}
+          </span>
+          <span
+            suppressHydrationWarning
+            style={{
+              fontFamily: 'var(--font-plex-mono)',
+              fontSize: 12,
+              color: 'rgba(244,244,240,0.82)',
+              letterSpacing: '0.04em',
+              lineHeight: 1.5,
+            }}
+          >
+            {value}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // HOMEPAGE
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -507,10 +569,7 @@ export default function Home() {
 
       {/* ── HERO (dark Iron Ink, full viewport width) ─────────────────────── */}
       <div style={{ background: '#1E2227', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-        {/* Gradient mesh blobs — very low saturation, slow drift */}
-        <div className="hero-blob-1" aria-hidden="true" />
-        <div className="hero-blob-2" aria-hidden="true" />
-        <div className="hero-blob-3" aria-hidden="true" />
+        {/* No blobs — grid-paper engineering ground only */}
 
         <section className="px-6 md:px-16 lg:px-24 pt-20 pb-20" style={{ position: 'relative', zIndex: 1 }}>
           <div className="grid grid-cols-1 items-center" style={{ gridTemplateColumns: '55fr 45fr', gap: '4rem' }}>
@@ -558,16 +617,14 @@ export default function Home() {
                 </a>
               </div>
 
-              {/* Stats row — frosted glass card with huge Plex Mono numbers */}
+              {/* Stats row — clean ink-bordered callout, no glass */}
               <div
                 className="flex flex-wrap gap-10"
                 style={{
                   padding: '24px 28px',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.10)',
-                  borderRadius: 2,
+                  background: 'rgba(244,244,240,0.04)',
+                  border: '1px solid rgba(244,244,240,0.18)',
+                  borderRadius: 0,
                 }}
               >
                 {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹1,999', 'Bundle']].map(([val, label]) => (
@@ -580,22 +637,17 @@ export default function Home() {
 
             </motion.div>
 
-            {/* Right — Building elevation illustration with parallax */}
+            {/* Right — Engineering title block + building elevation SVG */}
             <motion.div
-              className="flex items-center justify-end"
+              className="flex flex-col justify-center gap-8"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
               style={{ width: '100%', y: heroIllustrationY }}
             >
-              <div style={{ position: 'relative', width: '100%', minHeight: 500 }}>
-                <Image
-                  src="/hero-illustration.png"
-                  alt="NirmanShastra building elevation"
-                  fill
-                  style={{ objectFit: 'contain', objectPosition: 'right center' }}
-                  priority
-                />
+              <TitleBlock />
+              <div style={{ opacity: 0.88 }}>
+                <HouseConstructionSVG />
               </div>
             </motion.div>
           </div>
