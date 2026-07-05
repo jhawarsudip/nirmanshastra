@@ -82,7 +82,6 @@ function AdminModal({ onClose }: { onClose: () => void }) {
               color:       '#F4F4F0',
               padding:     '10px 12px',
               fontSize:    13,
-              outline:     'none',
               marginBottom: 14,
               borderRadius: 0,
             }}
@@ -164,15 +163,22 @@ export default function Navbar() {
     return () => subscription.unsubscribe()
   }, [supabase])
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click or Escape
   useEffect(() => {
-    function handler(e: MouseEvent) {
+    function mouseHandler(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setToolsOpen(false)
       }
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    function keyHandler(e: KeyboardEvent) {
+      if (e.key === 'Escape') setToolsOpen(false)
+    }
+    document.addEventListener('mousedown', mouseHandler)
+    document.addEventListener('keydown', keyHandler)
+    return () => {
+      document.removeEventListener('mousedown', mouseHandler)
+      document.removeEventListener('keydown', keyHandler)
+    }
   }, [])
 
   async function handleLogout() {
@@ -234,15 +240,11 @@ export default function Navbar() {
           </button>
 
           {toolsOpen && (
-            <div style={{
-              position: 'absolute',
-              top: 'calc(100% + 12px)',
-              left: '50%',
-              transform: 'translateX(-50%)',
+            <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
+            <div className="dropdown-3d" style={{
               background: '#1E2227',
               border: '1px solid rgba(244,244,240,0.12)',
               minWidth: 300,
-              zIndex: 50,
             }}>
               {/* Section 1: Compliance & Analysis */}
               <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
@@ -329,6 +331,7 @@ export default function Navbar() {
                 <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.5)' }}>Bundle — 5 tools</span>
                 <span style={{ ...mono, fontSize: 12, color: '#8C3A22' }}>₹1,999</span>
               </div>
+            </div>
             </div>
           )}
         </div>

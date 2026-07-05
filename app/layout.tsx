@@ -4,6 +4,8 @@ import {
   IBM_Plex_Sans,
   IBM_Plex_Mono,
   IBM_Plex_Sans_Devanagari,
+  Fraunces,
+  Public_Sans,
 } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar"
@@ -33,6 +35,22 @@ const plexDevanagari = IBM_Plex_Sans_Devanagari({
   variable: "--font-plex-devanagari",
   subsets: ["devanagari"],
   weight: ["400", "500"],
+});
+
+// Homepage editorial fonts — Fraunces (display serif) + Public Sans (body)
+// Loaded globally for performance; applied only in app/page.tsx
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  display: "swap",
+  style: ["normal", "italic"],
+});
+
+const publicSans = Public_Sans({
+  variable: "--font-public-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -89,7 +107,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} antialiased`}
+        className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} antialiased`}
       >
         {/* Announcement bar */}
         <div style={{ background: '#1F4E79', border: 'none', borderTop: 'none', borderBottom: 'none', outline: 'none', boxShadow: 'none' }}>

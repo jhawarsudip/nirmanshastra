@@ -270,10 +270,10 @@ function LargeInteriorWatermark() {
 
 function DimDivider({ label, animated = false, dark = false }: { label: string; animated?: boolean; dark?: boolean }) {
   const lineColor = dark ? 'rgba(244,244,240,0.18)' : '#1E2227'
-  const textColor = dark ? 'rgba(244,244,240,0.4)' : '#1E2227'
+  const textColor = dark ? 'rgba(244,244,240,0.55)' : '#1E2227'
   return (
     <div className="flex items-center gap-4 px-6 md:px-16">
-      <div className="flex flex-1 items-center">
+      <div className="flex flex-1 items-center" aria-hidden="true">
         <div style={{ width: 0, height: 0, borderTop: '4px solid transparent', borderBottom: '4px solid transparent', borderRight: `7px solid ${lineColor}`, flexShrink: 0 }} />
         <div style={{ flex: 1, height: 1, background: lineColor }} className={animated ? 'animate-dim-line' : ''} />
         <div style={{ width: 1, height: 10, background: lineColor, flexShrink: 0 }} />
@@ -281,7 +281,7 @@ function DimDivider({ label, animated = false, dark = false }: { label: string; 
       <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: textColor, letterSpacing: '0.07em', whiteSpace: 'nowrap' }}>
         {label}
       </span>
-      <div className="flex flex-1 items-center">
+      <div className="flex flex-1 items-center" aria-hidden="true">
         <div style={{ width: 1, height: 10, background: lineColor, flexShrink: 0 }} />
         <div style={{ flex: 1, height: 1, background: lineColor }} />
         <div style={{ width: 0, height: 0, borderTop: '4px solid transparent', borderBottom: '4px solid transparent', borderLeft: `7px solid ${lineColor}`, flexShrink: 0 }} />
@@ -290,13 +290,13 @@ function DimDivider({ label, animated = false, dark = false }: { label: string; 
   )
 }
 
-function SectionHeader({ clause, title, dark = false }: { clause: string; title: string; dark?: boolean }) {
+function SectionHeader({ clause, title, dark = false }: { clause: string; title: React.ReactNode; dark?: boolean }) {
   return (
     <div className="space-y-3">
       <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: dark ? '#6BA3CC' : '#1F4E79', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
         {clause}
       </p>
-      <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: dark ? '#F4F4F0' : '#1E2227', lineHeight: 1.15, letterSpacing: '0.01em' }}>
+      <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: dark ? '#F4F4F0' : '#1E2227', lineHeight: 1.15, letterSpacing: '0.01em' }}>
         {title}
       </h2>
     </div>
@@ -414,10 +414,10 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
                 {tool.descriptor}
               </p>
-              <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 10, lineHeight: 1.1, letterSpacing: '0.01em' }}>
+              <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 10, lineHeight: 1.1, letterSpacing: '0.01em' }}>
                 {tool.name}
               </h3>
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.63)', lineHeight: 1.7 }}>
+              <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 15, color: 'rgba(30,34,39,0.70)', lineHeight: 1.7 }}>
                 {tool.desc}
               </p>
             </div>
@@ -480,11 +480,11 @@ function PillarCard({ pillar, delay = 0 }: { pillar: (typeof PILLARS)[0]; delay?
       >
         {/* Icon — 32px, Blueprint, 20px bottom margin separates it from title block */}
         <div style={{ color: '#1F4E79', marginBottom: 20 }}>
-          <Icon size={32} strokeWidth={1.5} />
+          <Icon size={32} strokeWidth={1.5} aria-hidden={true} />
         </div>
         {/* Title — top of H3 spec range (22px) at 700 weight for stronger hierarchy */}
         <h3 style={{
-          fontFamily: 'var(--font-plex-serif)',
+          fontFamily: 'var(--font-fraunces)',
           fontSize: 22,
           fontWeight: 700,
           color: '#1E2227',
@@ -495,9 +495,9 @@ function PillarCard({ pillar, delay = 0 }: { pillar: (typeof PILLARS)[0]; delay?
         </h3>
         {/* Body — unchanged */}
         <p style={{
-          fontFamily: 'var(--font-plex-sans)',
+          fontFamily: 'var(--font-public-sans)',
           fontSize: 15,
-          color: 'rgba(30,34,39,0.65)',
+          color: 'rgba(30,34,39,0.70)',
           lineHeight: 1.75,
           flex: 1,
         }}>
@@ -551,10 +551,10 @@ function ProblemCard({ problem, index }: { problem: (typeof PROBLEMS)[0]; index:
       }}>
         {problem.no}
       </div>
-      <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 26, fontWeight: 600, color: '#F4F4F0', marginBottom: 16, lineHeight: 1.25 }}>
+      <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 26, fontWeight: 600, color: '#F4F4F0', marginBottom: 16, lineHeight: 1.25 }}>
         {problem.heading}
       </h3>
-      <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.56)', lineHeight: 1.7 }}>
+      <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 16, color: 'rgba(244,244,240,0.56)', lineHeight: 1.7 }}>
         {problem.body}
       </p>
     </motion.div>
@@ -654,7 +654,7 @@ export default function Home() {
                 transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               >
                 <h1 style={{
-                  fontFamily: 'var(--font-plex-serif)',
+                  fontFamily: 'var(--font-fraunces)',
                   fontSize: 'clamp(56px, 8vw, 96px)',
                   fontWeight: 700,
                   color: '#F4F4F0',
@@ -662,7 +662,7 @@ export default function Home() {
                   letterSpacing: '-0.02em',
                   marginBottom: 20,
                 }}>
-                  Build With Certainty.
+                  Build With <span className="hero-accent">Certainty.</span>
                 </h1>
                 <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 24, color: 'rgba(244,244,240,0.55)', letterSpacing: '0.01em' }}>
                   निर्माणशास्त्र
@@ -670,7 +670,7 @@ export default function Home() {
               </motion.div>
 
               <motion.p
-                style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.7, maxWidth: 540 }}
+                style={{ fontFamily: 'var(--font-public-sans)', fontSize: 18, color: 'rgba(244,244,240,0.65)', lineHeight: 1.7, maxWidth: 540 }}
                 initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: 'easeOut', delay: 0.25 }}
@@ -714,7 +714,7 @@ export default function Home() {
                 {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹1,999', 'Bundle']].map(([val, label]) => (
                   <div key={label}>
                     <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 500, color: '#F4F4F0', lineHeight: 1 }}>{val}</div>
-                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 }}>{label}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.55)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 }}>{label}</div>
                   </div>
                 ))}
               </motion.div>
@@ -745,7 +745,7 @@ export default function Home() {
       {/* ── PROBLEM SECTION (dark, full width) ──────────────────────────── */}
       <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1E2227' }}>
         <div className="space-y-16">
-          <SectionHeader clause="CL. 1.0 — WHY BUDGETS FAIL" title="The three problems no contractor will tell you" dark />
+          <SectionHeader clause="CL. 1.0 — WHY BUDGETS FAIL" title={<>The three problems <span className="section-accent">no contractor</span> will tell you</>} dark />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
             {PROBLEMS.map((p, i) => (
@@ -782,12 +782,12 @@ export default function Home() {
       <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1E2227' }} ref={sectionRef}>
         <div className="space-y-14">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <SectionHeader clause="CL. 2.0 — SCOPE OF TOOLS" title="Every phase of your construction, estimated" dark />
+            <SectionHeader clause="CL. 2.0 — SCOPE OF TOOLS" title={<>Every phase of your construction, <span className="section-accent">estimated</span></>} dark />
             <div style={{ border: '1px solid rgba(31,78,121,0.4)', padding: '14px 20px', background: 'rgba(31,78,121,0.1)', flexShrink: 0, maxWidth: 380 }}>
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#7BA7CC', letterSpacing: '0.05em', lineHeight: 1.5 }}>
                 Professional IS-code compliant BOQ for each construction phase
               </p>
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.4)', marginTop: 4 }}>
+              <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 13, color: 'rgba(244,244,240,0.55)', marginTop: 4 }}>
                 Exact quantities · Local market rates · Contractor-ready format
               </p>
             </div>
@@ -799,7 +799,7 @@ export default function Home() {
               <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>SUITE 1</span>
-                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 16, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>Compliance &amp; Analysis</span>
+                <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>Compliance &amp; Analysis</span>
                 <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid #14532D', color: '#14532D', letterSpacing: '0.04em' }}>FREE</span>
               </div>
               <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
@@ -848,10 +848,10 @@ export default function Home() {
                     <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
                       {VASTU_TOOL.descriptor}
                     </p>
-                    <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 32, fontWeight: 700, color: '#1E2227', marginBottom: 8 }}>
+                    <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 32, fontWeight: 700, color: '#1E2227', marginBottom: 8 }}>
                       {VASTU_TOOL.name}
                     </h3>
-                    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.63)', lineHeight: 1.65, maxWidth: 560 }}>
+                    <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 15, color: 'rgba(30,34,39,0.70)', lineHeight: 1.65, maxWidth: 560 }}>
                       {VASTU_TOOL.desc}
                     </p>
                   </div>
@@ -872,12 +872,12 @@ export default function Home() {
               <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>SUITE 2</span>
-                <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 16, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>Phase-wise Cost &amp; BOQ Estimation</span>
+                <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>Phase-wise Cost &amp; BOQ Estimation</span>
                 <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid rgba(31,78,121,0.55)', color: '#7BA7CC', letterSpacing: '0.04em' }}>₹499 / REPORT</span>
               </div>
               <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
             </div>
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.32)', textAlign: 'center' }}>
+            <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 13, color: 'rgba(244,244,240,0.55)', textAlign: 'center' }}>
               IS-code verified BOQ · Exact quantities · CPWD labour rates · Contractor comparison
             </p>
           </div>
@@ -901,7 +901,7 @@ export default function Home() {
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#7BA7CC', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
                 COMPLETE BUNDLE — ALL 5 PAID TOOLS
               </p>
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.57)' }}>
+              <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 16, color: 'rgba(244,244,240,0.57)' }}>
                 StructurePro · MasonryPro · ElectricalPro · PlumbingPro · InteriorPro
                 {' '}&mdash; saves{' '}
                 <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹496</span> vs buying separately
@@ -959,10 +959,10 @@ export default function Home() {
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: '#1F4E79', letterSpacing: '0.06em', marginBottom: 14 }}>
                   {step.rev}
                 </p>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 20, fontWeight: 600, color: '#1E2227', marginBottom: 12, lineHeight: 1.3 }}>
+                <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 20, fontWeight: 600, color: '#1E2227', marginBottom: 12, lineHeight: 1.3 }}>
                   {step.heading}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.65)', lineHeight: 1.75 }}>
+                <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 15, color: 'rgba(30,34,39,0.70)', lineHeight: 1.75 }}>
                   {step.body}
                 </p>
               </motion.div>
@@ -984,7 +984,7 @@ export default function Home() {
             title="Why NirmanShastra beats free calculators"
             dark
           />
-          <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(244,244,240,0.6)', lineHeight: 1.65, maxWidth: 680 }}>
+          <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 16, color: 'rgba(244,244,240,0.6)', lineHeight: 1.65, maxWidth: 680 }}>
             Free online calculators steal your phone number and sell it to contractors. Here&apos;s what you actually get.
           </p>
 
@@ -992,9 +992,9 @@ export default function Home() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-plex-sans)', fontSize: 14 }}>
               <thead>
                 <tr>
-                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 200 }}>Feature</th>
-                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.65)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 260 }}>Free Online Calculators</th>
-                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.85)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', background: 'rgba(31,78,121,0.15)', minWidth: 280 }}>NirmanShastra (₹499/phase)</th>
+                  <th scope="col" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 200 }}>Feature</th>
+                  <th scope="col" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.65)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 260 }}>Free Online Calculators</th>
+                  <th scope="col" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.85)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', background: 'rgba(31,78,121,0.15)', minWidth: 280 }}>NirmanShastra (₹499/phase)</th>
                 </tr>
               </thead>
               <tbody>
@@ -1041,11 +1041,11 @@ export default function Home() {
                   },
                 ].map((row, i) => (
                   <tr key={row.feature} style={{ background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
-                    <td style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.75)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', borderRight: '1px solid rgba(244,244,240,0.08)', verticalAlign: 'top' }}>{row.feature}</td>
-                    <td style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.5)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', borderRight: '1px solid rgba(244,244,240,0.08)', verticalAlign: 'top' }}>
+                    <td style={{ fontFamily: 'var(--font-public-sans)', fontSize: 14, color: 'rgba(244,244,240,0.75)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', borderRight: '1px solid rgba(244,244,240,0.08)', verticalAlign: 'top' }}>{row.feature}</td>
+                    <td style={{ fontFamily: 'var(--font-public-sans)', fontSize: 14, color: 'rgba(244,244,240,0.5)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', borderRight: '1px solid rgba(244,244,240,0.08)', verticalAlign: 'top' }}>
                       <span style={{ color: 'rgba(244,244,240,0.55)', fontWeight: 700, marginRight: 8 }}>✗</span>{row.free}
                     </td>
-                    <td style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.85)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', background: 'rgba(31,78,121,0.1)', verticalAlign: 'top' }}>
+                    <td style={{ fontFamily: 'var(--font-public-sans)', fontSize: 14, color: 'rgba(244,244,240,0.85)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', background: 'rgba(31,78,121,0.1)', verticalAlign: 'top' }}>
                       <span style={{ color: 'rgba(244,244,240,0.85)', fontWeight: 700, marginRight: 8 }}>✓</span>{row.ns}
                     </td>
                   </tr>
@@ -1072,7 +1072,7 @@ export default function Home() {
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               CL. 4.0 — CODE COMPLIANCE
             </p>
-            <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: '#F4F4F0', lineHeight: 1.15 }}>
+            <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: '#F4F4F0', lineHeight: 1.15 }}>
               Every calculation backed by Bureau of Indian Standards
             </h2>
           </div>
@@ -1103,7 +1103,7 @@ export default function Home() {
 
           <div style={{ border: '1px solid rgba(244,244,240,0.2)', padding: '18px 24px', background: 'rgba(255,255,255,0.06)', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
             <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 16, color: 'rgba(244,244,240,0.55)', flexShrink: 0 }}>ⓘ</span>
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(244,244,240,0.72)', lineHeight: 1.65, margin: 0 }}>
+            <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 15, color: 'rgba(244,244,240,0.72)', lineHeight: 1.65, margin: 0 }}>
               IS code values in NirmanShastra are verified against BIS publications and locked at source.
               Every material quantity, mix ratio, and structural parameter traces back to a specific IS clause.
               M20 is <span style={{ fontFamily: 'var(--font-plex-mono)' }}>1:1.5:3</span> (not{' '}
@@ -1137,14 +1137,14 @@ export default function Home() {
             >
               <div>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#14532D', letterSpacing: '0.07em', marginBottom: 8 }}>PHASE 0 — LEAD MAGNET</p>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>VastuPro</h3>
+                <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>VastuPro</h3>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>Vastu Compliance Analyser</p>
                 <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#14532D', lineHeight: 1 }}>FREE</div>
                 <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>forever · no payment required</p>
               </div>
               <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {['Vastu compliance analysis','33 room types supported','16-zone Vastu Mandala','Score + remedies','Full PDF report','IS 4326:1993 seismic warnings'].map(f => (
-                  <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
+                  <li key={f} style={{ fontFamily: 'var(--font-public-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
                     <span style={{ color: '#14532D', fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
                   </li>
                 ))}
@@ -1167,14 +1167,14 @@ export default function Home() {
             >
               <div>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.07em', marginBottom: 8 }}>PER REPORT · ANY PAID TOOL</p>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Single Tool</h3>
+                <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Single Tool</h3>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>IS-Code BOQ Estimator</p>
                 <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹499</div>
                 <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>per report · StructurePro to InteriorPro</p>
               </div>
               <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {['Exact material quantities','Itemised cost breakdown','IS code compliance panel','CPWD labour cost calculator','Contractor quote comparison','PDF report with SVG drawings'].map(f => (
-                  <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
+                  <li key={f} style={{ fontFamily: 'var(--font-public-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
                     <span style={{ color: '#1F4E79', fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
                   </li>
                 ))}
@@ -1200,7 +1200,7 @@ export default function Home() {
               </div>
               <div>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#8C3A22', letterSpacing: '0.07em', marginBottom: 8 }}>COMPLETE BUNDLE · ALL 5 PAID TOOLS</p>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Full Platform</h3>
+                <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Full Platform</h3>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>All 5 Phase Estimators</p>
                 <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹1,999</div>
                 <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>
@@ -1209,7 +1209,7 @@ export default function Home() {
               </div>
               <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {['StructurePro + MasonryPro','ElectricalPro + PlumbingPro','InteriorPro','All quantities across all phases','Cross-phase contractor comparison','Grand Total Report (₹999) free'].map(f => (
-                  <li key={f} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
+                  <li key={f} style={{ fontFamily: 'var(--font-public-sans)', fontSize: 15, color: 'rgba(30,34,39,0.68)', display: 'flex', gap: 10 }}>
                     <span style={{ color: '#8C3A22', fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
                   </li>
                 ))}
@@ -1236,8 +1236,8 @@ export default function Home() {
             </div>
             <div style={{ flex: '1 1 400px' }}>
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.07em', marginBottom: 8, marginTop: 8 }}>COMBINE ALL 5 PHASES · ONE MASTER BOQ</p>
-              <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', marginBottom: 6 }}>Grand Total Report</h3>
-              <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(30,34,39,0.6)', lineHeight: 1.6, maxWidth: 500 }}>
+              <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 24, fontWeight: 700, color: '#1E2227', marginBottom: 6 }}>Grand Total Report</h3>
+              <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 14, color: 'rgba(30,34,39,0.6)', lineHeight: 1.6, maxWidth: 500 }}>
                 Combine all 5 phases into one master report. Phase-wise cost breakdown, construction timeline Gantt chart,
                 combined IS code compliance, and a 12-page contractor-ready PDF.
               </p>
@@ -1382,7 +1382,7 @@ export default function Home() {
           gap: 8,
         }}>
           <div>
-            <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, color: '#F4F4F0', fontWeight: 600 }}>NirmanShastra</span>
+            <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: 15, color: '#F4F4F0', fontWeight: 600 }}>NirmanShastra</span>
             <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 12, color: 'rgba(244,244,240,0.32)', marginLeft: 10 }}>निर्माणशास्त्र</span>
           </div>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.5)', letterSpacing: '0.04em' }}>
