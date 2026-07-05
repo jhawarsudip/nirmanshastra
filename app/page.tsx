@@ -642,8 +642,8 @@ export default function Home() {
       <div style={{ background: '#1E2227', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
         {/* No blobs — grid-paper engineering ground only */}
 
-        <section className="px-6 md:px-16 lg:px-24 pt-20 pb-20" style={{ position: 'relative', zIndex: 1 }}>
-          <div className="grid grid-cols-1 items-center" style={{ gridTemplateColumns: '55fr 45fr', gap: '4rem' }}>
+        <section className="px-6 md:px-16 lg:px-24 pt-14 pb-14 md:pt-20 md:pb-20" style={{ position: 'relative', zIndex: 1 }}>
+          <div className="grid items-center hero-grid">
 
             {/* Left — staged entrance: headline → subtitle → CTAs → stats */}
             <div className="space-y-14">
@@ -664,7 +664,7 @@ export default function Home() {
                 }}>
                   Build With Certainty.
                 </h1>
-                <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 24, color: '#C9A84C', letterSpacing: '0.01em' }}>
+                <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 24, color: 'rgba(244,244,240,0.55)', letterSpacing: '0.01em' }}>
                   निर्माणशास्त्र
                 </p>
               </motion.div>
@@ -713,7 +713,7 @@ export default function Home() {
               >
                 {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹1,999', 'Bundle']].map(([val, label]) => (
                   <div key={label}>
-                    <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 500, color: '#C9A84C', lineHeight: 1 }}>{val}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 500, color: '#F4F4F0', lineHeight: 1 }}>{val}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 }}>{label}</div>
                   </div>
                 ))}
@@ -992,9 +992,9 @@ export default function Home() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-plex-sans)', fontSize: 14 }}>
               <thead>
                 <tr>
-                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.45)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 200 }}>Feature</th>
-                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#EF4444', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 260 }}>Free Online Calculators</th>
-                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', background: 'rgba(31,78,121,0.15)', minWidth: 280 }}>NirmanShastra (₹499/phase)</th>
+                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 200 }}>Feature</th>
+                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.65)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 260 }}>Free Online Calculators</th>
+                  <th style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.85)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', background: 'rgba(31,78,121,0.15)', minWidth: 280 }}>NirmanShastra (₹499/phase)</th>
                 </tr>
               </thead>
               <tbody>
@@ -1043,10 +1043,10 @@ export default function Home() {
                   <tr key={row.feature} style={{ background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
                     <td style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.75)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', borderRight: '1px solid rgba(244,244,240,0.08)', verticalAlign: 'top' }}>{row.feature}</td>
                     <td style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.5)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', borderRight: '1px solid rgba(244,244,240,0.08)', verticalAlign: 'top' }}>
-                      <span style={{ color: '#EF4444', fontWeight: 700, marginRight: 8 }}>✗</span>{row.free}
+                      <span style={{ color: 'rgba(244,244,240,0.55)', fontWeight: 700, marginRight: 8 }}>✗</span>{row.free}
                     </td>
                     <td style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.85)', padding: '12px 16px', borderBottom: '1px solid rgba(244,244,240,0.07)', background: 'rgba(31,78,121,0.1)', verticalAlign: 'top' }}>
-                      <span style={{ color: '#1F4E79', fontWeight: 700, marginRight: 8 }}>✓</span>{row.ns}
+                      <span style={{ color: 'rgba(244,244,240,0.85)', fontWeight: 700, marginRight: 8 }}>✓</span>{row.ns}
                     </td>
                   </tr>
                 ))}
@@ -1385,10 +1385,10 @@ export default function Home() {
             <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 15, color: '#F4F4F0', fontWeight: 600 }}>NirmanShastra</span>
             <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 12, color: 'rgba(244,244,240,0.32)', marginLeft: 10 }}>निर्माणशास्त्र</span>
           </div>
-          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', letterSpacing: '0.04em' }}>
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.5)', letterSpacing: '0.04em' }}>
             Estimates are for budgeting reference only. Not for structural approval without licensed engineer.
           </p>
-          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', letterSpacing: '0.04em' }}>
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.5)', letterSpacing: '0.04em' }}>
             © {new Date().getFullYear()} NirmanShastra
           </p>
         </div>

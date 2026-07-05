@@ -187,9 +187,7 @@ export default function Navbar() {
     <>
     <nav
       style={{
-        background: 'rgba(30,34,39,0.82)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        background: '#1E2227',
         borderBottom: '1px solid rgba(244,244,240,0.08)',
         minHeight: 52,
         position: 'sticky',
