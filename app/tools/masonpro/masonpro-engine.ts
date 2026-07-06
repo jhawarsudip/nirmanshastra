@@ -378,6 +378,13 @@ export interface MasonInput {
   numFloors?: number
   floorHeightM?: number
 
+  // Direct wall-length model (replaces room-based model)
+  selectedFloors?: number[]            // floor indices selected, e.g. [0, 1, 2] or [0, 2, 4]
+  floorHeightFt?: number               // global floor height in feet
+  exteriorWallLengthsFt?: number[]     // per selected floor, matching selectedFloors order
+  interiorWallLengthsFt?: number[]     // per selected floor, for interior partitions
+  perFloorExteriorAreaSqm?: number[]   // pre-computed net exterior area per selected floor
+
   // Per-floor wall type (used when sameWallAllFloors === false)
   sameWallAllFloors?: boolean
   perFloorWallTypes?: ExternalWallType[]
@@ -387,7 +394,7 @@ export interface MasonInput {
   staircaseWallLengthFt?: number
   staircaseWallHeightM?: number
 
-  // Room schedule (for BOQ breakdown)
+  // Room schedule (legacy — kept for backward compat with old saved estimates)
   rooms?: RoomEntry[]
   grossExternalWallAreaSqm?: number
   grossInternalWallAreaSqm?: number
@@ -633,10 +640,17 @@ export function runCalculation(input: MasonInput): MasonResult {
 
   const extSpec = EXTERNAL_WALL_SPECS[externalWallType]
 
-  // ── Per-floor brickwork (when different wall types per floor) ─────────────
+  // ── Per-floor brickwork — legacy room-proportional model ──────────────────
   const usePerFloor = input.sameWallAllFloors === false
     && Array.isArray(input.perFloorWallTypes) && input.perFloorWallTypes.length > 0
     && Array.isArray(input.rooms) && input.rooms.length > 0
+
+  // ── Per-floor brickwork — new direct-area model ───────────────────────────
+  const useDirectFloor = !usePerFloor
+    && Array.isArray(input.selectedFloors) && (input.selectedFloors?.length ?? 0) > 0
+    && Array.isArray(input.perFloorExteriorAreaSqm) && (input.perFloorExteriorAreaSqm?.length ?? 0) > 0
+
+  const useAnyPerFloor = usePerFloor || useDirectFloor
 
   let perFloorBrickwork: PerFloorBrickwork[] | undefined
   let perFloorTotalBricks = 0
@@ -671,10 +685,38 @@ export function runCalculation(input: MasonInput): MasonResult {
     })
   }
 
+  if (useDirectFloor) {
+    const floors = input.selectedFloors!
+    const pfAreas = input.perFloorExteriorAreaSqm!
+    const pfTypes = input.perFloorWallTypes
+    const useSameType = input.sameWallAllFloors !== false || !pfTypes
+
+    perFloorBrickwork = floors.map((floorIdx, i) => {
+      const fType = useSameType
+        ? externalWallType
+        : (pfTypes?.[Math.min(i, pfTypes.length - 1)] ?? externalWallType)
+      const fSpec = EXTERNAL_WALL_SPECS[fType]
+      const floorNet = pfAreas[i] ?? 0
+      const bricks = Math.round(fSpec.unitsPerSqm * floorNet)
+      const cement = Math.round(fSpec.cementBagsPerSqm * floorNet * 10) / 10
+      const sand = Math.round(fSpec.sandCftPerSqm * floorNet * 10) / 10
+      const bCost = bricks * unitRateForType(fType)
+      const cCost = cement * (fType === 'aac_200' ? DEFAULT_RATES.aacAdhesive : DEFAULT_RATES.cement)
+      const sCost = sand * DEFAULT_RATES.sand
+      const mat = Math.round(bCost + cCost + sCost)
+      perFloorTotalBricks += bricks
+      perFloorTotalCement += cement
+      perFloorTotalSand += sand
+      perFloorTotalMat += mat
+      const floorLabel = floorIdx === 0 ? 'G (Ground Floor)' : `Floor ${floorIdx}`
+      return { floorLabel, wallType: fType, areaSqm: Math.round(floorNet * 100) / 100, bricksOrBlocks: bricks, cementBags: Math.round(cement * 10) / 10, sandCft: Math.round(sand * 10) / 10, materialCost: mat }
+    })
+  }
+
   // ── External brickwork quantities ──────────────────────────────────────────
-  const extBricksOrBlocks   = usePerFloor ? perFloorTotalBricks : Math.round(extSpec.unitsPerSqm * externalWallAreaSqm)
-  const extCementBags       = usePerFloor ? Math.round(perFloorTotalCement * 10) / 10 : Math.round(extSpec.cementBagsPerSqm * externalWallAreaSqm * 10) / 10
-  const extSandCft          = usePerFloor ? Math.round(perFloorTotalSand * 10) / 10 : Math.round(extSpec.sandCftPerSqm * externalWallAreaSqm * 10) / 10
+  const extBricksOrBlocks   = useAnyPerFloor ? perFloorTotalBricks : Math.round(extSpec.unitsPerSqm * externalWallAreaSqm)
+  const extCementBags       = useAnyPerFloor ? Math.round(perFloorTotalCement * 10) / 10 : Math.round(extSpec.cementBagsPerSqm * externalWallAreaSqm * 10) / 10
+  const extSandCft          = useAnyPerFloor ? Math.round(perFloorTotalSand * 10) / 10 : Math.round(extSpec.sandCftPerSqm * externalWallAreaSqm * 10) / 10
 
   // ── Internal brickwork quantities ─────────────────────────────────────────
   let intBricksOrBlocks = 0, intCementBags = 0, intSandCft = 0
@@ -836,11 +878,11 @@ export function runCalculation(input: MasonInput): MasonResult {
   }
 
   // ── Material costs ────────────────────────────────────────────────────────
-  const extBrickMat   = usePerFloor ? perFloorTotalMat : extBricksOrBlocks * unitRateForType(externalWallType)
+  const extBrickMat   = useAnyPerFloor ? perFloorTotalMat : extBricksOrBlocks * unitRateForType(externalWallType)
   const extCemRate    = externalWallType === 'aac_200' ? DEFAULT_RATES.aacAdhesive : DEFAULT_RATES.cement
-  const extCementMat  = usePerFloor ? 0 : extCementBags * extCemRate
-  const extSandMat    = usePerFloor ? 0 : extSandCft * DEFAULT_RATES.sand
-  const extBrickworkMat = usePerFloor ? perFloorTotalMat : Math.round(extBrickMat + extCementMat + extSandMat)
+  const extCementMat  = useAnyPerFloor ? 0 : extCementBags * extCemRate
+  const extSandMat    = useAnyPerFloor ? 0 : extSandCft * DEFAULT_RATES.sand
+  const extBrickworkMat = useAnyPerFloor ? perFloorTotalMat : Math.round(extBrickMat + extCementMat + extSandMat)
 
   let intPartitionMat = 0
   if (includeInternal && internalWallType && effectiveIntArea > 0) {

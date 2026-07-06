@@ -27,7 +27,6 @@ const INDIAN_STATES = [
   'Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry',
 ]
 
-type AreaUnit = 'sqm' | 'sqft'
 const SQM_PER_SQFT = 0.0929
 
 const DOOR_PRESETS = [
@@ -51,6 +50,8 @@ interface LabourTrade {
 }
 interface CustomTrade { id: string; name: string; workers: string; ratePerDay: string; days: string }
 interface RoomFormRow { id: string; name: string; lengthFt: string; widthFt: string; heightFt: string }
+interface ExteriorFloorRow { floorIdx: number; wallLengthFt: string }
+interface InteriorFloorRow { floorIdx: number; wallLengthFt: string }
 interface CustomDoor { id: string; count: string; widthMm: string; heightMm: string }
 interface BalconyFormRow { id: string; name: string; perimeterM: string; parapetHeightMm: string; thicknessMm: 115 | 230 }
 
@@ -180,27 +181,37 @@ interface Props {
 
 export default function BuildDetails({ state, city, initialProject, onSubmit, onFormChange, onBack }: Props) {
 
-  // S1 — Project Details
-  // MasonryPro numFloors: 0=G, 1=G+1 → from DB total floors: G+ = totalFloors-1
-  const initNumFloors = initialProject?.numFloors != null ? Math.max(0, initialProject.numFloors - 1) : 1
+  // ── Continuity: pre-select all floors from a StructoPro-originated project
+  // DB numFloors: G=1, G+1=2, … So [0..numFloors-1] matches StructoPro's continuous model.
+  const initSelectedFloors: number[] = (() => {
+    if (initialProject?.numFloors != null && initialProject.numFloors > 0) {
+      const total = Math.max(1, Math.min(6, initialProject.numFloors))
+      return Array.from({ length: total }, (_, i) => i)
+    }
+    return [0]
+  })()
 
-  const [projectName, setProjectName] = useState(initialProject?.projectName ?? '')
-  const [numFloors, setNumFloors]     = useState(initNumFloors)
-  const [localState, setLocalState]   = useState(initialProject?.state ?? state)
-  const [localCity, setLocalCity]     = useState(initialProject?.city ?? city)
+  // S1 — Project Details
+  const [projectName, setProjectName]   = useState(initialProject?.projectName ?? '')
+  const [selectedFloors, setSelectedFloors] = useState<number[]>(initSelectedFloors)
+  const [floorHeightFt, setFloorHeightFt]   = useState('10')
+  const [localState, setLocalState]     = useState(initialProject?.state ?? state)
+  const [localCity, setLocalCity]       = useState(initialProject?.city ?? city)
 
   // S2 — Wall type (global + per-floor)
-  const [extWallType, setExtWallType] = useState<ExternalWallType>('clay_modular_9')
+  const [extWallType, setExtWallType]         = useState<ExternalWallType>('clay_modular_9')
   const [sameWallAllFloors, setSameWallAllFloors] = useState(true)
   const [perFloorWallTypes, setPerFloorWallTypes] = useState<ExternalWallType[]>([])
 
-  // S2b — Staircase wall (only relevant when numFloors > 0)
+  // S2b — Staircase wall (only for multi-floor)
   const [includeStaircaseWall, setIncludeStaircaseWall] = useState(false)
-  const [staircaseLengthFt, setStaircaseLengthFt] = useState('')
+  const [staircaseLengthFt, setStaircaseLengthFt]       = useState('')
   const [staircaseHeightOverrideFt, setStaircaseHeightOverrideFt] = useState('')
 
-  // S3 — Room schedule
-  const [rooms, setRooms] = useState<RoomFormRow[]>([])
+  // S3 — Exterior wall lengths per floor (Table A)
+  const [exteriorFloorRows, setExteriorFloorRows] = useState<ExteriorFloorRow[]>(
+    initSelectedFloors.map(f => ({ floorIdx: f, wallLengthFt: '' }))
+  )
 
   // S4 — Door schedule
   const [doorCounts, setDoorCounts] = useState<Record<string, string>>({
@@ -213,15 +224,16 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
     Object.fromEntries(WINDOW_PRESETS.map(w => [w.key, '']))
   )
 
-  // S6 — Internal
+  // S6 — Internal partitions (wall type + per-floor lengths Table B)
   const [includeInternal, setIncludeInt] = useState(false)
   const [intWallType, setIntWallType]    = useState<InternalWallType>('clay_4_5')
-  const [intWallArea, setIntWallArea]    = useState('')
-  const [intAreaUnit, setIntAreaUnit]    = useState<AreaUnit>('sqm')
+  const [interiorFloorRows, setInteriorFloorRows] = useState<InteriorFloorRow[]>(
+    initSelectedFloors.map(f => ({ floorIdx: f, wallLengthFt: '' }))
+  )
 
   // S7 — Balcony
   const [includeBalcony, setIncludeBalcony] = useState(false)
-  const [balconies, setBalconies] = useState<BalconyFormRow[]>([])
+  const [balconies, setBalconies]           = useState<BalconyFormRow[]>([])
 
   // S8 — Compound wall
   const [includeCompound, setIncludeCompound] = useState(false)
@@ -232,21 +244,21 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   const [compPillarOverride, setCompPillarOverride] = useState('')
 
   // S9 — Roof type
-  const [roofType, setRoofType]                   = useState<RoofType>('flat')
+  const [roofType, setRoofType]                     = useState<RoofType>('flat')
   const [slopedRoofCovering, setSlopedRoofCovering] = useState<SlopedRoofCovering>('mangalore_tiles')
-  const [gableWallAreaSqm, setGableWallAreaSqm]   = useState('')
-  const [ridgeLengthM, setRidgeLengthM]           = useState('')
+  const [gableWallAreaSqm, setGableWallAreaSqm]     = useState('')
+  const [ridgeLengthM, setRidgeLengthM]             = useState('')
   const [terraceParapetCoping, setTerraceParapetCoping] = useState(false)
 
   // S10 — Plaster
   const [plastering, setPlastering] = useState({ internal: true, external: true, ceiling: false })
 
   // S11 — Waterproofing
-  const [includeTerWP, setTerraceWP]       = useState(false)
-  const [terraceArea, setTerraceArea]       = useState('')
-  const [terraceWPMethod, setTerraceWPMethod] = useState<WaterproofingMethod>('bbc')
-  const [includeBathWP, setBathWP]          = useState(false)
-  const [bathroomCount, setBathroomCount]   = useState('2')
+  const [includeTerWP, setTerraceWP]           = useState(false)
+  const [terraceArea, setTerraceArea]           = useState('')
+  const [terraceWPMethod, setTerraceWPMethod]   = useState<WaterproofingMethod>('bbc')
+  const [includeBathWP, setBathWP]              = useState(false)
+  const [bathroomCount, setBathroomCount]       = useState('2')
   const [bathroomWPMethod, setBathroomWPMethod] = useState<BathroomWpMethod>('cementitious')
 
   // Advanced
@@ -269,28 +281,28 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
   // ── Derived ──────────────────────────────────────────────────────────────────
 
-  const szInfo       = seismicZoneFromState(localState)
-  const extSpec      = EXTERNAL_WALL_SPECS[extWallType]
+  const szInfo        = seismicZoneFromState(localState)
+  const extSpec       = EXTERNAL_WALL_SPECS[extWallType]
   const isHighSeismic = szInfo.zone === 'IV' || szInfo.zone === 'V'
   const showAacWarn   = extWallType === 'aac_200' && isHighSeismic
+  const isMultiFloor  = selectedFloors.length > 1
 
-  // Multi-floor staircase height auto-calculation
-  const totalFloorCount = numFloors + 1
-  const avgFloorHeightFt = rooms.length > 0
-    ? rooms.reduce((sum, r) => sum + (parseFloat(r.heightFt) || 10), 0) / rooms.length
-    : 10
-  const autoStaircaseHeightFt = avgFloorHeightFt * totalFloorCount
+  const floorHFt = parseFloat(floorHeightFt) || 10
+
+  // Per-floor gross exterior areas (length × height)
+  const perFloorGrossExtArea: number[] = exteriorFloorRows.map(r => {
+    const l = parseFloat(r.wallLengthFt) || 0
+    return l * floorHFt * SQM_PER_SQFT
+  })
+  const grossExtSqm = perFloorGrossExtArea.reduce((a, b) => a + b, 0)
+
+  // Staircase height
+  const totalFloorCount = selectedFloors.length
+  const autoStaircaseHeightFt = floorHFt * totalFloorCount
   const effectiveStaircaseHeightFt = staircaseHeightOverrideFt
     ? (parseFloat(staircaseHeightOverrideFt) || autoStaircaseHeightFt)
     : autoStaircaseHeightFt
   const effectiveStaircaseHeightM = effectiveStaircaseHeightFt * 0.3048
-
-  const grossExtSqm = rooms.reduce((sum, r) => {
-    const l = parseFloat(r.lengthFt) || 0
-    const w = parseFloat(r.widthFt) || 0
-    const h = parseFloat(r.heightFt) || 0
-    return sum + 2 * (l + w) * h * SQM_PER_SQFT
-  }, 0)
 
   const doorDeductSqm = (() => {
     let total = 0
@@ -315,6 +327,17 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
   const netExtSqm = Math.max(0, grossExtSqm - doorDeductSqm - windowDeductSqm)
 
+  // Per-floor net exterior areas (proportional deduction)
+  const perFloorNetExtArea: number[] = perFloorGrossExtArea.map(a =>
+    grossExtSqm > 0 ? a * (netExtSqm / grossExtSqm) : 0
+  )
+
+  // Total interior partition area
+  const totalIntSqm = interiorFloorRows.reduce((sum, r) => {
+    const l = parseFloat(r.wallLengthFt) || 0
+    return sum + l * floorHFt * SQM_PER_SQFT
+  }, 0)
+
   const totalBalconyParapetSqm = balconies.reduce((sum, b) => {
     const p = parseFloat(b.perimeterM) || 0
     const h = (parseInt(b.parapetHeightMm) || 900) / 1000
@@ -332,43 +355,68 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
   useEffect(() => {
     if (!onFormChange) return
-    onFormChange({ wallType: extWallType, floors: `G+${numFloors - 1}`, labourEnabled: includeLabour })
-  }, [extWallType, numFloors, includeLabour, onFormChange])
+    const floorLabel = selectedFloors.length === 1 && selectedFloors[0] === 0
+      ? 'G Only' : `${selectedFloors.length} floors`
+    onFormChange({ wallType: extWallType, floors: floorLabel, labourEnabled: includeLabour })
+  }, [extWallType, selectedFloors, includeLabour, onFormChange])
 
   useEffect(() => {
     setMortarGrade(extWallType.includes('4_5') || intWallType.includes('4_5') ? '1:4' : '1:6')
   }, [extWallType, intWallType])
 
-  // Keep perFloorWallTypes length in sync with numFloors when toggled on
+  // Sync perFloorWallTypes length with selectedFloors when per-floor mode is on
   useEffect(() => {
     if (sameWallAllFloors) return
-    const needed = numFloors + 1
+    const needed = selectedFloors.length
     setPerFloorWallTypes(prev => {
       if (prev.length === needed) return prev
       const next = [...prev]
       while (next.length < needed) next.push(extWallType)
       return next.slice(0, needed)
     })
-  }, [numFloors, sameWallAllFloors, extWallType])
+  }, [selectedFloors.length, sameWallAllFloors, extWallType])
+
+  // Sync exteriorFloorRows with selectedFloors (preserve existing values)
+  useEffect(() => {
+    setExteriorFloorRows(prev => {
+      const prevMap = new Map(prev.map(r => [r.floorIdx, r]))
+      return selectedFloors.map(f => prevMap.get(f) ?? { floorIdx: f, wallLengthFt: '' })
+    })
+  }, [selectedFloors])
+
+  // Sync interiorFloorRows with selectedFloors (preserve existing values)
+  useEffect(() => {
+    setInteriorFloorRows(prev => {
+      const prevMap = new Map(prev.map(r => [r.floorIdx, r]))
+      return selectedFloors.map(f => prevMap.get(f) ?? { floorIdx: f, wallLengthFt: '' })
+    })
+  }, [selectedFloors])
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
 
-  function toSqm(area: string, unit: AreaUnit) {
-    const v = parseFloat(area)
-    return (!v || v <= 0) ? 0 : unit === 'sqft' ? v * SQM_PER_SQFT : v
+  function floorLabel(floorIdx: number) {
+    return floorIdx === 0 ? 'G — Ground' : `Floor ${floorIdx}`
+  }
+
+  function toggleFloor(idx: number) {
+    setSelectedFloors(prev => {
+      if (prev.includes(idx)) {
+        if (prev.length === 1) return prev // keep at least one
+        return prev.filter(f => f !== idx).sort((a, b) => a - b)
+      }
+      return [...prev, idx].sort((a, b) => a - b)
+    })
+  }
+
+  function updateExteriorRow(floorIdx: number, val: string) {
+    setExteriorFloorRows(prev => prev.map(r => r.floorIdx === floorIdx ? { ...r, wallLengthFt: val } : r))
+  }
+
+  function updateInteriorRow(floorIdx: number, val: string) {
+    setInteriorFloorRows(prev => prev.map(r => r.floorIdx === floorIdx ? { ...r, wallLengthFt: val } : r))
   }
 
   function toggleTip(id: string) { setOpenTip(prev => prev === id ? null : id) }
-
-  function addRoom() {
-    setRooms(prev => [...prev, { id: `r${Date.now()}`, name: '', lengthFt: '', widthFt: '', heightFt: '10' }])
-  }
-
-  function updateRoom(id: string, key: keyof RoomFormRow, val: string) {
-    setRooms(prev => prev.map(r => r.id === id ? { ...r, [key]: val } : r))
-  }
-
-  function removeRoom(id: string) { setRooms(prev => prev.filter(r => r.id !== id)) }
 
   function addBalcony() {
     setBalconies(prev => [...prev, { id: `b${Date.now()}`, name: `Balcony ${prev.length + 1}`, perimeterM: '', parapetHeightMm: '900', thicknessMm: 115 }])
@@ -404,9 +452,17 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
   function validate3a(): boolean {
     const e: Record<string, string> = {}
-    if (rooms.length === 0) e.rooms = 'Add at least one room / floor area'
-    else if (grossExtSqm <= 0) e.rooms = 'Enter valid dimensions for at least one room'
-    if (includeInternal && (!intWallArea || parseFloat(intWallArea) <= 0)) e.intWallArea = 'Enter internal wall area'
+    if (selectedFloors.length === 0) {
+      e.floors = 'Select at least one floor'
+    } else if (grossExtSqm <= 0) {
+      e.floors = 'Enter exterior wall length for at least one floor'
+    }
+    if (!floorHeightFt || parseFloat(floorHeightFt) <= 0) {
+      e.floorHeight = 'Enter a valid floor height'
+    }
+    if (includeInternal && totalIntSqm <= 0) {
+      e.intWallArea = 'Enter interior partition length for at least one floor'
+    }
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -436,14 +492,6 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
       count: parseInt(windowCounts[wp.key] || '0') || 0,
     }))
 
-    const roomsForEngine = rooms.map(r => ({
-      id: r.id, name: r.name || 'Room',
-      lengthFt: parseFloat(r.lengthFt) || 0,
-      widthFt: parseFloat(r.widthFt) || 0,
-      wallHeightM: (parseFloat(r.heightFt) || 0) * 0.3048,
-      wallType: 'external' as const,
-    }))
-
     const balconiesForEngine = balconies.map(b => ({
       id: b.id, name: b.name,
       lengthM: parseFloat(b.perimeterM) || 0,
@@ -459,9 +507,15 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
       grossExternalWallAreaSqm: Math.round(grossExtSqm * 100) / 100,
       totalDoorDeductionSqm: Math.round(doorDeductSqm * 1000) / 1000,
       totalWindowDeductionSqm: Math.round(windowDeductSqm * 1000) / 1000,
+      // Direct wall-length model
+      selectedFloors,
+      floorHeightFt: floorHFt,
+      exteriorWallLengthsFt: exteriorFloorRows.map(r => parseFloat(r.wallLengthFt) || 0),
+      perFloorExteriorAreaSqm: perFloorNetExtArea.map(a => Math.round(a * 100) / 100),
+      interiorWallLengthsFt: includeInternal ? interiorFloorRows.map(r => parseFloat(r.wallLengthFt) || 0) : [],
       includeInternal,
       internalWallType: includeInternal ? intWallType : undefined,
-      internalWallAreaSqm: includeInternal ? toSqm(intWallArea, intAreaUnit) : 0,
+      internalWallAreaSqm: includeInternal ? Math.round(totalIntSqm * 100) / 100 : 0,
       includePlaster: plastering.internal || plastering.external || plastering.ceiling,
       plasterInternal: plastering.internal,
       plasterExternal: plastering.external,
@@ -471,17 +525,17 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
       bathroomCount: includeBathWP ? (parseInt(bathroomCount) || 0) : 0,
       terraceWpMethod: terraceWPMethod,
       bathroomWpMethod: bathroomWPMethod,
-      numFloors,
-      rooms: roomsForEngine,
+      // numFloors for DB compatibility (selectedFloors.length - 1)
+      numFloors: selectedFloors.length - 1,
       doors: doorsForEngine,
       windows: windowsForEngine,
       // Per-floor wall type
-      sameWallAllFloors: numFloors > 0 ? sameWallAllFloors : true,
-      perFloorWallTypes: numFloors > 0 && !sameWallAllFloors ? perFloorWallTypes : undefined,
+      sameWallAllFloors: isMultiFloor ? sameWallAllFloors : true,
+      perFloorWallTypes: isMultiFloor && !sameWallAllFloors ? perFloorWallTypes : undefined,
       // Staircase wall
-      includeStaircaseWall: numFloors > 0 ? includeStaircaseWall : false,
-      staircaseWallLengthFt: numFloors > 0 && includeStaircaseWall ? (parseFloat(staircaseLengthFt) || 0) : 0,
-      staircaseWallHeightM: numFloors > 0 && includeStaircaseWall ? effectiveStaircaseHeightM : 0,
+      includeStaircaseWall: isMultiFloor ? includeStaircaseWall : false,
+      staircaseWallLengthFt: isMultiFloor && includeStaircaseWall ? (parseFloat(staircaseLengthFt) || 0) : 0,
+      staircaseWallHeightM: isMultiFloor && includeStaircaseWall ? effectiveStaircaseHeightM : 0,
       includeBalcony,
       balconies: includeBalcony ? balconiesForEngine : [],
       totalBalconyParapetAreaSqm: includeBalcony ? Math.round(totalBalconyParapetSqm * 100) / 100 : 0,
@@ -598,22 +652,75 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 className="w-full border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none"
                 style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }} />
             </div>
+
+            {/* Floor selection — specific floors, not cumulative G+X */}
             <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-2"
-                style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Number of Floors</label>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                {[0,1,2,3,4,5].map(n => (
-                  <button key={n} type="button" onClick={() => setNumFloors(n)}
-                    className="py-2 rounded-[2px] text-center transition-all"
-                    style={{
-                      border: `1px solid ${numFloors === n ? '#1F4E79' : 'rgba(30,34,39,0.2)'}`,
-                      background: numFloors === n ? '#1F4E79' : 'transparent',
-                      color: numFloors === n ? '#fff' : '#1E2227',
-                      fontFamily: 'var(--font-plex-mono)', fontSize: 13,
-                    }}>{n === 0 ? 'G' : `G+${n}`}</button>
-                ))}
+              <div className="flex items-center gap-2 mb-2">
+                <label className="text-[11px] uppercase tracking-widest"
+                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Select Your Floors
+                </label>
+                <TipBtn id="floorsel" open={openTip} onToggle={toggleTip}>
+                  Select only the floors you are building masonry for. If you own floors 2 and 3 of an existing building, select just those two. If continuing from StructoPro, all floors are pre-selected — deselect any you are not doing now.
+                </TipBtn>
               </div>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {[0,1,2,3,4,5].map(n => {
+                  const isSelected = selectedFloors.includes(n)
+                  return (
+                    <button key={n} type="button" onClick={() => toggleFloor(n)}
+                      className="py-2 rounded-[2px] text-center transition-all flex items-center justify-center gap-1"
+                      style={{
+                        border: `1px solid ${isSelected ? '#1F4E79' : 'rgba(30,34,39,0.2)'}`,
+                        background: isSelected ? '#1F4E79' : 'transparent',
+                        color: isSelected ? '#fff' : '#1E2227',
+                        fontFamily: 'var(--font-plex-mono)', fontSize: 12,
+                      }}>
+                      {isSelected && <span style={{ fontSize: 9 }}>✓</span>}
+                      {n === 0 ? 'G' : `F${n}`}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="text-[10px] mt-1.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                Selected: {selectedFloors.map(f => f === 0 ? 'Ground' : `Floor ${f}`).join(', ')}
+              </p>
+              {errors.floors && (
+                <p className="text-[11px] mt-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>{errors.floors}</p>
+              )}
             </div>
+
+            {/* Global floor height */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <label className="text-[11px] uppercase tracking-widest"
+                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Floor Height (ft)
+                </label>
+                <TipBtn id="floorht" open={openTip} onToggle={toggleTip}>
+                  Floor-to-floor height for all selected floors. NBC 2016 minimum is 2.75m (9.02 ft). Standard residential is 10 ft (3.05m). Used to calculate wall area = Wall Length × Height.
+                </TipBtn>
+              </div>
+              <div className="flex items-center gap-3">
+                <input type="number" value={floorHeightFt}
+                  onChange={e => { setFloorHeightFt(e.target.value); setErrors(prev => ({ ...prev, floorHeight: '' })) }}
+                  placeholder="10"
+                  className="w-28 border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: errors.floorHeight ? '#8C3A22' : 'rgba(30,34,39,0.4)', color: '#1E2227' }} />
+                <span className="text-[12px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  = {(parseFloat(floorHeightFt) * 0.3048).toFixed(2)} m
+                </span>
+                {parseFloat(floorHeightFt) < 9.02 && parseFloat(floorHeightFt) > 0 && (
+                  <span className="text-[10px]" style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
+                    ⚠ Below NBC 2016 min (9.02 ft / 2.75m)
+                  </span>
+                )}
+              </div>
+              {errors.floorHeight && (
+                <p className="text-[11px] mt-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>{errors.floorHeight}</p>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-[11px] uppercase tracking-widest block mb-1"
@@ -678,7 +785,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
             )}
 
             {/* ── Same wall type on all floors? (only when multi-floor) ─── */}
-            {numFloors > 0 && (
+            {isMultiFloor && (
               <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
                 <div className="flex items-center justify-between mb-1">
                   <div>
@@ -686,7 +793,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                       Same wall type on all floors?
                     </p>
                     <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
-                      G to G+{numFloors} — applies only to external walls
+                      Floors: {selectedFloors.map(f => f === 0 ? 'G' : `F${f}`).join(', ')} — applies only to external walls
                     </p>
                   </div>
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -697,8 +804,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                       const next = !sameWallAllFloors
                       setSameWallAllFloors(next)
                       if (!next) {
-                        // Initialise per-floor types from current global choice
-                        setPerFloorWallTypes(Array.from({ length: numFloors + 1 }, () => extWallType))
+                        setPerFloorWallTypes(selectedFloors.map(() => extWallType))
                       }
                     }} />
                   </label>
@@ -717,13 +823,13 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                         </tr>
                       </thead>
                       <tbody>
-                        {Array.from({ length: numFloors + 1 }, (_, i) => {
-                          const label = i === 0 ? 'G — Ground Floor' : `G+${i}`
+                        {selectedFloors.map((floorIdx, i) => {
+                          const lbl = floorIdx === 0 ? 'G — Ground' : `Floor ${floorIdx}`
                           const current = perFloorWallTypes[i] ?? extWallType
                           return (
-                            <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
+                            <tr key={floorIdx} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
                               <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap' }}>
-                                {label}
+                                {lbl}
                               </td>
                               <td className="py-2 px-2">
                                 <select
@@ -746,7 +852,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                       </tbody>
                     </table>
                     <p className="text-[10px] mt-2" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                      ⓘ Wall areas per floor are calculated proportionally from your room schedule below
+                      ⓘ Wall area per floor is calculated from the exterior wall lengths you enter below
                     </p>
                   </div>
                 )}
@@ -755,105 +861,84 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
           </div>
         </div>
 
-        {/* ── 03 ROOM / FLOOR SCHEDULE ──────────────────────────────────────── */}
+        {/* ── 03 WALL LENGTH SCHEDULE ───────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <SectionHeader num="03" title="ROOM / FLOOR SCHEDULE — GROSS WALL AREA" />
-          <div className="p-4 space-y-4">
-            <AlertBox variant="info">
-              Add each floor or wing separately. Perimeter = 2 × (Length + Width). Gross wall area = Perimeter × Height. Openings are deducted in sections 04 and 05.
-            </AlertBox>
+          <SectionHeader num="03" title="WALL LENGTH SCHEDULE — GROSS WALL AREA" />
+          <div className="p-4 space-y-5">
 
-            {rooms.length > 0 && (
-              <div className="space-y-2">
-                {/* Table header */}
-                <div className="hidden sm:grid text-[9px] uppercase tracking-widest px-2"
-                  style={{ gridTemplateColumns: '1fr 80px 80px 80px 28px', gap: 8, color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                  <span>Name</span><span>Length ft</span><span>Width ft</span><span>Height ft</span><span></span>
-                </div>
-
-                {rooms.map((r, idx) => {
-                  const l = parseFloat(r.lengthFt) || 0
-                  const w = parseFloat(r.widthFt) || 0
-                  const h = parseFloat(r.heightFt) || 0
-                  const areaSqm = 2 * (l + w) * h * SQM_PER_SQFT
-                  const bricksEst = areaSqm > 0 ? Math.round(extSpec.unitsPerSqm * areaSqm) : 0
-                  return (
-                    <div key={r.id} className="p-3 rounded-[2px]"
-                      style={{ border: '1px solid rgba(30,34,39,0.12)', background: 'rgba(30,34,39,0.01)' }}>
-                      <div className="flex gap-2 flex-wrap sm:flex-nowrap items-center">
-                        <input type="text" value={r.name}
-                          onChange={e => updateRoom(r.id, 'name', e.target.value)}
-                          placeholder={`Floor / Wing ${idx + 1}`}
-                          className="flex-1 min-w-0 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                          style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
-                        <input type="number" value={r.lengthFt}
-                          onChange={e => updateRoom(r.id, 'lengthFt', e.target.value)}
-                          placeholder="Length"
-                          className="w-20 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                          style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
-                        <input type="number" value={r.widthFt}
-                          onChange={e => updateRoom(r.id, 'widthFt', e.target.value)}
-                          placeholder="Width"
-                          className="w-20 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                          style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
-                        <input type="number" value={r.heightFt}
-                          onChange={e => updateRoom(r.id, 'heightFt', e.target.value)}
-                          placeholder="Ht"
-                          className="w-16 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                          style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
-                        <button type="button" onClick={() => removeRoom(r.id)}
-                          className="w-7 h-7 rounded-[2px] flex items-center justify-center flex-shrink-0 text-[14px]"
-                          style={{ border: '1px solid rgba(140,58,34,0.3)', color: '#8C3A22', background: 'rgba(140,58,34,0.05)' }}>
-                          ×
-                        </button>
-                      </div>
-                      {areaSqm > 0 && (
-                        <div className="mt-2 flex items-center gap-3 flex-wrap">
-                          <span className="text-[10px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                            Perimeter: {monoVal(`${(2 * (l + w)).toFixed(1)} ft`)}
-                          </span>
-                          <span className="text-[10px]" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                            Wall area: {monoVal(`${areaSqm.toFixed(1)} sqm`)}
-                          </span>
-                          <span className="text-[10px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                            ≈ {monoVal(bricksEst.toLocaleString('en-IN'))} {extSpec.unitLabel}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-
-            <button type="button" onClick={addRoom}
-              className="w-full py-2.5 rounded-[2px] text-[12px] transition-all"
-              style={{ border: '1px dashed rgba(31,78,121,0.4)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', background: 'rgba(31,78,121,0.02)' }}>
-              + Add Room / Area
-            </button>
-
-            {errors.rooms && (
-              <p className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>{errors.rooms}</p>
-            )}
-
-            {grossExtSqm > 0 && (
-              <div className="pt-1">
-                <p className="text-[10px] mb-2 uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                  Running Total
+            {/* Table A — Exterior Walls */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-[11px] font-medium uppercase tracking-widest"
+                  style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  TABLE A — EXTERIOR WALLS (per floor)
                 </p>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-1.5 rounded-full" style={{ background: 'rgba(31,78,121,0.12)' }}>
-                    <div className="h-full rounded-full" style={{ width: '100%', background: '#1F4E79' }} />
-                  </div>
-                  <span className="text-[15px] font-medium flex-shrink-0" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>
-                    {grossExtSqm.toFixed(1)} sqm
-                  </span>
-                </div>
-                <p className="text-[10px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
-                  Gross wall area before door/window deductions
-                </p>
+                <TipBtn id="extlen" open={openTip} onToggle={toggleTip}>
+                  Enter the total perimeter length of the exterior walls for each floor. For irregular or L-shaped plans, measure the actual wall perimeter — do NOT use 2×(Length+Width) unless the plan is a simple rectangle. Area = Wall Length × Floor Height.
+                </TipBtn>
               </div>
-            )}
+              <AlertBox variant="info">
+                Measure the actual wall perimeter in feet. For irregular layouts, trace the exterior wall and sum all segments. Floor height is set in Section 01 and applied to all floors.
+              </AlertBox>
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full" style={{ borderCollapse: 'collapse', minWidth: 380 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
+                      {['Floor', 'Exterior Wall Length (ft)', 'Wall Area (auto)', 'Est. Units'].map(h => (
+                        <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
+                          style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {exteriorFloorRows.map((row, i) => {
+                      const l = parseFloat(row.wallLengthFt) || 0
+                      const areaSqm = l * floorHFt * SQM_PER_SQFT
+                      const bricksEst = areaSqm > 0 ? Math.round(extSpec.unitsPerSqm * areaSqm) : 0
+                      return (
+                        <tr key={row.floorIdx} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
+                          <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap' }}>
+                            {floorLabel(row.floorIdx)}
+                          </td>
+                          <td className="py-2 px-2">
+                            <input type="number" value={row.wallLengthFt}
+                              onChange={e => { updateExteriorRow(row.floorIdx, e.target.value); setErrors(prev => ({ ...prev, floors: '' })) }}
+                              placeholder="e.g. 200"
+                              className="w-28 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                          </td>
+                          <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: areaSqm > 0 ? '#1F4E79' : 'rgba(30,34,39,0.3)' }}>
+                            {areaSqm > 0 ? `${areaSqm.toFixed(1)} sqm` : '—'}
+                          </td>
+                          <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.45)' }}>
+                            {bricksEst > 0 ? `≈ ${bricksEst.toLocaleString('en-IN')} ${extSpec.unitLabel}` : '—'}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                    {/* Total row */}
+                    {grossExtSqm > 0 && (
+                      <tr style={{ borderTop: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)' }}>
+                        <td className="py-2 px-2 text-[11px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>TOTAL</td>
+                        <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>
+                          {exteriorFloorRows.reduce((s, r) => s + (parseFloat(r.wallLengthFt) || 0), 0).toFixed(0)} ft
+                        </td>
+                        <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>
+                          {grossExtSqm.toFixed(1)} sqm
+                        </td>
+                        <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.45)' }}>
+                          ≈ {Math.round(extSpec.unitsPerSqm * grossExtSqm).toLocaleString('en-IN')} {extSpec.unitLabel}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {errors.floors && (
+                <p className="text-[11px] mt-1.5" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>{errors.floors}</p>
+              )}
+            </div>
+
           </div>
         </div>
 
@@ -1052,47 +1137,101 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
             </label>
           </div>
           {includeInternal && (
-            <div className="p-4 space-y-3">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {(Object.keys(INTERNAL_WALL_SPECS) as InternalWallType[]).map(type => {
-                  const spec = INTERNAL_WALL_SPECS[type]
-                  const selected = intWallType === type
-                  return (
-                    <button key={type} type="button" onClick={() => setIntWallType(type)}
-                      className="text-left p-3 rounded-[2px] transition-all"
-                      style={{
-                        border: `1.5px solid ${selected ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
-                        background: selected ? 'rgba(31,78,121,0.06)' : 'transparent',
-                      }}>
-                      <p className="text-[11px] font-medium leading-tight"
-                        style={{ color: selected ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
-                        {spec.shortLabel}
-                      </p>
-                      {spec.unitsPerSqm > 0 && (
-                        <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-                          {spec.unitsPerSqm.toFixed(0)} {spec.unitLabel}/sqm
+            <div className="p-4 space-y-4">
+              {/* Wall type selection */}
+              <div>
+                <p className="text-[10px] uppercase tracking-widest mb-2"
+                  style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Internal Wall Type
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {(Object.keys(INTERNAL_WALL_SPECS) as InternalWallType[]).map(type => {
+                    const spec = INTERNAL_WALL_SPECS[type]
+                    const selected = intWallType === type
+                    return (
+                      <button key={type} type="button" onClick={() => setIntWallType(type)}
+                        className="text-left p-3 rounded-[2px] transition-all"
+                        style={{
+                          border: `1.5px solid ${selected ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                          background: selected ? 'rgba(31,78,121,0.06)' : 'transparent',
+                        }}>
+                        <p className="text-[11px] font-medium leading-tight"
+                          style={{ color: selected ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                          {spec.shortLabel}
                         </p>
+                        {spec.unitsPerSqm > 0 && (
+                          <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                            {spec.unitsPerSqm.toFixed(0)} {spec.unitLabel}/sqm
+                          </p>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Table B — Interior Partition Lengths per floor */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="text-[11px] font-medium uppercase tracking-widest"
+                    style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                    TABLE B — INTERIOR PARTITION WALLS (per floor)
+                  </p>
+                  <TipBtn id="intlen" open={openTip} onToggle={toggleTip}>
+                    Enter the total length of all interior partition walls on each floor in feet. Include all room dividers, bathroom walls, and corridor walls. Area = Length × Floor Height (same height as Section 01).
+                  </TipBtn>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full" style={{ borderCollapse: 'collapse', minWidth: 340 }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
+                        {['Floor', 'Partition Wall Length (ft)', 'Wall Area (auto)'].map(h => (
+                          <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
+                            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {interiorFloorRows.map((row, i) => {
+                        const l = parseFloat(row.wallLengthFt) || 0
+                        const areaSqm = l * floorHFt * SQM_PER_SQFT
+                        return (
+                          <tr key={row.floorIdx} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
+                            <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap' }}>
+                              {floorLabel(row.floorIdx)}
+                            </td>
+                            <td className="py-2 px-2">
+                              <input type="number" value={row.wallLengthFt}
+                                onChange={e => { updateInteriorRow(row.floorIdx, e.target.value); setErrors(prev => ({ ...prev, intWallArea: '' })) }}
+                                placeholder="e.g. 150"
+                                className="w-28 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                                style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                            </td>
+                            <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: areaSqm > 0 ? '#1F4E79' : 'rgba(30,34,39,0.3)' }}>
+                              {areaSqm > 0 ? `${areaSqm.toFixed(1)} sqm` : '—'}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                      {/* Total row */}
+                      {totalIntSqm > 0 && (
+                        <tr style={{ borderTop: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)' }}>
+                          <td className="py-2 px-2 text-[11px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>TOTAL</td>
+                          <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>
+                            {interiorFloorRows.reduce((s, r) => s + (parseFloat(r.wallLengthFt) || 0), 0).toFixed(0)} ft
+                          </td>
+                          <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>
+                            {totalIntSqm.toFixed(1)} sqm
+                          </td>
+                        </tr>
                       )}
-                    </button>
-                  )
-                })}
+                    </tbody>
+                  </table>
+                </div>
+                {errors.intWallArea && (
+                  <p className="text-[11px] mt-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>{errors.intWallArea}</p>
+                )}
               </div>
-              <div className="flex gap-2">
-                <input type="number" value={intWallArea}
-                  onChange={e => { setIntWallArea(e.target.value); setErrors(prev => ({ ...prev, intWallArea: '' })) }}
-                  placeholder="Internal wall area"
-                  className="flex-1 border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: errors.intWallArea ? '#8C3A22' : 'rgba(30,34,39,0.4)', color: '#1E2227' }} />
-                <select value={intAreaUnit} onChange={e => setIntAreaUnit(e.target.value as AreaUnit)}
-                  className="border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}>
-                  <option value="sqm">sqm</option>
-                  <option value="sqft">sqft</option>
-                </select>
-              </div>
-              {errors.intWallArea && (
-                <p className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>{errors.intWallArea}</p>
-              )}
             </div>
           )}
         </div>
@@ -1346,7 +1485,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
         </div>
 
         {/* ── 09 STAIRCASE WALL (only for multi-floor buildings) ───────────── */}
-        {numFloors > 0 && (
+        {isMultiFloor && (
           <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
             <div className="px-4 py-3" style={{ borderBottom: includeStaircaseWall ? '1px solid rgba(30,34,39,0.12)' : 'none' }}>
               <label className="flex items-center gap-3 cursor-pointer">
@@ -1397,7 +1536,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                     <div className="flex items-center gap-2">
                       <div className="flex-1 px-3 py-2 rounded-[6px] text-[12px]"
                         style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)', fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>
-                        Auto: {autoStaircaseHeightFt.toFixed(1)} ft ({totalFloorCount} floor{totalFloorCount !== 1 ? 's' : ''} × {avgFloorHeightFt.toFixed(1)} ft avg)
+                        Auto: {autoStaircaseHeightFt.toFixed(1)} ft ({totalFloorCount} floor{totalFloorCount !== 1 ? 's' : ''} × {floorHFt.toFixed(1)} ft)
                       </div>
                       <input type="number" value={staircaseHeightOverrideFt}
                         onChange={e => setStaircaseHeightOverrideFt(e.target.value)}
