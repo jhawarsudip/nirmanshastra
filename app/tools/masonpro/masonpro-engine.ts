@@ -378,6 +378,15 @@ export interface MasonInput {
   numFloors?: number
   floorHeightM?: number
 
+  // Per-floor wall type (used when sameWallAllFloors === false)
+  sameWallAllFloors?: boolean
+  perFloorWallTypes?: ExternalWallType[]
+
+  // Staircase wall (runs full building height — separate from per-floor room schedule)
+  includeStaircaseWall?: boolean
+  staircaseWallLengthFt?: number
+  staircaseWallHeightM?: number
+
   // Room schedule (for BOQ breakdown)
   rooms?: RoomEntry[]
   grossExternalWallAreaSqm?: number
@@ -442,6 +451,27 @@ export interface MasonInput {
   ceilingPlasterAreaSqm?: number
 }
 
+export interface PerFloorBrickwork {
+  floorLabel: string
+  wallType: ExternalWallType
+  areaSqm: number
+  bricksOrBlocks: number
+  cementBags: number
+  sandCft: number
+  materialCost: number
+}
+
+export interface StaircaseWallResult {
+  lengthFt: number
+  heightM: number
+  areaSqm: number
+  wallType: ExternalWallType
+  bricksOrBlocks: number
+  cementBags: number
+  sandCft: number
+  materialCost: number
+}
+
 export interface BrickworkQuantities {
   externalBricksOrBlocks: number
   externalCementBags: number
@@ -481,6 +511,7 @@ export interface MasonCosts {
   ductWallMaterial: number
   plasterMaterial: number
   waterproofing: number
+  staircaseWallMaterial: number
   totalMaterial: number
 }
 
@@ -517,6 +548,10 @@ export interface MasonResult {
   costs: MasonCosts
   labourCost: number
   overheadCost: number
+
+  // Multi-floor features (optional — present when floor count > 1)
+  perFloorBrickwork?: PerFloorBrickwork[]
+  staircaseWall?: StaircaseWallResult | null
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -598,10 +633,48 @@ export function runCalculation(input: MasonInput): MasonResult {
 
   const extSpec = EXTERNAL_WALL_SPECS[externalWallType]
 
+  // ── Per-floor brickwork (when different wall types per floor) ─────────────
+  const usePerFloor = input.sameWallAllFloors === false
+    && Array.isArray(input.perFloorWallTypes) && input.perFloorWallTypes.length > 0
+    && Array.isArray(input.rooms) && input.rooms.length > 0
+
+  let perFloorBrickwork: PerFloorBrickwork[] | undefined
+  let perFloorTotalBricks = 0
+  let perFloorTotalCement = 0
+  let perFloorTotalSand = 0
+  let perFloorTotalMat = 0
+
+  if (usePerFloor) {
+    const rooms = input.rooms!
+    const pfTypes = input.perFloorWallTypes!
+    const roomGross = rooms.map(r => 2 * (r.lengthFt + r.widthFt) * 0.3048 * r.wallHeightM)
+    const totalGross = roomGross.reduce((a, b) => a + b, 0) || 1
+
+    perFloorBrickwork = rooms.map((room, i) => {
+      const fType = pfTypes[Math.min(i, pfTypes.length - 1)]
+      const fSpec = EXTERNAL_WALL_SPECS[fType]
+      const proportion = roomGross[i] / totalGross
+      const floorNet = proportion * externalWallAreaSqm
+      const bricks = Math.round(fSpec.unitsPerSqm * floorNet)
+      const cement = Math.round(fSpec.cementBagsPerSqm * floorNet * 10) / 10
+      const sand = Math.round(fSpec.sandCftPerSqm * floorNet * 10) / 10
+      const bCost = bricks * unitRateForType(fType)
+      const cCost = cement * (fType === 'aac_200' ? DEFAULT_RATES.aacAdhesive : DEFAULT_RATES.cement)
+      const sCost = sand * DEFAULT_RATES.sand
+      const mat = Math.round(bCost + cCost + sCost)
+      perFloorTotalBricks += bricks
+      perFloorTotalCement += cement
+      perFloorTotalSand += sand
+      perFloorTotalMat += mat
+      const floorLabel = i === 0 ? 'G (Ground Floor)' : `G+${i}`
+      return { floorLabel, wallType: fType, areaSqm: Math.round(floorNet * 100) / 100, bricksOrBlocks: bricks, cementBags: Math.round(cement * 10) / 10, sandCft: Math.round(sand * 10) / 10, materialCost: mat }
+    })
+  }
+
   // ── External brickwork quantities ──────────────────────────────────────────
-  const extBricksOrBlocks   = Math.round(extSpec.unitsPerSqm * externalWallAreaSqm)
-  const extCementBags       = Math.round(extSpec.cementBagsPerSqm * externalWallAreaSqm * 10) / 10
-  const extSandCft          = Math.round(extSpec.sandCftPerSqm * externalWallAreaSqm * 10) / 10
+  const extBricksOrBlocks   = usePerFloor ? perFloorTotalBricks : Math.round(extSpec.unitsPerSqm * externalWallAreaSqm)
+  const extCementBags       = usePerFloor ? Math.round(perFloorTotalCement * 10) / 10 : Math.round(extSpec.cementBagsPerSqm * externalWallAreaSqm * 10) / 10
+  const extSandCft          = usePerFloor ? Math.round(perFloorTotalSand * 10) / 10 : Math.round(extSpec.sandCftPerSqm * externalWallAreaSqm * 10) / 10
 
   // ── Internal brickwork quantities ─────────────────────────────────────────
   let intBricksOrBlocks = 0, intCementBags = 0, intSandCft = 0
@@ -732,12 +805,42 @@ export function runCalculation(input: MasonInput): MasonResult {
     waterproofingCosts = { terraceCost, bathroomCost, total: wpTotal }
   }
 
+  // ── Staircase wall (runs full building height, independent of floor schedule) ──
+  let staircaseWallResult: StaircaseWallResult | null = null
+  let staircaseMat = 0
+
+  if (input.includeStaircaseWall && (input.staircaseWallLengthFt ?? 0) > 0 && (input.staircaseWallHeightM ?? 0) > 0) {
+    const stairLengthM  = input.staircaseWallLengthFt! * 0.3048
+    const stairHeightM  = input.staircaseWallHeightM!
+    const stairAreaSqm  = stairLengthM * stairHeightM
+    const stairWallType = externalWallType
+    const stairSpec     = EXTERNAL_WALL_SPECS[stairWallType]
+    const stairBricks   = Math.round(stairSpec.unitsPerSqm * stairAreaSqm)
+    const stairCement   = Math.round(stairSpec.cementBagsPerSqm * stairAreaSqm * 10) / 10
+    const stairSand     = Math.round(stairSpec.sandCftPerSqm * stairAreaSqm * 10) / 10
+    const stairBrickCost = stairBricks * unitRateForType(stairWallType)
+    const stairCemRate   = stairWallType === 'aac_200' ? DEFAULT_RATES.aacAdhesive : DEFAULT_RATES.cement
+    const stairCemCost   = stairCement * stairCemRate
+    const stairSandCost  = stairSand * DEFAULT_RATES.sand
+    staircaseMat = Math.round(stairBrickCost + stairCemCost + stairSandCost)
+    staircaseWallResult = {
+      lengthFt: input.staircaseWallLengthFt!,
+      heightM:  stairHeightM,
+      areaSqm:  Math.round(stairAreaSqm * 100) / 100,
+      wallType: stairWallType,
+      bricksOrBlocks: stairBricks,
+      cementBags: stairCement,
+      sandCft: stairSand,
+      materialCost: staircaseMat,
+    }
+  }
+
   // ── Material costs ────────────────────────────────────────────────────────
-  const extBrickMat   = extBricksOrBlocks * unitRateForType(externalWallType)
+  const extBrickMat   = usePerFloor ? perFloorTotalMat : extBricksOrBlocks * unitRateForType(externalWallType)
   const extCemRate    = externalWallType === 'aac_200' ? DEFAULT_RATES.aacAdhesive : DEFAULT_RATES.cement
-  const extCementMat  = extCementBags * extCemRate
-  const extSandMat    = extSandCft * DEFAULT_RATES.sand
-  const extBrickworkMat = Math.round(extBrickMat + extCementMat + extSandMat)
+  const extCementMat  = usePerFloor ? 0 : extCementBags * extCemRate
+  const extSandMat    = usePerFloor ? 0 : extSandCft * DEFAULT_RATES.sand
+  const extBrickworkMat = usePerFloor ? perFloorTotalMat : Math.round(extBrickMat + extCementMat + extSandMat)
 
   let intPartitionMat = 0
   if (includeInternal && internalWallType && effectiveIntArea > 0) {
@@ -775,7 +878,7 @@ export function runCalculation(input: MasonInput): MasonResult {
     (plasterCementBagsTotal * DEFAULT_RATES.cement) + (plasterSandCftTotal * DEFAULT_RATES.sand)
   )
 
-  const totalMaterialCost = extBrickworkMat + intPartitionMat + parapetMat + Math.round(balconyMat) + compoundMat + ductMat + plasterMat + wpTotal
+  const totalMaterialCost = extBrickworkMat + intPartitionMat + parapetMat + Math.round(balconyMat) + compoundMat + ductMat + plasterMat + wpTotal + staircaseMat
 
   const costs: MasonCosts = {
     externalBrickworkMaterial: extBrickworkMat,
@@ -784,9 +887,10 @@ export function runCalculation(input: MasonInput): MasonResult {
     balconyParapetMaterial:    Math.round(balconyMat),
     compoundWallMaterial:      compoundMat,
     ductWallMaterial:          ductMat,
-    plasterMaterial: plasterMat,
-    waterproofing: wpTotal,
-    totalMaterial: totalMaterialCost,
+    plasterMaterial:           plasterMat,
+    waterproofing:             wpTotal,
+    staircaseWallMaterial:     staircaseMat,
+    totalMaterial:             totalMaterialCost,
   }
 
   // ── Labour costs (CPWD rates — Section 14) ────────────────────────────────
@@ -944,6 +1048,8 @@ export function runCalculation(input: MasonInput): MasonResult {
     costs,
     labourCost,
     overheadCost: overheadStandard,
+    perFloorBrickwork,
+    staircaseWall: staircaseWallResult,
   }
 }
 

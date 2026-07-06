@@ -530,6 +530,41 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
           <div style={{ filter: isPaid ? 'none' : 'blur(6px)', userSelect: isPaid ? 'auto' : 'none', transition: 'filter 0.5s' }}>
             <div className="p-4">
+
+              {/* Per-floor brickwork breakdown (only when different wall types per floor) */}
+              {r.perFloorBrickwork && r.perFloorBrickwork.length > 1 && (
+                <div className="mb-5 p-3 rounded-[2px]"
+                  style={{ border: '1px solid rgba(31,78,121,0.2)', background: 'rgba(31,78,121,0.03)' }}>
+                  <p className="text-[10px] uppercase tracking-widest mb-2"
+                    style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                    PER-FLOOR BRICKWORK BREAKDOWN
+                  </p>
+                  <table className="w-full text-[12px]" style={{ borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+                        {['Floor', 'Wall Type', 'Area (sqm)', 'Units', 'Cost (₹)'].map(h => (
+                          <th key={h} className={`py-1.5 px-1 text-[9px] uppercase tracking-widest ${h === 'Floor' || h === 'Wall Type' ? 'text-left' : 'text-right'}`}
+                            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {r.perFloorBrickwork.map((flr, i) => (
+                        <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
+                          <td className="py-1.5 px-1 font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap' }}>{flr.floorLabel}</td>
+                          <td className="py-1.5 px-1 text-[11px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>
+                            {flr.wallType.replace(/_/g, ' ')}
+                          </td>
+                          <td className="py-1.5 px-1 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{flr.areaSqm.toFixed(1)}</td>
+                          <td className="py-1.5 px-1 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{flr.bricksOrBlocks.toLocaleString('en-IN')}</td>
+                          <td className="py-1.5 px-1 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{flr.materialCost.toLocaleString('en-IN')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
               {/* Brickwork BOQ */}
               <p className="text-[10px] uppercase tracking-widest mb-2"
                 style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
@@ -549,9 +584,11 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 <tbody>
                   {[
                     {
-                      name: `${extSpec.shortLabel} (external)`,
+                      name: r.perFloorBrickwork && r.perFloorBrickwork.length > 0
+                        ? `External walls — mixed (${r.perFloorBrickwork.length} floors)`
+                        : `${extSpec.shortLabel} (external)`,
                       qty: r.brickworkQuantities.externalBricksOrBlocks,
-                      unit: extSpec.unitLabel,
+                      unit: r.perFloorBrickwork && r.perFloorBrickwork.length > 0 ? 'units' : extSpec.unitLabel,
                       cost: r.costs.externalBrickworkMaterial,
                     },
                     ...(input.includeInternal && r.brickworkQuantities.internalBricksOrBlocks > 0 ? [{
@@ -572,6 +609,32 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       </td>
                     </tr>
                   ))}
+
+                  {/* Staircase Wall — separate line item, runs full building height */}
+                  {r.staircaseWall && r.staircaseWall.materialCost > 0 && (
+                    <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: 'rgba(31,78,121,0.03)' }}>
+                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                        <span style={{ fontWeight: 600 }}>Staircase Wall</span>
+                        <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-[2px]"
+                          style={{ background: 'rgba(31,78,121,0.1)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', verticalAlign: 'middle' }}>
+                          SHARED · ALL FLOORS
+                        </span>
+                        <br />
+                        <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                          {r.staircaseWall.lengthFt.toFixed(1)} ft × {(r.staircaseWall.heightM / 0.3048).toFixed(1)} ft ht = {r.staircaseWall.areaSqm.toFixed(1)} sqm
+                        </span>
+                      </td>
+                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                        {r.staircaseWall.bricksOrBlocks.toLocaleString('en-IN')}
+                      </td>
+                      <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                        {r.staircaseWall.bricksOrBlocks > 0 ? 'units' : '—'}
+                      </td>
+                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                        {r.staircaseWall.materialCost.toLocaleString('en-IN')}
+                      </td>
+                    </tr>
+                  )}
 
                   {/* Cement */}
                   <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)' }}>

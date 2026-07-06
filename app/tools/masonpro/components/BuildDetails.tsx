@@ -189,8 +189,15 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   const [localState, setLocalState]   = useState(initialProject?.state ?? state)
   const [localCity, setLocalCity]     = useState(initialProject?.city ?? city)
 
-  // S2 — Wall type (global)
+  // S2 — Wall type (global + per-floor)
   const [extWallType, setExtWallType] = useState<ExternalWallType>('clay_modular_9')
+  const [sameWallAllFloors, setSameWallAllFloors] = useState(true)
+  const [perFloorWallTypes, setPerFloorWallTypes] = useState<ExternalWallType[]>([])
+
+  // S2b — Staircase wall (only relevant when numFloors > 0)
+  const [includeStaircaseWall, setIncludeStaircaseWall] = useState(false)
+  const [staircaseLengthFt, setStaircaseLengthFt] = useState('')
+  const [staircaseHeightOverrideFt, setStaircaseHeightOverrideFt] = useState('')
 
   // S3 — Room schedule
   const [rooms, setRooms] = useState<RoomFormRow[]>([])
@@ -267,6 +274,17 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   const isHighSeismic = szInfo.zone === 'IV' || szInfo.zone === 'V'
   const showAacWarn   = extWallType === 'aac_200' && isHighSeismic
 
+  // Multi-floor staircase height auto-calculation
+  const totalFloorCount = numFloors + 1
+  const avgFloorHeightFt = rooms.length > 0
+    ? rooms.reduce((sum, r) => sum + (parseFloat(r.heightFt) || 10), 0) / rooms.length
+    : 10
+  const autoStaircaseHeightFt = avgFloorHeightFt * totalFloorCount
+  const effectiveStaircaseHeightFt = staircaseHeightOverrideFt
+    ? (parseFloat(staircaseHeightOverrideFt) || autoStaircaseHeightFt)
+    : autoStaircaseHeightFt
+  const effectiveStaircaseHeightM = effectiveStaircaseHeightFt * 0.3048
+
   const grossExtSqm = rooms.reduce((sum, r) => {
     const l = parseFloat(r.lengthFt) || 0
     const w = parseFloat(r.widthFt) || 0
@@ -320,6 +338,18 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   useEffect(() => {
     setMortarGrade(extWallType.includes('4_5') || intWallType.includes('4_5') ? '1:4' : '1:6')
   }, [extWallType, intWallType])
+
+  // Keep perFloorWallTypes length in sync with numFloors when toggled on
+  useEffect(() => {
+    if (sameWallAllFloors) return
+    const needed = numFloors + 1
+    setPerFloorWallTypes(prev => {
+      if (prev.length === needed) return prev
+      const next = [...prev]
+      while (next.length < needed) next.push(extWallType)
+      return next.slice(0, needed)
+    })
+  }, [numFloors, sameWallAllFloors, extWallType])
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -445,6 +475,13 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
       rooms: roomsForEngine,
       doors: doorsForEngine,
       windows: windowsForEngine,
+      // Per-floor wall type
+      sameWallAllFloors: numFloors > 0 ? sameWallAllFloors : true,
+      perFloorWallTypes: numFloors > 0 && !sameWallAllFloors ? perFloorWallTypes : undefined,
+      // Staircase wall
+      includeStaircaseWall: numFloors > 0 ? includeStaircaseWall : false,
+      staircaseWallLengthFt: numFloors > 0 && includeStaircaseWall ? (parseFloat(staircaseLengthFt) || 0) : 0,
+      staircaseWallHeightM: numFloors > 0 && includeStaircaseWall ? effectiveStaircaseHeightM : 0,
       includeBalcony,
       balconies: includeBalcony ? balconiesForEngine : [],
       totalBalconyParapetAreaSqm: includeBalcony ? Math.round(totalBalconyParapetSqm * 100) / 100 : 0,
@@ -637,6 +674,82 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 <AlertBox variant="caution">
                   <strong>IS 4326:1993 — Zone {szInfo.zone}:</strong> AAC blocks NOT permitted as load-bearing masonry. Approved for infill/partition only. Ensure your structural engineer specifies clay brick or hollow concrete block for load-bearing walls.
                 </AlertBox>
+              </div>
+            )}
+
+            {/* ── Same wall type on all floors? (only when multi-floor) ─── */}
+            {numFloors > 0 && (
+              <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
+                <div className="flex items-center justify-between mb-1">
+                  <div>
+                    <p className="text-[12px] font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                      Same wall type on all floors?
+                    </p>
+                    <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
+                      G to G+{numFloors} — applies only to external walls
+                    </p>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <span className="text-[11px]" style={{ color: sameWallAllFloors ? '#1F4E79' : 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                      {sameWallAllFloors ? 'YES' : 'NO'}
+                    </span>
+                    <Toggle checked={sameWallAllFloors} onChange={() => {
+                      const next = !sameWallAllFloors
+                      setSameWallAllFloors(next)
+                      if (!next) {
+                        // Initialise per-floor types from current global choice
+                        setPerFloorWallTypes(Array.from({ length: numFloors + 1 }, () => extWallType))
+                      }
+                    }} />
+                  </label>
+                </div>
+
+                {/* Per-floor wall type selector */}
+                {!sameWallAllFloors && (
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full" style={{ borderCollapse: 'collapse', minWidth: 420 }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+                          {['Floor', 'Wall Type'].map(h => (
+                            <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
+                              style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Array.from({ length: numFloors + 1 }, (_, i) => {
+                          const label = i === 0 ? 'G — Ground Floor' : `G+${i}`
+                          const current = perFloorWallTypes[i] ?? extWallType
+                          return (
+                            <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
+                              <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap' }}>
+                                {label}
+                              </td>
+                              <td className="py-2 px-2">
+                                <select
+                                  value={current}
+                                  onChange={e => setPerFloorWallTypes(prev => {
+                                    const next = [...prev]
+                                    next[i] = e.target.value as ExternalWallType
+                                    return next
+                                  })}
+                                  className="w-full border rounded-[6px] px-2 py-1.5 text-[12px] bg-sheet-white outline-none"
+                                  style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}>
+                                  {(Object.keys(EXTERNAL_WALL_SPECS) as ExternalWallType[]).map(type => (
+                                    <option key={type} value={type}>{EXTERNAL_WALL_SPECS[type].label}</option>
+                                  ))}
+                                </select>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                    <p className="text-[10px] mt-2" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                      ⓘ Wall areas per floor are calculated proportionally from your room schedule below
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1232,12 +1345,110 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
           )}
         </div>
 
-        {/* ── 09 ROOF TYPE ──────────────────────────────────────────────────── */}
+        {/* ── 09 STAIRCASE WALL (only for multi-floor buildings) ───────────── */}
+        {numFloors > 0 && (
+          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+            <div className="px-4 py-3" style={{ borderBottom: includeStaircaseWall ? '1px solid rgba(30,34,39,0.12)' : 'none' }}>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <Toggle checked={includeStaircaseWall} onChange={() => setIncludeStaircaseWall(v => !v)} />
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                    09 — STAIRCASE WALL (shared across all floors)
+                  </p>
+                  {!includeStaircaseWall && (
+                    <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
+                      Toggle to include — runs full building height, calculated as one separate line item
+                    </p>
+                  )}
+                </div>
+              </label>
+            </div>
+
+            {includeStaircaseWall && (
+              <div className="p-4 space-y-4">
+                <AlertBox variant="info">
+                  A shared staircase wall runs continuously from ground to top floor. It is calculated as one line item (length × full building height), independent of the per-floor room schedule.
+                </AlertBox>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest block mb-1"
+                      style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                      Staircase Wall Length (ft)
+                      <TipBtn id="stairlen" open={openTip} onToggle={toggleTip}>
+                        Enter the total perimeter length of the staircase enclosure in feet. For a typical open-well stair, measure the length of the masonry walls that enclose the staircase.
+                      </TipBtn>
+                    </label>
+                    <input type="number" value={staircaseLengthFt}
+                      onChange={e => setStaircaseLengthFt(e.target.value)}
+                      placeholder="e.g. 30"
+                      className="w-full border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none"
+                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }} />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest block mb-1"
+                      style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                      Total Building Height (ft)
+                      <TipBtn id="stairht" open={openTip} onToggle={toggleTip}>
+                        Auto-calculated as average floor height × number of floors. Override if your staircase runs a different height than the floors entered above.
+                      </TipBtn>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 px-3 py-2 rounded-[6px] text-[12px]"
+                        style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)', fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>
+                        Auto: {autoStaircaseHeightFt.toFixed(1)} ft ({totalFloorCount} floor{totalFloorCount !== 1 ? 's' : ''} × {avgFloorHeightFt.toFixed(1)} ft avg)
+                      </div>
+                      <input type="number" value={staircaseHeightOverrideFt}
+                        onChange={e => setStaircaseHeightOverrideFt(e.target.value)}
+                        placeholder="Override"
+                        className="w-28 border rounded-[6px] px-2 py-2 text-[13px] bg-sheet-white outline-none"
+                        style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                    </div>
+                    {staircaseHeightOverrideFt && (
+                      <p className="text-[10px] mt-1" style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
+                        ⚠ Using override: {effectiveStaircaseHeightFt.toFixed(1)} ft
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Preview */}
+                {(parseFloat(staircaseLengthFt) || 0) > 0 && (
+                  <div className="p-3 rounded-[2px]"
+                    style={{ background: 'rgba(31,78,121,0.04)', border: '1px solid rgba(31,78,121,0.15)' }}>
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div>
+                        <p className="text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Length</p>
+                        <p className="text-[15px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{parseFloat(staircaseLengthFt).toFixed(1)} ft</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Height</p>
+                        <p className="text-[15px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{effectiveStaircaseHeightFt.toFixed(1)} ft</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Wall Area</p>
+                        <p className="text-[15px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#14532D' }}>
+                          {((parseFloat(staircaseLengthFt) || 0) * effectiveStaircaseHeightFt * 0.0929).toFixed(1)} sqm
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] mt-2 text-center" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                      Wall type: {extSpec.shortLabel} · ≈ {Math.round(extSpec.unitsPerSqm * (parseFloat(staircaseLengthFt) || 0) * effectiveStaircaseHeightFt * 0.0929).toLocaleString('en-IN')} {extSpec.unitLabel}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── 10 ROOF TYPE ──────────────────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
           <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
             <div className="flex items-center gap-1">
               <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                09 — ROOF TYPE
+                10 — ROOF TYPE
               </p>
               <ISBadge code="NBC 2016" />
             </div>
@@ -1350,7 +1561,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
         {/* ── 10 PLASTERING ─────────────────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <SectionHeader num="10" title={`PLASTERING (IS 1661:1972)`} />
+          <SectionHeader num="11" title={`PLASTERING (IS 1661:1972)`} />
           <div className="p-4">
             <div className="space-y-2">
               {([
@@ -1371,7 +1582,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
         {/* ── 10 WATERPROOFING ──────────────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <SectionHeader num="11" title={`WATERPROOFING (IS 2645:2003)`} />
+          <SectionHeader num="12" title={`WATERPROOFING (IS 2645:2003)`} />
           <div className="p-4 space-y-3">
             {/* Terrace */}
             <label className="flex items-center gap-3 cursor-pointer">
@@ -1575,7 +1786,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
           {/* Contractor Quote */}
           <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-            <SectionHeader num="12" title="CONTRACTOR QUOTE (OPTIONAL)" />
+            <SectionHeader num="13" title="CONTRACTOR QUOTE (OPTIONAL)" />
           <div className="p-4 space-y-3">
             <p className="text-[13px]" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
               Have a contractor quote? Enter it to compare after unlocking your report.
