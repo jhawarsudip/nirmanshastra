@@ -155,7 +155,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
       const res  = await fetch('/api/payments/create-order', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         
-        body: JSON.stringify({ estimateId, amount: 100 }), // TEMPORARY - testing at Rs1, revert to 99900 before real launch
+        body: JSON.stringify({ estimateId, amount: 99900 }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not create order')
