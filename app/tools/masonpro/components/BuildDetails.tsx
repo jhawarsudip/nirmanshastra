@@ -53,7 +53,9 @@ interface RoomFormRow { id: string; name: string; lengthFt: string; widthFt: str
 interface ExteriorFloorRow { floorIdx: number; wallLengthFt: string }
 interface InteriorFloorRow { floorIdx: number; wallLengthFt: string }
 interface CustomDoor { id: string; count: string; widthMm: string; heightMm: string }
+interface CustomWindow { id: string; count: string; widthMm: string; heightMm: string }
 interface BalconyFormRow { id: string; name: string; perimeterM: string; parapetHeightMm: string; thicknessMm: 115 | 230 }
+interface BalconyFloorRow { floorIdx: number; perimeterM: string; parapetHeightMm: string; thicknessMm: 115 | 230 }
 
 type MortarGrade = '1:4' | '1:6'
 type BrickClass = '7.5' | '10' | '15'
@@ -162,12 +164,13 @@ function monoVal(v: string | number) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 interface ProjectInitData {
-  projectId:     string
-  projectName:   string
-  city:          string
-  state:         string
-  numFloors:     number | null   // normalized: total floors (G=1, G+1=2 …)
-  perFloorAreas: number[] | null
+  projectId:        string
+  projectName:      string
+  city:             string
+  state:            string
+  numFloors:        number | null   // normalized: total floors (G=1, G+1=2 …)
+  perFloorAreas:    number[] | null
+  slabThicknessMm?: number         // from StructoPro continuity data, if available
 }
 
 interface Props {
@@ -190,6 +193,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   const [projectName, setProjectName]   = useState(initialProject?.projectName ?? '')
   const [floorCount, setFloorCount] = useState<number>(initFloorCount)
   const [floorHeightFt, setFloorHeightFt]   = useState('10')
+  const [slabDepthMm, setSlabDepthMm]       = useState<number>(initialProject?.slabThicknessMm ?? 125)
   const [localState, setLocalState]     = useState(initialProject?.state ?? state)
   const [localCity, setLocalCity]       = useState(initialProject?.city ?? city)
 
@@ -213,11 +217,20 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
     main: '1', room: '', bathroom: '', toilet: '',
   })
   const [customDoors, setCustomDoors] = useState<CustomDoor[]>([])
+  // CHANGE 1: editable preset sizes
+  const [doorSizeOverrides, setDoorSizeOverrides] = useState<Record<string, { widthMm: string; heightMm: string }>>(
+    Object.fromEntries(DOOR_PRESETS.map(p => [p.key, { widthMm: String(p.widthMm), heightMm: String(p.heightMm) }]))
+  )
 
   // S5 — Window schedule
   const [windowCounts, setWindowCounts] = useState<Record<string, string>>(
     Object.fromEntries(WINDOW_PRESETS.map(w => [w.key, '']))
   )
+  // CHANGE 1: editable preset sizes + custom windows
+  const [windowSizeOverrides, setWindowSizeOverrides] = useState<Record<string, { widthMm: string; heightMm: string }>>(
+    Object.fromEntries(WINDOW_PRESETS.map(w => [w.key, { widthMm: String(w.widthMm), heightMm: String(w.heightMm) }]))
+  )
+  const [customWindows, setCustomWindows] = useState<CustomWindow[]>([])
 
   // S6 — Internal partitions (wall type + per-floor lengths Table B)
   const [includeInternal, setIncludeInt] = useState(false)
@@ -229,6 +242,10 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   // S7 — Balcony
   const [includeBalcony, setIncludeBalcony] = useState(false)
   const [balconies, setBalconies]           = useState<BalconyFormRow[]>([])
+  // CHANGE 2: per-floor balcony rows for multi-floor buildings
+  const [balconyFloorRows, setBalconyFloorRows] = useState<BalconyFloorRow[]>(
+    Array.from({ length: initFloorCount }, (_, i) => ({ floorIdx: i + 1, perimeterM: '', parapetHeightMm: '900', thicknessMm: 115 as const }))
+  )
 
   // S8 — Compound wall
   const [includeCompound, setIncludeCompound] = useState(false)
@@ -239,6 +256,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   const [compPillarOverride, setCompPillarOverride] = useState('')
 
   // S9 — Roof type
+  const [includeRoofSection, setIncludeRoofSection] = useState(true)   // CHANGE 3
   const [roofType, setRoofType]                     = useState<RoofType>('flat')
   const [slopedRoofCovering, setSlopedRoofCovering] = useState<SlopedRoofCovering>('mangalore_tiles')
   const [gableWallAreaSqm, setGableWallAreaSqm]     = useState('')
@@ -246,9 +264,11 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   const [terraceParapetCoping, setTerraceParapetCoping] = useState(false)
 
   // S10 — Plaster
+  const [includePlasterSection, setIncludePlasterSection] = useState(true) // CHANGE 3
   const [plastering, setPlastering] = useState({ internal: true, external: true, ceiling: false })
 
   // S11 — Waterproofing
+  const [includeWPSection, setIncludeWPSection] = useState(true)       // CHANGE 3
   const [includeTerWP, setTerraceWP]           = useState(false)
   const [terraceArea, setTerraceArea]           = useState('')
   const [terraceWPMethod, setTerraceWPMethod]   = useState<WaterproofingMethod>('bbc')
@@ -283,11 +303,14 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   const isMultiFloor  = floorCount > 1
 
   const floorHFt = parseFloat(floorHeightFt) || 10
+  const slabDepthFt = slabDepthMm / 304.8
+  const netFloorHFt = Math.max(0.1, floorHFt - slabDepthFt)
+  const slabFromContinuity = !!(initialProject?.slabThicknessMm && initialProject.slabThicknessMm > 0)
 
-  // Per-floor gross exterior areas (length × height)
+  // Per-floor gross exterior areas (length × net height; slab depth subtracted per IS 2212)
   const perFloorGrossExtArea: number[] = exteriorFloorRows.map(r => {
     const l = parseFloat(r.wallLengthFt) || 0
-    return l * floorHFt * SQM_PER_SQFT
+    return l * netFloorHFt * SQM_PER_SQFT
   })
   const grossExtSqm = perFloorGrossExtArea.reduce((a, b) => a + b, 0)
 
@@ -303,7 +326,11 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
     let total = 0
     for (const preset of DOOR_PRESETS) {
       const c = parseInt(doorCounts[preset.key] || '0') || 0
-      if (c > 0 && preset.areaSqm >= 0.1) total += c * preset.areaSqm
+      const ov = doorSizeOverrides[preset.key]
+      const w = parseInt(ov?.widthMm || '') || preset.widthMm
+      const h = parseInt(ov?.heightMm || '') || preset.heightMm
+      const area = (w * h) / 1_000_000
+      if (c > 0 && area >= 0.1) total += c * area
     }
     for (const cd of customDoors) {
       const w = parseInt(cd.widthMm) || 0
@@ -315,10 +342,25 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
     return total
   })()
 
-  const windowDeductSqm = WINDOW_PRESETS.reduce((sum, wp) => {
-    const c = parseInt(windowCounts[wp.key] || '0') || 0
-    return sum + (c > 0 && wp.areaSqm >= 0.1 ? c * wp.areaSqm : 0)
-  }, 0)
+  const windowDeductSqm = (() => {
+    let total = 0
+    for (const wp of WINDOW_PRESETS) {
+      const c = parseInt(windowCounts[wp.key] || '0') || 0
+      const ov = windowSizeOverrides[wp.key]
+      const w = parseInt(ov?.widthMm || '') || wp.widthMm
+      const h = parseInt(ov?.heightMm || '') || wp.heightMm
+      const area = (w * h) / 1_000_000
+      if (c > 0 && area >= 0.1) total += c * area
+    }
+    for (const cw of customWindows) {
+      const w = parseInt(cw.widthMm) || 0
+      const h = parseInt(cw.heightMm) || 0
+      const area = (w * h) / 1_000_000
+      const c = parseInt(cw.count) || 0
+      if (c > 0 && area >= 0.1) total += c * area
+    }
+    return total
+  })()
 
   const netExtSqm = Math.max(0, grossExtSqm - doorDeductSqm - windowDeductSqm)
 
@@ -330,14 +372,20 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   // Total interior partition area
   const totalIntSqm = interiorFloorRows.reduce((sum, r) => {
     const l = parseFloat(r.wallLengthFt) || 0
-    return sum + l * floorHFt * SQM_PER_SQFT
+    return sum + l * netFloorHFt * SQM_PER_SQFT
   }, 0)
 
-  const totalBalconyParapetSqm = balconies.reduce((sum, b) => {
-    const p = parseFloat(b.perimeterM) || 0
-    const h = (parseInt(b.parapetHeightMm) || 900) / 1000
-    return sum + p * h
-  }, 0)
+  const totalBalconyParapetSqm = isMultiFloor
+    ? balconyFloorRows.reduce((sum, r) => {
+      const p = parseFloat(r.perimeterM) || 0
+      const h = (parseInt(r.parapetHeightMm) || 900) / 1000
+      return sum + p * h
+    }, 0)
+    : balconies.reduce((sum, b) => {
+      const p = parseFloat(b.perimeterM) || 0
+      const h = (parseInt(b.parapetHeightMm) || 900) / 1000
+      return sum + p * h
+    }, 0)
 
   const compPerimF = parseFloat(compPerimeterM) || 0
   const compGateF  = parseFloat(compGateWidthM) || 0
@@ -391,6 +439,17 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
     })
   }, [floorCount])
 
+  // CHANGE 2: sync balconyFloorRows with floorCount
+  useEffect(() => {
+    setBalconyFloorRows(prev => {
+      const prevMap = new Map(prev.map(r => [r.floorIdx, r]))
+      return Array.from({ length: floorCount }, (_, i) => {
+        const f = i + 1
+        return prevMap.get(f) ?? { floorIdx: f, perimeterM: '', parapetHeightMm: '900', thicknessMm: 115 as const }
+      })
+    })
+  }, [floorCount])
+
   // ── Helpers ───────────────────────────────────────────────────────────────────
 
   function floorLabel(floorIdx: number) {
@@ -419,6 +478,18 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
   function addCustomDoor() {
     setCustomDoors(prev => [...prev, { id: `cd${Date.now()}`, count: '1', widthMm: '', heightMm: '' }])
+  }
+
+  function addCustomWindow() {
+    setCustomWindows(prev => [...prev, { id: `cw${Date.now()}`, count: '1', widthMm: '', heightMm: '' }])
+  }
+  function updateCustomWindow(id: string, key: keyof CustomWindow, val: string) {
+    setCustomWindows(prev => prev.map(w => w.id === id ? { ...w, [key]: val } : w))
+  }
+  function removeCustomWindow(id: string) { setCustomWindows(prev => prev.filter(w => w.id !== id)) }
+
+  function updateBalconyFloorRow(floorIdx: number, key: keyof BalconyFloorRow, val: string | number) {
+    setBalconyFloorRows(prev => prev.map(r => r.floorIdx === floorIdx ? { ...r, [key]: val } : r))
   }
 
   function updateCustomDoor(id: string, key: keyof CustomDoor, val: string) {
@@ -461,10 +532,12 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
     }
 
     const doorsForEngine = [
-      ...DOOR_PRESETS.map(p => ({
-        id: p.key, label: p.label, widthMm: p.widthMm, heightMm: p.heightMm,
-        count: parseInt(doorCounts[p.key] || '0') || 0,
-      })),
+      ...DOOR_PRESETS.map(p => {
+        const ov = doorSizeOverrides[p.key]
+        const w = parseInt(ov?.widthMm || '') || p.widthMm
+        const h = parseInt(ov?.heightMm || '') || p.heightMm
+        return { id: p.key, label: p.label, widthMm: w, heightMm: h, count: parseInt(doorCounts[p.key] || '0') || 0 }
+      }),
       ...customDoors.map(cd => ({
         id: cd.id, label: 'Custom Door',
         widthMm: parseInt(cd.widthMm) || 0,
@@ -474,17 +547,39 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
       })),
     ]
 
-    const windowsForEngine = WINDOW_PRESETS.map(wp => ({
-      id: wp.key, label: wp.label, widthMm: wp.widthMm, heightMm: wp.heightMm,
-      count: parseInt(windowCounts[wp.key] || '0') || 0,
-    }))
+    const windowsForEngine = [
+      ...WINDOW_PRESETS.map(wp => {
+        const ov = windowSizeOverrides[wp.key]
+        const w = parseInt(ov?.widthMm || '') || wp.widthMm
+        const h = parseInt(ov?.heightMm || '') || wp.heightMm
+        return { id: wp.key, label: wp.label, widthMm: w, heightMm: h, count: parseInt(windowCounts[wp.key] || '0') || 0 }
+      }),
+      ...customWindows.map(cw => ({
+        id: cw.id, label: 'Custom Window',
+        widthMm: parseInt(cw.widthMm) || 0,
+        heightMm: parseInt(cw.heightMm) || 0,
+        count: parseInt(cw.count) || 0,
+        isCustom: true as const,
+      })),
+    ]
 
-    const balconiesForEngine = balconies.map(b => ({
-      id: b.id, name: b.name,
-      lengthM: parseFloat(b.perimeterM) || 0,
-      heightMm: parseInt(b.parapetHeightMm) || 900,
-      thicknessMm: b.thicknessMm,
-    }))
+    // CHANGE 2: per-floor balcony or single-floor list
+    const balconiesForEngine = isMultiFloor
+      ? balconyFloorRows
+        .filter(r => (parseFloat(r.perimeterM) || 0) > 0)
+        .map(r => ({
+          id: `floor-${r.floorIdx}`,
+          name: `Floor ${r.floorIdx} Balcony`,
+          lengthM: parseFloat(r.perimeterM) || 0,
+          heightMm: parseInt(r.parapetHeightMm) || 900,
+          thicknessMm: r.thicknessMm,
+        }))
+      : balconies.map(b => ({
+        id: b.id, name: b.name,
+        lengthM: parseFloat(b.perimeterM) || 0,
+        heightMm: parseInt(b.parapetHeightMm) || 900,
+        thicknessMm: b.thicknessMm,
+      }))
 
     onSubmit({
       state: localState,
@@ -503,13 +598,14 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
       includeInternal,
       internalWallType: includeInternal ? intWallType : undefined,
       internalWallAreaSqm: includeInternal ? Math.round(totalIntSqm * 100) / 100 : 0,
-      includePlaster: plastering.internal || plastering.external || plastering.ceiling,
-      plasterInternal: plastering.internal,
-      plasterExternal: plastering.external,
-      plasterCeiling: plastering.ceiling,
-      includeWaterproofing: includeTerWP || includeBathWP,
-      terraceAreaSqft: includeTerWP ? (parseFloat(terraceArea) || 0) : 0,
-      bathroomCount: includeBathWP ? (parseInt(bathroomCount) || 0) : 0,
+      // CHANGE 3: conditional section inclusion
+      includePlaster: includePlasterSection && (plastering.internal || plastering.external || plastering.ceiling),
+      plasterInternal: includePlasterSection && plastering.internal,
+      plasterExternal: includePlasterSection && plastering.external,
+      plasterCeiling: includePlasterSection && plastering.ceiling,
+      includeWaterproofing: includeWPSection && (includeTerWP || includeBathWP),
+      terraceAreaSqft: (includeWPSection && includeTerWP) ? (parseFloat(terraceArea) || 0) : 0,
+      bathroomCount: (includeWPSection && includeBathWP) ? (parseInt(bathroomCount) || 0) : 0,
       terraceWpMethod: terraceWPMethod,
       bathroomWpMethod: bathroomWPMethod,
       numFloors: floorCount,
@@ -532,11 +628,12 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
       compoundThicknessMm: compThicknessMm,
       compoundGateWidthM: compGateF,
       compoundPillarCount: effectivePillarCount,
-      roofType,
-      slopedRoofCovering: roofType !== 'flat' ? slopedRoofCovering : undefined,
-      gableWallAreaSqm: roofType !== 'flat' ? (parseFloat(gableWallAreaSqm) || 0) : 0,
-      ridgeLengthM: roofType !== 'flat' ? (parseFloat(ridgeLengthM) || 0) : 0,
-      terraceParapetCoping: roofType !== 'sloped' ? terraceParapetCoping : false,
+      // CHANGE 3: roof section optional
+      roofType: includeRoofSection ? roofType : 'flat',
+      slopedRoofCovering: (includeRoofSection && roofType !== 'flat') ? slopedRoofCovering : undefined,
+      gableWallAreaSqm: (includeRoofSection && roofType !== 'flat') ? (parseFloat(gableWallAreaSqm) || 0) : 0,
+      ridgeLengthM: (includeRoofSection && roofType !== 'flat') ? (parseFloat(ridgeLengthM) || 0) : 0,
+      terraceParapetCoping: (includeRoofSection && roofType !== 'sloped') ? terraceParapetCoping : false,
       contractorQuote: contractorTotal ? parseFloat(contractorTotal) : undefined,
       includeLabour,
     })
@@ -701,6 +798,41 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               )}
             </div>
 
+            {/* Slab Depth */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <label className="text-[11px] uppercase tracking-widest"
+                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Slab Depth (subtracted from wall height)
+                </label>
+                <TipBtn id="slabdepth" open={openTip} onToggle={toggleTip}>
+                  RCC slab thickness is deducted from floor-to-floor height to get net masonry wall height. Standard residential slab: 100–150mm. Default: 125mm (IS 456:2000 Table 5). If continuing from StructoPro, enter your actual slab thickness here.
+                </TipBtn>
+              </div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <input type="number" min="50" max="300" value={slabDepthMm}
+                    onChange={e => setSlabDepthMm(Math.max(0, parseFloat(e.target.value) || 125))}
+                    className="w-24 border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none"
+                    style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }} />
+                  <span className="text-[12px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>mm</span>
+                </div>
+                {slabFromContinuity ? (
+                  <span className="text-[10px] px-2 py-0.5 rounded-[2px]"
+                    style={{ background: 'rgba(20,83,45,0.08)', color: '#14532D', fontFamily: 'var(--font-plex-mono)', border: '1px solid rgba(20,83,45,0.2)' }}>
+                    ✓ from StructoPro data
+                  </span>
+                ) : (
+                  <span className="text-[10px]" style={{ color: '#D99A06', fontFamily: 'var(--font-plex-mono)' }}>
+                    ⓘ Standard 125mm assumption — override if known
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                Net wall height = {floorHFt.toFixed(2)} ft − {slabDepthMm}mm = {(netFloorHFt * 0.3048).toFixed(2)} m ({netFloorHFt.toFixed(2)} ft)
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-[11px] uppercase tracking-widest block mb-1"
@@ -851,10 +983,10 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               <div className="flex items-center gap-2 mb-2">
                 <p className="text-[11px] font-medium uppercase tracking-widest"
                   style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                  TABLE A — EXTERIOR WALLS (per floor)
+                  TABLE A — TOTAL EXTERIOR WALLS (PER FLOOR)
                 </p>
                 <TipBtn id="extlen" open={openTip} onToggle={toggleTip}>
-                  Enter the total perimeter length of the exterior walls for each floor. For irregular or L-shaped plans, measure the actual wall perimeter — do NOT use 2×(Length+Width) unless the plan is a simple rectangle. Area = Wall Length × Floor Height.
+                  Enter the total perimeter length of the exterior walls for each floor. For irregular or L-shaped plans, measure the actual wall perimeter — do NOT use 2×(Length+Width) unless the plan is a simple rectangle. Area = Wall Length × (Floor Height − Slab Depth). Slab depth is set in Section 01.
                 </TipBtn>
               </div>
               <AlertBox variant="info">
@@ -873,25 +1005,39 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   <tbody>
                     {exteriorFloorRows.map((row, i) => {
                       const l = parseFloat(row.wallLengthFt) || 0
-                      const areaSqm = l * floorHFt * SQM_PER_SQFT
+                      const areaSqm = l * netFloorHFt * SQM_PER_SQFT
                       const bricksEst = areaSqm > 0 ? Math.round(extSpec.unitsPerSqm * areaSqm) : 0
                       return (
                         <tr key={row.floorIdx} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
-                          <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap' }}>
+                          <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap', verticalAlign: 'top' }}>
                             {floorLabel(row.floorIdx)}
                           </td>
-                          <td className="py-2 px-2">
+                          <td className="py-2 px-2" style={{ verticalAlign: 'top' }}>
                             <input type="number" value={row.wallLengthFt}
                               onChange={e => { updateExteriorRow(row.floorIdx, e.target.value); setErrors(prev => ({ ...prev, floors: '' })) }}
                               placeholder="e.g. 200"
                               className="w-28 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
                               style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
                           </td>
-                          <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: areaSqm > 0 ? '#1F4E79' : 'rgba(30,34,39,0.3)' }}>
-                            {areaSqm > 0 ? `${areaSqm.toFixed(1)} sqm` : '—'}
+                          <td className="py-2 px-2" style={{ verticalAlign: 'top' }}>
+                            <div className="text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: areaSqm > 0 ? '#1F4E79' : 'rgba(30,34,39,0.3)' }}>
+                              {areaSqm > 0 ? `${areaSqm.toFixed(1)} sqm` : '—'}
+                            </div>
+                            {areaSqm > 0 && (
+                              <div className="text-[9px] mt-0.5 leading-tight" style={{ color: 'rgba(30,34,39,0.38)', fontFamily: 'var(--font-plex-mono)' }}>
+                                {l.toFixed(0)} ft × {(netFloorHFt * 0.3048).toFixed(2)} m{slabFromContinuity ? ' (StructoPro slab)' : ` (−${slabDepthMm}mm slab)`}
+                              </div>
+                            )}
                           </td>
-                          <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.45)' }}>
-                            {bricksEst > 0 ? `≈ ${bricksEst.toLocaleString('en-IN')} ${extSpec.unitLabel}` : '—'}
+                          <td className="py-2 px-2" style={{ verticalAlign: 'top' }}>
+                            <div className="text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.45)' }}>
+                              {bricksEst > 0 ? `≈ ${bricksEst.toLocaleString('en-IN')} ${extSpec.unitLabel}` : '—'}
+                            </div>
+                            {bricksEst > 0 && (
+                              <div className="text-[9px] mt-0.5 leading-tight" style={{ color: 'rgba(30,34,39,0.32)', fontFamily: 'var(--font-plex-mono)' }}>
+                                {extSpec.unitsPerSqm}/{String(extSpec.unitLabel).replace(/s$/, '')} per sqm · mortar incl.
+                              </div>
+                            )}
                           </td>
                         </tr>
                       )
@@ -927,14 +1073,14 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
           <SectionHeader num="04" title="DOOR SCHEDULE — OPENING DEDUCTIONS" />
           <div className="p-4 space-y-3">
             <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-              ⓘ Openings below 0.1 sqm not deducted per standard practice
+              ⓘ Sizes are pre-filled with standard dimensions — edit for non-standard openings. Openings below 0.1 sqm not deducted.
             </p>
 
             <div className="overflow-x-auto">
-              <table className="w-full" style={{ borderCollapse: 'collapse', minWidth: 480 }}>
+              <table className="w-full" style={{ borderCollapse: 'collapse', minWidth: 520 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
-                    {['Door Type', 'Size (mm)', 'Area/door', 'Count', 'Deduction'].map(h => (
+                    {['Door Type', 'Width (mm)', 'Height (mm)', 'Area/door', 'Count', 'Deduction'].map(h => (
                       <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
                         style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                     ))}
@@ -942,16 +1088,31 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 </thead>
                 <tbody>
                   {DOOR_PRESETS.map(preset => {
+                    const ov = doorSizeOverrides[preset.key]
+                    const wVal = ov?.widthMm ?? String(preset.widthMm)
+                    const hVal = ov?.heightMm ?? String(preset.heightMm)
+                    const w = parseInt(wVal) || preset.widthMm
+                    const h = parseInt(hVal) || preset.heightMm
+                    const area = (w * h) / 1_000_000
                     const c = parseInt(doorCounts[preset.key] || '0') || 0
-                    const deduct = c * preset.areaSqm
+                    const deduct = c > 0 && area >= 0.1 ? c * area : 0
                     return (
                       <tr key={preset.key} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)' }}>
                         <td className="py-2 px-2 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>{preset.label}</td>
-                        <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.55)' }}>
-                          {preset.widthMm}×{preset.heightMm}
+                        <td className="py-2 px-2">
+                          <input type="number" value={wVal}
+                            onChange={e => setDoorSizeOverrides(prev => ({ ...prev, [preset.key]: { ...prev[preset.key], widthMm: e.target.value } }))}
+                            className="w-16 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                        </td>
+                        <td className="py-2 px-2">
+                          <input type="number" value={hVal}
+                            onChange={e => setDoorSizeOverrides(prev => ({ ...prev, [preset.key]: { ...prev[preset.key], heightMm: e.target.value } }))}
+                            className="w-16 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
                         </td>
                         <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.55)' }}>
-                          {preset.areaSqm} sqm
+                          {area >= 0.1 ? `${area.toFixed(3)} sqm` : <span style={{ color: '#D99A06' }}>{'< 0.1'}</span>}
                         </td>
                         <td className="py-2 px-2">
                           <input type="number" min="0"
@@ -976,24 +1137,21 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                     const c = parseInt(cd.count) || 0
                     const deduct = area >= 0.1 ? c * area : 0
                     return (
-                      <tr key={cd.id} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)' }}>
+                      <tr key={cd.id} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: 'rgba(31,78,121,0.02)' }}>
+                        <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.55)' }}>Custom Opening</td>
                         <td className="py-2 px-2">
-                          <span className="text-[11px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.55)' }}>Custom</span>
+                          <input type="number" value={cd.widthMm}
+                            onChange={e => updateCustomDoor(cd.id, 'widthMm', e.target.value)}
+                            placeholder="e.g. 1000"
+                            className="w-16 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
                         </td>
                         <td className="py-2 px-2">
-                          <div className="flex items-center gap-1">
-                            <input type="number" value={cd.widthMm}
-                              onChange={e => updateCustomDoor(cd.id, 'widthMm', e.target.value)}
-                              placeholder="W"
-                              className="w-14 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
-                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
-                            <span className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)' }}>×</span>
-                            <input type="number" value={cd.heightMm}
-                              onChange={e => updateCustomDoor(cd.id, 'heightMm', e.target.value)}
-                              placeholder="H"
-                              className="w-14 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
-                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
-                          </div>
+                          <input type="number" value={cd.heightMm}
+                            onChange={e => updateCustomDoor(cd.id, 'heightMm', e.target.value)}
+                            placeholder="e.g. 2100"
+                            className="w-16 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
                         </td>
                         <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.45)' }}>
                           {area > 0 ? `${area.toFixed(3)} sqm` : '—'}
@@ -1003,7 +1161,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                           <div className="flex items-center gap-1">
                             <input type="number" min="0" value={cd.count}
                               onChange={e => updateCustomDoor(cd.id, 'count', e.target.value)}
-                              className="w-16 border rounded-[6px] px-2 py-1 text-[13px] bg-sheet-white outline-none text-center"
+                              className="w-14 border rounded-[6px] px-2 py-1 text-[13px] bg-sheet-white outline-none text-center"
                               style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
                             <button type="button" onClick={() => removeCustomDoor(cd.id)}
                               className="w-6 h-6 flex items-center justify-center rounded text-[12px]"
@@ -1041,11 +1199,14 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
           <SectionHeader num="05" title="WINDOW SCHEDULE — OPENING DEDUCTIONS" />
           <div className="p-4 space-y-3">
+            <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+              ⓘ Sizes pre-filled from standard presets — edit for non-standard openings. Openings below 0.1 sqm not deducted.
+            </p>
             <div className="overflow-x-auto">
-              <table className="w-full" style={{ borderCollapse: 'collapse', minWidth: 420 }}>
+              <table className="w-full" style={{ borderCollapse: 'collapse', minWidth: 520 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
-                    {['Window Type', 'Area/window', 'Count', 'Deduction'].map(h => (
+                    {['Window Type', 'Width (mm)', 'Height (mm)', 'Area/window', 'Count', 'Deduction'].map(h => (
                       <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
                         style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                     ))}
@@ -1053,13 +1214,31 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 </thead>
                 <tbody>
                   {WINDOW_PRESETS.map(wp => {
+                    const ov = windowSizeOverrides[wp.key]
+                    const wVal = ov?.widthMm ?? String(wp.widthMm)
+                    const hVal = ov?.heightMm ?? String(wp.heightMm)
+                    const w = parseInt(wVal) || wp.widthMm
+                    const h = parseInt(hVal) || wp.heightMm
+                    const area = (w * h) / 1_000_000
                     const c = parseInt(windowCounts[wp.key] || '0') || 0
-                    const deduct = c * wp.areaSqm
+                    const deduct = c > 0 && area >= 0.1 ? c * area : 0
                     return (
                       <tr key={wp.key} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)' }}>
-                        <td className="py-2 px-2 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>{wp.label}</td>
+                        <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>{wp.label}</td>
+                        <td className="py-2 px-2">
+                          <input type="number" value={wVal}
+                            onChange={e => setWindowSizeOverrides(prev => ({ ...prev, [wp.key]: { ...prev[wp.key], widthMm: e.target.value } }))}
+                            className="w-16 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                        </td>
+                        <td className="py-2 px-2">
+                          <input type="number" value={hVal}
+                            onChange={e => setWindowSizeOverrides(prev => ({ ...prev, [wp.key]: { ...prev[wp.key], heightMm: e.target.value } }))}
+                            className="w-16 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                        </td>
                         <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.55)' }}>
-                          {wp.areaSqm} sqm
+                          {area >= 0.1 ? `${area.toFixed(3)} sqm` : <span style={{ color: '#D99A06' }}>{'< 0.1'}</span>}
                         </td>
                         <td className="py-2 px-2">
                           <input type="number" min="0"
@@ -1070,7 +1249,55 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                             style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
                         </td>
                         <td className="py-2 px-2 text-[11px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: deduct > 0 ? '#8C3A22' : 'rgba(30,34,39,0.3)' }}>
-                          {deduct > 0 ? `−${deduct.toFixed(2)} sqm` : '—'}
+                          {deduct > 0 ? `−${deduct.toFixed(3)} sqm` : '—'}
+                        </td>
+                      </tr>
+                    )
+                  })}
+
+                  {/* Custom windows */}
+                  {customWindows.map(cw => {
+                    const w = parseInt(cw.widthMm) || 0
+                    const h = parseInt(cw.heightMm) || 0
+                    const area = (w * h) / 1_000_000
+                    const c = parseInt(cw.count) || 0
+                    const deduct = area >= 0.1 ? c * area : 0
+                    return (
+                      <tr key={cw.id} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: 'rgba(31,78,121,0.02)' }}>
+                        <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.55)' }}>Custom Opening</td>
+                        <td className="py-2 px-2">
+                          <input type="number" value={cw.widthMm}
+                            onChange={e => updateCustomWindow(cw.id, 'widthMm', e.target.value)}
+                            placeholder="e.g. 1200"
+                            className="w-16 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                        </td>
+                        <td className="py-2 px-2">
+                          <input type="number" value={cw.heightMm}
+                            onChange={e => updateCustomWindow(cw.id, 'heightMm', e.target.value)}
+                            placeholder="e.g. 1500"
+                            className="w-16 border rounded-[6px] px-1.5 py-1 text-[11px] bg-sheet-white outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                        </td>
+                        <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.45)' }}>
+                          {area > 0 ? `${area.toFixed(3)} sqm` : '—'}
+                          {area > 0 && area < 0.1 && <span className="text-[9px] ml-1" style={{ color: '#D99A06' }}>not deducted</span>}
+                        </td>
+                        <td className="py-2 px-2">
+                          <div className="flex items-center gap-1">
+                            <input type="number" min="0" value={cw.count}
+                              onChange={e => updateCustomWindow(cw.id, 'count', e.target.value)}
+                              className="w-14 border rounded-[6px] px-2 py-1 text-[13px] bg-sheet-white outline-none text-center"
+                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                            <button type="button" onClick={() => removeCustomWindow(cw.id)}
+                              className="w-6 h-6 flex items-center justify-center rounded text-[12px]"
+                              style={{ color: '#8C3A22', border: '1px solid rgba(140,58,34,0.2)', background: 'rgba(140,58,34,0.04)' }}>
+                              ×
+                            </button>
+                          </div>
+                        </td>
+                        <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: deduct > 0 ? '#8C3A22' : 'rgba(30,34,39,0.3)' }}>
+                          {deduct > 0 ? `−${deduct.toFixed(3)} sqm` : '—'}
                         </td>
                       </tr>
                     )
@@ -1078,11 +1305,19 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 </tbody>
               </table>
             </div>
-            {windowDeductSqm > 0 && (
-              <p className="text-[12px] font-medium text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: '#8C3A22' }}>
-                Total window deduction: {windowDeductSqm.toFixed(2)} sqm
-              </p>
-            )}
+
+            <div className="flex items-center justify-between">
+              <button type="button" onClick={addCustomWindow}
+                className="text-[11px] px-3 py-1.5 rounded-[2px]"
+                style={{ border: '1px dashed rgba(31,78,121,0.35)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', background: 'transparent' }}>
+                + Custom Window
+              </button>
+              {windowDeductSqm > 0 && (
+                <p className="text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#8C3A22' }}>
+                  Total window deduction: {windowDeductSqm.toFixed(3)} sqm
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1094,9 +1329,18 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
             </p>
             <AreaSummaryBar />
             {netExtSqm > 0 && (
-              <p className="text-[11px] mt-2" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
-                ✓ {Math.round(extSpec.unitsPerSqm * netExtSqm).toLocaleString('en-IN')} {extSpec.unitLabel} required for net wall area
-              </p>
+              <div className="mt-2 space-y-1">
+                <p className="text-[11px]" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
+                  ✓ {Math.round(extSpec.unitsPerSqm * netExtSqm).toLocaleString('en-IN')} {extSpec.unitLabel} required for net wall area
+                </p>
+                <p className="text-[9px] leading-snug" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Wall area = Total length × (floor ht − slab depth) = Total length × ({floorHFt.toFixed(2)} ft − {slabDepthMm}mm = {(netFloorHFt * 0.3048).toFixed(2)} m net ht) = {grossExtSqm.toFixed(1)} sqm gross
+                  {slabFromContinuity ? ' · slab from StructoPro' : ' · 125mm standard assumption'}
+                </p>
+                <p className="text-[9px] leading-snug" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  Bricks = {netExtSqm.toFixed(1)} sqm × {extSpec.unitsPerSqm} {extSpec.unitLabel}/sqm (IS 2212:1991, {extSpec.shortLabel}) = {Math.round(extSpec.unitsPerSqm * netExtSqm).toLocaleString('en-IN')} {extSpec.unitLabel}. Mortar joint spacing already included in this IS rate.
+                </p>
+              </div>
             )}
           </div>
         )}
@@ -1174,7 +1418,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                     <tbody>
                       {interiorFloorRows.map((row, i) => {
                         const l = parseFloat(row.wallLengthFt) || 0
-                        const areaSqm = l * floorHFt * SQM_PER_SQFT
+                        const areaSqm = l * netFloorHFt * SQM_PER_SQFT
                         return (
                           <tr key={row.floorIdx} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
                             <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap' }}>
@@ -1237,99 +1481,170 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 NBC 2016 minimum parapet height: 900mm. Calculated separately from main wall area — bricks/blocks listed as line item in report.
               </AlertBox>
 
-              {balconies.length > 0 && (
-                <div className="space-y-3">
-                  {balconies.map((b, idx) => {
-                    const p = parseFloat(b.perimeterM) || 0
-                    const h = (parseInt(b.parapetHeightMm) || 900) / 1000
-                    const areaSqm = p * h
-                    return (
-                      <div key={b.id} className="p-3 rounded-[2px]"
-                        style={{ border: '1px solid rgba(30,34,39,0.12)', background: 'rgba(30,34,39,0.01)' }}>
-                        <div className="flex items-center justify-between mb-3">
-                          <input type="text" value={b.name}
-                            onChange={e => updateBalcony(b.id, 'name', e.target.value)}
-                            placeholder={`Balcony ${idx + 1}`}
-                            className="border-b outline-none text-[13px] bg-transparent flex-1"
-                            style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }} />
-                          <button type="button" onClick={() => removeBalcony(b.id)}
-                            className="ml-3 w-6 h-6 rounded flex items-center justify-center text-[13px]"
-                            style={{ color: '#8C3A22', border: '1px solid rgba(140,58,34,0.2)' }}>×</button>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          <div>
-                            <label className="text-[10px] uppercase tracking-widest block mb-1"
-                              style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                              Perimeter (m)
-                            </label>
-                            <input type="number" value={b.perimeterM}
-                              onChange={e => updateBalcony(b.id, 'perimeterM', e.target.value)}
-                              placeholder="e.g. 12"
-                              className="w-full border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
-                          </div>
-                          <div>
-                            <label className="text-[10px] uppercase tracking-widest block mb-1"
-                              style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                              Parapet Ht (mm)
-                              <TipBtn id={`bhtip-${b.id}`} open={openTip} onToggle={toggleTip}>
-                                NBC 2016 minimum parapet height: 900mm. Typical residential: 900–1050mm. Do not go below 900mm — it is a safety hazard.
-                              </TipBtn>
-                            </label>
-                            <input type="number" value={b.parapetHeightMm}
-                              onChange={e => updateBalcony(b.id, 'parapetHeightMm', e.target.value)}
-                              placeholder="900"
-                              className="w-full border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: (parseInt(b.parapetHeightMm) || 900) < 900 ? '#8C3A22' : 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
-                            {(parseInt(b.parapetHeightMm) || 900) < 900 && (
-                              <p className="text-[10px] mt-0.5" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
-                                Below NBC 2016 minimum (900mm)
+              {/* CHANGE 2: per-floor table for multi-floor, list for single floor */}
+              {isMultiFloor ? (
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-widest mb-2"
+                    style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                    TABLE C — BALCONY PARAPET WALLS (per floor)
+                  </p>
+                  <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>
+                    Enter perimeter for each floor that has a balcony. Leave blank for floors with no balcony.
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full" style={{ borderCollapse: 'collapse', minWidth: 440 }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
+                          {['Floor', 'Perimeter (m)', 'Parapet Ht (mm)', 'Thickness', 'Area'].map(h => (
+                            <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
+                              style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {balconyFloorRows.map((row, i) => {
+                          const p = parseFloat(row.perimeterM) || 0
+                          const h = (parseInt(row.parapetHeightMm) || 900) / 1000
+                          const areaSqm = p * h
+                          const htNum = parseInt(row.parapetHeightMm) || 900
+                          return (
+                            <tr key={row.floorIdx} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
+                              <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap' }}>
+                                Floor {row.floorIdx}
+                              </td>
+                              <td className="py-2 px-2">
+                                <input type="number" value={row.perimeterM}
+                                  onChange={e => updateBalconyFloorRow(row.floorIdx, 'perimeterM', e.target.value)}
+                                  placeholder="e.g. 10"
+                                  className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                              </td>
+                              <td className="py-2 px-2">
+                                <input type="number" value={row.parapetHeightMm}
+                                  onChange={e => updateBalconyFloorRow(row.floorIdx, 'parapetHeightMm', e.target.value)}
+                                  placeholder="900"
+                                  className="w-20 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: htNum < 900 ? '#8C3A22' : 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                                {htNum < 900 && <p className="text-[9px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>Below NBC min</p>}
+                              </td>
+                              <td className="py-2 px-2">
+                                <div className="flex gap-1">
+                                  {([115, 230] as const).map(t => (
+                                    <button key={t} type="button" onClick={() => updateBalconyFloorRow(row.floorIdx, 'thicknessMm', t)}
+                                      className="px-2 py-1 rounded-[2px] text-[10px]"
+                                      style={{
+                                        border: `1px solid ${row.thicknessMm === t ? '#1F4E79' : 'rgba(30,34,39,0.2)'}`,
+                                        background: row.thicknessMm === t ? 'rgba(31,78,121,0.1)' : 'transparent',
+                                        color: row.thicknessMm === t ? '#1F4E79' : '#1E2227',
+                                        fontFamily: 'var(--font-plex-mono)',
+                                      }}>
+                                      {t === 115 ? '4.5"' : '9"'}
+                                    </button>
+                                  ))}
+                                </div>
+                              </td>
+                              <td className="py-2 px-2 text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: areaSqm > 0 ? '#1F4E79' : 'rgba(30,34,39,0.3)' }}>
+                                {areaSqm > 0 ? `${areaSqm.toFixed(2)} sqm` : '—'}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                        {totalBalconyParapetSqm > 0 && (
+                          <tr style={{ borderTop: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)' }}>
+                            <td className="py-2 px-2 text-[11px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>TOTAL</td>
+                            <td colSpan={3} />
+                            <td className="py-2 px-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>
+                              {totalBalconyParapetSqm.toFixed(2)} sqm
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {balconies.length > 0 && (
+                    <div className="space-y-3">
+                      {balconies.map((b, idx) => {
+                        const p = parseFloat(b.perimeterM) || 0
+                        const h = (parseInt(b.parapetHeightMm) || 900) / 1000
+                        const areaSqm = p * h
+                        return (
+                          <div key={b.id} className="p-3 rounded-[2px]"
+                            style={{ border: '1px solid rgba(30,34,39,0.12)', background: 'rgba(30,34,39,0.01)' }}>
+                            <div className="flex items-center justify-between mb-3">
+                              <input type="text" value={b.name}
+                                onChange={e => updateBalcony(b.id, 'name', e.target.value)}
+                                placeholder={`Balcony ${idx + 1}`}
+                                className="border-b outline-none text-[13px] bg-transparent flex-1"
+                                style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }} />
+                              <button type="button" onClick={() => removeBalcony(b.id)}
+                                className="ml-3 w-6 h-6 rounded flex items-center justify-center text-[13px]"
+                                style={{ color: '#8C3A22', border: '1px solid rgba(140,58,34,0.2)' }}>×</button>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                              <div>
+                                <label className="text-[10px] uppercase tracking-widest block mb-1"
+                                  style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Perimeter (m)</label>
+                                <input type="number" value={b.perimeterM}
+                                  onChange={e => updateBalcony(b.id, 'perimeterM', e.target.value)}
+                                  placeholder="e.g. 12"
+                                  className="w-full border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                              </div>
+                              <div>
+                                <label className="text-[10px] uppercase tracking-widest block mb-1"
+                                  style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Parapet Ht (mm)</label>
+                                <input type="number" value={b.parapetHeightMm}
+                                  onChange={e => updateBalcony(b.id, 'parapetHeightMm', e.target.value)}
+                                  placeholder="900"
+                                  className="w-full border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
+                                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: (parseInt(b.parapetHeightMm) || 900) < 900 ? '#8C3A22' : 'rgba(30,34,39,0.3)', color: '#1E2227' }} />
+                                {(parseInt(b.parapetHeightMm) || 900) < 900 && (
+                                  <p className="text-[10px] mt-0.5" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>Below NBC 2016 min (900mm)</p>
+                                )}
+                              </div>
+                              <div>
+                                <label className="text-[10px] uppercase tracking-widest block mb-1"
+                                  style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>Thickness</label>
+                                <div className="grid grid-cols-2 gap-1.5">
+                                  {([115, 230] as const).map(t => (
+                                    <button key={t} type="button" onClick={() => updateBalcony(b.id, 'thicknessMm', t)}
+                                      className="py-1.5 rounded-[2px] text-center text-[11px]"
+                                      style={{
+                                        border: `1px solid ${b.thicknessMm === t ? '#1F4E79' : 'rgba(30,34,39,0.2)'}`,
+                                        background: b.thicknessMm === t ? 'rgba(31,78,121,0.08)' : 'transparent',
+                                        color: b.thicknessMm === t ? '#1F4E79' : '#1E2227',
+                                        fontFamily: 'var(--font-plex-mono)',
+                                      }}>
+                                      {t}mm {t === 115 ? '(4.5")' : '(9")'}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            {areaSqm > 0 && (
+                              <p className="text-[10px] mt-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                                Parapet wall area: {areaSqm.toFixed(2)} sqm · ≈ {Math.round(extSpec.unitsPerSqm * (b.thicknessMm >= 200 ? 1 : 0.5) * areaSqm).toLocaleString('en-IN')} {extSpec.unitLabel}
                               </p>
                             )}
                           </div>
-                          <div>
-                            <label className="text-[10px] uppercase tracking-widest block mb-1"
-                              style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
-                              Thickness
-                            </label>
-                            <div className="grid grid-cols-2 gap-1.5">
-                              {([115, 230] as const).map(t => (
-                                <button key={t} type="button" onClick={() => updateBalcony(b.id, 'thicknessMm', t)}
-                                  className="py-1.5 rounded-[2px] text-center text-[11px]"
-                                  style={{
-                                    border: `1px solid ${b.thicknessMm === t ? '#1F4E79' : 'rgba(30,34,39,0.2)'}`,
-                                    background: b.thicknessMm === t ? 'rgba(31,78,121,0.08)' : 'transparent',
-                                    color: b.thicknessMm === t ? '#1F4E79' : '#1E2227',
-                                    fontFamily: 'var(--font-plex-mono)',
-                                  }}>
-                                  {t}mm {t === 115 ? '(4.5")' : '(9")'}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        {areaSqm > 0 && (
-                          <p className="text-[10px] mt-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                            Parapet wall area: {areaSqm.toFixed(2)} sqm ·{' '}
-                            ≈ {Math.round(extSpec.unitsPerSqm * (b.thicknessMm >= 200 ? 1 : 0.5) * areaSqm).toLocaleString('en-IN')} {extSpec.unitLabel}
-                          </p>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-
-              <button type="button" onClick={addBalcony}
-                className="w-full py-2.5 rounded-[2px] text-[12px]"
-                style={{ border: '1px dashed rgba(31,78,121,0.4)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', background: 'rgba(31,78,121,0.02)' }}>
-                + Add Balcony
-              </button>
-
-              {totalBalconyParapetSqm > 0 && (
-                <p className="text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>
-                  Total balcony parapet area: {totalBalconyParapetSqm.toFixed(2)} sqm
-                </p>
+                        )
+                      })}
+                    </div>
+                  )}
+                  <button type="button" onClick={addBalcony}
+                    className="w-full py-2.5 rounded-[2px] text-[12px]"
+                    style={{ border: '1px dashed rgba(31,78,121,0.4)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', background: 'rgba(31,78,121,0.02)' }}>
+                    + Add Balcony
+                  </button>
+                  {totalBalconyParapetSqm > 0 && (
+                    <p className="text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79' }}>
+                      Total balcony parapet area: {totalBalconyParapetSqm.toFixed(2)} sqm
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -1564,15 +1879,23 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
         {/* ── 10 ROOF TYPE ──────────────────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
-            <div className="flex items-center gap-1">
-              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
-                10 — ROOF TYPE
+          <div className="px-4 py-3" style={{ borderBottom: includeRoofSection ? '1px solid rgba(30,34,39,0.12)' : 'none' }}>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <Toggle checked={includeRoofSection} onChange={() => setIncludeRoofSection(v => !v)} />
+              <div className="flex items-center gap-1">
+                <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  10 — ROOF TYPE
+                </p>
+                <ISBadge code="NBC 2016" />
+              </div>
+            </label>
+            {!includeRoofSection && (
+              <p className="text-[11px] mt-1 ml-13" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)', paddingLeft: 52 }}>
+                Excluded — roof masonry not included in cost
               </p>
-              <ISBadge code="NBC 2016" />
-            </div>
+            )}
           </div>
-          <div className="p-4 space-y-4">
+          {includeRoofSection && <div className="p-4 space-y-4">
             <div className="grid grid-cols-3 gap-2">
               {([
                 ['flat',   'Full Flat Terrace', 'RCC slab with parapet'],
@@ -1675,34 +1998,66 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 </div>
               </div>
             )}
-          </div>
+          </div>}
         </div>
 
-        {/* ── 10 PLASTERING ─────────────────────────────────────────────────── */}
+        {/* ── 11 PLASTERING ─────────────────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <SectionHeader num="11" title={`PLASTERING (IS 1661:1972)`} />
-          <div className="p-4">
-            <div className="space-y-2">
-              {([
-                ['internal', 'Internal 12mm (1:4)'],
-                ['external', 'External 15mm (1:4)'],
-                ['ceiling',  'Ceiling 6mm (1:3)'],
-              ] as [keyof typeof plastering, string][]).map(([key, label]) => (
-                <label key={key} className="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" checked={plastering[key]}
-                    onChange={() => setPlastering(prev => ({ ...prev, [key]: !prev[key] }))}
-                    className="w-4 h-4 rounded" style={{ accentColor: '#1F4E79' }} />
-                  <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</span>
-                </label>
-              ))}
+          <div className="px-4 py-3" style={{ borderBottom: includePlasterSection ? '1px solid rgba(30,34,39,0.12)' : 'none' }}>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <Toggle checked={includePlasterSection} onChange={() => setIncludePlasterSection(v => !v)} />
+              <div className="flex items-center gap-1">
+                <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  11 — PLASTERING
+                </p>
+                <ISBadge code="IS 1661:1972" />
+              </div>
+            </label>
+            {!includePlasterSection && (
+              <p className="text-[11px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)', paddingLeft: 52 }}>
+                Excluded — plastering cost not included
+              </p>
+            )}
+          </div>
+          {includePlasterSection && (
+            <div className="p-4">
+              <div className="space-y-2">
+                {([
+                  ['internal', 'Internal 12mm (1:4)'],
+                  ['external', 'External 15mm (1:4)'],
+                  ['ceiling',  'Ceiling 6mm (1:3)'],
+                ] as [keyof typeof plastering, string][]).map(([key, label]) => (
+                  <label key={key} className="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" checked={plastering[key]}
+                      onChange={() => setPlastering(prev => ({ ...prev, [key]: !prev[key] }))}
+                      className="w-4 h-4 rounded" style={{ accentColor: '#1F4E79' }} />
+                    <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* ── 10 WATERPROOFING ──────────────────────────────────────────────── */}
+        {/* ── 12 WATERPROOFING ──────────────────────────────────────────────── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <SectionHeader num="12" title={`WATERPROOFING (IS 2645:2003)`} />
-          <div className="p-4 space-y-3">
+          <div className="px-4 py-3" style={{ borderBottom: includeWPSection ? '1px solid rgba(30,34,39,0.12)' : 'none' }}>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <Toggle checked={includeWPSection} onChange={() => setIncludeWPSection(v => !v)} />
+              <div className="flex items-center gap-1">
+                <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                  12 — WATERPROOFING
+                </p>
+                <ISBadge code="IS 2645:2003" />
+              </div>
+            </label>
+            {!includeWPSection && (
+              <p className="text-[11px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)', paddingLeft: 52 }}>
+                Excluded — waterproofing cost not included
+              </p>
+            )}
+          </div>
+          {includeWPSection && <div className="p-4 space-y-3">
             {/* Terrace */}
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" checked={includeTerWP} onChange={() => setTerraceWP(v => !v)}
@@ -1749,7 +2104,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 </select>
               </div>
             )}
-          </div>
+          </div>}
         </div>
 
         {/* ── ADVANCED: TECHNICAL SPECS ─────────────────────────────────────── */}
