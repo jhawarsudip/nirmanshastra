@@ -708,7 +708,7 @@ export function runCalculation(input: MasonInput): MasonResult {
       perFloorTotalCement += cement
       perFloorTotalSand += sand
       perFloorTotalMat += mat
-      const floorLabel = floorIdx === 0 ? 'G (Ground Floor)' : `Floor ${floorIdx}`
+      const floorLabel = `Floor ${floorIdx}`
       return { floorLabel, wallType: fType, areaSqm: Math.round(floorNet * 100) / 100, bricksOrBlocks: bricks, cementBags: Math.round(cement * 10) / 10, sandCft: Math.round(sand * 10) / 10, materialCost: mat }
     })
   }

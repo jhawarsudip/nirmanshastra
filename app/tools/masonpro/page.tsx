@@ -61,8 +61,7 @@ export default function MasonryProPage() {
     setSession(prev => ({ ...prev, input, result }))
     setStep('results')
 
-    // MasonryPro numFloors: 0=G, 1=G+1 → normalize: total = numFloors+1
-    const dbNumFloors = (input.numFloors ?? 1) + 1
+    const dbNumFloors = input.numFloors ?? 1
 
     saveProjectToSession({
       projectId:     session.selectedProject?.projectId ?? '',
