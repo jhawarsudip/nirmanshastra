@@ -293,7 +293,7 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
                 Use MasonryPro to estimate brickwork, plaster, and waterproofing costs before masons arrive on site.
               </p>
               <a href="${process.env.NEXT_PUBLIC_APP_URL}/tools/masonpro" style="font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1F4E79;text-decoration:underline;">
-                Try MasonryPro Phase 2 &rarr; Rs.499
+                Try MasonryPro Phase 2 &rarr; Rs.699
               </a>
             </td>
           </tr>

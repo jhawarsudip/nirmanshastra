@@ -66,7 +66,16 @@
       "Read(//Users/sudipjhawar/.claude/plugins/**)",
       "Bash(gh api *)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(sed -i '' 's|// TEMPORARY - testing real payment flow at ₹1, revert to 49900 before real launch||g; s/body: JSON.stringify\\({ estimateId, amount: 100 }\\)/body: JSON.stringify\\({ estimateId, amount: 49900 }\\)/g; s/Or save ₹496/Or save ₹596/g' /Users/sudipjhawar/nirmanshastra/app/tools/plumbpro/components/ResultsPage.tsx)",
+      "Bash(sed -i '' 's/₹1,999<\\\\/span><\\\\/p>/₹2,999<\\\\/span><\\\\/p>/g' /Users/sudipjhawar/nirmanshastra/app/tools/plumbpro/components/ResultsPage.tsx)",
+      "Bash(sed -i '' 's|// TEMPORARY - testing real payment flow at ₹1, revert to 49900 before real launch||g; s/body: JSON.stringify\\({ estimateId, amount: 100 }\\)/body: JSON.stringify\\({ estimateId, amount: 89900 }\\)/g; s/₹499 · UNLOCK TO VIEW/₹899 · UNLOCK TO VIEW/g; s/Unlock Now ₹499/Unlock Now ₹899/g; s/Unlock Report — ₹499/Unlock Report — ₹899/g; s/Or save ₹496/Or save ₹596/g' /Users/sudipjhawar/nirmanshastra/app/tools/interiorpro/components/ResultsPage.tsx)",
+      "Bash(sed -i '' 's/₹1,999<\\\\/span><\\\\/p>/₹2,999<\\\\/span><\\\\/p>/g' /Users/sudipjhawar/nirmanshastra/app/tools/interiorpro/components/ResultsPage.tsx)",
+      "Bash(sed -i '' '/toolName=\"PlumbingPro\"/{n; /toolPhase=\"P4\"/{n; /regData/{ *)",
+      "Bash(sed -i '' '/toolName=\"InteriorPro\"/{n; /toolPhase=\"P5\"/{n; /regData/{ *)",
+      "Bash(sed -i '' '/toolName=\"ElectricalPro\"/{n; /toolPhase=\"P3\"/{n; /regData/{ *)",
+      "Bash(sed -i '' 's/INTERIORPRO · ₹499/INTERIORPRO · ₹899/g; s|{appUrl}/tools/interiorpro → ₹499|{appUrl}/tools/interiorpro → ₹899|g' /Users/sudipjhawar/nirmanshastra/lib/pdf/plumbpro-pdf.tsx)",
+      "Bash(sed -i '' 's|{appUrl}/tools → ₹499 per phase tool|{appUrl}/tools → from ₹499 per phase tool|g' /Users/sudipjhawar/nirmanshastra/lib/pdf/interiorpro-pdf.tsx)"
     ]
   }
 }

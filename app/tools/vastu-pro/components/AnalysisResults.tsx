@@ -327,7 +327,7 @@ export default function AnalysisResults({
             className="px-5 py-2.5 rounded-[6px] text-[13px] font-semibold text-white"
             style={{ background: '#1F4E79', fontFamily: 'var(--font-plex-sans)' }}
           >
-            Estimate My Structure Cost — StructurePro ₹499 →
+            Estimate My Structure Cost — StructurePro ₹999 →
           </button>
         </div>
       </div>

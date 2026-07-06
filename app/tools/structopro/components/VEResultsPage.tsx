@@ -36,7 +36,7 @@ function BlurOverlay({ onClick }: { onClick: () => void }) {
       <div className="text-center px-6 py-5 rounded-[2px] max-w-sm"
         style={{ border: '1px solid rgba(30,34,39,0.15)', background: '#F4F4F0' }}>
         <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-          ₹499 · UNLOCK TO VIEW
+          ₹999 · UNLOCK TO VIEW
         </p>
         <p className="text-[13px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
           Exact quantities, itemised costs, and splice bar schedule
@@ -44,7 +44,7 @@ function BlurOverlay({ onClick }: { onClick: () => void }) {
         <button onClick={onClick}
           className="px-4 py-2 rounded-[6px] text-[13px] font-semibold text-white"
           style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>
-          Unlock Now ₹499
+          Unlock Now ₹999
         </button>
       </div>
     </div>
@@ -154,8 +154,8 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
     try {
       const res  = await fetch('/api/payments/create-order', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        // TEMPORARY - testing real payment flow at ₹1, revert to 49900 before real launch
-        body: JSON.stringify({ estimateId, amount: 100 }),
+        
+        body: JSON.stringify({ estimateId, amount: 99900 }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not create order')
@@ -208,15 +208,6 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
   return (
     <div className="min-h-screen pb-16" style={{ background: '#F4F4F0' }}>
       <div className="px-6 md:px-12 lg:px-16 pt-6 space-y-6">
-
-        {/* Test mode banner */}
-        <div className="px-4 py-2 rounded-[2px] flex items-center gap-2"
-          style={{ background: 'rgba(217,154,6,0.1)', border: '1px solid rgba(217,154,6,0.4)' }}>
-          <span style={{ color: '#D99A06', fontSize: 13 }}>⚠</span>
-          <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
-            TEST MODE — Live Razorpay at ₹1. Use a real UPI or bank card. Test cards do not work on live keys. Revert amount to 49900 before launch.
-          </p>
-        </div>
 
         {/* Header */}
         <div className="p-6 rounded-[2px]" style={{ background: '#1E2227', border: '1px solid rgba(30,34,39,0.7)' }}>
@@ -535,7 +526,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
               Your Vertical Extension estimate is ready.
             </h3>
             <p className="text-[13px] mb-4" style={{ color: 'rgba(244,244,240,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
-              Unlock exact quantities, itemised costs, splice bar schedule, and contractor comparison for ₹499.
+              Unlock exact quantities, itemised costs, splice bar schedule, and contractor comparison for ₹999.
             </p>
             {payError && (
               <p className="text-[12px] mb-3" style={{ color: '#FF6B6B', fontFamily: 'var(--font-plex-sans)' }}>⚠ {payError}</p>
@@ -545,7 +536,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
                 disabled={payStatus === 'creating' || payStatus === 'verifying' || payStatus === 'polling'}
                 className="flex-1 py-3 rounded-[6px] font-semibold text-[15px]"
                 style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}>
-                {payStatus === 'creating' ? 'Creating order…' : payStatus === 'verifying' ? 'Verifying…' : payStatus === 'polling' ? 'Confirming payment…' : 'Unlock Report ₹499 →'}
+                {payStatus === 'creating' ? 'Creating order…' : payStatus === 'verifying' ? 'Verifying…' : payStatus === 'polling' ? 'Confirming payment…' : 'Unlock Report ₹999 →'}
               </button>
             </div>
           </div>

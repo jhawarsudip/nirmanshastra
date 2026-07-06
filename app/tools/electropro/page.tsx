@@ -154,7 +154,7 @@ export default function ElectroProPage() {
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="ElectricalPro" toolPhase="P3" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="ElectricalPro" toolPhase="P3" price="₹499" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -166,7 +166,7 @@ export default function ElectroProPage() {
                 <ProjectPicker onSelect={handleProjectSelect} toolName="ElectricalPro" />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="ElectricalPro" toolPhase="P3" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="ElectricalPro" toolPhase="P3" price="₹499" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -178,7 +178,7 @@ export default function ElectroProPage() {
                 <MethodSelection onSelect={handleMethod} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="ElectricalPro" toolPhase="P3" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="ElectricalPro" toolPhase="P3" price="₹499" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -200,6 +200,7 @@ export default function ElectroProPage() {
                 <LiveSummaryPanel
                   toolName="ElectricalPro"
                   toolPhase="P3"
+                  price="₹499"
                   regData={session.regData}
                   liveData={liveData}
                 />

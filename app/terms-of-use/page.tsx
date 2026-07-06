@@ -90,8 +90,11 @@ export default function TermsOfUsePage() {
             <P>Our current pricing (as of June 2026):</P>
             <UL items={[
               'VastuPro — Free forever, no payment required',
-              'StructurePro, MasonryPro, ElectricalPro, PlumbingPro, InteriorPro — ₹499 per report',
-              'Complete bundle (all 5 paid tools) — ₹1,999',
+              'ElectricalPro and PlumbingPro — ₹499 per report',
+              'MasonryPro — ₹699 per report',
+              'InteriorPro — ₹899 per report',
+              'StructurePro — ₹999 per report',
+              'Complete bundle (all 5 paid tools) — ₹2,999',
               'Grand Total Report (combines all 5 phases) — ₹999, or free if all 5 tools purchased individually',
             ]} />
             <P>Payments are processed by Razorpay and are subject to their terms and conditions. NirmanShastra does not store your payment card details.</P>

@@ -94,7 +94,7 @@ function BlurOverlay({ onClick }: { onClick: () => void }) {
           className="text-[11px] uppercase tracking-widest mb-1"
           style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}
         >
-          ₹499 · UNLOCK TO VIEW
+          ₹999 · UNLOCK TO VIEW
         </p>
         <p className="text-[13px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
           Know exactly where your money goes — before your contractor does.
@@ -104,7 +104,7 @@ function BlurOverlay({ onClick }: { onClick: () => void }) {
           className="px-4 py-2 rounded-[6px] text-[13px] font-semibold text-white"
           style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}
         >
-          Unlock Now ₹499
+          Unlock Now ₹999
         </button>
       </div>
     </div>
@@ -225,8 +225,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
       const res = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // TEMPORARY - testing real payment flow at ₹1, revert to 49900 before real launch
-        body: JSON.stringify({ estimateId, amount: 100 }),
+        body: JSON.stringify({ estimateId, amount: 99900 }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not create order')
@@ -295,17 +294,6 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
     <div className="min-h-screen bg-sheet-white pb-16">
 
       <div className="px-6 md:px-12 lg:px-16 pt-6 space-y-6">
-
-        {/* Test mode banner */}
-        <div
-          className="px-4 py-2 rounded-[2px] flex items-center gap-2"
-          style={{ background: 'rgba(217,154,6,0.1)', border: '1px solid rgba(217,154,6,0.4)' }}
-        >
-          <span style={{ color: '#D99A06', fontSize: 13 }}>⚠</span>
-          <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
-            TEST MODE — Live Razorpay at ₹1. Use a real UPI or bank card. Test cards do not work on live keys. Revert amount to 49900 before launch.
-          </p>
-        </div>
 
         {/* Preview mode banner */}
         {PAYMENT_BYPASS && (
@@ -488,7 +476,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           onClick={handleUnlock}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8C3A22', fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: 0, letterSpacing: '0.02em' }}
                         >
-                          Unlock full report — ₹499
+                          Unlock full report — ₹999
                         </button>
                       </div>
                     )}
@@ -842,7 +830,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           4 more items + labour + total locked
                         </p>
                         <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
-                          Unlock Full BOQ — ₹499
+                          Unlock Full BOQ — ₹999
                         </button>
                       </div>
                     </div>
@@ -919,7 +907,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                       <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>3 more members + total locked</p>
                       <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
-                        Unlock Full BOQ — ₹499
+                        Unlock Full BOQ — ₹999
                       </button>
                     </div>
                   </div>
@@ -1062,7 +1050,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                       <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>3 more members + totals locked</p>
                       <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
-                        Unlock Concrete Schedule — ₹499
+                        Unlock Concrete Schedule — ₹999
                       </button>
                     </div>
                   </div>
@@ -1195,7 +1183,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                       <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>6 more trades + total locked</p>
                       <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
-                        Unlock Labour Schedule — ₹499
+                        Unlock Labour Schedule — ₹999
                       </button>
                     </div>
                   </div>
@@ -1350,7 +1338,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                         <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{lockedRows} more floor{lockedRows > 1 ? 's' : ''} + total locked</p>
                           <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
-                            Unlock Floor Breakdown — ₹499
+                            Unlock Floor Breakdown — ₹999
                           </button>
                         </div>
                       </div>
@@ -1453,14 +1441,14 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 {payStatus === 'creating'  ? 'Creating order…' :
                  payStatus === 'verifying' ? 'Verifying payment…' :
                  payStatus === 'polling'   ? 'Confirming payment…' :
-                 'Unlock Report — ₹499'}
+                 'Unlock Report — ₹999'}
               </button>
               <Link
                 href="/#pricing"
                 style={{ display: 'block', width: '100%', padding: '14px 20px', border: '1px dashed rgba(244,244,240,0.2)', textAlign: 'center', textDecoration: 'none', cursor: 'pointer' }}
               >
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', marginBottom: 2 }}>Or save ₹496</p>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.7)' }}>Complete Bundle — All 5 Apps <span style={{ fontFamily: 'var(--font-plex-mono)', color: '#F4F4F0' }}>₹1,999</span></p>
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', marginBottom: 2 }}>Or save ₹596</p>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.7)' }}>Complete Bundle — All 5 Apps <span style={{ fontFamily: 'var(--font-plex-mono)', color: '#F4F4F0' }}>₹2,999</span></p>
               </Link>
             </div>
 

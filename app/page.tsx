@@ -41,14 +41,14 @@ const PAID_TOOLS = [
     descriptor: 'Structural Cost & BOQ Estimator',
     tagline: 'Structural Cost',
     desc: 'Foundations, columns, beams, slabs per IS 456:2000. M20 / M25 / M30 grades.',
-    price: '₹499', free: false, href: '/tools/structopro',
+    price: '₹999', free: false, href: '/tools/structopro',
   },
   {
     phase: 'P2', name: 'MasonryPro',
     descriptor: 'Masonry Cost & BOQ Estimator',
     tagline: 'Masonry Cost',
     desc: 'All 8 wall types — brick, AAC, hollow block — plaster and waterproofing per IS 1077:1992.',
-    price: '₹499', free: false, href: '/tools/masonpro',
+    price: '₹699', free: false, href: '/tools/masonpro',
   },
   {
     phase: 'P3', name: 'ElectricalPro',
@@ -69,7 +69,7 @@ const PAID_TOOLS = [
     descriptor: 'Interior Cost & BOQ Estimator',
     tagline: 'Interior Cost',
     desc: 'Flooring, kitchen, paint, false ceiling across Basic / Standard / Premium / Luxury.',
-    price: '₹499', free: false, href: '/tools/interiorpro',
+    price: '₹899', free: false, href: '/tools/interiorpro',
   },
 ]
 
@@ -130,7 +130,7 @@ const PILLARS = [
   {
     Icon: IndianRupee,
     title: 'Transparent Pricing, No Hidden Tiers',
-    body: "₹499 per detailed report. No subscription trap, no 'contact sales' for basic numbers. See the free grand-total range first, pay only if you want the itemised breakdown.",
+    body: "From ₹499 per detailed report. No subscription trap, no 'contact sales' for basic numbers. See the free grand-total range first, pay only if you want the itemised breakdown.",
   },
   {
     Icon: ShieldCheck,
@@ -716,7 +716,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: 'easeOut', delay: 0.55 }}
               >
-                {[['25', 'IS Codes'], ['6', 'Tools'], ['₹499', 'Per Report'], ['₹1,999', 'Bundle']].map(([val, label]) => (
+                {[['25', 'IS Codes'], ['6', 'Tools'], ['from ₹499', 'Per Report'], ['₹2,999', 'Bundle']].map(([val, label]) => (
                   <div key={label}>
                     <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 500, color: '#F4F4F0', lineHeight: 1 }}>{val}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.55)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 }}>{label}</div>
@@ -878,7 +878,7 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>SUITE 2</span>
                 <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 600, color: 'rgba(244,244,240,0.75)' }}>Phase-wise Cost &amp; BOQ Estimation</span>
-                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid rgba(31,78,121,0.55)', color: '#7BA7CC', letterSpacing: '0.04em' }}>₹499 / REPORT</span>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', border: '1px solid rgba(31,78,121,0.55)', color: '#7BA7CC', letterSpacing: '0.04em' }}>from ₹499 / REPORT</span>
               </div>
               <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.08)' }} />
             </div>
@@ -909,11 +909,11 @@ export default function Home() {
               <p style={{ fontFamily: 'var(--font-public-sans)', fontSize: 16, color: 'rgba(244,244,240,0.57)' }}>
                 StructurePro · MasonryPro · ElectricalPro · PlumbingPro · InteriorPro
                 {' '}&mdash; saves{' '}
-                <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹496</span> vs buying separately
+                <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹596</span> vs buying separately
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 500, color: '#F4F4F0' }}>₹1,999</span>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 500, color: '#F4F4F0' }}>₹2,999</span>
               <Link
                 href="/tools/structopro"
                 className="btn-3d"
@@ -1000,7 +1000,7 @@ export default function Home() {
                 <tr>
                   <th scope="col" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 200 }}>Feature</th>
                   <th scope="col" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.65)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', borderRight: '1px solid rgba(244,244,240,0.08)', minWidth: 260 }}>Free Online Calculators</th>
-                  <th scope="col" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.85)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', background: 'rgba(31,78,121,0.15)', minWidth: 280 }}>NirmanShastra (₹499/phase)</th>
+                  <th scope="col" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.85)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left', padding: '10px 16px', borderBottom: '1px solid rgba(244,244,240,0.12)', background: 'rgba(31,78,121,0.15)', minWidth: 280 }}>NirmanShastra (from ₹499/phase)</th>
                 </tr>
               </thead>
               <tbody>
@@ -1123,7 +1123,7 @@ export default function Home() {
 
       {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
       <div className="grid-paper py-3">
-        <DimDivider label="₹499 / REPORT · ₹1,999 / BUNDLE" />
+        <DimDivider label="from ₹499 / REPORT · ₹2,999 / BUNDLE" />
       </div>
 
       {/* ── PRICING SECTION (full width) ─────────────────────────────────── */}
@@ -1164,7 +1164,7 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            {/* Tier 2 — Per Report ₹499 */}
+            {/* Tier 2 — Per Report from ₹499 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -1176,8 +1176,8 @@ export default function Home() {
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.07em', marginBottom: 8 }}>PER REPORT · ANY PAID TOOL</p>
                 <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Single Tool</h3>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>IS-Code BOQ Estimator</p>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹499</div>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>per report · StructurePro to InteriorPro</p>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>from ₹499</div>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>ElectroPro / PlumbPro ₹499 · MasonPro ₹699 · InteriorPro ₹899 · StructurePro ₹999</p>
               </div>
               <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {['Exact material quantities','Itemised cost breakdown','IS code compliance panel','CPWD labour cost calculator','Contractor quote comparison','PDF report with SVG drawings'].map(f => (
@@ -1195,7 +1195,7 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            {/* Tier 3 — Bundle ₹1,999 */}
+            {/* Tier 3 — Bundle ₹2,999 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -1210,9 +1210,9 @@ export default function Home() {
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#8C3A22', letterSpacing: '0.07em', marginBottom: 8 }}>COMPLETE BUNDLE · ALL 5 PAID TOOLS</p>
                 <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 28, fontWeight: 700, color: '#1E2227', marginBottom: 4 }}>Full Platform</h3>
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 10 }}>All 5 Phase Estimators</p>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹1,999</div>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹2,999</div>
                 <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.5)', marginTop: 6 }}>
-                  saves <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹496</span> vs buying individually
+                  saves <span style={{ fontFamily: 'var(--font-plex-mono)' }}>₹596</span> vs buying individually
                 </p>
               </div>
               <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1255,7 +1255,7 @@ export default function Home() {
               <div>
                 <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 36, fontWeight: 500, color: '#1E2227', lineHeight: 1 }}>₹999</div>
                 <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(30,34,39,0.5)', marginTop: 4 }}>
-                  Free with bundle · ₹2,495 saved vs individual
+                  Free with Complete Bundle (₹2,999)
                 </p>
               </div>
               <Link
@@ -1320,7 +1320,7 @@ export default function Home() {
                 >
                   {t.name}
                   <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: t.free ? '#14532D' : 'rgba(244,244,240,0.28)', flexShrink: 0, marginLeft: 8 }}>
-                    {t.free ? 'FREE' : '₹499'}
+                    {t.free ? 'FREE' : t.price}
                   </span>
                 </Link>
               ))}

@@ -1220,7 +1220,7 @@ function TotalSummaryPage({ result, input, reportId }: { result: InteriorResult;
             ))}
           </View>
           <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 9, color: T.blueprint }}>
-            {appUrl}/tools → ₹499 per phase tool
+            {appUrl}/tools → from ₹499 per phase tool
           </Text>
         </View>
 

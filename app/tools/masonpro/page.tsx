@@ -154,7 +154,7 @@ export default function MasonryProPage() {
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" price="₹699" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -166,7 +166,7 @@ export default function MasonryProPage() {
                 <ProjectPicker onSelect={handleProjectSelect} toolName="MasonryPro" />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" price="₹699" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -178,7 +178,7 @@ export default function MasonryProPage() {
                 <MethodSelection onSelect={handleMethod} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" price="₹699" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -200,6 +200,7 @@ export default function MasonryProPage() {
                 <LiveSummaryPanel
                   toolName="MasonryPro"
                   toolPhase="P2"
+                  price="₹699"
                   regData={session.regData}
                   liveData={liveData}
                 />

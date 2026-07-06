@@ -203,7 +203,7 @@ export default function StructoProPage() {
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" price="₹999" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -216,7 +216,7 @@ export default function StructoProPage() {
                 <ProjectPicker onSelect={handleProjectSelect} toolName="StructurePro" />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" price="₹999" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -229,7 +229,7 @@ export default function StructoProPage() {
                 <MethodSelection onSelect={handleMethod} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" price="₹999" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -253,6 +253,7 @@ export default function StructoProPage() {
                 <LiveSummaryPanel
                   toolName="StructurePro"
                   toolPhase="P1"
+                  price="₹999"
                   regData={session.regData}
                   liveData={liveData}
                 />
@@ -275,6 +276,7 @@ export default function StructoProPage() {
                 <LiveSummaryPanel
                   toolName="StructurePro"
                   toolPhase="P1"
+                  price="₹999"
                   regData={session.regData}
                   liveData={liveData}
                 />

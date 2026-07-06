@@ -154,7 +154,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
             className="text-[11px] uppercase tracking-widest mb-2"
             style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}
           >
-            PHASE 1 · ₹499 REPORT
+            PHASE 1 · ₹999 REPORT
           </p>
           <h1
             className="font-bold leading-tight mb-2"

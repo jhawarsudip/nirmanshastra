@@ -1142,7 +1142,7 @@ function CostSummaryPage({ result, reportId }: { result: PlumbResult; reportId: 
 
         {/* InteriorPro cross-sell */}
         <View style={{ marginTop: 14, borderWidth: 2, borderColor: T.ironInk, padding: 12, backgroundColor: T.sheetWhite }}>
-          <Text style={[S.eyebrow, { color: T.blueprint, marginBottom: 4 }]}>PHASE 5 — INTERIORPRO · ₹499</Text>
+          <Text style={[S.eyebrow, { color: T.blueprint, marginBottom: 4 }]}>PHASE 5 — INTERIORPRO · ₹899</Text>
           <Text style={[S.h2, { fontSize: 13, marginBottom: 4 }]}>Plumbing is done. Time to estimate your interior fit-out.</Text>
           <Text style={[S.body, { marginBottom: 8 }]}>
             Interior work starts after plumbing inspection sign-off. Use InteriorPro to estimate flooring,
@@ -1160,7 +1160,7 @@ function CostSummaryPage({ result, reportId }: { result: PlumbResult; reportId: 
             ))}
           </View>
           <Text style={{ fontFamily: 'IBMPlexMono', fontSize: 9, color: T.blueprint }}>
-            {appUrl}/tools/interiorpro → ₹499
+            {appUrl}/tools/interiorpro → ₹899
           </Text>
         </View>
 

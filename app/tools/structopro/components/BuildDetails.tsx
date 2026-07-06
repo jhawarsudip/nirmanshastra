@@ -1717,7 +1717,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
           )}
           {!structuralChecks.blockCalculate && (
             <p className="text-[11px] text-center mt-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
-              Free: grand total range + IS compliance checks. Itemised BOQ requires ₹499 unlock.
+              Free: grand total range + IS compliance checks. Itemised BOQ requires ₹999 unlock.
             </p>
           )}
         </div>

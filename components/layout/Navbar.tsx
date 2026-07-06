@@ -124,11 +124,11 @@ const COMPLIANCE_TOOLS = [
 ]
 
 const ESTIMATION_TOOLS = [
-  { phase: 'P1', name: 'StructurePro',  descriptor: 'Structural Cost & BOQ Estimator',  href: '/tools/structopro',   free: false },
-  { phase: 'P2', name: 'MasonryPro',   descriptor: 'Masonry Cost & BOQ Estimator',      href: '/tools/masonpro',     free: false },
-  { phase: 'P3', name: 'ElectricalPro', descriptor: 'Electrical Cost & BOQ Estimator',  href: '/tools/electropro',   free: false },
-  { phase: 'P4', name: 'PlumbingPro',  descriptor: 'Plumbing Cost & BOQ Estimator',     href: '/tools/plumbpro',     free: false },
-  { phase: 'P5', name: 'InteriorPro', descriptor: 'Interior Cost & BOQ Estimator',     href: '/tools/interiorpro',  free: false },
+  { phase: 'P1', name: 'StructurePro',  descriptor: 'Structural Cost & BOQ Estimator',  href: '/tools/structopro',   free: false, price: '₹999' },
+  { phase: 'P2', name: 'MasonryPro',   descriptor: 'Masonry Cost & BOQ Estimator',      href: '/tools/masonpro',     free: false, price: '₹699' },
+  { phase: 'P3', name: 'ElectricalPro', descriptor: 'Electrical Cost & BOQ Estimator',  href: '/tools/electropro',   free: false, price: '₹499' },
+  { phase: 'P4', name: 'PlumbingPro',  descriptor: 'Plumbing Cost & BOQ Estimator',     href: '/tools/plumbpro',     free: false, price: '₹499' },
+  { phase: 'P5', name: 'InteriorPro', descriptor: 'Interior Cost & BOQ Estimator',     href: '/tools/interiorpro',  free: false, price: '₹899' },
 ]
 
 const REPORTS_TOOLS = [
@@ -297,7 +297,7 @@ export default function Navbar() {
                     </div>
                   </div>
                   <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#1F4E79', border: '1px solid #1F4E79', letterSpacing: '0.04em', flexShrink: 0 }}>
-                    ₹499
+                    {t.price}
                   </span>
                 </Link>
               ))}
@@ -329,7 +329,7 @@ export default function Navbar() {
 
               <div style={{ borderTop: '1px solid rgba(244,244,240,0.1)', padding: '9px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.5)' }}>Bundle — 5 tools</span>
-                <span style={{ ...mono, fontSize: 12, color: '#8C3A22' }}>₹1,999</span>
+                <span style={{ ...mono, fontSize: 12, color: '#8C3A22' }}>₹2,999</span>
               </div>
             </div>
             </div>

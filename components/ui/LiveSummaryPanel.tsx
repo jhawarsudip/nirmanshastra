@@ -23,6 +23,7 @@ interface BaseRegData {
 interface LiveSummaryPanelProps {
   toolName:  string
   toolPhase: string
+  price:     string
   regData:   BaseRegData
   liveData:  LiveSummaryData
 }
@@ -37,7 +38,7 @@ function Row({ label, value }: { label: string; value: string | number | undefin
   )
 }
 
-export default function LiveSummaryPanel({ toolName, toolPhase, regData, liveData }: LiveSummaryPanelProps) {
+export default function LiveSummaryPanel({ toolName, toolPhase, price, regData, liveData }: LiveSummaryPanelProps) {
   return (
     <div
       className="h-full"
@@ -93,7 +94,7 @@ export default function LiveSummaryPanel({ toolName, toolPhase, regData, liveDat
           {toolName} · {toolPhase}
         </p>
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#8C3A22', marginTop: 4 }}>
-          Unlock full report — ₹499
+          Unlock full report — {price}
         </p>
       </div>
     </div>

@@ -14,13 +14,13 @@ Version: Final | June 2026
 
 ## Tools
 - **VastuPro** — FREE forever, lead magnet (Vastu Shastra analysis)
-- **StructoPro** — Phase 1, RCC Structure, ₹499/report
-- **MasonryPro** — Phase 2, Masonry, ₹499/report
+- **StructoPro** — Phase 1, RCC Structure, ₹999/report
+- **MasonryPro** — Phase 2, Masonry, ₹699/report
 - **ElectroPro** — Phase 3, Electrical, ₹499/report
 - **PlumbPro** — Phase 4, Plumbing, ₹499/report
-- **InteriorPro** — Phase 5, Interior, ₹499/report
+- **InteriorPro** — Phase 5, Interior, ₹899/report
 
-**Bundle:** All 5 paid apps = ₹2,999 (saves ₹1,496 vs buying separately)
+**Bundle:** All 5 paid apps = ₹2,999 (saves ₹596 vs buying separately)
 **Grand Total Report:** ₹999 standalone | FREE if all 5 paid individually
 **Professional Subscription:** ₹1,999/month (planned)
 
@@ -65,7 +65,7 @@ Contacts captured IMMEDIATELY on registration before analysis begins.
 - 10 technical reminders | Finishing costs guide / phase context table
 - VastuPro: complete Vastu check (score + room findings + remedies) + PDF
 
-## Requires ₹499 payment:
+## Requires payment (from ₹499 depending on tool):
 - Exact quantities (brick counts, cement bags, steel kg, pipe lengths, wire metres)
 - Itemised costs with line-by-line breakdown
 - Room-by-room breakdown | Labour costs (days × workers × rates)
@@ -288,7 +288,7 @@ PDF ONLY: Technical remedy, actionable remedy, Do's, Don'ts, general guidelines.
 
 ---
 
-# SECTION 13 — STRUCTOPRO (Phase 1 — ₹499)
+# SECTION 13 — STRUCTOPRO (Phase 1 — ₹999)
 
 RCC structural estimation. 3 methods: Design Myself | I Have Structural Drawings (AI) | Add Floors to Existing.
 
@@ -316,7 +316,7 @@ Site Foreman: ₹1,200 | Safety Officer: ₹1,200
 
 ---
 
-# SECTION 14 — MASONPRO (Phase 2 — ₹499)
+# SECTION 14 — MASONPRO (Phase 2 — ₹699)
 
 Masonry estimation for 8 external wall types + 6 internal partition types.
 
@@ -369,7 +369,7 @@ Testing/Flush Test: ₹1,000
 
 ---
 
-# SECTION 17 — INTERIORPRO (Phase 5 — ₹499)
+# SECTION 17 — INTERIORPRO (Phase 5 — ₹899)
 
 Interior estimation. Two paths: Quick Estimate (±15% accuracy) | Exact Dimensions (±5% accuracy).
 
@@ -419,16 +419,14 @@ Flag reasons: "Quantity inflation X% above IS code" | "Material substitution wit
 
 # SECTION 22 — LOYALTY + BUNDLE PRICING
 
-1 app paid (₹499) → Remaining 4 for ₹1,500 (saves ₹496)
-2 apps paid (₹998) → Remaining 3 for ₹1,001 (saves ₹496)
-3 apps paid (₹1,497) → Remaining 2 for ₹502 (saves ₹496)
+Bundle (all 5 tools): ₹2,999 (saves ₹596 vs individual total of ₹3,595)
 2nd report same app: ₹100 off
 
 ---
 
 # SECTION 28 — PRICING (FINAL)
 
-Launch: ₹499 per app | Bundle ₹2,999 | Grand Total ₹999
+Launch pricing: StructoPro ₹999 | MasonryPro ₹699 | ElectroPro ₹499 | PlumbPro ₹499 | InteriorPro ₹899 | Bundle ₹2,999 | Grand Total add-on ₹999
 Professional subscription: ₹1,999/month (planned)
 Monthly platform cost: ~₹1,767. Break-even: 9 paid reports/month.
 

@@ -84,7 +84,7 @@ export function getEmailContent(
             ${ul(['16-zone Vastu Mandala analysis', 'Room-by-room compliance scores', 'Technical and actionable remedies', 'General Vastu guidelines for your home'])}
             ${p(`<b>Now that your Vastu layout is mapped</b>, the next critical step is understanding exactly what your RCC structure will cost — before your contractor gives you a quote.`)}
             ${p(`${mono('Phase 1 → RCC Structure')}: StructurePro gives you IS-code-verified material quantities and a contractor comparison report for <b>₹499</b>.`)}
-            ${ctaButton('Estimate My Structure Cost → StructurePro ₹499', `${BASE_URL}/structopro`)}
+            ${ctaButton('Estimate My Structure Cost → StructurePro ₹999', `${BASE_URL}/structopro`)}
           `),
         }
       }
@@ -164,9 +164,9 @@ export function getEmailContent(
               'Flooring: ₹65–₹650 per sqft depending on grade',
               'InteriorPro gives you a complete BOQ with grade comparison across all interior items',
             ])}
-            ${p(`<b>Bundle offer:</b> Get all 5 paid reports (StructurePro + MasonryPro + ElectricalPro + PlumbingPro + InteriorPro) for ${mono('₹1,999')} — saving ₹496 vs buying individually.`)}
+            ${p(`<b>Bundle offer:</b> Get all 5 paid reports (StructurePro + MasonryPro + ElectricalPro + PlumbingPro + InteriorPro) for ${mono('₹2,999')} — saving ₹596 vs buying individually.`)}
             ${ctaButton('Estimate Interiors → InteriorPro ₹499', `${BASE_URL}/interiorpro`)}
-            ${ctaButton('Get All 5 Reports → Bundle ₹1,999', `${BASE_URL}/#pricing`, '#1F4E79')}
+            ${ctaButton('Get All 5 Reports → Bundle ₹2,999', `${BASE_URL}/#pricing`, '#1F4E79')}
           `),
         }
       }
@@ -244,9 +244,9 @@ export function getEmailContent(
             ${h2(`Interior Estimate + Bundle, ${firstName}`)}
             ${p('Your structure, masonry, electrical, and plumbing phases are likely complete or nearing completion. Phase 5 Interior is where final costs land.')}
             ${p(`<b>InteriorPro</b> covers kitchen, flooring, false ceiling, paint, doors, and tiles — with a complete BOQ at your selected grade (Basic to Luxury).`)}
-            ${p(`<b>Bundle offer:</b> All 5 paid reports for ${mono('₹1,999')} — saves ₹496 versus buying individually. If you have already purchased StructurePro, your remaining bundle price is reduced automatically.`)}
+            ${p(`<b>Bundle offer:</b> All 5 paid reports for ${mono('₹2,999')} — saves ₹596 versus buying individually. If you have already purchased StructurePro, your remaining bundle price is reduced automatically.`)}
             ${ctaButton('Estimate Interiors → InteriorPro ₹499', `${BASE_URL}/interiorpro`)}
-            ${ctaButton('Complete Bundle → ₹1,999', `${BASE_URL}/#pricing`, '#1F4E79')}
+            ${ctaButton('Complete Bundle → ₹2,999', `${BASE_URL}/#pricing`, '#1F4E79')}
           `),
         }
       }
@@ -334,9 +334,9 @@ export function getEmailContent(
             ${p(`Your project is in the final stretch — interior work is typically the most visible phase and where grade decisions have the largest cost impact.`)}
             ${p(`${mono('Grade multipliers:')} Basic 1.0× | Standard 1.6× | Premium 2.4× | Luxury 3.5×`)}
             ${p('InteriorPro generates a complete BOQ across flooring, kitchen, false ceiling, paint, doors, and tiles at your selected grade — with a contractor comparison after unlock.')}
-            ${p(`<b>Bundle:</b> All 5 paid reports for ${mono('₹1,999')} — saving ₹496 versus individual purchase.`)}
+            ${p(`<b>Bundle:</b> All 5 paid reports for ${mono('₹2,999')} — saving ₹596 versus buying individually.`)}
             ${ctaButton('Estimate Interiors → InteriorPro ₹499', `${BASE_URL}/interiorpro`)}
-            ${ctaButton('Complete Bundle → ₹1,999', `${BASE_URL}/#pricing`, '#1F4E79')}
+            ${ctaButton('Complete Bundle → ₹2,999', `${BASE_URL}/#pricing`, '#1F4E79')}
           `),
         }
       }
@@ -415,13 +415,13 @@ export function getEmailContent(
       }
       if (dayNumber === 120) {
         return {
-          subject: 'Complete Your Project with Bundle ₹1,999 | NirmanShastra',
+          subject: 'Complete Your Project with Bundle ₹2,999 | NirmanShastra',
           html: wrap(`
             ${h2(`Bundle Offer for ${firstName}`)}
             ${p('Your project is in the final phases. If you haven\'t already estimated masonry, plumbing, or interior costs, the complete bundle gives you all 5 IS-code reports at the best price.')}
-            ${p(`<b>All 5 paid reports</b> (StructurePro + MasonryPro + ElectricalPro + PlumbingPro + InteriorPro) for ${mono('₹1,999')} — saving ₹496 versus buying individually at ₹499 each.`)}
+            ${p(`<b>All 5 paid reports</b> (StructurePro + MasonryPro + ElectricalPro + PlumbingPro + InteriorPro) for ${mono('₹2,999')} — saving ₹596 versus buying individually.`)}
             ${p('Each report includes: IS-code material quantities, contractor comparison, phase-specific BOQ, and IS compliance panel.')}
-            ${ctaButton('Get All 5 Reports → Bundle ₹1,999', `${BASE_URL}/#pricing`)}
+            ${ctaButton('Get All 5 Reports → Bundle ₹2,999', `${BASE_URL}/#pricing`)}
           `),
         }
       }
@@ -484,13 +484,13 @@ export function getEmailContent(
       }
       if (dayNumber === 75) {
         return {
-          subject: 'Complete All 5 Phases with Bundle ₹1,999 | NirmanShastra',
+          subject: 'Complete All 5 Phases with Bundle ₹2,999 | NirmanShastra',
           html: wrap(`
             ${h2(`Bundle Offer, ${firstName}`)}
             ${p('All structural and MEP phases are complete or winding down. If you need estimates for any remaining phases, the bundle is the most economical option.')}
-            ${p(`<b>All 5 paid reports</b> for ${mono('₹1,999')} — saving ₹496. Includes StructurePro, MasonryPro, ElectricalPro, PlumbingPro, and InteriorPro.`)}
+            ${p(`<b>All 5 paid reports</b> for ${mono('₹2,999')} — saving ₹596. Includes StructurePro, MasonryPro, ElectricalPro, PlumbingPro, and InteriorPro.`)}
             ${p('Already purchased PlumbingPro? Your remaining bundle price is reduced. See the pricing page for your loyalty discount.')}
-            ${ctaButton('Get Bundle → ₹1,999', `${BASE_URL}/#pricing`)}
+            ${ctaButton('Get Bundle → ₹2,999', `${BASE_URL}/#pricing`)}
             ${ctaButton('Estimate Interiors → InteriorPro ₹499', `${BASE_URL}/interiorpro`)}
           `),
         }
@@ -501,9 +501,9 @@ export function getEmailContent(
           html: wrap(`
             ${h2(`Bundle Upgrade for ${firstName}`)}
             ${p('You have been on NirmanShastra for four months. If your project spans multiple phases and you need reports for phases you haven\'t estimated yet, this is the right time.')}
-            ${p(`<b>Complete bundle:</b> All 5 paid reports for ${mono('₹1,999')}. Your existing PlumbingPro purchase counts toward the bundle price.`)}
+            ${p(`<b>Complete bundle:</b> All 5 paid reports for ${mono('₹2,999')}. Your existing PlumbingPro purchase counts toward the bundle price.`)}
             ${p('The bundle also unlocks the Grand Total Report (₹999 separately, FREE with all 5) — a 15-page integrated cost report across all phases with a phase timeline and grand total breakdown.')}
-            ${ctaButton('Upgrade to Bundle → ₹1,999', `${BASE_URL}/#pricing`)}
+            ${ctaButton('Upgrade to Bundle → ₹2,999', `${BASE_URL}/#pricing`)}
           `),
         }
       }
@@ -521,8 +521,8 @@ export function getEmailContent(
             ${p('Your report includes:')}
             ${ul(['Complete interior BOQ (flooring, kitchen, false ceiling, paint, doors, tiles)', 'Grade comparison table across Basic / Standard / Premium / Luxury', 'Room-wise flooring and wall tile schedule', 'Kitchen elevation with running-foot calculation', 'IS code references for tile installation and gypsum plaster'])}
             ${p('<b>You have completed the final phase.</b> The Grand Total Report merges all 5 phases into one 15-page report — it is FREE if you purchase all 5 paid apps, or ₹999 standalone.')}
-            ${p(`<b>Bundle offer:</b> All 5 paid reports for ${mono('₹1,999')} — saving ₹496. Includes Grand Total Report free.`)}
-            ${ctaButton('Get Complete Bundle → ₹1,999', `${BASE_URL}/#pricing`)}
+            ${p(`<b>Bundle offer:</b> All 5 paid reports for ${mono('₹2,999')} — saving ₹596. Includes Grand Total Report free.`)}
+            ${ctaButton('Get Complete Bundle → ₹2,999', `${BASE_URL}/#pricing`)}
           `),
         }
       }
@@ -540,7 +540,7 @@ export function getEmailContent(
               `${mono('Gypsum vs cement plaster:')} Gypsum plaster (IS 2547:1976) does not need water curing, is faster, and gives a better finish. If a contractor quotes cement plaster for internal walls and a higher rate, question it.`,
             ])}
             ${p('Your InteriorPro report has the correct quantities for all items above. Use it to verify before signing any interior contract.')}
-            ${ctaButton('See Bundle Offer → ₹1,999', `${BASE_URL}/#pricing`)}
+            ${ctaButton('See Bundle Offer → ₹2,999', `${BASE_URL}/#pricing`)}
           `),
         }
       }
@@ -565,11 +565,11 @@ export function getEmailContent(
       }
       if (dayNumber === 75) {
         return {
-          subject: 'NirmanShastra Bundle: All 5 Reports for ₹1,999 | NirmanShastra',
+          subject: 'NirmanShastra Bundle: All 5 Reports for ₹2,999 | NirmanShastra',
           html: wrap(`
             ${h2(`Complete Your Project Documentation, ${firstName}`)}
             ${p('If you are planning to build additional rooms, a new floor, or renovate other parts of your property, all 5 IS-code reports are available as a bundle.')}
-            ${p(`<b>Bundle:</b> StructurePro + MasonryPro + ElectricalPro + PlumbingPro + InteriorPro for ${mono('₹1,999')} + Grand Total Report FREE.`)}
+            ${p(`<b>Bundle:</b> StructurePro + MasonryPro + ElectricalPro + PlumbingPro + InteriorPro for ${mono('₹2,999')} + Grand Total Report FREE.`)}
             ${p('Your existing InteriorPro purchase reduces the bundle price. See the pricing page for your loyalty discount.')}
             ${ctaButton('See Bundle Pricing', `${BASE_URL}/#pricing`)}
           `),
@@ -581,8 +581,8 @@ export function getEmailContent(
           html: wrap(`
             ${h2(`Bundle Upgrade, ${firstName}`)}
             ${p('Four months since your InteriorPro report. If you are planning any new construction — additional floor, extension, renovation — NirmanShastra\'s full suite is available at bundle pricing.')}
-            ${p(`All 5 paid reports for ${mono('₹1,999')}. Your InteriorPro purchase is credited toward the bundle.`)}
-            ${ctaButton('Upgrade to Bundle → ₹1,999', `${BASE_URL}/#pricing`)}
+            ${p(`All 5 paid reports for ${mono('₹2,999')}. Your InteriorPro purchase is credited toward the bundle.`)}
+            ${ctaButton('Upgrade to Bundle → ₹2,999', `${BASE_URL}/#pricing`)}
           `),
         }
       }

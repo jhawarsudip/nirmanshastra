@@ -154,7 +154,7 @@ export default function InteriorProPage() {
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="InteriorPro" toolPhase="P5" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="InteriorPro" toolPhase="P5" price="₹899" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -166,7 +166,7 @@ export default function InteriorProPage() {
                 <ProjectPicker onSelect={handleProjectSelect} toolName="InteriorPro" />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="InteriorPro" toolPhase="P5" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="InteriorPro" toolPhase="P5" price="₹899" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -178,7 +178,7 @@ export default function InteriorProPage() {
                 <MethodSelection onSelect={handleMethod} />
               </div>
               <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="InteriorPro" toolPhase="P5" regData={session.regData} liveData={liveData} />
+                <LiveSummaryPanel toolName="InteriorPro" toolPhase="P5" price="₹899" regData={session.regData} liveData={liveData} />
               </div>
             </div>
           </motion.div>
@@ -200,6 +200,7 @@ export default function InteriorProPage() {
                 <LiveSummaryPanel
                   toolName="InteriorPro"
                   toolPhase="P5"
+                  price="₹899"
                   regData={session.regData}
                   liveData={liveData}
                 />

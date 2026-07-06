@@ -811,7 +811,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
         </div>
 
         <p className="text-[11px] text-center" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
-          Free: grand total range + IS compliance checks. Itemised BOQ requires ₹499 unlock.
+          Free: grand total range + IS compliance checks. Itemised BOQ requires ₹999 unlock.
         </p>
       </>)}
     </form>
