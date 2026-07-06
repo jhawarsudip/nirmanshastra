@@ -419,6 +419,76 @@ NirmanShastra's PlumbingPro tool takes your family size, floor count, and munici
 *Size your water storage correctly from day one — try PlumbingPro for an IS 1172:1993 compliant plumbing estimate.*`,
   },
   {
+    slug: 'ghar-banane-ka-sahi-cost-is-code',
+    title: 'Ghar Banane Ka Sahi Cost Kaise Nikale — IS Code Se, Contractor Ke Bharose Nahi',
+    excerpt:
+      'Aapka contractor ₹1,800/sqft bol raha hai, doosra ₹2,200 — dono ke paas koi breakdown nahi. IS 456:2000 aur IS 1786:2008 mein construction cost ka poora formula likha hai. Ye article step-by-step batata hai kaise cement, steel, brickwork aur foundation ka cost khud calculate karein.',
+    category: 'Cost & Transparency',
+    readTime: 6,
+    publishedDate: '2026-07-06',
+    relatedSlugs: ['per-sqft-pricing-contractor-fraud', 'verify-contractor-quote-is-456-2000', 'steel-theft-construction-sites'],
+    content: `Aapka contractor bol raha hai ₹1,800 per sqft. Ek doosra bol raha hai ₹2,200. Dono ke paas breakdown nahi hai — bas ek number.
+
+Sach ye hai ki construction cost koi guess nahi hai. Ye ek calculation hai, aur Indian Standards (IS codes) mein iska poora formula likha hua hai. Agar aap ye samajh lete hain, toh koi bhi contractor aapko galat number nahi de sakta — kyunki aap khud verify kar sakte hain.
+
+## Step 1: Cement Kitna Lagega?
+
+IS 456:2000 ke according, M20 grade concrete (jo residential ghar ke liye standard hai) ka mix ratio hota hai 1:1.5:3 — matlab 1 part cement, 1.5 part sand, 3 part aggregate. Iska dry volume factor 1.54 hota hai (wet concrete sukhne se pehle jo volume lagta hai).
+
+Thumb rule jo aap khud check kar sakte hain: **0.4 bags cement per sqft of built-up area**, G+1 se G+3 building ke liye. Agar aapka ghar 1,500 sqft ka hai, toh roughly **600 bags cement** lagenge — poora structure ke liye, sirf ek floor nahi.
+
+Agar aapka contractor isse bahut zyada bata raha hai, poochiye kyun — shayad wastage zyada calculate ki hai, ya phir margin chhupa raha hai.
+
+## Step 2: Steel Kitna Lagega?
+
+Ye woh jagah hai jahan sabse zyada paisa chupta hai, kyunki steel mehenga hai aur log isko samajhte nahi.
+
+IS 1786:2008 ke according, alag-alag structural members mein steel ka percentage fix hota hai:
+
+| Member | Steel % |
+|---|---|
+| Footing | 0.5% |
+| Column | 2.5% |
+| Beam | 1.5% |
+| Slab | 1.0% |
+
+Overall thumb rule: **4 kg steel per sqft** for G+1 to G+3 buildings. 1,500 sqft ke ghar mein roughly **6,000 kg TMT steel** lagega.
+
+Grade bhi important hai — agar aap seismic Zone III se V mein hain (jaise North India ka bada hissa), Fe500D ya Fe550D use karna chahiye, sirf standard Fe500 nahi. Ye IS 13920:2016 ka requirement hai, optional nahi.
+
+## Step 3: Brickwork Kitna Lagega?
+
+IS 1077:1992 ke according, standard 9-inch wall ke liye modular bricks (190×90×90mm) lagti hain roughly **100 bricks per square metre** wall area. 4.5-inch partition wall mein 50 bricks per sqm.
+
+Agar aap AAC blocks use kar rahe hain (jo lightweight aur energy-efficient hain), toh 200mm block mein sirf **8.33 blocks per sqm** lagte hain — bahut kam quantity, lekin per-piece cost zyada hota hai. Dono ka total cost compare karke decide kariye.
+
+Ek zaroori baat: agar aap Zone IV ya V mein hain (jaise Delhi, Uttarakhand, North-East states), AAC blocks load-bearing wall ke liye allowed nahi hain IS 4326:1993 ke according. Ye safety ka mamla hai, cost ka nahi.
+
+## Step 4: Foundation Kaunsa Chahiye?
+
+Ye depend karta hai aapki soil per:
+
+| Foundation Type | Condition | Cost Range |
+|---|---|---|
+| Isolated footing | Achi soil, G+1 to G+3 | ₹220–350/sqft |
+| Raft foundation | Soft ya waterlogged soil | ₹350–550/sqft |
+| Pile foundation | Bahut soft/marshy | ₹2,500–4,000/running metre |
+
+Geotechnical investigation (soil test) mandatory hai IS 1904:2016 ke according, khaas kar agar aap sure nahi hain apni soil type ke baare mein. Ye ₹15,000–50,000 ka ek-baar expense hai — lekin galat foundation type choose karne se jo nuksaan hota hai, uske saamne kuch nahi hai.
+
+## Toh Actually Karna Kya Hai?
+
+Agar aap in sab formulas ko khud calculate karna chahte hain, IS codes public hain — aap khud verify kar sakte hain. Lekin agar aap chahte hain ki koi platform ye calculation aapke liye kare, exact quantities aur cost ke saath, IS code clause ke reference ke saath — wahi NirmanShastra karta hai.
+
+Free mein aap grand total range dekh sakte hain. Detailed report — exact cement bags, steel kg, brick count, sab kuch — ₹999 mein milta hai StructurePro pe.
+
+Contractor ke number pe trust karne se pehle, apna khud ka number nikaliye.
+
+---
+
+*Apna construction cost khud verify karein — StructoPro pe IS code ke exact formulas se apni quantities nikaaliye.*`,
+  },
+  {
     slug: 'vastu-vedic-architecture-16-zones',
     title: 'Vastu and Vedic Architecture: Understanding the 16 Zones',
     excerpt:
