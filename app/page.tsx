@@ -86,6 +86,7 @@ const DEALER_CATEGORIES: { label: string; query: string }[] = [
 function FindNearbyDealers() {
   const [selectedState, setSelectedState] = useState('')
   const [selectedCity, setSelectedCity] = useState('')
+  const [locality, setLocality] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
 
   const cities = selectedState ? (STATE_CITIES[selectedState] ?? []) : []
@@ -99,7 +100,8 @@ function FindNearbyDealers() {
     if (!selectedCity || !selectedCategory) return
     const cat = DEALER_CATEGORIES.find(c => c.label === selectedCategory)
     if (!cat) return
-    const query = encodeURIComponent(`${cat.query} ${selectedCity}`)
+    const location = locality.trim() ? `${locality.trim()}, ${selectedCity}` : selectedCity
+    const query = encodeURIComponent(`${cat.query} ${location}`)
     window.open(`https://www.google.com/maps/search/${query}`, '_blank', 'noopener,noreferrer')
   }
 
@@ -174,6 +176,30 @@ function FindNearbyDealers() {
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.55)', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
+                Specific Area / Locality <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(Optional)</span>
+              </label>
+              <input
+                type="text"
+                value={locality}
+                onChange={e => setLocality(e.target.value)}
+                placeholder="e.g. Kothrud, Baner, Sector 15"
+                style={{
+                  fontFamily: 'var(--font-plex-sans)',
+                  fontSize: 14,
+                  color: '#1E2227',
+                  background: '#F4F4F0',
+                  border: '1px solid #1E2227',
+                  borderRadius: 6,
+                  padding: '10px 12px',
+                  outline: 'none',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                }}
+              />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
