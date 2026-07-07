@@ -73,14 +73,14 @@ const INDIAN_STATES_FOR_DEALERS = Object.keys(STATE_CITIES).sort()
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DEALER_CATEGORIES: { label: string; query: string }[] = [
-  { label: 'Cement & construction material shops', query: 'construction material shop near' },
-  { label: 'Hardware shops',                       query: 'hardware shop near' },
-  { label: 'Brick & masonry material shops',       query: 'brick and masonry supplier near' },
-  { label: 'Electrical shops',                     query: 'electrical shop near' },
-  { label: 'Pipes & sanitaryware shops',           query: 'pipes and sanitaryware shop near' },
-  { label: 'Tiles & marble shops',                 query: 'tiles and marble shop near' },
-  { label: 'Paint shops',                          query: 'paint shop near' },
-  { label: 'Interior decoration & furniture shops', query: 'interior decoration and furniture shop near' },
+  { label: 'Cement & construction material shops', query: 'construction material dealer near' },
+  { label: 'Hardware shops',                       query: 'hardware store near' },
+  { label: 'Brick & masonry material shops',       query: 'brick and masonry dealer near' },
+  { label: 'Electrical shops',                     query: 'electrical store near' },
+  { label: 'Pipes & sanitaryware shops',           query: 'pipes and sanitaryware dealer near' },
+  { label: 'Tiles & marble shops',                 query: 'tiles and marble dealer near' },
+  { label: 'Paint shops',                          query: 'paint store near' },
+  { label: 'Interior decoration & furniture shops', query: 'furniture and interior decor store near' },
 ]
 
 function FindNearbyDealers() {
