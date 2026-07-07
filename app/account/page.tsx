@@ -15,6 +15,7 @@ export default async function AccountPage() {
 
   const meta = user.user_metadata ?? {}
   const consentInitial: boolean = meta.consent_material_partners === true
+  const consentContactInitial: boolean = meta.consent_material_partners_contact === true
 
   return (
     <main className="min-h-screen" style={{ background: '#F4F4F0' }}>
@@ -68,8 +69,8 @@ export default async function AccountPage() {
             </div>
           </div>
 
-          {/* Consent toggle */}
-          <ConsentToggle initial={consentInitial} />
+          {/* Consent toggles */}
+          <ConsentToggle initialCity={consentInitial} initialContact={consentContactInitial} />
 
           <div style={{ marginTop: 32 }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.38)', letterSpacing: '0.04em', lineHeight: 1.75 }}>

@@ -34,6 +34,7 @@ function AuthContent() {
   const [pincode, setPincode] = useState('')
   const [pincodeError, setPincodeError] = useState('')
   const [consentPartners, setConsentPartners] = useState(false)
+  const [consentPartnersContact, setConsentPartnersContact] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
@@ -75,7 +76,7 @@ function AuthContent() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: name, mobile: phone, city, pincode, consent_material_partners: consentPartners } },
+          options: { data: { full_name: name, mobile: phone, city, pincode, consent_material_partners: consentPartners, consent_material_partners_contact: consentPartnersContact } },
         })
         if (error) throw error
         setMessage('Account created! Check your email to confirm, then log in.')
@@ -237,15 +238,23 @@ function AuthContent() {
                 )}
               </div>
 
-              {/* Opt-in consent — visually distinct bordered box */}
+              {/* Optional consent section — two independent opt-ins */}
               <div
                 style={{
                   border: '1px solid rgba(30,34,39,0.18)',
                   borderRadius: 6,
                   padding: '14px 16px',
                   background: 'rgba(31,78,121,0.04)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
                 }}
               >
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 0 }}>
+                  Share with Material Partners (Optional)
+                </p>
+
+                {/* Checkbox 1 — city only (existing, unchanged) */}
                 <label style={{ display: 'flex', gap: 10, cursor: 'pointer', alignItems: 'flex-start' }}>
                   <input
                     type="checkbox"
@@ -254,12 +263,32 @@ function AuthContent() {
                     style={{ marginTop: 3, accentColor: '#1F4E79', flexShrink: 0, width: 15, height: 15 }}
                   />
                   <div>
-                    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: '#1E2227', lineHeight: 1.5, marginBottom: 5 }}>
-                      Share my city with construction material partners for relevant offers{' '}
-                      <span style={{ color: 'rgba(30,34,39,0.42)', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>(optional)</span>
+                    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: '#1E2227', lineHeight: 1.5, marginBottom: 4 }}>
+                      Share my city with construction material partners for relevant offers
                     </p>
                     <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(30,34,39,0.52)', lineHeight: 1.65 }}>
                       If checked, we may share your city (not your phone number or exact address) with cement, steel, or other construction material companies for partnership offers. You can withdraw this anytime from your profile.
+                    </p>
+                  </div>
+                </label>
+
+                {/* Divider */}
+                <div style={{ height: 1, background: 'rgba(30,34,39,0.1)' }} />
+
+                {/* Checkbox 2 — name/phone/email (new, independent) */}
+                <label style={{ display: 'flex', gap: 10, cursor: 'pointer', alignItems: 'flex-start' }}>
+                  <input
+                    type="checkbox"
+                    checked={consentPartnersContact}
+                    onChange={e => setConsentPartnersContact(e.target.checked)}
+                    style={{ marginTop: 3, accentColor: '#1F4E79', flexShrink: 0, width: 15, height: 15 }}
+                  />
+                  <div>
+                    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: '#1E2227', lineHeight: 1.5, marginBottom: 4 }}>
+                      Also share my name, phone number, and email with construction material partners for offers
+                    </p>
+                    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(30,34,39,0.52)', lineHeight: 1.65 }}>
+                      If checked, we may share your name, phone number, and email with cement, steel, or other construction material companies for partnership offers. You can withdraw this anytime from your profile.
                     </p>
                   </div>
                 </label>

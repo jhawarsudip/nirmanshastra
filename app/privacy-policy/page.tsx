@@ -95,10 +95,13 @@ export default function PrivacyPolicyPage() {
           </Section>
 
           <Section clause="§ 2.1 — OPTIONAL DATA SHARING" title="Optional data sharing with material partners">
-            <P>At sign-up, and in your Account Settings, you may choose to opt into the following sharing arrangement. This is entirely optional and is not required to register or use any NirmanShastra tool. The default state is unchecked — no sharing occurs unless you explicitly enable it.</P>
-            <P><strong>What may be shared:</strong> If you check the opt-in box, we may share your home city (the city you provided at sign-up) with cement manufacturers, steel suppliers, or other construction material companies who partner with us to offer relevant deals or information to users building in your city.</P>
-            <P><strong>What is never shared under this consent:</strong> Your phone number, PIN code, email address, project details, and any other personal information are never shared with material partners — not under this consent and not on any other basis. Only your city name.</P>
-            <P><strong>How to withdraw:</strong> You can withdraw this consent at any time by visiting your <strong>Account Settings</strong> page and unchecking the preference box. Withdrawal takes effect immediately; we will not initiate new sharing of your city after withdrawal, though we cannot recall data already transmitted to partners before the withdrawal date.</P>
+            <P>At sign-up, and in your Account Settings, you may choose to opt into one or both of the following sharing arrangements. Both are entirely optional and not required to register or use any NirmanShastra tool. Both default to unchecked — no sharing occurs unless you explicitly enable it. Each consent is independent: you may enable either, both, or neither.</P>
+
+            <P><strong>Consent 1 — City sharing:</strong> If you check the first opt-in box, we may share your home city (the city you provided at sign-up) with cement manufacturers, steel suppliers, or other construction material companies who partner with us to offer relevant deals or information to users building in your city. Under this consent, only your city name is ever shared. Your name, phone number, PIN code, email address, project details, and all other personal information are never shared under this consent.</P>
+
+            <P><strong>Consent 2 — Contact detail sharing:</strong> This is a separate and independent consent. If you check the second opt-in box (&ldquo;Also share my name, phone number, and email with construction material partners for offers&rdquo;), we may share your name, phone number, and email address — in addition to your city — with cement, steel, or other construction material companies for partnership offers. This consent is distinct from and independent of the city-sharing consent above: checking or unchecking one does not affect the other. A user may have city-sharing enabled without contact sharing, or vice versa.</P>
+
+            <P><strong>How to withdraw either consent:</strong> You can withdraw either or both consents at any time by visiting your <strong>Account Settings</strong> page and unchecking the relevant preference box. Each withdrawal takes effect immediately and independently. We will not initiate new sharing under a withdrawn consent, though we cannot recall data already transmitted to partners before the withdrawal date.</P>
           </Section>
 
           <Section clause="§ 3.0 — HOW WE USE YOUR DATA" title="How we use your data">

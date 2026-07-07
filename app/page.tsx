@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { FileCheck, HardHat, IndianRupee, ShieldCheck } from 'lucide-react'
@@ -26,6 +26,170 @@ const IS_CODES = [
   'IS 2250:1981', 'IS 383:2016',  'IS 269:2015',  'IS 2547:1976',
   'NBC 2016',
 ]
+
+const STATE_CITIES: Record<string, string[]> = {
+  'Andhra Pradesh': ['Vijayawada', 'Visakhapatnam', 'Tirupati', 'Guntur', 'Nellore', 'Kurnool', 'Rajahmundry', 'Kakinada'],
+  'Arunachal Pradesh': ['Itanagar', 'Naharlagun', 'Pasighat', 'Tezpur'],
+  'Assam': ['Guwahati', 'Silchar', 'Dibrugarh', 'Jorhat', 'Nagaon', 'Tinsukia', 'Tezpur'],
+  'Bihar': ['Patna', 'Gaya', 'Muzaffarpur', 'Bhagalpur', 'Darbhanga', 'Purnia', 'Arrah', 'Begusarai'],
+  'Chhattisgarh': ['Raipur', 'Bhilai', 'Bilaspur', 'Korba', 'Durg', 'Rajnandgaon'],
+  'Goa': ['Panaji', 'Margao', 'Vasco da Gama', 'Mapusa', 'Ponda'],
+  'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Bhavnagar', 'Jamnagar', 'Gandhinagar', 'Anand', 'Nadiad'],
+  'Haryana': ['Faridabad', 'Gurugram', 'Panipat', 'Ambala', 'Hisar', 'Rohtak', 'Karnal', 'Sonipat'],
+  'Himachal Pradesh': ['Shimla', 'Dharamshala', 'Solan', 'Mandi', 'Kullu', 'Hamirpur'],
+  'Jharkhand': ['Ranchi', 'Jamshedpur', 'Dhanbad', 'Bokaro', 'Hazaribagh', 'Deoghar'],
+  'Karnataka': ['Bengaluru', 'Mysuru', 'Mangaluru', 'Hubballi', 'Belagavi', 'Davangere', 'Shivamogga', 'Tumkur'],
+  'Kerala': ['Thiruvananthapuram', 'Kochi', 'Kozhikode', 'Thrissur', 'Kollam', 'Palakkad', 'Alappuzha', 'Kannur'],
+  'Madhya Pradesh': ['Indore', 'Bhopal', 'Jabalpur', 'Gwalior', 'Ujjain', 'Sagar', 'Rewa', 'Satna'],
+  'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad', 'Solapur', 'Kolhapur', 'Thane', 'Navi Mumbai', 'Amravati'],
+  'Manipur': ['Imphal', 'Thoubal', 'Bishnupur', 'Churachandpur'],
+  'Meghalaya': ['Shillong', 'Tura', 'Nongpoh'],
+  'Mizoram': ['Aizawl', 'Lunglei', 'Champhai'],
+  'Nagaland': ['Kohima', 'Dimapur', 'Mokokchung'],
+  'Odisha': ['Bhubaneswar', 'Cuttack', 'Rourkela', 'Berhampur', 'Sambalpur', 'Puri', 'Balasore'],
+  'Punjab': ['Ludhiana', 'Amritsar', 'Jalandhar', 'Patiala', 'Bathinda', 'Mohali', 'Pathankot'],
+  'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur', 'Kota', 'Bikaner', 'Ajmer', 'Alwar', 'Bharatpur'],
+  'Sikkim': ['Gangtok', 'Namchi', 'Gyalshing'],
+  'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem', 'Tirunelveli', 'Vellore', 'Erode'],
+  'Telangana': ['Hyderabad', 'Warangal', 'Karimnagar', 'Nizamabad', 'Khammam', 'Ramagundam'],
+  'Tripura': ['Agartala', 'Dharmanagar', 'Udaipur'],
+  'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Agra', 'Varanasi', 'Prayagraj', 'Ghaziabad', 'Noida', 'Meerut', 'Bareilly', 'Aligarh', 'Moradabad', 'Gorakhpur'],
+  'Uttarakhand': ['Dehradun', 'Haridwar', 'Roorkee', 'Haldwani', 'Rishikesh', 'Kashipur'],
+  'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri', 'Bardhaman', 'Kharagpur', 'Haldia'],
+  'Andaman and Nicobar Islands': ['Port Blair'],
+  'Chandigarh': ['Chandigarh'],
+  'Dadra and Nagar Haveli and Daman and Diu': ['Daman', 'Silvassa', 'Diu'],
+  'Delhi': ['New Delhi', 'Dwarka', 'Rohini', 'Janakpuri', 'Laxmi Nagar', 'Saket'],
+  'Jammu and Kashmir': ['Srinagar', 'Jammu', 'Anantnag', 'Baramulla', 'Sopore'],
+  'Ladakh': ['Leh', 'Kargil'],
+  'Lakshadweep': ['Kavaratti'],
+  'Puducherry': ['Puducherry', 'Karaikal', 'Yanam', 'Mahé'],
+}
+
+const INDIAN_STATES_FOR_DEALERS = Object.keys(STATE_CITIES).sort()
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FIND NEARBY DEALERS SECTION
+// ─────────────────────────────────────────────────────────────────────────────
+
+function FindNearbyDealers() {
+  const [selectedState, setSelectedState] = useState('')
+  const [selectedCity, setSelectedCity] = useState('')
+
+  const cities = selectedState ? (STATE_CITIES[selectedState] ?? []) : []
+
+  const handleStateChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedState(e.target.value)
+    setSelectedCity('')
+  }, [])
+
+  function handleFind() {
+    if (!selectedCity) return
+    const query = encodeURIComponent(`construction material shop near ${selectedCity}`)
+    window.open(`https://www.google.com/maps/search/${query}`, '_blank', 'noopener,noreferrer')
+  }
+
+  return (
+    <section className="grid-paper px-6 md:px-16 lg:px-24 py-28">
+      <div className="space-y-10">
+        <div className="space-y-3">
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
+            CL. 6.0 — LOCAL SOURCING
+          </p>
+          <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: '#1E2227', lineHeight: 1.15, letterSpacing: '0.01em' }}>
+            Find Nearby <span className="section-accent">Material Dealers</span>
+          </h2>
+          <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.65)', lineHeight: 1.7, maxWidth: 560 }}>
+            Select your state and city to open a Google Maps search for construction material shops near you. We do not maintain a dealer directory — this links directly to Google Maps.
+          </p>
+        </div>
+
+        <div style={{ border: '1px solid rgba(30,34,39,0.15)', padding: '28px 32px', background: '#F4F4F0', maxWidth: 560 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.55)', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
+                State / UT
+              </label>
+              <select
+                value={selectedState}
+                onChange={handleStateChange}
+                style={{
+                  fontFamily: 'var(--font-plex-sans)',
+                  fontSize: 14,
+                  color: '#1E2227',
+                  background: '#F4F4F0',
+                  border: '1px solid #1E2227',
+                  borderRadius: 6,
+                  padding: '10px 12px',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
+              >
+                <option value="">— Select a state —</option>
+                {INDIAN_STATES_FOR_DEALERS.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.55)', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
+                City / Town
+              </label>
+              <select
+                value={selectedCity}
+                onChange={e => setSelectedCity(e.target.value)}
+                disabled={!selectedState}
+                style={{
+                  fontFamily: 'var(--font-plex-sans)',
+                  fontSize: 14,
+                  color: selectedState ? '#1E2227' : 'rgba(30,34,39,0.38)',
+                  background: '#F4F4F0',
+                  border: '1px solid #1E2227',
+                  borderRadius: 6,
+                  padding: '10px 12px',
+                  outline: 'none',
+                  cursor: selectedState ? 'pointer' : 'not-allowed',
+                  width: '100%',
+                  opacity: selectedState ? 1 : 0.5,
+                }}
+              >
+                <option value="">— Select a city —</option>
+                {cities.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={handleFind}
+              disabled={!selectedCity}
+              style={{
+                fontFamily: 'var(--font-plex-mono)',
+                fontSize: 14,
+                color: '#F4F4F0',
+                background: selectedCity ? '#8C3A22' : 'rgba(30,34,39,0.2)',
+                border: 'none',
+                borderRadius: 6,
+                padding: '13px 24px',
+                cursor: selectedCity ? 'pointer' : 'not-allowed',
+                letterSpacing: '0.03em',
+                transition: 'background 0.15s ease',
+              }}
+            >
+              Open in Google Maps →
+            </button>
+          </div>
+
+          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.38)', letterSpacing: '0.04em', lineHeight: 1.7, marginTop: 18 }}>
+            Opens in a new tab · No dealer data is stored by NirmanShastra · Results are from Google Maps
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
 
 const VASTU_TOOL = {
   phase: 'P0', name: 'VastuPro',
@@ -1270,6 +1434,14 @@ export default function Home() {
 
         </div>
       </section>
+
+      {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
+      <div className="py-3">
+        <DimDivider label="CL. 6.0 · FIND MATERIAL DEALERS NEAR YOU" />
+      </div>
+
+      {/* ── FIND NEARBY DEALERS ──────────────────────────────────────────── */}
+      <FindNearbyDealers />
 
       {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer style={{ borderTop: '1px solid rgba(244,244,240,0.12)', background: '#1E2227', marginTop: 0 }}>
