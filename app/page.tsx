@@ -72,9 +72,21 @@ const INDIAN_STATES_FOR_DEALERS = Object.keys(STATE_CITIES).sort()
 // FIND NEARBY DEALERS SECTION
 // ─────────────────────────────────────────────────────────────────────────────
 
+const DEALER_CATEGORIES: { label: string; query: string }[] = [
+  { label: 'Cement & construction material shops', query: 'construction material shop near' },
+  { label: 'Hardware shops',                       query: 'hardware shop near' },
+  { label: 'Brick & masonry material shops',       query: 'brick and masonry supplier near' },
+  { label: 'Electrical shops',                     query: 'electrical shop near' },
+  { label: 'Pipes & sanitaryware shops',           query: 'pipes and sanitaryware shop near' },
+  { label: 'Tiles & marble shops',                 query: 'tiles and marble shop near' },
+  { label: 'Paint shops',                          query: 'paint shop near' },
+  { label: 'Interior decoration & furniture shops', query: 'interior decoration and furniture shop near' },
+]
+
 function FindNearbyDealers() {
   const [selectedState, setSelectedState] = useState('')
   const [selectedCity, setSelectedCity] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
 
   const cities = selectedState ? (STATE_CITIES[selectedState] ?? []) : []
 
@@ -84,8 +96,10 @@ function FindNearbyDealers() {
   }, [])
 
   function handleFind() {
-    if (!selectedCity) return
-    const query = encodeURIComponent(`construction material shop near ${selectedCity}`)
+    if (!selectedCity || !selectedCategory) return
+    const cat = DEALER_CATEGORIES.find(c => c.label === selectedCategory)
+    if (!cat) return
+    const query = encodeURIComponent(`${cat.query} ${selectedCity}`)
     window.open(`https://www.google.com/maps/search/${query}`, '_blank', 'noopener,noreferrer')
   }
 
@@ -100,7 +114,7 @@ function FindNearbyDealers() {
             Find Nearby <span className="section-accent">Material Dealers</span>
           </h2>
           <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.65)', lineHeight: 1.7, maxWidth: 560 }}>
-            Select your state and city to open a Google Maps search for construction material shops near you. We do not maintain a dealer directory — this links directly to Google Maps.
+            Select your state, city, and material category to open a Google Maps search near you. We do not maintain a dealer directory — this links directly to Google Maps.
           </p>
         </div>
 
@@ -162,18 +176,47 @@ function FindNearbyDealers() {
               </select>
             </div>
 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.55)', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
+                What are you looking for?
+              </label>
+              <select
+                value={selectedCategory}
+                onChange={e => setSelectedCategory(e.target.value)}
+                disabled={!selectedCity}
+                style={{
+                  fontFamily: 'var(--font-plex-sans)',
+                  fontSize: 14,
+                  color: selectedCity ? '#1E2227' : 'rgba(30,34,39,0.38)',
+                  background: '#F4F4F0',
+                  border: '1px solid #1E2227',
+                  borderRadius: 6,
+                  padding: '10px 12px',
+                  outline: 'none',
+                  cursor: selectedCity ? 'pointer' : 'not-allowed',
+                  width: '100%',
+                  opacity: selectedCity ? 1 : 0.5,
+                }}
+              >
+                <option value="">— Select a category —</option>
+                {DEALER_CATEGORIES.map(c => (
+                  <option key={c.label} value={c.label}>{c.label}</option>
+                ))}
+              </select>
+            </div>
+
             <button
               onClick={handleFind}
-              disabled={!selectedCity}
+              disabled={!selectedCity || !selectedCategory}
               style={{
                 fontFamily: 'var(--font-plex-mono)',
                 fontSize: 14,
                 color: '#F4F4F0',
-                background: selectedCity ? '#8C3A22' : 'rgba(30,34,39,0.2)',
+                background: (selectedCity && selectedCategory) ? '#8C3A22' : 'rgba(30,34,39,0.2)',
                 border: 'none',
                 borderRadius: 6,
                 padding: '13px 24px',
-                cursor: selectedCity ? 'pointer' : 'not-allowed',
+                cursor: (selectedCity && selectedCategory) ? 'pointer' : 'not-allowed',
                 letterSpacing: '0.03em',
                 transition: 'background 0.15s ease',
               }}
