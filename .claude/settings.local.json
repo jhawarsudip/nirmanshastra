@@ -75,7 +75,9 @@
       "Bash(sed -i '' '/toolName=\"InteriorPro\"/{n; /toolPhase=\"P5\"/{n; /regData/{ *)",
       "Bash(sed -i '' '/toolName=\"ElectricalPro\"/{n; /toolPhase=\"P3\"/{n; /regData/{ *)",
       "Bash(sed -i '' 's/INTERIORPRO · ₹499/INTERIORPRO · ₹899/g; s|{appUrl}/tools/interiorpro → ₹499|{appUrl}/tools/interiorpro → ₹899|g' /Users/sudipjhawar/nirmanshastra/lib/pdf/plumbpro-pdf.tsx)",
-      "Bash(sed -i '' 's|{appUrl}/tools → ₹499 per phase tool|{appUrl}/tools → from ₹499 per phase tool|g' /Users/sudipjhawar/nirmanshastra/lib/pdf/interiorpro-pdf.tsx)"
+      "Bash(sed -i '' 's|{appUrl}/tools → ₹499 per phase tool|{appUrl}/tools → from ₹499 per phase tool|g' /Users/sudipjhawar/nirmanshastra/lib/pdf/interiorpro-pdf.tsx)",
+      "Bash(npm search *)",
+      "Bash(npm pack *)"
     ]
   }
 }
