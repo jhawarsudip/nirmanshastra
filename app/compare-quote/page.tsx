@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react'
 import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
-import { INDIAN_STATES } from '@/app/tools/structopro/structopro-engine'
+import { STATE_CITIES, INDIAN_STATES_LIST } from '@/lib/state-cities'
 import type { ExtractionResult, ExtractedLineItem } from '@/app/api/compare-quote/extract/route'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -99,16 +99,24 @@ function StepBar({ current }: { current: Step }) {
 // ─── Condensed new-project form ───────────────────────────────────────────────
 
 function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void }) {
-  const [city,      setCity]      = useState('')
   const [state,     setState]     = useState('')
+  const [city,      setCity]      = useState('')
   const [floorArea, setFloorArea] = useState('')
   const [numFloors, setNumFloors] = useState('')
   const [errors,    setErrors]    = useState<Record<string, string>>({})
 
+  const cities = state ? (STATE_CITIES[state] ?? []) : []
+
+  function handleStateChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setState(e.target.value)
+    setCity('')
+    setErrors(prev => ({ ...prev, state: '', city: '' }))
+  }
+
   function validate() {
     const e: Record<string, string> = {}
-    if (!city.trim())      e.city      = 'City is required'
     if (!state)            e.state     = 'State is required'
+    if (!city)             e.city      = 'City is required'
     if (!floorArea.trim() || isNaN(Number(floorArea)) || Number(floorArea) <= 0)
                            e.floorArea = 'Enter a valid floor area'
     if (!numFloors)        e.numFloors = 'Select number of floors'
@@ -141,37 +149,41 @@ function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void })
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {/* City + State */}
+        {/* State + City (State first — City options depend on State) */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div>
-            <label style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#1E2227', display: 'block', marginBottom: 6 }}>
-              City / Town *
-            </label>
-            <input
-              type="text"
-              value={city}
-              onChange={e => { setCity(e.target.value); setErrors(prev => ({ ...prev, city: '' })) }}
-              placeholder="e.g. Pune"
-              style={inputStyle(!!errors.city)}
-            />
-            {errors.city && <p style={{ ...mono, fontSize: 10, color: '#8C3A22', marginTop: 4 }}>{errors.city}</p>}
-          </div>
-
           <div>
             <label style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#1E2227', display: 'block', marginBottom: 6 }}>
               State *
             </label>
             <select
               value={state}
-              onChange={e => { setState(e.target.value); setErrors(prev => ({ ...prev, state: '' })) }}
+              onChange={handleStateChange}
               style={{ ...inputStyle(!!errors.state), appearance: 'auto' }}
             >
               <option value="">Select state</option>
-              {INDIAN_STATES.map(s => (
+              {INDIAN_STATES_LIST.map(s => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
             {errors.state && <p style={{ ...mono, fontSize: 10, color: '#8C3A22', marginTop: 4 }}>{errors.state}</p>}
+          </div>
+
+          <div>
+            <label style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#1E2227', display: 'block', marginBottom: 6 }}>
+              City / Town *
+            </label>
+            <select
+              value={city}
+              onChange={e => { setCity(e.target.value); setErrors(prev => ({ ...prev, city: '' })) }}
+              disabled={!state}
+              style={{ ...inputStyle(!!errors.city), appearance: 'auto', opacity: state ? 1 : 0.5, cursor: state ? 'pointer' : 'not-allowed' }}
+            >
+              <option value="">{state ? 'Select city' : 'Select state first'}</option>
+              {cities.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            {errors.city && <p style={{ ...mono, fontSize: 10, color: '#8C3A22', marginTop: 4 }}>{errors.city}</p>}
           </div>
         </div>
 
@@ -796,7 +808,7 @@ function LandingBanner() {
     }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
         <p style={{ ...mono, fontSize: 10, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-          CL. 0 — COMPARE QUOTE · PHASE 1 TEST
+          CL. 0 — COMPARE CONTRACTOR QUOTE · PHASE 1 TEST
         </p>
         <h1 style={{ ...serif, fontSize: 26, fontWeight: 700, color: '#F4F4F0', lineHeight: 1.25, marginBottom: 10 }}>
           Upload your contractor&rsquo;s quote.
@@ -860,7 +872,7 @@ export default function CompareQuotePage() {
         {step === 'project_pick' && (
           <ProjectPicker
             onSelect={handleProjectSelect}
-            toolName="Compare Quote"
+            toolName="Compare Contractor Quote"
           />
         )}
 

@@ -349,7 +349,7 @@ export default function Navbar() {
           FAQ
         </Link>
         <Link href="/compare-quote" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none', borderLeft: '1px solid rgba(244,244,240,0.12)', paddingLeft: 24 }}>
-          Compare Quote
+          Compare Contractor Quote
         </Link>
       </div>
 
