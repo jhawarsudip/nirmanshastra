@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from 'react'
 import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
 import { STATE_CITIES, INDIAN_STATES_LIST } from '@/lib/state-cities'
 import type { ExtractionResult, ExtractedLineItem } from '@/app/api/compare-quote/extract/route'
+import type { DrawingExtractionResult } from '@/app/api/compare-quote/extract-drawing/route'
 import type { ComparisonScope, ComparisonResult, ComparisonRow, MatchStatus } from '@/app/api/compare-quote/compare/route'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -119,6 +120,218 @@ function StepBar({ current }: { current: Step }) {
   )
 }
 
+// ─── Drawing upload phase type ─────────────────────────────────────────────────
+
+type DrawingPhase = 'idle' | 'uploading' | 'extracting' | 'confirming' | 'confirmed' | 'failed'
+
+// ─── Drawing confirmation panel ────────────────────────────────────────────────
+
+function DrawingConfirmPanel({
+  extracted,
+  pendingFloorArea,
+  pendingNumFloors,
+  pendingColumnGrid,
+  pendingConcreteGrade,
+  pendingSteelGrade,
+  onChangePendingFloorArea,
+  onChangePendingNumFloors,
+  onChangePendingColumnGrid,
+  onChangePendingConcreteGrade,
+  onChangePendingSteelGrade,
+  onConfirm,
+  onReject,
+}: {
+  extracted:                  DrawingExtractionResult
+  pendingFloorArea:           string
+  pendingNumFloors:           string
+  pendingColumnGrid:          string
+  pendingConcreteGrade:       string
+  pendingSteelGrade:          string
+  onChangePendingFloorArea:   (v: string) => void
+  onChangePendingNumFloors:   (v: string) => void
+  onChangePendingColumnGrid:  (v: string) => void
+  onChangePendingConcreteGrade: (v: string) => void
+  onChangePendingSteelGrade:  (v: string) => void
+  onConfirm:                  () => void
+  onReject:                   () => void
+}) {
+  const hasAnyData = extracted.floorArea !== null || extracted.numFloors !== null ||
+                     extracted.columnGridSpacing !== null || extracted.concreteGrade !== null ||
+                     extracted.steelGrade !== null
+
+  return (
+    <div style={{ border: '1.5px solid #1F4E79', borderRadius: 6, background: 'rgba(31,78,121,0.04)', padding: '20px 20px 16px', marginTop: 16 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
+        <span style={{ ...mono, fontSize: 16, color: '#1F4E79', flexShrink: 0, marginTop: 1 }}>📐</span>
+        <div>
+          <p style={{ ...mono, fontSize: 11, color: '#1F4E79', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+            DRAWING READ · AWAITING YOUR CONFIRMATION
+          </p>
+          <p style={{ ...sans, fontSize: 13, color: '#1E2227', lineHeight: 1.5 }}>
+            Here&rsquo;s what we read from your drawing. Please confirm this is correct before continuing — we cannot guarantee accurate reading of hand-drawn or low-quality scans.
+          </p>
+        </div>
+      </div>
+
+      {/* Caveat / drawing notes */}
+      {extracted.drawingNotes && (
+        <div style={{ background: 'rgba(217,154,6,0.07)', border: '1px solid rgba(217,154,6,0.28)', borderRadius: 3, padding: '8px 12px', marginBottom: 14 }}>
+          <p style={{ ...mono, fontSize: 10, color: '#7a5800', lineHeight: 1.55 }}>⚠ {extracted.drawingNotes}</p>
+        </div>
+      )}
+
+      {hasAnyData ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Floor area */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'rgba(30,34,39,0.65)', display: 'block', marginBottom: 4 }}>
+                Floor area (sqft){extracted.floorArea === null && <span style={{ color: 'rgba(30,34,39,0.4)', fontWeight: 400 }}> — not found in drawing</span>}
+              </label>
+              <input
+                type="number"
+                value={pendingFloorArea}
+                onChange={e => onChangePendingFloorArea(e.target.value)}
+                placeholder={extracted.floorArea === null ? 'Not detected — enter manually' : ''}
+                min={1}
+                style={{ ...inputStyle(), ...mono, fontSize: 13 }}
+              />
+            </div>
+            <div>
+              <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'rgba(30,34,39,0.65)', display: 'block', marginBottom: 4 }}>
+                Number of floors{extracted.numFloors === null && <span style={{ color: 'rgba(30,34,39,0.4)', fontWeight: 400 }}> — not found</span>}
+              </label>
+              <select
+                value={pendingNumFloors}
+                onChange={e => onChangePendingNumFloors(e.target.value)}
+                style={{ ...inputStyle(), appearance: 'auto', ...mono, fontSize: 13 }}
+              >
+                <option value="">Select</option>
+                <option value="1">G (Ground only)</option>
+                <option value="2">G+1</option>
+                <option value="3">G+2</option>
+                <option value="4">G+3</option>
+                <option value="5">G+4</option>
+                <option value="6">G+5</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Structural specs (informational — shown but not fed into ProjectInfo) */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+            <div>
+              <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'rgba(30,34,39,0.65)', display: 'block', marginBottom: 4 }}>
+                Column grid spacing
+              </label>
+              <input
+                type="text"
+                value={pendingColumnGrid}
+                onChange={e => onChangePendingColumnGrid(e.target.value)}
+                placeholder={extracted.columnGridSpacing === null ? 'Not shown' : ''}
+                style={{ ...inputStyle(), ...mono, fontSize: 12 }}
+              />
+            </div>
+            <div>
+              <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'rgba(30,34,39,0.65)', display: 'block', marginBottom: 4 }}>
+                Concrete grade
+              </label>
+              <input
+                type="text"
+                value={pendingConcreteGrade}
+                onChange={e => onChangePendingConcreteGrade(e.target.value)}
+                placeholder={extracted.concreteGrade === null ? 'Not labeled' : ''}
+                style={{ ...inputStyle(), ...mono, fontSize: 12 }}
+              />
+            </div>
+            <div>
+              <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'rgba(30,34,39,0.65)', display: 'block', marginBottom: 4 }}>
+                Steel grade
+              </label>
+              <input
+                type="text"
+                value={pendingSteelGrade}
+                onChange={e => onChangePendingSteelGrade(e.target.value)}
+                placeholder={extracted.steelGrade === null ? 'Not labeled' : ''}
+                style={{ ...inputStyle(), ...mono, fontSize: 12 }}
+              />
+            </div>
+          </div>
+
+          <p style={{ ...mono, fontSize: 10, color: 'rgba(30,34,39,0.45)', lineHeight: 1.5, marginTop: 2 }}>
+            Column grid, concrete grade, and steel grade are shown for reference only — they do not flow into the comparison engine at this stage. Only floor area and floor count are applied to your project details.
+          </p>
+
+          {/* Confirm / Reject buttons */}
+          <div style={{ display: 'flex', gap: 10, marginTop: 4, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={onConfirm}
+              style={{
+                ...sans,
+                background:    '#1F4E79',
+                color:         '#F4F4F0',
+                border:        'none',
+                borderRadius:  6,
+                padding:       '10px 20px',
+                fontSize:      13,
+                fontWeight:    600,
+                cursor:        'pointer',
+                letterSpacing: '0.02em',
+              }}
+            >
+              ✓ These values are correct — apply them
+            </button>
+            <button
+              type="button"
+              onClick={onReject}
+              style={{
+                ...mono,
+                background:    'transparent',
+                color:         'rgba(30,34,39,0.55)',
+                border:        '1px solid rgba(30,34,39,0.22)',
+                borderRadius:  6,
+                padding:       '10px 18px',
+                fontSize:      11,
+                cursor:        'pointer',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+              }}
+            >
+              Drawing wasn&rsquo;t read correctly — enter manually
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* Nothing useful extracted */
+        <div>
+          <p style={{ ...sans, fontSize: 13, color: 'rgba(30,34,39,0.6)', marginBottom: 14, lineHeight: 1.5 }}>
+            The AI could not extract usable values from this drawing. This is common with hand-drawn plans, low-resolution scans, or drawings that don&rsquo;t explicitly label dimensions.
+          </p>
+          <button
+            type="button"
+            onClick={onReject}
+            style={{
+              ...mono,
+              background:    'transparent',
+              color:         '#1F4E79',
+              border:        '1px solid rgba(31,78,121,0.35)',
+              borderRadius:  6,
+              padding:       '9px 18px',
+              fontSize:      11,
+              cursor:        'pointer',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            Continue with manual entry →
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Condensed new-project form ───────────────────────────────────────────────
 
 function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void }) {
@@ -128,6 +341,20 @@ function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void })
   const [numFloors,     setNumFloors]     = useState('')
   const [wallLengthFt,  setWallLengthFt]  = useState('')
   const [errors,        setErrors]        = useState<Record<string, string>>({})
+
+  // Drawing upload state
+  const [drawingFile,         setDrawingFile]         = useState<File | null>(null)
+  const [drawingPhase,        setDrawingPhase]        = useState<DrawingPhase>('idle')
+  const [drawingError,        setDrawingError]        = useState('')
+  const [drawingExtracted,    setDrawingExtracted]    = useState<DrawingExtractionResult | null>(null)
+  // Pending values shown in the confirmation panel — editable by user before they commit
+  const [pendingFloorArea,         setPendingFloorArea]         = useState('')
+  const [pendingNumFloors,         setPendingNumFloors]         = useState('')
+  const [pendingColumnGrid,        setPendingColumnGrid]        = useState('')
+  const [pendingConcreteGrade,     setPendingConcreteGrade]     = useState('')
+  const [pendingSteelGrade,        setPendingSteelGrade]        = useState('')
+
+  const drawingInputRef = useRef<HTMLInputElement>(null)
 
   const cities = state ? (STATE_CITIES[state] ?? []) : []
 
@@ -156,6 +383,96 @@ function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void })
     const parsedWall = wallLengthFt.trim() ? Number(wallLengthFt) : null
     onSubmit({ city, state, floorArea: Number(floorArea), numFloors: Number(numFloors), projectName: null, wallLengthFt: parsedWall })
   }
+
+  // Kick off the drawing upload + extraction pipeline
+  async function handleDrawingExtract() {
+    if (!drawingFile) return
+    setDrawingError('')
+
+    // Phase 1 — upload
+    setDrawingPhase('uploading')
+    let storagePath = ''
+    let fileType    = ''
+    try {
+      const fd = new FormData()
+      fd.append('file', drawingFile)
+      const uploadRes  = await fetch('/api/compare-quote/upload', { method: 'POST', body: fd })
+      const uploadJson = await uploadRes.json()
+      if (!uploadRes.ok || !uploadJson.success) {
+        setDrawingError(uploadJson.error ?? 'Upload failed — please try again.')
+        setDrawingPhase('failed')
+        return
+      }
+      storagePath = uploadJson.storagePath
+      fileType    = uploadJson.fileType
+    } catch {
+      setDrawingError('Network error during upload — please check your connection.')
+      setDrawingPhase('failed')
+      return
+    }
+
+    // Phase 2 — AI extraction
+    setDrawingPhase('extracting')
+    try {
+      const extractRes  = await fetch('/api/compare-quote/extract-drawing', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ storagePath, fileType }),
+      })
+      const extractJson = await extractRes.json()
+      if (!extractRes.ok || !extractJson.success) {
+        setDrawingError(extractJson.error ?? 'Could not read the drawing — please enter your project details manually below.')
+        setDrawingPhase('failed')
+        return
+      }
+
+      const extraction = extractJson.extraction as DrawingExtractionResult | { error: string }
+      if ('error' in extraction) {
+        setDrawingError(`AI says: ${extraction.error}. Please enter your project details manually below.`)
+        setDrawingPhase('failed')
+        return
+      }
+
+      // Pre-fill the pending confirmation fields
+      setDrawingExtracted(extraction)
+      setPendingFloorArea(     extraction.floorArea         !== null ? String(extraction.floorArea)  : '')
+      setPendingNumFloors(     extraction.numFloors          !== null ? String(extraction.numFloors)  : '')
+      setPendingColumnGrid(    extraction.columnGridSpacing  ?? '')
+      setPendingConcreteGrade( extraction.concreteGrade      ?? '')
+      setPendingSteelGrade(    extraction.steelGrade         ?? '')
+      setDrawingPhase('confirming')
+    } catch {
+      setDrawingError('Network error during AI extraction — please enter your project details manually below.')
+      setDrawingPhase('failed')
+    }
+  }
+
+  // User actively confirms the extracted values — only now do they flow into the main form
+  function handleConfirmDrawing() {
+    if (pendingFloorArea.trim() && !isNaN(Number(pendingFloorArea)) && Number(pendingFloorArea) > 0) {
+      setFloorArea(pendingFloorArea)
+      setErrors(prev => ({ ...prev, floorArea: '' }))
+    }
+    if (pendingNumFloors) {
+      setNumFloors(pendingNumFloors)
+      setErrors(prev => ({ ...prev, numFloors: '' }))
+    }
+    setDrawingPhase('confirmed')
+  }
+
+  // User rejects the extraction — reset drawing state, manual entry remains available
+  function handleRejectDrawing() {
+    setDrawingFile(null)
+    setDrawingExtracted(null)
+    setDrawingPhase('idle')
+    setDrawingError('')
+    if (drawingInputRef.current) drawingInputRef.current.value = ''
+  }
+
+  const drawingLoadingMsg =
+    drawingPhase === 'uploading'   ? 'Uploading drawing…' :
+    drawingPhase === 'extracting'  ? 'AI is reading your drawing — this takes 15–30 seconds…' :
+    ''
 
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '48px 24px' }}>
@@ -189,14 +506,145 @@ function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void })
           </div>
         </div>
 
+        {/* Optional structural drawing upload — pre-fills floor area & floor count only after user confirmation */}
+        <div style={{ border: '1px dashed rgba(30,34,39,0.2)', borderRadius: 6, padding: '16px 18px', background: 'rgba(30,34,39,0.015)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{ ...sans, fontSize: 13, fontWeight: 600, color: '#1E2227' }}>
+              Upload your structural drawing
+            </span>
+            <span style={{ ...mono, fontSize: 10, color: '#14532D', background: 'rgba(20,83,45,0.08)', border: '1px solid rgba(20,83,45,0.2)', borderRadius: 2, padding: '1px 6px' }}>OPTIONAL</span>
+          </div>
+          <p style={{ ...sans, fontSize: 12, color: 'rgba(30,34,39,0.5)', marginBottom: 12, lineHeight: 1.5 }}>
+            If you have a structural or architectural plan, upload it and AI will try to read the floor area and floor count for you. You&rsquo;ll review everything before it&rsquo;s applied.
+          </p>
+
+          {drawingPhase === 'idle' || drawingPhase === 'failed' ? (
+            <div>
+              {/* File selector */}
+              <div
+                onClick={() => { drawingInputRef.current?.click() }}
+                style={{
+                  border:     `1.5px dashed ${drawingFile ? '#1F4E79' : 'rgba(30,34,39,0.2)'}`,
+                  borderRadius: 4,
+                  padding:    '16px',
+                  textAlign:  'center',
+                  cursor:     'pointer',
+                  background: drawingFile ? 'rgba(31,78,121,0.03)' : '#fff',
+                  marginBottom: 10,
+                }}
+              >
+                <input
+                  ref={drawingInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  style={{ display: 'none' }}
+                  onChange={e => {
+                    setDrawingFile(e.target.files?.[0] ?? null)
+                    setDrawingError('')
+                    setDrawingPhase('idle')
+                  }}
+                />
+                {drawingFile ? (
+                  <>
+                    <p style={{ ...mono, fontSize: 12, color: '#1F4E79', fontWeight: 500, marginBottom: 2 }}>{drawingFile.name}</p>
+                    <p style={{ ...mono, fontSize: 10, color: 'rgba(30,34,39,0.45)' }}>
+                      {(drawingFile.size / 1024).toFixed(0)} KB
+                      {' '}· <span style={{ color: '#1F4E79', cursor: 'pointer' }} onClick={ev => { ev.stopPropagation(); setDrawingFile(null); setDrawingError(''); setDrawingPhase('idle'); if (drawingInputRef.current) drawingInputRef.current.value = '' }}>Change</span>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ ...sans, fontSize: 13, color: 'rgba(30,34,39,0.5)', marginBottom: 2 }}>Click to select a structural drawing</p>
+                    <p style={{ ...mono, fontSize: 10, color: 'rgba(30,34,39,0.35)' }}>PDF, JPG, or PNG · max 10 MB</p>
+                  </>
+                )}
+              </div>
+
+              {/* Failure banner */}
+              {drawingPhase === 'failed' && drawingError && (
+                <div style={{ background: 'rgba(140,58,34,0.06)', border: '1px solid rgba(140,58,34,0.22)', borderRadius: 3, padding: '10px 12px', marginBottom: 10 }}>
+                  <p style={{ ...sans, fontSize: 12, color: '#8C3A22', lineHeight: 1.5 }}>
+                    ⚠ {drawingError}
+                  </p>
+                </div>
+              )}
+
+              {drawingFile && (
+                <button
+                  type="button"
+                  onClick={handleDrawingExtract}
+                  style={{
+                    ...sans,
+                    background:    '#1F4E79',
+                    color:         '#F4F4F0',
+                    border:        'none',
+                    borderRadius:  6,
+                    padding:       '9px 18px',
+                    fontSize:      13,
+                    fontWeight:    600,
+                    cursor:        'pointer',
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  Read Drawing →
+                </button>
+              )}
+            </div>
+          ) : drawingPhase === 'uploading' || drawingPhase === 'extracting' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' }}>
+              <span style={{ ...mono, fontSize: 18, color: '#1F4E79', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
+              <span style={{ ...sans, fontSize: 13, color: '#1F4E79' }}>{drawingLoadingMsg}</span>
+              <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
+            </div>
+          ) : drawingPhase === 'confirming' && drawingExtracted ? (
+            <DrawingConfirmPanel
+              extracted={drawingExtracted}
+              pendingFloorArea={pendingFloorArea}
+              pendingNumFloors={pendingNumFloors}
+              pendingColumnGrid={pendingColumnGrid}
+              pendingConcreteGrade={pendingConcreteGrade}
+              pendingSteelGrade={pendingSteelGrade}
+              onChangePendingFloorArea={setPendingFloorArea}
+              onChangePendingNumFloors={setPendingNumFloors}
+              onChangePendingColumnGrid={setPendingColumnGrid}
+              onChangePendingConcreteGrade={setPendingConcreteGrade}
+              onChangePendingSteelGrade={setPendingSteelGrade}
+              onConfirm={handleConfirmDrawing}
+              onReject={handleRejectDrawing}
+            />
+          ) : drawingPhase === 'confirmed' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: 'rgba(20,83,45,0.06)', border: '1px solid rgba(20,83,45,0.2)', borderRadius: 4 }}>
+              <span style={{ color: '#14532D', fontSize: 14 }}>✓</span>
+              <p style={{ ...sans, fontSize: 13, color: '#14532D', fontWeight: 600 }}>Drawing values applied to floor area and floor count below.</p>
+              <button
+                type="button"
+                onClick={handleRejectDrawing}
+                style={{ ...mono, background: 'transparent', border: 'none', color: 'rgba(30,34,39,0.45)', fontSize: 10, cursor: 'pointer', marginLeft: 'auto', textDecoration: 'underline', textTransform: 'uppercase' }}
+              >
+                Reset
+              </button>
+            </div>
+          ) : null}
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div>
-            <label style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#1E2227', display: 'block', marginBottom: 6 }}>Approximate floor area (sqft) *</label>
+            <label style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#1E2227', display: 'block', marginBottom: 6 }}>
+              Approximate floor area (sqft) *
+              {drawingPhase === 'confirmed' && floorArea && (
+                <span style={{ ...mono, fontSize: 10, color: '#1F4E79', fontWeight: 400, marginLeft: 6 }}>from drawing</span>
+              )}
+            </label>
             <input type="number" value={floorArea} onChange={e => { setFloorArea(e.target.value); setErrors(prev => ({ ...prev, floorArea: '' })) }} placeholder="e.g. 1200" min={1} style={{ ...inputStyle(!!errors.floorArea), ...mono }} />
             {errors.floorArea && <p style={{ ...mono, fontSize: 10, color: '#8C3A22', marginTop: 4 }}>{errors.floorArea}</p>}
           </div>
           <div>
-            <label style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#1E2227', display: 'block', marginBottom: 6 }}>Number of floors *</label>
+            <label style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#1E2227', display: 'block', marginBottom: 6 }}>
+              Number of floors *
+              {drawingPhase === 'confirmed' && numFloors && (
+                <span style={{ ...mono, fontSize: 10, color: '#1F4E79', fontWeight: 400, marginLeft: 6 }}>from drawing</span>
+              )}
+            </label>
             <select value={numFloors} onChange={e => { setNumFloors(e.target.value); setErrors(prev => ({ ...prev, numFloors: '' })) }} style={{ ...inputStyle(!!errors.numFloors), appearance: 'auto', ...mono }}>
               <option value="">Select</option>
               <option value="1">G (Ground only)</option>
