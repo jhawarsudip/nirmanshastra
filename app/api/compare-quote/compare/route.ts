@@ -59,6 +59,7 @@ export interface ComparisonRow {
   differencePercent: number | null
   flagMessage:      string | null
   qtyComparison:    QuantityComparison | null
+  inlineCaveat:     string | null
 }
 
 export interface EngineTotal {
@@ -296,8 +297,9 @@ interface ISCodeEntry {
   amount:   number
   basis:    string
   clause:   string
-  isCodeQty?:  number
-  isCodeUnit?: string
+  isCodeQty?:   number
+  isCodeUnit?:  string
+  inlineCaveat?: string
 }
 
 type ISCodeMap = Partial<Record<Exclude<ItemCategory, null>, ISCodeEntry>>
@@ -306,10 +308,11 @@ function buildISCodeMap(
   scope: ComparisonScope,
   state: string,
   city: string,
-  floorArea: number,   // per-floor sqft
-  numFloorsTotal: number, // total floors including ground
+  floorArea: number,        // per-floor sqft
+  numFloorsTotal: number,   // total floors including ground
   extraction: ExtractionResult,
   assumptions: string[],
+  wallLengthFt: number | null,
 ): ISCodeMap {
   const txt = allText(extraction)
   const concreteGrade = detectConcreteGrade(txt)
@@ -379,40 +382,56 @@ function buildISCodeMap(
 
   // ── MasonPro ─────────────────────────────────────────────────────────────────
   if (scope.masonpro) {
-    const floorAreaSqm  = floorArea / 10.764
-    const side          = Math.sqrt(floorAreaSqm)
-    const perimeter     = 4 * side
-    const netPerFloor   = perimeter * 3.0 * 0.75   // 3m height, 25% opening deduction
-    const extWallSqm    = Math.round(netPerFloor * numFloorsTotal)
-    const intWallSqm    = Math.round(extWallSqm * 0.55)
-    const terraceSqft   = floorArea
+    const floorAreaSqm = floorArea / 10.764
+    let extWallSqm: number
+    let brickworkCaveat: string | null = null
 
+    if (wallLengthFt && wallLengthFt > 0) {
+      // Direct perimeter provided — convert ft → m, apply height + opening deduction
+      const perimeterM  = wallLengthFt / 3.281
+      const netPerFloor = perimeterM * 3.0 * 0.75   // 3m floor height, 25% openings
+      extWallSqm = Math.round(netPerFloor * numFloorsTotal)
+      assumptions.push(
+        `Masonry: external wall area derived from entered perimeter (${wallLengthFt} ft → ${Math.round(wallLengthFt / 3.281)} m), 3m floor height, 25% opening deduction → ${extWallSqm} sqm.`,
+      )
+    } else {
+      // Fallback: square-building assumption from floor area
+      const side        = Math.sqrt(floorAreaSqm)
+      const netPerFloor = 4 * side * 3.0 * 0.75   // square perimeter × height × net factor
+      extWallSqm = Math.round(netPerFloor * numFloorsTotal)
+      // Caveat goes inline on the brickwork comparison row, NOT in the general assumptions panel
+      brickworkCaveat = `Wall area estimated from floor area (square-building assumption: perimeter ≈ ${Math.round(4 * Math.sqrt(floorAreaSqm))} m). Could be 15–20% off for L-shaped or irregular buildings. Enter a measured exterior wall perimeter above for a more accurate comparison.`
+    }
+
+    const intWallSqm  = Math.round(extWallSqm * 0.55)
+    const terraceSqft = floorArea
     const bathroomCount = Math.max(1, Math.ceil(numFloorsTotal * 1.5))
 
     const masonInput: MasonInput = {
       state,
       city,
-      externalWallType:    wallType,
-      externalWallAreaSqm: extWallSqm,
-      includeInternal:     true,
-      internalWallType:    'clay_4_5',
-      internalWallAreaSqm: intWallSqm,
-      includePlaster:      true,
-      includeWaterproofing:true,
-      terraceAreaSqft:     terraceSqft,
+      externalWallType:     wallType,
+      externalWallAreaSqm:  extWallSqm,
+      includeInternal:      true,
+      internalWallType:     'clay_4_5',
+      internalWallAreaSqm:  intWallSqm,
+      includePlaster:       true,
+      includeWaterproofing: true,
+      terraceAreaSqft:      terraceSqft,
       bathroomCount,
-      terraceWpMethod:     'bbc',
-      bathroomWpMethod:    'cementitious',
-      numFloors:           numFloorsTotal,
+      terraceWpMethod:      'bbc',
+      bathroomWpMethod:     'cementitious',
+      numFloors:            numFloorsTotal,
     }
 
     try {
       const r = runMason(masonInput)
       map.brickwork = {
-        label:  `Brickwork — ${r.wallTypeComparison[0]?.label ?? wallType} (IS 1077:1992)`,
-        amount: r.costs.externalBrickworkMaterial + r.costs.internalPartitionMaterial,
-        basis:  `External ${extWallSqm} sqm + internal ${intWallSqm} sqm estimated from floor area using thumb rule (perimeter × height × 0.75 net factor). IS 1077:1992 + IS 2212:1991.`,
-        clause: 'IS 1077:1992 + IS 2212:1991',
+        label:        `Brickwork — ${r.wallTypeComparison[0]?.label ?? wallType} (IS 1077:1992)`,
+        amount:       r.costs.externalBrickworkMaterial + r.costs.internalPartitionMaterial,
+        basis:        `External ${extWallSqm} sqm + internal ${intWallSqm} sqm. IS 1077:1992 + IS 2212:1991.`,
+        clause:       'IS 1077:1992 + IS 2212:1991',
+        inlineCaveat: brickworkCaveat ?? undefined,
       }
       map.plaster = {
         label:  'Plastering — internal + external (IS 1661:1972)',
@@ -428,10 +447,6 @@ function buildISCodeMap(
           clause: 'IS 2645:2003',
         }
       }
-
-      assumptions.push(
-        `Masonry: wall area estimated (${extWallSqm} sqm external, ${intWallSqm} sqm internal) from floor area — thumb rule approximation. Actual wall area from drawings may differ.`,
-      )
     } catch {
       // Engine failed — skip masonry comparison
     }
@@ -626,6 +641,7 @@ function buildRows(
         differencePercent: null,
         flagMessage: `This item was detected in the contractor quote but NirmanShastra has no direct IS-code equivalent to compare against.`,
         qtyComparison: null,
+        inlineCaveat: null,
       })
       continue
     }
@@ -664,6 +680,7 @@ function buildRows(
         ? flagMessage(status, CATEGORY_LABEL[cat], contractorTotal, isEntry.amount)
         : null,
       qtyComparison: qtyCmp,
+      inlineCaveat: isEntry.inlineCaveat ?? null,
     })
   }
 
@@ -694,6 +711,7 @@ function buildRows(
         differencePercent: null,
         flagMessage: `This item is expected in the scope but was not found in the contractor's quote. IS-code calculation suggests ${isEntry.amount >= 100000 ? `₹${(isEntry.amount / 100000).toFixed(1)}L` : `₹${isEntry.amount.toLocaleString('en-IN')}`} — confirm whether it is excluded or absorbed into another line item.`,
         qtyComparison: null,
+        inlineCaveat: isEntry.inlineCaveat ?? null,
       })
     }
   }
@@ -722,6 +740,7 @@ function buildRows(
       differencePercent: null,
       flagMessage: 'No IS-code equivalent found for this item. Could not compare against calculated figures.',
       qtyComparison: null,
+      inlineCaveat: null,
     })
   }
 
@@ -747,6 +766,7 @@ function buildEngineTotals(
   floorArea: number,
   numFloorsTotal: number,
   extraction: ExtractionResult,
+  wallLengthFt: number | null,
 ): Partial<Record<keyof ComparisonScope, EngineTotal>> {
   const txt = allText(extraction)
   const concreteGrade = detectConcreteGrade(txt)
@@ -772,8 +792,20 @@ function buildEngineTotals(
 
   if (scope.masonpro) {
     const floorAreaSqm = floorArea / 10.764
-    const side = Math.sqrt(floorAreaSqm)
-    const extWallSqm = Math.round(4 * side * 3.0 * 0.75 * numFloorsTotal)
+    let extWallSqm: number
+    let wallAreaLabel: string
+
+    if (wallLengthFt && wallLengthFt > 0) {
+      const perimeterM  = wallLengthFt / 3.281
+      const netPerFloor = perimeterM * 3.0 * 0.75
+      extWallSqm    = Math.round(netPerFloor * numFloorsTotal)
+      wallAreaLabel = `${extWallSqm} sqm wall area (measured perimeter)`
+    } else {
+      const side    = Math.sqrt(floorAreaSqm)
+      extWallSqm    = Math.round(4 * side * 3.0 * 0.75 * numFloorsTotal)
+      wallAreaLabel = `~${extWallSqm} sqm wall area, estimated`
+    }
+
     const wallType = detectWallType(txt)
     try {
       const r = runMason({
@@ -791,7 +823,7 @@ function buildEngineTotals(
         bathroomWpMethod: 'cementitious',
       })
       result.masonpro = {
-        label: `Masonry, plastering & waterproofing (~${extWallSqm} sqm wall area, estimated)`,
+        label: `Masonry, plastering & waterproofing (${wallAreaLabel})`,
         calculated: { low: r.grandTotal.basic, high: r.grandTotal.premium },
         isCodeBasis: 'IS 1077:1992 + IS 2212:1991 + IS 1661:1972 + IS 2645:2003',
       }
@@ -866,7 +898,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as {
       extraction:  ExtractionResult
-      projectInfo: { city: string; state: string; floorArea: number; numFloors: number }
+      projectInfo: { city: string; state: string; floorArea: number; numFloors: number; wallLengthFt?: number | null }
       scope:       ComparisonScope
     }
 
@@ -876,7 +908,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const { city, state, floorArea, numFloors } = projectInfo
+    const { city, state, floorArea, numFloors, wallLengthFt = null } = projectInfo
 
     if (!state || !city || !floorArea || !numFloors) {
       return NextResponse.json({ error: 'Project info incomplete' }, { status: 400 })
@@ -890,9 +922,9 @@ export async function POST(req: NextRequest) {
       'All IS-code calculations are for MATERIALS ONLY. Labour, overhead, and contractor profit are excluded. Ask your contractor for a material-only split to compare like-for-like.',
     ]
 
-    const isCodeMap = buildISCodeMap(scope, state, city, floorArea, numFloors, extraction, assumptions)
-    const rows = buildRows(extraction, isCodeMap, scope)
-    const engineTotals = buildEngineTotals(scope, state, city, floorArea, numFloors, extraction)
+    const isCodeMap    = buildISCodeMap(scope, state, city, floorArea, numFloors, extraction, assumptions, wallLengthFt)
+    const rows         = buildRows(extraction, isCodeMap, scope)
+    const engineTotals = buildEngineTotals(scope, state, city, floorArea, numFloors, extraction, wallLengthFt)
 
     const result: ComparisonResult = { rows, assumptions, engineTotals }
 

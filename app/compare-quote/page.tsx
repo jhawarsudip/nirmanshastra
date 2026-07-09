@@ -9,11 +9,12 @@ import type { ComparisonScope, ComparisonResult, ComparisonRow, MatchStatus } fr
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ProjectInfo {
-  city:        string
-  state:       string
-  floorArea:   number | null
-  numFloors:   number | null
-  projectName: string | null
+  city:         string
+  state:        string
+  floorArea:    number | null
+  numFloors:    number | null
+  projectName:  string | null
+  wallLengthFt: number | null
 }
 
 type Step = 'project_pick' | 'new_project_form' | 'upload' | 'results'
@@ -121,11 +122,12 @@ function StepBar({ current }: { current: Step }) {
 // ─── Condensed new-project form ───────────────────────────────────────────────
 
 function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void }) {
-  const [state,     setState]     = useState('')
-  const [city,      setCity]      = useState('')
-  const [floorArea, setFloorArea] = useState('')
-  const [numFloors, setNumFloors] = useState('')
-  const [errors,    setErrors]    = useState<Record<string, string>>({})
+  const [state,         setState]         = useState('')
+  const [city,          setCity]          = useState('')
+  const [floorArea,     setFloorArea]     = useState('')
+  const [numFloors,     setNumFloors]     = useState('')
+  const [wallLengthFt,  setWallLengthFt]  = useState('')
+  const [errors,        setErrors]        = useState<Record<string, string>>({})
 
   const cities = state ? (STATE_CITIES[state] ?? []) : []
 
@@ -142,6 +144,8 @@ function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void })
     if (!floorArea.trim() || isNaN(Number(floorArea)) || Number(floorArea) <= 0)
                     e.floorArea = 'Enter a valid floor area'
     if (!numFloors) e.numFloors = 'Select number of floors'
+    if (wallLengthFt.trim() && (isNaN(Number(wallLengthFt)) || Number(wallLengthFt) <= 0))
+                    e.wallLengthFt = 'Enter a valid length, or leave blank'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -149,7 +153,8 @@ function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void })
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) return
-    onSubmit({ city, state, floorArea: Number(floorArea), numFloors: Number(numFloors), projectName: null })
+    const parsedWall = wallLengthFt.trim() ? Number(wallLengthFt) : null
+    onSubmit({ city, state, floorArea: Number(floorArea), numFloors: Number(numFloors), projectName: null, wallLengthFt: parsedWall })
   }
 
   return (
@@ -203,6 +208,30 @@ function NewProjectForm({ onSubmit }: { onSubmit: (info: ProjectInfo) => void })
             </select>
             {errors.numFloors && <p style={{ ...mono, fontSize: 10, color: '#8C3A22', marginTop: 4 }}>{errors.numFloors}</p>}
           </div>
+        </div>
+
+        {/* Optional wall-length field — improves masonry comparison accuracy */}
+        <div style={{ borderTop: '1px dashed rgba(30,34,39,0.15)', paddingTop: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
+            <label style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#1E2227' }}>
+              Total exterior wall length, if known (ft)
+            </label>
+            <span style={{ ...mono, fontSize: 10, color: '#14532D', background: 'rgba(20,83,45,0.08)', border: '1px solid rgba(20,83,45,0.2)', borderRadius: 2, padding: '1px 6px' }}>OPTIONAL</span>
+          </div>
+          <input
+            type="number"
+            value={wallLengthFt}
+            onChange={e => { setWallLengthFt(e.target.value); setErrors(prev => ({ ...prev, wallLengthFt: '' })) }}
+            placeholder="e.g. 160  — sum of all outer wall faces"
+            min={1}
+            style={{ ...inputStyle(!!errors.wallLengthFt), ...mono }}
+          />
+          {errors.wallLengthFt
+            ? <p style={{ ...mono, fontSize: 10, color: '#8C3A22', marginTop: 4 }}>{errors.wallLengthFt}</p>
+            : <p style={{ ...sans, fontSize: 12, color: 'rgba(30,34,39,0.45)', marginTop: 5, lineHeight: 1.5 }}>
+                Walk the perimeter and add up all outer wall faces. Used for masonry comparison only — skip if you don&rsquo;t know it.
+              </p>
+          }
         </div>
 
         <button type="submit" style={{ ...sans, background: '#8C3A22', color: '#F4F4F0', border: 'none', borderRadius: 6, padding: '14px 28px', fontSize: 15, fontWeight: 600, cursor: 'pointer', letterSpacing: '0.02em', marginTop: 8, alignSelf: 'flex-start' }}>
@@ -446,6 +475,11 @@ function ComparisonTable({ rows }: { rows: ComparisonRow[] }) {
               )}
               {row.isCodeLabel && row.status !== 'unverifiable' && (
                 <p style={{ ...mono, fontSize: 10, color: 'rgba(30,34,39,0.35)', marginTop: 4 }}>{row.isCodeClause}</p>
+              )}
+              {row.inlineCaveat && (
+                <div style={{ marginTop: 6, padding: '4px 8px', background: 'rgba(217,154,6,0.07)', border: '1px solid rgba(217,154,6,0.28)', borderRadius: 2 }}>
+                  <p style={{ ...mono, fontSize: 10, color: '#7a5800', lineHeight: 1.55 }}>⚠ {row.inlineCaveat}</p>
+                </div>
               )}
               {row.qtyComparison && (
                 <div style={{ marginTop: 5, padding: '5px 8px', background: 'rgba(31,78,121,0.04)', border: '1px solid rgba(31,78,121,0.12)', borderRadius: 3 }}>
@@ -890,11 +924,12 @@ export default function CompareQuotePage() {
   const handleProjectSelect = useCallback((project: SelectedProject | null) => {
     if (project) {
       setProjectInfo({
-        city:        project.city,
-        state:       project.state,
-        floorArea:   project.perFloorAreas ? project.perFloorAreas.reduce((a, b) => a + b, 0) / (project.numFloors ?? 1) : null,
-        numFloors:   project.numFloors,
-        projectName: project.projectName,
+        city:         project.city,
+        state:        project.state,
+        floorArea:    project.perFloorAreas ? project.perFloorAreas.reduce((a, b) => a + b, 0) / (project.numFloors ?? 1) : null,
+        numFloors:    project.numFloors,
+        projectName:  project.projectName,
+        wallLengthFt: null,
       })
       setStep('upload')
     } else {
@@ -932,10 +967,11 @@ export default function CompareQuotePage() {
         body:    JSON.stringify({
           extraction,
           projectInfo: {
-            city:      projectInfo.city,
-            state:     projectInfo.state,
-            floorArea: projectInfo.floorArea,
-            numFloors: projectInfo.numFloors,
+            city:         projectInfo.city,
+            state:        projectInfo.state,
+            floorArea:    projectInfo.floorArea,
+            numFloors:    projectInfo.numFloors,
+            wallLengthFt: projectInfo.wallLengthFt ?? null,
           },
           scope,
         }),
@@ -959,6 +995,7 @@ export default function CompareQuotePage() {
     setExtraction(null)
     setComparison(null)
     setScope({ structopro: false, masonpro: false, electropro: false, plumbpro: false, interiorpro: false })
+    setComparisonError('')
   }
 
   return (
