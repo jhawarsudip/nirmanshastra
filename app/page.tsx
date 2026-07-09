@@ -574,6 +574,7 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
       >
         <Link href={tool.href} style={{ textDecoration: 'none', display: 'block' }}>
           <article
+            className="tool-card-article"
             style={{
               border: `1px solid ${tool.free ? '#C9A84C' : 'rgba(30,34,39,0.75)'}`,
               padding: '32px',
@@ -651,10 +652,10 @@ function PillarCard({ pillar, delay = 0 }: { pillar: (typeof PILLARS)[0]; delay?
 
   return (
     <motion.div
-      initial={prefersReducedMotion ? false : { opacity: 0, y: 30, scale: 0.96 }}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 28, scale: 0.97 }}
       whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: prefersReducedMotion ? 0 : delay }}
+      viewport={{ once: true, margin: '-24px' }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: prefersReducedMotion ? 0 : delay }}
     >
       <div
         onMouseEnter={() => setIsHover(true)}
@@ -720,6 +721,7 @@ function ProblemCard({ problem, index }: { problem: (typeof PROBLEMS)[0]; index:
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: prefersReducedMotion ? 0 : index * 0.15 }}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
+      className="problem-card-mobile"
       style={{
         borderLeft: index === 0 ? `1px solid ${isHover ? 'rgba(31,78,121,0.45)' : 'rgba(244,244,240,0.1)'}` : 'none',
         borderRight: `1px solid ${isHover ? 'rgba(31,78,121,0.45)' : 'rgba(244,244,240,0.1)'}`,
@@ -851,7 +853,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               >
-                <h1 style={{
+                <h1 className="hero-h1-mobile" style={{
                   fontFamily: 'var(--font-fraunces)',
                   fontSize: 'clamp(56px, 8vw, 96px)',
                   fontWeight: 700,
@@ -900,8 +902,9 @@ export default function Home() {
 
               {/* Stats row — clean ink-bordered callout, no glass */}
               <motion.div
-                className="flex flex-wrap gap-10"
+                className="flex flex-wrap stats-row-mobile"
                 style={{
+                  gap: 40,
                   padding: '24px 28px',
                   background: 'rgba(244,244,240,0.04)',
                   border: '1px solid rgba(244,244,240,0.18)',
@@ -913,16 +916,26 @@ export default function Home() {
               >
                 {[['25', 'IS Codes'], ['6', 'Tools'], ['from ₹499', 'Per Report'], ['₹2,999', 'Bundle']].map(([val, label]) => (
                   <div key={label}>
-                    <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 500, color: '#F4F4F0', lineHeight: 1 }}>{val}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(36px, 8vw, 64px)', fontWeight: 500, color: '#F4F4F0', lineHeight: 1 }}>{val}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.55)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 }}>{label}</div>
                   </div>
                 ))}
               </motion.div>
+
+              {/* Mobile-only: Engineering TitleBlock below stats (desktop shows it in right column) */}
+              <motion.div
+                className="md:hidden"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut', delay: 0.65 }}
+              >
+                <TitleBlock />
+              </motion.div>
             </div>
 
-            {/* Right — Engineering title block + building elevation SVG */}
+            {/* Right — Engineering title block + building elevation SVG (desktop only) */}
             <motion.div
-              className="flex flex-col justify-center gap-8"
+              className="hidden md:flex flex-col justify-center gap-8"
               initial={prefersReducedMotion ? false : { opacity: 0, x: 60 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
@@ -1024,7 +1037,7 @@ export default function Home() {
                 }}
               >
               <Link href={VASTU_TOOL.href} style={{ textDecoration: 'none', display: 'block' }}>
-                <article style={{
+                <article className="vastu-featured-article" style={{
                   border: '1px solid #C9A84C',
                   padding: '40px 48px',
                   background: '#F4F4F0',
@@ -1095,6 +1108,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="bundle-strip-inner"
             style={{ border: '1px solid rgba(244,244,240,0.12)', padding: '28px 40px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}
           >
             <div>
@@ -1285,11 +1299,11 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.2, delay: i * 0.02 }}
+                transition={{ duration: 0.2, delay: i * 0.025 }}
                 style={{
                   fontFamily: 'var(--font-plex-mono)',
-                  fontSize: 13,
-                  padding: '7px 14px',
+                  fontSize: 12,
+                  padding: '7px 12px',
                   border: '1px solid rgba(244,244,240,0.35)',
                   color: '#F4F4F0',
                   letterSpacing: '0.04em',
@@ -1326,7 +1340,7 @@ export default function Home() {
         <div className="space-y-14">
           <SectionHeader clause="CL. 5.0 — PRICING · LAUNCH 2026" title={<>Simple, <span className="section-accent">report-by-report</span> pricing</>} />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+          <div className="pricing-grid grid grid-cols-1 md:grid-cols-3 gap-0">
 
             {/* Tier 1 — VastuPro FREE */}
             <motion.div
@@ -1503,7 +1517,7 @@ export default function Home() {
 
         {/* 4-column title-block grid — per Design Spec §5B */}
         <div
-          className="grid grid-cols-2 lg:grid-cols-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
           style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}
         >
           {/* Column 1: TOOLS */}

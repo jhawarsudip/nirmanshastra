@@ -180,14 +180,7 @@ body {
   animation: grandTotalPulse 1.4s ease-in-out 0.8s 1 both;
 }
 
-/* Disable gradient animations on mobile and for users who prefer reduced motion */
-@media (max-width: 767px) {
-  .hero-blob-1, .hero-blob-2, .hero-blob-3,
-  .results-blob-1, .results-blob-2 {
-    animation: none;
-  }
-}
-
+/* Disable gradient animations only for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .hero-blob-1, .hero-blob-2, .hero-blob-3,
   .results-blob-1, .results-blob-2,
@@ -456,5 +449,128 @@ footer :focus-visible {
   .footer-col-3d {
     transition: none;
     will-change: auto;
+  }
+}
+
+/* ── MOBILE MENU OVERLAY ──────────────────────────────────────────────────── */
+
+.mobile-overlay {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-overlay {
+    transition: none !important;
+  }
+}
+
+/* Content inside the open overlay fades+slides in after the container slides in */
+.mobile-overlay-content {
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 250ms ease 220ms, transform 250ms ease 220ms;
+  pointer-events: none;
+}
+
+.mobile-overlay-content.is-open {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-overlay-content,
+  .mobile-overlay-content.is-open {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── MOBILE TOOL-ROW TAP FEEDBACK ────────────────────────────────────────── */
+@media (hover: none) and (prefers-reduced-motion: no-preference) {
+  .mobile-tool-row:active {
+    background: rgba(244, 244, 240, 0.07);
+    transition: background 80ms ease-out;
+  }
+  .mobile-nav-link-row:active {
+    background: rgba(244, 244, 240, 0.06);
+    transition: background 80ms ease-out;
+  }
+}
+
+/* ── MOBILE TOOL CARD ENHANCEMENTS ───────────────────────────────────────── */
+@media (max-width: 639px) {
+  /* Standard paid tool cards — compact padding, left accent */
+  .tool-card-article {
+    min-height: 0 !important;
+    padding: 24px 20px !important;
+    border-left: 3px solid rgba(31, 78, 121, 0.55) !important;
+  }
+
+  /* VastuPro featured wide card — stack to column on mobile */
+  .vastu-featured-article {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 28px 24px !important;
+    gap: 20px !important;
+    min-height: 0 !important;
+    border-left: 3px solid rgba(201, 168, 76, 0.55) !important;
+  }
+
+  /* Bundle strip — stack vertically */
+  .bundle-strip-inner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    padding: 24px 20px !important;
+  }
+
+  /* Pricing grid — add top gap between stacked cards */
+  .pricing-grid {
+    gap: 1px !important;
+  }
+  .pricing-grid > * {
+    border-right: 1px solid rgba(30, 34, 39, 0.25) !important;
+    border-left: 1px solid rgba(30, 34, 39, 0.25) !important;
+  }
+}
+
+/* ── MOBILE TAP FEEDBACK — btn-3d and tool cards ─────────────────────────── */
+@media (hover: none) and (prefers-reduced-motion: no-preference) {
+  .btn-3d:active {
+    transform: scale(0.97) !important;
+    transition-duration: 80ms !important;
+  }
+  .tool-card-article:active {
+    transform: scale(0.985) !important;
+    transition: transform 100ms ease-out !important;
+  }
+}
+
+/* ── MOBILE HERO H1 — full width boost ───────────────────────────────────── */
+@media (max-width: 767px) {
+  .hero-h1-mobile {
+    font-size: clamp(52px, 14vw, 80px) !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.0 !important;
+  }
+}
+
+/* ── MOBILE SECTION SPACING ──────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Problem cards — reduce large padding */
+  .problem-card-mobile {
+    padding: 32px 24px !important;
+  }
+  /* Tool section suite divider badges — wrap gracefully */
+  .suite-badge-row {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+  /* Stats row — tighter on narrow screens */
+  .stats-row-mobile {
+    gap: 6vw !important;
+    padding: 20px 20px !important;
   }
 }
