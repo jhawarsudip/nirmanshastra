@@ -548,6 +548,39 @@ footer :focus-visible {
   }
 }
 
+/* ── ANNOUNCEMENT BAR MARQUEE ─────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.announcement-bar {
+  overflow: hidden;
+  padding: 7px 0;
+}
+
+.marquee-inner {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-inner {
+    animation: none;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    width: 100%;
+  }
+  .marquee-text-dupe {
+    display: none;
+  }
+}
+
 /* ── MOBILE HERO H1 — full width boost ───────────────────────────────────── */
 @media (max-width: 767px) {
   .hero-h1-mobile {

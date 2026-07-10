@@ -110,10 +110,19 @@ export default function RootLayout({
         className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} antialiased`}
       >
         {/* Announcement bar */}
-        <div style={{ background: '#1F4E79', border: 'none', borderTop: 'none', borderBottom: 'none', outline: 'none', boxShadow: 'none' }}>
-          <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: '#ffffff', letterSpacing: '0.02em', textAlign: 'center', padding: '14px 24px', fontWeight: 500, margin: 0, border: 'none', outline: 'none', boxShadow: 'none' }}>
-            NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
-          </p>
+        <div
+          className="announcement-bar"
+          style={{ background: '#1F4E79', border: 'none', outline: 'none', boxShadow: 'none' }}
+          aria-label="NirmanShastra — India's first IS-code construction cost estimation and professional BOQ generation platform"
+        >
+          <div className="marquee-inner">
+            <span style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: '#ffffff', letterSpacing: '0.02em', fontWeight: 500, paddingRight: '6rem' }}>
+              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+            </span>
+            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: '#ffffff', letterSpacing: '0.02em', fontWeight: 500, paddingRight: '6rem' }}>
+              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+            </span>
+          </div>
         </div>
         <Navbar />
         {children}
