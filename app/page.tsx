@@ -743,7 +743,7 @@ export default function Home() {
       {/* ── WHY NIRMANSHASTRA ──────────────────────────────────────────── */}
       <section className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
-          <SectionHeader title="Why NirmanShastra" />
+          <SectionHeader title={<>Why NirmanShastra<span style={{ color: GOLD }}>?</span></>} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PILLARS.map((pillar, i) => (
               <PillarCard key={pillar.title} pillar={pillar} delay={i * 0.08} />
@@ -898,7 +898,7 @@ export default function Home() {
       {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
       <section id="how-it-works" className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
-          <SectionHeader title={<>How NirmanShastra <span className="section-accent">works</span></>} />
+          <SectionHeader title={<>How NirmanShastra <span className="section-accent">works</span><span style={{ color: GOLD }}>?</span></>} />
 
           <motion.div
             initial={prefersReducedMotion ? false : { scaleX: 0 }}
@@ -944,7 +944,7 @@ export default function Home() {
       {/* ── COMPARISON TABLE ─────────────────────────────────────────── */}
       <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: BG }}>
         <div className="space-y-10">
-          <SectionHeader title={<>Why NirmanShastra <span className="section-accent">beats</span> free calculators</>} />
+          <SectionHeader title={<>Why NirmanShastra <span className="section-accent">beats</span> free calculators<span style={{ color: GOLD }}>?</span></>} />
           <p style={{ fontFamily: FI, fontSize: 16, color: TS, lineHeight: 1.65, maxWidth: 680 }}>
             Free online calculators steal your phone number and sell it to contractors. Here&apos;s what you actually get.
           </p>
