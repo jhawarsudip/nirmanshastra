@@ -139,6 +139,18 @@ export default function RootLayout({
             <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
               NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
             </span>
+            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
+              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+            </span>
+            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
+              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+            </span>
+            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
+              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+            </span>
+            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
+              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+            </span>
           </div>
         </div>
         <Navbar />
