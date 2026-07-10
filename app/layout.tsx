@@ -6,6 +6,8 @@ import {
   IBM_Plex_Sans_Devanagari,
   Fraunces,
   Public_Sans,
+  Inter,
+  Playfair_Display,
 } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar"
@@ -50,6 +52,20 @@ const publicSans = Public_Sans({
   variable: "--font-public-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["700"],
   display: "swap",
 });
 
@@ -107,12 +123,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} antialiased`}
+        className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} ${inter.variable} ${playfair.variable} antialiased`}
       >
         {/* Announcement bar */}
         <div
           className="announcement-bar"
-          style={{ background: '#1F4E79', border: 'none', outline: 'none', boxShadow: 'none' }}
+          style={{ background: '#000000', border: 'none', borderBottom: '1px solid rgba(212,175,55,0.2)', outline: 'none', boxShadow: 'none' }}
           aria-label="NirmanShastra — India's first IS-code construction cost estimation and professional BOQ generation platform"
         >
           <div className="marquee-inner">

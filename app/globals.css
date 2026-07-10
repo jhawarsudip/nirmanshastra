@@ -1,7 +1,14 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Brand colours */
+  /* Brand colours — NEW dark palette */
+  --color-dark-bg: #0A0A0A;
+  --color-true-black: #000000;
+  --color-primary-gold: #D4AF37;
+  --color-heading: #FFFFFF;
+  --color-body: #B3B3B3;
+
+  /* Legacy tokens — kept for tool pages (not homepage) */
   --color-sheet-white: #F4F4F0;
   --color-iron-ink: #1E2227;
   --color-blueprint: #1F4E79;
@@ -18,18 +25,16 @@
 }
 
 body {
-  background-color: #F4F4F0;
-  color: #1E2227;
-  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  background-color: #0A0A0A;
+  color: #B3B3B3;
+  font-family: var(--font-inter), var(--font-plex-sans), system-ui, sans-serif;
   line-height: 1.7;
 }
 
-/* Sheet frame — 1px Iron Ink border on the left and right edges of the
-   main content area (below navbar). No fixed overlay so it never crosses
-   the announcement bar or navbar. */
+/* Sheet frame — precision gold border on left and right */
 .sheet-frame {
-  border-left: 1px solid #1E2227;
-  border-right: 1px solid #1E2227;
+  border-left: 1px solid rgba(212,175,55,0.15);
+  border-right: 1px solid rgba(212,175,55,0.15);
 }
 
 @media (max-width: 767px) {
@@ -39,11 +44,11 @@ body {
   }
 }
 
-/* Grid-paper texture for alternating sections */
+/* Grid-paper texture — subtle gold grid for dark backgrounds */
 .grid-paper {
   background-image:
-    linear-gradient(rgba(30, 34, 39, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 34, 39, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(212, 175, 55, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 175, 55, 0.04) 1px, transparent 1px);
   background-size: 8px 8px;
 }
 
@@ -114,7 +119,7 @@ body {
   height: 65%;
   top: -15%;
   left: -20%;
-  background: radial-gradient(ellipse at center, rgba(31,78,121,0.22) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(212,175,55,0.06) 0%, transparent 70%);
   animation: blobFloat1 20s ease-in-out infinite;
   pointer-events: none;
   will-change: transform;
@@ -126,7 +131,7 @@ body {
   height: 55%;
   bottom: -15%;
   right: -15%;
-  background: radial-gradient(ellipse at center, rgba(31,78,121,0.16) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(212,175,55,0.04) 0%, transparent 70%);
   animation: blobFloat2 22s ease-in-out infinite;
   pointer-events: none;
   will-change: transform;
@@ -138,7 +143,7 @@ body {
   height: 45%;
   top: 25%;
   right: 20%;
-  background: radial-gradient(ellipse at center, rgba(201,168,76,0.07) 0%, transparent 65%);
+  background: radial-gradient(ellipse at center, rgba(212,175,55,0.03) 0%, transparent 65%);
   animation: blobFloat3 18s ease-in-out infinite;
   pointer-events: none;
   will-change: transform;
@@ -151,7 +156,7 @@ body {
   height: 120%;
   top: -10%;
   left: -20%;
-  background: radial-gradient(ellipse at center, rgba(31,78,121,0.20) 0%, transparent 65%);
+  background: radial-gradient(ellipse at center, rgba(212,175,55,0.06) 0%, transparent 65%);
   animation: blobFloat1 20s ease-in-out infinite;
   pointer-events: none;
   will-change: transform;
@@ -163,7 +168,7 @@ body {
   height: 110%;
   top: -5%;
   right: -15%;
-  background: radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 65%);
+  background: radial-gradient(ellipse at center, rgba(212,175,55,0.04) 0%, transparent 65%);
   animation: blobFloat2 22s ease-in-out infinite;
   pointer-events: none;
   will-change: transform;
@@ -190,10 +195,9 @@ body {
 }
 
 /* ── FOOTER LINK HOVER ───────────────────────────────────────────────────── */
-/* Color comes from CSS so hover overrides it — cannot override inline styles */
 .footer-link {
   position: relative;
-  color: rgba(244, 244, 240, 0.62);
+  color: rgba(179, 179, 179, 0.62);
   transition: color 200ms ease;
 }
 .footer-link::after {
@@ -203,14 +207,14 @@ body {
   bottom: -2px;
   width: 100%;
   height: 1px;
-  background: rgba(244, 244, 240, 0.45);
+  background: rgba(212, 175, 55, 0.45);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 200ms ease;
   will-change: transform;
 }
 .footer-link:hover {
-  color: #F4F4F0;
+  color: #FFFFFF;
 }
 .footer-link:hover::after {
   transform: scaleX(1);
@@ -225,13 +229,13 @@ body {
 
 /* Navbar CTA hover */
 .btn-get-started:hover {
-  box-shadow: 0 0 35px rgba(140,58,34,0.7) !important;
+  box-shadow: 0 0 35px rgba(212,175,55,0.5) !important;
   transform: scale(1.02) !important;
 }
 
 /* Primary CTA button hover */
 .btn-primary:hover {
-  box-shadow: 0 0 40px rgba(140,58,34,0.65) !important;
+  box-shadow: 0 0 40px rgba(212,175,55,0.45) !important;
   transform: translateY(-2px) scale(1.02) !important;
 }
 
@@ -267,15 +271,14 @@ body {
 }
 
 /* ── FOCUS VISIBILITY ─────────────────────────────────────────────────────── */
-/* Explicit focus rings: Blueprint on light, Sheet White on dark surfaces */
 :focus-visible {
-  outline: 2px solid #1F4E79;
+  outline: 2px solid #D4AF37;
   outline-offset: 3px;
   border-radius: 2px;
 }
 nav :focus-visible,
 footer :focus-visible {
-  outline-color: rgba(244, 244, 240, 0.7);
+  outline-color: rgba(212, 175, 55, 0.7);
 }
 
 /* ── NAVBAR TOOLS DROPDOWN — CSS 3D perspective-tilt reveal ─────────────── */
@@ -304,16 +307,13 @@ footer :focus-visible {
   }
 }
 
-/* ── HERO ACCENT — italic Fraunces highlight + Blueprint underline draw ────── */
-/* Applied to 1–2 key words in the hero h1 only. */
+/* ── HERO ACCENT — italic highlight + gold underline draw ──────────────── */
 .hero-accent {
   font-style: italic;
   display: inline-block;
   position: relative;
 }
 
-/* Underline draws left-to-right 800ms after page load (after hero entrance) */
-/* Stamp Oxide (#8C3A22) not Blueprint — Blueprint is near-invisible on Iron Ink dark hero */
 .hero-accent::after {
   content: '';
   position: absolute;
@@ -321,7 +321,7 @@ footer :focus-visible {
   left: 0;
   width: 100%;
   height: 3px;
-  background: #8C3A22;
+  background: #D4AF37;
   transform: scaleX(0);
   transform-origin: left center;
   animation: accentUnderlineDraw 700ms cubic-bezier(0.16, 1, 0.3, 1) 800ms forwards;
@@ -332,7 +332,6 @@ footer :focus-visible {
   to { transform: scaleX(1); }
 }
 
-/* Desktop hover — subtle CSS 3D perspective tilt (GPU-accelerated, no reflow) */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .hero-accent {
     transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -342,7 +341,6 @@ footer :focus-visible {
   }
 }
 
-/* Reduced-motion: show underline immediately, no 3D */
 @media (prefers-reduced-motion: reduce) {
   .hero-accent::after {
     animation: none;
@@ -353,9 +351,7 @@ footer :focus-visible {
   }
 }
 
-/* ── SECTION ACCENT — italic Fraunces on 1–2 words per major section h2 ───── */
-/* Blueprint underline is always-visible (not time-animated) because these spans
-   may be off-screen on load — unlike hero-accent which is always above the fold. */
+/* ── SECTION ACCENT — gold underline on key words in section h2 ─────────── */
 .section-accent {
   font-style: italic;
   display: inline-block;
@@ -369,7 +365,7 @@ footer :focus-visible {
   left: 0;
   width: 100%;
   height: 2px;
-  background: #1F4E79;
+  background: #D4AF37;
 }
 
 /* ── NAV LINK HOVER ───────────────────────────────────────────────────────── */
@@ -384,13 +380,13 @@ footer :focus-visible {
   bottom: -3px;
   width: 100%;
   height: 1px;
-  background: rgba(244, 244, 240, 0.55);
+  background: rgba(212, 175, 55, 0.55);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 180ms ease;
   will-change: transform;
 }
-.nav-link:hover { color: rgba(244, 244, 240, 0.95) !important; }
+.nav-link:hover { color: rgba(212, 175, 55, 0.95) !important; }
 .nav-link:hover::after { transform: scaleX(1); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -398,10 +394,7 @@ footer :focus-visible {
   .nav-link::after { transition: none; }
 }
 
-/* ── BUTTON 3D — hover lift + active press depth ────────────────────────────
-   Applied to all primary/secondary CTA Link elements on the homepage.
-   GPU-only: only transform and box-shadow animate (no width/height/layout).
-   prefers-reduced-motion: transitions fully disabled. */
+/* ── BUTTON 3D — hover lift + active press depth ─────────────────────────── */
 .btn-3d {
   display: inline-block;
   will-change: transform;
@@ -412,11 +405,11 @@ footer :focus-visible {
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .btn-3d:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(30, 34, 39, 0.24), 0 2px 8px rgba(30, 34, 39, 0.14) !important;
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2), 0 2px 8px rgba(0,0,0,0.3) !important;
   }
   .btn-3d:active {
     transform: perspective(600px) rotateX(5deg) scale(0.97);
-    box-shadow: 0 1px 4px rgba(30, 34, 39, 0.12) !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
     transition-duration: 80ms;
   }
 }
@@ -428,10 +421,7 @@ footer :focus-visible {
   }
 }
 
-/* ── FOOTER COLUMN 3D LIFT ───────────────────────────────────────────────────
-   Applies a depth-lift to the TOOLS / COMPANY / LEGAL column containers.
-   Consistent with the button hover treatment above.
-   On dark footer background, a Blueprint-tinted ring conveys elevation. */
+/* ── FOOTER COLUMN 3D LIFT ─────────────────────────────────────────────────── */
 .footer-col-3d {
   will-change: transform;
   transition: transform 220ms ease-out, box-shadow 220ms ease-out;
@@ -440,8 +430,8 @@ footer :focus-visible {
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .footer-col-3d:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(10, 12, 14, 0.45),
-                0 0 0 1px rgba(31, 78, 121, 0.22);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6),
+                0 0 0 1px rgba(212, 175, 55, 0.2);
   }
 }
 
@@ -464,7 +454,6 @@ footer :focus-visible {
   }
 }
 
-/* Content inside the open overlay fades+slides in after the container slides in */
 .mobile-overlay-content {
   opacity: 0;
   transform: translateX(10px);
@@ -490,25 +479,23 @@ footer :focus-visible {
 /* ── MOBILE TOOL-ROW TAP FEEDBACK ────────────────────────────────────────── */
 @media (hover: none) and (prefers-reduced-motion: no-preference) {
   .mobile-tool-row:active {
-    background: rgba(244, 244, 240, 0.07);
+    background: rgba(212, 175, 55, 0.06);
     transition: background 80ms ease-out;
   }
   .mobile-nav-link-row:active {
-    background: rgba(244, 244, 240, 0.06);
+    background: rgba(212, 175, 55, 0.04);
     transition: background 80ms ease-out;
   }
 }
 
 /* ── MOBILE TOOL CARD ENHANCEMENTS ───────────────────────────────────────── */
 @media (max-width: 639px) {
-  /* Standard paid tool cards — compact padding, left accent */
   .tool-card-article {
     min-height: 0 !important;
     padding: 24px 20px !important;
-    border-left: 3px solid rgba(31, 78, 121, 0.55) !important;
+    border-left: 3px solid rgba(212, 175, 55, 0.55) !important;
   }
 
-  /* VastuPro featured wide card — stack to column on mobile */
   .vastu-featured-article {
     flex-direction: column !important;
     align-items: flex-start !important;
@@ -518,7 +505,6 @@ footer :focus-visible {
     border-left: 3px solid rgba(201, 168, 76, 0.55) !important;
   }
 
-  /* Bundle strip — stack vertically */
   .bundle-strip-inner {
     flex-direction: column !important;
     align-items: flex-start !important;
@@ -526,13 +512,12 @@ footer :focus-visible {
     padding: 24px 20px !important;
   }
 
-  /* Pricing grid — add top gap between stacked cards */
   .pricing-grid {
     gap: 1px !important;
   }
   .pricing-grid > * {
-    border-right: 1px solid rgba(30, 34, 39, 0.25) !important;
-    border-left: 1px solid rgba(30, 34, 39, 0.25) !important;
+    border-right: 1px solid rgba(212, 175, 55, 0.2) !important;
+    border-left: 1px solid rgba(212, 175, 55, 0.2) !important;
   }
 }
 
@@ -592,16 +577,13 @@ footer :focus-visible {
 
 /* ── MOBILE SECTION SPACING ──────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  /* Problem cards — reduce large padding */
   .problem-card-mobile {
     padding: 32px 24px !important;
   }
-  /* Tool section suite divider badges — wrap gracefully */
   .suite-badge-row {
     flex-wrap: wrap !important;
     justify-content: center !important;
   }
-  /* Stats row — tighter on narrow screens */
   .stats-row-mobile {
     gap: 6vw !important;
     padding: 20px 20px !important;
