@@ -17,19 +17,29 @@
   --font-devanagari: var(--font-plex-devanagari);
 }
 
+/* ── MATTE DARK-MODE DESIGN TOKENS (homepage) ────────────────────────────── */
+:root {
+  --bg-base: #0A0A0A;
+  --bg-surface: #171717;
+  --accent-gold: #C5A059;
+  --text-primary: #FFFFFF;
+  --text-secondary: #A3A3A3;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-active: #C5A059;
+  --vastu-gold: #C9A84C;
+}
+
 body {
-  background-color: #F4F4F0;
-  color: #1E2227;
-  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-inter), var(--font-plex-sans), system-ui, sans-serif;
   line-height: 1.7;
 }
 
-/* Sheet frame — 1px Iron Ink border on the left and right edges of the
-   main content area (below navbar). No fixed overlay so it never crosses
-   the announcement bar or navbar. */
+/* Sheet frame — subtle border on edges, dark-mode version */
 .sheet-frame {
-  border-left: 1px solid #1E2227;
-  border-right: 1px solid #1E2227;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 @media (max-width: 767px) {
@@ -39,11 +49,11 @@ body {
   }
 }
 
-/* Grid-paper texture for alternating sections */
+/* Grid-paper texture for alternating sections — white lines on dark bg */
 .grid-paper {
   background-image:
-    linear-gradient(rgba(30, 34, 39, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 34, 39, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 8px 8px;
 }
 
@@ -225,13 +235,13 @@ body {
 
 /* Navbar CTA hover */
 .btn-get-started:hover {
-  box-shadow: 0 0 35px rgba(140,58,34,0.7) !important;
+  box-shadow: 0 0 28px rgba(197,160,89,0.5) !important;
   transform: scale(1.02) !important;
 }
 
 /* Primary CTA button hover */
 .btn-primary:hover {
-  box-shadow: 0 0 40px rgba(140,58,34,0.65) !important;
+  box-shadow: 0 0 32px rgba(197,160,89,0.45) !important;
   transform: translateY(-2px) scale(1.02) !important;
 }
 
@@ -304,7 +314,7 @@ footer :focus-visible {
   }
 }
 
-/* ── HERO ACCENT — italic Fraunces highlight + Blueprint underline draw ────── */
+/* ── HERO ACCENT — italic highlight + gold underline draw ─────────────────── */
 /* Applied to 1–2 key words in the hero h1 only. */
 .hero-accent {
   font-style: italic;
@@ -312,8 +322,6 @@ footer :focus-visible {
   position: relative;
 }
 
-/* Underline draws left-to-right 800ms after page load (after hero entrance) */
-/* Stamp Oxide (#8C3A22) not Blueprint — Blueprint is near-invisible on Iron Ink dark hero */
 .hero-accent::after {
   content: '';
   position: absolute;
@@ -321,7 +329,7 @@ footer :focus-visible {
   left: 0;
   width: 100%;
   height: 3px;
-  background: #8C3A22;
+  background: var(--accent-gold);
   transform: scaleX(0);
   transform-origin: left center;
   animation: accentUnderlineDraw 700ms cubic-bezier(0.16, 1, 0.3, 1) 800ms forwards;
@@ -353,9 +361,8 @@ footer :focus-visible {
   }
 }
 
-/* ── SECTION ACCENT — italic Fraunces on 1–2 words per major section h2 ───── */
-/* Blueprint underline is always-visible (not time-animated) because these spans
-   may be off-screen on load — unlike hero-accent which is always above the fold. */
+/* ── SECTION ACCENT — italic emphasis on 1–2 words per major section h2 ────── */
+/* Gold underline always-visible (not time-animated): spans may be off-screen on load */
 .section-accent {
   font-style: italic;
   display: inline-block;
@@ -369,7 +376,7 @@ footer :focus-visible {
   left: 0;
   width: 100%;
   height: 2px;
-  background: #1F4E79;
+  background: var(--accent-gold);
 }
 
 /* ── NAV LINK HOVER ───────────────────────────────────────────────────────── */

@@ -6,6 +6,8 @@ import {
   IBM_Plex_Sans_Devanagari,
   Fraunces,
   Public_Sans,
+  Playfair_Display,
+  Inter,
 } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar"
@@ -48,6 +50,21 @@ const fraunces = Fraunces({
 
 const publicSans = Public_Sans({
   variable: "--font-public-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
@@ -107,19 +124,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} antialiased`}
+        className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} ${playfair.variable} ${inter.variable} antialiased`}
       >
         {/* Announcement bar */}
         <div
           className="announcement-bar"
-          style={{ background: '#1F4E79', border: 'none', outline: 'none', boxShadow: 'none' }}
+          style={{ background: '#111111', borderBottom: '1px solid rgba(255,255,255,0.06)', outline: 'none', boxShadow: 'none' }}
           aria-label="NirmanShastra — India's first IS-code construction cost estimation and professional BOQ generation platform"
         >
           <div className="marquee-inner">
-            <span style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: '#ffffff', letterSpacing: '0.02em', fontWeight: 500, paddingRight: '6rem' }}>
+            <span style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
               NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
             </span>
-            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: '#ffffff', letterSpacing: '0.02em', fontWeight: 500, paddingRight: '6rem' }}>
+            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
               NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
             </span>
           </div>
