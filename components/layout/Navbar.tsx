@@ -55,8 +55,8 @@ function AdminModal({ onClose }: { onClose: () => void }) {
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background:    '#1E2227',
-          border:        '1px solid rgba(244,244,240,0.15)',
+          background:    'var(--bg-surface)',
+          border:        '1px solid rgba(255,255,255,0.12)',
           padding:       '32px',
           width:         320,
           transform:     shake ? 'translateX(6px)' : 'none',
@@ -232,8 +232,8 @@ export default function Navbar() {
     <>
     <nav
       style={{
-        background: '#1E2227',
-        borderBottom: '1px solid rgba(244,244,240,0.08)',
+        background: 'var(--bg-surface)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
         minHeight: 52,
         position: 'sticky',
         top: 0,
@@ -278,8 +278,8 @@ export default function Navbar() {
           {toolsOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
             <div className="dropdown-3d" style={{
-              background: '#1E2227',
-              border: '1px solid rgba(244,244,240,0.12)',
+              background: 'var(--bg-surface)',
+              border: '1px solid rgba(255,255,255,0.10)',
               minWidth: 300,
             }}>
               <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
@@ -292,11 +292,12 @@ export default function Navbar() {
                   key={t.name}
                   href={t.href}
                   onClick={() => setToolsOpen(false)}
+                  className="nav-dropdown-item"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', textDecoration: 'none', gap: 10 }}
                 >
                   <div style={{ width: 20, height: 20, flexShrink: 0, opacity: 0.85 }}>{PHASE_ICONS[t.phase]}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                    <div className="nav-dropdown-name" style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
                   </div>
                   <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#14532D', border: '1px solid #14532D', letterSpacing: '0.04em', flexShrink: 0 }}>FREE</span>
@@ -311,11 +312,12 @@ export default function Navbar() {
                   key={t.name}
                   href={t.href}
                   onClick={() => setToolsOpen(false)}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', borderTop: i > 0 ? '1px solid rgba(244,244,240,0.06)' : undefined, textDecoration: 'none', gap: 10 }}
+                  className="nav-dropdown-item"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined, textDecoration: 'none', gap: 10 }}
                 >
                   <div style={{ width: 20, height: 20, flexShrink: 0, opacity: 0.85 }}>{PHASE_ICONS[t.phase]}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                    <div className="nav-dropdown-name" style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
                   </div>
                   <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#1F4E79', border: '1px solid #1F4E79', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
@@ -330,10 +332,11 @@ export default function Navbar() {
                   key={t.name}
                   href={t.href}
                   onClick={() => setToolsOpen(false)}
+                  className="nav-dropdown-item"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', textDecoration: 'none', gap: 10 }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                    <div className="nav-dropdown-name" style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
                   </div>
                   <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#8C3A22', border: '1px solid #8C3A22', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
@@ -460,7 +463,7 @@ export default function Navbar() {
         position: 'fixed',
         inset: 0,
         zIndex: 49,
-        background: '#1E2227',
+        background: 'var(--bg-surface)',
         transform: mobileOpen ? 'translateX(0)' : 'translateX(100%)',
         transition: 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1)',
         overflowY: 'auto',

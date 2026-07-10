@@ -15,14 +15,14 @@ const SEVERITY_COLOUR: Record<Severity, string> = {
   CRITICAL: '#8C3A22',
   MODERATE: '#D99A06',
   POSITIVE: '#14532D',
-  NEUTRAL: 'rgba(30,34,39,0.45)',
+  NEUTRAL: 'rgba(255,255,255,0.40)',
 }
 
 const SEVERITY_BG: Record<Severity, string> = {
   CRITICAL: 'rgba(140,58,34,0.06)',
   MODERATE: 'rgba(217,154,6,0.06)',
   POSITIVE: 'rgba(20,83,45,0.06)',
-  NEUTRAL: 'rgba(30,34,39,0.03)',
+  NEUTRAL: 'rgba(255,255,255,0.02)',
 }
 
 function SeverityStamp({ severity }: { severity: Severity }) {
@@ -60,7 +60,7 @@ function FindingCard({ finding }: { finding: VastuFinding }) {
       className="rounded-[2px] p-4"
       style={{
         background: SEVERITY_BG[finding.severity],
-        border: `1px solid rgba(30,34,39,0.08)`,
+        border: `1px solid rgba(255,255,255,0.08)`,
         borderLeft: `3px solid ${borderColour}`,
       }}
     >
@@ -69,38 +69,38 @@ function FindingCard({ finding }: { finding: VastuFinding }) {
       </div>
       <p
         className="text-[15px] font-semibold"
-        style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}
+        style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}
       >
         {finding.roomLabel}
       </p>
       <p
         className="text-[12px] mb-2"
-        style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}
+        style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}
       >
         {finding.zoneFull} Zone · {finding.zoneName}
       </p>
       <p
         className="text-[13px] leading-relaxed mb-3"
-        style={{ color: 'rgba(30,34,39,0.72)', fontFamily: 'var(--font-plex-sans)' }}
+        style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-plex-sans)' }}
       >
         {finding.impact}
       </p>
       <div
         className="rounded-[2px] px-3 py-2.5"
-        style={{ background: 'rgba(30,34,39,0.04)', border: '1px dashed rgba(30,34,39,0.14)' }}
+        style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.10)' }}
       >
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.3)' }}>🔒</span>
+          <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.28)' }}>🔒</span>
           <p
             className="text-[10px] uppercase tracking-widest"
-            style={{ color: 'rgba(30,34,39,0.38)', fontFamily: 'var(--font-plex-mono)' }}
+            style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}
           >
             In Your Free PDF Report
           </p>
         </div>
         <p
           className="text-[11px]"
-          style={{ color: 'rgba(30,34,39,0.38)', fontFamily: 'var(--font-plex-sans)' }}
+          style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}
         >
           Technical remedy · Actionable remedy · Do&apos;s · Don&apos;ts
         </p>
@@ -122,11 +122,11 @@ export default function AnalysisResults({
     score >= 70 ? '#14532D' : score >= 40 ? '#D99A06' : '#8C3A22'
 
   return (
-    <div className="min-h-screen bg-sheet-white">
+    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
       {/* Header */}
       <div
         className="px-4 py-4"
-        style={{ background: '#1E2227', borderBottom: '1px solid rgba(201,168,76,0.2)' }}
+        style={{ background: 'var(--bg-surface)', borderBottom: '1px solid rgba(201,168,76,0.2)' }}
       >
         <div className="flex items-center justify-between gap-4 px-6 md:px-16 lg:px-24">
           <div>
@@ -162,7 +162,7 @@ export default function AnalysisResults({
         {/* Score card */}
         <div
           className="rounded-[2px] p-5 mb-6"
-          style={{ background: '#1E2227', border: '1px solid rgba(201,168,76,0.3)' }}
+          style={{ background: 'var(--bg-surface)', border: '1px solid rgba(201,168,76,0.3)' }}
         >
           <div className="flex items-center gap-6">
             {/* Score circle */}
@@ -243,7 +243,7 @@ export default function AnalysisResults({
         <div className="mb-6">
           <p
             className="text-[10px] uppercase tracking-widest mb-3"
-            style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}
+            style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}
           >
             ROOM-BY-ROOM FINDINGS
           </p>
@@ -264,13 +264,13 @@ export default function AnalysisResults({
             <div>
               <p
                 className="text-[14px] font-semibold mb-1"
-                style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}
+                style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)' }}
               >
                 Your Free VastuPro PDF Report
               </p>
               <p
                 className="text-[12px] mb-3 leading-relaxed"
-                style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}
+                style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}
               >
                 6 pages: full Vastu Mandala diagram, technical remedies, actionable remedies,
                 Do&apos;s &amp; Don&apos;ts for every room, general Vastu guidelines, and a priority action table.
@@ -283,7 +283,7 @@ export default function AnalysisResults({
               </button>
               <p
                 className="text-[10px] mt-2"
-                style={{ color: 'rgba(30,34,39,0.38)', fontFamily: 'var(--font-plex-mono)' }}
+                style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}
               >
                 Free forever · No payment required
               </p>
@@ -312,13 +312,13 @@ export default function AnalysisResults({
           </div>
           <p
             className="text-[17px] font-semibold mb-1"
-            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}
+            style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)' }}
           >
             Your Vastu layout is complete.
           </p>
           <p
             className="text-[13px] leading-relaxed mb-4"
-            style={{ color: 'rgba(30,34,39,0.62)', fontFamily: 'var(--font-plex-sans)' }}
+            style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}
           >
             The next step: know exactly what your RCC structure will cost before your contractor
             quotes you. Your plot dimensions are noted. The form takes 8 minutes.

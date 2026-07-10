@@ -65,7 +65,7 @@ function StampBadge({ status, clause, description }: {
         <p className="text-[11px] font-medium" style={{ color: c.text, fontFamily: 'var(--font-plex-mono)' }}>
           {clause}
         </p>
-        <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+        <p className="text-[12px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
           {description}
         </p>
       </div>
@@ -76,14 +76,14 @@ function StampBadge({ status, clause, description }: {
 function BlurOverlay({ onClick }: { onClick: () => void }) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[2px] z-10"
-      style={{ background: 'rgba(244,244,240,0.85)', backdropFilter: 'blur(2px)' }}>
+      style={{ background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(2px)' }}>
       <div className="text-center px-6 py-5 rounded-[2px] max-w-sm"
-        style={{ border: '1px solid rgba(30,34,39,0.15)', background: '#F4F4F0' }}>
+        style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'var(--bg-surface)' }}>
         <p className="text-[11px] uppercase tracking-widest mb-1"
-          style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+          style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
           ₹699 · UNLOCK TO VIEW
         </p>
-        <p className="text-[13px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+        <p className="text-[13px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
           Exact brick counts, cement bags, sand cft, and contractor comparison
         </p>
         <button onClick={onClick}
@@ -236,13 +236,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   const extSpec = EXTERNAL_WALL_SPECS[input.externalWallType]
 
   return (
-    <div className="min-h-screen bg-sheet-white pb-16">
+    <div className="min-h-screen  pb-16">
       {/* Header */}
-      <div className="py-8 px-6 md:px-12 lg:px-16" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+      <div className="py-8 px-6 md:px-12 lg:px-16" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>
           02 · MASONRY ESTIMATE
         </p>
-        <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 600, color: '#1E2227', lineHeight: 1.2 }}>
+        <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
           Your Estimate is Ready
         </h1>
       </div>
@@ -254,17 +254,17 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <div className="px-4 py-2 rounded-[2px] flex items-center gap-2"
             style={{ background: 'rgba(20,83,45,0.08)', border: '1px solid rgba(20,83,45,0.35)' }}>
             <span style={{ color: '#14532D', fontSize: 13 }}>✓</span>
-            <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+            <p className="text-[12px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
               PREVIEW MODE — Full report visible for testing
             </p>
           </div>
         )}
 
         {/* Grand total — FREE */}
-        <div style={{ background: '#1E2227', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-surface)', position: 'relative', overflow: 'hidden' }}>
           <div className="results-blob-1" aria-hidden="true" />
           <div className="results-blob-2" aria-hidden="true" />
-          <div style={{ position: 'relative', zIndex: 1, padding: '56px 48px', textAlign: 'center', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', background: 'rgba(30,34,39,0.18)' }}>
+          <div style={{ position: 'relative', zIndex: 1, padding: '56px 48px', textAlign: 'center', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', background: 'rgba(255,255,255,0.10)' }}>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
             PHASE 2 — MASONRY · {input.city}, {input.state}
           </p>
@@ -316,11 +316,11 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             PHASE 2 CONTEXT — IS 2212:1991
           </p>
           <p className="text-[14px] font-medium mb-1"
-            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             Masonry = {r.phaseContext.percentOfTotal} of total project cost
           </p>
           <p className="text-[12px] mb-3"
-            style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+            style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
             Typical: {r.phaseContext.exampleAmount}
           </p>
           <p className="text-[11px] uppercase tracking-widest mb-1"
@@ -330,7 +330,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <ul className="space-y-1">
             {r.phaseContext.overchargingRisks.map((risk, i) => (
               <li key={i} className="flex gap-2 text-[12px]"
-                style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                 <span style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)', fontSize: 10, marginTop: 2 }}>
                   {String(i + 1).padStart(2, '0')}
                 </span>
@@ -341,8 +341,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* Wall type comparison — FREE */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               ALL 8 WALL TYPES — COST PER SQM (PUNE 2026 RATES)
@@ -358,11 +358,11 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-[12px] font-medium"
-                        style={{ fontFamily: 'var(--font-plex-mono)', color: isSelected ? '#1F4E79' : '#1E2227' }}>
+                        style={{ fontFamily: 'var(--font-plex-mono)', color: isSelected ? '#1F4E79' : 'var(--text-primary)' }}>
                         {w.label}
                       </span>
                       <span className="text-[10px]"
-                        style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                        style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                         {w.unitsPerSqm.toFixed(1)} {w.unitLabel}/sqm
                       </span>
                       {isSelected && (
@@ -373,26 +373,26 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       )}
                     </div>
                     <span className="text-[12px] font-medium"
-                      style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>
+                      style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }}>
                       ₹{w.costPerSqm.toLocaleString('en-IN')}/sqm
                     </span>
                   </div>
                   <div className="h-2 rounded-[1px] overflow-hidden" style={{ background: 'rgba(30,34,39,0.06)' }}>
                     <div className="h-full rounded-[1px]"
-                      style={{ width: `${pct}%`, background: isSelected ? '#1F4E79' : 'rgba(30,34,39,0.2)' }} />
+                      style={{ width: `${pct}%`, background: isSelected ? '#1F4E79' : 'rgba(255,255,255,0.15)' }} />
                   </div>
                 </div>
               )
             })}
-            <p className="text-[10px] pt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+            <p className="text-[10px] pt-1" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
               Material only. Labour and plaster calculated separately. IS 2212:1991 rates.
             </p>
           </div>
         </div>
 
         {/* IS Compliance Panel — FREE */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               IS COMPLIANCE PANEL — IS 1077:1992 · IS 2212:1991 · IS 4326:1993 · IS 2645:2003
@@ -406,8 +406,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* Technical reminders — FREE */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               10 TECHNICAL REMINDERS — IS-CODE MANDATED
@@ -416,7 +416,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <ol className="p-4 space-y-2">
             {r.technicalReminders.map((rem, i) => (
               <li key={i} className="flex gap-3 text-[13px]"
-                style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                 <span className="shrink-0 mt-0.5 text-[11px] w-5 text-right"
                   style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
                   {String(i + 1).padStart(2, '0')}
@@ -428,8 +428,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* ── HOW THIS IS CALCULATED — FREE ── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               HOW THIS IS CALCULATED — FORMULAS &amp; IS CLAUSES
             </p>
@@ -468,8 +468,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 </span>
                 <div>
                   <p className="text-[10px] font-medium mb-0.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>{item.clause}</p>
-                  <p className="text-[12px] font-medium mb-0.5" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
-                  <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
+                  <p className="text-[12px] font-medium mb-0.5" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
                 </div>
               </li>
             ))}
@@ -478,8 +478,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
         {/* PROOF-OF-WORK: first 2 BOQ rows always visible */}
         {!isPaid && (
-          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
                 MATERIAL QUANTITIES — PREVIEW
               </p>
@@ -487,28 +487,28 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             <div className="p-4">
               <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
-                    <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
-                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 44 }}>Unit</th>
-                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 70 }}>Qty</th>
-                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 90 }}>Amount (₹)</th>
+                  <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
+                    <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
+                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', width: 44 }}>Unit</th>
+                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', width: 70 }}>Qty</th>
+                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', width: 90 }}>Amount (₹)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.08)' }}>
-                    <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{extSpec.shortLabel} (external walls)</td>
-                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{extSpec.unitLabel}</td>
-                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{r.brickworkQuantities.externalBricksOrBlocks.toLocaleString('en-IN')}</td>
-                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{extSpec.shortLabel} (external walls)</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{extSpec.unitLabel}</td>
+                    <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{r.brickworkQuantities.externalBricksOrBlocks.toLocaleString('en-IN')}</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
                   </tr>
-                  <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: 'rgba(30,34,39,0.018)' }}>
-                    <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Cement — {extSpec.mortarRatio} mortar (brickwork)</td>
-                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>bags</td>
-                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{(r.brickworkQuantities.externalCementBags + r.brickworkQuantities.internalCementBags).toLocaleString('en-IN')}</td>
-                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(30,34,39,0.018)' }}>
+                    <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Cement — {extSpec.mortarRatio} mortar (brickwork)</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>bags</td>
+                    <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{(r.brickworkQuantities.externalCementBags + r.brickworkQuantities.internalCementBags).toLocaleString('en-IN')}</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
                   </tr>
                   <tr>
-                    <td colSpan={4} className="py-2 text-center text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>
+                    <td colSpan={4} className="py-2 text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>
                       + plaster, waterproofing, sand, labour &amp; totals locked →
                     </td>
                   </tr>
@@ -520,8 +520,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
         {/* Blurred quantities section — PAID */}
         <div className="border rounded-[2px] overflow-hidden relative"
-          style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+          style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               {isPaid ? 'FULL IS-CODE BOQ — PHASE 2 · MASONRY & PLASTER' : 'EXACT QUANTITIES — BRICKWORK + PLASTER + WATERPROOFING'}
@@ -541,10 +541,10 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                   </p>
                   <table className="w-full text-[12px]" style={{ borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                         {['Floor', 'Wall Type', 'Area (sqm)', 'Units', 'Cost (₹)'].map(h => (
                           <th key={h} className={`py-1.5 px-1 text-[9px] uppercase tracking-widest ${h === 'Floor' || h === 'Wall Type' ? 'text-left' : 'text-right'}`}
-                            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                            style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -552,12 +552,12 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       {r.perFloorBrickwork.map((flr, i) => (
                         <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
                           <td className="py-1.5 px-1 font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1F4E79', whiteSpace: 'nowrap' }}>{flr.floorLabel}</td>
-                          <td className="py-1.5 px-1 text-[11px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>
+                          <td className="py-1.5 px-1 text-[11px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)' }}>
                             {flr.wallType.replace(/_/g, ' ')}
                           </td>
-                          <td className="py-1.5 px-1 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{flr.areaSqm.toFixed(1)}</td>
-                          <td className="py-1.5 px-1 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{flr.bricksOrBlocks.toLocaleString('en-IN')}</td>
-                          <td className="py-1.5 px-1 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{flr.materialCost.toLocaleString('en-IN')}</td>
+                          <td className="py-1.5 px-1 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }}>{flr.areaSqm.toFixed(1)}</td>
+                          <td className="py-1.5 px-1 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }}>{flr.bricksOrBlocks.toLocaleString('en-IN')}</td>
+                          <td className="py-1.5 px-1 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }}>{flr.materialCost.toLocaleString('en-IN')}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -567,15 +567,15 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
               {/* Brickwork BOQ */}
               <p className="text-[10px] uppercase tracking-widest mb-2"
-                style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                 BRICKWORK QUANTITIES (IS 1077:1992 + IS 2212:1991)
               </p>
               <table className="w-full text-[13px] mb-4" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                     {['Item', 'Qty', 'Unit', 'Cost (₹)'].map(h => (
                       <th key={h} className={`py-2 text-[10px] uppercase tracking-widest ${h !== 'Item' ? 'text-right' : 'text-left'}`}
-                        style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                        style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                         {h}
                       </th>
                     ))}
@@ -598,13 +598,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       cost: r.costs.internalPartitionMaterial,
                     }] : []),
                   ].map((row, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.02)' }}>
-                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.name}</td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                      <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{row.name}</td>
+                      <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                         {row.qty.toLocaleString('en-IN')}
                       </td>
-                      <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{row.unit}</td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                      <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>{row.unit}</td>
+                      <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                         {row.cost.toLocaleString('en-IN')}
                       </td>
                     </tr>
@@ -613,24 +613,24 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                   {/* Staircase Wall — separate line item, runs full building height */}
                   {r.staircaseWall && r.staircaseWall.materialCost > 0 && (
                     <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: 'rgba(31,78,121,0.03)' }}>
-                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                      <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                         <span style={{ fontWeight: 600 }}>Staircase Wall</span>
                         <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-[2px]"
                           style={{ background: 'rgba(31,78,121,0.1)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', verticalAlign: 'middle' }}>
                           SHARED · ALL FLOORS
                         </span>
                         <br />
-                        <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                        <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                           {r.staircaseWall.lengthFt.toFixed(1)} ft × {(r.staircaseWall.heightM / 0.3048).toFixed(1)} ft ht = {r.staircaseWall.areaSqm.toFixed(1)} sqm
                         </span>
                       </td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                      <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                         {r.staircaseWall.bricksOrBlocks.toLocaleString('en-IN')}
                       </td>
-                      <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                      <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                         {r.staircaseWall.bricksOrBlocks > 0 ? 'units' : '—'}
                       </td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                      <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                         {r.staircaseWall.materialCost.toLocaleString('en-IN')}
                       </td>
                     </tr>
@@ -638,46 +638,46 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
                   {/* Cement */}
                   <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)' }}>
-                    <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                    <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                       Cement (brickwork) — {extSpec.mortarRatio} mortar
                     </td>
-                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                    <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                       {(r.brickworkQuantities.externalCementBags + r.brickworkQuantities.internalCementBags).toLocaleString('en-IN')}
                     </td>
-                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>bags</td>
-                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>—</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>bags</td>
+                    <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>—</td>
                   </tr>
                   {(r.brickworkQuantities.externalSandCft + r.brickworkQuantities.internalSandCft) > 0 && (
                     <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)' }}>
-                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Sand (brickwork)</td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                      <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Sand (brickwork)</td>
+                      <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                         {(r.brickworkQuantities.externalSandCft + r.brickworkQuantities.internalSandCft).toLocaleString('en-IN')}
                       </td>
-                      <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>cft</td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>—</td>
+                      <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>cft</td>
+                      <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>—</td>
                     </tr>
                   )}
 
                   {/* Plaster */}
                   {r.plasterQuantities && (
                     <>
-                      <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: 'rgba(30,34,39,0.02)' }}>
-                        <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                      <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                        <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                           Cement (plaster — IS 1661:1972, +5% wastage)
                         </td>
-                        <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                        <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                           {(r.plasterQuantities.externalPlasterCementBags + r.plasterQuantities.internalPlasterCementBags).toFixed(1)}
                         </td>
-                        <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>bags</td>
-                        <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>—</td>
+                        <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>bags</td>
+                        <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>—</td>
                       </tr>
-                      <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: 'rgba(30,34,39,0.02)' }}>
-                        <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Sand (plaster)</td>
-                        <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                      <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                        <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Sand (plaster)</td>
+                        <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                           {(r.plasterQuantities.externalPlasterSandCft + r.plasterQuantities.internalPlasterSandCft).toFixed(1)}
                         </td>
-                        <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>cft</td>
-                        <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                        <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>cft</td>
+                        <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                           {r.costs.plasterMaterial.toLocaleString('en-IN')}
                         </td>
                       </tr>
@@ -687,56 +687,56 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                   {/* Waterproofing */}
                   {r.waterproofingCosts && r.waterproofingCosts.total > 0 && (
                     <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.06)' }}>
-                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                      <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                         Waterproofing (IS 2645:2003)
                       </td>
                       <td colSpan={2} className="py-2 text-right text-[11px]"
-                        style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
+                        style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-sans)' }}>
                         Terrace + Bathroom
                       </td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                      <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                         {r.waterproofingCosts.total.toLocaleString('en-IN')}
                       </td>
                     </tr>
                   )}
 
                   {/* Totals */}
-                  <tr style={{ borderTop: '2px solid #1E2227' }}>
+                  <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)' }}>
                     <td colSpan={3} className="py-2 font-semibold text-[13px]"
-                      style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>
+                      style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)' }}>
                       Total Material Cost
                     </td>
                     <td className="py-2 text-right font-bold text-[14px]"
-                      style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>
+                      style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }}>
                       {r.costs.totalMaterial.toLocaleString('en-IN')}
                     </td>
                   </tr>
                   {input.includeLabour !== false ? (
                     <tr>
                       <td colSpan={3} className="py-1 text-[12px]"
-                        style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
+                        style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(255,255,255,0.45)' }}>
                         Labour (CPWD rates — brickwork + plaster + WP)
                       </td>
                       <td className="py-1 text-right text-[12px]"
-                        style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>
+                        style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.45)' }}>
                         {r.labourCost.toLocaleString('en-IN')}
                       </td>
                     </tr>
                   ) : (
                     <tr>
                       <td colSpan={4} className="py-1 text-[11px]"
-                        style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', fontStyle: 'italic' }}>
+                        style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.35)', fontStyle: 'italic' }}>
                         Labour cost not included in this estimate
                       </td>
                     </tr>
                   )}
                   <tr>
                     <td colSpan={3} className="py-1 text-[12px]"
-                      style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
+                      style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(255,255,255,0.45)' }}>
                       Contractor overhead + margin (10%)
                     </td>
                     <td className="py-1 text-right text-[12px]"
-                      style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>
+                      style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.45)' }}>
                       {r.overheadCost.toLocaleString('en-IN')}
                     </td>
                   </tr>
@@ -756,14 +756,14 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               {/* Contractor comparison (if quote entered) */}
               {isPaid && input.contractorQuote && input.contractorQuote > 0 && (
                 <div className="mt-4 p-4 rounded-[2px]"
-                  style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(30,34,39,0.02)' }}>
+                  style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
                   <p className="text-[11px] uppercase tracking-widest mb-3"
                     style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
                     CONTRACTOR QUOTE COMPARISON
                   </p>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: 'Your Quote',      value: input.contractorQuote,       color: '#1E2227' },
+                      { label: 'Your Quote',      value: input.contractorQuote,       color: 'var(--text-primary)' },
                       { label: 'IS-Code Estimate', value: r.grandTotal.standard,      color: '#1F4E79' },
                       {
                         label: 'Difference',
@@ -774,7 +774,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     ].map(col => (
                       <div key={col.label} className="text-center">
                         <p className="text-[10px] uppercase tracking-widest mb-1"
-                          style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                          style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                           {col.label}
                         </p>
                         <p className="text-[18px] font-bold"
@@ -806,7 +806,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
         {/* Payment gate — dramatic dark unlock card */}
         {!isPaid && (
-          <div style={{ background: '#1E2227', padding: '56px 48px', textAlign: 'center' }}>
+          <div style={{ background: 'var(--bg-surface)', padding: '56px 48px', textAlign: 'center' }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
               YOUR PHASE 2 ESTIMATE IS READY
             </p>
@@ -863,7 +863,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               ✓ PAYMENT SUCCESSFUL — REPORT UNLOCKED
             </p>
             <p className="text-[13px] mb-4"
-              style={{ color: 'rgba(30,34,39,0.65)', fontFamily: 'var(--font-plex-sans)' }}>
+              style={{ color: 'rgba(255,255,255,0.60)', fontFamily: 'var(--font-plex-sans)' }}>
               Your full masonry estimate is visible above. Download your 9-page IS-code PDF report below.
             </p>
             {pdfStatus === 'generating' && (
@@ -908,10 +908,10 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
             NEXT — PHASE 3
           </p>
-          <p className="text-[14px] font-semibold mb-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             Get your Electrical quantities — ElectroPro →
           </p>
-          <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
             With your walls up, calculate circuits, DB panel, wire lengths and earthing costs with ElectroPro. Electrical is 8–12% of total project cost and the phase most skipped in estimates.
           </p>
           <a
@@ -925,7 +925,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
         <div className="text-center pt-2">
           <button onClick={onStartOver} className="text-[12px] underline"
-            style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
+            style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
             Start a new estimate
           </button>
         </div>

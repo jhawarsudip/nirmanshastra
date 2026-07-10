@@ -72,7 +72,7 @@ function StampBadge({ status, clause, description }: { status: 'pass' | 'advisor
         <p className="text-[11px] font-medium" style={{ color: c.text, fontFamily: 'var(--font-plex-mono)' }}>
           {clause}
         </p>
-        <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+        <p className="text-[12px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
           {description}
         </p>
       </div>
@@ -84,19 +84,19 @@ function BlurOverlay({ onClick }: { onClick: () => void }) {
   return (
     <div
       className="absolute inset-0 flex flex-col items-center justify-center rounded-[2px] z-10"
-      style={{ background: 'rgba(244,244,240,0.85)', backdropFilter: 'blur(2px)' }}
+      style={{ background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(2px)' }}
     >
       <div
         className="text-center px-6 py-5 rounded-[2px] max-w-sm"
-        style={{ border: '1px solid rgba(30,34,39,0.15)', background: '#F4F4F0' }}
+        style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'var(--bg-surface)' }}
       >
         <p
           className="text-[11px] uppercase tracking-widest mb-1"
-          style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}
+          style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}
         >
           ₹999 · UNLOCK TO VIEW
         </p>
-        <p className="text-[13px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+        <p className="text-[13px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
           Know exactly where your money goes — before your contractor does.
         </p>
         <button
@@ -291,7 +291,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
   // ---------- render ----------
   return (
-    <div className="min-h-screen bg-sheet-white pb-16">
+    <div className="min-h-screen  pb-16">
 
       <div className="px-6 md:px-12 lg:px-16 pt-6 space-y-6">
 
@@ -302,14 +302,14 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             style={{ background: 'rgba(20,83,45,0.08)', border: '1px solid rgba(20,83,45,0.35)' }}
           >
             <span style={{ color: '#14532D', fontSize: 13 }}>✓</span>
-            <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+            <p className="text-[12px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
               PREVIEW MODE — Full report visible for testing
             </p>
           </div>
         )}
 
         {/* ── GRAND TOTAL — FREE, ALWAYS VISIBLE ── */}
-        <div style={{ background: '#1E2227', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-surface)', position: 'relative', overflow: 'hidden' }}>
           <div className="results-blob-1" aria-hidden="true" />
           <div className="results-blob-2" aria-hidden="true" />
           <div style={{
@@ -319,7 +319,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             textAlign: 'center',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
-            background: 'rgba(30,34,39,0.18)',
+            background: 'rgba(255,255,255,0.10)',
           }}>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
             PHASE 1 — RCC STRUCTURE · {input.city}, {input.state} · IS 456:2000
@@ -377,8 +377,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>{/* /gradient mesh outer */}
 
         {/* ── IS COMPLIANCE PANEL — FREE ── */}
-        <div style={{ border: '1px solid rgba(30,34,39,0.15)' }}>
-          <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(30,34,39,0.1)', background: 'rgba(31,78,121,0.04)' }}>
+        <div style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(31,78,121,0.04)' }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               IS COMPLIANCE PANEL — IS 456:2000 · IS 13920:2016 · IS 1904:2016
             </p>
@@ -396,8 +396,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* ── COST BREAKDOWN PIE CHART — FREE ── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               MATERIAL COST BREAKDOWN
             </p>
@@ -423,30 +423,30 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       {isPaid && (
                         <Tooltip
                           formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`}
-                          contentStyle={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, background: '#F4F4F0', border: '1px solid #1F4E79', borderRadius: 2 }}
+                          contentStyle={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, background: 'var(--bg-surface)', border: '1px solid #1F4E79', borderRadius: 2 }}
                         />
                       )}
                     </PieChart>
                   </div>
                   <div className="flex flex-col gap-1 flex-1">
                     {/* Column headers */}
-                    <div className="flex items-center gap-2 mb-1 pb-1" style={{ borderBottom: '1px solid rgba(30,34,39,0.08)' }}>
+                    <div className="flex items-center gap-2 mb-1 pb-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <div className="w-3 h-3 shrink-0" style={{ visibility: 'hidden' }} />
-                      <span className="text-[10px] flex-1" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Material</span>
-                      <span className="text-[10px] w-10 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>%</span>
-                      <span className="text-[10px] w-28 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Amount</span>
+                      <span className="text-[10px] flex-1" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Material</span>
+                      <span className="text-[10px] w-10 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>%</span>
+                      <span className="text-[10px] w-28 text-right" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Amount</span>
                     </div>
                     {pieItems.map(item => {
                       const pct = total > 0 ? Math.round((item.value / total) * 100) : 0
                       return (
                         <div key={item.name} className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-[1px] shrink-0" style={{ background: item.color }} />
-                          <span className="text-[12px] flex-1" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>{item.name}</span>
+                          <span className="text-[12px] flex-1" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)' }}>{item.name}</span>
                           <span
                             className="text-[12px] font-medium w-10 text-right"
                             style={{
                               fontFamily: 'var(--font-plex-mono)',
-                              color: '#1E2227',
+                              color: 'var(--text-primary)',
                               filter: isPaid ? 'none' : 'blur(6px)',
                               userSelect: isPaid ? 'auto' : 'none',
                               transition: 'filter 0.3s',
@@ -456,7 +456,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                             className="text-[11px] w-28 text-right"
                             style={{
                               fontFamily: 'var(--font-plex-mono)',
-                              color: 'rgba(30,34,39,0.45)',
+                              color: 'rgba(255,255,255,0.40)',
                               filter: isPaid ? 'none' : 'blur(6px)',
                               userSelect: isPaid ? 'auto' : 'none',
                               transition: 'filter 0.3s',
@@ -488,8 +488,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* ── GRADE COMPARISON BAR CHART — FREE ── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               CONCRETE GRADE COMPARISON — COST IMPACT
             </p>
@@ -500,15 +500,15 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 data={r.gradeSummary.map(g => ({ grade: g.grade, label: g.label, costPerSqft: g.costPerSqft, selected: g.grade === input.concreteGrade }))}
                 margin={{ top: 8, right: 16, left: 8, bottom: 0 }}
               >
-                <XAxis dataKey="grade" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11 }} tick={{ fill: '#1E2227' }} />
-                <YAxis style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11 }} tickFormatter={(v: number) => `₹${v}`} tick={{ fill: 'rgba(30,34,39,0.55)' }} />
+                <XAxis dataKey="grade" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11 }} tick={{ fill: 'var(--text-primary)' }} />
+                <YAxis style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11 }} tickFormatter={(v: number) => `₹${v}`} tick={{ fill: 'rgba(255,255,255,0.50)' }} />
                 <Tooltip
                   formatter={(value) => `₹${Number(value)}/sqft`}
-                  contentStyle={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, background: '#F4F4F0', border: '1px solid #1F4E79', borderRadius: 2 }}
+                  contentStyle={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, background: 'var(--bg-surface)', border: '1px solid #1F4E79', borderRadius: 2 }}
                 />
                 <Bar dataKey="costPerSqft" radius={[2, 2, 0, 0]}>
                   {r.gradeSummary.map((g, i) => (
-                    <Cell key={i} fill={g.grade === input.concreteGrade ? '#1F4E79' : 'rgba(30,34,39,0.18)'} />
+                    <Cell key={i} fill={g.grade === input.concreteGrade ? '#1F4E79' : 'rgba(255,255,255,0.10)'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -516,8 +516,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             <div className="flex flex-wrap gap-3 mt-2">
               {r.gradeSummary.map(g => (
                 <div key={g.grade} className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-[1px]" style={{ background: g.grade === input.concreteGrade ? '#1F4E79' : 'rgba(30,34,39,0.18)' }} />
-                  <span className="text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: g.grade === input.concreteGrade ? '#1F4E79' : 'rgba(30,34,39,0.55)' }}>
+                  <div className="w-2.5 h-2.5 rounded-[1px]" style={{ background: g.grade === input.concreteGrade ? '#1F4E79' : 'rgba(255,255,255,0.10)' }} />
+                  <span className="text-[11px]" style={{ fontFamily: 'var(--font-plex-mono)', color: g.grade === input.concreteGrade ? '#1F4E79' : 'rgba(255,255,255,0.50)' }}>
                     {g.grade} ₹{g.costPerSqft}/sqft{g.grade === input.concreteGrade ? ' ◀' : ''}
                   </span>
                 </div>
@@ -527,14 +527,14 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* ── FINISHING COSTS GUIDE — FREE ── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               FINISHING COSTS GUIDE — NOT INCLUDED IN THIS REPORT
             </p>
           </div>
           <div className="p-4">
-            <p className="text-[13px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[13px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
               The RCC structural frame is only <strong>40–45%</strong> of your total building cost. Budget separately for:
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -552,9 +552,9 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 <div
                   key={name}
                   className="flex items-center justify-between px-2 py-1.5 rounded-[2px]"
-                  style={{ border: '1px solid rgba(30,34,39,0.1)', background: 'rgba(30,34,39,0.02)' }}
+                  style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}
                 >
-                  <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.65)', fontFamily: 'var(--font-plex-sans)' }}>{name}</span>
+                  <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.60)', fontFamily: 'var(--font-plex-sans)' }}>{name}</span>
                   <span className="text-[11px] font-medium" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{pct}</span>
                 </div>
               ))}
@@ -565,10 +565,10 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 { label: 'STANDARD FINISH', mult: '2.2–2.5×' },
                 { label: 'PREMIUM FINISH',  mult: '2.8–3.2×' },
               ].map(t => (
-                <div key={t.label} className="text-center px-2 py-2 rounded-[2px]" style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)' }}>
-                  <p className="text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{t.label}</p>
+                <div key={t.label} className="text-center px-2 py-2 rounded-[2px]" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(31,78,121,0.04)' }}>
+                  <p className="text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>{t.label}</p>
                   <p className="text-[16px] font-bold" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{t.mult}</p>
-                  <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>of structure cost</p>
+                  <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>of structure cost</p>
                 </div>
               ))}
             </div>
@@ -579,15 +579,15 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* ── TECHNICAL REMINDERS — FREE ── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               10 TECHNICAL REMINDERS — IS-CODE MANDATED
             </p>
           </div>
           <ol className="p-4 space-y-2">
             {r.technicalReminders.map((rem, i) => (
-              <li key={i} className="flex gap-3 text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              <li key={i} className="flex gap-3 text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                 <span
                   className="shrink-0 mt-0.5 text-[11px] w-5 text-right"
                   style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}
@@ -601,8 +601,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* ── HOW THIS IS CALCULATED — FREE ── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               HOW THIS IS CALCULATED — FORMULAS &amp; IS CLAUSES
             </p>
@@ -646,8 +646,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 </span>
                 <div>
                   <p className="text-[10px] font-medium mb-0.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>{item.clause}</p>
-                  <p className="text-[12px] font-medium mb-0.5" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
-                  <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
+                  <p className="text-[12px] font-medium mb-0.5" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
                 </div>
               </li>
             ))}
@@ -655,9 +655,9 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* ── DETAILED RESULTS — TABBED ── */}
-        <div className="border rounded-[2px] overflow-hidden" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
+        <div className="border rounded-[2px] overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
           {/* Tab bar */}
-          <div className="px-2 pt-2" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)', background: 'rgba(30,34,39,0.03)' }}>
+          <div className="px-2 pt-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(30,34,39,0.03)' }}>
             <div className="flex gap-0 overflow-x-auto">
               {([
                 { id: 'raw_materials',  label: 'Raw Materials' },
@@ -673,7 +673,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                   className="px-4 py-2 text-[11px] font-medium whitespace-nowrap border-b-2 transition-colors"
                   style={{
                     fontFamily: 'var(--font-plex-mono)',
-                    color: activeTab === tab.id ? '#1F4E79' : 'rgba(30,34,39,0.45)',
+                    color: activeTab === tab.id ? '#1F4E79' : 'rgba(255,255,255,0.40)',
                     borderColor: activeTab === tab.id ? '#1F4E79' : 'transparent',
                     background: 'transparent',
                     letterSpacing: '0.04em',
@@ -705,13 +705,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       <col style={{ width: '15%' }} />
                     </colgroup>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
-                        <th className="text-left py-2 px-1 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Item</th>
-                        <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
-                        <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Unit</th>
-                        <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Qty</th>
-                        <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Rate (₹)</th>
-                        <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Amount (₹)</th>
+                      <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
+                        <th className="text-left py-2 px-1 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Item</th>
+                        <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
+                        <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Unit</th>
+                        <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Qty</th>
+                        <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Rate (₹)</th>
+                        <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Amount (₹)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -723,36 +723,36 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                         { itemNo: '1.5', name: 'Binding Wire (GI)',                              unit: 'kg',   qty: r.quantities.bindingWireKg,  cost: r.costs.bindingWire },
                         { itemNo: '1.6', name: 'Formwork (wooden/steel shuttering)',             unit: 'sqft', qty: r.quantities.formworkSqft,   cost: r.costs.formwork },
                       ].map((row, i) => (
-                        <tr key={row.itemNo} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                          <td className="py-2 px-1" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>{row.itemNo}</td>
-                          <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{row.name}</td>
-                          <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{row.unit}</td>
-                          <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{row.qty.toLocaleString('en-IN')}</td>
-                          <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(row.cost / Math.max(row.qty, 1)).toLocaleString('en-IN')}</td>
-                          <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{row.cost.toLocaleString('en-IN')}</td>
+                        <tr key={row.itemNo} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                          <td className="py-2 px-1" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>{row.itemNo}</td>
+                          <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{row.name}</td>
+                          <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{row.unit}</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{row.qty.toLocaleString('en-IN')}</td>
+                          <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(row.cost / Math.max(row.qty, 1)).toLocaleString('en-IN')}</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{row.cost.toLocaleString('en-IN')}</td>
                         </tr>
                       ))}
-                      <tr style={{ borderTop: '1px solid rgba(30,34,39,0.15)' }}>
-                        <td className="py-2 px-1" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>1.7</td>
-                        <td colSpan={3} className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Foundation ({r.foundationRecommendation.label})</td>
-                        <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>lump</td>
-                        <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{r.costs.foundation.toLocaleString('en-IN')}</td>
+                      <tr style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                        <td className="py-2 px-1" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>1.7</td>
+                        <td colSpan={3} className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Foundation ({r.foundationRecommendation.label})</td>
+                        <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>lump</td>
+                        <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{r.costs.foundation.toLocaleString('en-IN')}</td>
                       </tr>
-                      <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                        <td colSpan={5} className="py-2 font-semibold text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>Total Material Cost</td>
-                        <td className="py-2 text-right font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{r.costs.total.toLocaleString('en-IN')}</td>
+                      <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                        <td colSpan={5} className="py-2 font-semibold text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)' }}>Total Material Cost</td>
+                        <td className="py-2 text-right font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }}>{r.costs.total.toLocaleString('en-IN')}</td>
                       </tr>
                       {input.includeLabour !== false && (
                         <tr>
-                          <td colSpan={5} className="py-1.5 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>Labour — CPWD standard rates</td>
-                          <td className="py-1.5 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>{r.labourCost.toLocaleString('en-IN')}</td>
+                          <td colSpan={5} className="py-1.5 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(255,255,255,0.45)' }}>Labour — CPWD standard rates</td>
+                          <td className="py-1.5 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.45)' }}>{r.labourCost.toLocaleString('en-IN')}</td>
                         </tr>
                       )}
                       <tr>
-                        <td colSpan={5} className="py-1.5 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
+                        <td colSpan={5} className="py-1.5 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(255,255,255,0.45)' }}>
                           {input.includeLabour !== false ? 'Contractor overhead + margin (10%)' : 'Overhead + margin (10%)'}
                         </td>
-                        <td className="py-1.5 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>{r.overheadCost.toLocaleString('en-IN')}</td>
+                        <td className="py-1.5 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.45)' }}>{r.overheadCost.toLocaleString('en-IN')}</td>
                       </tr>
                       <tr style={{ borderTop: '2px solid #1F4E79', background: 'rgba(31,78,121,0.06)' }}>
                         <td colSpan={5} className="py-2 font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1F4E79' }}>
@@ -773,11 +773,11 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                         <col style={{ width: '30%' }} />
                       </colgroup>
                       <thead>
-                        <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
-                          <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
-                          <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Unit</th>
-                          <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Qty</th>
-                          <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Amount (₹)</th>
+                        <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
+                          <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
+                          <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Unit</th>
+                          <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Qty</th>
+                          <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Amount (₹)</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -785,11 +785,11 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           { name: `Cement — ${input.concreteGrade}`, unit: 'bags', qty: r.quantities.cementBags },
                           { name: `TMT Steel — ${input.steelGrade}`, unit: 'kg',   qty: r.quantities.steelKg },
                         ].map((row, i) => (
-                          <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                            <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{row.name}</td>
-                            <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{row.unit}</td>
-                            <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{row.qty.toLocaleString('en-IN')}</td>
-                            <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
+                          <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                            <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{row.name}</td>
+                            <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{row.unit}</td>
+                            <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{row.qty.toLocaleString('en-IN')}</td>
+                            <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
                           </tr>
                         ))}
                       </tbody>
@@ -812,10 +812,10 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                               { name: `Foundation (${r.foundationRecommendation.label})`, unit: 'lump', qty: 1 },
                             ].map((row, i) => (
                               <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                                <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{row.name}</td>
-                                <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{row.unit}</td>
-                                <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{row.qty.toLocaleString('en-IN')}</td>
-                                <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
+                                <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{row.name}</td>
+                                <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{row.unit}</td>
+                                <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{row.qty.toLocaleString('en-IN')}</td>
+                                <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
                               </tr>
                             ))}
                             <tr style={{ borderTop: '2px solid #1F4E79', background: 'rgba(31,78,121,0.05)' }}>
@@ -825,8 +825,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           </tbody>
                         </table>
                       </div>
-                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.72)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.85)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                           4 more items + labour + total locked
                         </p>
                         <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
@@ -843,14 +843,14 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             {activeTab === 'steel_schedule' && (
               !isPaid ? (
                 <div>
-                  <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                     IS 1786:2008 · IS 456:2000 — first 2 members shown free
                   </p>
                   <table className="w-full text-[12px]" style={{ borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                      <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
                         {['Member', '% Steel (IS 456)', 'Volume (m³ est.)', 'Steel (kg)', 'Cost (₹)'].map(h => (
-                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -863,12 +863,12 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                         const cost = Math.round(r.costs.steel * s.share)
                         const vol  = (kg / s.density).toFixed(1)
                         return (
-                          <tr key={s.member} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                            <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
+                          <tr key={s.member} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                            <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
                             <td className="py-2 px-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{s.pct}</td>
-                            <td className="py-2 px-2 text-right" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{vol}</td>
-                            <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{kg.toLocaleString('en-IN')}</td>
-                            <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
+                            <td className="py-2 px-2 text-right" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{vol}</td>
+                            <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{kg.toLocaleString('en-IN')}</td>
+                            <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
                           </tr>
                         )
                       })}
@@ -887,25 +887,25 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                             const cost = Math.round(r.costs.steel * s.share)
                             const vol  = (kg / s.density).toFixed(1)
                             return (
-                              <tr key={s.member} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                                <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
+                              <tr key={s.member} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                                <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
                                 <td className="py-2 px-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{s.pct}</td>
-                                <td className="py-2 px-2 text-right" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{vol}</td>
-                                <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{kg.toLocaleString('en-IN')}</td>
-                                <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
+                                <td className="py-2 px-2 text-right" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{vol}</td>
+                                <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{kg.toLocaleString('en-IN')}</td>
+                                <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
                               </tr>
                             )
                           })}
-                          <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                            <td colSpan={3} className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', fontSize: 13 }}>Total Steel</td>
-                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 14 }}>{r.quantities.steelKg.toLocaleString('en-IN')} kg</td>
-                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 14 }}>{r.costs.steel.toLocaleString('en-IN')}</td>
+                          <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                            <td colSpan={3} className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)', fontSize: 13 }}>Total Steel</td>
+                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 14 }}>{r.quantities.steelKg.toLocaleString('en-IN')} kg</td>
+                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 14 }}>{r.costs.steel.toLocaleString('en-IN')}</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
-                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>3 more members + total locked</p>
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.85)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>3 more members + total locked</p>
                       <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
                         Unlock Full BOQ — ₹999
                       </button>
@@ -914,7 +914,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 </div>
               ) : (
                 <>
-                  <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                     IS 1786:2008 · IS 456:2000 — steel percentages by member type
                   </p>
                   <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }} className="text-[12px]">
@@ -926,9 +926,9 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       <col style={{ width: '25%' }} />
                     </colgroup>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                      <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
                         {['Member', '% Steel (IS 456)', 'Volume (m³ est.)', 'Steel (kg)', 'Cost (₹)'].map(h => (
-                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -948,24 +948,24 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           const cost = Math.round(totalCost * s.share)
                           const vol  = (kg / (s.share > 0.1 ? 196.25 : 39.25)).toFixed(1)
                           return (
-                            <tr key={s.member} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                              <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
+                            <tr key={s.member} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                              <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
                               <td className="py-2 px-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{s.pct}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{vol}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{kg.toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{vol}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{kg.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
                             </tr>
                           )
                         })
                       })()}
-                      <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                        <td colSpan={3} className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', fontSize: 13 }}>Total Steel</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 14 }}>{r.quantities.steelKg.toLocaleString('en-IN')} kg</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 14 }}>{r.costs.steel.toLocaleString('en-IN')}</td>
+                      <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                        <td colSpan={3} className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)', fontSize: 13 }}>Total Steel</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 14 }}>{r.quantities.steelKg.toLocaleString('en-IN')} kg</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 14 }}>{r.costs.steel.toLocaleString('en-IN')}</td>
                       </tr>
                     </tbody>
                   </table>
-                  <p className="text-[10px] mt-3" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                  <p className="text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                     Binding wire: {r.quantities.bindingWireKg.toLocaleString('en-IN')} kg (10 kg per tonne — IS 1786:2008)
                   </p>
                 </>
@@ -976,14 +976,14 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             {activeTab === 'concrete' && (
               !isPaid ? (
                 <div>
-                  <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                     IS 456:2000 — {input.concreteGrade} · dry volume factor 1.54 · first 2 members free
                   </p>
                   <table className="w-full text-[12px]" style={{ borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                      <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
                         {['Member', 'Volume (m³)', 'Cement (bags)', 'Sand (cft)', 'Aggregate (cft)'].map(h => (
-                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -999,12 +999,12 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           const san = Math.round(r.quantities.sandCft * s.share)
                           const agg = Math.round(r.quantities.aggregateCft * s.share)
                           return (
-                            <tr key={s.member} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                              <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
+                            <tr key={s.member} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                              <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{vol}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cem.toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{san.toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{agg.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cem.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{san.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{agg.toLocaleString('en-IN')}</td>
                             </tr>
                           )
                         })
@@ -1027,28 +1027,28 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                               const san = Math.round(r.quantities.sandCft * s.share)
                               const agg = Math.round(r.quantities.aggregateCft * s.share)
                               return (
-                                <tr key={s.member} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                                  <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
+                                <tr key={s.member} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                                  <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
                                   <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{vol}</td>
-                                  <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cem.toLocaleString('en-IN')}</td>
-                                  <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{san.toLocaleString('en-IN')}</td>
-                                  <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{agg.toLocaleString('en-IN')}</td>
+                                  <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cem.toLocaleString('en-IN')}</td>
+                                  <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{san.toLocaleString('en-IN')}</td>
+                                  <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{agg.toLocaleString('en-IN')}</td>
                                 </tr>
                               )
                             })
                           })()}
-                          <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                            <td className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', fontSize: 13 }}>Total</td>
-                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{(r.quantities.cementBags / 8.07).toFixed(1)} m³</td>
-                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.cementBags.toLocaleString('en-IN')}</td>
-                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.sandCft.toLocaleString('en-IN')}</td>
-                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.aggregateCft.toLocaleString('en-IN')}</td>
+                          <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                            <td className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)', fontSize: 13 }}>Total</td>
+                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{(r.quantities.cementBags / 8.07).toFixed(1)} m³</td>
+                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.cementBags.toLocaleString('en-IN')}</td>
+                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.sandCft.toLocaleString('en-IN')}</td>
+                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.aggregateCft.toLocaleString('en-IN')}</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
-                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>3 more members + totals locked</p>
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.85)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>3 more members + totals locked</p>
                       <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
                         Unlock Concrete Schedule — ₹999
                       </button>
@@ -1057,7 +1057,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 </div>
               ) : (
                 <>
-                  <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                     IS 456:2000 — {input.concreteGrade} · dry volume factor 1.54
                   </p>
                   <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }} className="text-[12px]">
@@ -1069,9 +1069,9 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       <col style={{ width: '18%' }} />
                     </colgroup>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                      <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
                         {['Member', 'Volume (m³)', 'Cement (bags)', 'Sand (cft)', 'Aggregate (cft)'].map(h => (
-                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -1094,22 +1094,22 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           const san = Math.round(totalSand * s.share)
                           const agg = Math.round(totalAgg * s.share)
                           return (
-                            <tr key={s.member} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                              <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
+                            <tr key={s.member} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                              <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{s.member}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{vol}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cem.toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{san.toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{agg.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cem.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{san.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{agg.toLocaleString('en-IN')}</td>
                             </tr>
                           )
                         })
                       })()}
-                      <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                        <td className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', fontSize: 13 }}>Total</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{(r.quantities.cementBags / 8.07).toFixed(1)} m³</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.cementBags.toLocaleString('en-IN')}</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.sandCft.toLocaleString('en-IN')}</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.aggregateCft.toLocaleString('en-IN')}</td>
+                      <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                        <td className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)', fontSize: 13 }}>Total</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{(r.quantities.cementBags / 8.07).toFixed(1)} m³</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.cementBags.toLocaleString('en-IN')}</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.sandCft.toLocaleString('en-IN')}</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.aggregateCft.toLocaleString('en-IN')}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1121,14 +1121,14 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             {activeTab === 'labour' && (
               !isPaid ? (
                 <div>
-                  <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                     CPWD DSR 2023 — first 2 trades shown free
                   </p>
                   <table className="w-full text-[12px]" style={{ borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                      <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
                         {['Trade', 'Workers', 'Rate/Day (₹)', 'Est. Days', 'Cost (₹)'].map(h => (
-                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -1139,12 +1139,12 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       ].map((t, i) => {
                         const cost = t.workers * t.rate * t.days
                         return (
-                          <tr key={t.name} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                            <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{t.name}</td>
-                            <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.workers}</td>
-                            <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.rate.toLocaleString('en-IN')}</td>
+                          <tr key={t.name} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                            <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{t.name}</td>
+                            <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.workers}</td>
+                            <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.rate.toLocaleString('en-IN')}</td>
                             <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.days}</td>
-                            <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
+                            <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
                           </tr>
                         )
                       })}
@@ -1164,24 +1164,24 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           ].map((t, i) => {
                             const cost = t.workers * t.rate * t.days
                             return (
-                              <tr key={t.name} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                                <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{t.name}</td>
-                                <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.workers}</td>
-                                <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.rate.toLocaleString('en-IN')}</td>
+                              <tr key={t.name} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                                <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{t.name}</td>
+                                <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.workers}</td>
+                                <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.rate.toLocaleString('en-IN')}</td>
                                 <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.days}</td>
-                                <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
+                                <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
                               </tr>
                             )
                           })}
-                          <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                            <td colSpan={4} className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', fontSize: 13 }}>Total Labour</td>
-                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 14 }}>{r.labourCost.toLocaleString('en-IN')}</td>
+                          <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                            <td colSpan={4} className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)', fontSize: 13 }}>Total Labour</td>
+                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 14 }}>{r.labourCost.toLocaleString('en-IN')}</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
-                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>6 more trades + total locked</p>
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.85)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>6 more trades + total locked</p>
                       <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
                         Unlock Labour Schedule — ₹999
                       </button>
@@ -1190,19 +1190,19 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 </div>
               ) : (
                 <>
-                  <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                     CPWD DSR 2023 — standard productivity rates
                   </p>
                   {input.includeLabour === false ? (
                     <>
-                      <div className="p-4 rounded-[2px]" style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(30,34,39,0.02)' }}>
-                        <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
+                      <div className="p-4 rounded-[2px]" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
+                        <p className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}>
                           Labour cost not included in this estimate. You selected material quantities only. To add labour costs, start a new estimate and select &apos;Include Labour Cost&apos; in Step 3c.
                         </p>
                       </div>
-                      <div className="flex items-center justify-between py-2 px-2 mt-3" style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                        <span className="font-semibold text-[13px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>Total Labour</span>
-                        <span className="font-bold text-[13px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.45)' }}>Not included</span>
+                      <div className="flex items-center justify-between py-2 px-2 mt-3" style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                        <span className="font-semibold text-[13px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)' }}>Total Labour</span>
+                        <span className="font-bold text-[13px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.40)' }}>Not included</span>
                       </div>
                     </>
                   ) : (
@@ -1216,9 +1216,9 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           <col style={{ width: '22%' }} />
                         </colgroup>
                         <thead>
-                          <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                          <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
                             {['Trade', 'Workers', 'Rate/Day (₹)', 'Est. Days', 'Cost (₹)'].map(h => (
-                              <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                              <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                             ))}
                           </tr>
                         </thead>
@@ -1235,22 +1235,22 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           ].map((t, i) => {
                             const cost = t.workers * t.rate * t.days
                             return (
-                              <tr key={t.name} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                                <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{t.name}</td>
-                                <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.workers}</td>
-                                <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.rate.toLocaleString('en-IN')}</td>
+                              <tr key={t.name} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                                <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{t.name}</td>
+                                <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.workers}</td>
+                                <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.rate.toLocaleString('en-IN')}</td>
                                 <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{t.days}</td>
-                                <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
+                                <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
                               </tr>
                             )
                           })}
-                          <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                            <td colSpan={4} className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', fontSize: 13 }}>Total Labour (CPWD benchmark)</td>
-                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 14 }}>{r.labourCost.toLocaleString('en-IN')}</td>
+                          <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                            <td colSpan={4} className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)', fontSize: 13 }}>Total Labour (CPWD benchmark)</td>
+                            <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 14 }}>{r.labourCost.toLocaleString('en-IN')}</td>
                           </tr>
                         </tbody>
                       </table>
-                      <p className="text-[10px] mt-2" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                      <p className="text-[10px] mt-2" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                         Actual days depend on site conditions. CPWD rates ±20–30% for private work.
                       </p>
                     </>
@@ -1268,14 +1268,14 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 const lockedRows  = numF - previewRows
                 return (
                   <div>
-                    <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                    <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                       IS 456:2000 · IS 875:2015 — first {previewRows} floor{previewRows > 1 ? 's' : ''} shown free
                     </p>
                     <table className="w-full text-[12px]" style={{ borderCollapse: 'collapse' }}>
                       <thead>
-                        <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                        <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
                           {['Floor', 'Area (sqft)', 'Cement (bags)', 'Steel (kg)', 'Concrete (m³)', 'Est. Cost (₹)'].map(h => (
-                            <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                            <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -1288,13 +1288,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           const conc = (r.quantities.cementBags * share / 8.07).toFixed(2)
                           const cost = Math.round(r.grandTotal.standard * share)
                           return (
-                            <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                              <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{floorNames[i] ?? `Floor ${i}`}</td>
+                            <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                              <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{floorNames[i] ?? `Floor ${i}`}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(floorArea).toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{cem.toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{stl.toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{conc}</td>
-                              <td className="py-2 px-2 text-right font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{cem.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{stl.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{conc}</td>
+                              <td className="py-2 px-2 text-right font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
                             </tr>
                           )
                         })}
@@ -1314,29 +1314,29 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                                 const conc = (r.quantities.cementBags * share / 8.07).toFixed(2)
                                 const cost = Math.round(r.grandTotal.standard * share)
                                 return (
-                                  <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                                    <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{floorNames[i] ?? `Floor ${i}`}</td>
+                                  <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                                    <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{floorNames[i] ?? `Floor ${i}`}</td>
                                     <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(floorArea).toLocaleString('en-IN')}</td>
-                                    <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{cem.toLocaleString('en-IN')}</td>
-                                    <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{stl.toLocaleString('en-IN')}</td>
-                                    <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{conc}</td>
-                                    <td className="py-2 px-2 text-right font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
+                                    <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{cem.toLocaleString('en-IN')}</td>
+                                    <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{stl.toLocaleString('en-IN')}</td>
+                                    <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{conc}</td>
+                                    <td className="py-2 px-2 text-right font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
                                   </tr>
                                 )
                               })}
-                              <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                                <td className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', fontSize: 13 }}>All Floors</td>
-                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{totalBUA.toLocaleString('en-IN')}</td>
-                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.cementBags.toLocaleString('en-IN')}</td>
-                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.steelKg.toLocaleString('en-IN')}</td>
-                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{(r.quantities.cementBags / 8.07).toFixed(1)}</td>
-                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 14 }}>{r.grandTotal.standard.toLocaleString('en-IN')}</td>
+                              <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                                <td className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)', fontSize: 13 }}>All Floors</td>
+                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{totalBUA.toLocaleString('en-IN')}</td>
+                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.cementBags.toLocaleString('en-IN')}</td>
+                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.steelKg.toLocaleString('en-IN')}</td>
+                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{(r.quantities.cementBags / 8.07).toFixed(1)}</td>
+                                <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 14 }}>{r.grandTotal.standard.toLocaleString('en-IN')}</td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
-                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(244,244,240,0.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(30,34,39,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{lockedRows} more floor{lockedRows > 1 ? 's' : ''} + total locked</p>
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.85)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{lockedRows} more floor{lockedRows > 1 ? 's' : ''} + total locked</p>
                           <button onClick={handleUnlock} style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 12, padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', letterSpacing: '0.03em' }}>
                             Unlock Floor Breakdown — ₹999
                           </button>
@@ -1347,7 +1347,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 )
               })() : (
                 <>
-                  <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                  <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                     IS 456:2000 · IS 875:2015 — allocation per floor
                   </p>
                   <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }} className="text-[12px]">
@@ -1360,9 +1360,9 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                       <col style={{ width: '16%' }} />
                     </colgroup>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
+                      <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
                         {['Floor', 'Area (sqft)', 'Cement (bags)', 'Steel (kg)', 'Concrete (m³)', 'Est. Cost (₹)'].map(h => (
-                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                          <th key={h} className="py-2 px-2 text-left text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -1378,24 +1378,24 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                           const conc = (r.quantities.cementBags * share / 8.07).toFixed(2)
                           const cost = Math.round(r.grandTotal.standard * share)
                           return (
-                            <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
-                              <td className="py-2 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{floorNames[i] ?? `Floor ${i}`}</td>
+                            <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 ? 'rgba(30,34,39,0.018)' : 'transparent' }}>
+                              <td className="py-2 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>{floorNames[i] ?? `Floor ${i}`}</td>
                               <td className="py-2 px-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{Math.round(floorArea).toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{cem.toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{stl.toLocaleString('en-IN')}</td>
-                              <td className="py-2 px-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{conc}</td>
-                              <td className="py-2 px-2 text-right font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{cem.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{stl.toLocaleString('en-IN')}</td>
+                              <td className="py-2 px-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>{conc}</td>
+                              <td className="py-2 px-2 text-right font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>{cost.toLocaleString('en-IN')}</td>
                             </tr>
                           )
                         })
                       })()}
-                      <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
-                        <td className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', fontSize: 13 }}>All Floors</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{totalBUA.toLocaleString('en-IN')}</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.cementBags.toLocaleString('en-IN')}</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{r.quantities.steelKg.toLocaleString('en-IN')}</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 13 }}>{(r.quantities.cementBags / 8.07).toFixed(1)}</td>
-                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227', fontSize: 14 }}>{r.grandTotal.standard.toLocaleString('en-IN')}</td>
+                      <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
+                        <td className="py-2 px-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)', fontSize: 13 }}>All Floors</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{totalBUA.toLocaleString('en-IN')}</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.cementBags.toLocaleString('en-IN')}</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{r.quantities.steelKg.toLocaleString('en-IN')}</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 13 }}>{(r.quantities.cementBags / 8.07).toFixed(1)}</td>
+                        <td className="py-2 px-2 text-right font-bold" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)', fontSize: 14 }}>{r.grandTotal.standard.toLocaleString('en-IN')}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1408,7 +1408,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
         {/* ── PAYMENT GATE — dramatic dark unlock card ── */}
         {!isPaid && (
-          <div style={{ background: '#1E2227', padding: '56px 48px', textAlign: 'center' }}>
+          <div style={{ background: 'var(--bg-surface)', padding: '56px 48px', textAlign: 'center' }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
               YOUR PHASE 1 ESTIMATE IS READY
             </p>
@@ -1477,7 +1477,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             <p className="text-[11px] uppercase tracking-widest mb-2" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>
               ✓ PAYMENT SUCCESSFUL — REPORT UNLOCKED
             </p>
-            <p className="text-[13px] mb-4" style={{ color: 'rgba(30,34,39,0.65)', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[13px] mb-4" style={{ color: 'rgba(255,255,255,0.60)', fontFamily: 'var(--font-plex-sans)' }}>
               Your full estimate is now visible above. Download your 10+ page IS-code PDF report below.
             </p>
 
@@ -1543,10 +1543,10 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
             NEXT — PHASE 2
           </p>
-          <p className="text-[14px] font-semibold mb-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             Get your Masonry quantities — MasonryPro →
           </p>
-          <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
             Now that your structure is sized, get exact brick and mortar quantities with MasonryPro. Masonry is 20–25% of total project cost — the most common area for contractor overcharging.
           </p>
           <a
@@ -1563,7 +1563,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <button
             onClick={onStartOver}
             className="text-[12px] underline"
-            style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}
+            style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}
           >
             Start a new estimate
           </button>

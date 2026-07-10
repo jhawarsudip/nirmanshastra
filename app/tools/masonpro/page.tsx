@@ -140,7 +140,7 @@ export default function MasonryProPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F4F4F0', position: 'relative' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-base)', position: 'relative' }}>
       <MasonryBackground />
       <div style={{ position: 'relative', zIndex: 1 }}>
       <WizardStepBar currentStep={step} toolName="MasonryPro" toolPhase="P2" />

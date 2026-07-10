@@ -78,7 +78,14 @@
       "Bash(sed -i '' 's|{appUrl}/tools → ₹499 per phase tool|{appUrl}/tools → from ₹499 per phase tool|g' /Users/sudipjhawar/nirmanshastra/lib/pdf/interiorpro-pdf.tsx)",
       "Bash(npm search *)",
       "Bash(npm pack *)",
-      "Bash(identify /Users/sudipjhawar/nirmanshastra/public/logo-mark-reversed.png)"
+      "Bash(identify /Users/sudipjhawar/nirmanshastra/public/logo-mark-reversed.png)",
+      "Bash(sed -i '' 's|className=\"min-h-screen bg-sheet-white\"|className=\"min-h-screen\" style={{ background: \"var\\(--bg-base\\)\" }}|g' app/tools/vastu-pro/components/AnalysisResults.tsx)",
+      "Bash(sed -i '' 's|background: '\\\\''#1E2227'\\\\'', borderBottom:|background: '\\\\''var\\(--bg-surface\\)'\\\\'', borderBottom:|g' app/tools/vastu-pro/components/AnalysisResults.tsx)",
+      "Bash(sed -i '' 's|background: '\\\\''#1E2227'\\\\'', border: '\\\\''1px solid rgba\\(201,168,76,0.3\\)'\\\\''|background: '\\\\''var\\(--bg-surface\\)'\\\\'', border: '\\\\''1px solid rgba\\(201,168,76,0.3\\)'\\\\''|g' app/tools/vastu-pro/components/AnalysisResults.tsx)",
+      "Bash(sed -i '' 's|rgba\\(30,34,39,0.08\\)|rgba\\(255,255,255,0.08\\)|g' app/tools/vastu-pro/components/AnalysisResults.tsx)",
+      "Bash(sed -i '' 's|rgba\\(30,34,39,0.04\\)|rgba\\(255,255,255,0.03\\)|g' app/tools/vastu-pro/components/AnalysisResults.tsx)",
+      "Bash(sed -i '' 's|} style={{ border: .1px solid rgba\\(255,255,255,0.08\\). }}||}g' app/tools/structopro/components/VEResultsPage.tsx)",
+      "Bash(sed -n '315,320p' app/tools/structopro/components/VEResultsPage.tsx)"
     ]
   }
 }

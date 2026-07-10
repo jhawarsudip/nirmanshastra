@@ -17,7 +17,7 @@
   --font-devanagari: var(--font-plex-devanagari);
 }
 
-/* ── MATTE DARK-MODE DESIGN TOKENS (homepage) ────────────────────────────── */
+/* ── MATTE DARK-MODE DESIGN TOKENS ──────────────────────────────────────── */
 :root {
   --bg-base: #0A0A0A;
   --bg-surface: #171717;
@@ -27,6 +27,54 @@
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-active: #C5A059;
   --vastu-gold: #C9A84C;
+
+  /* Tool-specific accents — muted for matte dark-mode system */
+  --tool-masonry:   #7A2E18;  /* Stamp Oxide muted (-8% brightness) */
+  --tool-electrical:#C4870A;  /* Marking Yellow muted (-10% brightness) */
+  --tool-plumbing:  #255959;  /* Teal muted (-10% brightness) */
+  --tool-interior:  #9A7255;  /* Tan muted (-10% brightness) */
+}
+
+/* ── TOOL PAGE DARK-MODE BORDER DEFAULTS ────────────────────────────────── */
+/* border-b and border-t inside tool pages need dark-mode color */
+.tool-wizard-form .border-b,
+.tool-wizard-form .border-t {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Dropdown selects on dark bg */
+.tool-wizard-form select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+/* Input placeholders on dark bg */
+.tool-wizard-form input::placeholder,
+.tool-wizard-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── TOOL WIZARD INTERACTIVE CARD HOVER — gold border + shadow ──────────── */
+/* Applied to method-selection cards and site-condition cards */
+.tool-card-interactive {
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+@media (hover: hover) {
+  .tool-card-interactive:hover {
+    border-color: var(--accent-gold) !important;
+    box-shadow: 0 0 0 1px rgba(197,160,89,0.10);
+  }
+}
+
+/* ── NAVBAR DROPDOWN — gold hover on tool links ──────────────────────────── */
+.nav-dropdown-item {
+  transition: background 160ms ease;
+}
+.nav-dropdown-item:hover {
+  background: rgba(197, 160, 89, 0.06) !important;
+}
+.nav-dropdown-item:hover .nav-dropdown-name {
+  color: var(--accent-gold) !important;
 }
 
 body {

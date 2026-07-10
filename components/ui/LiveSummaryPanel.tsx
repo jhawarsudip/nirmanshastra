@@ -42,7 +42,7 @@ export default function LiveSummaryPanel({ toolName, toolPhase, price, regData, 
   return (
     <div
       className="h-full"
-      style={{ background: '#1E2227', padding: '32px 28px', borderLeft: '1px solid rgba(244,244,240,0.08)', minHeight: '100%', position: 'sticky', top: 0 }}
+      style={{ background: 'var(--bg-surface)', padding: '32px 28px', borderLeft: '1px solid rgba(255,255,255,0.06)', minHeight: '100%', position: 'sticky', top: 0 }}
     >
       {/* Header */}
       <div style={{ marginBottom: 28 }}>

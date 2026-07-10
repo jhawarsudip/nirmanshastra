@@ -32,13 +32,13 @@ declare global {
 function BlurOverlay({ onClick }: { onClick: () => void }) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[2px] z-10"
-      style={{ background: 'rgba(244,244,240,0.85)', backdropFilter: 'blur(2px)' }}>
+      style={{ background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(2px)' }}>
       <div className="text-center px-6 py-5 rounded-[2px] max-w-sm"
-        style={{ border: '1px solid rgba(30,34,39,0.15)', background: '#F4F4F0' }}>
-        <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+        style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'var(--bg-surface)' }}>
+        <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
           ₹999 · UNLOCK TO VIEW
         </p>
-        <p className="text-[13px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+        <p className="text-[13px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
           Exact quantities, itemised costs, and splice bar schedule
         </p>
         <button onClick={onClick}
@@ -72,7 +72,7 @@ function StampBadge({ status, clause, description }: { status: 'pass' | 'advisor
       </div>
       <div className="min-w-0">
         <p className="text-[11px] font-medium" style={{ color: c.text, fontFamily: 'var(--font-plex-mono)' }}>{clause}</p>
-        <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{description}</p>
+        <p className="text-[12px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{description}</p>
       </div>
     </div>
   )
@@ -206,11 +206,11 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
   }[colAdq.status]
 
   return (
-    <div className="min-h-screen pb-16" style={{ background: '#F4F4F0' }}>
+    <div className="min-h-screen pb-16" style={{ background: 'var(--bg-surface)' }}>
       <div className="px-6 md:px-12 lg:px-16 pt-6 space-y-6">
 
         {/* Header */}
-        <div className="p-6 rounded-[2px]" style={{ background: '#1E2227', border: '1px solid rgba(30,34,39,0.7)' }}>
+        <div className="p-6 rounded-[2px]" style={{ background: 'var(--bg-surface)', border: '1px solid rgba(30,34,39,0.7)' }}>
           <div className="flex items-center gap-2 mb-3">
             <span className="px-2 py-0.5 rounded-[2px] text-[10px]" style={{ background: 'rgba(217,154,6,0.2)', color: '#D99A06', fontFamily: 'var(--font-plex-mono)', border: '1px solid rgba(217,154,6,0.4)' }}>
               🔼 VERTICAL EXTENSION — NEW FLOORS ONLY
@@ -247,7 +247,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
           <p className="text-[12px] font-bold mb-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
             ⚠️ IS 1893:2016 + IS 456:2000 — MANDATORY SAFETY ADVISORY
           </p>
-          <p className="text-[13px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             Adding floors to an existing building increases loads on existing foundations and columns. A structural audit by a licensed engineer is <strong>MANDATORY</strong> before adding floors. NirmanShastra calculates the additional material cost only — suitability of the existing structure must be certified by a structural engineer.
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
@@ -261,30 +261,30 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
         </div>
 
         {/* ── Grand Total Range (FREE) ─────────────────────────────────────────── */}
-        <div className="p-6 rounded-[2px]" style={{ border: '2px solid #1F4E79', background: '#F4F4F0' }}>
+        <div className="p-6 rounded-[2px]" style={{ border: '2px solid #1F4E79', background: 'var(--bg-surface)' }}>
           <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
             ADDITIONAL MATERIAL COST — NEW FLOORS ONLY · FOUNDATION EXCLUDED
           </p>
-          <p className="text-[12px] mb-4" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[12px] mb-4" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
             What you need to budget for the new floors. Foundation and excavation are separately assessed by your structural engineer.
           </p>
           <div className="flex flex-col sm:flex-row items-end gap-4 mb-4">
             <div>
-              <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+              <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                 YOUR STRUCTURE COST
               </p>
-              <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(32px,5vw,52px)', fontWeight: 700, color: '#1E2227', lineHeight: 1.1 }}>
+              <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 'clamp(32px,5vw,52px)', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1 }}>
                 <CountUp to={r.grandTotalRange.basic}    format={n => formatLakhs(n)} />
                 {' – '}
                 <CountUp to={r.grandTotalRange.premium}  format={n => formatLakhs(n)} />
               </div>
             </div>
             <div className="text-right sm:ml-auto">
-              <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>Standard estimate</p>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>Standard estimate</p>
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 20, fontWeight: 600, color: '#1F4E79' }}>
                 <CountUp to={r.grandTotalRange.standard} format={n => formatLakhs(n)} />
               </p>
-              <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                 ≈ ₹<CountUp to={r.perSqftCost.standard} format={n => Math.round(n).toLocaleString('en-IN')} />/sqft
               </p>
             </div>
@@ -298,24 +298,24 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
               { label: 'Premium',  val: r.grandTotalRange.premium,  note: 'Materials + premium labour + 15% OH' },
             ]).map(tier => (
               <div key={tier.label} className="p-3 rounded-[2px] text-center"
-                style={{ background: tier.highlight ? '#1F4E7912' : '#1E22270A', border: `1px solid ${tier.highlight ? '#1F4E7930' : '#1E222715'}` }}>
-                <p className="text-[11px] uppercase tracking-wide mb-1" style={{ color: tier.highlight ? '#1F4E79' : '#1E222780', fontFamily: 'var(--font-plex-mono)' }}>{tier.label}</p>
-                <p className="text-[18px] font-bold" style={{ color: tier.highlight ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{formatLakhs(tier.val)}</p>
-                <p className="text-[10px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>{tier.note}</p>
+                style={{ background: tier.highlight ? '#1F4E7912' : 'rgba(255,255,255,0.03)', border: `1px solid ${tier.highlight ? '#1F4E7930' : 'rgba(255,255,255,0.06)'}` }}>
+                <p className="text-[11px] uppercase tracking-wide mb-1" style={{ color: tier.highlight ? '#1F4E79' : 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{tier.label}</p>
+                <p className="text-[18px] font-bold" style={{ color: tier.highlight ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{formatLakhs(tier.val)}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>{tier.note}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-3 p-3 rounded-[2px]" style={{ background: 'rgba(30,34,39,0.04)', border: '1px solid rgba(30,34,39,0.1)' }}>
-            <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
+          <div className="mt-3 p-3 rounded-[2px]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>
               <strong>Scope of this estimate:</strong> New floor materials only (concrete + steel + formwork). Excludes: foundation strengthening, existing structure repairs, masonry/plaster/finishing, electrical, plumbing, scaffold/hoist rental. These are estimated by MasonryPro, ElectricalPro, and PlumbingPro.
             </p>
           </div>
         </div>
 
         {/* ── Foundation Check — Column Adequacy (FREE) ───────────────────────── */}
-        <div className="rounded-[2px]" style={{ border: '1px solid rgba(30,34,39,0.12)' }}>
-          <div className="px-6 py-4" style={{ background: '#1E22270A', borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="rounded-[2px]" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "var(--bg-surface)" }}>
+          <div className="px-6 py-4" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               FOUNDATION CHECK — COLUMN LOAD ADEQUACY
             </p>
@@ -330,7 +330,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
                   {colStatusColour.label}
                 </div>
                 <div>
-                  <p className="text-[13px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                  <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                     {colAdq.message}
                   </p>
                   <p className="text-[11px] mt-1.5" style={{ color: colStatusColour.text, fontFamily: 'var(--font-plex-mono)' }}>
@@ -344,18 +344,18 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
             <div className="overflow-x-auto">
               <table className="w-full text-[12px] border-collapse">
                 <thead>
-                  <tr style={{ background: '#1E22270A' }}>
+                  <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
                     {['Check', 'Existing', 'After Adding', 'Thumb Rule Limit', 'Status'].map(h => (
-                      <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
+                      <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style={{ borderBottom: '1px solid #1E222710' }}>
-                    <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Column size vs height</td>
-                    <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{existingLabel} · {input.existingColumnSize}mm</td>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Column size vs height</td>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{existingLabel} · {input.existingColumnSize}mm</td>
                     <td className="px-3 py-2 font-semibold" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{resultingLabel}</td>
-                    <td className="px-3 py-2" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-mono)' }}>
+                    <td className="px-3 py-2" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                       {input.existingColumnSize}mm → max G+{colAdq.maxSafeUpperFloors}
                     </td>
                     <td className="px-3 py-2">
@@ -365,11 +365,11 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
                       </span>
                     </td>
                   </tr>
-                  <tr style={{ borderBottom: '1px solid #1E222710' }}>
-                    <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Seismic zone</td>
-                    <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>Zone {r.seismicZone}</td>
-                    <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>Zone {r.seismicZone}</td>
-                    <td className="px-3 py-2" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-mono)' }}>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Seismic zone</td>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>Zone {r.seismicZone}</td>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>Zone {r.seismicZone}</td>
+                    <td className="px-3 py-2" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                       {['III','IV','V'].includes(r.seismicZone) ? 'Fe500D + IS 13920:2016' : 'Fe500 min'}
                     </td>
                     <td className="px-3 py-2">
@@ -383,8 +383,8 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Structural audit</td>
-                    <td className="px-3 py-2 col-span-2" colSpan={3} style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Structural audit</td>
+                    <td className="px-3 py-2 col-span-2" colSpan={3} style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
                       {input.hasStructuralAudit === 'yes' ? '✓ Audit done — proceed with engineer\'s report' : input.hasStructuralAudit === 'planning' ? 'Planned — obtain before starting work' : 'Not done — MANDATORY before any work'}
                     </td>
                     <td className="px-3 py-2">
@@ -405,8 +405,8 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
         </div>
 
         {/* ── Paid Section: Quantities + Splice Bar Schedule ───────────────────── */}
-        <div className="rounded-[2px] relative overflow-hidden" style={{ border: '1px solid rgba(30,34,39,0.12)' }}>
-          <div className="px-6 py-4" style={{ background: '#1E22270A', borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="rounded-[2px] relative overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="px-6 py-4" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               EXACT MATERIAL QUANTITIES + SPLICE BAR SCHEDULE
             </p>
@@ -424,9 +424,9 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
               </p>
               <table className="w-full text-[12px] border-collapse">
                 <thead>
-                  <tr style={{ background: '#1E22270A' }}>
+                  <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
                     {['Material', 'Quantity', 'Unit', 'Cost', 'Note'].map(h => (
-                      <th key={h} className="px-3 py-2 text-left" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720', fontWeight: 600 }}>{h}</th>
+                      <th key={h} className="px-3 py-2 text-left" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid rgba(255,255,255,0.08)', fontWeight: 600 }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -439,22 +439,22 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
                     { mat: 'Binding Wire',     qty: r.quantities.bindingWireKg, unit: 'kg', cost: r.materialCost.bindingWire, note: '12 kg/tonne steel · IS 280' },
                     { mat: 'Formwork',         qty: r.quantities.formworkSqft, unit: 'sqft contact', cost: r.materialCost.formwork, note: '~0.5× BUA' },
                   ].map(row => (
-                    <tr key={row.mat} style={{ borderBottom: '1px solid #1E222710' }}>
-                      <td className="px-3 py-2 font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.mat}</td>
-                      <td className="px-3 py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontWeight: 500 }}>{row.qty.toLocaleString('en-IN')}</td>
-                      <td className="px-3 py-2" style={{ color: '#1E222770', fontFamily: 'var(--font-plex-mono)' }}>{row.unit}</td>
+                    <tr key={row.mat} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td className="px-3 py-2 font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{row.mat}</td>
+                      <td className="px-3 py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontWeight: 500 }}>{row.qty.toLocaleString('en-IN')}</td>
+                      <td className="px-3 py-2" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>{row.unit}</td>
                       <td className="px-3 py-2 text-right" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>₹{row.cost.toLocaleString('en-IN')}</td>
-                      <td className="px-3 py-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)', fontSize: 11 }}>{row.note}</td>
+                      <td className="px-3 py-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)', fontSize: 11 }}>{row.note}</td>
                     </tr>
                   ))}
-                  <tr style={{ background: '#1E22270A', fontWeight: 700 }}>
-                    <td className="px-3 py-2 font-bold" colSpan={3} style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Total (with 7% wastage · no foundation)</td>
+                  <tr style={{ background: 'rgba(255,255,255,0.03)', fontWeight: 700 }}>
+                    <td className="px-3 py-2 font-bold" colSpan={3} style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Total (with 7% wastage · no foundation)</td>
                     <td className="px-3 py-2 text-right font-bold" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>₹{r.materialCost.totalWithWastage.toLocaleString('en-IN')}</td>
                     <td />
                   </tr>
                 </tbody>
               </table>
-              <p className="text-[11px] mt-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+              <p className="text-[11px] mt-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
                 Foundation strengthening, scaffold/hoist, masonry, plaster, electrical, and plumbing are NOT included.
               </p>
             </div>
@@ -464,7 +464,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
               <p className="text-[11px] uppercase tracking-widest mb-3" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
                 SPLICE BAR SCHEDULE — COLUMN EXTENSION (IS 456:2000 Cl 26.2.5)
               </p>
-              <p className="text-[12px] mb-4" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              <p className="text-[12px] mb-4" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                 Splice bars connect new column reinforcement to existing column bars at every extension junction. Most frequently omitted item in contractor steel schedules — verify before approving bar bending schedule.
               </p>
 
@@ -479,8 +479,8 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
                     { label: 'Total splice bar weight', val: `${r.spliceBarSchedule.totalSpliceWeightKg} kg (included in steel total above as part of +8%)` },
                     { label: 'IS reference', val: r.spliceBarSchedule.isRef },
                   ].map(row => (
-                    <tr key={row.label} style={{ borderBottom: '1px solid #1E222710' }}>
-                      <td className="py-2 pr-4 font-medium whitespace-nowrap" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', width: '40%' }}>{row.label}</td>
+                    <tr key={row.label} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td className="py-2 pr-4 font-medium whitespace-nowrap" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', width: '40%' }}>{row.label}</td>
                       <td className="py-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{row.val}</td>
                     </tr>
                   ))}
@@ -491,7 +491,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
                 <p className="text-[12px] font-semibold mb-1" style={{ color: '#7C5500', fontFamily: 'var(--font-plex-mono)' }}>
                   ⚠ SP 34 — CONTRACTOR VERIFICATION REQUIRED
                 </p>
-                <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                <p className="text-[12px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                   Splice bars at column tops are the most frequently omitted item in vertical extension contractor quotes. Ask your contractor to explicitly show splice/dowel bars in the bar bending schedule (BBS) with lap length clearly dimensioned. Do not accept a quote that does not itemise them.
                 </p>
               </div>
@@ -500,17 +500,17 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
         </div>
 
         {/* ── Technical Reminders (free) ──────────────────────────────────────── */}
-        <div className="rounded-[2px]" style={{ border: '1px solid rgba(30,34,39,0.12)' }}>
-          <div className="px-6 py-4" style={{ background: '#1E22270A', borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="rounded-[2px]" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "var(--bg-surface)" }}>
+          <div className="px-6 py-4" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               TECHNICAL REMINDERS — VERTICAL EXTENSION
             </p>
           </div>
           <div className="p-4 space-y-2">
             {r.technicalReminders.map((rem, i) => (
-              <div key={i} className="flex gap-3 py-2" style={{ borderBottom: i < r.technicalReminders.length - 1 ? '1px solid #1E222710' : 'none' }}>
+              <div key={i} className="flex gap-3 py-2" style={{ borderBottom: i < r.technicalReminders.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
                 <span className="text-[11px] shrink-0 mt-0.5 font-bold" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{String(i + 1).padStart(2, '0')}</span>
-                <p className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{rem}</p>
+                <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{rem}</p>
               </div>
             ))}
           </div>
@@ -518,7 +518,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
 
         {/* ── Unlock / Pay CTA ─────────────────────────────────────────────────── */}
         {!isPaid && (
-          <div className="p-6 rounded-[2px]" style={{ background: '#1E2227', border: '1px solid rgba(30,34,39,0.7)' }}>
+          <div className="p-6 rounded-[2px]" style={{ background: 'var(--bg-surface)', border: '1px solid rgba(30,34,39,0.7)' }}>
             <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: 'rgba(244,244,240,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
               UNLOCK YOUR FULL ESTIMATE
             </p>
@@ -549,7 +549,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
               ✓ Estimate unlocked — PDF includes splice bar schedule (Page 11 — VE only)
             </p>
             {pdfStatus === 'generating' && (
-              <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Generating your PDF report…</p>
+              <p className="text-[12px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Generating your PDF report…</p>
             )}
             {pdfStatus === 'ready' && pdfUrl && (
               <a href={pdfUrl} target="_blank" rel="noopener noreferrer"
@@ -571,7 +571,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
         <div className="text-center pt-2">
           <button onClick={onStartOver}
             className="text-[12px] px-4 py-2 rounded-[6px]"
-            style={{ color: 'rgba(30,34,39,0.5)', border: '1px solid rgba(30,34,39,0.2)', fontFamily: 'var(--font-plex-sans)' }}>
+            style={{ color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.15)', fontFamily: 'var(--font-plex-sans)' }}>
             ← Start a new estimate
           </button>
         </div>

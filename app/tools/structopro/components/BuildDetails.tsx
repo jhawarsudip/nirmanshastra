@@ -139,12 +139,12 @@ function Tip({
         onClick={() => setOpen(isOpen ? null : id)}
       >i</button>
       {isOpen && (
-        <div className="absolute z-50 left-6 top-0 w-64 p-3 rounded-[2px] shadow-lg" style={{ background: '#F4F4F0', border: '1.5px solid #1F4E79' }}>
+        <div className="absolute z-50 left-6 top-0 w-64 p-3 rounded-[2px] shadow-lg" style={{ background: 'var(--bg-surface)', border: '1.5px solid #1F4E79' }}>
           <div className="flex justify-between items-start mb-1">
             <span className="text-[12px] font-semibold" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-sans)' }}>{tip.title}</span>
             <button type="button" onClick={() => setOpen(null)} className="text-[11px] opacity-40 hover:opacity-100 ml-2">✕</button>
           </div>
-          <p className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{tip.body}</p>
+          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{tip.body}</p>
           {tip.is && <p className="text-[11px] mt-1.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>— {tip.is}</p>}
         </div>
       )}
@@ -155,7 +155,7 @@ function Tip({
 function Sect({ title, badge, defaultOpen = true, children }: { title: string; badge?: string; defaultOpen?: boolean; children: ReactNode }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div style={{ border: '1px solid rgba(30,34,39,0.12)', borderLeft: '3px solid #1F4E79' }}>
+    <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderLeft: '3px solid #1F4E79' }}>
       <button type="button" onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-6 py-4 text-left"
         style={{ background: 'rgba(31,78,121,0.04)' }}>
@@ -163,7 +163,7 @@ function Sect({ title, badge, defaultOpen = true, children }: { title: string; b
           <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 16, fontWeight: 600, color: '#1F4E79' }}>{title}</span>
           {badge && <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', background: 'rgba(31,78,121,0.12)', color: '#1F4E79' }}>{badge}</span>}
         </div>
-        <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.4)' }}>{open ? '▲' : '▼'}</span>
+        <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{open ? '▲' : '▼'}</span>
       </button>
       {open && <div className="px-6 py-6 space-y-5">{children}</div>}
     </div>
@@ -182,7 +182,7 @@ function AlertBox({ variant, children }: { variant: AlertVariant; children: Reac
   return (
     <div className="flex gap-3 p-4" style={{ background: s.bg, borderLeft: `4px solid ${s.border}` }}>
       <span className="text-[15px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
-      <div className="text-[13px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
+      <div className="text-[13px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
     </div>
   )
 }
@@ -204,7 +204,7 @@ function ISBadgeComp({ variant, text }: ISBadge) {
 
 function RegionalNote({ children }: { children: string }) {
   return (
-    <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+    <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
       {children}
     </p>
   )
@@ -256,13 +256,13 @@ function ElevationDiagram({ floorRows, sameArea, groundArea }: {
   })
 
   return (
-    <div className="mt-3 p-3 rounded-[2px]" style={{ border: '1px solid #1E222720', background: '#1E22270A' }}>
+    <div className="mt-3 p-3 rounded-[2px]" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
       <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
         LIVE ELEVATION DIAGRAM
       </p>
       <svg ref={svgRef} width={svgW} height={svgH} style={{ display: 'block', margin: '0 auto' }}>
         {/* ground line */}
-        <line x1={10} y1={baseY} x2={svgW - 10} y2={baseY} stroke="#1E222740" strokeWidth={1} />
+        <line x1={10} y1={baseY} x2={svgW - 10} y2={baseY} stroke='rgba(255,255,255,0.20)' strokeWidth={1} />
         {floorRects.map((r, i) => (
           <g key={i}>
             <rect
@@ -280,11 +280,11 @@ function ElevationDiagram({ floorRows, sameArea, groundArea }: {
             </text>
           </g>
         ))}
-        <text x={svgW - 5} y={baseY + 12} textAnchor="end" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, fill: '#1E222760' }}>
+        <text x={svgW - 5} y={baseY + 12} textAnchor="end" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, fill: 'rgba(255,255,255,0.35)' }}>
           G.L.
         </text>
       </svg>
-      <p className="text-[10px] text-center mt-1" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>
+      <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
         Ground floor at bottom · bar width = area · bar height = floor-to-floor height
       </p>
     </div>
@@ -587,12 +587,12 @@ export default function BuildDetails({ state: initState, city: initCity, project
   }
 
   const iCls = 'w-full px-4 rounded-[6px] border text-[14px] bg-white'
-  const iStyle = { borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)', minHeight: 48 }
-  const monoStyle = { fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }
+  const iStyle = { borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', minHeight: 48 }
+  const monoStyle = { fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }
   const lCls = 'block text-[13px] font-medium mb-2'
-  const lStyle = { color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }
+  const lStyle = { color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }
   const avgTag = (v: number | string, unit = '') => (
-    <span className="text-[11px] ml-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>
+    <span className="text-[11px] ml-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
       India Avg: {v}{unit}
     </span>
   )
@@ -608,12 +608,12 @@ export default function BuildDetails({ state: initState, city: initCity, project
     <form onSubmit={e => e.preventDefault()} className="space-y-4 py-8 px-6 md:px-10">
       <div className="mb-2">
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>P1 · RCC STRUCTURE ESTIMATOR</p>
-        <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 32, fontWeight: 700, color: '#1E2227', lineHeight: 1.15 }}>StructurePro — Build Details</h2>
-        <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.55)', marginTop: 6 }}>Fill all sections to generate your IS-code verified structural estimate</p>
+        <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 32, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.15 }}>StructurePro — Build Details</h2>
+        <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(255,255,255,0.50)', marginTop: 6 }}>Fill all sections to generate your IS-code verified structural estimate</p>
       </div>
 
       {/* ── Progress Indicator ─────────────────────────────────────────────────── */}
-      <div className="flex items-center flex-wrap gap-x-0.5 gap-y-2 pb-4 overflow-x-auto" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+      <div className="flex items-center flex-wrap gap-x-0.5 gap-y-2 pb-4 overflow-x-auto" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         {([
           { label: '1 REG',        done: true,                                 active: false },
           { label: '2 METHOD',     done: true,                                 active: false },
@@ -626,14 +626,14 @@ export default function BuildDetails({ state: initState, city: initCity, project
             <span className="text-[10px] px-2 py-0.5 rounded-[2px]" style={{
               fontFamily: 'var(--font-plex-mono)',
               background: step.active ? '#1F4E79' : step.done ? 'rgba(20,83,45,0.08)' : 'rgba(30,34,39,0.05)',
-              color: step.active ? '#fff' : step.done ? '#14532D' : 'rgba(30,34,39,0.35)',
-              border: `1px solid ${step.active ? 'transparent' : step.done ? 'rgba(20,83,45,0.2)' : 'rgba(30,34,39,0.12)'}`,
+              color: step.active ? '#fff' : step.done ? '#14532D' : 'rgba(255,255,255,0.30)',
+              border: `1px solid ${step.active ? 'transparent' : step.done ? 'rgba(20,83,45,0.2)' : 'rgba(255,255,255,0.06)'}`,
               whiteSpace: 'nowrap',
             }}>
               {step.done ? '✓ ' : ''}{step.label}
             </span>
             {i < arr.length - 1 && (
-              <span style={{ color: 'rgba(30,34,39,0.25)', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '0 3px' }}>—</span>
+              <span style={{ color: 'rgba(255,255,255,0.20)', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '0 3px' }}>—</span>
             )}
           </div>
         ))}
@@ -643,7 +643,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
 
       {onBack && (
         <button type="button" onClick={onBack}
-          style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+          style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(255,255,255,0.50)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
           ← Change Method
         </button>
       )}
@@ -704,7 +704,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
               {(['Yes', 'No'] as const).map(opt => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="sameArea" checked={sameArea === (opt === 'Yes')} onChange={() => setSameArea(opt === 'Yes')} style={{ accentColor: '#1F4E79' }} />
-                  <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{opt}</span>
+                  <span className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{opt}</span>
                 </label>
               ))}
             </div>
@@ -729,9 +729,9 @@ export default function BuildDetails({ state: initState, city: initCity, project
             <div className="overflow-x-auto">
               <table className="w-full text-[12px] border-collapse">
                 <thead>
-                  <tr style={{ background: '#1E22270A' }}>
+                  <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
                     {['Floor Level', 'Area (sq ft)', 'Type', 'Height (ft)', 'Diff from prev.', 'IS Checks'].map(h => (
-                      <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
+                      <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -741,8 +741,8 @@ export default function BuildDetails({ state: initState, city: initCity, project
                     const prevArea = idx > 0 ? (parseFloat(floorRows[idx - 1].area) || 0) : null
                     const diff = prevArea !== null ? currArea - prevArea : null
                     return (
-                      <tr key={idx} style={{ borderBottom: '1px solid #1E222710' }}>
-                        <td className="px-3 py-2 font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
+                      <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td className="px-3 py-2 font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
                         <td className="px-2 py-1">
                           <input
                             className="w-full px-2 py-1 rounded-[2px] border text-[13px]"
@@ -775,17 +775,17 @@ export default function BuildDetails({ state: initState, city: initCity, project
                             onChange={e => updateFloorRow(idx, 'height', e.target.value)}
                           />
                         </td>
-                        <td className="px-3 py-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: diff === null ? '#1E222740' : diff > 0 ? '#14532D' : diff < 0 ? '#8C3A22' : '#1E2227' }}>
+                        <td className="px-3 py-2 text-[12px] font-medium" style={{ fontFamily: 'var(--font-plex-mono)', color: diff === null ? 'rgba(255,255,255,0.20)' : diff > 0 ? '#14532D' : diff < 0 ? '#8C3A22' : 'var(--text-primary)' }}>
                           {diff === null ? '—' : diff > 0 ? `+${diff.toFixed(0)} sqft` : diff < 0 ? `${diff.toFixed(0)} sqft` : '±0 sqft'}
                         </td>
                         <td className="px-3 py-2 min-w-[220px]">
                           {idx === 0
-                            ? <span className="text-[10px]" style={{ color: '#1E222740', fontFamily: 'var(--font-plex-mono)' }}>Base floor — no upper comparison</span>
+                            ? <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.20)', fontFamily: 'var(--font-plex-mono)' }}>Base floor — no upper comparison</span>
                             : structuralChecks.perFloor[idx]?.badges.length > 0
                               ? <div className="space-y-1">{structuralChecks.perFloor[idx].badges.map((b, bi) => <ISBadgeComp key={bi} variant={b.variant} text={b.text} />)}</div>
                               : (parseFloat(floorRows[idx].area) > 0
                                 ? <span className="text-[10px]" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}>✓ No irregularities detected</span>
-                                : <span className="text-[10px]" style={{ color: '#1E222740', fontFamily: 'var(--font-plex-mono)' }}>Enter area to check</span>
+                                : <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.20)', fontFamily: 'var(--font-plex-mono)' }}>Enter area to check</span>
                               )
                           }
                         </td>
@@ -824,7 +824,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
             <p className="text-[13px] font-bold mb-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
               ⛔ Structural Design Issue Detected
             </p>
-            <p className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
               One or more floors have dimensions that cannot be safely built with standard RCC per IS 456:2000 and IS 1893:2016. Please revise floor areas or consult a licensed structural engineer before proceeding. NirmanShastra cannot estimate cost for structurally infeasible configurations.
             </p>
             <p className="text-[11px] mt-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
@@ -839,7 +839,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
             <p className="text-[13px] font-bold mb-1" style={{ color: '#7C5500', fontFamily: 'var(--font-plex-mono)' }}>
               ⚠️ Structural Irregularities Detected
             </p>
-            <p className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
               This building requires dynamic analysis per IS 1893:2016. This estimate is for budgeting reference only. A licensed structural engineer must validate the design before construction.
             </p>
             <p className="text-[11px] mt-2" style={{ color: '#7C5500', fontFamily: 'var(--font-plex-mono)' }}>
@@ -865,13 +865,13 @@ export default function BuildDetails({ state: initState, city: initCity, project
               onClick={() => setSiteCondition(card.value)}
               className="p-3 rounded-[2px] border text-left transition-all"
               style={{
-                borderColor: siteCondition === card.value ? '#1F4E79' : '#1E222720',
+                borderColor: siteCondition === card.value ? '#1F4E79' : 'rgba(255,255,255,0.08)',
                 background:  siteCondition === card.value ? '#1F4E7912' : 'white',
               }}
             >
               <div className="text-[18px] mb-1">{card.icon}</div>
-              <div className="text-[12px] font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{card.label}</div>
-              <div className="text-[11px] mt-0.5" style={{ color: '#1E222770', fontFamily: 'var(--font-plex-sans)' }}>{card.note}</div>
+              <div className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{card.label}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-sans)' }}>{card.note}</div>
             </button>
           ))}
         </div>
@@ -902,16 +902,16 @@ export default function BuildDetails({ state: initState, city: initCity, project
             <div className="flex items-start gap-2">
               <span className="text-[11px] font-medium" style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)', marginTop: 1 }}>RECOMMENDED</span>
               <div>
-                <p className="text-[13px] font-semibold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{foundationRec.label}</p>
+                <p className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{foundationRec.label}</p>
                 <p className="text-[11px]" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{foundationRec.isCode} · ₹{foundationRec.minCostPerSqft}–{foundationRec.maxCostPerSqft}/sqft</p>
                 {foundationRec.warning && <p className="text-[12px] mt-1" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>⚠ {foundationRec.warning}</p>}
               </div>
             </div>
             <div className="flex items-center gap-2 mt-3">
-              <label className="text-[12px]" style={{ color: '#1E2227A0', fontFamily: 'var(--font-plex-sans)' }}>Override foundation type:</label>
+              <label className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Override foundation type:</label>
               <select
                 className="px-2 py-1 rounded-[2px] border text-[12px]"
-                style={{ borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)', background: 'white' }}
+                style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', background: 'rgba(255,255,255,0.04)' }}
                 value={foundationOverride}
                 onChange={e => setFoundationOverride(e.target.value)}
               >
@@ -931,10 +931,10 @@ export default function BuildDetails({ state: initState, city: initCity, project
       {/* ── S4: Scope ─────────────────────────────────────────────────────────── */}
       <Sect title="4 — What are you including in this estimate?">
         {/* Staircase */}
-        <div className="p-4 rounded-[2px] border" style={{ borderColor: '#1E222720' }}>
+        <div className="p-4 rounded-[2px] border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
           <div className="flex items-center gap-3 mb-3">
             <input type="checkbox" id="sc-stair" checked={staircase.include} onChange={e => setStaircase(s => ({ ...s, include: e.target.checked }))} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
-            <label htmlFor="sc-stair" className="text-[13px] font-semibold cursor-pointer" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            <label htmlFor="sc-stair" className="text-[13px] font-semibold cursor-pointer" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
               Staircase
               <Tip id="staircase" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
@@ -952,15 +952,15 @@ export default function BuildDetails({ state: initState, city: initCity, project
               <div>
                 <label className={lCls} style={lStyle}>Clear width (mm)</label>
                 <input className={iCls} style={{ ...iStyle, ...monoStyle }} type="number" min="900" value={staircase.widthMm} onChange={e => setStaircase(s => ({ ...s, widthMm: parseInt(e.target.value) || 1200 }))} />
-                <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>NBC min: 900mm</p>
+                <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>NBC min: 900mm</p>
               </div>
               <div>
                 <label className={lCls} style={lStyle}>Staircases per floor</label>
-                <p className="text-[11px] mb-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>(same staircase continues through all floors)</p>
+                <p className="text-[11px] mb-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>(same staircase continues through all floors)</p>
                 <div className="flex items-center gap-2">
-                  <button type="button" onClick={() => setStaircase(s => ({ ...s, count: Math.max(1, s.count - 1) }))} className="w-8 h-8 rounded-[2px] border flex items-center justify-center text-lg" style={{ borderColor: '#1E222730' }}>−</button>
+                  <button type="button" onClick={() => setStaircase(s => ({ ...s, count: Math.max(1, s.count - 1) }))} className="w-8 h-8 rounded-[2px] border flex items-center justify-center text-lg" style={{ borderColor: 'rgba(255,255,255,0.12)' }}>−</button>
                   <span className="text-[14px] font-semibold w-8 text-center" style={monoStyle}>{staircase.count}</span>
-                  <button type="button" onClick={() => setStaircase(s => ({ ...s, count: Math.min(4, s.count + 1) }))} className="w-8 h-8 rounded-[2px] border flex items-center justify-center text-lg" style={{ borderColor: '#1E222730' }}>+</button>
+                  <button type="button" onClick={() => setStaircase(s => ({ ...s, count: Math.min(4, s.count + 1) }))} className="w-8 h-8 rounded-[2px] border flex items-center justify-center text-lg" style={{ borderColor: 'rgba(255,255,255,0.12)' }}>+</button>
                 </div>
               </div>
             </div>
@@ -968,10 +968,10 @@ export default function BuildDetails({ state: initState, city: initCity, project
         </div>
 
         {/* OHT */}
-        <div className="p-4 rounded-[2px] border" style={{ borderColor: '#1E222720' }}>
+        <div className="p-4 rounded-[2px] border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
           <div className="flex items-center gap-3 mb-3">
             <input type="checkbox" id="sc-oht" checked={oht.include} onChange={e => setOht(o => ({ ...o, include: e.target.checked }))} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
-            <label htmlFor="sc-oht" className="text-[13px] font-semibold cursor-pointer" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            <label htmlFor="sc-oht" className="text-[13px] font-semibold cursor-pointer" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
               Overhead Tank (OHT)
               <Tip id="oht" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
@@ -981,7 +981,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
               {(['hdpe', 'rcc'] as const).map(t => (
                 <label key={t} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="ohtType" checked={oht.type === t} onChange={() => setOht(o => ({ ...o, type: t }))} style={{ accentColor: '#1F4E79' }} />
-                  <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                  <span className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                     {t === 'hdpe' ? 'HDPE (IS 12701) — lighter, no leak' : 'RCC slab tank — lower material cost'}
                   </span>
                 </label>
@@ -991,10 +991,10 @@ export default function BuildDetails({ state: initState, city: initCity, project
         </div>
 
         {/* Parapet */}
-        <div className="p-4 rounded-[2px] border" style={{ borderColor: '#1E222720' }}>
+        <div className="p-4 rounded-[2px] border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
           <div className="flex items-center gap-3 mb-3">
             <input type="checkbox" id="sc-parapet" checked={parapet.include} onChange={e => setParapet(p => ({ ...p, include: e.target.checked }))} style={{ accentColor: '#1F4E79', width: 16, height: 16 }} />
-            <label htmlFor="sc-parapet" className="text-[13px] font-semibold cursor-pointer" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            <label htmlFor="sc-parapet" className="text-[13px] font-semibold cursor-pointer" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
               Parapet (RCC band)
               <Tip id="parapet" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
@@ -1005,10 +1005,10 @@ export default function BuildDetails({ state: initState, city: initCity, project
                 <div>
                   <label className={lCls} style={lStyle}>Height (mm)</label>
                   <input className="w-32 px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="900" value={parapet.heightMm} onChange={e => setParapet(p => ({ ...p, heightMm: parseInt(e.target.value) || 900 }))} />
-                  <span className="text-[11px] ml-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>NBC min: 900mm</span>
+                  <span className="text-[11px] ml-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>NBC min: 900mm</span>
                 </div>
               </div>
-              <p className="text-[12px]" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
                 Note: RCC band built during structural pour. Brick/block infill covered by MasonryPro.
               </p>
             </div>
@@ -1016,8 +1016,8 @@ export default function BuildDetails({ state: initState, city: initCity, project
         </div>
 
         {/* Parking */}
-        <div className="p-4 rounded-[2px] border" style={{ borderColor: isStiltSoftStorey ? '#D99A0640' : '#1E222720' }}>
-          <label className="block text-[13px] font-semibold mb-3" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+        <div className="p-4 rounded-[2px] border" style={{ borderColor: isStiltSoftStorey ? '#D99A0640' : 'rgba(255,255,255,0.08)' }}>
+          <label className="block text-[13px] font-semibold mb-3" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             Parking
             <Tip id="parking" open={activeTooltip} setOpen={setActiveTooltip} />
           </label>
@@ -1025,14 +1025,14 @@ export default function BuildDetails({ state: initState, city: initCity, project
             {([['none', 'No covered parking'], ['stilt', 'Stilt Ground Floor (open columns)'], ['shed', 'Separate parking shed']] as const).map(([val, label]) => (
               <label key={val} className="flex items-center gap-2 cursor-pointer">
                 <input type="radio" name="parking" checked={parkingType === val} onChange={() => setParkingType(val)} style={{ accentColor: '#1F4E79' }} />
-                <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</span>
+                <span className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</span>
               </label>
             ))}
           </div>
           {isStiltSoftStorey && (
             <div className="mt-3 p-3 rounded-[2px]" style={{ background: '#D99A0610', border: '1.5px solid #D99A0660' }}>
               <p className="text-[12px] font-semibold" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>⚠ SOFT STOREY WARNING — IS 1893:2016 Cl 7.10</p>
-              <p className="text-[12px] mt-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+              <p className="text-[12px] mt-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                 Stilt ground floor in Seismic Zone {effectiveZone} creates a structural irregularity. A licensed structural engineer must design the stilt frame with special detailing.
               </p>
             </div>
@@ -1088,7 +1088,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
               ['M35','M35 — Very severe exposure'],
               ['M40','M40 — Extreme / coastal'],
             ])}
-            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 456:2000 min for RCC: M20</p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>IS 456:2000 min for RCC: M20</p>
           </div>
           <div>
             <label className={lCls} style={lStyle}>
@@ -1101,7 +1101,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
               ['Fe500D','Fe500D — Seismic Zone III-V (ductile)'],
               ['Fe550D','Fe550D — High-rise seismic'],
             ])}
-            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 13920:2016 — Zone III+: Fe500D mandatory</p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>IS 13920:2016 — Zone III+: Fe500D mandatory</p>
           </div>
         </div>
 
@@ -1177,7 +1177,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
               ['150','150mm'],
               ['175','175mm'],
             ])}
-            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 456:2000 min: 125mm</p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>IS 456:2000 min: 125mm</p>
           </div>
         </div>
 
@@ -1277,7 +1277,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
               value={foundationDepthM}
               onChange={e => setFoundationDepthM(parseFloat(e.target.value) || 1.5)}
             />
-            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>IS 1904:2016 min: 0.5m · default 1.5m</p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>IS 1904:2016 min: 0.5m · default 1.5m</p>
           </div>
           <div>
             <label className={lCls} style={lStyle}>
@@ -1294,14 +1294,14 @@ export default function BuildDetails({ state: initState, city: initCity, project
               value={plinthHeight}
               onChange={e => setPlinthHeight(parseFloat(e.target.value) || 0.6)}
             />
-            <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>NBC 2016 recommendation: min 0.45m · default 0.6m</p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>NBC 2016 recommendation: min 0.45m · default 0.6m</p>
           </div>
           <div>
             <label className={lCls} style={lStyle}>
               Exposure Class
               <Tip id="exposure" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
-            <div className="px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, background: '#F4F4F0', ...monoStyle }}>
+            <div className="px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, background: 'var(--bg-surface)', ...monoStyle }}>
               {exposureClass.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} (auto from site)
             </div>
           </div>
@@ -1310,7 +1310,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
               Concrete Cover (mm)
               <Tip id="cover" open={activeTooltip} setOpen={setActiveTooltip} />
             </label>
-            <div className="px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, background: '#F4F4F0', ...monoStyle }}>
+            <div className="px-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, background: 'var(--bg-surface)', ...monoStyle }}>
               {coverMm} mm (IS 456:2000 Table 16 — read-only)
             </div>
           </div>
@@ -1333,16 +1333,16 @@ export default function BuildDetails({ state: initState, city: initCity, project
       {/* ── Step 3b: Material Rates ──────────────────────────────────────────── */}
       {subStep === '3b' && (<>
         <button type="button" onClick={() => setSubStep('3a')}
-          style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+          style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(255,255,255,0.50)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
           ← Back to Structure Details
         </button>
         <div>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3b · MATERIAL RATES</p>
-          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Enter Your Local Material Rates</h3>
+          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>Enter Your Local Material Rates</h3>
         </div>
 
         <div className="p-4 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.05)', border: '1px solid rgba(31,78,121,0.2)' }}>
-          <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             <strong>Why local rates matter:</strong> We calculate exact quantities using IS codes — quantities are universal. But material prices vary by 20–40% between cities. Enter your local dealer rates for an accurate budget. India averages are pre-filled as a starting point.
           </p>
         </div>
@@ -1362,28 +1362,28 @@ export default function BuildDetails({ state: initState, city: initCity, project
             { key: 'bindingWire', label: 'Binding Wire',      unit: '₹/kg',       avg: INDIA_AVG_2026.bindingWire, tip: 'Annealed wire 1.6mm. IS 280.' },
             { key: 'pccM10',      label: 'PCC M10 lean mix',  unit: '₹/m³',       avg: INDIA_AVG_2026.pccM10,      tip: 'Plain cement concrete below footing. 1:3:6 mix.' },
           ].map(({ key, label, unit, avg, tip }) => (
-            <div key={key} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(30,34,39,0.15)', background: '#fff' }}>
+            <div key={key} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#fff' }}>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
-                  <p className="text-[13px] font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{unit}</p>
+                  <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>{unit}</p>
                 </div>
-                <span className="text-[11px] px-2 py-0.5 rounded-[2px] whitespace-nowrap" style={{ background: 'rgba(30,34,39,0.05)', color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                <span className="text-[11px] px-2 py-0.5 rounded-[2px] whitespace-nowrap" style={{ background: 'rgba(30,34,39,0.05)', color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                   India Avg: ₹{avg}
                 </span>
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                 <input
                   type="number"
                   className="w-full pl-7 pr-3 py-2 rounded-[6px] border text-[13px]"
-                  style={{ borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227', fontFamily: 'var(--font-plex-mono)', background: '#fff' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.25)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', background: '#fff' }}
                   min="0"
                   value={rates[key as keyof typeof rates]}
                   onChange={e => setRates(r => ({ ...r, [key]: parseFloat(e.target.value) || 0 }))}
                 />
               </div>
-              <p className="text-[11px] mt-1.5" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>{tip}</p>
+              <p className="text-[11px] mt-1.5" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>{tip}</p>
               {REGIONAL_NOTES[key] && <RegionalNote>{REGIONAL_NOTES[key]}</RegionalNote>}
             </div>
           ))}
@@ -1398,8 +1398,8 @@ export default function BuildDetails({ state: initState, city: initCity, project
             <div className="w-36">
               <label className={lCls} style={lStyle}>Rate</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
-                <input className="w-full pl-7 pr-3 py-2 rounded-[6px] border text-[13px]" style={{ ...iStyle, fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }} type="number" value={cm.rate} onChange={e => setCustomMaterials(prev => prev.map((m, i) => i === idx ? { ...m, rate: e.target.value } : m))} />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <input className="w-full pl-7 pr-3 py-2 rounded-[6px] border text-[13px]" style={{ ...iStyle, fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }} type="number" value={cm.rate} onChange={e => setCustomMaterials(prev => prev.map((m, i) => i === idx ? { ...m, rate: e.target.value } : m))} />
               </div>
             </div>
             <button type="button" onClick={() => setCustomMaterials(prev => prev.filter((_, i) => i !== idx))} className="px-3 py-2 text-[12px] rounded-[6px]" style={{ color: '#8C3A22', border: '1px solid #8C3A2230' }}>Remove</button>
@@ -1410,7 +1410,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
           <button type="button" onClick={addCustomMaterial} className="px-4 py-2 rounded-[6px] text-[12px] font-medium transition-colors" style={{ background: '#1F4E7912', color: '#1F4E79', border: '1px solid #1F4E7930', fontFamily: 'var(--font-plex-sans)' }}>
             + Add Material
           </button>
-          <button type="button" onClick={() => setRates({ ...INDIA_AVG_2026 })} className="px-4 py-2 rounded-[6px] text-[12px] transition-colors" style={{ color: '#1E222780', border: '1px solid #1E222730', fontFamily: 'var(--font-plex-sans)' }}>
+          <button type="button" onClick={() => setRates({ ...INDIA_AVG_2026 })} className="px-4 py-2 rounded-[6px] text-[12px] transition-colors" style={{ color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'var(--font-plex-sans)' }}>
             Reset to India Average
           </button>
         </div>
@@ -1437,7 +1437,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
               <label className={lCls} style={lStyle}>{label}</label>
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                   <input
                     className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]"
                     style={{ ...iStyle, ...monoStyle }}
@@ -1463,7 +1463,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
             <div className="w-36">
               <label className={lCls} style={lStyle}>Rate</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                 <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" value={cm.rate} onChange={e => setCustomMaterials(prev => prev.map((m, i) => i === idx ? { ...m, rate: e.target.value } : m))} />
               </div>
             </div>
@@ -1475,7 +1475,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
           <button type="button" onClick={addCustomMaterial} className="px-4 py-2 rounded-[2px] text-[12px] font-medium transition-colors" style={{ background: '#1F4E7912', color: '#1F4E79', border: '1px solid #1F4E7930', fontFamily: 'var(--font-plex-sans)' }}>
             + Add Material
           </button>
-          <button type="button" onClick={() => setRates({ ...INDIA_AVG_2026 })} className="px-4 py-2 rounded-[2px] text-[12px] transition-colors" style={{ color: '#1E222780', border: '1px solid #1E222730', fontFamily: 'var(--font-plex-sans)' }}>
+          <button type="button" onClick={() => setRates({ ...INDIA_AVG_2026 })} className="px-4 py-2 rounded-[2px] text-[12px] transition-colors" style={{ color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'var(--font-plex-sans)' }}>
             Reset to India Average
           </button>
         </div>
@@ -1486,7 +1486,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
         <AlertBox variant="info">
           Enter your contractor&apos;s quote now to <strong>compare it line-by-line</strong> against our IS-code calculated quantities after payment. We flag inflated quantities, missing items, and rate manipulation automatically.
         </AlertBox>
-        <p className="text-[12px]" style={{ color: '#1E222780', fontFamily: 'var(--font-plex-sans)' }}>
+        <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
           Select what the contractor provided:
         </p>
         <div className="space-y-2">
@@ -1497,12 +1497,12 @@ export default function BuildDetails({ state: initState, city: initCity, project
           ] as const).map(([val, label]) => (
             <label key={val} className="flex items-center gap-2 cursor-pointer p-2 rounded-[2px] transition-colors" style={{ background: quoteMode === val ? '#1F4E7910' : 'transparent' }}>
               <input type="radio" name="quoteMode" checked={quoteMode === val} onChange={() => setQuoteMode(val)} style={{ accentColor: '#1F4E79' }} />
-              <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</span>
+              <span className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</span>
             </label>
           ))}
         </div>
 
-        <div className="space-y-3 mt-3 pt-3" style={{ borderTop: '1px solid #1E222715' }}>
+        <div className="space-y-3 mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div>
             <label className={lCls} style={lStyle}>Contractor / Company Name (optional)</label>
             <input className={iCls} style={iStyle} placeholder="e.g. Mehta Construction Co." value={contractorName} onChange={e => setContractorName(e.target.value)} />
@@ -1512,7 +1512,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
             <div>
               <label className={lCls} style={lStyle}>{quoteMode === 'total' ? 'Total Quote (₹)' : 'Materials Quote (₹)'}</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                 <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={contractorTotal} onChange={e => setContractorTotal(e.target.value)} />
               </div>
             </div>
@@ -1528,7 +1528,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
                 <div key={label}>
                   <label className={lCls} style={lStyle}>{label}</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                     <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]" style={{ ...iStyle, ...monoStyle }} type="number" min="0" placeholder="0" value={val} onChange={e => set(e.target.value)} />
                   </div>
                 </div>
@@ -1561,16 +1561,16 @@ export default function BuildDetails({ state: initState, city: initCity, project
       {/* ── Step 3c: Labour ──────────────────────────────────────────────────── */}
       {subStep === '3c' && (<>
         <button type="button" onClick={() => setSubStep('3b')}
-          style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+          style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(255,255,255,0.50)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
           ← Back to Material Rates
         </button>
         <div>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3c · LABOUR ESTIMATION</p>
-          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Include Labour Cost? (Optional)</h3>
+          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>Include Labour Cost? (Optional)</h3>
         </div>
 
         <div className="p-4 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.05)', border: '1px solid rgba(31,78,121,0.2)' }}>
-          <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             Labour costs vary significantly with season (monsoon shutdowns, festival breaks), location, and site conditions. CPWD DSR 2023 rates are government benchmarks — actual rates typically differ by ±20–30%.
           </p>
         </div>
@@ -1580,19 +1580,19 @@ export default function BuildDetails({ state: initState, city: initCity, project
             type="button"
             onClick={() => setIncludeLabour(true)}
             className="p-4 rounded-[2px] text-left transition-all"
-            style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+            style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
           >
-            <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
-            <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Use CPWD DSR 2023 rates. Edit workers, rates, and productivity per trade. Labour appears only in paid PDF report.</p>
+            <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
+            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Use CPWD DSR 2023 rates. Edit workers, rates, and productivity per trade. Labour appears only in paid PDF report.</p>
           </button>
           <button
             type="button"
             onClick={() => setIncludeLabour(false)}
             className="p-4 rounded-[2px] text-left transition-all"
-            style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+            style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
           >
-            <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Exclude Labour Cost — show material quantities only</p>
-            <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour later from your contractor quote.</p>
+            <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Exclude Labour Cost — show material quantities only</p>
+            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour later from your contractor quote.</p>
           </button>
         </div>
 
@@ -1607,22 +1607,22 @@ export default function BuildDetails({ state: initState, city: initCity, project
           <div className="overflow-x-auto">
             <table className="w-full text-[12px] border-collapse">
               <thead>
-                <tr style={{ background: '#1E22270A' }}>
+                <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
                   {['Active', 'Trade', 'Workers', 'Rate/Day (₹)', 'CPWD Productivity (editable)', 'Days'].map(h => (
-                    <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
+                    <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                   {trades.map(t => (
-                    <tr key={t.id} style={{ borderBottom: '1px solid #1E222710', opacity: t.active ? 1 : 0.45 }}>
+                    <tr key={t.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', opacity: t.active ? 1 : 0.45 }}>
                       <td className="px-3 py-2">
                         <input type="checkbox" checked={t.active} onChange={e => updateTrade(t.id, 'active', e.target.checked)} style={{ accentColor: '#1F4E79' }} />
                       </td>
-                      <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{t.name}</td>
+                      <td className="px-3 py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{t.name}</td>
                       <td className="px-2 py-1">
                         <div className="flex items-center gap-1">
-                          <button type="button" onClick={() => updateTrade(t.id, 'workers', Math.max(0, t.workers - 1))} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: '#1E222730' }}>−</button>
+                          <button type="button" onClick={() => updateTrade(t.id, 'workers', Math.max(0, t.workers - 1))} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: 'rgba(255,255,255,0.12)' }}>−</button>
                           <input
                             className="w-10 text-center px-1 py-0.5 rounded-[2px] border text-[12px]"
                             style={{ ...iStyle, ...monoStyle }}
@@ -1631,14 +1631,14 @@ export default function BuildDetails({ state: initState, city: initCity, project
                             value={t.workers}
                             onChange={e => updateTrade(t.id, 'workers', parseInt(e.target.value) || 0)}
                           />
-                          <button type="button" onClick={() => updateTrade(t.id, 'workers', t.workers + 1)} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: '#1E222730' }}>+</button>
+                          <button type="button" onClick={() => updateTrade(t.id, 'workers', t.workers + 1)} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: 'rgba(255,255,255,0.12)' }}>+</button>
                         </div>
-                        <p className="text-[9px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>0 = exclude</p>
+                        <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>0 = exclude</p>
                       </td>
                       <td className="px-2 py-1">
                         <div className="flex items-center gap-1">
                           <input className="w-20 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={t.ratePerDay} onChange={e => updateTrade(t.id, 'ratePerDay', parseInt(e.target.value) || 0)} />
-                          <span className="text-[11px] whitespace-nowrap" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>avg: {t.indiaAvgRate}</span>
+                          <span className="text-[11px] whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>avg: {t.indiaAvgRate}</span>
                         </div>
                       </td>
                       <td className="px-2 py-1">
@@ -1650,7 +1650,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
                             onChange={e => updateTrade(t.id, 'productivity', e.target.value)}
                             placeholder={t.stdProductivity}
                           />
-                          <span className="text-[11px] whitespace-nowrap" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>std: {t.stdProductivity}</span>
+                          <span className="text-[11px] whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>std: {t.stdProductivity}</span>
                           {/* Unique id per row so only that row's tooltip opens */}
                           <Tip id={`cpwd-${t.id}`} infoId="cpwd" open={activeTooltip} setOpen={setActiveTooltip} />
                         </div>
@@ -1661,7 +1661,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
                     </tr>
                   ))}
                   {customTrades.map((ct, idx) => (
-                    <tr key={ct.id} style={{ borderBottom: '1px solid #1E222710' }}>
+                    <tr key={ct.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <td className="px-3 py-2"><input type="checkbox" defaultChecked style={{ accentColor: '#1F4E79' }} /></td>
                       <td className="px-2 py-1">
                         <input className="w-full px-2 py-1 rounded-[2px] border text-[12px]" style={iStyle} placeholder="Trade name" value={ct.name} onChange={e => setCustomTrades(prev => prev.map((t, i) => i === idx ? { ...t, name: e.target.value } : t))} />
@@ -1672,7 +1672,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
                       <td className="px-2 py-1">
                         <input className="w-20 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={ct.ratePerDay} onChange={e => setCustomTrades(prev => prev.map((t, i) => i === idx ? { ...t, ratePerDay: e.target.value } : t))} />
                       </td>
-                      <td className="px-2 py-1"><span className="text-[12px]" style={{ color: '#1E222750' }}>—</span></td>
+                      <td className="px-2 py-1"><span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.30)' }}>—</span></td>
                       <td className="px-2 py-1">
                         <div className="flex gap-1">
                           <input className="w-16 px-2 py-1 rounded-[2px] border text-[12px]" style={{ ...iStyle, ...monoStyle }} type="number" value={ct.days} onChange={e => setCustomTrades(prev => prev.map((t, i) => i === idx ? { ...t, days: e.target.value } : t))} />
@@ -1688,7 +1688,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
             <button type="button" onClick={addCustomTrade} className="px-4 py-2 rounded-[2px] text-[12px] font-medium" style={{ background: '#1F4E7912', color: '#1F4E79', border: '1px solid #1F4E7930', fontFamily: 'var(--font-plex-sans)' }}>
               + Add Your Own Labour
             </button>
-            <p className="text-[11px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
               Labour subtotals are shown only in your paid PDF report — never on this form.
             </p>
           </>
@@ -1716,7 +1716,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
             </p>
           )}
           {!structuralChecks.blockCalculate && (
-            <p className="text-[11px] text-center mt-2" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[11px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
               Free: grand total range + IS compliance checks. Itemised BOQ requires ₹999 unlock.
             </p>
           )}

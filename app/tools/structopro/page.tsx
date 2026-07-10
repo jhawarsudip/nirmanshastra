@@ -189,7 +189,7 @@ export default function StructoProPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F4F4F0', position: 'relative' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-base)', position: 'relative' }}>
       <StructureBackground />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Step bar — always visible */}

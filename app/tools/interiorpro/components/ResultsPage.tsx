@@ -72,7 +72,7 @@ function StampBadge({ status, clause, description }: {
         <p className="text-[11px] font-medium" style={{ color: c.text, fontFamily: 'var(--font-plex-mono)' }}>
           {clause}
         </p>
-        <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+        <p className="text-[12px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
           {description}
         </p>
       </div>
@@ -83,14 +83,14 @@ function StampBadge({ status, clause, description }: {
 function BlurOverlay({ onClick }: { onClick: () => void }) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[2px] z-10"
-      style={{ background: 'rgba(244,244,240,0.85)', backdropFilter: 'blur(2px)' }}>
+      style={{ background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(2px)' }}>
       <div className="text-center px-6 py-5 rounded-[2px] max-w-sm"
-        style={{ border: '1px solid rgba(30,34,39,0.15)', background: '#F4F4F0' }}>
+        style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'var(--bg-surface)' }}>
         <p className="text-[11px] uppercase tracking-widest mb-1"
-          style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+          style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
           ₹899 · UNLOCK TO VIEW
         </p>
-        <p className="text-[13px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+        <p className="text-[13px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
           Exact quantities, room breakdown, labour costs, and contractor comparison
         </p>
         <button onClick={onClick}
@@ -243,13 +243,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   const grades: InteriorGrade[] = ['basic', 'standard', 'premium', 'luxury']
 
   return (
-    <div className="min-h-screen bg-sheet-white pb-16">
+    <div className="min-h-screen  pb-16">
       {/* Header */}
-      <div className="py-8 px-6 md:px-12 lg:px-16" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+      <div className="py-8 px-6 md:px-12 lg:px-16" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>
           05 · INTERIOR ESTIMATE
         </p>
-        <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 600, color: '#1E2227', lineHeight: 1.2 }}>
+        <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
           Your Estimate is Ready
         </h1>
       </div>
@@ -262,17 +262,17 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <div className="px-4 py-2 rounded-[2px] flex items-center gap-2"
             style={{ background: 'rgba(20,83,45,0.08)', border: '1px solid rgba(20,83,45,0.35)' }}>
             <span style={{ color: '#14532D', fontSize: 13 }}>✓</span>
-            <p className="text-[12px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+            <p className="text-[12px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
               PREVIEW MODE — Full report visible for testing
             </p>
           </div>
         )}
 
         {/* Grand total — FREE */}
-        <div style={{ background: '#1E2227', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-surface)', position: 'relative', overflow: 'hidden' }}>
           <div className="results-blob-1" aria-hidden="true" />
           <div className="results-blob-2" aria-hidden="true" />
-          <div style={{ position: 'relative', zIndex: 1, padding: '56px 48px', textAlign: 'center', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', background: 'rgba(30,34,39,0.18)' }}>
+          <div style={{ position: 'relative', zIndex: 1, padding: '56px 48px', textAlign: 'center', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', background: 'rgba(255,255,255,0.10)' }}>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
             PHASE 5 — INTERIOR · {input.city}, {input.state} · {GRADE_LABELS[input.grade]} GRADE
           </p>
@@ -313,7 +313,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               ✦ GRADE COMPARISON TABLE — ALL 4 TIERS (FREE)
             </p>
-            <p className="text-[11px] mt-1" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
               Interior grade affects total project cost more than any single phase. Basic 1.0× → Luxury 3.5×
             </p>
           </div>
@@ -322,13 +322,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(31,78,121,0.2)' }}>
                   <th className="text-left py-2 px-4 text-[9px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)', width: 140 }}>
+                    style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)', width: 140 }}>
                     Item
                   </th>
                   {grades.map(g => (
                     <th key={g} className="text-right py-2 px-3 text-[9px] uppercase tracking-widest"
                       style={{
-                        color:      g === input.grade ? '#1F4E79' : 'rgba(30,34,39,0.45)',
+                        color:      g === input.grade ? '#1F4E79' : 'rgba(255,255,255,0.40)',
                         fontFamily: 'var(--font-plex-mono)',
                         background: g === input.grade ? 'rgba(31,78,121,0.06)' : 'transparent',
                       }}>
@@ -351,13 +351,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 ].map((row, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
                     <td className="py-2 px-4 text-[11px]"
-                      style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
+                      style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>
                       {row.label}
                     </td>
                     {row.vals.map((v, j) => (
                       <td key={j} className="py-2 px-3 text-right text-[11px]"
                         style={{
-                          color:      grades[j] === input.grade ? '#1F4E79' : '#1E2227',
+                          color:      grades[j] === input.grade ? '#1F4E79' : 'var(--text-primary)',
                           fontFamily: 'var(--font-plex-mono)',
                           fontWeight: grades[j] === input.grade ? 700 : 400,
                           background: grades[j] === input.grade ? 'rgba(31,78,121,0.04)' : 'transparent',
@@ -367,15 +367,15 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     ))}
                   </tr>
                 ))}
-                <tr style={{ borderTop: '2px solid #1E2227', background: 'rgba(30,34,39,0.03)' }}>
+                <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)', background: 'rgba(30,34,39,0.03)' }}>
                   <td className="py-2 px-4 text-[11px] font-semibold"
-                    style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                    style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                     TOTAL (incl. labour)
                   </td>
                   {r.gradeComparison.map(g => (
                     <td key={g.grade} className="py-2 px-3 text-right text-[12px] font-bold"
                       style={{
-                        color:      g.grade === input.grade ? '#1F4E79' : '#1E2227',
+                        color:      g.grade === input.grade ? '#1F4E79' : 'var(--text-primary)',
                         fontFamily: 'var(--font-plex-mono)',
                         background: g.grade === input.grade ? 'rgba(31,78,121,0.08)' : 'transparent',
                       }}>
@@ -383,15 +383,15 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     </td>
                   ))}
                 </tr>
-                <tr style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
+                <tr style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                   <td className="py-1.5 px-4 text-[10px]"
-                    style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
+                    style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-sans)' }}>
                     per sqft BUA
                   </td>
                   {r.gradeComparison.map(g => (
                     <td key={g.grade} className="py-1.5 px-3 text-right text-[10px]"
                       style={{
-                        color:      g.grade === input.grade ? '#1F4E79' : 'rgba(30,34,39,0.5)',
+                        color:      g.grade === input.grade ? '#1F4E79' : 'rgba(255,255,255,0.45)',
                         fontFamily: 'var(--font-plex-mono)',
                         background: g.grade === input.grade ? 'rgba(31,78,121,0.04)' : 'transparent',
                       }}>
@@ -412,11 +412,11 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             PHASE 5 CONTEXT — IS 15477 · IS 2395 · IS 277 · IS 2645
           </p>
           <p className="text-[14px] font-medium mb-1"
-            style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             Interior = {r.phaseContext.percentOfTotal} of total project cost
           </p>
           <p className="text-[12px] mb-3"
-            style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+            style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
             {r.phaseContext.gradeImpact}
           </p>
           <p className="text-[11px] uppercase tracking-widest mb-1"
@@ -426,7 +426,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <ul className="space-y-1">
             {r.phaseContext.overchargingRisks.map((risk, i) => (
               <li key={i} className="flex gap-2 text-[12px]"
-                style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                 <span style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)', fontSize: 10, marginTop: 2 }}>
                   {String(i + 1).padStart(2, '0')}
                 </span>
@@ -437,8 +437,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* IS Compliance Panel — FREE */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               IS COMPLIANCE PANEL — IS 15477 · IS 2395 · IS 277 · IS 2645 · NBC 2016
@@ -452,8 +452,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* Technical reminders — FREE */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               10 TECHNICAL REMINDERS — IS-CODE MANDATED
@@ -462,7 +462,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <ol className="p-4 space-y-2">
             {r.technicalReminders.map((rem, i) => (
               <li key={i} className="flex gap-3 text-[13px]"
-                style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                 <span className="shrink-0 mt-0.5 text-[11px] w-5 text-right"
                   style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
                   {String(i + 1).padStart(2, '0')}
@@ -474,8 +474,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         </div>
 
         {/* ── HOW THIS IS CALCULATED — FREE ── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               HOW THIS IS CALCULATED — FORMULAS &amp; IS CLAUSES
             </p>
@@ -514,8 +514,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 </span>
                 <div>
                   <p className="text-[10px] font-medium mb-0.5" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>{item.clause}</p>
-                  <p className="text-[12px] font-medium mb-0.5" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
-                  <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
+                  <p className="text-[12px] font-medium mb-0.5" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{item.formula}</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>{item.note}</p>
                 </div>
               </li>
             ))}
@@ -524,8 +524,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
         {/* PROOF-OF-WORK: first 2 BOQ rows always visible */}
         {!isPaid && (
-          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
                 MATERIAL SCHEDULE — PREVIEW
               </p>
@@ -533,28 +533,28 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             <div className="p-4">
               <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid #1E2227', background: 'rgba(30,34,39,0.04)' }}>
-                    <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
-                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 60 }}>Unit</th>
-                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 80 }}>Qty</th>
-                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', width: 90 }}>Amount (₹)</th>
+                  <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.20)', background: 'rgba(255,255,255,0.03)' }}>
+                    <th className="text-left py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>Description</th>
+                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', width: 60 }}>Unit</th>
+                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', width: 80 }}>Qty</th>
+                    <th className="text-right py-2 text-[9px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', width: 90 }}>Amount (₹)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.08)' }}>
-                    <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Flooring — tiles with 10% wastage (IS 15477:2004)</td>
-                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>sqft</td>
-                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{r.flooringSchedule.withWastageSqft.toLocaleString('en-IN')}</td>
-                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Flooring — tiles with 10% wastage (IS 15477:2004)</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>sqft</td>
+                    <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{r.flooringSchedule.withWastageSqft.toLocaleString('en-IN')}</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
                   </tr>
-                  <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.08)', background: 'rgba(30,34,39,0.018)' }}>
-                    <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Kitchen cabinets — modular ({GRADE_LABELS[input.grade]})</td>
-                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>rft</td>
-                    <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{input.kitchenRft}</td>
-                    <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(30,34,39,0.018)' }}>
+                    <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 13 }}>Kitchen cabinets — modular ({GRADE_LABELS[input.grade]})</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>rft</td>
+                    <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', fontSize: 13, fontWeight: 500 }}>{input.kitchenRft}</td>
+                    <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>—</td>
                   </tr>
                   <tr>
-                    <td colSpan={4} className="py-2 text-center text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>
+                    <td colSpan={4} className="py-2 text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>
                       + false ceiling, paint, doors, room-wise breakdown &amp; totals locked →
                     </td>
                   </tr>
@@ -566,8 +566,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
         {/* Blurred section — PAID */}
         <div className="border rounded-[2px] overflow-hidden relative"
-          style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+          style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               {isPaid ? 'FULL IS-CODE BOQ — PHASE 5 · INTERIOR' : 'EXACT QUANTITIES — FLOORING SCHEDULE + ROOM BREAKDOWN + COMPLETE BOQ'}
@@ -579,7 +579,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
               {/* Flooring schedule */}
               <p className="text-[10px] uppercase tracking-widest mb-2"
-                style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                 FLOORING SCHEDULE — IS 15477:2004 (TILE ADHESIVE · POLYMER GROUT)
               </p>
               <table className="w-full text-[13px] mb-5" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
@@ -592,8 +592,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     { label: `Tile adhesive (IS 15477:2004 — not cement)`, value: `${r.flooringSchedule.adhesiveBags} bags × 20kg` },
                     { label: `Polymer grout (not plain cement)`, value: `${r.flooringSchedule.groutKg} kg` },
                   ].map((row, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.02)' }}>
-                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                      <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
                       <td className="py-2 text-right font-bold" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{row.value}</td>
                     </tr>
                   ))}
@@ -602,15 +602,15 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
               {/* Room breakdown */}
               <p className="text-[10px] uppercase tracking-widest mb-2"
-                style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                 ROOM-BY-ROOM BREAKDOWN — {GRADE_LABELS[input.grade].toUpperCase()} GRADE
               </p>
               <table className="w-full text-[13px] mb-5" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                     {['Room', 'Area (sqft)', 'Flooring Cost (₹)'].map(h => (
                       <th key={h} className={`py-2 text-[10px] uppercase tracking-widest ${h === 'Room' ? 'text-left' : 'text-right'}`}
-                        style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                        style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                         {h}
                       </th>
                     ))}
@@ -618,10 +618,10 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                 </thead>
                 <tbody>
                   {r.roomBreakdown.map((row, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.02)' }}>
-                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.room}</td>
-                      <td className="py-2 text-right" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>{row.areaSqft.toLocaleString('en-IN')}</td>
-                      <td className="py-2 text-right font-bold" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{row.flooringCost.toLocaleString('en-IN')}</td>
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                      <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{row.room}</td>
+                      <td className="py-2 text-right" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>{row.areaSqft.toLocaleString('en-IN')}</td>
+                      <td className="py-2 text-right font-bold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{row.flooringCost.toLocaleString('en-IN')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -629,7 +629,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
               {/* Paint schedule */}
               <p className="text-[10px] uppercase tracking-widest mb-2"
-                style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                 PAINT SCHEDULE — IS 2395:1994
               </p>
               <table className="w-full text-[13px] mb-5" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
@@ -640,8 +640,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     { label: 'Putty bags (smooth surface before primer)', value: `${r.paintSchedule.puttyBags} kg` },
                     { label: 'Number of paint coats (post primer)', value: `${r.paintSchedule.numCoats} coats` },
                   ].map((row, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.02)' }}>
-                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                      <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
                       <td className="py-2 text-right font-bold" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{row.value}</td>
                     </tr>
                   ))}
@@ -650,7 +650,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
               {/* Complete BOQ */}
               <p className="text-[10px] uppercase tracking-widest mb-2"
-                style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                 COMPLETE BOQ — {GRADE_LABELS[input.grade].toUpperCase()} GRADE
               </p>
               <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
@@ -662,33 +662,33 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     { label: `Paint (${r.paintSchedule.paintLitres}L emulsion + ${r.paintSchedule.primerLitres}L primer)`, cost: r.costs.paintMaterial },
                     { label: `Doors (${input.numDoors} units — ${GRADE_LABELS[input.grade]})`,                               cost: r.costs.doorsMaterial },
                   ].map((row, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.02)' }}>
-                      <td className="py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
-                      <td className="py-2 text-right" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{row.cost.toLocaleString('en-IN')}</td>
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                      <td className="py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{row.label}</td>
+                      <td className="py-2 text-right" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{row.cost.toLocaleString('en-IN')}</td>
                     </tr>
                   ))}
-                  <tr style={{ borderTop: '2px solid #1E2227' }}>
-                    <td className="py-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227' }}>Total Material</td>
-                    <td className="py-2 text-right font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>{r.costs.totalMaterial.toLocaleString('en-IN')}</td>
+                  <tr style={{ borderTop: '2px solid rgba(255,255,255,0.20)' }}>
+                    <td className="py-2 font-semibold" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)' }}>Total Material</td>
+                    <td className="py-2 text-right font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }}>{r.costs.totalMaterial.toLocaleString('en-IN')}</td>
                   </tr>
                   {input.includeLabour !== false ? (
                     <tr>
-                      <td className="py-1 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>
+                      <td className="py-1 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(255,255,255,0.45)' }}>
                         Labour (CPWD — tile mason + carpenter + painter + false ceiling + supervisor)
                       </td>
-                      <td className="py-1 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>{r.labourCost.toLocaleString('en-IN')}</td>
+                      <td className="py-1 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.45)' }}>{r.labourCost.toLocaleString('en-IN')}</td>
                     </tr>
                   ) : (
                     <tr>
                       <td colSpan={2} className="py-1 text-[11px]"
-                        style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.4)', fontStyle: 'italic' }}>
+                        style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.35)', fontStyle: 'italic' }}>
                         Labour cost not included in this estimate
                       </td>
                     </tr>
                   )}
                   <tr>
-                    <td className="py-1 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(30,34,39,0.5)' }}>Contractor overhead + margin (8%)</td>
-                    <td className="py-1 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(30,34,39,0.5)' }}>{r.overheadCost.toLocaleString('en-IN')}</td>
+                    <td className="py-1 text-[12px]" style={{ fontFamily: 'var(--font-plex-sans)', color: 'rgba(255,255,255,0.45)' }}>Contractor overhead + margin (8%)</td>
+                    <td className="py-1 text-right text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'rgba(255,255,255,0.45)' }}>{r.overheadCost.toLocaleString('en-IN')}</td>
                   </tr>
                   <tr style={{ borderTop: '2px solid #1F4E79', background: 'rgba(31,78,121,0.05)' }}>
                     <td className="py-2 font-bold text-[14px]" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1F4E79' }}>
@@ -704,14 +704,14 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               {/* Contractor comparison */}
               {isPaid && input.contractorQuote && input.contractorQuote > 0 && (
                 <div className="mt-4 p-4 rounded-[2px]"
-                  style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(30,34,39,0.02)' }}>
+                  style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
                   <p className="text-[11px] uppercase tracking-widest mb-3"
                     style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
                     CONTRACTOR QUOTE COMPARISON
                   </p>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: 'Your Quote',        value: input.contractorQuote,              color: '#1E2227' },
+                      { label: 'Your Quote',        value: input.contractorQuote,              color: 'var(--text-primary)' },
                       { label: 'IS-Code Estimate',  value: r.grandTotal[input.grade],           color: '#1F4E79' },
                       {
                         label: 'Difference',
@@ -722,7 +722,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                     ].map(col => (
                       <div key={col.label} className="text-center">
                         <p className="text-[10px] uppercase tracking-widest mb-1"
-                          style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                          style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                           {col.label}
                         </p>
                         <p className="text-[18px] font-bold"
@@ -753,7 +753,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
         {/* Payment gate — dramatic dark unlock card */}
         {!isPaid && (
-          <div style={{ background: '#1E2227', padding: '56px 48px', textAlign: 'center' }}>
+          <div style={{ background: 'var(--bg-surface)', padding: '56px 48px', textAlign: 'center' }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
               YOUR PHASE 5 ESTIMATE IS READY
             </p>
@@ -810,7 +810,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               ✓ PAYMENT SUCCESSFUL — REPORT UNLOCKED
             </p>
             <p className="text-[13px] mb-4"
-              style={{ color: 'rgba(30,34,39,0.65)', fontFamily: 'var(--font-plex-sans)' }}>
+              style={{ color: 'rgba(255,255,255,0.60)', fontFamily: 'var(--font-plex-sans)' }}>
               Your full interior estimate is visible above. Download your 9-page IS-code PDF report below.
             </p>
             {pdfStatus === 'generating' && (
@@ -855,10 +855,10 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
             NEXT — GRAND TOTAL
           </p>
-          <p className="text-[14px] font-semibold mb-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             Combine all phases — Grand Total →
           </p>
-          <p className="text-[12px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
             You&apos;ve estimated all 5 phases. Now bring StructoPro, MasonryPro, ElectroPro, PlumbPro, and InteriorPro together into a single project cost summary.
           </p>
           <a
@@ -872,7 +872,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
 
         <div className="text-center pt-2">
           <button onClick={onStartOver} className="text-[12px] underline"
-            style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
+            style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
             Start a new estimate
           </button>
         </div>

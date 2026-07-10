@@ -74,7 +74,7 @@ function AlertBox({ variant, children }: { variant: AlertVariant; children: Reac
   return (
     <div className="flex gap-2.5 p-3" style={{ background: s.bg, borderLeft: `4px solid ${s.border}` }}>
       <span className="text-[13px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
-      <div className="text-[12px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
+      <div className="text-[12px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
     </div>
   )
 }
@@ -96,7 +96,7 @@ function TipBtn({ id, open, onToggle, children }: {
       {open === id && (
         <span
           className="absolute z-50 left-0 top-5 p-3 rounded-[2px] w-72 block"
-          style={{ background: '#fff', border: '1px solid rgba(31,78,121,0.3)', color: '#1E2227', fontFamily: 'var(--font-plex-sans)', fontSize: 12, lineHeight: 1.5, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+          style={{ background: '#fff', border: '1px solid rgba(31,78,121,0.3)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 12, lineHeight: 1.5, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
         >
           {children}
         </span>
@@ -252,14 +252,14 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
   }
 
   return (
-    <div className="min-h-screen bg-sheet-white pb-12">
+    <div className="min-h-screen  pb-12">
 
       {/* Page header */}
-      <div className="py-8 px-6 md:px-10" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+      <div className="py-8 px-6 md:px-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>
           03 · ELECTRICAL
         </p>
-        <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 600, color: '#1E2227', lineHeight: 1.2 }}>
+        <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,32px)', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
           Build Details
         </h1>
       </div>
@@ -267,7 +267,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
       <div className="px-6 md:px-10 pt-6 space-y-6">
 
         {/* Progress Indicator */}
-        <div className="flex items-center flex-wrap gap-x-0.5 gap-y-2 pb-4 overflow-x-auto" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        <div className="flex items-center flex-wrap gap-x-0.5 gap-y-2 pb-4 overflow-x-auto" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           {([
             { label: '1 REG',        done: true,                                 active: false },
             { label: '2 METHOD',     done: true,                                 active: false },
@@ -280,14 +280,14 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               <span className="text-[10px] px-2 py-0.5 rounded-[2px]" style={{
                 fontFamily: 'var(--font-plex-mono)',
                 background: step.active ? '#1F4E79' : step.done ? 'rgba(20,83,45,0.08)' : 'rgba(30,34,39,0.05)',
-                color: step.active ? '#fff' : step.done ? '#14532D' : 'rgba(30,34,39,0.35)',
-                border: `1px solid ${step.active ? 'transparent' : step.done ? 'rgba(20,83,45,0.2)' : 'rgba(30,34,39,0.12)'}`,
+                color: step.active ? '#fff' : step.done ? '#14532D' : 'rgba(255,255,255,0.30)',
+                border: `1px solid ${step.active ? 'transparent' : step.done ? 'rgba(20,83,45,0.2)' : 'rgba(255,255,255,0.06)'}`,
                 whiteSpace: 'nowrap',
               }}>
                 {step.done ? '✓ ' : ''}{step.label}
               </span>
               {i < arr.length - 1 && (
-                <span style={{ color: 'rgba(30,34,39,0.25)', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '0 3px' }}>—</span>
+                <span style={{ color: 'rgba(255,255,255,0.20)', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '0 3px' }}>—</span>
               )}
             </div>
           ))}
@@ -296,13 +296,13 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
         {subStep === '3a' && (<>
         {onBack && (
           <button type="button" onClick={onBack}
-            style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+            style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(255,255,255,0.50)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
             ← Change Method
           </button>
         )}
         {/* Location + seismic chip */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[2px]"
-          style={{ border: '1px solid rgba(30,34,39,0.15)', background: 'rgba(31,78,121,0.04)' }}>
+          style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(31,78,121,0.04)' }}>
           <span style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 11 }}>
             📍 {localCity}, {localState}
           </span>
@@ -313,8 +313,8 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
         </div>
 
         {/* ── SECTION 1: PROJECT DETAILS ─────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               01 — PROJECT DETAILS
@@ -323,36 +323,36 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
           <div className="p-4 space-y-4">
             <div>
               <label className="text-[11px] uppercase tracking-widest block mb-1"
-                style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                 Project Name
               </label>
               <input type="text" value={projectName} onChange={e => setProjectName(e.target.value)}
                 placeholder="e.g. Sharma Residence, Pune"
-                className="w-full border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none focus:border-blueprint"
-                style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                className="w-full border rounded-[6px] px-3 py-2 text-[14px]  outline-none focus:border-blueprint"
+                style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(255,255,255,0.35)', color: 'var(--text-primary)' }}
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-[11px] uppercase tracking-widest block mb-1"
-                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                   State
                 </label>
                 <select value={localState} onChange={e => setLocalState(e.target.value)}
-                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}>
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px]  outline-none"
+                  style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(255,255,255,0.35)', color: 'var(--text-primary)' }}>
                   {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-[11px] uppercase tracking-widest block mb-1"
-                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                   City
                 </label>
                 <input type="text" value={localCity} onChange={e => setLocalCity(e.target.value)}
                   placeholder="e.g. Pune"
-                  className="w-full border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                  className="w-full border rounded-[6px] px-3 py-2 text-[13px]  outline-none"
+                  style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(255,255,255,0.35)', color: 'var(--text-primary)' }}
                 />
               </div>
             </div>
@@ -360,8 +360,8 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
         </div>
 
         {/* ── SECTION 2: FLOOR AREA ───────────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="flex items-center gap-1">
               <p className="text-[11px] uppercase tracking-widest"
                 style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
@@ -373,22 +373,22 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
             </div>
           </div>
           <div className="p-4 space-y-3">
-            <p className="text-[14px]" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
               What is the built-up area of one floor?
             </p>
-            <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
               Tip: Measure length × width of your floor slab. For 20ft × 40ft = 800 sqft per floor.
             </p>
             <div className="flex gap-2">
               <input type="number" value={buaPerFloor}
                 onChange={e => { setBuaPerFloor(e.target.value); setErrors(prev => ({ ...prev, buaPerFloor: '' })) }}
                 placeholder="e.g. 900"
-                className="flex-1 border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none focus:border-blueprint"
-                style={{ fontFamily: 'var(--font-plex-mono)', borderColor: errors.buaPerFloor ? '#8C3A22' : 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                className="flex-1 border rounded-[6px] px-3 py-2 text-[14px]  outline-none focus:border-blueprint"
+                style={{ fontFamily: 'var(--font-plex-mono)', borderColor: errors.buaPerFloor ? '#8C3A22' : 'rgba(255,255,255,0.35)', color: 'var(--text-primary)' }}
               />
               <select value={buaUnit} onChange={e => setBuaUnit(e.target.value as AreaUnit)}
-                className="border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}>
+                className="border rounded-[6px] px-3 py-2 text-[13px]  outline-none"
+                style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.35)', color: 'var(--text-primary)' }}>
                 <option value="sqft">sqft</option>
                 <option value="sqm">sqm</option>
               </select>
@@ -403,10 +403,10 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
             )}
 
             {/* Number of floors inline */}
-            <div className="pt-2" style={{ borderTop: '1px solid rgba(30,34,39,0.08)' }}>
+            <div className="pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
               <div className="flex items-center gap-1 mb-2">
                 <label className="text-[11px] uppercase tracking-widest"
-                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                   Number of Floors
                 </label>
                 <TipBtn id="floors" open={openTip} onToggle={toggleTip}>
@@ -418,9 +418,9 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   <button key={f} type="button" onClick={() => setNumFloors(f)}
                     className="py-2 rounded-[2px] text-[14px] font-medium transition-all"
                     style={{
-                      border:     `1.5px solid ${numFloors === f ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      border:     `1.5px solid ${numFloors === f ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`,
                       background: numFloors === f ? 'rgba(31,78,121,0.08)' : 'transparent',
-                      color:      numFloors === f ? '#1F4E79' : '#1E2227',
+                      color:      numFloors === f ? '#1F4E79' : 'var(--text-primary)',
                       fontFamily: 'var(--font-plex-mono)',
                     }}>
                     G+{parseInt(f) - 1}
@@ -437,8 +437,8 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
         </div>
 
         {/* ── SECTION 3: LOAD REQUIREMENTS ────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               03 — LOAD REQUIREMENTS
@@ -450,7 +450,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
             <div>
               <div className="flex items-center gap-1 mb-1">
                 <label className="text-[11px] uppercase tracking-widest"
-                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                   Bathrooms / Toilets
                 </label>
                 <ISBadge code="IS 3043:2018" />
@@ -458,7 +458,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   IS 3043:2018 Cl 10.4: Every bathroom circuit MUST have a 30mA RCCB (Residual Current Circuit Breaker). This protects against electrocution from water contact. Each bathroom also needs a dedicated geyser circuit (4.0 sqmm wire, 20A MCB). Never share geyser with other loads.
                 </TipBtn>
               </div>
-              <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+              <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                 IS 3043:2018: 30mA RCCB is MANDATORY for all bathroom circuits.
               </p>
               <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
@@ -466,9 +466,9 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   <button key={n} type="button" onClick={() => setNumBathrooms(n)}
                     className="py-2 rounded-[2px] text-[13px] font-medium transition-all"
                     style={{
-                      border:     `1.5px solid ${numBathrooms === n ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      border:     `1.5px solid ${numBathrooms === n ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`,
                       background: numBathrooms === n ? 'rgba(31,78,121,0.08)' : 'transparent',
-                      color:      numBathrooms === n ? '#1F4E79' : '#1E2227',
+                      color:      numBathrooms === n ? '#1F4E79' : 'var(--text-primary)',
                       fontFamily: 'var(--font-plex-mono)',
                     }}>
                     {n}
@@ -478,7 +478,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               {parseInt(numBathrooms) > 0 && (
                 <div className="mt-3 p-3 rounded-[2px]"
                   style={{ border: '1px solid rgba(217,154,6,0.4)', background: 'rgba(217,154,6,0.06)' }}>
-                  <p className="text-[11px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>
+                  <p className="text-[11px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>
                     ⚠ IS 3043:2018 Cl 10.4 — RCCB 30mA included for {numBathrooms} bathroom circuit(s). Verify license with your electrician.
                   </p>
                 </div>
@@ -489,7 +489,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
             <div>
               <div className="flex items-center gap-1 mb-1">
                 <label className="text-[11px] uppercase tracking-widest"
-                  style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                  style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                   Air Conditioners (AC units)
                 </label>
                 <ISBadge code="IS 732:2019" />
@@ -497,7 +497,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   IS 732:2019: Each AC unit requires a SEPARATE dedicated circuit — 4.0 sqmm wire minimum, 20A MCB. Never share an AC circuit with other loads. 1.5 ton AC draws ~8A, so 20A MCB provides adequate headroom. Plan AC points during construction — adding them later requires wall chasing, which is expensive.
                 </TipBtn>
               </div>
-              <p className="text-[11px] mb-3" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+              <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                 IS 732:2019: Each AC unit requires a separate 20A MCB circuit with 4.0 sqmm wire minimum.
               </p>
               <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
@@ -505,9 +505,9 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   <button key={n} type="button" onClick={() => setNumAC(n)}
                     className="py-2 rounded-[2px] text-[13px] font-medium transition-all"
                     style={{
-                      border:     `1.5px solid ${numAC === n ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      border:     `1.5px solid ${numAC === n ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`,
                       background: numAC === n ? 'rgba(31,78,121,0.08)' : 'transparent',
-                      color:      numAC === n ? '#1F4E79' : '#1E2227',
+                      color:      numAC === n ? '#1F4E79' : 'var(--text-primary)',
                       fontFamily: 'var(--font-plex-mono)',
                     }}>
                     {n}
@@ -519,8 +519,8 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
         </div>
 
         {/* ── SECTION 3b: ADDITIONAL POINTS + BUILDING ELECTRICAL SPEC ─────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               03b — ADDITIONAL POINTS &amp; BUILDING ELECTRICAL SPEC
             </p>
@@ -529,7 +529,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
             {/* TV / Cable points */}
             <div>
               <div className="flex items-center gap-1 mb-2">
-                <label className="text-[11px] uppercase tracking-widest" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                <label className="text-[11px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                   TV / Cable Points (Coaxial RG6)
                 </label>
                 <ISBadge code="IS 732:2019" />
@@ -538,15 +538,15 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 <input type="number" value={numTVPoints}
                   onChange={e => setNumTVPoints(e.target.value)}
                   placeholder={`Auto (${Math.max(1, parseInt(numFloors) || 1)} per floor)`}
-                  className="w-44 border rounded-[6px] px-3 py-2 text-[13px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                  className="w-44 border rounded-[6px] px-3 py-2 text-[13px]  outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.35)', color: 'var(--text-primary)' }}
                 />
-                <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>points (RG6 coaxial cable estimated)</span>
+                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>points (RG6 coaxial cable estimated)</span>
               </div>
             </div>
             {/* Call bell */}
             <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                 Call Bell Points
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -554,9 +554,9 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   <button key={n} type="button" onClick={() => setCallBellPoints(n)}
                     className="py-2 rounded-[2px] text-[13px] font-medium"
                     style={{
-                      border: `1.5px solid ${numCallBellPoints === n ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      border: `1.5px solid ${numCallBellPoints === n ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`,
                       background: numCallBellPoints === n ? 'rgba(31,78,121,0.08)' : 'transparent',
-                      color: numCallBellPoints === n ? '#1F4E79' : '#1E2227',
+                      color: numCallBellPoints === n ? '#1F4E79' : 'var(--text-primary)',
                       fontFamily: 'var(--font-plex-mono)',
                     }}>
                     {n}
@@ -566,7 +566,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
             </div>
             {/* DB Panel location */}
             <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                 DB Panel Location
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -577,18 +577,18 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   <button key={String(val)} type="button" onClick={() => setDbPanelPerFloor(val)}
                     className="p-2.5 rounded-[2px] text-left"
                     style={{
-                      border: `1.5px solid ${dbPanelPerFloor === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      border: `1.5px solid ${dbPanelPerFloor === val ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`,
                       background: dbPanelPerFloor === val ? 'rgba(31,78,121,0.07)' : 'transparent',
                     }}>
-                    <p className="text-[12px] font-medium" style={{ color: dbPanelPerFloor === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
-                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
+                    <p className="text-[12px] font-medium" style={{ color: dbPanelPerFloor === val ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
                   </button>
                 ))}
               </div>
             </div>
             {/* Conduit type */}
             <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                 Conduit Type
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -599,18 +599,18 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   <button key={val} type="button" onClick={() => setConduitType(val)}
                     className="p-2.5 rounded-[2px] text-left"
                     style={{
-                      border: `1.5px solid ${conduitType === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      border: `1.5px solid ${conduitType === val ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`,
                       background: conduitType === val ? 'rgba(31,78,121,0.07)' : 'transparent',
                     }}>
-                    <p className="text-[12px] font-medium" style={{ color: conduitType === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
-                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
+                    <p className="text-[12px] font-medium" style={{ color: conduitType === val ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
                   </button>
                 ))}
               </div>
             </div>
             {/* Switchboard type */}
             <div>
-              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+              <label className="text-[11px] uppercase tracking-widest block mb-2" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                 Switchboard Type
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -621,11 +621,11 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   <button key={val} type="button" onClick={() => setSwitchboardType(val)}
                     className="p-2.5 rounded-[2px] text-left"
                     style={{
-                      border: `1.5px solid ${switchboardType === val ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                      border: `1.5px solid ${switchboardType === val ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`,
                       background: switchboardType === val ? 'rgba(31,78,121,0.07)' : 'transparent',
                     }}>
-                    <p className="text-[12px] font-medium" style={{ color: switchboardType === val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
-                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
+                    <p className="text-[12px] font-medium" style={{ color: switchboardType === val ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>{sub}</p>
                   </button>
                 ))}
               </div>
@@ -634,8 +634,8 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
         </div>
 
         {/* ── SECTION 4: EARTHING ─────────────────────────────────────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.12)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="flex items-center gap-1">
               <p className="text-[11px] uppercase tracking-widest"
                 style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
@@ -652,15 +652,15 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               <div
                 onClick={() => setEarthing(v => !v)}
                 className="w-10 h-6 rounded-full relative transition-colors cursor-pointer"
-                style={{ background: includeEarthing ? '#1F4E79' : 'rgba(30,34,39,0.2)' }}>
+                style={{ background: includeEarthing ? '#1F4E79' : 'rgba(255,255,255,0.15)' }}>
                 <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition-transform"
                   style={{ transform: includeEarthing ? 'translateX(18px)' : 'translateX(2px)' }} />
               </div>
               <div>
-                <p className="text-[14px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+                <p className="text-[14px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
                   Include earthing system
                 </p>
-                <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                   Mandatory per IS 3043:2018 — max resistance 1 ohm, GI pipe earth 2.5m × 40mm
                 </p>
               </div>
@@ -670,7 +670,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               <div>
                 <div className="flex items-center gap-1 mb-2">
                   <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                    style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                     Number of Earthing Pits
                   </label>
                   <TipBtn id="earthpits" open={openTip} onToggle={toggleTip}>
@@ -682,16 +682,16 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                     <button key={n} type="button" onClick={() => setNumPits(n)}
                       className="py-2 rounded-[2px] text-[13px] font-medium transition-all"
                       style={{
-                        border:     `1.5px solid ${numPits === n ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`,
+                        border:     `1.5px solid ${numPits === n ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`,
                         background: numPits === n ? 'rgba(31,78,121,0.08)' : 'transparent',
-                        color:      numPits === n ? '#1F4E79' : '#1E2227',
+                        color:      numPits === n ? '#1F4E79' : 'var(--text-primary)',
                         fontFamily: 'var(--font-plex-mono)',
                       }}>
                       {n} pit{parseInt(n) > 1 ? 's' : ''}
                     </button>
                   ))}
                 </div>
-                <p className="text-[11px] mt-2" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                <p className="text-[11px] mt-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                   IS 3043:2018: Minimum 2 earthing pits for residential. One neutral, one equipment earth.
                 </p>
               </div>
@@ -700,7 +700,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
         </div>
 
         {/* ── SECTION 5: TECHNICAL SPECIFICATIONS (collapsible) ───────────────── */}
-        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.2)' }}>
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
           <button type="button"
             onClick={() => setShowTechSpecs(v => !v)}
             className="w-full px-4 py-3 flex items-center justify-between">
@@ -715,14 +715,14 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 </p>
               )}
             </div>
-            <span style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>
+            <span style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)', fontSize: 12 }}>
               {showTechSpecs ? '▲' : '▼'}
             </span>
           </button>
 
           {showTechSpecs && (
-            <div className="px-4 pb-5 space-y-4" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-              <p className="text-[11px] pt-3" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>
+            <div className="px-4 pb-5 space-y-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <p className="text-[11px] pt-3" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
                 IS 732:2019 wire sizes are applied automatically. These values are locked per IS code.
               </p>
 
@@ -730,7 +730,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               <div>
                 <div className="flex items-center gap-1 mb-2">
                   <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                    style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                     Wire Sizes (IS 732:2019 — Locked)
                   </label>
                   <ISBadge code="IS 732:2019" />
@@ -741,10 +741,10 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 <div className="overflow-x-auto">
                   <table className="w-full text-[11px]" style={{ borderCollapse: 'collapse', minWidth: 420 }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
+                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                         {['Circuit Use', 'Wire Size', 'MCB Rating', 'Max Load'].map(h => (
                           <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
-                            style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                            style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -757,16 +757,16 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                         ['Main incomer',    '10.0 sqmm','63A', 'Per load'],
                       ].map(([use, size, mcb, load], i) => (
                         <tr key={i} style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,34,39,0.015)' }}>
-                          <td className="py-1.5 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{use}</td>
+                          <td className="py-1.5 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{use}</td>
                           <td className="py-1.5 px-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontWeight: 600 }}>{size}</td>
-                          <td className="py-1.5 px-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{mcb}</td>
-                          <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>{load}</td>
+                          <td className="py-1.5 px-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{mcb}</td>
+                          <td className="py-1.5 px-2" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{load}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-                <p className="text-[10px] mt-1" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                <p className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                   IS 732:2019 Table 1 — Wire size is a minimum. Never downsize. Wastage factor: 1.15 applied.
                 </p>
               </div>
@@ -775,7 +775,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               <div>
                 <div className="flex items-center gap-1 mb-2">
                   <label className="text-[11px] uppercase tracking-widest"
-                    style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
+                    style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-mono)' }}>
                     Circuit Load Limits (IS 732:2019 — Locked)
                   </label>
                   <TipBtn id="circuits" open={openTip} onToggle={toggleTip}>
@@ -790,11 +790,11 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                     <div key={item.label} className="px-3 py-2 rounded-[2px]"
                       style={{ border: '1px solid rgba(31,78,121,0.2)', background: 'rgba(31,78,121,0.03)' }}>
                       <p className="text-[9px] uppercase tracking-widest"
-                        style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{item.label}</p>
+                        style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>{item.label}</p>
                       <p className="text-[18px] font-bold mt-0.5"
                         style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>{item.value}</p>
                       <p className="text-[10px]"
-                        style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{item.sub}</p>
+                        style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>{item.sub}</p>
                     </div>
                   ))}
                 </div>
@@ -807,7 +807,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                   style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
                   DB PANEL SCHEDULE
                 </p>
-                <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+                <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
                   Your complete DB panel schedule — number of ways, MCB ratings per circuit, RCCB placement — is generated automatically and visible free in your results. Quantities are unlocked with the full report.
                 </p>
               </div>
@@ -826,15 +826,15 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
         {subStep === '3b' && (<>
           <button type="button" onClick={() => setSubStep('3a')}
-            style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+            style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(255,255,255,0.50)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
             ← Back to Structure Details
           </button>
           <div>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3b · MATERIAL RATES</p>
-            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Enter Your Local Material Rates</h3>
+            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>Enter Your Local Material Rates</h3>
           </div>
           <div className="p-4 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.05)', border: '1px solid rgba(31,78,121,0.2)' }}>
-            <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
               <strong>Why local rates matter:</strong> We calculate exact quantities using IS codes — quantities are universal. But material prices vary by 20–40% between cities. Enter your local rates to get an accurate cost estimate for your location.
             </p>
           </div>
@@ -853,7 +853,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               </div>
 
               <p className="text-[10px] uppercase tracking-widest"
-                style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                 WIRE RATES (IS 694:2010 FR-LSH grade)
               </p>
               {([
@@ -863,15 +863,15 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 ['wire_6_0',  'Wire 6.0 sqmm (sub-panel)', '₹/metre', INDIA_AVG_RATES_DISPLAY.wire_6_0],
               ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
                 <div key={key} className="flex items-center gap-3">
-                  <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
+                  <label className="text-[12px] flex-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                    <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                     <input type="number" value={rates[key]}
                       onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
+                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px]  outline-none"
+                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.25)', color: 'var(--text-primary)' }}
                     />
-                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                       {unit} · Avg: ₹{avg}
                     </span>
                   </div>
@@ -879,7 +879,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               ))}
 
               <p className="text-[10px] uppercase tracking-widest pt-2"
-                style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                 CONDUIT &amp; MCB RATES
               </p>
               {([
@@ -890,15 +890,15 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 ['rccb_25A',   'RCCB 30mA / 25A (bathroom IS 3043)', '₹/piece', INDIA_AVG_RATES_DISPLAY.rccb_25A],
               ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
                 <div key={key} className="flex items-center gap-3">
-                  <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
+                  <label className="text-[12px] flex-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                    <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                     <input type="number" value={rates[key]}
                       onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
+                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px]  outline-none"
+                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.25)', color: 'var(--text-primary)' }}
                     />
-                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                       {unit} · Avg: ₹{avg}
                     </span>
                   </div>
@@ -906,7 +906,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               ))}
 
               <p className="text-[10px] uppercase tracking-widest pt-2"
-                style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                 DB PANEL &amp; EARTHING
               </p>
               {([
@@ -915,15 +915,15 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                 ['earthingKit', 'Earthing pit kit (GI 2.5m×40mm)', '₹/pit', INDIA_AVG_RATES_DISPLAY.earthingKit],
               ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
                 <div key={key} className="flex items-center gap-3">
-                  <label className="text-[12px] flex-1" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
+                  <label className="text-[12px] flex-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px]" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                    <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                     <input type="number" value={rates[key]}
                       onChange={e => setRates(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px] bg-sheet-white outline-none"
-                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227' }}
+                      className="w-24 border rounded-[6px] px-2 py-1.5 text-[13px]  outline-none"
+                      style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.25)', color: 'var(--text-primary)' }}
                     />
-                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>
+                    <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                       {unit} · Avg: ₹{avg}
                     </span>
                   </div>
@@ -932,7 +932,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
               <button type="button" onClick={() => setRates({ ...INDIA_AVG_RATES_DISPLAY })}
                 className="text-[11px] px-3 py-1.5 rounded-[2px] transition-all"
-                style={{ border: '1px solid rgba(30,34,39,0.2)', color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)', background: 'transparent' }}>
+                style={{ border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-mono)', background: 'transparent' }}>
                 Reset to India Average
               </button>
               <p className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
@@ -942,24 +942,24 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
           </div>
 
           {/* Contractor Quote */}
-          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(30,34,39,0.18)' }}>
-            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+          <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <p className="text-[11px] uppercase tracking-widest"
-                style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
+                style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>
                 07 — CONTRACTOR QUOTE (OPTIONAL)
               </p>
             </div>
             <div className="p-4">
-              <p className="text-[13px] mb-3" style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-sans)' }}>
+              <p className="text-[13px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
                 Have an electrician&apos;s quote? Enter it to compare against IS-code quantities after unlocking.
               </p>
               <div className="flex items-center gap-2">
-                <span className="text-[14px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <span className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                 <input type="number" value={contractorQuote}
                   onChange={e => setContractorQuote(e.target.value)}
                   placeholder="e.g. 85000"
-                  className="flex-1 border rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white outline-none"
-                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.4)', color: '#1E2227' }}
+                  className="flex-1 border rounded-[6px] px-3 py-2 text-[14px]  outline-none"
+                  style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.35)', color: 'var(--text-primary)' }}
                 />
               </div>
               {contractorQuote && (
@@ -986,28 +986,28 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
 
         {subStep === '3c' && (<>
           <button type="button" onClick={() => setSubStep('3b')}
-            style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(30,34,39,0.55)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
+            style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(255,255,255,0.50)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>
             ← Back to Material Rates
           </button>
           <div>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>3c · LABOUR ESTIMATION</p>
-            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>Include Labour Cost? (Optional)</h3>
+            <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>Include Labour Cost? (Optional)</h3>
           </div>
           <div className="p-4 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.05)', border: '1px solid rgba(31,78,121,0.2)' }}>
-            <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            <p className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
               Labour costs vary significantly with season, location, and site conditions. CPWD DSR 2023 rates are government benchmarks — actual rates typically differ by ±20–30%.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button type="button" onClick={() => setIncludeLabour(true)} className="p-4 rounded-[2px] text-left transition-all"
-              style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
-              <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
-              <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Use CPWD DSR 2023 rates. Edit workers and rates per trade. Labour appears only in paid PDF report.</p>
+              style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
+              <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Use CPWD DSR 2023 rates. Edit workers and rates per trade. Labour appears only in paid PDF report.</p>
             </button>
             <button type="button" onClick={() => setIncludeLabour(false)} className="p-4 rounded-[2px] text-left transition-all"
-              style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
-              <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Skip — Material Cost Only</p>
-              <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour later from your electrician&apos;s quote.</p>
+              style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
+              <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Skip — Material Cost Only</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour later from your electrician&apos;s quote.</p>
             </button>
           </div>
 
@@ -1026,43 +1026,43 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               <div className="overflow-x-auto">
                 <table className="w-full text-[11px]" style={{ borderCollapse: 'collapse', minWidth: 560 }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(30,34,39,0.15)' }}>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                       {['Trade', 'Workers', 'Rate/day ₹', 'India Avg', 'CPWD Basis', 'Days'].map(h => (
                         <th key={h} className="text-left py-1.5 px-2 text-[9px] uppercase tracking-widest"
-                          style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
+                          style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {trades.map(trade => (
                       <tr key={trade.id}
-                        style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', opacity: trade.active ? 1 : 0.35, background: trade.active ? 'transparent' : 'rgba(30,34,39,0.02)' }}>
-                        <td className="py-1.5 px-2" style={{ fontFamily: 'var(--font-plex-sans)', color: '#1E2227', whiteSpace: 'nowrap' }}>{trade.name}</td>
+                        style={{ borderBottom: '1px solid rgba(30,34,39,0.06)', opacity: trade.active ? 1 : 0.35, background: trade.active ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                        <td className="py-1.5 px-2" style={{ fontFamily: 'var(--font-plex-sans)', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{trade.name}</td>
                         <td className="py-1 px-2">
                           <div className="flex items-center gap-1">
                             <button type="button"
                               onClick={() => updateTrade(trade.id, 'active', !trade.active)}
                               className="w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center"
-                              style={{ border: '1px solid rgba(30,34,39,0.2)', background: trade.active ? 'rgba(140,58,34,0.1)' : 'rgba(20,83,45,0.1)', color: trade.active ? '#8C3A22' : '#14532D' }}>
+                              style={{ border: '1px solid rgba(255,255,255,0.15)', background: trade.active ? 'rgba(140,58,34,0.1)' : 'rgba(20,83,45,0.1)', color: trade.active ? '#8C3A22' : '#14532D' }}>
                               {trade.active ? '−' : '+'}
                             </button>
                             <input type="number" value={trade.workers} disabled={!trade.active}
                               onChange={e => updateTrade(trade.id, 'workers', parseInt(e.target.value) || 0)}
-                              className="w-10 border rounded px-1 py-0.5 text-center text-[11px] bg-sheet-white outline-none"
-                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
+                              className="w-10 border rounded px-1 py-0.5 text-center text-[11px]  outline-none"
+                              style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.15)', color: 'var(--text-primary)' }}
                             />
                           </div>
                         </td>
                         <td className="py-1 px-2">
                           <input type="number" value={trade.ratePerDay} disabled={!trade.active}
                             onChange={e => updateTrade(trade.id, 'ratePerDay', parseInt(e.target.value) || 0)}
-                            className="w-20 border rounded px-1 py-0.5 text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
+                            className="w-20 border rounded px-1 py-0.5 text-[11px]  outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.15)', color: 'var(--text-primary)' }}
                           />
                         </td>
-                        <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>₹{trade.indiaAvgRate}</td>
-                        <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}>{trade.basisText}</td>
-                        <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.35)', fontFamily: 'var(--font-plex-mono)', fontSize: 10 }}>auto</td>
+                        <td className="py-1.5 px-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹{trade.indiaAvgRate}</td>
+                        <td className="py-1.5 px-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>{trade.basisText}</td>
+                        <td className="py-1.5 px-2" style={{ color: 'rgba(255,255,255,0.30)', fontFamily: 'var(--font-plex-mono)', fontSize: 10 }}>auto</td>
                       </tr>
                     ))}
                     {customTrades.map(ct => (
@@ -1070,29 +1070,29 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
                         <td className="py-1 px-2">
                           <input type="text" value={ct.name} onChange={e => updateCustomTrade(ct.id, 'name', e.target.value)}
                             placeholder="Trade name"
-                            className="w-32 border rounded px-1 py-0.5 text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
+                            className="w-32 border rounded px-1 py-0.5 text-[11px]  outline-none"
+                            style={{ fontFamily: 'var(--font-plex-sans)', borderColor: 'rgba(255,255,255,0.15)', color: 'var(--text-primary)' }}
                           />
                         </td>
                         <td className="py-1 px-2">
                           <input type="number" value={ct.workers} onChange={e => updateCustomTrade(ct.id, 'workers', e.target.value)}
-                            className="w-10 border rounded px-1 py-0.5 text-center text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
+                            className="w-10 border rounded px-1 py-0.5 text-center text-[11px]  outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.15)', color: 'var(--text-primary)' }}
                           />
                         </td>
                         <td className="py-1 px-2">
                           <input type="number" value={ct.ratePerDay} onChange={e => updateCustomTrade(ct.id, 'ratePerDay', e.target.value)}
-                            className="w-20 border rounded px-1 py-0.5 text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
+                            className="w-20 border rounded px-1 py-0.5 text-[11px]  outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.15)', color: 'var(--text-primary)' }}
                           />
                         </td>
-                        <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.3)', fontFamily: 'var(--font-plex-mono)', fontSize: 10 }}>—</td>
-                        <td className="py-1.5 px-2" style={{ color: 'rgba(30,34,39,0.3)', fontFamily: 'var(--font-plex-mono)', fontSize: 10 }}>Custom</td>
+                        <td className="py-1.5 px-2" style={{ color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-plex-mono)', fontSize: 10 }}>—</td>
+                        <td className="py-1.5 px-2" style={{ color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-plex-mono)', fontSize: 10 }}>Custom</td>
                         <td className="py-1 px-2">
                           <input type="number" value={ct.days} onChange={e => updateCustomTrade(ct.id, 'days', e.target.value)}
                             placeholder="days"
-                            className="w-14 border rounded px-1 py-0.5 text-[11px] bg-sheet-white outline-none"
-                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(30,34,39,0.2)', color: '#1E2227' }}
+                            className="w-14 border rounded px-1 py-0.5 text-[11px]  outline-none"
+                            style={{ fontFamily: 'var(--font-plex-mono)', borderColor: 'rgba(255,255,255,0.15)', color: 'var(--text-primary)' }}
                           />
                         </td>
                       </tr>
@@ -1102,10 +1102,10 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               </div>
               <button type="button" onClick={addCustomTrade}
                 className="text-[11px] px-3 py-1.5 rounded-[2px]"
-                style={{ border: '1px dashed rgba(30,34,39,0.25)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', background: 'transparent' }}>
+                style={{ border: '1px dashed rgba(255,255,255,0.20)', color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', background: 'transparent' }}>
                 + Add Your Own Labour
               </button>
-              <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
+              <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.30)', fontFamily: 'var(--font-plex-mono)' }}>
                 Labour total shown only in report after unlocking. Not displayed on this form.
               </p>
             </div>

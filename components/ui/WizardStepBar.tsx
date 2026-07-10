@@ -19,7 +19,7 @@ export default function WizardStepBar({ currentStep, toolName, toolPhase }: Wiza
   const current = STEP_INDEX[currentStep] ?? 0
 
   return (
-    <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
+    <div style={{ background: 'var(--bg-surface)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
       <div className="px-6 md:px-12 py-4 flex items-center justify-between flex-wrap gap-4">
         {/* Tool identity */}
         <div className="flex items-center gap-3">

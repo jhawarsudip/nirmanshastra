@@ -98,7 +98,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
         <label
           htmlFor={id}
           className="text-[11px] uppercase tracking-widest"
-          style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
+          style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-mono)' }}
         >
           {label}{required && <span style={{ color: '#8C3A22' }} className="ml-1">*</span>}
         </label>
@@ -108,10 +108,10 @@ export default function RegistrationForm({ onSubmit }: Props) {
           value={form[id]}
           onChange={e => set(id, e.target.value)}
           placeholder={placeholder}
-          className="border rounded-[6px] px-3 text-[16px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint focus:ring-1 focus:ring-blueprint/30"
+          className="border rounded-[6px] px-3 text-[16px] text-white bg-transparent outline-none focus:border-blueprint focus:ring-1 focus:ring-blueprint/30"
           style={{
             fontFamily: 'var(--font-plex-sans)',
-            borderColor: errors[id] ? '#8C3A22' : 'rgba(30,34,39,0.4)',
+            borderColor: errors[id] ? '#8C3A22' : 'rgba(255,255,255,0.35)',
             height: '52px',
           }}
         />
@@ -125,12 +125,12 @@ export default function RegistrationForm({ onSubmit }: Props) {
   }
 
   return (
-    <div className="w-full bg-sheet-white px-8 py-10">
+    <div className="w-full px-8 py-10" style={{ background: "var(--bg-base)" }}>
       {/* StructoPro header */}
       <div className="w-full mb-8">
         <div
           className="rounded-[2px] mb-6"
-          style={{ border: '1px solid #1E2227', background: '#1E2227', position: 'relative', overflow: 'hidden', padding: '28px 24px' }}
+          style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'var(--bg-surface)', position: 'relative', overflow: 'hidden', padding: '28px 24px' }}
         >
           {/* Large concrete hatch watermark */}
           <div style={{ position: 'absolute', bottom: -12, right: -12, opacity: 0.12, pointerEvents: 'none', lineHeight: 0 }}>
@@ -179,8 +179,8 @@ export default function RegistrationForm({ onSubmit }: Props) {
                   className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] border"
                   style={{
                     background:  i === 0 ? '#1F4E79' : 'transparent',
-                    borderColor: i === 0 ? '#1F4E79' : 'rgba(30,34,39,0.22)',
-                    color:       i === 0 ? '#fff'    : 'rgba(30,34,39,0.35)',
+                    borderColor: i === 0 ? '#1F4E79' : 'rgba(255,255,255,0.18)',
+                    color:       i === 0 ? '#fff'    : 'rgba(255,255,255,0.30)',
                     fontFamily:  'var(--font-plex-mono)',
                   }}
                 >
@@ -190,14 +190,14 @@ export default function RegistrationForm({ onSubmit }: Props) {
                   className="text-[10px] uppercase tracking-widest whitespace-nowrap hidden sm:inline"
                   style={{
                     fontFamily: 'var(--font-plex-mono)',
-                    color: i === 0 ? '#1F4E79' : 'rgba(30,34,39,0.3)',
+                    color: i === 0 ? '#1F4E79' : 'rgba(255,255,255,0.25)',
                   }}
                 >
                   {step}
                 </span>
               </div>
               {i < 3 && (
-                <div className="w-6 h-px mx-2" style={{ background: 'rgba(30,34,39,0.14)' }} />
+                <div className="w-6 h-px mx-2" style={{ background: 'rgba(255,255,255,0.08)' }} />
               )}
             </div>
           ))}
@@ -206,11 +206,11 @@ export default function RegistrationForm({ onSubmit }: Props) {
 
       {/* Form card */}
       <form onSubmit={handleSubmit} className="w-full">
-        <div className="border border-iron-ink rounded-[2px] bg-sheet-white">
-          <div className="border-b border-iron-ink px-5 py-3">
+        <div className="rounded-[2px]" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "var(--bg-surface)" }}>
+          <div className="border-b px-5 py-3">
             <p
               className="text-[11px] uppercase tracking-widest"
-              style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}
+              style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}
             >
               STEP 01 · YOUR DETAILS
             </p>
@@ -227,7 +227,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
                 <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#14532D', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Signed in as {loggedInUser.user_metadata?.full_name || loggedInUser.email}
                 </p>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(30,34,39,0.5)', marginTop: 2 }}>
+                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>
                   Your name &amp; email are pre-filled from your account
                 </p>
               </div>
@@ -256,7 +256,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
               <label
                 htmlFor="state"
                 className="text-[11px] uppercase tracking-widest"
-                style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
+                style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-mono)' }}
               >
                 State <span style={{ color: '#8C3A22' }}>*</span>
               </label>
@@ -264,10 +264,10 @@ export default function RegistrationForm({ onSubmit }: Props) {
                 id="state"
                 value={form.state}
                 onChange={e => set('state', e.target.value)}
-                className="border rounded-[6px] px-3 text-[16px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
+                className="border rounded-[6px] px-3 text-[16px] text-white bg-transparent outline-none focus:border-blueprint"
                 style={{
                   fontFamily: 'var(--font-plex-sans)',
-                  borderColor: errors.state ? '#8C3A22' : 'rgba(30,34,39,0.4)',
+                  borderColor: errors.state ? '#8C3A22' : 'rgba(255,255,255,0.35)',
                   height: '52px',
                 }}
               >
@@ -284,7 +284,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
             {form.state && field('city', 'City', { placeholder: 'e.g. Pune', required: true })}
           </div>
 
-          <div className="border-t border-iron-ink px-5 py-4">
+          <div className="border-t px-5 py-4">
             {apiError && (
               <p className="text-[13px] mb-3" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
                 ⚠ {apiError}
@@ -292,7 +292,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
             )}
             <p
               className="text-[11px] mb-3"
-              style={{ color: 'rgba(30,34,39,0.45)', fontFamily: 'var(--font-plex-sans)' }}
+              style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-sans)' }}
             >
               Your details are saved securely. We send only your estimate report and IS-code construction tips.
             </p>

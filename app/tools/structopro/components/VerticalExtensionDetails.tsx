@@ -42,7 +42,7 @@ function Sect({ title, badge, defaultOpen = true, children }: {
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div style={{ border: '1px solid rgba(30,34,39,0.12)', borderLeft: '3px solid #1F4E79' }}>
+    <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderLeft: '3px solid #1F4E79' }}>
       <button type="button" onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-6 py-4 text-left"
         style={{ background: 'rgba(31,78,121,0.04)' }}>
@@ -50,7 +50,7 @@ function Sect({ title, badge, defaultOpen = true, children }: {
           <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 15, fontWeight: 600, color: '#1F4E79' }}>{title}</span>
           {badge && <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '2px 8px', background: 'rgba(31,78,121,0.12)', color: '#1F4E79' }}>{badge}</span>}
         </div>
-        <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.4)' }}>{open ? '▲' : '▼'}</span>
+        <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{open ? '▲' : '▼'}</span>
       </button>
       {open && <div className="px-6 py-6 space-y-5">{children}</div>}
     </div>
@@ -69,7 +69,7 @@ function AlertBox({ variant, children }: { variant: AlertVariant; children: Reac
   return (
     <div className="flex gap-3 p-4" style={{ background: s.bg, borderLeft: `4px solid ${s.border}` }}>
       <span className="text-[15px] shrink-0 mt-0.5 font-bold" style={{ color: s.iconColor }}>{s.icon}</span>
-      <div className="text-[13px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
+      <div className="text-[13px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{children}</div>
     </div>
   )
 }
@@ -78,7 +78,7 @@ function OptionCard({ selected, onClick, children }: { selected: boolean; onClic
   return (
     <button type="button" onClick={onClick}
       className="text-left p-3 rounded-[2px] border transition-all"
-      style={{ borderColor: selected ? '#1F4E79' : 'rgba(30,34,39,0.18)', background: selected ? 'rgba(31,78,121,0.07)' : '#fff' }}>
+      style={{ borderColor: selected ? '#1F4E79' : 'rgba(255,255,255,0.10)', background: selected ? 'rgba(31,78,121,0.07)' : '#fff' }}>
       {children}
     </button>
   )
@@ -100,10 +100,10 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
   const [errors, setErrors]   = useState<Record<string, string>>({})
 
   const iCls = 'w-full px-4 rounded-[6px] border text-[14px] bg-white'
-  const iStyle = { borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)', minHeight: 48 }
-  const monoStyle = { fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }
+  const iStyle = { borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', minHeight: 48 }
+  const monoStyle = { fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }
   const lCls = 'block text-[13px] font-medium mb-2'
-  const lStyle = { color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }
+  const lStyle = { color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }
 
   // ── Location ──
   const [localState, setLocalState] = useState(initState || '')
@@ -211,17 +211,17 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>
           P1 · VERTICAL EXTENSION — ADD FLOORS
         </p>
-        <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: '#1E2227', lineHeight: 1.15 }}>
+        <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.15 }}>
           Add Floors to Existing Building
         </h2>
-        <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(30,34,39,0.55)', marginTop: 6 }}>
+        <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(255,255,255,0.50)', marginTop: 6 }}>
           Estimates cost of new floors only. Foundation and excavation excluded.
         </p>
       </div>
 
       {/* Sub-step progress bar */}
       <div className="flex items-center flex-wrap gap-x-0.5 gap-y-2 pb-4 overflow-x-auto"
-        style={{ borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         {([
           { label: '1 REG',        done: true,                  active: false },
           { label: '2 METHOD',     done: true,                  active: false },
@@ -236,14 +236,14 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
             <span className="text-[10px] px-2 py-0.5 rounded-[2px]" style={{
               fontFamily: 'var(--font-plex-mono)',
               background: s.active ? '#1F4E79' : s.done ? 'rgba(20,83,45,0.08)' : 'rgba(30,34,39,0.05)',
-              color: s.active ? '#fff' : s.done ? '#14532D' : 'rgba(30,34,39,0.35)',
-              border: `1px solid ${s.active ? 'transparent' : s.done ? 'rgba(20,83,45,0.2)' : 'rgba(30,34,39,0.12)'}`,
+              color: s.active ? '#fff' : s.done ? '#14532D' : 'rgba(255,255,255,0.30)',
+              border: `1px solid ${s.active ? 'transparent' : s.done ? 'rgba(20,83,45,0.2)' : 'rgba(255,255,255,0.06)'}`,
               whiteSpace: 'nowrap',
             }}>
               {s.done ? '✓ ' : ''}{s.label}
             </span>
             {i < arr.length - 1 && (
-              <span style={{ color: 'rgba(30,34,39,0.25)', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '0 3px' }}>—</span>
+              <span style={{ color: 'rgba(255,255,255,0.20)', fontFamily: 'var(--font-plex-mono)', fontSize: 10, padding: '0 3px' }}>—</span>
             )}
           </div>
         ))}
@@ -259,7 +259,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
           <p className="text-[12px] font-bold mb-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)', letterSpacing: '0.04em' }}>
             ⚠️ IS 1893:2016 + IS 456:2000 — MANDATORY SAFETY ADVISORY
           </p>
-          <p className="text-[13px] leading-relaxed" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             Adding floors to an existing building increases loads on existing foundations and columns. A structural audit by a licensed engineer is{' '}
             <strong>MANDATORY</strong> before adding floors. NirmanShastra calculates the additional material cost only — suitability of the existing structure must be certified by a structural engineer.
           </p>
@@ -313,8 +313,8 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                 ] as { label: string; val: number; note: string }[]).map(opt => (
                   <OptionCard key={opt.val} selected={existingUpperFloors === opt.val} onClick={() => setExistingUpperFloors(opt.val)}>
                     <div className="text-center">
-                      <p className="text-[13px] font-semibold" style={{ color: existingUpperFloors === opt.val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{opt.label}</p>
-                      <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>{opt.note}</p>
+                      <p className="text-[13px] font-semibold" style={{ color: existingUpperFloors === opt.val ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{opt.label}</p>
+                      <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>{opt.note}</p>
                     </div>
                   </OptionCard>
                 ))}
@@ -332,7 +332,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                   { label: '20+ yrs',     val: '20+' },
                 ] as { label: string; val: BuildingAge }[]).map(opt => (
                   <OptionCard key={opt.val} selected={buildingAge === opt.val} onClick={() => setBuildingAge(opt.val)}>
-                    <p className="text-[12px] font-medium text-center" style={{ color: buildingAge === opt.val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{opt.label}</p>
+                    <p className="text-[12px] font-medium text-center" style={{ color: buildingAge === opt.val ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{opt.label}</p>
                   </OptionCard>
                 ))}
               </div>
@@ -354,8 +354,8 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                   { label: '400×400mm', val: '400×400', note: 'Rated G+3+' },
                 ] as { label: string; val: ExistingColumnSize; note: string }[]).map(opt => (
                   <OptionCard key={opt.val} selected={existingColumnSize === opt.val} onClick={() => setExistingColumnSize(opt.val)}>
-                    <p className="text-[12px] font-semibold" style={{ color: existingColumnSize === opt.val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{opt.label}</p>
-                    <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>{opt.note}</p>
+                    <p className="text-[12px] font-semibold" style={{ color: existingColumnSize === opt.val ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{opt.label}</p>
+                    <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>{opt.note}</p>
                   </OptionCard>
                 ))}
               </div>
@@ -367,7 +367,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
               <div className="grid grid-cols-2 gap-2">
                 {(['M15', 'M20', 'M25', 'Unknown'] as ExistingConcreteGrade[]).map(g => (
                   <OptionCard key={g} selected={existingConcreteGrade === g} onClick={() => setExistingConcreteGrade(g)}>
-                    <p className="text-[12px] font-semibold text-center" style={{ color: existingConcreteGrade === g ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{g}</p>
+                    <p className="text-[12px] font-semibold text-center" style={{ color: existingConcreteGrade === g ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{g}</p>
                   </OptionCard>
                 ))}
               </div>
@@ -390,7 +390,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                 {(['yes', 'no'] as const).map(opt => (
                   <label key={opt} className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="hasDrg" checked={hasStructuralDrawings === opt} onChange={() => setHasStructuralDrawings(opt)} style={{ accentColor: '#1F4E79' }} />
-                    <span className="text-[13px] capitalize" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{opt}</span>
+                    <span className="text-[13px] capitalize" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{opt}</span>
                   </label>
                 ))}
               </div>
@@ -412,7 +412,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                 ] as { val: AuditStatus; label: string }[]).map(opt => (
                   <label key={opt.val} className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="hasAudit" checked={hasStructuralAudit === opt.val} onChange={() => setHasStructuralAudit(opt.val)} style={{ accentColor: '#1F4E79' }} />
-                    <span className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{opt.label}</span>
+                    <span className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{opt.label}</span>
                   </label>
                 ))}
               </div>
@@ -433,7 +433,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                 value={existingFloorAreaSqft}
                 onChange={e => setExistingFloorAreaSqft(e.target.value)}
               />
-              <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+              <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
                 Area of a single floor of the existing building. Used to estimate column count and splice bar quantities.
               </p>
               {errors.area && <p className="text-[11px] mt-1" style={{ color: '#8C3A22' }}>{errors.area}</p>}
@@ -470,8 +470,8 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                 {([1, 2, 3] as const).map(n => (
                   <OptionCard key={n} selected={floorsToAdd === n} onClick={() => setFloorsToAdd(n)}>
                     <div className="w-16 text-center">
-                      <p className="text-[22px] font-bold" style={{ color: floorsToAdd === n ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{n}</p>
-                      <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>{n === 1 ? 'floor' : 'floors'}</p>
+                      <p className="text-[22px] font-bold" style={{ color: floorsToAdd === n ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{n}</p>
+                      <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>{n === 1 ? 'floor' : 'floors'}</p>
                     </div>
                   </OptionCard>
                 ))}
@@ -487,11 +487,11 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                   { val: false, label: 'Different area', note: 'Enter area per new floor' },
                 ] as { val: boolean; label: string; note: string }[]).map(opt => (
                   <label key={String(opt.val)} className="flex-1 flex items-start gap-2 cursor-pointer p-3 rounded-[2px] border transition-all"
-                    style={{ borderColor: newAreaSameAsExisting === opt.val ? '#1F4E79' : 'rgba(30,34,39,0.18)', background: newAreaSameAsExisting === opt.val ? 'rgba(31,78,121,0.06)' : '#fff' }}>
+                    style={{ borderColor: newAreaSameAsExisting === opt.val ? '#1F4E79' : 'rgba(255,255,255,0.10)', background: newAreaSameAsExisting === opt.val ? 'rgba(31,78,121,0.06)' : '#fff' }}>
                     <input type="radio" name="sameArea" checked={newAreaSameAsExisting === opt.val} onChange={() => setNewAreaSameAsExisting(opt.val)} style={{ accentColor: '#1F4E79', marginTop: 2 }} />
                     <div>
-                      <p className="text-[13px] font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{opt.label}</p>
-                      <p className="text-[11px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>{opt.note}</p>
+                      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{opt.label}</p>
+                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>{opt.note}</p>
                     </div>
                   </label>
                 ))}
@@ -522,7 +522,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                 value={floorHeightFt}
                 onChange={e => setFloorHeightFt(e.target.value)}
               />
-              <p className="text-[11px] mt-0.5" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>
+              <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>
                 NBC 2016 min: 9 ft (2.75m) · default 10 ft
               </p>
             </div>
@@ -555,8 +555,8 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                   { val: 'Fe415',  label: 'Fe415',  note: 'Old standard' },
                 ] as { val: SteelGrade; label: string; note: string }[]).map(opt => (
                   <OptionCard key={opt.val} selected={newSteelGrade === opt.val} onClick={() => setNewSteelGrade(opt.val)}>
-                    <p className="text-[12px] font-semibold" style={{ color: newSteelGrade === opt.val ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-mono)' }}>{opt.label}</p>
-                    <p className="text-[10px]" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>{opt.note}</p>
+                    <p className="text-[12px] font-semibold" style={{ color: newSteelGrade === opt.val ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}>{opt.label}</p>
+                    <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-sans)' }}>{opt.note}</p>
                   </OptionCard>
                 ))}
               </div>
@@ -569,11 +569,11 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
           </div>
 
           {/* Summary of VE scope */}
-          <div className="mt-2 p-4 rounded-[2px]" style={{ background: '#1E22270A', border: '1px solid #1E222720' }}>
+          <div className="mt-2 p-4 rounded-[2px]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <p className="text-[11px] uppercase tracking-widest mb-2" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
               VERTICAL EXTENSION SCOPE SUMMARY
             </p>
-            <div className="grid grid-cols-2 gap-2 text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: '#1E2227' }}>
+            <div className="grid grid-cols-2 gap-2 text-[12px]" style={{ fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }}>
               <span>Existing:</span>
               <span>{existingUpperFloors === 0 ? 'G' : `G+${existingUpperFloors}`} ({existingFloorAreaSqft || '—'} sqft)</span>
               <span>Adding:</span>
@@ -600,7 +600,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => setSubStep('3a_existing')}
             className="flex-none px-5 py-3 rounded-[6px] text-[14px]"
-            style={{ border: '1.5px solid #1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            style={{ border: '1.5px solid rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             ← Back
           </button>
           <button type="button"
@@ -620,13 +620,13 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>
             3b · MATERIAL RATES
           </p>
-          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>
+          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
             Enter Your Local Material Rates
           </h3>
         </div>
 
         <div className="p-4 rounded-[2px]" style={{ background: 'rgba(31,78,121,0.05)', border: '1px solid rgba(31,78,121,0.2)' }}>
-          <p className="text-[13px]" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+          <p className="text-[13px]" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             <strong>Why local rates matter:</strong> IS codes give exact quantities — but material prices vary 20–40% between cities. India averages are pre-filled as a starting point.
           </p>
         </div>
@@ -644,22 +644,22 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
             { key: 'formwork',    label: 'Formwork',             unit: '₹/sqft BUA', avg: INDIA_AVG.formwork    },
             { key: 'bindingWire', label: 'Binding Wire',         unit: '₹/kg',       avg: INDIA_AVG.bindingWire },
           ] as { key: keyof VERates; label: string; unit: string; avg: number }[]).map(({ key, label, unit, avg }) => (
-            <div key={key} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(30,34,39,0.15)', background: '#fff' }}>
+            <div key={key} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#fff' }}>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
-                  <p className="text-[13px] font-medium" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}>{unit}</p>
+                  <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>{unit}</p>
                 </div>
-                <span className="text-[11px] px-2 py-0.5 rounded-[2px] whitespace-nowrap" style={{ background: 'rgba(30,34,39,0.05)', color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-mono)' }}>
+                <span className="text-[11px] px-2 py-0.5 rounded-[2px] whitespace-nowrap" style={{ background: 'rgba(30,34,39,0.05)', color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
                   Avg: ₹{avg}
                 </span>
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
                 <input
                   type="number" min="0"
                   className="w-full pl-7 pr-3 py-2 rounded-[6px] border text-[13px]"
-                  style={{ borderColor: 'rgba(30,34,39,0.3)', color: '#1E2227', fontFamily: 'var(--font-plex-mono)', background: '#fff' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.25)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', background: '#fff' }}
                   value={rates[key]}
                   onChange={e => setRates(r => ({ ...r, [key]: parseFloat(e.target.value) || 0 }))}
                 />
@@ -671,7 +671,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
         <div className="flex gap-3 pt-1">
           <button type="button" onClick={() => setRates({ ...INDIA_AVG })}
             className="px-4 py-2 rounded-[6px] text-[12px]"
-            style={{ color: '#1E222780', border: '1px solid #1E222730', fontFamily: 'var(--font-plex-sans)' }}>
+            style={{ color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'var(--font-plex-sans)' }}>
             Reset to India Average
           </button>
         </div>
@@ -684,7 +684,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
           <div>
             <label className={lCls} style={lStyle}>Contractor total quote (₹)</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>₹</span>
               <input className="w-full pl-7 pr-3 py-2 rounded-[2px] border text-[13px]"
                 style={{ ...iStyle, ...monoStyle }}
                 type="number" min="0" placeholder="0"
@@ -696,7 +696,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <button type="button" onClick={() => setSubStep('3a_new')}
             className="flex-none px-5 py-3 rounded-[6px] text-[14px]"
-            style={{ border: '1.5px solid #1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            style={{ border: '1.5px solid rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             ← Back
           </button>
           <button type="button" onClick={() => setSubStep('3c')}
@@ -720,7 +720,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>
             3c · LABOUR ESTIMATION
           </p>
-          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: '#1E2227', lineHeight: 1.2 }}>
+          <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
             Include Labour Cost? (Optional)
           </h3>
         </div>
@@ -732,15 +732,15 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button type="button" onClick={() => setIncludeLabour(true)}
             className="p-4 rounded-[2px] text-left transition-all"
-            style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
-            <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
-            <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>CPWD DSR 2023 rates. Edit workers and rate per trade. Labour appears only in paid PDF report.</p>
+            style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
+            <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
+            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>CPWD DSR 2023 rates. Edit workers and rate per trade. Labour appears only in paid PDF report.</p>
           </button>
           <button type="button" onClick={() => setIncludeLabour(false)}
             className="p-4 rounded-[2px] text-left transition-all"
-            style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(30,34,39,0.18)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
-            <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>Skip — Material Cost Only</p>
-            <p className="text-[12px]" style={{ color: 'rgba(30,34,39,0.55)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour from your contractor quote.</p>
+            style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
+            <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Skip — Material Cost Only</p>
+            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour from your contractor quote.</p>
           </button>
         </div>
 
@@ -751,42 +751,42 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
             </AlertBox>
             <table className="w-full text-[12px] border-collapse mt-3">
               <thead>
-                <tr style={{ background: '#1E22270A' }}>
+                <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
                   {['Active', 'Trade', 'Workers', 'Rate/Day (₹)', 'CPWD Productivity', 'Days (manual)'].map(h => (
-                    <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid #1E222720' }}>{h}</th>
+                    <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {trades.map(t => (
-                  <tr key={t.id} style={{ borderBottom: '1px solid #1E222710', opacity: t.active ? 1 : 0.45 }}>
+                  <tr key={t.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', opacity: t.active ? 1 : 0.45 }}>
                     <td className="px-3 py-2">
                       <input type="checkbox" checked={t.active} onChange={e => updateTrade(t.id, 'active', e.target.checked)} style={{ accentColor: '#1F4E79' }} />
                     </td>
-                    <td className="px-3 py-2" style={{ color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>{t.name}</td>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{t.name}</td>
                     <td className="px-2 py-1">
                       <div className="flex items-center gap-1">
-                        <button type="button" onClick={() => updateTrade(t.id, 'workers', Math.max(0, t.workers - 1))} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: '#1E222730' }}>−</button>
+                        <button type="button" onClick={() => updateTrade(t.id, 'workers', Math.max(0, t.workers - 1))} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: 'rgba(255,255,255,0.12)' }}>−</button>
                         <input className="w-10 text-center px-1 py-0.5 rounded-[2px] border text-[12px]"
-                          style={{ borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}
+                          style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}
                           type="number" min="0" value={t.workers}
                           onChange={e => updateTrade(t.id, 'workers', parseInt(e.target.value) || 0)} />
-                        <button type="button" onClick={() => updateTrade(t.id, 'workers', t.workers + 1)} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: '#1E222730' }}>+</button>
+                        <button type="button" onClick={() => updateTrade(t.id, 'workers', t.workers + 1)} className="w-6 h-6 rounded-[2px] border text-[12px] flex items-center justify-center" style={{ borderColor: 'rgba(255,255,255,0.12)' }}>+</button>
                       </div>
                     </td>
                     <td className="px-2 py-1">
                       <div className="flex items-center gap-1">
                         <input className="w-20 px-2 py-1 rounded-[2px] border text-[12px]"
-                          style={{ borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}
+                          style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}
                           type="number" value={t.ratePerDay}
                           onChange={e => updateTrade(t.id, 'ratePerDay', parseInt(e.target.value) || 0)} />
-                        <span className="text-[10px] whitespace-nowrap" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-mono)' }}>avg: {t.indiaAvgRate}</span>
+                        <span className="text-[10px] whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}>avg: {t.indiaAvgRate}</span>
                       </div>
                     </td>
-                    <td className="px-3 py-2 text-[11px]" style={{ color: '#1E222770', fontFamily: 'var(--font-plex-mono)', whiteSpace: 'nowrap' }}>{t.stdProductivity}</td>
+                    <td className="px-3 py-2 text-[11px]" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-mono)', whiteSpace: 'nowrap' }}>{t.stdProductivity}</td>
                     <td className="px-2 py-1">
                       <input className="w-16 px-2 py-1 rounded-[2px] border text-[12px]"
-                        style={{ borderColor: '#1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-mono)' }}
+                        style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)' }}
                         placeholder="auto" value={t.daysManual}
                         onChange={e => updateTrade(t.id, 'daysManual', e.target.value)} />
                     </td>
@@ -800,7 +800,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => setSubStep('3b')}
             className="flex-none px-5 py-3 rounded-[6px] text-[14px]"
-            style={{ border: '1.5px solid #1E222730', color: '#1E2227', fontFamily: 'var(--font-plex-sans)' }}>
+            style={{ border: '1.5px solid rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>
             ← Back
           </button>
           <button type="button" onClick={handleSubmit}
@@ -810,7 +810,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
           </button>
         </div>
 
-        <p className="text-[11px] text-center" style={{ color: '#1E222760', fontFamily: 'var(--font-plex-sans)' }}>
+        <p className="text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
           Free: grand total range + IS compliance checks. Itemised BOQ requires ₹999 unlock.
         </p>
       </>)}
