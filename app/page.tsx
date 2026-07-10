@@ -1442,9 +1442,9 @@ export default function Home() {
           </span>
         </div>
 
-        {/* 4-column title-block grid — per Design Spec §5B */}
+        {/* 3-column title-block grid — per Design Spec §5B */}
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid grid-cols-1 sm:grid-cols-3"
           style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}
         >
           {/* Column 1: TOOLS */}
@@ -1489,7 +1489,6 @@ export default function Home() {
           <div className="footer-col-3d" style={{
             padding: '28px 28px 32px',
             borderTop: '2px solid #1F4E79',
-            borderRight: '1px solid rgba(244,244,240,0.07)',
           }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(31,78,121,0.75)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>LEGAL</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
@@ -1499,31 +1498,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Column 4: DRAWING INFO — mini title block per Design Spec §5B */}
-          <div style={{
-            padding: '28px 28px 32px',
-            borderTop: '2px solid rgba(31,78,121,0.45)',
-          }}>
-            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(31,78,121,0.55)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>DRAWING INFO</p>
-            <div style={{ border: '1px solid rgba(244,244,240,0.09)', display: 'flex', flexDirection: 'column' }}>
-              {([
-                ['DRG NO.', 'NS-WEB-01'],
-                ['DRAWN BY', 'NIRMANSHASTRA'],
-                ['CHECKED', 'IS 456 · 875 · 732'],
-                ['DATE', String(new Date().getFullYear())],
-                ['REV', 'A'],
-              ] as [string, string][]).map(([label, value], i, arr) => (
-                <div key={label} style={{ display: 'flex', borderBottom: i < arr.length - 1 ? '1px solid rgba(244,244,240,0.07)' : 'none' }}>
-                  <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.28)', letterSpacing: '0.07em', textTransform: 'uppercase', padding: '7px 10px', borderRight: '1px solid rgba(244,244,240,0.07)', minWidth: 82, flexShrink: 0 }}>
-                    {label}
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.55)', padding: '7px 10px', letterSpacing: '0.03em' }}>
-                    {value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Bottom bar — wordmark + disclaimer + copyright */}
