@@ -251,17 +251,14 @@ export default function Navbar() {
         <Image
           src="/logo-mark-reversed.png"
           alt=""
-          width={128}
-          height={128}
-          style={{ width: 32, height: 32, flexShrink: 0 }}
+          width={48}
+          height={32}
+          style={{ width: 48, height: 32, flexShrink: 0 }}
           priority
         />
         <div className="flex flex-col">
           <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, lineHeight: 1.1 }}>
             <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
-          </span>
-          <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 11, color: '#C9A84C', opacity: 0.7, marginTop: 1 }}>
-            निर्माणशास्त्र
           </span>
         </div>
       </button>
@@ -492,16 +489,13 @@ export default function Navbar() {
           <Image
             src="/logo-mark-reversed.png"
             alt=""
-            width={128}
-            height={128}
-            style={{ width: 28, height: 28, flexShrink: 0 }}
+            width={42}
+            height={28}
+            style={{ width: 42, height: 28, flexShrink: 0 }}
           />
           <div className="flex flex-col">
             <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 20, fontWeight: 700, lineHeight: 1.1 }}>
               <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
-            </span>
-            <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 10, color: '#C9A84C', opacity: 0.7, marginTop: 1 }}>
-              निर्माणशास्त्र
             </span>
           </div>
         </Link>

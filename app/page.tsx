@@ -793,9 +793,6 @@ export default function Home() {
                 }}>
                   Build With <span className="hero-accent">Certainty.</span>
                 </h1>
-                <p style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 24, color: 'rgba(244,244,240,0.55)', letterSpacing: '0.01em' }}>
-                  निर्माणशास्त्र
-                </p>
               </motion.div>
 
               <motion.p
@@ -1462,7 +1459,6 @@ export default function Home() {
         }}>
           <div>
             <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: 15, color: '#F4F4F0', fontWeight: 600 }}>NirmanShastra</span>
-            <span style={{ fontFamily: 'var(--font-plex-devanagari)', fontSize: 12, color: 'rgba(244,244,240,0.32)', marginLeft: 10 }}>निर्माणशास्त्र</span>
           </div>
           <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.5)', letterSpacing: '0.04em' }}>
             Estimates are for budgeting reference only. Not for structural approval without licensed engineer.
