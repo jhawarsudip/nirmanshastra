@@ -760,69 +760,6 @@ function ProblemCard({ problem, index }: { problem: (typeof PROBLEMS)[0]; index:
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ENGINEERING TITLE BLOCK (Design Spec § 5.A)
-// ─────────────────────────────────────────────────────────────────────────────
-
-function TitleBlock() {
-  const now = new Date()
-  const dd = String(now.getDate()).padStart(2, '0')
-  const mmm = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][now.getMonth()]
-  const dateStr = `${dd} ${mmm} ${now.getFullYear()}`
-
-  const rows: [string, string][] = [
-    ['PROJECT',  'YOUR HOME'],
-    ['DRG NO.',  'NS-001'],
-    ['DRAWN BY', 'NIRMANSHASTRA'],
-    ['CHECKED',  'IS 456 · 1077 · 732'],
-    ['AGAINST',  '· 1172 · 1893'],
-    ['SCALE',    '1:1 COST CERTAINTY'],
-    ['DATE',     `${dateStr}   REV A`],
-  ]
-
-  return (
-    <div
-      className="hero-title-block"
-      style={{ border: '1px solid rgba(244,244,240,0.32)', width: '100%' }}
-    >
-      {rows.map(([label, value], i) => (
-        <div
-          key={label}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '108px 1fr',
-            borderBottom: i < rows.length - 1 ? '1px solid rgba(244,244,240,0.1)' : 'none',
-            padding: '9px 16px',
-          }}
-        >
-          <span style={{
-            fontFamily: 'var(--font-plex-mono)',
-            fontSize: 9,
-            color: 'rgba(244,244,240,0.38)',
-            letterSpacing: '0.09em',
-            textTransform: 'uppercase',
-            lineHeight: 1.5,
-          }}>
-            {label}
-          </span>
-          <span
-            suppressHydrationWarning
-            style={{
-              fontFamily: 'var(--font-plex-mono)',
-              fontSize: 12,
-              color: 'rgba(244,244,240,0.82)',
-              letterSpacing: '0.04em',
-              lineHeight: 1.5,
-            }}
-          >
-            {value}
-          </span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // HOMEPAGE
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -922,18 +859,9 @@ export default function Home() {
                 ))}
               </motion.div>
 
-              {/* Mobile-only: Engineering TitleBlock below stats (desktop shows it in right column) */}
-              <motion.div
-                className="md:hidden"
-                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: 'easeOut', delay: 0.65 }}
-              >
-                <TitleBlock />
-              </motion.div>
             </div>
 
-            {/* Right — Engineering title block + building elevation SVG (desktop only) */}
+            {/* Right — building elevation SVG (desktop only) */}
             <motion.div
               className="hidden md:flex flex-col justify-center gap-8"
               initial={prefersReducedMotion ? false : { opacity: 0, x: 60 }}
@@ -941,7 +869,6 @@ export default function Home() {
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
               style={{ width: '100%', y: heroIllustrationY }}
             >
-              <TitleBlock />
               <div style={{ opacity: 0.88 }}>
                 <HeroIllustration />
               </div>
