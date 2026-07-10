@@ -71,9 +71,6 @@ function FindNearbyDealers() {
     <section className="grid-paper px-6 md:px-16 lg:px-24 py-28">
       <div className="space-y-10">
         <div className="space-y-3">
-          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
-            CL. 6.0 — LOCAL SOURCING
-          </p>
           <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: '#1E2227', lineHeight: 1.15, letterSpacing: '0.01em' }}>
             Find Nearby <span className="section-accent">Material Dealers</span>
           </h2>
@@ -486,12 +483,14 @@ function DimDivider({ label, animated = false, dark = false }: { label: string; 
   )
 }
 
-function SectionHeader({ clause, title, dark = false }: { clause: string; title: React.ReactNode; dark?: boolean }) {
+function SectionHeader({ clause, title, dark = false }: { clause?: string; title: React.ReactNode; dark?: boolean }) {
   return (
     <div className="space-y-3">
-      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: dark ? '#6BA3CC' : '#1F4E79', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
-        {clause}
-      </p>
+      {clause && (
+        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: dark ? '#6BA3CC' : '#1F4E79', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
+          {clause}
+        </p>
+      )}
       <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: dark ? '#F4F4F0' : '#1E2227', lineHeight: 1.15, letterSpacing: '0.01em' }}>
         {title}
       </h2>
@@ -599,10 +598,6 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
               {largeMotifMap[tool.phase]}
             </div>
 
-            <span style={{ position: 'absolute', top: 8, right: 16, fontFamily: 'var(--font-plex-mono)', fontSize: 64, color: 'rgba(30,34,39,0.04)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>
-              {tool.phase}
-            </span>
-
             <div style={{ width: 48, height: 48, flexShrink: 0 }}>
               {getToolIcon(tool.phase, animated)}
             </div>
@@ -629,9 +624,6 @@ function ToolCard({ tool, delay = 0 }: { tool: typeof VASTU_TOOL; delay?: number
                 letterSpacing: '0.04em',
               }}>
                 {tool.price}
-              </span>
-              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(30,34,39,0.35)' }}>
-                {tool.phase} ›
               </span>
             </div>
           </article>
@@ -877,15 +869,10 @@ export default function Home() {
         </section>
       </div>
 
-      {/* ── DIMENSION DIVIDER (dark) ─────────────────────────────────────── */}
-      <div style={{ background: '#1E2227', paddingTop: 14, paddingBottom: 14 }}>
-        <DimDivider label="SHEET 01 · THE PROBLEM" dark animated />
-      </div>
-
       {/* ── PROBLEM SECTION (dark, full width) ──────────────────────────── */}
       <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1E2227' }}>
         <div className="space-y-16">
-          <SectionHeader clause="CL. 1.0 — WHY BUDGETS FAIL" title={<>The three problems <span className="section-accent">no contractor</span> will tell you</>} dark />
+          <SectionHeader title={<>The three problems <span className="section-accent">no contractor</span> will tell you</>} dark />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
             {PROBLEMS.map((p, i) => (
@@ -895,15 +882,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── DIMENSION DIVIDER (dark → light) ────────────────────────────── */}
-      <div style={{ background: '#1E2227', paddingTop: 14, paddingBottom: 14 }}>
-        <DimDivider label="CL. 1.5 — WHY NIRMANSHASTRA" dark />
-      </div>
-
       {/* ── WHY NIRMANSHASTRA — trust pillars ──────────────────────────── */}
       <section className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
-          <SectionHeader clause="CL. 1.5 — TRUST" title="Why NirmanShastra" />
+          <SectionHeader title="Why NirmanShastra" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PILLARS.map((pillar, i) => (
@@ -913,16 +895,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── DIMENSION DIVIDER (light → dark) ────────────────────────────── */}
-      <div style={{ background: '#1E2227', paddingTop: 14, paddingBottom: 14 }}>
-        <DimDivider label="SHEET 02 · 6 TOOLS · 1 PLATFORM" dark />
-      </div>
-
       {/* ── TOOLS SECTION (dark section, full width) ──────────────────────── */}
       <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1E2227' }} ref={sectionRef}>
         <div className="space-y-14">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <SectionHeader clause="CL. 2.0 — SCOPE OF TOOLS" title={<>Every phase of your construction, <span className="section-accent">estimated</span></>} dark />
+            <SectionHeader title={<>Every phase of your construction, <span className="section-accent">estimated</span></>} dark />
             <div style={{ border: '1px solid rgba(31,78,121,0.4)', padding: '14px 20px', background: 'rgba(31,78,121,0.1)', flexShrink: 0, maxWidth: 380 }}>
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#7BA7CC', letterSpacing: '0.05em', lineHeight: 1.5 }}>
                 Professional IS-code compliant BOQ for each construction phase
@@ -977,7 +954,6 @@ export default function Home() {
                   overflow: 'hidden',
                   minHeight: 160,
                 }}>
-                  <span style={{ position: 'absolute', top: 8, right: 20, fontFamily: 'var(--font-plex-mono)', fontSize: 96, color: 'rgba(201,168,76,0.06)', fontWeight: 500, lineHeight: 1, userSelect: 'none' }}>P0</span>
                   <div style={{ position: 'absolute', bottom: -10, right: -10, color: 'rgba(201,168,76,0.1)', pointerEvents: 'none', lineHeight: 0 }}>
                     <LargeVastuWatermark />
                   </div>
@@ -1062,15 +1038,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
-      <div className="grid-paper py-3">
-        <DimDivider label="SHEET 03 · 4 STEPS TO CERTAINTY" />
-      </div>
-
       {/* ── HOW IT WORKS (full width) ────────────────────────────────────── */}
       <section id="how-it-works" className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
-          <SectionHeader clause="CL. 3.0 — PROCESS" title={<>How NirmanShastra <span className="section-accent">works</span></>} />
+          <SectionHeader title={<>How NirmanShastra <span className="section-accent">works</span></>} />
 
           {/* Connector line — draws left to right before cards reveal */}
           <motion.div
@@ -1098,9 +1069,6 @@ export default function Home() {
                   paddingBottom: 16,
                 }}
               >
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: '#1F4E79', letterSpacing: '0.06em', marginBottom: 14 }}>
-                  {step.rev}
-                </p>
                 <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 20, fontWeight: 600, color: '#1E2227', marginBottom: 12, lineHeight: 1.3 }}>
                   {step.heading}
                 </h3>
@@ -1122,7 +1090,6 @@ export default function Home() {
       <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1E2227' }}>
         <div className="space-y-10">
           <SectionHeader
-            clause="CL. 3.5 — COMPETITIVE COMPARISON"
             title={<>Why NirmanShastra <span className="section-accent">beats</span> free calculators</>}
             dark
           />
@@ -1211,9 +1178,6 @@ export default function Home() {
       <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: '#1F4E79' }}>
         <div className="space-y-10">
           <div className="space-y-2">
-            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              CL. 4.0 — CODE COMPLIANCE
-            </p>
             <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: '#F4F4F0', lineHeight: 1.15 }}>
               Every calculation <span className="section-accent">backed</span> by Bureau of Indian Standards
             </h2>
@@ -1257,15 +1221,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
-      <div className="grid-paper py-3">
-        <DimDivider label="from ₹499 / REPORT · ₹2,999 / BUNDLE" />
-      </div>
-
       {/* ── PRICING SECTION (full width) ─────────────────────────────────── */}
       <section id="pricing" className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
-          <SectionHeader clause="CL. 5.0 — PRICING · LAUNCH 2026" title={<>Simple, <span className="section-accent">report-by-report</span> pricing</>} />
+          <SectionHeader title={<>Simple, <span className="section-accent">report-by-report</span> pricing</>} />
 
           <div className="pricing-grid grid grid-cols-1 md:grid-cols-3 gap-0">
 
@@ -1407,28 +1366,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── DIMENSION DIVIDER ────────────────────────────────────────────── */}
-      <div className="py-3">
-        <DimDivider label="CL. 6.0 · FIND MATERIAL DEALERS NEAR YOU" />
-      </div>
-
       {/* ── FIND NEARBY DEALERS ──────────────────────────────────────────── */}
       <FindNearbyDealers />
 
       {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer style={{ borderTop: '1px solid rgba(244,244,240,0.12)', background: '#1E2227', marginTop: 0 }}>
 
-        {/* Sheet reference eyebrow — echoes section-header clause numbering */}
+        {/* Footer top bar */}
         <div style={{
           borderBottom: '1px solid rgba(244,244,240,0.07)',
           padding: '9px 24px',
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
           alignItems: 'center',
         }}>
-          <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            SHEET NS-WEB-01 · REV A · NIRMANSHASTRA.IN
-          </span>
           <span style={{
             fontFamily: 'var(--font-plex-mono)',
             fontSize: 9,
