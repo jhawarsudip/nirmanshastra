@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState, useMemo } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -231,8 +232,8 @@ export default function Navbar() {
     <>
     <nav
       style={{
-        background: '#000000',
-        borderBottom: '1px solid rgba(212,175,55,0.15)',
+        background: '#1E2227',
+        borderBottom: '1px solid rgba(244,244,240,0.08)',
         minHeight: 52,
         position: 'sticky',
         top: 0,
@@ -247,19 +248,17 @@ export default function Navbar() {
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
         aria-label="NirmanShastra home"
       >
-        {/* North-arrow logo mark — north pointer in primary gold */}
-        <svg width="40" height="28" viewBox="0 0 48 32" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
-          <line x1="24" y1="3" x2="24" y2="29" stroke="rgba(212,175,55,0.35)" strokeWidth="0.75"/>
-          <line x1="3" y1="16" x2="45" y2="16" stroke="rgba(212,175,55,0.35)" strokeWidth="0.75"/>
-          <polygon points="24,3 19,16 29,16" fill="#D4AF37"/>
-          <polygon points="24,29 19,16 29,16" fill="rgba(212,175,55,0.28)"/>
-          <circle cx="24" cy="16" r="4" fill="none" stroke="#D4AF37" strokeWidth="0.75"/>
-          <circle cx="24" cy="16" r="1.5" fill="#D4AF37"/>
-          <text x="24" y="1.5" textAnchor="middle" fontSize="6" fontFamily="monospace" fill="#D4AF37" fontWeight="bold">N</text>
-        </svg>
+        <Image
+          src="/logo-mark-reversed.png"
+          alt=""
+          width={48}
+          height={32}
+          style={{ width: 48, height: 32, flexShrink: 0 }}
+          priority
+        />
         <div className="flex flex-col">
-          <span style={{ fontFamily: 'var(--font-playfair)', fontSize: 21, fontWeight: 700, lineHeight: 1.1 }}>
-            <span style={{ color: '#FFFFFF' }}>Nirman</span><span style={{ color: '#D4AF37' }}>Shastra</span>
+          <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, lineHeight: 1.1 }}>
+            <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
           </span>
         </div>
       </button>
@@ -271,7 +270,7 @@ export default function Navbar() {
           <button
             onClick={() => setToolsOpen(o => !o)}
             className="nav-link"
-            style={{ fontFamily: 'var(--font-inter)', fontWeight: 500, color: 'rgba(179,179,179,0.8)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0' }}
+            style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0' }}
           >
             Tools <span style={{ fontSize: 9, opacity: 0.7 }}>▾</span>
           </button>
@@ -279,12 +278,12 @@ export default function Navbar() {
           {toolsOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
             <div className="dropdown-3d" style={{
-              background: '#0A0A0A',
-              border: '1px solid rgba(212,175,55,0.2)',
+              background: '#1E2227',
+              border: '1px solid rgba(244,244,240,0.12)',
               minWidth: 300,
             }}>
-              <div style={{ padding: '6px 14px 5px', background: 'rgba(212,175,55,0.04)', borderBottom: '1px solid rgba(212,175,55,0.1)' }}>
-                <span style={{ ...mono, fontSize: 9, color: 'rgba(212,175,55,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
+                <span style={{ ...mono, fontSize: 9, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   Compliance &amp; Analysis
                 </span>
               </div>
@@ -297,34 +296,34 @@ export default function Navbar() {
                 >
                   <div style={{ width: 20, height: 20, flexShrink: 0, opacity: 0.85 }}>{PHASE_ICONS[t.phase]}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ ...mono, fontSize: 12, color: '#FFFFFF' }}>{t.name}</div>
-                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(179,179,179,0.6)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
+                    <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
                   </div>
                   <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#14532D', border: '1px solid #14532D', letterSpacing: '0.04em', flexShrink: 0 }}>FREE</span>
                 </Link>
               ))}
 
-              <div style={{ padding: '6px 14px 5px', background: 'rgba(212,175,55,0.04)', borderTop: '1px solid rgba(212,175,55,0.1)', borderBottom: '1px solid rgba(212,175,55,0.1)' }}>
-                <span style={{ ...mono, fontSize: 9, color: 'rgba(212,175,55,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Estimation Tools</span>
+              <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderTop: '1px solid rgba(244,244,240,0.1)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
+                <span style={{ ...mono, fontSize: 9, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Estimation Tools</span>
               </div>
               {ESTIMATION_TOOLS.map((t, i) => (
                 <Link
                   key={t.name}
                   href={t.href}
                   onClick={() => setToolsOpen(false)}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', borderTop: i > 0 ? '1px solid rgba(212,175,55,0.06)' : undefined, textDecoration: 'none', gap: 10 }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', borderTop: i > 0 ? '1px solid rgba(244,244,240,0.06)' : undefined, textDecoration: 'none', gap: 10 }}
                 >
                   <div style={{ width: 20, height: 20, flexShrink: 0, opacity: 0.85 }}>{PHASE_ICONS[t.phase]}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ ...mono, fontSize: 12, color: '#FFFFFF' }}>{t.name}</div>
-                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(179,179,179,0.6)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
+                    <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
                   </div>
-                  <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: 'rgba(212,175,55,0.85)', border: '1px solid rgba(212,175,55,0.35)', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
+                  <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#1F4E79', border: '1px solid #1F4E79', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
                 </Link>
               ))}
 
-              <div style={{ padding: '6px 14px 5px', background: 'rgba(212,175,55,0.04)', borderTop: '1px solid rgba(212,175,55,0.1)', borderBottom: '1px solid rgba(212,175,55,0.1)' }}>
-                <span style={{ ...mono, fontSize: 9, color: 'rgba(212,175,55,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Master Reports</span>
+              <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderTop: '1px solid rgba(244,244,240,0.1)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
+                <span style={{ ...mono, fontSize: 9, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Master Reports</span>
               </div>
               {REPORTS_TOOLS.map(t => (
                 <Link
@@ -334,35 +333,35 @@ export default function Navbar() {
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', textDecoration: 'none', gap: 10 }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ ...mono, fontSize: 12, color: '#FFFFFF' }}>{t.name}</div>
-                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(179,179,179,0.6)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
+                    <div style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
                   </div>
-                  <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: 'rgba(212,175,55,0.85)', border: '1px solid rgba(212,175,55,0.35)', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
+                  <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#8C3A22', border: '1px solid #8C3A22', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
                 </Link>
               ))}
 
-              <div style={{ borderTop: '1px solid rgba(212,175,55,0.1)', padding: '9px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ ...mono, fontSize: 11, color: 'rgba(179,179,179,0.5)' }}>Bundle — 5 tools</span>
-                <span style={{ ...mono, fontSize: 12, color: '#D4AF37' }}>₹2,999</span>
+              <div style={{ borderTop: '1px solid rgba(244,244,240,0.1)', padding: '9px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.5)' }}>Bundle — 5 tools</span>
+                <span style={{ ...mono, fontSize: 12, color: '#8C3A22' }}>₹2,999</span>
               </div>
             </div>
             </div>
           )}
         </div>
 
-        <Link href="/#how-it-works" className="nav-link" style={{ fontFamily: 'var(--font-inter)', fontWeight: 500, color: 'rgba(179,179,179,0.8)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
+        <Link href="/#how-it-works" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
           How It Works
         </Link>
-        <Link href="/#pricing" className="nav-link" style={{ fontFamily: 'var(--font-inter)', fontWeight: 500, color: 'rgba(179,179,179,0.8)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
+        <Link href="/#pricing" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
           Pricing
         </Link>
-        <Link href="/blog" className="nav-link" style={{ fontFamily: 'var(--font-inter)', fontWeight: 500, color: 'rgba(179,179,179,0.8)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
+        <Link href="/blog" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
           Blog
         </Link>
-        <Link href="/faq" className="nav-link" style={{ fontFamily: 'var(--font-inter)', fontWeight: 500, color: 'rgba(179,179,179,0.8)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
+        <Link href="/faq" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
           FAQ
         </Link>
-        <Link href="/compare-quote" className="nav-link" style={{ fontFamily: 'var(--font-inter)', fontWeight: 500, color: 'rgba(179,179,179,0.8)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none', borderLeft: '1px solid rgba(212,175,55,0.15)', paddingLeft: 24 }}>
+        <Link href="/compare-quote" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none', borderLeft: '1px solid rgba(244,244,240,0.12)', paddingLeft: 24 }}>
           Compare Contractor Quote
         </Link>
       </div>
@@ -373,21 +372,21 @@ export default function Navbar() {
         {user ? (
           <>
             <span
-              style={{ ...mono, color: 'rgba(179,179,179,0.6)', fontSize: 11, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+              style={{ ...mono, color: 'rgba(244,244,240,0.5)', fontSize: 11, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
               className="hidden md:block"
             >
               {user.user_metadata?.full_name || user.email}
             </span>
             <Link
               href="/reports"
-              style={{ ...mono, color: 'rgba(179,179,179,0.85)', fontSize: 12, textDecoration: 'none', letterSpacing: '0.05em', border: '1px solid rgba(212,175,55,0.25)', padding: '6px 12px', borderRadius: 6 }}
+              style={{ ...mono, color: 'rgba(244,244,240,0.75)', fontSize: 12, textDecoration: 'none', letterSpacing: '0.05em', border: '1px solid rgba(244,244,240,0.18)', padding: '6px 12px', borderRadius: 6 }}
               className="hidden md:block"
             >
               My Reports
             </Link>
             <button
               onClick={handleLogout}
-              style={{ ...mono, border: '1px solid rgba(212,175,55,0.15)', color: 'rgba(179,179,179,0.6)', fontSize: 11, padding: '6px 12px', borderRadius: 6, background: 'none', cursor: 'pointer' }}
+              style={{ ...mono, border: '1px solid rgba(244,244,240,0.2)', color: 'rgba(244,244,240,0.6)', fontSize: 11, padding: '6px 12px', borderRadius: 6, background: 'none', cursor: 'pointer' }}
               className="hidden md:block"
             >
               Log Out
@@ -397,7 +396,7 @@ export default function Navbar() {
           <>
             <Link
               href="/auth"
-              style={{ ...mono, color: '#FFFFFF', fontSize: 13, textDecoration: 'none', letterSpacing: '0.04em', border: '1px solid rgba(212,175,55,0.3)', padding: '10px 24px', borderRadius: 6 }}
+              style={{ ...mono, color: '#F4F4F0', fontSize: 14, textDecoration: 'none', letterSpacing: '0.04em', border: '1px solid rgba(244,244,240,0.3)', padding: '10px 24px', borderRadius: 6 }}
               className="hidden md:block"
             >
               Log In
@@ -405,7 +404,7 @@ export default function Navbar() {
             <Link
               href="/tools/vastu-pro"
               className="btn-get-started hidden md:inline-block"
-              style={{ ...mono, background: '#D4AF37', color: '#000000', fontSize: 13, padding: '10px 24px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.04em', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(212,175,55,0.35)', border: '1px solid rgba(212,175,55,0.5)', transition: 'all 0.25s' }}
+              style={{ ...mono, background: '#8C3A22', color: '#F4F4F0', fontSize: 14, padding: '10px 24px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.04em', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(140,58,34,0.5)', border: '1px solid rgba(255,255,255,0.15)', transition: 'all 0.25s' }}
             >
               Get Started
             </Link>
@@ -421,10 +420,10 @@ export default function Navbar() {
           aria-controls="mobile-nav-overlay"
           style={{
             background: 'none',
-            border: '1px solid rgba(212,175,55,0.25)',
+            border: '1px solid rgba(244,244,240,0.18)',
             cursor: 'pointer',
             padding: '9px 10px',
-            color: '#FFFFFF',
+            color: '#F4F4F0',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -461,7 +460,7 @@ export default function Navbar() {
         position: 'fixed',
         inset: 0,
         zIndex: 49,
-        background: '#000000',
+        background: '#1E2227',
         transform: mobileOpen ? 'translateX(0)' : 'translateX(100%)',
         transition: 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1)',
         overflowY: 'auto',
@@ -477,7 +476,7 @@ export default function Navbar() {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 20px',
-        borderBottom: '1px solid rgba(212,175,55,0.12)',
+        borderBottom: '1px solid rgba(244,244,240,0.08)',
         flexShrink: 0,
       }}>
         <Link
@@ -487,18 +486,16 @@ export default function Navbar() {
           style={{ textDecoration: 'none' }}
           aria-label="NirmanShastra home"
         >
-          <svg width="36" height="24" viewBox="0 0 48 32" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
-            <line x1="24" y1="3" x2="24" y2="29" stroke="rgba(212,175,55,0.35)" strokeWidth="0.75"/>
-            <line x1="3" y1="16" x2="45" y2="16" stroke="rgba(212,175,55,0.35)" strokeWidth="0.75"/>
-            <polygon points="24,3 19,16 29,16" fill="#D4AF37"/>
-            <polygon points="24,29 19,16 29,16" fill="rgba(212,175,55,0.28)"/>
-            <circle cx="24" cy="16" r="4" fill="none" stroke="#D4AF37" strokeWidth="0.75"/>
-            <circle cx="24" cy="16" r="1.5" fill="#D4AF37"/>
-            <text x="24" y="1.5" textAnchor="middle" fontSize="6" fontFamily="monospace" fill="#D4AF37" fontWeight="bold">N</text>
-          </svg>
+          <Image
+            src="/logo-mark-reversed.png"
+            alt=""
+            width={42}
+            height={28}
+            style={{ width: 42, height: 28, flexShrink: 0 }}
+          />
           <div className="flex flex-col">
-            <span style={{ fontFamily: 'var(--font-playfair)', fontSize: 19, fontWeight: 700, lineHeight: 1.1 }}>
-              <span style={{ color: '#FFFFFF' }}>Nirman</span><span style={{ color: '#D4AF37' }}>Shastra</span>
+            <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 20, fontWeight: 700, lineHeight: 1.1 }}>
+              <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
             </span>
           </div>
         </Link>
@@ -508,10 +505,10 @@ export default function Navbar() {
           aria-label="Close menu"
           style={{
             background: 'none',
-            border: '1px solid rgba(212,175,55,0.25)',
+            border: '1px solid rgba(244,244,240,0.18)',
             cursor: 'pointer',
             padding: '9px 10px',
-            color: '#FFFFFF',
+            color: '#F4F4F0',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -534,13 +531,13 @@ export default function Navbar() {
       >
 
         {/* ── TOOLS — Compliance ─────────────────────────────────────────── */}
-        <div style={{ borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+        <div style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}>
           <div style={{ padding: '18px 24px 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ height: 1, flex: 1, background: 'rgba(212,175,55,0.08)' }} />
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(212,175,55,0.45)', textTransform: 'uppercase', letterSpacing: '0.12em', flexShrink: 0 }}>
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', flexShrink: 0 }}>
               Compliance &amp; Analysis
             </span>
-            <div style={{ height: 1, flex: 1, background: 'rgba(212,175,55,0.08)' }} />
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
           </div>
           {COMPLIANCE_TOOLS.map(t => (
             <Link
@@ -555,15 +552,15 @@ export default function Navbar() {
                 padding: '16px 24px',
                 textDecoration: 'none',
                 minHeight: 64,
-                borderTop: '1px solid rgba(212,175,55,0.06)',
+                borderTop: '1px solid rgba(244,244,240,0.05)',
               }}
             >
               <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: 0.9 }}>
                 {MOBILE_PHASE_ICONS[t.phase]}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#FFFFFF', letterSpacing: '0.02em' }}>{t.name}</div>
-                <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(179,179,179,0.6)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.descriptor}</div>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#F4F4F0', letterSpacing: '0.02em' }}>{t.name}</div>
+                <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.45)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.descriptor}</div>
               </div>
               <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#14532D', border: '1px solid #14532D', letterSpacing: '0.04em', flexShrink: 0 }}>FREE</span>
             </Link>
@@ -571,13 +568,13 @@ export default function Navbar() {
         </div>
 
         {/* ── TOOLS — Estimation ─────────────────────────────────────────── */}
-        <div style={{ borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+        <div style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}>
           <div style={{ padding: '18px 24px 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ height: 1, flex: 1, background: 'rgba(212,175,55,0.08)' }} />
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(212,175,55,0.45)', textTransform: 'uppercase', letterSpacing: '0.12em', flexShrink: 0 }}>
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', flexShrink: 0 }}>
               Estimation Tools
             </span>
-            <div style={{ height: 1, flex: 1, background: 'rgba(212,175,55,0.08)' }} />
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
           </div>
           {ESTIMATION_TOOLS.map((t, i) => (
             <Link
@@ -592,29 +589,29 @@ export default function Navbar() {
                 padding: '16px 24px',
                 textDecoration: 'none',
                 minHeight: 64,
-                borderTop: i > 0 ? '1px solid rgba(212,175,55,0.06)' : undefined,
+                borderTop: i > 0 ? '1px solid rgba(244,244,240,0.05)' : undefined,
               }}
             >
               <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: 0.85 }}>
                 {MOBILE_PHASE_ICONS[t.phase]}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#FFFFFF', letterSpacing: '0.02em' }}>{t.name}</div>
-                <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(179,179,179,0.6)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.descriptor}</div>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#F4F4F0', letterSpacing: '0.02em' }}>{t.name}</div>
+                <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.45)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.descriptor}</div>
               </div>
-              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: 'rgba(212,175,55,0.85)', border: '1px solid rgba(212,175,55,0.35)', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#1F4E79', border: '1px solid rgba(31,78,121,0.65)', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
             </Link>
           ))}
         </div>
 
         {/* ── TOOLS — Master Reports ─────────────────────────────────────── */}
-        <div style={{ borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+        <div style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}>
           <div style={{ padding: '18px 24px 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ height: 1, flex: 1, background: 'rgba(212,175,55,0.08)' }} />
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(212,175,55,0.45)', textTransform: 'uppercase', letterSpacing: '0.12em', flexShrink: 0 }}>
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', flexShrink: 0 }}>
               Master Reports
             </span>
-            <div style={{ height: 1, flex: 1, background: 'rgba(212,175,55,0.08)' }} />
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
           </div>
           {REPORTS_TOOLS.map(t => (
             <Link
@@ -631,25 +628,25 @@ export default function Navbar() {
                 minHeight: 64,
               }}
             >
-              <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(212,175,55,0.3)', borderRadius: 4 }}>
-                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(212,175,55,0.8)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>GT</span>
+              <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(140,58,34,0.35)', borderRadius: 4 }}>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(140,58,34,0.9)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>GT</span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#FFFFFF', letterSpacing: '0.02em' }}>{t.name}</div>
-                <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(179,179,179,0.6)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.descriptor}</div>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#F4F4F0', letterSpacing: '0.02em' }}>{t.name}</div>
+                <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.45)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.descriptor}</div>
               </div>
-              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: 'rgba(212,175,55,0.85)', border: '1px solid rgba(212,175,55,0.35)', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#8C3A22', border: '1px solid rgba(140,58,34,0.55)', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
             </Link>
           ))}
           {/* Bundle price line */}
-          <div style={{ padding: '12px 24px', background: 'rgba(212,175,55,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(212,175,55,0.08)' }}>
-            <span style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(179,179,179,0.5)' }}>Bundle — all 5 tools</span>
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 15, color: '#D4AF37', fontWeight: 500 }}>₹2,999</span>
+          <div style={{ padding: '12px 24px', background: 'rgba(244,244,240,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(244,244,240,0.07)' }}>
+            <span style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.5)' }}>Bundle — all 5 tools</span>
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 15, color: '#8C3A22', fontWeight: 500 }}>₹2,999</span>
           </div>
         </div>
 
         {/* ── NAVIGATION LINKS ───────────────────────────────────────────── */}
-        <div style={{ borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+        <div style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}>
           {NAV_LINKS.map(link => (
             <Link
               key={link.href}
@@ -662,11 +659,11 @@ export default function Navbar() {
                 padding: '0 24px',
                 minHeight: 56,
                 textDecoration: 'none',
-                borderBottom: '1px solid rgba(212,175,55,0.06)',
+                borderBottom: '1px solid rgba(244,244,240,0.05)',
                 fontFamily: 'var(--font-plex-sans)',
                 fontSize: 15,
                 fontWeight: 500,
-                color: 'rgba(179,179,179,0.8)',
+                color: 'rgba(244,244,240,0.72)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
               }}
@@ -689,14 +686,14 @@ export default function Navbar() {
               fontFamily: 'var(--font-plex-sans)',
               fontSize: 15,
               fontWeight: 500,
-              color: 'rgba(179,179,179,0.8)',
+              color: 'rgba(244,244,240,0.72)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              borderTop: '1px solid rgba(212,175,55,0.1)',
+              borderTop: '1px solid rgba(244,244,240,0.1)',
             }}
           >
             Compare Contractor Quote
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, padding: '3px 8px', border: '1px solid rgba(212,175,55,0.4)', color: 'rgba(212,175,55,0.85)', letterSpacing: '0.07em' }}>NEW</span>
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, padding: '3px 8px', border: '1px solid rgba(31,78,121,0.45)', color: 'rgba(31,78,121,0.9)', letterSpacing: '0.07em' }}>NEW</span>
           </Link>
         </div>
 
@@ -704,7 +701,7 @@ export default function Navbar() {
         <div style={{ padding: '24px', marginTop: 'auto' }}>
           {user ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(179,179,179,0.4)', letterSpacing: '0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.38)', letterSpacing: '0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {user.user_metadata?.full_name || user.email}
               </p>
               <Link
@@ -715,8 +712,8 @@ export default function Navbar() {
                   textAlign: 'center',
                   fontFamily: 'var(--font-plex-mono)',
                   fontSize: 14,
-                  color: 'rgba(179,179,179,0.85)',
-                  border: '1px solid rgba(212,175,55,0.25)',
+                  color: 'rgba(244,244,240,0.75)',
+                  border: '1px solid rgba(244,244,240,0.2)',
                   padding: '14px 24px',
                   borderRadius: 6,
                   textDecoration: 'none',
@@ -732,8 +729,8 @@ export default function Navbar() {
                 style={{
                   fontFamily: 'var(--font-plex-mono)',
                   fontSize: 14,
-                  color: 'rgba(179,179,179,0.5)',
-                  border: '1px solid rgba(212,175,55,0.12)',
+                  color: 'rgba(244,244,240,0.5)',
+                  border: '1px solid rgba(244,244,240,0.12)',
                   padding: '14px 24px',
                   borderRadius: 6,
                   background: 'none',
@@ -755,16 +752,16 @@ export default function Navbar() {
                   textAlign: 'center',
                   fontFamily: 'var(--font-plex-mono)',
                   fontSize: 15,
-                  background: '#D4AF37',
-                  color: '#000000',
+                  background: '#8C3A22',
+                  color: '#F4F4F0',
                   padding: '16px 24px',
                   borderRadius: 6,
                   textDecoration: 'none',
                   letterSpacing: '0.04em',
                   minHeight: 56,
                   lineHeight: '24px',
-                  boxShadow: '0 0 24px rgba(212,175,55,0.3)',
-                  border: '1px solid rgba(212,175,55,0.5)',
+                  boxShadow: '0 0 24px rgba(140,58,34,0.45)',
+                  border: '1px solid rgba(255,255,255,0.12)',
                 }}
               >
                 Get Started — Free
@@ -777,8 +774,8 @@ export default function Navbar() {
                   textAlign: 'center',
                   fontFamily: 'var(--font-plex-mono)',
                   fontSize: 14,
-                  color: 'rgba(179,179,179,0.8)',
-                  border: '1px solid rgba(212,175,55,0.2)',
+                  color: 'rgba(244,244,240,0.65)',
+                  border: '1px solid rgba(244,244,240,0.2)',
                   padding: '14px 24px',
                   borderRadius: 6,
                   textDecoration: 'none',

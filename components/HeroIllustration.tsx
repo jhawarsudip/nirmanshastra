@@ -29,7 +29,7 @@ export default function HeroIllustration() {
       {/* Leader → STRUCTURE */}
       <path className="leader" style={{ animationDelay: '0.5s' }} d="M250,478 L112,498" fill="none" stroke="#F4F4F0" strokeWidth={1} />
       <g className="reveal" style={{ animationDelay: '0.6s' }}>
-        <circle cx={90} cy={500} r={28} fill="#D4AF37" stroke="#F4F4F0" strokeWidth={1.5} />
+        <circle cx={90} cy={500} r={28} fill="#1F4E79" stroke="#F4F4F0" strokeWidth={1.5} />
         <rect x={82} y={486} width={16} height={28} fill="none" stroke="#F4F4F0" strokeWidth={1.5} />
         <circle cx={87} cy={495} r={2} fill="#C9A84C" />
         <circle cx={93} cy={495} r={2} fill="#C9A84C" />
