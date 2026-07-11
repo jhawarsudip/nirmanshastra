@@ -78,7 +78,7 @@ function OptionCard({ selected, onClick, children }: { selected: boolean; onClic
   return (
     <button type="button" onClick={onClick}
       className="text-left p-3 rounded-[2px] border transition-all"
-      style={{ borderColor: selected ? '#1F4E79' : 'rgba(255,255,255,0.10)', background: selected ? 'rgba(31,78,121,0.07)' : '#fff' }}>
+      style={{ borderColor: selected ? '#1F4E79' : 'rgba(255,255,255,0.10)', background: selected ? 'rgba(31,78,121,0.07)' : 'var(--bg-surface)' }}>
       {children}
     </button>
   )
@@ -99,8 +99,8 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
   const [subStep, setSubStep] = useState<SubStep>('3a_existing')
   const [errors, setErrors]   = useState<Record<string, string>>({})
 
-  const iCls = 'w-full px-4 rounded-[6px] border text-[14px] bg-white'
-  const iStyle = { borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', minHeight: 48 }
+  const iCls = 'w-full px-4 rounded-[6px] border text-[14px]'
+  const iStyle = { borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', minHeight: 48, background: 'var(--bg-surface)' }
   const monoStyle = { fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }
   const lCls = 'block text-[13px] font-medium mb-2'
   const lStyle = { color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }
@@ -487,7 +487,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                   { val: false, label: 'Different area', note: 'Enter area per new floor' },
                 ] as { val: boolean; label: string; note: string }[]).map(opt => (
                   <label key={String(opt.val)} className="flex-1 flex items-start gap-2 cursor-pointer p-3 rounded-[2px] border transition-all"
-                    style={{ borderColor: newAreaSameAsExisting === opt.val ? '#1F4E79' : 'rgba(255,255,255,0.10)', background: newAreaSameAsExisting === opt.val ? 'rgba(31,78,121,0.06)' : '#fff' }}>
+                    style={{ borderColor: newAreaSameAsExisting === opt.val ? '#1F4E79' : 'rgba(255,255,255,0.10)', background: newAreaSameAsExisting === opt.val ? 'rgba(31,78,121,0.06)' : 'var(--bg-surface)' }}>
                     <input type="radio" name="sameArea" checked={newAreaSameAsExisting === opt.val} onChange={() => setNewAreaSameAsExisting(opt.val)} style={{ accentColor: '#1F4E79', marginTop: 2 }} />
                     <div>
                       <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{opt.label}</p>
@@ -644,7 +644,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
             { key: 'formwork',    label: 'Formwork',             unit: '₹/sqft BUA', avg: INDIA_AVG.formwork    },
             { key: 'bindingWire', label: 'Binding Wire',         unit: '₹/kg',       avg: INDIA_AVG.bindingWire },
           ] as { key: keyof VERates; label: string; unit: string; avg: number }[]).map(({ key, label, unit, avg }) => (
-            <div key={key} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#fff' }}>
+            <div key={key} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'var(--bg-surface)' }}>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
                   <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
@@ -659,7 +659,7 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
                 <input
                   type="number" min="0"
                   className="w-full pl-7 pr-3 py-2 rounded-[6px] border text-[13px]"
-                  style={{ borderColor: 'rgba(255,255,255,0.25)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', background: '#fff' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.25)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', background: 'var(--bg-surface)' }}
                   value={rates[key]}
                   onChange={e => setRates(r => ({ ...r, [key]: parseFloat(e.target.value) || 0 }))}
                 />
@@ -732,13 +732,13 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button type="button" onClick={() => setIncludeLabour(true)}
             className="p-4 rounded-[2px] text-left transition-all"
-            style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
+            style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : 'var(--bg-surface)' }}>
             <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>CPWD DSR 2023 rates. Edit workers and rate per trade. Labour appears only in paid PDF report.</p>
           </button>
           <button type="button" onClick={() => setIncludeLabour(false)}
             className="p-4 rounded-[2px] text-left transition-all"
-            style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}>
+            style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : 'var(--bg-surface)' }}>
             <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Skip — Material Cost Only</p>
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour from your contractor quote.</p>
           </button>

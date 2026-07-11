@@ -96,7 +96,7 @@ function TipBtn({ id, open, onToggle, children }: {
       {open === id && (
         <span
           className="absolute z-50 left-0 top-5 p-3 rounded-[2px] w-72 block"
-          style={{ background: '#fff', border: '1px solid rgba(31,78,121,0.3)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 12, lineHeight: 1.5, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+          style={{ background: 'var(--bg-surface)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', fontSize: 12, lineHeight: 1.5, boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}
         >
           {children}
         </span>

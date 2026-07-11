@@ -586,8 +586,8 @@ export default function BuildDetails({ state: initState, city: initCity, project
     onSubmit(input)
   }
 
-  const iCls = 'w-full px-4 rounded-[6px] border text-[14px] bg-white'
-  const iStyle = { borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', minHeight: 48 }
+  const iCls = 'w-full px-4 rounded-[6px] border text-[14px]'
+  const iStyle = { borderColor: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)', minHeight: 48, background: 'var(--bg-surface)' }
   const monoStyle = { fontFamily: 'var(--font-plex-mono)', color: 'var(--text-primary)' }
   const lCls = 'block text-[13px] font-medium mb-2'
   const lStyle = { color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }

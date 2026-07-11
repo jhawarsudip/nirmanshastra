@@ -88,7 +88,8 @@
       "Bash(sed -n '315,320p' app/tools/structopro/components/VEResultsPage.tsx)",
       "Bash(sort -k5 -rh)",
       "Bash(gzip -c /Users/sudipjhawar/nirmanshastra/.next/static/chunks/79a74dc400fbeaf3.js)",
-      "Bash(awk '{printf \"Gzipped: %.0f KB\\\\n\", $1/1024}')"
+      "Bash(awk '{printf \"Gzipped: %.0f KB\\\\n\", $1/1024}')",
+      "Bash(git *)"
     ]
   }
 }
