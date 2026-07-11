@@ -103,8 +103,8 @@ export default function FloorPlanCanvas({
           onClick={() => fileInputRef.current?.click()}
           className="px-3 py-1.5 rounded-[6px] text-[12px] border transition-opacity hover:opacity-80"
           style={{
-            borderColor: floorPlanImage ? '#1F4E79' : 'rgba(30,34,39,0.35)',
-            color: floorPlanImage ? '#1F4E79' : '#1E2227',
+            borderColor: floorPlanImage ? '#1F4E79' : 'rgba(244,244,240,0.25)',
+            color: floorPlanImage ? '#1F4E79' : 'rgba(244,244,240,0.7)',
             fontFamily: 'var(--font-plex-mono)',
             background: floorPlanImage ? 'rgba(31,78,121,0.06)' : 'transparent',
           }}

@@ -89,7 +89,12 @@
       "Bash(sort -k5 -rh)",
       "Bash(gzip -c /Users/sudipjhawar/nirmanshastra/.next/static/chunks/79a74dc400fbeaf3.js)",
       "Bash(awk '{printf \"Gzipped: %.0f KB\\\\n\", $1/1024}')",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Read(//private/tmp/**)",
+      "Read(//tmp/**)",
+      "Bash(echo \"Status: $?\")",
+      "Bash(lsof -ti:3000)",
+      "Bash(echo \"PID=$!\")"
     ]
   }
 }
