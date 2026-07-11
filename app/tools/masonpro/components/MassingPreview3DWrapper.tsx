@@ -7,7 +7,7 @@ import {
 } from '@/components/3d/MassingPreviewWrapper'
 import type { FloorDatum } from '@/components/3d/types'
 
-const MassingPreview3D = dynamic(() => import('./MassingPreview3D'), {
+const MasonryMassingPreview3D = dynamic(() => import('./MassingPreview3D'), {
   ssr: false,
   loading: () => <LoadingSlot />,
 })
@@ -16,10 +16,10 @@ interface Props {
   floors: FloorDatum[]
 }
 
-export default function MassingPreview3DWrapper({ floors }: Props) {
+export default function MasonryMassingPreview3DWrapper({ floors }: Props) {
   return (
     <MassingPreviewContainer>
-      <MassingPreview3D floors={floors} />
+      <MasonryMassingPreview3D floors={floors} />
     </MassingPreviewContainer>
   )
 }
