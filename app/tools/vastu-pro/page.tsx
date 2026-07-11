@@ -212,7 +212,7 @@ export default function VastuProPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_220px] gap-4 items-start">
 
           {/* ── Room panel ─────────────────────────────────────────────────── */}
-          <div className="lg:h-[560px] order-2 lg:order-1">
+          <div className="lg:h-[560px] order-3 lg:order-1">
             <RoomPanel
               selectedRoomKey={selectedRoomKey}
               onSelectRoom={key => {
@@ -242,7 +242,7 @@ export default function VastuProPage() {
           </div>
 
           {/* ── Compass + Analyse ───────────────────────────────────────────── */}
-          <div className="flex flex-col gap-4 order-3">
+          <div className="flex flex-col gap-4 order-2 lg:order-3">
             {/* Compass card */}
             <div
               className="rounded-[2px] p-4"
