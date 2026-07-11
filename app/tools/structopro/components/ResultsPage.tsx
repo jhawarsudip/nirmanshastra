@@ -6,6 +6,14 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveCo
 import Link from 'next/link'
 import { type StructoResult, type StructoInput, formatLakhs } from '../structopro-engine'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import dynamic from 'next/dynamic'
+
+// Only mount the 3D wrapper (and trigger its own lazy load of Three.js) when
+// the user explicitly clicks the preview button — never on initial page render
+const MassingPreview3DWrapper = dynamic(
+  () => import('./MassingPreview3DWrapper'),
+  { ssr: false, loading: () => null }
+)
 
 function CountUp({ to, format }: { to: number; format: (n: number) => string }) {
   const ref = useRef<HTMLSpanElement>(null)
@@ -121,6 +129,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   const [pdfStatus, setPdfStatus]   = useState<PdfStatus>('idle')
   const [pdfUrl, setPdfUrl]         = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [show3D, setShow3D]         = useState(false)
 
   type ResultTab = 'raw_materials' | 'steel_schedule' | 'concrete' | 'labour' | 'by_floor'
   const [activeTab, setActiveTab]   = useState<ResultTab>('raw_materials')
@@ -394,6 +403,72 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             ))}
           </div>
         </div>
+
+        {/* ── 3D MASSING PREVIEW — FREE, OPT-IN ── */}
+        {(() => {
+          const floorCount = input.numFloors + 1
+          const areas = (input.perFloorAreas?.length === floorCount)
+            ? input.perFloorAreas
+            : Array.from({ length: floorCount }, () => input.groundFloorAreaSqft)
+          const FLOOR_H_M = 3.048  // 10 ft default (form default, not stored in StructoInput)
+          const floorNames = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor']
+          const floors = areas.map((areaSqft, i) => ({
+            areaSqft,
+            heightM: FLOOR_H_M,
+            name: floorNames[i] ?? `Floor ${i}`,
+          }))
+          return (
+            <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+              <div
+                className="px-4 py-3 flex items-center justify-between flex-wrap gap-2"
+                style={{ borderBottom: show3D ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
+              >
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                    3D MASSING PREVIEW
+                    <span style={{ color: 'rgba(255,255,255,0.35)', marginLeft: 8 }}>(BETA)</span>
+                  </p>
+                  {!show3D && (
+                    <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
+                      Rough massing model — drag to rotate, scroll to zoom
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setShow3D(v => !v)}
+                  style={{
+                    background: show3D ? 'rgba(31,78,121,0.15)' : '#1F4E79',
+                    color: '#F4F4F0',
+                    fontFamily: 'var(--font-plex-mono)',
+                    fontSize: 11,
+                    padding: '6px 14px',
+                    borderRadius: 6,
+                    border: show3D ? '1px solid rgba(31,78,121,0.4)' : 'none',
+                    cursor: 'pointer',
+                    letterSpacing: '0.04em',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {show3D ? 'CLOSE 3D VIEW' : 'VIEW 3D PREVIEW (BETA)'}
+                </button>
+              </div>
+
+              {show3D && (
+                <div>
+                  <MassingPreview3DWrapper floors={floors} />
+                  <div
+                    className="px-4 py-2"
+                    style={{ borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)' }}
+                  >
+                    <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.04em' }}>
+                      ROUGH MASSING MODEL — assumes rectangular footprint · 10 ft floor-to-floor · not a structural diagram · aspect ratio approx 1.3:1
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         {/* ── COST BREAKDOWN PIE CHART — FREE ── */}
         <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>

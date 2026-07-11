@@ -85,7 +85,10 @@
       "Bash(sed -i '' 's|rgba\\(30,34,39,0.08\\)|rgba\\(255,255,255,0.08\\)|g' app/tools/vastu-pro/components/AnalysisResults.tsx)",
       "Bash(sed -i '' 's|rgba\\(30,34,39,0.04\\)|rgba\\(255,255,255,0.03\\)|g' app/tools/vastu-pro/components/AnalysisResults.tsx)",
       "Bash(sed -i '' 's|} style={{ border: .1px solid rgba\\(255,255,255,0.08\\). }}||}g' app/tools/structopro/components/VEResultsPage.tsx)",
-      "Bash(sed -n '315,320p' app/tools/structopro/components/VEResultsPage.tsx)"
+      "Bash(sed -n '315,320p' app/tools/structopro/components/VEResultsPage.tsx)",
+      "Bash(sort -k5 -rh)",
+      "Bash(gzip -c /Users/sudipjhawar/nirmanshastra/.next/static/chunks/79a74dc400fbeaf3.js)",
+      "Bash(awk '{printf \"Gzipped: %.0f KB\\\\n\", $1/1024}')"
     ]
   }
 }
