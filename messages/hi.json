@@ -1,6 +1,8 @@
 {
   "hero": {
     "headline": "विश्वास के साथ बनाएं।",
+    "heroTitlePrefix": "विश्वास के साथ",
+    "heroTitleHighlight": "बनाएं",
     "subheadline": "ठेकेदार की ज़्यादती से बचें। भारतीय मानकों पर आधारित सटीक मात्रा पाएं।",
     "ctaFree": "मुफ्त शुरू करें — VastuPro",
     "ctaPricing": "मूल्य देखें ↓",
@@ -166,6 +168,8 @@
   "dealers": {
     "eyebrow": "स्थानीय संसाधन",
     "title": "पास के सामग्री डीलर खोजें",
+    "dealersTitlePrefix": "पास के",
+    "dealersTitleHighlight": "सामग्री डीलर खोजें",
     "desc": "अपने पास की Google Maps खोज खोलने के लिए राज्य, शहर और सामग्री श्रेणी चुनें। हम डीलर डायरेक्टरी नहीं रखते — यह सीधे Google Maps से जोड़ता है।",
     "labelState": "राज्य / केंद्र शासित प्रदेश",
     "stateDefault": "— राज्य चुनें —",

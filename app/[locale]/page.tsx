@@ -486,7 +486,7 @@ function FindNearbyDealers() {
             {t('eyebrow')}
           </p>
           <h2 style={{ fontFamily: FI, fontSize: 'clamp(28px,3.5vw,48px)', fontWeight: 600, color: TP, lineHeight: 1.15 }}>
-            {t('title').split('Material Dealers')[0]}<span className="section-accent">{t('title').includes('Material') ? t('title').split(' ').slice(-2).join(' ') : t('title')}</span>
+            {t('dealersTitlePrefix')} <span className="section-accent">{t('dealersTitleHighlight')}</span>
           </h2>
           <p style={{ fontFamily: FI, fontSize: 15, color: TS, lineHeight: 1.7, maxWidth: 560 }}>
             {t('desc')}
@@ -663,7 +663,7 @@ export default function Home() {
                 letterSpacing: '-0.02em',
                 marginBottom: 20,
               }}>
-                {th('headline').replace(/[.।]$/, '')} <span className="hero-accent">{locale === 'hi' ? '।' : '.'}</span>
+                {th('heroTitlePrefix')} <span className="hero-accent">{th('heroTitleHighlight')}</span>{locale === 'hi' ? '।' : '.'}
               </h1>
             </motion.div>
 

@@ -1,6 +1,8 @@
 {
   "hero": {
     "headline": "Build With Certainty.",
+    "heroTitlePrefix": "Build With",
+    "heroTitleHighlight": "Certainty",
     "subheadline": "Stop your contractor from overcharging you. Get exact material quantities backed by Indian Standards.",
     "ctaFree": "Start Free — VastuPro",
     "ctaPricing": "See Pricing ↓",
@@ -166,6 +168,8 @@
   "dealers": {
     "eyebrow": "LOCAL RESOURCES",
     "title": "Find Nearby Material Dealers",
+    "dealersTitlePrefix": "Find Nearby",
+    "dealersTitleHighlight": "Material Dealers",
     "desc": "Select your state, city, and material category to open a Google Maps search near you. We do not maintain a dealer directory — this links directly to Google Maps.",
     "labelState": "State / UT",
     "stateDefault": "— Select a state —",
