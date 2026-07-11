@@ -662,3 +662,16 @@ footer :focus-visible {
     padding: 20px 20px !important;
   }
 }
+
+/* ── DEVANAGARI FONT OVERRIDE — Hindi locale ─────────────────────────────── */
+/* Applied to the wrapper div in [locale]/layout.tsx when locale === 'hi'.    */
+/* IBM Plex Sans Devanagari covers Devanagari glyphs; Latin/mono falls back.  */
+.devanagari-locale,
+.devanagari-locale * {
+  font-family: var(--font-devanagari), var(--font-sans), sans-serif;
+}
+/* Keep IBM Plex Mono for all numbers and IS code values even in Hindi mode */
+.devanagari-locale [style*="font-plex-mono"],
+.devanagari-locale [style*="--font-mono"] {
+  font-family: var(--font-mono), monospace;
+}

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
+import { LanguageToggle } from '@/components/LanguageToggle'
 import { StructureIcon } from '@/components/icons/StructureIcon'
 import { MasonryIcon } from '@/components/icons/MasonryIcon'
 import { ElectricalIcon } from '@/components/icons/ElectricalIcon'
@@ -371,6 +372,9 @@ export default function Navbar() {
 
       {/* Right — desktop auth + mobile hamburger */}
       <div className="flex items-center gap-3">
+        {/* Language toggle — visible only on homepage, desktop only */}
+        <LanguageToggle className="hidden md:inline-flex" />
+
         {/* Desktop auth (hidden on mobile) */}
         {user ? (
           <>
@@ -747,6 +751,8 @@ export default function Navbar() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Language toggle in mobile menu */}
+              <LanguageToggle />
               <Link
                 href="/tools/vastu-pro"
                 onClick={() => setMobileOpen(false)}

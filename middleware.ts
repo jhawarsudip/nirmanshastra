@@ -1,5 +1,9 @@
+import createIntlMiddleware from 'next-intl/middleware'
+import { routing } from './i18n/routing'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+
+const handleI18n = createIntlMiddleware(routing)
 
 const PROTECTED_TOOL_ROUTES = [
   '/tools/structopro',
@@ -11,6 +15,15 @@ const PROTECTED_TOOL_ROUTES = [
 ]
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Apply i18n routing only for the homepage (/ and /hi).
+  // Tool pages stay at their exact current URLs — completely outside locale routing.
+  if (pathname === '/' || pathname === '/hi') {
+    return handleI18n(request)
+  }
+
+  // Supabase auth middleware for all other routes
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -31,7 +44,6 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { pathname } = request.nextUrl
   const isProtectedTool = PROTECTED_TOOL_ROUTES.some(r => pathname.startsWith(r))
   const isReports = pathname.startsWith('/reports')
 
