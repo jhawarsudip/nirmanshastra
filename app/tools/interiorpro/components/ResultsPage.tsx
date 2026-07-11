@@ -933,13 +933,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
             You&apos;ve estimated all 5 phases. Now bring StructoPro, MasonryPro, ElectroPro, PlumbPro, and InteriorPro together into a single project cost summary.
           </p>
-          <a
+          <Link
             href="/tools/grand-total"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
             style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
           >
             View Grand Total →
-          </a>
+          </Link>
         </div>
 
         <div className="text-center pt-2">

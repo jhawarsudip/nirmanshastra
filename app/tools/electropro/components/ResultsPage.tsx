@@ -949,13 +949,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
             Wire runs are done. Now size your water tanks, soil stacks, and pipes with PlumbPro. Plumbing errors discovered post-construction cost 3–5× more to fix.
           </p>
-          <a
+          <Link
             href="/tools/plumbpro"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
             style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
           >
             Start PlumbPro →
-          </a>
+          </Link>
         </div>
 
         <div className="text-center pt-2">

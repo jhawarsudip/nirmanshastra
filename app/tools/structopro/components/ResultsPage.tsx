@@ -1624,13 +1624,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
             Now that your structure is sized, get exact brick and mortar quantities with MasonryPro. Masonry is 20–25% of total project cost — the most common area for contractor overcharging.
           </p>
-          <a
+          <Link
             href="/tools/masonpro"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
             style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
           >
             Start MasonryPro →
-          </a>
+          </Link>
         </div>
 
         {/* Start over */}

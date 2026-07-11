@@ -4,6 +4,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -110,13 +111,13 @@ export default function ResetPasswordPage() {
             >
               ⚠ This reset link has expired or is invalid. Please request a new one.
             </p>
-            <a
+            <Link
               href="/auth"
               className="text-[12px] underline text-center"
               style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-sans)' }}
             >
               ← Back to login
-            </a>
+            </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
@@ -180,9 +181,9 @@ export default function ResetPasswordPage() {
         {!success && (
           <div className="px-5 pb-4 text-center" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
             <p className="text-[12px] pt-4" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>
-              <a href="/auth" className="underline" style={{ color: '#1F4E79' }}>
+              <Link href="/auth" className="underline" style={{ color: '#1F4E79' }}>
                 ← Back to login
-              </a>
+              </Link>
             </p>
           </div>
         )}

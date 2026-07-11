@@ -1005,13 +1005,13 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
           <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}>
             With your walls up, calculate circuits, DB panel, wire lengths and earthing costs with ElectroPro. Electrical is 8–12% of total project cost and the phase most skipped in estimates.
           </p>
-          <a
+          <Link
             href="/tools/electropro"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-[6px] text-[13px] font-semibold"
             style={{ background: '#1F4E79', color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)', textDecoration: 'none' }}
           >
             Start ElectroPro →
-          </a>
+          </Link>
         </div>
 
         <div className="text-center pt-2">
