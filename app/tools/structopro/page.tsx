@@ -198,11 +198,11 @@ export default function StructoProPage() {
       <AnimatePresence mode="wait">
         {step === 'register' && (
           <motion.div key="register" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
+              <div className="w-full lg:w-[58%] min-w-0">
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
-              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" price="₹999" regData={session.regData} liveData={liveData} />
               </div>
             </div>
@@ -211,11 +211,11 @@ export default function StructoProPage() {
 
         {step === 'project_pick' && (
           <motion.div key="project_pick" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
+              <div className="w-full lg:w-[58%] min-w-0">
                 <ProjectPicker onSelect={handleProjectSelect} toolName="StructurePro" />
               </div>
-              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" price="₹999" regData={session.regData} liveData={liveData} />
               </div>
             </div>
@@ -224,11 +224,11 @@ export default function StructoProPage() {
 
         {step === 'method' && (
           <motion.div key="method" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
+              <div className="w-full lg:w-[58%] min-w-0">
                 <MethodSelection onSelect={handleMethod} />
               </div>
-              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" price="₹999" regData={session.regData} liveData={liveData} />
               </div>
             </div>
@@ -237,8 +237,8 @@ export default function StructoProPage() {
 
         {step === 'details' && (
           <motion.div key="details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
+              <div className="w-full lg:w-[58%] min-w-0">
                 <BuildDetails
                   state={session.selectedProject?.state ?? session.regData.state}
                   city={session.selectedProject?.city ?? session.regData.city}
@@ -249,7 +249,7 @@ export default function StructoProPage() {
                   onBack={() => setStep('method')}
                 />
               </div>
-              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel
                   toolName="StructurePro"
                   toolPhase="P1"
@@ -264,15 +264,15 @@ export default function StructoProPage() {
 
         {step === 've_details' && (
           <motion.div key="ve_details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
+              <div className="w-full lg:w-[58%] min-w-0">
                 <VerticalExtensionDetails
                   state={session.regData.state}
                   city={session.regData.city}
                   onSubmit={handleVEDetails}
                 />
               </div>
-              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel
                   toolName="StructurePro"
                   toolPhase="P1"

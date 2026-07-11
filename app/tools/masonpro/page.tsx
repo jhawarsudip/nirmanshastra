@@ -148,11 +148,11 @@ export default function MasonryProPage() {
       <AnimatePresence mode="wait">
         {step === 'register' && (
           <motion.div key="register" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
+              <div className="w-full lg:w-[58%] min-w-0">
                 <RegistrationForm onSubmit={handleRegistration} />
               </div>
-              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" price="₹699" regData={session.regData} liveData={liveData} />
               </div>
             </div>
@@ -160,11 +160,11 @@ export default function MasonryProPage() {
         )}
         {step === 'project_pick' && (
           <motion.div key="project_pick" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
+              <div className="w-full lg:w-[58%] min-w-0">
                 <ProjectPicker onSelect={handleProjectSelect} toolName="MasonryPro" />
               </div>
-              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" price="₹699" regData={session.regData} liveData={liveData} />
               </div>
             </div>
@@ -172,11 +172,11 @@ export default function MasonryProPage() {
         )}
         {step === 'method' && (
           <motion.div key="method" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
+              <div className="w-full lg:w-[58%] min-w-0">
                 <MethodSelection onSelect={handleMethod} />
               </div>
-              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel toolName="MasonryPro" toolPhase="P2" price="₹699" regData={session.regData} liveData={liveData} />
               </div>
             </div>
@@ -184,8 +184,8 @@ export default function MasonryProPage() {
         )}
         {step === 'details' && (
           <motion.div key="details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex min-h-screen" style={{ alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 58%', minWidth: 0 }}>
+            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
+              <div className="w-full lg:w-[58%] min-w-0">
                 <BuildDetails
                   state={session.selectedProject?.state ?? session.regData.state}
                   city={session.selectedProject?.city ?? session.regData.city}
@@ -195,7 +195,7 @@ export default function MasonryProPage() {
                   onBack={() => setStep('method')}
                 />
               </div>
-              <div style={{ flex: '0 0 42%', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
+              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
                 <LiveSummaryPanel
                   toolName="MasonryPro"
                   toolPhase="P2"
