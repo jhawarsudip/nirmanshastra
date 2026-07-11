@@ -857,16 +857,16 @@ export default function BuildDetails({ state: initState, city: initCity, project
           Your site condition determines the foundation type and concrete cover thickness. If you are unsure, describe your site to a civil engineer — wrong foundation selection is expensive to fix later.
         </AlertBox>
         {errors.site && <p className="text-[12px] mb-2" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}>⚠ {errors.site}</p>}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
           {SITE_CARDS.map(card => (
             <button
               key={card.value}
               type="button"
               onClick={() => setSiteCondition(card.value)}
-              className="p-3 rounded-[2px] border text-left transition-all"
+              className="p-3 rounded-[2px] border text-left transition-all tool-card-interactive"
               style={{
                 borderColor: siteCondition === card.value ? '#1F4E79' : 'rgba(255,255,255,0.08)',
-                background:  siteCondition === card.value ? '#1F4E7912' : 'white',
+                background:  siteCondition === card.value ? 'rgba(31,78,121,0.06)' : 'var(--bg-surface)',
               }}
             >
               <div className="text-[18px] mb-1">{card.icon}</div>
@@ -1362,7 +1362,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
             { key: 'bindingWire', label: 'Binding Wire',      unit: '₹/kg',       avg: INDIA_AVG_2026.bindingWire, tip: 'Annealed wire 1.6mm. IS 280.' },
             { key: 'pccM10',      label: 'PCC M10 lean mix',  unit: '₹/m³',       avg: INDIA_AVG_2026.pccM10,      tip: 'Plain cement concrete below footing. 1:3:6 mix.' },
           ].map(({ key, label, unit, avg, tip }) => (
-            <div key={key} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#fff' }}>
+            <div key={key} className="p-3 rounded-[2px]" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'var(--bg-surface)' }}>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
                   <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</p>
@@ -1377,7 +1377,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
                 <input
                   type="number"
                   className="w-full pl-7 pr-3 py-2 rounded-[6px] border text-[13px]"
-                  style={{ borderColor: 'rgba(255,255,255,0.25)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', background: '#fff' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.25)', color: 'var(--text-primary)', fontFamily: 'var(--font-plex-mono)', background: 'var(--bg-surface)' }}
                   min="0"
                   value={rates[key as keyof typeof rates]}
                   onChange={e => setRates(r => ({ ...r, [key]: parseFloat(e.target.value) || 0 }))}
@@ -1580,7 +1580,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
             type="button"
             onClick={() => setIncludeLabour(true)}
             className="p-4 rounded-[2px] text-left transition-all"
-            style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+            style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : 'var(--bg-surface)' }}
           >
             <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Use CPWD DSR 2023 rates. Edit workers, rates, and productivity per trade. Labour appears only in paid PDF report.</p>
@@ -1589,7 +1589,7 @@ export default function BuildDetails({ state: initState, city: initCity, project
             type="button"
             onClick={() => setIncludeLabour(false)}
             className="p-4 rounded-[2px] text-left transition-all"
-            style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+            style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : 'var(--bg-surface)' }}
           >
             <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Exclude Labour Cost — show material quantities only</p>
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour later from your contractor quote.</p>

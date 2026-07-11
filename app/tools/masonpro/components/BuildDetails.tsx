@@ -2230,7 +2230,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               ['sand',        'Sand',                   '₹/cft',     28],
               ['wpCompound',  'Waterproofing compound', '₹/kg',     230],
             ] as [keyof typeof rates, string, string, number][]).map(([key, label, unit, avg]) => (
-              <div key={key} className="p-3 rounded-[2px] border" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#fff' }}>
+              <div key={key} className="p-3 rounded-[2px] border" style={{ borderColor: 'rgba(255,255,255,0.08)', background: 'var(--bg-surface)' }}>
                 <div className="flex items-center gap-3">
                   <label className="text-[13px] flex-1 font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>{label}</label>
                   <div className="flex items-center gap-2">
@@ -2327,7 +2327,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               type="button"
               onClick={() => setIncludeLabour(true)}
               className="p-4 rounded-[2px] text-left transition-all"
-              style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+              style={{ border: `2px solid ${includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: includeLabour ? 'rgba(31,78,121,0.06)' : 'var(--bg-surface)' }}
             >
               <p className="text-[15px] font-semibold mb-1" style={{ color: includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Include Labour Cost</p>
               <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Use CPWD DSR 2023 rates. Edit workers, rates, and productivity per trade. Labour appears only in paid PDF report.</p>
@@ -2336,7 +2336,7 @@ export default function BuildDetails({ state, city, initialProject, onSubmit, on
               type="button"
               onClick={() => setIncludeLabour(false)}
               className="p-4 rounded-[2px] text-left transition-all"
-              style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : '#fff' }}
+              style={{ border: `2px solid ${!includeLabour ? '#1F4E79' : 'rgba(255,255,255,0.10)'}`, background: !includeLabour ? 'rgba(31,78,121,0.06)' : 'var(--bg-surface)' }}
             >
               <p className="text-[15px] font-semibold mb-1" style={{ color: !includeLabour ? '#1F4E79' : 'var(--text-primary)', fontFamily: 'var(--font-plex-sans)' }}>Skip — Material Cost Only</p>
               <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.50)', fontFamily: 'var(--font-plex-sans)' }}>Get IS-code material quantities and cost. Add labour later from your contractor quote.</p>
