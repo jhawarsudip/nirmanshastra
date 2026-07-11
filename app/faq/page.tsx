@@ -218,9 +218,6 @@ export default function FaqPage() {
       {/* Dark header */}
       <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.1)', padding: '48px 24px 40px' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-          <div style={{ ...mono, fontSize: 10, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>
-            SHEET 08 · FREQUENTLY ASKED QUESTIONS
-          </div>
           <h1 style={{ ...serif, fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.15, margin: '0 0 14px' }}>
             Questions &amp; Answers
           </h1>

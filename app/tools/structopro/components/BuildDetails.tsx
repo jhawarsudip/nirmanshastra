@@ -607,7 +607,6 @@ export default function BuildDetails({ state: initState, city: initCity, project
   return (
     <form onSubmit={e => e.preventDefault()} className="space-y-4 py-8 px-6 md:px-10">
       <div className="mb-2">
-        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>P1 · RCC STRUCTURE ESTIMATOR</p>
         <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 32, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.15 }}>StructurePro — Build Details</h2>
         <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(255,255,255,0.50)', marginTop: 6 }}>Fill all sections to generate your IS-code verified structural estimate</p>
       </div>

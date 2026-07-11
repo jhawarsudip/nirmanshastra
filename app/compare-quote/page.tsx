@@ -1340,9 +1340,6 @@ function LandingBanner() {
   return (
     <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.06)', padding: '28px 24px' }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        <p style={{ ...mono, fontSize: 10, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-          CL. 0 — COMPARE CONTRACTOR QUOTE · FREE
-        </p>
         <h1 style={{ ...serif, fontSize: 26, fontWeight: 700, color: '#F4F4F0', lineHeight: 1.25, marginBottom: 10 }}>
           Upload your contractor&rsquo;s quote.
           <br />

@@ -47,7 +47,7 @@ export default function LiveSummaryPanel({ toolName, toolPhase, price, regData, 
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
-          {toolPhase} · LIVE SUMMARY
+          LIVE SUMMARY
         </p>
         <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 600, color: '#F4F4F0', lineHeight: 1.2 }}>
           {regData.projectName || 'Your Project'}
@@ -91,7 +91,7 @@ export default function LiveSummaryPanel({ toolName, toolPhase, price, regData, 
       {/* Phase context — bottom of panel */}
       <div style={{ marginTop: 'auto', paddingTop: 32 }}>
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.25)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          {toolName} · {toolPhase}
+          {toolName}
         </p>
         <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#8C3A22', marginTop: 4 }}>
           Unlock full report — {price}

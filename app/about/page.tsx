@@ -13,9 +13,6 @@ export default function AboutPage() {
       {/* Header band */}
       <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.1)' }}>
         <div className="px-6 md:px-16 lg:px-24 py-16">
-          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 12 }}>
-            CL. 0.0 — FOUNDER NOTE
-          </p>
           <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(36px,5vw,64px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
             About NirmanShastra
           </h1>

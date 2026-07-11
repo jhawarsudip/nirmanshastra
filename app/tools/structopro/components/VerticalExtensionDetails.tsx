@@ -208,9 +208,6 @@ export default function VerticalExtensionDetails({ state: initState, city: initC
             ⚠ STRUCTURAL CERTIFICATE MANDATORY
           </span>
         </div>
-        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>
-          P1 · VERTICAL EXTENSION — ADD FLOORS
-        </p>
         <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.15 }}>
           Add Floors to Existing Building
         </h2>

@@ -23,7 +23,6 @@ export default function WizardStepBar({ currentStep, toolName, toolPhase }: Wiza
       <div className="px-6 md:px-12 py-4 flex items-center justify-between flex-wrap gap-4">
         {/* Tool identity */}
         <div className="flex items-center gap-3">
-          <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(244,244,240,0.35)', letterSpacing: '0.08em' }}>{toolPhase}</span>
           <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 16, fontWeight: 600, color: '#F4F4F0' }}>{toolName}</span>
         </div>
 

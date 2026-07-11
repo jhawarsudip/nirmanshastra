@@ -217,7 +217,7 @@ export default function VEResultsPage({ result, input, estimateId, contactName, 
             </span>
           </div>
           <p className="text-[11px] uppercase tracking-widest mb-2" style={{ color: 'rgba(244,244,240,0.45)', fontFamily: 'var(--font-plex-mono)' }}>
-            STRUCTOPRO · P1 · RCC STRUCTURE ESTIMATOR
+            STRUCTOPRO · RCC STRUCTURE ESTIMATOR
           </p>
           <h2 className="font-bold mb-2" style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3.5vw,30px)' }}>
             {input.projectName || 'Your Vertical Extension Estimate'}
