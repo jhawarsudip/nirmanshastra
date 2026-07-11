@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { animate } from 'framer-motion'
 import {
   type PlumbResult,
@@ -9,6 +9,13 @@ import {
 } from '../plumbpro-engine'
 import Link from 'next/link'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import dynamic from 'next/dynamic'
+import type { FloorDatum } from '@/components/3d/types'
+
+const PlumbMassingPreview3DWrapper = dynamic(
+  () => import('./MassingPreview3DWrapper'),
+  { ssr: false, loading: () => null }
+)
 
 declare global {
   interface Window {
@@ -105,6 +112,18 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
   const [pdfStatus, setPdfStatus]     = useState<PdfStatus>('idle')
   const [pdfUrl, setPdfUrl]           = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [show3D, setShow3D] = useState(false)
+
+  const plumb3DFloors = useMemo((): FloorDatum[] => {
+    const totalFloors = input.numFloors ?? 1
+    const heightM = 3.048
+    const floorNames = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor']
+    return Array.from({ length: totalFloors }, (_, i) => ({
+      areaSqft: input.buaPerFloorSqft,
+      heightM,
+      name: floorNames[i] ?? `Floor ${i}`,
+    }))
+  }, [input.numFloors, input.buaPerFloorSqft])
 
   useEffect(() => {
     if (document.querySelector('script[src*="checkout.razorpay.com"]')) return
@@ -392,6 +411,59 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               <StampBadge key={c.id} status={c.status} clause={c.clause} description={c.detail} />
             ))}
           </div>
+        </div>
+
+        {/* ── 3D MASSING PREVIEW — FREE, OPT-IN ── */}
+        <div className="border rounded-[2px]" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div
+            className="px-4 py-3 flex items-center justify-between flex-wrap gap-2"
+            style={{ borderBottom: show3D ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
+          >
+            <div>
+              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)' }}>
+                3D MASSING PREVIEW
+                <span style={{ color: 'rgba(255,255,255,0.35)', marginLeft: 8 }}>(BETA)</span>
+              </p>
+              {!show3D && (
+                <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}>
+                  Floor massing with CPVC riser and SWR soil stack — drag to rotate, scroll to zoom
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setShow3D(v => !v)}
+              style={{
+                background: show3D ? 'rgba(31,78,121,0.15)' : '#1F4E79',
+                color: '#F4F4F0',
+                fontFamily: 'var(--font-plex-mono)',
+                fontSize: 11,
+                padding: '6px 14px',
+                borderRadius: 6,
+                border: show3D ? '1px solid rgba(31,78,121,0.4)' : 'none',
+                cursor: 'pointer',
+                letterSpacing: '0.04em',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {show3D ? 'CLOSE 3D VIEW' : 'VIEW 3D PREVIEW (BETA)'}
+            </button>
+          </div>
+          {show3D && (
+            <div>
+              <PlumbMassingPreview3DWrapper
+                floors={plumb3DFloors}
+                numBathrooms={input.numBathrooms}
+              />
+              <div
+                className="px-4 py-2"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)' }}
+              >
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.04em' }}>
+                  ROUGH MASSING MODEL — teal lines: CPVC 32mm supply riser (lighter) + SWR 110mm soil stack (darker) per IS 1742:1983 · riser positions are schematic, not surveyed
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Technical reminders — FREE */}

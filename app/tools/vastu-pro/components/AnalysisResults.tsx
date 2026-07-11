@@ -1,7 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import { type VastuAnalysis, type VastuFinding } from '../vastu-engine'
 import { type Severity } from '../vastu-data'
+import dynamic from 'next/dynamic'
+
+const VastuMassingPreview3DWrapper = dynamic(
+  () => import('./MassingPreview3DWrapper'),
+  { ssr: false, loading: () => null }
+)
 
 interface Props {
   analysis: VastuAnalysis
@@ -117,6 +124,7 @@ export default function AnalysisResults({
   onStartOver,
 }: Props) {
   const { findings, score, criticalCount, moderateCount, positiveCount, neutralCount } = analysis
+  const [show3D, setShow3D] = useState(false)
 
   const scoreColour =
     score >= 70 ? '#14532D' : score >= 40 ? '#D99A06' : '#8C3A22'
@@ -237,6 +245,56 @@ export default function AnalysisResults({
               </p>
             </div>
           </div>
+        </div>
+
+        {/* ── 3D MASSING PREVIEW — FREE, OPT-IN ── */}
+        <div className="mb-6 rounded-[2px]" style={{ border: '1px solid rgba(201,168,76,0.18)' }}>
+          <div
+            className="px-4 py-3 flex items-center justify-between flex-wrap gap-2"
+            style={{ borderBottom: show3D ? '1px solid rgba(201,168,76,0.12)' : 'none' }}
+          >
+            <div>
+              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#C9A84C', fontFamily: 'var(--font-plex-mono)' }}>
+                3D ORIENTATION PREVIEW
+                <span style={{ color: 'rgba(201,168,76,0.4)', marginLeft: 8 }}>(BETA)</span>
+              </p>
+              {!show3D && (
+                <p className="text-[11px] mt-0.5" style={{ color: 'rgba(201,168,76,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
+                  Building massing with North direction indicator — drag to rotate, scroll to zoom
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setShow3D(v => !v)}
+              style={{
+                background: show3D ? 'rgba(201,168,76,0.08)' : 'rgba(201,168,76,0.15)',
+                color: '#C9A84C',
+                fontFamily: 'var(--font-plex-mono)',
+                fontSize: 11,
+                padding: '6px 14px',
+                borderRadius: 6,
+                border: '1px solid rgba(201,168,76,0.3)',
+                cursor: 'pointer',
+                letterSpacing: '0.04em',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {show3D ? 'CLOSE 3D VIEW' : 'VIEW 3D PREVIEW (BETA)'}
+            </button>
+          </div>
+          {show3D && (
+            <div>
+              <VastuMassingPreview3DWrapper northDeg={northDeg} />
+              <div
+                className="px-4 py-2"
+                style={{ borderTop: '1px solid rgba(201,168,76,0.08)', background: 'rgba(201,168,76,0.02)' }}
+              >
+                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(201,168,76,0.35)', letterSpacing: '0.04em' }}>
+                  SCHEMATIC ONLY — gold arrow points True North ({Math.round(northDeg)}°) · massing is fixed G+1 placeholder (VastuPro does not capture floor count or building area)
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Findings */}
