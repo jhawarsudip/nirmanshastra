@@ -94,7 +94,10 @@
       "Read(//tmp/**)",
       "Bash(echo \"Status: $?\")",
       "Bash(lsof -ti:3000)",
-      "Bash(echo \"PID=$!\")"
+      "Bash(echo \"PID=$!\")",
+      "Bash(npx vercel *)",
+      "Read(//Users/sudipjhawar/.config/vercel/**)",
+      "Read(//Users/sudipjhawar/.local/share/**)"
     ]
   }
 }
