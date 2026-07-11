@@ -1,7 +1,7 @@
 'use client'
 
 import BuildingMassingScene from '@/components/3d/BuildingMassingScene'
-import type { FloorDatum, FloorGeometry } from '@/components/3d/types'
+import { SLAB_THICKNESS_M, type FloorDatum, type FloorGeometry } from '@/components/3d/types'
 import type { InteriorGrade } from '../interiorpro-engine'
 
 // Finish grade colours — warm tan spectrum representing flooring finish level
@@ -25,11 +25,12 @@ function FinishGradeLayer({
   return (
     <>
       {geoms.map(({ w, d, h, y, i }) => {
-        const top = y + h / 2  // top face of each floor box
+        // Slab top face = bottom of floor span + slab thickness
+        const slabTop = y - h / 2 + SLAB_THICKNESS_M
         return (
           <group key={`finish-${i}`}>
-            {/* Thin finish plane sitting on top of each floor slab */}
-            <mesh position={[0, top + PLANE_THICKNESS / 2, 0]} receiveShadow>
+            {/* Thin finish plane (tile + screed) sitting directly on the structural slab */}
+            <mesh position={[0, slabTop + PLANE_THICKNESS / 2, 0]} receiveShadow>
               <boxGeometry args={[w - 0.04, PLANE_THICKNESS, d - 0.04]} />
               <meshStandardMaterial
                 color={color}

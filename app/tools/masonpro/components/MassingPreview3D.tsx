@@ -1,7 +1,7 @@
 'use client'
 
 import BuildingMassingScene from '@/components/3d/BuildingMassingScene'
-import type { FloorDatum, FloorGeometry } from '@/components/3d/types'
+import { SLAB_THICKNESS_M, type FloorDatum, type FloorGeometry } from '@/components/3d/types'
 
 // Stamp Oxide for masonry walls — distinguishes from StructuroPro's Blueprint column layer
 const WALL_COLOR = '#8C3A22'
@@ -12,27 +12,30 @@ function ExteriorWallLayer({ geoms }: { geoms: FloorGeometry[] }) {
   return (
     <>
       {geoms.map(({ w, d, h, y, i }) => {
-        const wallH = h - 0.04  // match floor box height (4cm inter-floor gap)
+        // Walls span from slab top to underside of next slab — clear height between plates
+        const wallH = h - SLAB_THICKNESS_M
+        // Wall center is shifted up by half the slab thickness from the old floor-box center
+        const wallY = y + SLAB_THICKNESS_M / 2
         const wt = WALL_THICKNESS
         return (
           <group key={`walls-${i}`}>
             {/* North wall — wraps around corners in X so no corner gaps */}
-            <mesh position={[0, y, -(d / 2 + wt / 2)]} castShadow>
+            <mesh position={[0, wallY, -(d / 2 + wt / 2)]} castShadow>
               <boxGeometry args={[w + wt * 2, wallH, wt]} />
               <meshLambertMaterial color={WALL_COLOR} />
             </mesh>
             {/* South wall */}
-            <mesh position={[0, y, d / 2 + wt / 2]} castShadow>
+            <mesh position={[0, wallY, d / 2 + wt / 2]} castShadow>
               <boxGeometry args={[w + wt * 2, wallH, wt]} />
               <meshLambertMaterial color={WALL_COLOR} />
             </mesh>
             {/* East wall */}
-            <mesh position={[w / 2 + wt / 2, y, 0]} castShadow>
+            <mesh position={[w / 2 + wt / 2, wallY, 0]} castShadow>
               <boxGeometry args={[wt, wallH, d]} />
               <meshLambertMaterial color={WALL_COLOR} />
             </mesh>
             {/* West wall */}
-            <mesh position={[-(w / 2 + wt / 2), y, 0]} castShadow>
+            <mesh position={[-(w / 2 + wt / 2), wallY, 0]} castShadow>
               <boxGeometry args={[wt, wallH, d]} />
               <meshLambertMaterial color={WALL_COLOR} />
             </mesh>

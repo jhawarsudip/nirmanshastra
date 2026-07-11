@@ -3,9 +3,10 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { useMemo, type ReactNode } from 'react'
-import { SQFT_TO_M2, ASPECT_RATIO, type FloorDatum, type FloorGeometry } from './types'
+import { SQFT_TO_M2, ASPECT_RATIO, SLAB_THICKNESS_M, type FloorDatum, type FloorGeometry } from './types'
 
-const FLOOR_COLORS = ['#1F4E79', '#1b4470', '#173a62', '#133055', '#102748']
+// Blueprint tones for slab plates — slightly lighter than the old massing boxes
+const SLAB_COLORS = ['#1F4E79', '#1b4470', '#173a62', '#133055', '#102748']
 
 export function computeFloorGeometry(floors: FloorDatum[]): {
   geoms: FloorGeometry[]
@@ -27,7 +28,9 @@ export function computeFloorGeometry(floors: FloorDatum[]): {
   return { geoms, totalH: yOffset, groundW: first.w * 3.5, groundD: first.d * 3.5 }
 }
 
-export function FloorBox({
+// SlabPlate renders a single 125mm structural slab — replaces the old solid floor box.
+// Each floor gets one slab at the bottom of its height span; a roof slab caps the building.
+export function SlabPlate({
   position,
   dims,
   color,
@@ -36,10 +39,10 @@ export function FloorBox({
   dims: [number, number, number]
   color: string
 }) {
-  const [w, h, d] = dims
+  const [w, , d] = dims
   return (
     <mesh position={position} castShadow receiveShadow>
-      <boxGeometry args={[w, h - 0.04, d]} />
+      <boxGeometry args={[w, SLAB_THICKNESS_M, d]} />
       <meshLambertMaterial color={color} />
     </mesh>
   )
@@ -82,14 +85,28 @@ export default function BuildingMassingScene({ floors, renderExtras }: Props) {
         color="#aac8e8"
       />
 
+      {/* Floor slabs — one per floor, at the bottom of each floor's height span */}
       {geoms.map(b => (
-        <FloorBox
+        <SlabPlate
           key={b.i}
-          position={[0, b.y, 0]}
-          dims={[b.w, b.h, b.d]}
-          color={FLOOR_COLORS[b.i % FLOOR_COLORS.length]}
+          position={[0, b.y - b.h / 2 + SLAB_THICKNESS_M / 2, 0]}
+          dims={[b.w, SLAB_THICKNESS_M, b.d]}
+          color={SLAB_COLORS[b.i % SLAB_COLORS.length]}
         />
       ))}
+      {/* Roof slab — caps the building at totalH */}
+      {geoms.length > 0 && (() => {
+        const last = geoms[geoms.length - 1]
+        const roofY = last.y + last.h / 2 + SLAB_THICKNESS_M / 2
+        return (
+          <SlabPlate
+            key="roof"
+            position={[0, roofY, 0]}
+            dims={[last.w, SLAB_THICKNESS_M, last.d]}
+            color={SLAB_COLORS[Math.min(geoms.length, SLAB_COLORS.length - 1)]}
+          />
+        )
+      })()}
 
       {renderExtras?.(geoms)}
 
