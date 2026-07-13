@@ -148,10 +148,6 @@ export default function RegistrationForm({ onSubmit }: Props) {
       <div className="w-full mb-8">
         <div className="rounded-[2px] p-6 mb-6" style={{ background: 'var(--bg-surface)' }}>
           <Image src="/vastupro-icon.png" alt="VastuPro" width={64} height={64} className="mb-3" style={{ objectFit: 'contain' }} />
-          <p className="text-[11px] uppercase tracking-widest mb-1"
-            style={{ color: 'rgba(201,168,76,0.6)', fontFamily: 'var(--font-plex-mono)' }}>
-            PHASE 0 · FREE FOREVER
-          </p>
           <h1 className="text-[28px] font-bold leading-tight"
             style={{ color: '#C9A84C', fontFamily: 'var(--font-plex-serif)' }}>
             VastuPro

@@ -150,12 +150,6 @@ export default function RegistrationForm({ onSubmit }: Props) {
             </svg>
           </div>
           <Image src="/structopro-icon.png" alt="StructurePro" width={64} height={64} className="mb-4" style={{ objectFit: 'contain' }} />
-          <p
-            className="text-[11px] uppercase tracking-widest mb-2"
-            style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}
-          >
-            PHASE 1 · ₹999 REPORT
-          </p>
           <h1
             className="font-bold leading-tight mb-2"
             style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}

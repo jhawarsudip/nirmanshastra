@@ -427,6 +427,13 @@ footer :focus-visible {
   background: var(--accent-gold);
 }
 
+/* ── DEVANAGARI ITALIC SLANT SPACING ─────────────────────────────────────── */
+/* Italic slant in Devanagari leans into the following glyph; a small right
+   margin on section-accent prevents crowding in Hindi locale only. */
+.devanagari-locale .section-accent {
+  margin-right: 0.07em;
+}
+
 /* ── NAV LINK HOVER ───────────────────────────────────────────────────────── */
 .nav-link {
   position: relative;

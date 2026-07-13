@@ -142,7 +142,7 @@ export default function AnalysisResults({
               className="text-[10px] uppercase tracking-widest"
               style={{ color: 'rgba(201,168,76,0.5)', fontFamily: 'var(--font-plex-mono)' }}
             >
-              NIRMANSHASTRA · VASTUPRO · PHASE 0 · FREE
+              NIRMANSHASTRA · VASTUPRO
             </p>
             <h1
               className="text-[20px] font-bold"

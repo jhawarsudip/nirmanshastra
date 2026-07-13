@@ -741,7 +741,7 @@ export default function Home() {
       {/* ── WHY NIRMANSHASTRA ──────────────────────────────────────────── */}
       <section className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
-          <SectionHeader title={<>{tpil('sectionTitle')}<span style={{ color: GOLD, fontSize: '1.4em', marginLeft: '0.25em', verticalAlign: 'baseline', lineHeight: 1 }}>?</span></>} />
+          <SectionHeader title={<>{tpil('sectionTitle')}<span style={{ color: GOLD, fontSize: '1.4em', marginLeft: '0.25em', verticalAlign: '-0.15em', lineHeight: 1 }}>?</span></>} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PILLARS.map((pillar, i) => (
               <PillarCard key={pillar.title} pillar={pillar} delay={i * 0.08} />
@@ -896,7 +896,7 @@ export default function Home() {
       {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
       <section id="how-it-works" className="grid-paper px-6 md:px-16 lg:px-24 py-28">
         <div className="space-y-14">
-          <SectionHeader title={<>{thiw('sectionTitle')}<span style={{ color: GOLD, fontSize: '1.4em', marginLeft: '0.15em', verticalAlign: 'baseline', lineHeight: 1 }}>?</span></>} />
+          <SectionHeader title={<>{thiw('sectionTitle')}<span style={{ color: GOLD, fontSize: '1.4em', marginLeft: '0.15em', verticalAlign: '-0.15em', lineHeight: 1 }}>?</span></>} />
 
           <motion.div
             initial={prefersReducedMotion ? false : { scaleX: 0 }}
@@ -914,6 +914,7 @@ export default function Home() {
                 whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.45, ease: 'easeOut', delay: prefersReducedMotion ? 0 : i * 0.1 }}
+                className="min-h-[160px] sm:min-h-0"
                 style={{
                   borderTop: `3px solid ${GOLD}`,
                   borderRight: i < 3 ? `1px solid ${BSub}` : 'none',
@@ -943,8 +944,8 @@ export default function Home() {
       <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: BG }}>
         <div className="space-y-10">
           <SectionHeader title={locale === 'hi'
-            ? <>{tc('sectionTitle').split('बेहतर')[0]}<span className="section-accent">बेहतर</span>{tc('sectionTitle').split('बेहतर')[1]}<span style={{ color: GOLD, fontSize: '1.4em', marginLeft: '0.15em', verticalAlign: 'baseline', lineHeight: 1 }}>?</span></>
-            : <>{tc('sectionTitle').split('beats')[0]}<span className="section-accent">beats</span> free calculators<span style={{ color: GOLD, fontSize: '1.4em', marginLeft: '0.25em', verticalAlign: 'baseline', lineHeight: 1 }}>?</span></>
+            ? <>{tc('sectionTitle').split('बेहतर')[0]}<span className="section-accent">बेहतर</span>{tc('sectionTitle').split('बेहतर')[1]}<span style={{ color: GOLD, fontSize: '1.4em', marginLeft: '0.15em', verticalAlign: '-0.15em', lineHeight: 1 }}>?</span></>
+            : <>{tc('sectionTitle').split('beats')[0]}<span className="section-accent">beats</span> free calculators<span style={{ color: GOLD, fontSize: '1.4em', marginLeft: '0.25em', verticalAlign: '-0.15em', lineHeight: 1 }}>?</span></>
           } />
           <p style={{ fontFamily: FI, fontSize: 16, color: TS, lineHeight: 1.65, maxWidth: 680 }}>
             {tc('intro')}

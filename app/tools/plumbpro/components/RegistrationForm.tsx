@@ -153,10 +153,6 @@ export default function RegistrationForm({ onSubmit }: Props) {
             </svg>
           </div>
           <div className="mb-4"><Image src="/plumbpro-icon.png" alt="PlumbingPro" width={64} height={64} style={{ objectFit: 'contain' }} /></div>
-          <p className="text-[11px] uppercase tracking-widest mb-2"
-            style={{ color: 'rgba(201,168,76,0.55)', fontFamily: 'var(--font-plex-mono)' }}>
-            PHASE 4 · ₹499 REPORT
-          </p>
           <h1 className="font-bold leading-tight mb-2"
             style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}>
             PlumbingPro
