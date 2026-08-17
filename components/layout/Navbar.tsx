@@ -146,6 +146,7 @@ const REPORTS_TOOLS = [
 ]
 
 const NAV_LINKS = [
+  { label: 'Site Templates', href: '/site-templates' },
   { label: 'How It Works', href: '/#how-it-works' },
   { label: 'Pricing', href: '/#pricing' },
   { label: 'Blog', href: '/blog' },
@@ -352,6 +353,10 @@ export default function Navbar() {
             </div>
           )}
         </div>
+
+        <Link href="/site-templates" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
+          Site Templates
+        </Link>
 
         <Link href="/#how-it-works" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
           How It Works

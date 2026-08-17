@@ -97,7 +97,10 @@
       "Bash(echo \"PID=$!\")",
       "Bash(npx vercel *)",
       "Read(//Users/sudipjhawar/.config/vercel/**)",
-      "Read(//Users/sudipjhawar/.local/share/**)"
+      "Read(//Users/sudipjhawar/.local/share/**)",
+      "Bash(npm -v)",
+      "Read(//Users/sudipjhawar/**)",
+      "Bash(npx --yes create-next-app@latest saffron-crest --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --eslint --no-turbopack --use-npm --yes)"
     ]
   }
 }
