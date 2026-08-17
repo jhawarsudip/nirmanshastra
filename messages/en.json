@@ -11,9 +11,7 @@
     "stat1Val": "6",
     "stat1Label": "Tools",
     "stat2Val": "from ₹499",
-    "stat2Label": "Per Report",
-    "stat3Val": "₹2,999",
-    "stat3Label": "Bundle"
+    "stat2Label": "Per Report"
   },
   "problems": {
     "title": "The three problems no contractor will tell you",
@@ -58,11 +56,6 @@
     "plumbingDesc": "Water supply, drainage, sanitary fixtures per IS 1172:1993. Tank sizing included.",
     "interiorDescriptor": "Interior Cost & BOQ Estimator",
     "interiorDesc": "Flooring, kitchen, paint, false ceiling across Basic / Standard / Premium / Luxury.",
-    "bundleLabel": "COMPLETE BUNDLE — ALL 5 PAID TOOLS",
-    "bundleNames": "StructurePro · MasonryPro · ElectricalPro · PlumbingPro · InteriorPro",
-    "bundleSaving": "saves",
-    "bundleSavingEnd": "vs buying separately",
-    "bundleCta": "Get Bundle →",
     "grandTotalDescriptor": "Master Project Report — All 5 Phases"
   },
   "howItWorks": {
@@ -145,24 +138,11 @@
     "singleF4": "Contractor quote comparison",
     "singleF5": "PDF report with SVG drawings",
     "singleCta": "Start with StructurePro →",
-    "bundlePhase": "COMPLETE BUNDLE · ALL 5 PAID TOOLS",
-    "bundleName": "Full Platform",
-    "bundleSub": "All 5 Phase Estimators",
-    "bundleBest": "BEST VALUE",
-    "bundleSaving": "saves",
-    "bundleSavingEnd": "vs buying individually",
-    "bundleF0": "StructurePro + MasonryPro",
-    "bundleF1": "ElectricalPro + PlumbingPro",
-    "bundleF2": "InteriorPro",
-    "bundleF3": "All quantities across all phases",
-    "bundleF4": "Cross-phase contractor comparison",
-    "bundleF5": "Grand Total Report (₹999) free",
-    "bundleCta": "Get Bundle →",
     "gtLabel": "MASTER REPORT",
     "gtPhase": "COMBINE ALL 5 PHASES · ONE MASTER BOQ",
     "gtName": "Grand Total Report",
     "gtDesc": "Combine all 5 phases into one master report. Phase-wise cost breakdown, construction timeline Gantt chart, combined IS code compliance, and a 12-page contractor-ready PDF.",
-    "gtFree": "Free with Complete Bundle (₹2,999)",
+    "gtFree": "Free when all 5 tools are purchased",
     "gtCta": "Generate Grand Total Report →"
   },
   "dealers": {
@@ -205,7 +185,6 @@
     "disclaimer": "Disclaimer",
     "isCodes": "IS Codes Used",
     "note": "Estimates are for budgeting reference only. Not for structural approval without licensed engineer.",
-    "bundle": "Bundle — all 5 tools",
     "toolFree": "FREE"
   }
 }

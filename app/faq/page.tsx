@@ -48,7 +48,7 @@ const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'How much does it cost?',
         answer:
-          'VastuPro (Vastu compliance analysis) is completely free — no payment, no signup required. The five paid estimation tools are priced individually: ElectricalPro and PlumbingPro at ₹499 each, MasonryPro at ₹699, InteriorPro at ₹899, and StructurePro at ₹999. A Complete Bundle of all five costs ₹2,999 (saving ₹596 vs buying separately).',
+          'VastuPro (Vastu compliance analysis) is completely free — no payment, no signup required. The five paid estimation tools are priced individually: ElectricalPro and PlumbingPro at ₹499 each, MasonryPro at ₹699, InteriorPro at ₹899, and StructurePro at ₹999.',
       },
       {
         question: 'What do I get when I pay for a tool?',

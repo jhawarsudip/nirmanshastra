@@ -20,7 +20,6 @@ Version: Final | June 2026
 - **PlumbPro** — Phase 4, Plumbing, ₹499/report
 - **InteriorPro** — Phase 5, Interior, ₹899/report
 
-**Bundle:** All 5 paid apps = ₹2,999 (saves ₹596 vs buying separately)
 **Grand Total Report:** ₹999 standalone | FREE if all 5 paid individually
 **Professional Subscription:** ₹1,999/month (planned)
 
@@ -417,16 +416,15 @@ Flag reasons: "Quantity inflation X% above IS code" | "Material substitution wit
 
 ---
 
-# SECTION 22 — LOYALTY + BUNDLE PRICING
+# SECTION 22 — LOYALTY PRICING
 
-Bundle (all 5 tools): ₹2,999 (saves ₹596 vs individual total of ₹3,595)
 2nd report same app: ₹100 off
 
 ---
 
 # SECTION 28 — PRICING (FINAL)
 
-Launch pricing: StructoPro ₹999 | MasonryPro ₹699 | ElectroPro ₹499 | PlumbPro ₹499 | InteriorPro ₹899 | Bundle ₹2,999 | Grand Total add-on ₹999
+Launch pricing: StructoPro ₹999 | MasonryPro ₹699 | ElectroPro ₹499 | PlumbPro ₹499 | InteriorPro ₹899 | Grand Total add-on ₹999
 Professional subscription: ₹1,999/month (planned)
 Monthly platform cost: ~₹1,767. Break-even: 9 paid reports/month.
 

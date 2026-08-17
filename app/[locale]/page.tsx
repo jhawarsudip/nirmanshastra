@@ -863,7 +863,6 @@ export default function Home() {
                 [th('stat0Val'), th('stat0Label')],
                 [th('stat1Val'), th('stat1Label')],
                 [th('stat2Val'), th('stat2Label')],
-                [th('stat3Val'), th('stat3Label')],
               ] as [string,string][]).map(([val, label]) => (
                 <div key={label}>
                   <div style={{ fontFamily: FI, fontSize: 'clamp(36px, 8vw, 64px)', fontWeight: 600, color: TP, lineHeight: 1 }}>{val}</div>
@@ -1014,35 +1013,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Bundle strip */}
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="bundle-strip-inner"
-            style={{ border: `1px solid ${BSub}`, borderRadius: 2, padding: '28px 40px', background: SURF, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}
-          >
-            <div>
-              <p style={{ fontFamily: FI, fontSize: 11, color: GOLD, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
-                {tt('bundleLabel')}
-              </p>
-              <p style={{ fontFamily: FI, fontSize: 15, color: TS }}>
-                {tt('bundleNames')}
-                {' '}&mdash; {tt('bundleSaving')} <span style={{ color: TP, fontWeight: 600 }}>₹596</span> {tt('bundleSavingEnd')}
-              </p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-              <span style={{ fontFamily: FI, fontSize: 40, fontWeight: 600, color: TP }}>₹2,999</span>
-              <Link
-                href="/tools/structopro"
-                className="btn-3d"
-                style={{ background: GOLD, color: '#000000', fontFamily: FI, fontSize: 14, fontWeight: 600, padding: '13px 24px', borderRadius: 2, textDecoration: 'none', whiteSpace: 'nowrap' }}
-              >
-                {tt('bundleCta')}
-              </Link>
-            </div>
-          </motion.div>
         </div>
       </section>
 
@@ -1261,7 +1231,7 @@ export default function Home() {
         <div className="space-y-14">
           <SectionHeader title={<>{tpr('sectionTitle').split(',')[0]}, <span className="section-accent">{locale === 'hi' ? 'रिपोर्ट-दर-रिपोर्ट' : 'report-by-report'}</span> {locale === 'en' ? 'pricing' : 'मूल्य'}</>} />
 
-          <div className="pricing-grid grid grid-cols-1 md:grid-cols-3 gap-0">
+          <div className="pricing-grid grid grid-cols-1 md:grid-cols-2 gap-0">
 
             {/* Tier 1 — VastuPro FREE */}
             <motion.div
@@ -1293,7 +1263,7 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.35, delay: 0.1 }}
-              style={{ border: `1px solid ${BSub}`, padding: '40px', background: SURF, display: 'flex', flexDirection: 'column', gap: 20 }}
+              style={{ border: `1px solid ${BSub}`, borderRadius: '0 2px 2px 0', padding: '40px', background: SURF, display: 'flex', flexDirection: 'column', gap: 20 }}
             >
               <div>
                 <p style={{ fontFamily: FI, fontSize: 10, color: TS, letterSpacing: '0.07em', marginBottom: 8 }}>{tpr('singlePhase')}</p>
@@ -1315,36 +1285,6 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            {/* Tier 3 — Bundle */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ duration: 0.35, delay: 0.2 }}
-              style={{ border: `1px solid ${GOLD}`, borderLeft: 'none', borderRadius: '0 2px 2px 0', padding: '40px', background: SURF, display: 'flex', flexDirection: 'column', gap: 20, position: 'relative' }}
-            >
-              <div style={{ position: 'absolute', top: -1, right: 18, background: GOLD, color: '#000000', fontFamily: FI, fontSize: 10, fontWeight: 600, padding: '4px 12px', letterSpacing: '0.05em', borderRadius: '0 0 2px 2px' }}>
-                {tpr('bundleBest')}
-              </div>
-              <div>
-                <p style={{ fontFamily: FI, fontSize: 10, color: GOLD, letterSpacing: '0.07em', marginBottom: 8 }}>{tpr('bundlePhase')}</p>
-                <h3 style={{ fontFamily: FI, fontSize: 26, fontWeight: 600, color: TP, marginBottom: 4 }}>{tpr('bundleName')}</h3>
-                <p style={{ fontFamily: FI, fontSize: 12, color: TS, marginBottom: 10 }}>{tpr('bundleSub')}</p>
-                <div style={{ fontFamily: FI, fontSize: 48, fontWeight: 600, color: TP, lineHeight: 1 }}>₹2,999</div>
-                <p style={{ fontFamily: FI, fontSize: 13, color: TS, marginTop: 6 }}>
-                  {tpr('bundleSaving')} <span style={{ color: GOLD, fontWeight: 600 }}>₹596</span> {tpr('bundleSavingEnd')}
-                </p>
-              </div>
-              <ul style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {[tpr('bundleF0'),tpr('bundleF1'),tpr('bundleF2'),tpr('bundleF3'),tpr('bundleF4'),tpr('bundleF5')].map(f => (
-                  <li key={f} style={{ fontFamily: FI, fontSize: 15, color: TS, display: 'flex', gap: 10 }}>
-                    <span style={{ color: GOLD, fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/tools/structopro" className="btn-3d"
-                style={{ display: 'block', textAlign: 'center', background: GOLD, color: '#000000', fontFamily: FI, fontSize: 14, fontWeight: 600, padding: '14px', borderRadius: 2, textDecoration: 'none', letterSpacing: '0.03em' }}>
-                {tpr('bundleCta')}
-              </Link>
-            </motion.div>
           </div>
 
           {/* Grand Total Report */}

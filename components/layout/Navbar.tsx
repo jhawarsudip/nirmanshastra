@@ -344,11 +344,6 @@ export default function Navbar() {
                   <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#8C3A22', border: '1px solid #8C3A22', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
                 </Link>
               ))}
-
-              <div style={{ borderTop: '1px solid rgba(244,244,240,0.1)', padding: '9px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.5)' }}>Bundle — 5 tools</span>
-                <span style={{ ...mono, fontSize: 12, color: '#8C3A22' }}>₹2,999</span>
-              </div>
             </div>
             </div>
           )}
@@ -650,11 +645,6 @@ export default function Navbar() {
               <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#8C3A22', border: '1px solid rgba(140,58,34,0.55)', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
             </Link>
           ))}
-          {/* Bundle price line */}
-          <div style={{ padding: '12px 24px', background: 'rgba(244,244,240,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(244,244,240,0.07)' }}>
-            <span style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 13, color: 'rgba(244,244,240,0.5)' }}>Bundle — all 5 tools</span>
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 15, color: '#8C3A22', fontWeight: 500 }}>₹2,999</span>
-          </div>
         </div>
 
         {/* ── NAVIGATION LINKS ───────────────────────────────────────────── */}

@@ -94,7 +94,6 @@ export default function TermsOfUsePage() {
               'MasonryPro — ₹699 per report',
               'InteriorPro — ₹899 per report',
               'StructurePro — ₹999 per report',
-              'Complete bundle (all 5 paid tools) — ₹2,999',
               'Grand Total Report (combines all 5 phases) — ₹999, or free if all 5 tools purchased individually',
             ]} />
             <P>Payments are processed by Razorpay and are subject to their terms and conditions. NirmanShastra does not store your payment card details.</P>

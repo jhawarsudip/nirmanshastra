@@ -11,9 +11,7 @@
     "stat1Val": "6",
     "stat1Label": "टूल्स",
     "stat2Val": "₹499 से",
-    "stat2Label": "प्रति रिपोर्ट",
-    "stat3Val": "₹2,999",
-    "stat3Label": "बंडल"
+    "stat2Label": "प्रति रिपोर्ट"
   },
   "problems": {
     "title": "तीन समस्याएं जो ठेकेदार कभी नहीं बताएगा",
@@ -58,11 +56,6 @@
     "plumbingDesc": "IS 1172:1993 के अनुसार जल आपूर्ति, ड्रेनेज, सैनिटरी फिक्स्चर। टैंक साइज़िंग शामिल।",
     "interiorDescriptor": "इंटीरियर लागत एवं BOQ अनुमानक",
     "interiorDesc": "Basic/Standard/Premium/Luxury में फ्लोरिंग, किचन, पेंट, फ़ॉल्स सीलिंग।",
-    "bundleLabel": "पूर्ण बंडल — सभी 5 पेड टूल्स",
-    "bundleNames": "StructurePro · MasonryPro · ElectricalPro · PlumbingPro · InteriorPro",
-    "bundleSaving": "बचत",
-    "bundleSavingEnd": "अलग-अलग खरीदने पर",
-    "bundleCta": "बंडल पाएं →",
     "grandTotalDescriptor": "मास्टर प्रोजेक्ट रिपोर्ट — सभी 5 चरण"
   },
   "howItWorks": {
@@ -145,24 +138,11 @@
     "singleF4": "ठेकेदार कोटेशन तुलना",
     "singleF5": "SVG चित्रों सहित PDF रिपोर्ट",
     "singleCta": "StructurePro से शुरू करें →",
-    "bundlePhase": "पूर्ण बंडल · सभी 5 पेड टूल्स",
-    "bundleName": "संपूर्ण प्लेटफ़ॉर्म",
-    "bundleSub": "सभी 5 चरण अनुमानक",
-    "bundleBest": "सर्वश्रेष्ठ मूल्य",
-    "bundleSaving": "बचत",
-    "bundleSavingEnd": "अलग-अलग खरीदने की तुलना में",
-    "bundleF0": "StructurePro + MasonryPro",
-    "bundleF1": "ElectricalPro + PlumbingPro",
-    "bundleF2": "InteriorPro",
-    "bundleF3": "सभी चरणों में सटीक मात्रा",
-    "bundleF4": "क्रॉस-चरण ठेकेदार तुलना",
-    "bundleF5": "Grand Total Report (₹999) निःशुल्क",
-    "bundleCta": "बंडल पाएं →",
     "gtLabel": "मास्टर रिपोर्ट",
     "gtPhase": "सभी 5 चरण एक साथ · एक मास्टर BOQ",
     "gtName": "ग्रैंड टोटल रिपोर्ट",
     "gtDesc": "सभी 5 चरणों को एक मास्टर रिपोर्ट में जोड़ें। चरण-वार लागत विवरण, निर्माण समयरेखा, संयुक्त IS कोड अनुपालन, और 12-पेज की ठेकेदार-तैयार PDF।",
-    "gtFree": "पूर्ण बंडल (₹2,999) के साथ निःशुल्क",
+    "gtFree": "सभी 5 टूल खरीदने पर निःशुल्क",
     "gtCta": "ग्रैंड टोटल रिपोर्ट बनाएं →"
   },
   "dealers": {
@@ -205,7 +185,6 @@
     "disclaimer": "अस्वीकरण",
     "isCodes": "प्रयुक्त IS कोड",
     "note": "अनुमान केवल बजट संदर्भ के लिए हैं। लाइसेंस प्राप्त इंजीनियर के अनुमोदन के बिना संरचनात्मक उपयोग के लिए नहीं।",
-    "bundle": "बंडल — सभी 5 टूल्स",
     "toolFree": "निःशुल्क"
   }
 }

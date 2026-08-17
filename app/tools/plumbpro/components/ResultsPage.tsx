@@ -818,13 +818,6 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
                  payStatus === 'polling'   ? 'Confirming payment…' :
                  'Unlock Report — ₹499'}
               </button>
-              <Link
-                href="/#pricing"
-                style={{ display: 'block', width: '100%', padding: '14px 20px', border: '1px dashed rgba(244,244,240,0.2)', textAlign: 'center', textDecoration: 'none', cursor: 'pointer' }}
-              >
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(244,244,240,0.4)', marginBottom: 2 }}>Or save ₹596</p>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: 'rgba(244,244,240,0.7)' }}>Complete Bundle — All 5 Apps <span style={{ fontFamily: 'var(--font-plex-mono)', color: '#F4F4F0' }}>₹2,999</span></p>
-              </Link>
             </div>
             {payError && (
               <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: '#D99A06', marginTop: 12 }}>⚠ {payError}</p>
