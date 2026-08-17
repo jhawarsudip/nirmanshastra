@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createSupabaseClient } from '@/lib/supabase/server'
 import ConsentToggle from './ConsentToggle'
+import GuestUpgradeCard from './GuestUpgradeCard'
 
 export const metadata: Metadata = {
   title: 'Account Settings — NirmanShastra',
@@ -14,6 +15,7 @@ export default async function AccountPage() {
   if (!user) redirect('/auth?redirect=/account')
 
   const meta = user.user_metadata ?? {}
+  const isGuest = user.is_anonymous === true
   const consentInitial: boolean = meta.consent_material_partners === true
   const consentContactInitial: boolean = meta.consent_material_partners_contact === true
 
@@ -34,6 +36,9 @@ export default async function AccountPage() {
       <section className="py-16">
         <div className="max-w-xl mx-auto px-6">
 
+          {/* Guest → permanent account upgrade (anonymous sessions only) */}
+          {isGuest && <GuestUpgradeCard />}
+
           {/* Profile info card */}
           <div style={{ border: '1px solid rgba(30,34,39,0.14)', borderRadius: 2, background: '#fff', padding: '20px 24px', marginBottom: 20 }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 14 }}>
@@ -53,7 +58,7 @@ export default async function AccountPage() {
                   Email
                 </p>
                 <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: '#1E2227' }}>
-                  {user.email}
+                  {user.email || (isGuest ? 'Guest session — no email on file' : '—')}
                 </p>
               </div>
               {meta.city && (

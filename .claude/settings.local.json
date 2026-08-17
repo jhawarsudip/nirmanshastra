@@ -103,7 +103,8 @@
       "Bash(npx --yes create-next-app@latest saffron-crest --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --eslint --no-turbopack --use-npm --yes)",
       "mcp__claude_ai_Supabase__execute_sql",
       "mcp__claude_ai_Supabase__apply_migration",
-      "Bash(echo \"EXIT CODE: $?\")"
+      "Bash(echo \"EXIT CODE: $?\")",
+      "Bash(echo \"EXIT=$?\")"
     ]
   }
 }

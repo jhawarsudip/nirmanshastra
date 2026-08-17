@@ -9,6 +9,7 @@ import {
 } from '../plumbpro-engine'
 import Link from 'next/link'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import GuestPurchaseNotice from '@/components/GuestPurchaseNotice'
 import dynamic from 'next/dynamic'
 import type { FloorDatum } from '@/components/3d/types'
 
@@ -844,6 +845,7 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
               style={{ color: 'rgba(255,255,255,0.60)', fontFamily: 'var(--font-plex-sans)' }}>
               Your full plumbing estimate is visible above. Download your 9-page IS-code PDF report below.
             </p>
+            <GuestPurchaseNotice />
             {pdfStatus === 'generating' && (
               <div className="flex items-center gap-3 px-4 py-3 rounded-[2px]"
                 style={{ border: '1px solid rgba(31,78,121,0.3)', background: 'rgba(31,78,121,0.05)' }}>

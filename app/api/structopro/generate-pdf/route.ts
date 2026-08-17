@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
         })
         console.log('[NS-PDF-EMAIL] Email result:', JSON.stringify(emailResult))
         if (emailResult.error) {
-          console.error('Resend error:', emailResult.error)
+          console.error('[CRITICAL][NS-PDF-EMAIL] Report delivery email FAILED to', contactInfo.email, '— a guest user has no login to recover this later. Resend error:', emailResult.error)
         } else {
           emailSent = true
           await supabase
@@ -156,8 +156,9 @@ export async function POST(req: NextRequest) {
             .eq('estimate_id', estimateId)
         }
       } catch (emailEx) {
-        console.error('[NS-PDF-EMAIL] Email send exception:', emailEx)
-        // Email failure is silent to user — PDF download still works
+        console.error('[CRITICAL][NS-PDF-EMAIL] Report delivery email THREW for', contactInfo.email, '— a guest user has no login to recover this later:', emailEx)
+        // Email may be a guest's only durable record. Failure is surfaced to the
+        // user on-page (emailSent flag + GuestPurchaseNotice); PDF download still works.
       }
     }
 

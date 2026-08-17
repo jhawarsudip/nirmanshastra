@@ -6,6 +6,7 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveCo
 import Link from 'next/link'
 import { type StructoResult, type StructoInput, formatLakhs } from '../structopro-engine'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import GuestPurchaseNotice from '@/components/GuestPurchaseNotice'
 import dynamic from 'next/dynamic'
 
 // Only mount the 3D wrapper (and trigger its own lazy load of Three.js) when
@@ -1548,6 +1549,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
             <p className="text-[13px] mb-4" style={{ color: 'rgba(255,255,255,0.60)', fontFamily: 'var(--font-plex-sans)' }}>
               Your full estimate is now visible above. Download your 10+ page IS-code PDF report below.
             </p>
+
+            <GuestPurchaseNotice />
 
             {/* PDF download area */}
             {pdfStatus === 'generating' && (

@@ -101,6 +101,28 @@ function AuthContent() {
     setPincodeError('')
   }
 
+  // Continue as Guest — creates a real anonymous Supabase session (a genuine
+  // auth.uid()), so every existing system (project continuity, estimates,
+  // purchases, RLS, PDF delivery) keeps working unchanged. No email/password.
+  async function handleGuest() {
+    setLoading(true)
+    setError('')
+    setMessage('')
+    try {
+      const { error } = await supabase.auth.signInAnonymously()
+      if (error) throw error
+      router.push(redirectTo || '/')
+      router.refresh()
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Could not start a guest session. Please try again or sign up.',
+      )
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm mb-8 text-center">
@@ -392,6 +414,37 @@ function AuthContent() {
             </button>
           )}
         </form>
+
+        {/* ── Continue as Guest — third path alongside Log In / Sign Up ── */}
+        {mode !== 'reset' && (
+          <div className="px-5 pb-5">
+            <div className="flex items-center gap-3 mb-4">
+              <div style={{ flex: 1, height: 1, background: 'rgba(30,34,39,0.12)' }} />
+              <span
+                className="text-[10px] uppercase tracking-widest"
+                style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}
+              >
+                or
+              </span>
+              <div style={{ flex: 1, height: 1, background: 'rgba(30,34,39,0.12)' }} />
+            </div>
+            <button
+              type="button"
+              onClick={handleGuest}
+              disabled={loading}
+              className="w-full py-3 rounded-[6px] text-[14px] font-semibold transition-opacity disabled:opacity-60"
+              style={{ background: 'transparent', color: '#1F4E79', border: '1px solid #1F4E79', fontFamily: 'var(--font-plex-sans)' }}
+            >
+              {loading ? 'Please wait…' : 'Continue as Guest →'}
+            </button>
+            <p
+              className="text-[11px] mt-2 text-center"
+              style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}
+            >
+              Use every tool and buy reports without creating an account. Your work stays in this browser session — save or email your reports, as guests can&apos;t log back in to retrieve them later.
+            </p>
+          </div>
+        )}
 
         {mode !== 'reset' && (
           <div className="px-5 pb-4 text-center" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>

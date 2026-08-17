@@ -482,8 +482,8 @@ function PurchaseOverlay({
             <p style={{ fontFamily: FI, fontSize: 13.5, color: TS, lineHeight: 1.6, marginBottom: 18 }}>
               {emailSent
                 ? `We've also emailed ${downloads.length > 1 ? 'these links' : 'this link'} to ${email}. `
-                : ''}
-              Links are secure and expire in 48 hours — save the file{downloads.length > 1 ? 's' : ''} after downloading.
+                : `We tried to email ${downloads.length > 1 ? 'these links' : 'this link'} to ${email} but delivery may have failed — download now to be safe. `}
+              Save your download link or check your email now — there is no login to retrieve this purchase later. Links are secure and expire in 48 hours; save the file{downloads.length > 1 ? 's' : ''} after downloading.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 8 }}>
               {downloads.map((d) => (

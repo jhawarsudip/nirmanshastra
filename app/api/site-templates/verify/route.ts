@@ -157,14 +157,17 @@ export async function POST(req: NextRequest) {
           html: buildEmailHtml(productId, downloads),
         })
         if (result.error) {
-          console.error('[ST-VERIFY] Resend error:', result.error)
+          console.error('[CRITICAL][ST-VERIFY] Toolkit delivery email FAILED to', email, '— a guest buyer has no login to recover this purchase. Resend error:', result.error)
         } else {
           emailSent = true
         }
       } catch (emailEx) {
-        console.error('[ST-VERIFY] Email send exception:', emailEx)
-        // Email failure is silent — on-page links still work.
+        console.error('[CRITICAL][ST-VERIFY] Toolkit delivery email THREW for', email, '— a guest buyer has no login to recover this purchase:', emailEx)
+        // Email is the buyer's only durable record. Failure is surfaced to the
+        // user on-page via the emailSent flag; the on-page download links still work.
       }
+    } else {
+      console.error('[CRITICAL][ST-VERIFY] No email captured for order', razorpayOrderId, '— the buyer has NO durable record of this purchase beyond the on-page links.')
     }
 
     return NextResponse.json({

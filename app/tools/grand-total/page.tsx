@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import GuestPurchaseNotice from '@/components/GuestPurchaseNotice'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -787,6 +788,7 @@ export default function GrandTotalPage() {
           <p style={{ ...sans, fontSize: 13, color: 'rgba(30,34,39,0.5)' }}>
             Your 12-page combined report is being generated.
           </p>
+          <GuestPurchaseNotice />
         </div>
 
         {/* Combined total summary */}
