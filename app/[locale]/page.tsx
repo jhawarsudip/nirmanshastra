@@ -337,6 +337,159 @@ function ToolCard({ tool, delay = 0 }: { tool: ToolDef; delay?: number }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// SITE TEMPLATE CARD — downloadable Excel toolkits (content mirrors /site-templates)
+// ─────────────────────────────────────────────────────────────────────────────
+
+type TemplateDef = {
+  title: string
+  sheets: number
+  price: string
+  desc: string
+}
+
+// Six toolkits — titles, sheet counts and descriptions verbatim from /site-templates.
+const SITE_TEMPLATES: TemplateDef[] = [
+  {
+    title: 'Residential Construction Cost Estimator',
+    sheets: 16,
+    price: '₹1,499',
+    desc: 'Prices a house from IS-code first principles, generates a client quotation, compares up to 3 contractor quotes line by line, tracks budget against actual once the job starts.',
+  },
+  {
+    title: 'Construction Site Documentation Pack',
+    sheets: 14,
+    price: '₹1,499',
+    desc: 'Nine registers holding the proof of what happened on site — the contemporaneous record that holds up when a delay or defect is disputed.',
+  },
+  {
+    title: 'Billing & Measurement',
+    sheets: 9,
+    price: '₹1,499',
+    desc: 'Takes measured work through the full Indian billing chain — joint measurement, abstract against BOQ, RA bill with retention/TDS/GST, payment tracking to close.',
+  },
+  {
+    title: 'Bar Bending Schedule',
+    sheets: 12,
+    price: '₹1,499',
+    desc: 'Turns reinforcement details into a cutting-length schedule and steel order note, with every bend deduction and hook allowance applied per code.',
+  },
+  {
+    title: 'Labour & Statutory Compliance',
+    sheets: 16,
+    price: '₹1,499',
+    desc: "Runs site payroll end to end under India's current four Labour Codes (in force since Nov 2025) — PF, ESI, minimum wage checks, subcontractor compliance holds.",
+  },
+  {
+    title: 'Planning, Progress & Delay Control',
+    sheets: 17,
+    price: '₹1,499',
+    desc: 'Value-weighted S-curve and earned value tracking, plus a delay/EOT register that classifies events the way a contract actually does — with notice-deadline tracking.',
+  },
+]
+
+function SiteTemplateCard({ template, delay = 0 }: { template: TemplateDef; delay?: number }) {
+  const prefersReducedMotion = useReducedMotion()
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [rotX, setRotX] = useState(0)
+  const [rotY, setRotY] = useState(0)
+  const [isHover, setIsHover] = useState(false)
+
+  function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!cardRef.current || prefersReducedMotion) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2)
+    const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2)
+    setRotX(-dy * 6)
+    setRotY(dx * 6)
+  }
+
+  return (
+    <motion.div
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 48, scale: 0.97 }}
+      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: prefersReducedMotion ? 0 : delay }}
+    >
+      <div
+        ref={cardRef}
+        onMouseMove={onMouseMove}
+        onMouseLeave={() => { setRotX(0); setRotY(0); setIsHover(false) }}
+        onMouseEnter={() => setIsHover(true)}
+        style={{
+          transform: prefersReducedMotion ? undefined
+            : `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(${isHover ? -6 : 0}px)`,
+          transition: 'transform 0.18s ease-out, box-shadow 0.18s ease-out',
+          willChange: 'transform',
+          boxShadow: isHover && !prefersReducedMotion
+            ? `0 10px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(197,160,89,0.25)`
+            : 'none',
+        }}
+      >
+        <Link href="/site-templates" style={{ textDecoration: 'none', display: 'block' }}>
+          <article
+            className="tool-card-article"
+            style={{
+              border: `1px solid ${isHover ? GOLD : BSub}`,
+              borderRadius: 2,
+              padding: '32px',
+              background: SURF,
+              position: 'relative',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 18,
+              minHeight: 320,
+              cursor: 'pointer',
+              transition: 'border-color 0.18s ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <span style={{
+                fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: TS,
+                textTransform: 'uppercase', letterSpacing: '0.08em',
+                border: `1px solid ${BSub}`, borderRadius: 2, padding: '4px 9px',
+              }}>
+                {template.sheets} linked sheets
+              </span>
+              <span style={{
+                fontFamily: FI, fontSize: 10, color: 'rgba(255,255,255,0.3)',
+                textTransform: 'uppercase', letterSpacing: '0.08em',
+              }}>
+                Excel · .xlsx
+              </span>
+            </div>
+
+            <div style={{ flex: 1 }}>
+              <h3 style={{ fontFamily: FI, fontSize: 21, fontWeight: 600, color: TP, marginBottom: 12, lineHeight: 1.25 }}>
+                {template.title}
+              </h3>
+              <p style={{ fontFamily: FI, fontSize: 14.5, color: TS, lineHeight: 1.7 }}>
+                {template.desc}
+              </p>
+            </div>
+
+            <div style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              gap: 12, paddingTop: 18, borderTop: `1px solid ${BSub}`,
+            }}>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 22, fontWeight: 500, color: TP }}>
+                {template.price}
+              </span>
+              <span style={{
+                fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '5px 14px',
+                border: `1px solid ${GOLD}`, color: GOLD, letterSpacing: '0.04em', borderRadius: 2,
+              }}>
+                View →
+              </span>
+            </div>
+          </article>
+        </Link>
+      </div>
+    </motion.div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // PILLAR CARD
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -887,6 +1040,79 @@ export default function Home() {
                 style={{ background: GOLD, color: '#000000', fontFamily: FI, fontSize: 14, fontWeight: 600, padding: '13px 24px', borderRadius: 2, textDecoration: 'none', whiteSpace: 'nowrap' }}
               >
                 {tt('bundleCta')}
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── SITE TEMPLATES SECTION ───────────────────────────────────────── */}
+      <section className="px-6 md:px-16 lg:px-24 py-28" style={{ background: BG }}>
+        <div className="space-y-14">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <SectionHeader
+              clause={locale === 'hi' ? 'साइट टेम्पलेट्स · 6 एक्सेल टूलकिट' : 'Site Templates · 6 Excel Toolkits'}
+              title={<>{locale === 'hi' ? 'चलाइए काम, ' : 'Run the job, '}<span className="section-accent">{locale === 'hi' ? 'स्प्रेडशीट से' : 'on a spreadsheet'}</span></>}
+            />
+            <div style={{ border: `1px solid ${BSub}`, padding: '14px 20px', background: SURF, flexShrink: 0, maxWidth: 380, borderRadius: 2 }}>
+              <p style={{ fontFamily: FI, fontSize: 11, color: TS, letterSpacing: '0.05em', lineHeight: 1.5 }}>
+                {locale === 'hi'
+                  ? 'इंटरैक्टिव कैलकुलेटर से अलग — भारतीय मानकों पर बने डाउनलोड करने योग्य एक्सेल पैक।'
+                  : 'Standalone Excel packs, separate from the interactive calculators — built to Indian standards and statutory practice.'}
+              </p>
+              <p style={{ fontFamily: FI, fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>
+                {locale === 'hi' ? 'एस्टिमेट · डॉक्युमेंट · बिल · शेड्यूल · कंप्लायंस' : 'Estimate · document · bill · schedule · comply · control.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Suite 3 divider */}
+          <div style={{ paddingTop: 8 }}>
+            <div className="flex items-center gap-4 mb-3">
+              <div style={{ height: 1, flex: 1, background: BSub }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontFamily: FI, fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>SUITE 3</span>
+                <span style={{ fontFamily: FI, fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>{locale === 'hi' ? 'साइट टेम्पलेट्स' : 'Site Templates'}</span>
+                <span style={{ fontFamily: FI, fontSize: 10, padding: '2px 8px', border: `1px solid rgba(197,160,89,0.45)`, color: GOLD, letterSpacing: '0.04em', borderRadius: 2 }}>{locale === 'hi' ? '₹1,499 प्रत्येक' : '₹1,499 each'}</span>
+              </div>
+              <div style={{ height: 1, flex: 1, background: BSub }} />
+            </div>
+          </div>
+
+          {/* 6 site template cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {SITE_TEMPLATES.map((template, i) => (
+              <SiteTemplateCard key={template.title} template={template} delay={i * 0.08} />
+            ))}
+          </div>
+
+          {/* Bundle strip — Site Operations Suite */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="bundle-strip-inner"
+            style={{ border: `1px solid ${GOLD}`, borderRadius: 2, padding: '28px 40px', background: SURF, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}
+          >
+            <div>
+              <p style={{ fontFamily: FI, fontSize: 11, color: GOLD, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                {locale === 'hi' ? 'द बंडल · सभी 6 टूलकिट' : 'The Bundle · All 6 Toolkits'}
+              </p>
+              <p style={{ fontFamily: FI, fontSize: 15, color: TS }}>
+                {locale === 'hi' ? 'साइट ऑपरेशंस सूट' : 'Site Operations Suite'}
+                {' '}&mdash; {locale === 'hi' ? 'एक ही डाउनलोड में सब कुछ, बचत' : 'every toolkit in one download, save'}{' '}
+                <span style={{ color: TP, fontWeight: 600 }}>~22%</span>
+              </p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 600, color: TP }}>₹6,999</span>
+              <Link
+                href="/site-templates"
+                className="btn-3d"
+                style={{ background: GOLD, color: '#000000', fontFamily: FI, fontSize: 14, fontWeight: 600, padding: '13px 24px', borderRadius: 2, textDecoration: 'none', whiteSpace: 'nowrap' }}
+              >
+                {locale === 'hi' ? 'बंडल देखें →' : 'View bundle →'}
               </Link>
             </div>
           </motion.div>
