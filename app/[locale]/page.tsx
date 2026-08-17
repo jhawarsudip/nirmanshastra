@@ -781,6 +781,12 @@ export default function Home() {
     [tf('careers'), '/careers'],
   ]
 
+  // Six toolkits + the bundle, all linking to /site-templates (no per-product anchors exist there).
+  const footerTemplateLinks: [string, string][] = [
+    ...SITE_TEMPLATES.map(t => [t.title, '/site-templates'] as [string, string]),
+    [tf('templatesBundle'), '/site-templates'],
+  ]
+
   const footerLegalLinks = [
     [tf('privacy'), '/privacy-policy'],
     [tf('terms'), '/terms-of-use'],
@@ -1330,7 +1336,7 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3" style={{ borderBottom: `1px solid ${BSub}` }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ borderBottom: `1px solid ${BSub}` }}>
 
           <div className="footer-col-3d" style={{ padding: '28px 28px 32px', borderTop: `2px solid ${GOLD}`, borderRight: `1px solid ${BSub}` }}>
             <p style={{ fontFamily: FI, fontSize: 9, color: 'rgba(197,160,89,0.6)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>{tf('colTools')}</p>
@@ -1343,6 +1349,15 @@ export default function Home() {
                     {t.free ? tf('toolFree') : t.price}
                   </span>
                 </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="footer-col-3d" style={{ padding: '28px 28px 32px', borderTop: `2px solid ${GOLD}`, borderRight: `1px solid ${BSub}` }}>
+            <p style={{ fontFamily: FI, fontSize: 9, color: 'rgba(197,160,89,0.6)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>{tf('colTemplates')}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+              {footerTemplateLinks.map(([label, href]) => (
+                <Link key={label} href={href} className="footer-link" style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', lineHeight: 1.35 }}>{label}</Link>
               ))}
             </div>
           </div>
