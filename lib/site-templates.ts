@@ -16,8 +16,10 @@ export const SITE_TEMPLATES_BUCKET = 'site-templates'
 export const SIGNED_URL_TTL_SECONDS = 60 * 60 * 48
 
 // Individual product price and bundle price, in paise.
-export const PRODUCT_PRICE_PAISE = 149900 // ₹1,499
-export const BUNDLE_PRICE_PAISE = 699900 // ₹6,999
+// NOTE: all 6 individual products share PRODUCT_PRICE_PAISE; the bundle uses
+// BUNDLE_PRICE_PAISE. Overriding these two constants covers all 7 charge paths.
+export const PRODUCT_PRICE_PAISE = 100 // TEMPORARY - testing at Rs1, revert to real amount before real launch (real: 149900 = ₹1,499)
+export const BUNDLE_PRICE_PAISE = 100 // TEMPORARY - testing at Rs1, revert to real amount before real launch (real: 699900 = ₹6,999)
 
 export type SiteTemplateProduct = {
   id: string
