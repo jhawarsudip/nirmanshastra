@@ -243,8 +243,9 @@ export default function Navbar() {
       }}
       className="w-full px-4 flex items-center justify-between"
     >
-      {/* LEFT GROUP — brand hugs the left edge, nav sits right beside it */}
-      <div className="flex items-center min-w-0">
+      {/* LEFT GROUP — brand hugs the left edge; group grows so the nav can be
+          pushed to the right end, close to the language switcher (desktop) */}
+      <div className="flex items-center min-w-0 flex-1">
       {/* Logo — 5 rapid clicks opens admin modal */}
       <button
         onClick={handleLogoClick}
@@ -270,8 +271,12 @@ export default function Navbar() {
         </div>
       </button>
 
-      {/* Centre nav — desktop only; sits close to the brand name */}
-      <div className="hidden md:flex items-center gap-6" style={{ marginLeft: 28 }}>
+      {/* Desktop nav — pushed to the right end of the growing left group via
+          marginLeft:auto, so the whole button cluster sits next to the language
+          switcher instead of hugging the brand. marginRight keeps clear
+          separation before the EN/हिंदी toggle. Equal gap-6 between buttons
+          is unchanged. */}
+      <div className="hidden md:flex items-center gap-6" style={{ marginLeft: 'auto', marginRight: 24 }}>
         {/* Tools dropdown */}
         <div ref={dropdownRef} style={{ position: 'relative' }}>
           <button
