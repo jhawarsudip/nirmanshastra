@@ -130,26 +130,26 @@ export default function RootLayout({
         <div
           className="announcement-bar"
           style={{ background: '#111111', borderBottom: '1px solid rgba(255,255,255,0.06)', outline: 'none', boxShadow: 'none' }}
-          aria-label="NirmanShastra — India's first IS-code construction cost estimation and professional BOQ generation platform"
+          aria-label="NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior"
         >
           <div className="marquee-inner">
             <span style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
             </span>
             <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
             </span>
             <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
             </span>
             <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
             </span>
             <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
             </span>
             <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — India&rsquo;s first IS-code construction cost estimation and professional BOQ generation platform
+              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
             </span>
           </div>
         </div>

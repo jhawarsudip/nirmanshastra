@@ -246,7 +246,7 @@ export default function Navbar() {
       {/* Logo — 5 rapid clicks opens admin modal */}
       <button
         onClick={handleLogoClick}
-        className="flex items-center gap-2 leading-none flex-shrink-0"
+        className="flex items-center gap-1 leading-none flex-shrink-0"
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
         aria-label="NirmanShastra home"
       >
@@ -489,7 +489,7 @@ export default function Navbar() {
         <Link
           href="/"
           onClick={() => setMobileOpen(false)}
-          className="flex items-center gap-2 leading-none"
+          className="flex items-center gap-1 leading-none"
           style={{ textDecoration: 'none' }}
           aria-label="NirmanShastra home"
         >

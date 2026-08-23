@@ -12,7 +12,7 @@
 
 # SECTION 1 — PLATFORM IDENTITY
 
-**Product:** NirmanShastra — India's IS-code backed construction cost estimation platform
+**Product:** NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
 **Tagline:** "Build With Certainty"
 **Domain:** NirmanShastra.in (check availability) / NirmanPro.in / BuildShastra.in
 **Founder:** Sudip Jhawar — Civil Engineer (NIT Silchar), former Sobha Limited, Vrindavan
@@ -1124,7 +1124,7 @@ InteriorPro: Room layout + Kitchen elevation
 
 # SECTION 25 — HOMEPAGE STRUCTURE
 
-Announcement bar: "NirmanShastra — India's first IS-code construction cost platform"
+Announcement bar: "NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior"
 Navbar: Logo | Tools▾ | How It Works | Pricing | Blog | Login | Get Started
 Hero: "Build With Certainty" | Stats | [Start Free VastuPro] [See Pricing]
 Social proof marquee

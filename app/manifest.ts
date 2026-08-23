@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'NirmanShastra — Build With Certainty',
     short_name: 'NirmanShastra',
-    description: "India's first IS-code construction cost estimation platform",
+    description: "IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior",
     start_url: '/',
     display: 'standalone',
     background_color: '#F4F4F0',

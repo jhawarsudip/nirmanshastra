@@ -8,7 +8,7 @@ Version: Final | June 2026
 
 # SECTION 1 — PLATFORM IDENTITY
 
-**Product:** NirmanShastra — India's IS-code backed construction cost estimation platform
+**Product:** NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
 **Tagline:** "Build With Certainty"
 **Founder:** Sudip Jhawar — Civil Engineer (NIT Silchar), former Sobha Limited
 
