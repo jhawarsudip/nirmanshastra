@@ -241,8 +241,10 @@ export default function Navbar() {
         top: 0,
         zIndex: 40,
       }}
-      className="w-full px-5 flex items-center justify-between"
+      className="w-full px-4 flex items-center justify-between"
     >
+      {/* LEFT GROUP — brand hugs the left edge, nav sits right beside it */}
+      <div className="flex items-center min-w-0">
       {/* Logo — 5 rapid clicks opens admin modal */}
       <button
         onClick={handleLogoClick}
@@ -258,15 +260,18 @@ export default function Navbar() {
           style={{ width: 48, height: 32, flexShrink: 0 }}
           priority
         />
-        <div className="flex flex-col">
+        {/* marginLeft compensates for the ~21.7% transparent padding baked into
+            the logo PNG's right side, so the wordmark sits tight to the mark on
+            every viewport (base style, not breakpoint-scoped). */}
+        <div className="flex flex-col" style={{ marginLeft: -10 }}>
           <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 700, lineHeight: 1.1 }}>
             <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
           </span>
         </div>
       </button>
 
-      {/* Centre nav — desktop only */}
-      <div className="hidden md:flex items-center gap-6">
+      {/* Centre nav — desktop only; sits close to the brand name */}
+      <div className="hidden md:flex items-center gap-6" style={{ marginLeft: 28 }}>
         {/* Tools dropdown */}
         <div ref={dropdownRef} style={{ position: 'relative' }}>
           <button
@@ -365,13 +370,14 @@ export default function Navbar() {
         <Link href="/faq" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
           FAQ
         </Link>
-        <Link href="/compare-quote" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none', borderLeft: '1px solid rgba(244,244,240,0.12)', paddingLeft: 24 }}>
+        <Link href="/compare-quote" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
           Compare Contractor Quote
         </Link>
       </div>
+      </div>
 
       {/* Right — desktop auth + mobile hamburger */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-shrink-0">
         {/* Language toggle — visible only on homepage, desktop only */}
         <LanguageToggle className="hidden md:inline-flex" />
 
@@ -500,7 +506,8 @@ export default function Navbar() {
             height={28}
             style={{ width: 42, height: 28, flexShrink: 0 }}
           />
-          <div className="flex flex-col">
+          {/* Same PNG-padding compensation as the main navbar, scaled to 42px mark */}
+          <div className="flex flex-col" style={{ marginLeft: -9 }}>
             <span style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 20, fontWeight: 700, lineHeight: 1.1 }}>
               <span style={{ color: '#F4F4F0' }}>Nirman</span><span style={{ color: '#C9A84C' }}>Shastra</span>
             </span>
