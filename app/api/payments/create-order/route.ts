@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
+import { priceForAppType } from '@/lib/tool-pricing'
 
 // Razorpay REST API — server-side only. Key Secret never exposed to client.
 async function createRazorpayOrder(amount: number, receiptId: string) {
@@ -39,17 +40,19 @@ async function createRazorpayOrder(amount: number, receiptId: string) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { estimateId, amount } = body
+    const { estimateId } = body
 
-    if (!estimateId || !amount) {
-      return NextResponse.json({ error: 'estimateId and amount are required' }, { status: 400 })
+    if (!estimateId) {
+      return NextResponse.json({ error: 'estimateId is required' }, { status: 400 })
     }
 
-    // Validate estimate exists
+    // Validate estimate exists. The app_type on the estimate is the ONLY thing
+    // that decides the charge — any `amount` sent by the client is ignored, so a
+    // tampered request cannot lower (or change) the price.
     const supabase = createServiceClient()
     const { data: estimate, error: estError } = await supabase
       .from('estimates')
-      .select('id, status')
+      .select('id, status, app_type')
       .eq('id', estimateId)
       .single()
 
@@ -59,6 +62,12 @@ export async function POST(req: NextRequest) {
 
     if (estimate.status === 'paid') {
       return NextResponse.json({ error: 'Estimate already paid' }, { status: 409 })
+    }
+
+    // Server-trusted price, derived from the estimate's tool type — never the client.
+    const amount = priceForAppType(estimate.app_type)
+    if (amount === null) {
+      return NextResponse.json({ error: 'This estimate is not a paid product' }, { status: 400 })
     }
 
     // Create Razorpay order

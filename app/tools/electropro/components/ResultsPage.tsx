@@ -204,7 +204,8 @@ export default function ResultsPage({ result, input, estimateId, contactName, on
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         
-        body: JSON.stringify({ estimateId, amount: 49900 }),
+        // amount is derived server-side from the estimate's app_type — never sent here.
+        body: JSON.stringify({ estimateId }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not create order')
