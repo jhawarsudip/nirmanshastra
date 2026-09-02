@@ -71,7 +71,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nirmanshastra.in'),
+  metadataBase: new URL('https://www.nirmanshastra.in'),
   title: {
     default: "NirmanShastra — IS-Code Construction Cost Estimator | Stop Contractor Overcharging",
     template: "%s | NirmanShastra",
@@ -89,7 +89,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://nirmanshastra.in',
+    url: 'https://www.nirmanshastra.in',
     siteName: 'NirmanShastra',
     title: "NirmanShastra — IS-Code Construction Cost Estimator | Stop Contractor Overcharging",
     description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. ₹499/report, homeowners across India.",

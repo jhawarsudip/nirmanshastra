@@ -185,7 +185,7 @@ export async function GET(req: NextRequest) {
 
 // ─── Email template — InteriorPro D0 PDF + Bundle cross-sell (Section 21) ─────
 function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nirmanshastra.in'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.nirmanshastra.in'
   return `<!DOCTYPE html>
 <html>
 <head>

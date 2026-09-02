@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin', '/api', '/account', '/auth', '/reports'],
     },
-    sitemap: 'https://nirmanshastra.in/sitemap.xml',
+    sitemap: 'https://www.nirmanshastra.in/sitemap.xml',
   }
 }

@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nirmanshastra.in'
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.nirmanshastra.in'
 
 function wrap(body: string): string {
   return `<!DOCTYPE html>

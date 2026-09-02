@@ -1133,7 +1133,7 @@ function QualityChecklistPage() {
 // ─── PAGE 9: TOTAL SUMMARY + CROSS-SELL (LAST) ───────────────────────────────
 
 function TotalSummaryPage({ result, input, reportId }: { result: InteriorResult; input: InteriorInput; reportId: string }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nirmanshastra.in'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.nirmanshastra.in'
   const selectedGrade = result.gradeComparison.find(g => g.grade === input.grade)!
 
   return (

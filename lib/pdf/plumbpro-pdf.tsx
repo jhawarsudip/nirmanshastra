@@ -1081,7 +1081,7 @@ function QualityChecklistPage() {
 // ─── PAGE 9: COST SUMMARY + INTERIORPRO CROSS-SELL (LAST) ────────────────────
 
 function CostSummaryPage({ result, reportId }: { result: PlumbResult; reportId: string }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nirmanshastra.in'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.nirmanshastra.in'
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>

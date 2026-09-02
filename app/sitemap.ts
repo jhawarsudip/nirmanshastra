@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { BLOG_ARTICLES } from '@/lib/blog-content'
 
-const BASE_URL = 'https://nirmanshastra.in'
+const BASE_URL = 'https://www.nirmanshastra.in'
 
 const HOME_ALTERNATES = {
   languages: {

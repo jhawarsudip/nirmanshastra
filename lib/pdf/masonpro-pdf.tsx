@@ -1066,7 +1066,7 @@ function PageSiteQCChecklist({ reportId }: { reportId: string }) {
 }
 
 function PageCostSummary({ result, reportId, date }: Props & { reportId: string }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nirmanshastra.in'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.nirmanshastra.in'
   return (
     <Page size="A4" style={S.page}>
       <View style={S.frame}>
