@@ -77,6 +77,9 @@ export const metadata: Metadata = {
     template: "%s | NirmanShastra",
   },
   description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. ₹499/report, homeowners across India.",
+  alternates: {
+    canonical: './',
+  },
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
