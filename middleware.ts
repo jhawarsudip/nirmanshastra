@@ -5,15 +5,9 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const handleI18n = createIntlMiddleware(routing)
 
-const PROTECTED_TOOL_ROUTES = [
-  '/tools/structopro',
-  '/tools/masonpro',
-  '/tools/electropro',
-  '/tools/plumbpro',
-  '/tools/interiorpro',
-  '/tools/vastu-pro',
-]
-
+// Tool pages are deliberately NOT gated: they must render for logged-out
+// visitors and for search crawlers. A session is created silently at the
+// registration step instead (see lib/supabase/ensure-session.ts).
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -44,10 +38,9 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isProtectedTool = PROTECTED_TOOL_ROUTES.some(r => pathname.startsWith(r))
   const isReports = pathname.startsWith('/reports')
 
-  if ((isProtectedTool || isReports) && !user) {
+  if (isReports && !user) {
     const redirectUrl = new URL('/auth', request.url)
     redirectUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(redirectUrl)

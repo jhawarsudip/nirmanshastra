@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
+import { ensureSession } from '@/lib/supabase/ensure-session'
 import { INDIAN_STATES } from '../interiorpro-engine'
 import type { User } from '@supabase/supabase-js'
 
@@ -97,6 +98,12 @@ export default function RegistrationForm({ onSubmit }: Props) {
     if (!validate()) return
     setLoading(true)
     setApiError('')
+    const { userId, error: sessionError } = await ensureSession()
+    if (!userId) {
+      setApiError(sessionError ?? 'Could not start a session. Please try again, or log in.')
+      setLoading(false)
+      return
+    }
     const submitData = loggedInUser ? {
       ...form,
       name:  loggedInUser.user_metadata?.full_name || loggedInUser.user_metadata?.name || loggedInUser.email || form.name,

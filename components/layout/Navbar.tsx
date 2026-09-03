@@ -177,9 +177,12 @@ export default function Navbar() {
   }
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null))
+    // A silent anonymous session is not an account: guests must still see
+    // Log In / Get Started, so treat is_anonymous users as signed out here.
+    const asAccount = (u: User | null) => (u && u.is_anonymous !== true ? u : null)
+    supabase.auth.getUser().then(({ data }) => setUser(asAccount(data.user ?? null)))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null)
+      setUser(asAccount(session?.user ?? null))
     })
     return () => subscription.unsubscribe()
   }, [supabase])
