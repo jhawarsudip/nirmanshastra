@@ -147,6 +147,7 @@ const REPORTS_TOOLS = [
 
 const FREE_CALCULATORS = [
   { phase: 'BBS', name: 'Bar Bending Schedule', descriptor: 'Steel BBS & Cutting Length Calculator', href: '/tools/bar-bending-schedule-calculator', free: true },
+  { phase: 'WTS', name: 'Water Tank Size', descriptor: 'Water Storage Tank Size Calculator', href: '/tools/water-tank-size-calculator', free: true },
 ]
 
 const NAV_LINKS = [

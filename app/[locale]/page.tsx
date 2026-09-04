@@ -345,6 +345,7 @@ type TemplateDef = {
   sheets: number
   price: string
   desc: string
+  href: string
 }
 
 // Six toolkits — titles, sheet counts and descriptions verbatim from /site-templates.
@@ -354,36 +355,42 @@ const SITE_TEMPLATES: TemplateDef[] = [
     sheets: 16,
     price: '₹1,499',
     desc: 'Prices a house from IS-code first principles, generates a client quotation, compares up to 3 contractor quotes line by line, tracks budget against actual once the job starts.',
+    href: '/site-templates/cost-estimator',
   },
   {
     title: 'Construction Site Documentation Pack',
     sheets: 14,
     price: '₹1,499',
     desc: 'Nine registers holding the proof of what happened on site — the contemporaneous record that holds up when a delay or defect is disputed.',
+    href: '/site-templates/site-documentation',
   },
   {
     title: 'Billing & Measurement',
     sheets: 9,
     price: '₹1,499',
     desc: 'Takes measured work through the full Indian billing chain — joint measurement, abstract against BOQ, RA bill with retention/TDS/GST, payment tracking to close.',
+    href: '/site-templates/billing-measurement',
   },
   {
     title: 'Bar Bending Schedule',
     sheets: 12,
     price: '₹1,499',
     desc: 'Turns reinforcement details into a cutting-length schedule and steel order note, with every bend deduction and hook allowance applied per code.',
+    href: '/site-templates/bar-bending-schedule',
   },
   {
     title: 'Labour & Statutory Compliance',
     sheets: 16,
     price: '₹1,499',
     desc: "Runs site payroll end to end under India's current four Labour Codes (in force since Nov 2025) — PF, ESI, minimum wage checks, subcontractor compliance holds.",
+    href: '/site-templates/labour-compliance',
   },
   {
     title: 'Planning, Progress & Delay Control',
     sheets: 17,
     price: '₹1,499',
     desc: 'Value-weighted S-curve and earned value tracking, plus a delay/EOT register that classifies events the way a contract actually does — with notice-deadline tracking.',
+    href: '/site-templates/planning-progress',
   },
 ]
 
@@ -425,7 +432,7 @@ function SiteTemplateCard({ template, delay = 0 }: { template: TemplateDef; dela
             : 'none',
         }}
       >
-        <Link href="/site-templates" style={{ textDecoration: 'none', display: 'block' }}>
+        <Link href={template.href} style={{ textDecoration: 'none', display: 'block' }}>
           <article
             className="tool-card-article"
             style={{
@@ -781,9 +788,9 @@ export default function Home() {
     [tf('careers'), '/careers'],
   ]
 
-  // Six toolkits + the bundle, all linking to /site-templates (no per-product anchors exist there).
+  // Six toolkits each link to their individual product page; the bundle links to the catalog.
   const footerTemplateLinks: [string, string][] = [
-    ...SITE_TEMPLATES.map(t => [t.title, '/site-templates'] as [string, string]),
+    ...SITE_TEMPLATES.map(t => [t.title, t.href] as [string, string]),
     [tf('templatesBundle'), '/site-templates'],
   ]
 
@@ -1058,6 +1065,43 @@ export default function Home() {
                     {locale === 'hi'
                       ? 'IS 2502:1963 के अनुसार कटिंग लेंथ, हुक, बेंड और स्टील वज़न निकालें — पूरी तरह निःशुल्क, बिना साइन-अप।'
                       : 'Cutting lengths, hooks, bends and steel weight per IS 2502:1963 — completely free, no sign-up required.'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <span style={{ fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '8px 20px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', display: 'block', borderRadius: 2 }}>
+                    {locale === 'hi' ? 'निःशुल्क →' : 'FREE →'}
+                  </span>
+                </div>
+              </article>
+            </Link>
+
+            <Link href="/tools/water-tank-size-calculator" style={{ textDecoration: 'none', display: 'block', marginTop: 20 }}>
+              <article className="tool-card-article" style={{
+                border: `1px solid ${BSub}`,
+                borderRadius: 2,
+                padding: '28px 32px',
+                background: SURF,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 28,
+                cursor: 'pointer',
+                position: 'relative',
+              }}>
+                <div style={{ width: 44, height: 44, flexShrink: 0, opacity: 0.9 }}>
+                  <PlumbingIcon size={44} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: FI, fontSize: 10, color: TS, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                    {locale === 'hi' ? 'वॉटर स्टोरेज टैंक साइज़ कैलकुलेटर' : 'Water Storage Tank Size Calculator'}
+                  </p>
+                  <h3 style={{ fontFamily: FI, fontSize: 22, fontWeight: 600, color: TP, marginBottom: 8 }}>
+                    {locale === 'hi' ? 'वॉटर टैंक साइज़ कैलकुलेटर' : 'Water Tank Size Calculator'}
+                  </h3>
+                  <p style={{ fontFamily: FI, fontSize: 14, color: TS, lineHeight: 1.6, maxWidth: 620 }}>
+                    {locale === 'hi'
+                      ? 'IS 1172:1993 के अनुसार दैनिक पानी की माँग से ओवरहेड और अंडरग्राउंड टैंक क्षमता निकालें — पूरी तरह निःशुल्क, बिना साइन-अप।'
+                      : 'Overhead and underground tank capacity from daily water demand per IS 1172:1993 — completely free, no sign-up required.'}
                   </p>
                 </div>
                 <div style={{ flexShrink: 0 }}>
@@ -1403,6 +1447,13 @@ export default function Home() {
               <Link href="/tools/bar-bending-schedule-calculator" className="footer-link"
                 style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {locale === 'hi' ? 'बार बेंडिंग शेड्यूल' : 'Bar Bending Schedule'}
+                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                  {tf('toolFree')}
+                </span>
+              </Link>
+              <Link href="/tools/water-tank-size-calculator" className="footer-link"
+                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {locale === 'hi' ? 'वॉटर टैंक साइज़' : 'Water Tank Size'}
                 <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
                   {tf('toolFree')}
                 </span>
