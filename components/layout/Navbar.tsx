@@ -151,6 +151,8 @@ const FREE_CALCULATORS = [
   { phase: 'CMR', name: 'Concrete Mix Ratio', descriptor: 'Cement, Sand & Aggregate Calculator', href: '/tools/concrete-mix-ratio-calculator', free: true },
   { phase: 'BRK', name: 'Brick Calculator', descriptor: 'Wall Brick Count & Wastage Calculator', href: '/tools/brick-calculator', free: true },
   { phase: 'WIRE', name: 'Wire Size', descriptor: 'Cable Gauge by Circuit Type Calculator', href: '/tools/wire-size-calculator', free: true },
+  { phase: 'RAB', name: 'RA Bill', descriptor: 'Retention, GST & TDS Net Payable Calculator', href: '/tools/ra-bill-retention-tds-calculator', free: true },
+  { phase: 'CUBE', name: 'Concrete Cube Test', descriptor: 'Samples & Cubes Required Calculator', href: '/tools/concrete-cube-test-calculator', free: true },
 ]
 
 // Site Templates products — six individual toolkits plus the bundle. Rendered as

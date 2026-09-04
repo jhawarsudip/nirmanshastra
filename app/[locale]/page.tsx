@@ -11,6 +11,8 @@ import { ElectricalIcon } from '@/components/icons/ElectricalIcon'
 import { PlumbingIcon } from '@/components/icons/PlumbingIcon'
 import { InteriorIcon } from '@/components/icons/InteriorIcon'
 import { VastuIcon } from '@/components/icons/VastuIcon'
+import { BillingIcon } from '@/components/icons/BillingIcon'
+import { CubeIcon } from '@/components/icons/CubeIcon'
 import HeroSVGBackground from '@/components/HeroSVGBackground'
 import { STATE_CITIES, INDIAN_STATES_LIST } from '@/lib/state-cities'
 
@@ -1222,6 +1224,80 @@ export default function Home() {
                 </div>
               </article>
             </Link>
+
+            <Link href="/tools/ra-bill-retention-tds-calculator" style={{ textDecoration: 'none', display: 'block', marginTop: 20 }}>
+              <article className="tool-card-article" style={{
+                border: `1px solid ${BSub}`,
+                borderRadius: 2,
+                padding: '28px 32px',
+                background: SURF,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 28,
+                cursor: 'pointer',
+                position: 'relative',
+              }}>
+                <div style={{ width: 44, height: 44, flexShrink: 0, opacity: 0.9 }}>
+                  <BillingIcon size={44} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: FI, fontSize: 10, color: TS, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                    {locale === 'hi' ? 'रिटेंशन, GST और TDS नेट पेयबल कैलकुलेटर' : 'Retention, GST & TDS Net Payable Calculator'}
+                  </p>
+                  <h3 style={{ fontFamily: FI, fontSize: 22, fontWeight: 600, color: TP, marginBottom: 8 }}>
+                    {locale === 'hi' ? 'आरए बिल कैलकुलेटर' : 'RA Bill Calculator'}
+                  </h3>
+                  <p style={{ fontFamily: FI, fontSize: 14, color: TS, lineHeight: 1.6, maxWidth: 620 }}>
+                    {locale === 'hi'
+                      ? 'रनिंग अकाउंट बिल का नेट पेयबल — रिटेंशन, GST, TDS और मोबिलाइज़ेशन एडवांस रिकवरी सहित (नेट = ग्रॉस − रिटेंशन − एडवांस + GST − TDS) — पूरी तरह निःशुल्क, बिना साइन-अप।'
+                      : 'Net payable on a running-account bill — retention held back, GST added, TDS deducted and advance recovery netted off (Net = Gross − Retention − Advance + GST − TDS) — completely free, no sign-up required.'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <span style={{ fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '8px 20px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', display: 'block', borderRadius: 2 }}>
+                    {locale === 'hi' ? 'निःशुल्क →' : 'FREE →'}
+                  </span>
+                </div>
+              </article>
+            </Link>
+
+            <Link href="/tools/concrete-cube-test-calculator" style={{ textDecoration: 'none', display: 'block', marginTop: 20 }}>
+              <article className="tool-card-article" style={{
+                border: `1px solid ${BSub}`,
+                borderRadius: 2,
+                padding: '28px 32px',
+                background: SURF,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 28,
+                cursor: 'pointer',
+                position: 'relative',
+              }}>
+                <div style={{ width: 44, height: 44, flexShrink: 0, opacity: 0.9 }}>
+                  <CubeIcon size={44} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: FI, fontSize: 10, color: TS, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                    {locale === 'hi' ? 'सैंपल और क्यूब गिनती कैलकुलेटर' : 'Samples & Cubes Required Calculator'}
+                  </p>
+                  <h3 style={{ fontFamily: FI, fontSize: 22, fontWeight: 600, color: TP, marginBottom: 8 }}>
+                    {locale === 'hi' ? 'कंक्रीट क्यूब टेस्ट कैलकुलेटर' : 'Concrete Cube Test Calculator'}
+                  </h3>
+                  <p style={{ fontFamily: FI, fontSize: 14, color: TS, lineHeight: 1.6, maxWidth: 620 }}>
+                    {locale === 'hi'
+                      ? 'IS 456:2000 Cl 15.2.2 के अनुसार कंक्रीट की मात्रा से आवश्यक सैंपल और कुल क्यूब की गिनती (हर सैंपल = 6 क्यूब, 7 और 28 दिन) — पूरी तरह निःशुल्क, बिना साइन-अप।'
+                      : 'Samples and total cubes required by concrete volume per IS 456:2000 Cl 15.2.2 — 6 cubes per sample, broken at 7 and 28 days — completely free, no sign-up required.'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <span style={{ fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '8px 20px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', display: 'block', borderRadius: 2 }}>
+                    {locale === 'hi' ? 'निःशुल्क →' : 'FREE →'}
+                  </span>
+                </div>
+              </article>
+            </Link>
           </div>
 
         </div>
@@ -1586,6 +1662,20 @@ export default function Home() {
               <Link href="/tools/wire-size-calculator" className="footer-link"
                 style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {locale === 'hi' ? 'वायर साइज़' : 'Wire Size'}
+                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                  {tf('toolFree')}
+                </span>
+              </Link>
+              <Link href="/tools/ra-bill-retention-tds-calculator" className="footer-link"
+                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {locale === 'hi' ? 'आरए बिल (रिटेंशन, GST, TDS)' : 'RA Bill (Retention, GST, TDS)'}
+                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                  {tf('toolFree')}
+                </span>
+              </Link>
+              <Link href="/tools/concrete-cube-test-calculator" className="footer-link"
+                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {locale === 'hi' ? 'कंक्रीट क्यूब टेस्ट' : 'Concrete Cube Test'}
                 <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
                   {tf('toolFree')}
                 </span>
