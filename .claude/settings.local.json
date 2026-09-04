@@ -105,7 +105,8 @@
       "mcp__claude_ai_Supabase__apply_migration",
       "Bash(echo \"EXIT CODE: $?\")",
       "Bash(echo \"EXIT=$?\")",
-      "Bash(rg *)"
+      "Bash(rg *)",
+      "Bash(npx tsx *)"
     ]
   }
 }

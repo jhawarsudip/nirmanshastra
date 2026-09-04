@@ -13,6 +13,7 @@ import { InteriorIcon } from '@/components/icons/InteriorIcon'
 import { VastuIcon } from '@/components/icons/VastuIcon'
 import { BillingIcon } from '@/components/icons/BillingIcon'
 import { CubeIcon } from '@/components/icons/CubeIcon'
+import { WageIcon } from '@/components/icons/WageIcon'
 import HeroSVGBackground from '@/components/HeroSVGBackground'
 import { STATE_CITIES, INDIAN_STATES_LIST } from '@/lib/state-cities'
 
@@ -1298,6 +1299,43 @@ export default function Home() {
                 </div>
               </article>
             </Link>
+
+            <Link href="/tools/daily-wage-pf-esi-calculator" style={{ textDecoration: 'none', display: 'block', marginTop: 20 }}>
+              <article className="tool-card-article" style={{
+                border: `1px solid ${BSub}`,
+                borderRadius: 2,
+                padding: '28px 32px',
+                background: SURF,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 28,
+                cursor: 'pointer',
+                position: 'relative',
+              }}>
+                <div style={{ width: 44, height: 44, flexShrink: 0, opacity: 0.9 }}>
+                  <WageIcon size={44} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: FI, fontSize: 10, color: TS, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                    {locale === 'hi' ? 'साइट मज़दूर मस्टर-रोल नेट वेतन कैलकुलेटर' : 'Site Labour Muster-Roll Net Pay Calculator'}
+                  </p>
+                  <h3 style={{ fontFamily: FI, fontSize: 22, fontWeight: 600, color: TP, marginBottom: 8 }}>
+                    {locale === 'hi' ? 'दैनिक मज़दूरी PF और ESI कैलकुलेटर' : 'Daily-Wage PF & ESI Calculator'}
+                  </h3>
+                  <p style={{ fontFamily: FI, fontSize: 14, color: TS, lineHeight: 1.6, maxWidth: 620 }}>
+                    {locale === 'hi'
+                      ? 'निर्माण साइट के दैनिक-मज़दूरी मज़दूर के लिए — मस्टर-रोल के अनुसार, मासिक वेतन नहीं। दैनिक दर × देय दिन (23.5 जैसे दशमलव भी) → बेसिक, ग्रॉस, PF (12% ₹1,800 तक), ESI (0.75% ₹21,000 तक) और नेट पेयबल — पूरी तरह निःशुल्क, बिना साइन-अप।'
+                      : 'Built for daily-wage construction labour — muster-roll style, not monthly salary. Daily rate × payable days (decimals like 23.5 too) → basic, gross, PF (12% up to ₹1,800), ESI (0.75% up to ₹21,000) and net payable — completely free, no sign-up required.'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <span style={{ fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '8px 20px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', display: 'block', borderRadius: 2 }}>
+                    {locale === 'hi' ? 'निःशुल्क →' : 'FREE →'}
+                  </span>
+                </div>
+              </article>
+            </Link>
           </div>
 
         </div>
@@ -1676,6 +1714,13 @@ export default function Home() {
               <Link href="/tools/concrete-cube-test-calculator" className="footer-link"
                 style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {locale === 'hi' ? 'कंक्रीट क्यूब टेस्ट' : 'Concrete Cube Test'}
+                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                  {tf('toolFree')}
+                </span>
+              </Link>
+              <Link href="/tools/daily-wage-pf-esi-calculator" className="footer-link"
+                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {locale === 'hi' ? 'दैनिक मज़दूरी PF और ESI' : 'Daily-Wage PF & ESI'}
                 <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
                   {tf('toolFree')}
                 </span>

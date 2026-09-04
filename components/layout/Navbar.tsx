@@ -153,6 +153,7 @@ const FREE_CALCULATORS = [
   { phase: 'WIRE', name: 'Wire Size', descriptor: 'Cable Gauge by Circuit Type Calculator', href: '/tools/wire-size-calculator', free: true },
   { phase: 'RAB', name: 'RA Bill', descriptor: 'Retention, GST & TDS Net Payable Calculator', href: '/tools/ra-bill-retention-tds-calculator', free: true },
   { phase: 'CUBE', name: 'Concrete Cube Test', descriptor: 'Samples & Cubes Required Calculator', href: '/tools/concrete-cube-test-calculator', free: true },
+  { phase: 'WAGE', name: 'Daily-Wage PF & ESI', descriptor: 'Site Labour Muster-Roll Net Pay Calculator', href: '/tools/daily-wage-pf-esi-calculator', free: true },
 ]
 
 // Site Templates products — six individual toolkits plus the bundle. Rendered as
