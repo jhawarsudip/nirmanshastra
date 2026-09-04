@@ -16,6 +16,12 @@ const STATIC_ROUTES: Array<{
   changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency']
 }> = [
   { path: '/site-templates', priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/site-templates/cost-estimator', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/site-templates/site-documentation', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/site-templates/billing-measurement', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/site-templates/bar-bending-schedule', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/site-templates/labour-compliance', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/site-templates/planning-progress', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/compare-quote', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/faq', priority: 0.8, changeFrequency: 'monthly' },

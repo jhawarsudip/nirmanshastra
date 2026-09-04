@@ -311,7 +311,7 @@ export default function BarBendingScheduleCalculatorPage() {
             </p>
           </div>
           <Link
-            href="/site-templates"
+            href="/site-templates/bar-bending-schedule"
             className="btn-3d"
             style={{
               fontFamily: SANS,
