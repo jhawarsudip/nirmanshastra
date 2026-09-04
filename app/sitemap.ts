@@ -36,6 +36,7 @@ const TOOL_ROUTES = [
   '/tools/plumbpro',
   '/tools/interiorpro',
   '/tools/bar-bending-schedule-calculator',
+  '/tools/water-tank-size-calculator',
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {
