@@ -45,6 +45,7 @@ const TOOL_ROUTES = [
   '/tools/water-tank-size-calculator',
   '/tools/concrete-mix-ratio-calculator',
   '/tools/brick-calculator',
+  '/tools/wire-size-calculator',
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {
