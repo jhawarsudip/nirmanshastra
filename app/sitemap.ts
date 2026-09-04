@@ -35,6 +35,7 @@ const TOOL_ROUTES = [
   '/tools/electropro',
   '/tools/plumbpro',
   '/tools/interiorpro',
+  '/tools/bar-bending-schedule-calculator',
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {

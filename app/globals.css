@@ -682,3 +682,25 @@ footer :focus-visible {
 .devanagari-locale [style*="--font-mono"] {
   font-family: var(--font-mono), monospace;
 }
+
+/* ── BAR BENDING SCHEDULE CALCULATOR — prose lists ───────────────────────── */
+/* Tailwind preflight strips list markers; restore them inside the tool's     */
+/* written reference sections only.                                            */
+.bbs-prose p {
+  margin-bottom: 16px;
+}
+.bbs-prose p:last-child {
+  margin-bottom: 0;
+}
+.bbs-prose ul {
+  list-style: disc;
+  padding-left: 22px;
+  margin: 4px 0 16px;
+}
+.bbs-prose li {
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+.bbs-prose strong {
+  font-weight: 600;
+}
