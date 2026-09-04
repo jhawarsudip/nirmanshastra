@@ -150,8 +150,20 @@ const FREE_CALCULATORS = [
   { phase: 'WTS', name: 'Water Tank Size', descriptor: 'Water Storage Tank Size Calculator', href: '/tools/water-tank-size-calculator', free: true },
 ]
 
+// Site Templates products — six individual toolkits plus the bundle. Rendered as
+// a dropdown on desktop and an expandable section on mobile (mirrors TOOLS).
+const SITE_TEMPLATES = [
+  { name: 'Residential Construction Cost Estimator', href: '/site-templates/cost-estimator' },
+  { name: 'Construction Site Documentation Pack',    href: '/site-templates/site-documentation' },
+  { name: 'Billing & Measurement',                   href: '/site-templates/billing-measurement' },
+  { name: 'Bar Bending Schedule',                    href: '/site-templates/bar-bending-schedule' },
+  { name: 'Labour & Statutory Compliance',           href: '/site-templates/labour-compliance' },
+  { name: 'Planning, Progress & Delay Control',      href: '/site-templates/planning-progress' },
+]
+
+const SITE_TEMPLATES_BUNDLE = { name: 'All 6 Toolkits — Bundle', href: '/site-templates' }
+
 const NAV_LINKS = [
-  { label: 'Site Templates', href: '/site-templates' },
   { label: 'How It Works', href: '/#how-it-works' },
   { label: 'Pricing', href: '/#pricing' },
   { label: 'Blog', href: '/blog' },
@@ -161,9 +173,11 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [user, setUser]             = useState<User | null>(null)
   const [toolsOpen, setToolsOpen]   = useState(false)
+  const [siteTemplatesOpen, setSiteTemplatesOpen] = useState(false)
   const [adminOpen, setAdminOpen]   = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const dropdownRef                 = useRef<HTMLDivElement>(null)
+  const siteDropdownRef             = useRef<HTMLDivElement>(null)
   const closeButtonRef              = useRef<HTMLButtonElement>(null)
   const logoClickTimes              = useRef<number[]>([])
   const router                      = useRouter()
@@ -198,10 +212,14 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setToolsOpen(false)
       }
+      if (siteDropdownRef.current && !siteDropdownRef.current.contains(e.target as Node)) {
+        setSiteTemplatesOpen(false)
+      }
     }
     function keyHandler(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         setToolsOpen(false)
+        setSiteTemplatesOpen(false)
         setMobileOpen(false)
       }
     }
@@ -386,9 +404,54 @@ export default function Navbar() {
           )}
         </div>
 
-        <Link href="/site-templates" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
-          Site Templates
-        </Link>
+        {/* Site Templates dropdown — mirrors the Tools dropdown pattern */}
+        <div ref={siteDropdownRef} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setSiteTemplatesOpen(o => !o)}
+            className="nav-link"
+            style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0' }}
+          >
+            Site Templates <span style={{ fontSize: 9, opacity: 0.7 }}>▾</span>
+          </button>
+
+          {siteTemplatesOpen && (
+            <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
+            <div className="dropdown-3d" style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              minWidth: 300,
+            }}>
+              <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
+                <span style={{ ...mono, fontSize: 9, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Site Templates
+                </span>
+              </div>
+              {SITE_TEMPLATES.map((t, i) => (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  onClick={() => setSiteTemplatesOpen(false)}
+                  className="nav-dropdown-item"
+                  style={{ display: 'flex', alignItems: 'center', padding: '9px 14px', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined, textDecoration: 'none' }}
+                >
+                  <div className="nav-dropdown-name" style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                </Link>
+              ))}
+
+              {/* Bundle — visually separated final item */}
+              <Link
+                href={SITE_TEMPLATES_BUNDLE.href}
+                onClick={() => setSiteTemplatesOpen(false)}
+                className="nav-dropdown-item"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderTop: '1px solid rgba(244,244,240,0.14)', background: 'rgba(244,244,240,0.04)', textDecoration: 'none', gap: 10 }}
+              >
+                <div className="nav-dropdown-name" style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{SITE_TEMPLATES_BUNDLE.name}</div>
+                <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#1F4E79', border: '1px solid #1F4E79', letterSpacing: '0.04em', flexShrink: 0 }}>ALL 6</span>
+              </Link>
+            </div>
+            </div>
+          )}
+        </div>
 
         <Link href="/#how-it-works" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
           How It Works
@@ -720,6 +783,54 @@ export default function Navbar() {
               <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#14532D', border: '1px solid #14532D', letterSpacing: '0.04em', flexShrink: 0 }}>FREE</span>
             </Link>
           ))}
+        </div>
+
+        {/* ── SITE TEMPLATES ─────────────────────────────────────────────── */}
+        <div style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}>
+          <div style={{ padding: '18px 24px 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', flexShrink: 0 }}>
+              Site Templates
+            </span>
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
+          </div>
+          {SITE_TEMPLATES.map((t, i) => (
+            <Link
+              key={t.href}
+              href={t.href}
+              onClick={() => setMobileOpen(false)}
+              className="mobile-tool-row"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '16px 24px',
+                textDecoration: 'none',
+                minHeight: 56,
+                borderTop: i > 0 ? '1px solid rgba(244,244,240,0.05)' : undefined,
+              }}
+            >
+              <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#F4F4F0', letterSpacing: '0.02em' }}>{t.name}</div>
+            </Link>
+          ))}
+          {/* Bundle — visually separated final item */}
+          <Link
+            href={SITE_TEMPLATES_BUNDLE.href}
+            onClick={() => setMobileOpen(false)}
+            className="mobile-tool-row"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '16px 24px',
+              textDecoration: 'none',
+              minHeight: 56,
+              borderTop: '1px solid rgba(244,244,240,0.12)',
+              background: 'rgba(244,244,240,0.03)',
+            }}
+          >
+            <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#F4F4F0', letterSpacing: '0.02em' }}>{SITE_TEMPLATES_BUNDLE.name}</div>
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#1F4E79', border: '1px solid #1F4E79', letterSpacing: '0.04em', flexShrink: 0 }}>ALL 6</span>
+          </Link>
         </div>
 
         {/* ── NAVIGATION LINKS ───────────────────────────────────────────── */}
