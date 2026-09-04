@@ -1019,6 +1019,56 @@ export default function Home() {
             ))}
           </div>
 
+          {/* Free calculators divider */}
+          <div style={{ paddingTop: 8 }}>
+            <div className="flex items-center gap-4 mb-6">
+              <div style={{ height: 1, flex: 1, background: BSub }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontFamily: FI, fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>SUITE 3</span>
+                <span style={{ fontFamily: FI, fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>{locale === 'hi' ? 'निःशुल्क कैलकुलेटर' : 'Free Calculators'}</span>
+                <span style={{ fontFamily: FI, fontSize: 10, padding: '2px 8px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', borderRadius: 2 }}>{locale === 'hi' ? 'निःशुल्क' : 'FREE'}</span>
+              </div>
+              <div style={{ height: 1, flex: 1, background: BSub }} />
+            </div>
+
+            <Link href="/tools/bar-bending-schedule-calculator" style={{ textDecoration: 'none', display: 'block' }}>
+              <article className="tool-card-article" style={{
+                border: `1px solid ${BSub}`,
+                borderRadius: 2,
+                padding: '28px 32px',
+                background: SURF,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 28,
+                cursor: 'pointer',
+                position: 'relative',
+              }}>
+                <div style={{ width: 44, height: 44, flexShrink: 0, opacity: 0.9 }}>
+                  <StructureIcon size={44} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: FI, fontSize: 10, color: TS, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                    {locale === 'hi' ? 'स्टील BBS और कटिंग लेंथ कैलकुलेटर' : 'Steel BBS & Cutting Length Calculator'}
+                  </p>
+                  <h3 style={{ fontFamily: FI, fontSize: 22, fontWeight: 600, color: TP, marginBottom: 8 }}>
+                    {locale === 'hi' ? 'बार बेंडिंग शेड्यूल कैलकुलेटर' : 'Bar Bending Schedule Calculator'}
+                  </h3>
+                  <p style={{ fontFamily: FI, fontSize: 14, color: TS, lineHeight: 1.6, maxWidth: 620 }}>
+                    {locale === 'hi'
+                      ? 'IS 2502:1963 के अनुसार कटिंग लेंथ, हुक, बेंड और स्टील वज़न निकालें — पूरी तरह निःशुल्क, बिना साइन-अप।'
+                      : 'Cutting lengths, hooks, bends and steel weight per IS 2502:1963 — completely free, no sign-up required.'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <span style={{ fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '8px 20px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', display: 'block', borderRadius: 2 }}>
+                    {locale === 'hi' ? 'निःशुल्क →' : 'FREE →'}
+                  </span>
+                </div>
+              </article>
+            </Link>
+          </div>
+
         </div>
       </section>
 
@@ -1350,6 +1400,13 @@ export default function Home() {
                   </span>
                 </Link>
               ))}
+              <Link href="/tools/bar-bending-schedule-calculator" className="footer-link"
+                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {locale === 'hi' ? 'बार बेंडिंग शेड्यूल' : 'Bar Bending Schedule'}
+                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                  {tf('toolFree')}
+                </span>
+              </Link>
             </div>
           </div>
 

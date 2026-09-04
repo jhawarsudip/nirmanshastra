@@ -19,6 +19,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${article.title} | NirmanShastra`,
     description: article.excerpt,
+    twitter: {
+      card: 'summary_large_image',
+      title: `${article.title} | NirmanShastra`,
+      description: article.excerpt,
+    },
   }
 }
 

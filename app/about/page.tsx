@@ -1,9 +1,35 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+const title = 'About NirmanShastra — Built by a Civil Engineer'
+const description = 'The founder story: a NITian civil engineer building IS-code-verified construction cost transparency for every Indian homeowner.'
+const url = '/about'
+
 export const metadata: Metadata = {
-  title: 'About NirmanShastra — Built by a Civil Engineer',
-  description: 'The founder story: a NITian civil engineer building IS-code-verified construction cost transparency for every Indian homeowner.',
+  title,
+  description,
+  alternates: { canonical: url },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'NirmanShastra',
+    url,
+    title,
+    description,
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'NirmanShastra — India’s IS-Code Construction Cost Estimator',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
 }
 
 export default function AboutPage() {

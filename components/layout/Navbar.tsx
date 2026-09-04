@@ -145,6 +145,10 @@ const REPORTS_TOOLS = [
   { phase: 'GT', name: 'Grand Total Report', descriptor: 'Master Project Report — All 5 Phases', href: '/tools/grand-total', price: '₹999' },
 ]
 
+const FREE_CALCULATORS = [
+  { phase: 'BBS', name: 'Bar Bending Schedule', descriptor: 'Steel BBS & Cutting Length Calculator', href: '/tools/bar-bending-schedule-calculator', free: true },
+]
+
 const NAV_LINKS = [
   { label: 'Site Templates', href: '/site-templates' },
   { label: 'How It Works', href: '/#how-it-works' },
@@ -355,6 +359,25 @@ export default function Navbar() {
                     <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
                   </div>
                   <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#8C3A22', border: '1px solid #8C3A22', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
+                </Link>
+              ))}
+
+              <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderTop: '1px solid rgba(244,244,240,0.1)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
+                <span style={{ ...mono, fontSize: 9, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Free Calculators</span>
+              </div>
+              {FREE_CALCULATORS.map(t => (
+                <Link
+                  key={t.name}
+                  href={t.href}
+                  onClick={() => setToolsOpen(false)}
+                  className="nav-dropdown-item"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', textDecoration: 'none', gap: 10 }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="nav-dropdown-name" style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                    <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 10, color: 'rgba(244,244,240,0.4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.descriptor}</div>
+                  </div>
+                  <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#14532D', border: '1px solid #14532D', letterSpacing: '0.04em', flexShrink: 0 }}>FREE</span>
                 </Link>
               ))}
             </div>
@@ -658,6 +681,42 @@ export default function Navbar() {
                 <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.45)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.descriptor}</div>
               </div>
               <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#8C3A22', border: '1px solid rgba(140,58,34,0.55)', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
+            </Link>
+          ))}
+        </div>
+
+        {/* ── TOOLS — Free Calculators ───────────────────────────────────── */}
+        <div style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}>
+          <div style={{ padding: '18px 24px 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', flexShrink: 0 }}>
+              Free Calculators
+            </span>
+            <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
+          </div>
+          {FREE_CALCULATORS.map(t => (
+            <Link
+              key={t.name}
+              href={t.href}
+              onClick={() => setMobileOpen(false)}
+              className="mobile-tool-row"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                padding: '16px 24px',
+                textDecoration: 'none',
+                minHeight: 64,
+              }}
+            >
+              <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(20,83,45,0.35)', borderRadius: 4 }}>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(20,83,45,0.9)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.phase}</span>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#F4F4F0', letterSpacing: '0.02em' }}>{t.name}</div>
+                <div style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(244,244,240,0.45)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.descriptor}</div>
+              </div>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#14532D', border: '1px solid #14532D', letterSpacing: '0.04em', flexShrink: 0 }}>FREE</span>
             </Link>
           ))}
         </div>

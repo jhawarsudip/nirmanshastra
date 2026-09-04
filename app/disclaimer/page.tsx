@@ -1,9 +1,35 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+const title = 'Disclaimer — NirmanShastra'
+const description = 'NirmanShastra is a cost estimation tool, not a structural engineering service. Read the full disclaimer before relying on any estimate for construction.'
+const url = '/disclaimer'
+
 export const metadata: Metadata = {
-  title: 'Disclaimer — NirmanShastra',
-  description: 'NirmanShastra is a cost estimation tool, not a structural engineering service. Read the full disclaimer before relying on any estimate for construction.',
+  title,
+  description,
+  alternates: { canonical: url },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'NirmanShastra',
+    url,
+    title,
+    description,
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'NirmanShastra — India’s IS-Code Construction Cost Estimator',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
 }
 
 export default function DisclaimerPage() {

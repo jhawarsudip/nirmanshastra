@@ -1,9 +1,35 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+const title = 'IS Codes Used in Construction Estimation — 25 Indian Standards'
+const description = 'All 25 IS codes used across NirmanShastra tools: IS 456:2000 (concrete), IS 1786:2008 (steel), IS 1893:2016 (seismic), IS 732:2019 (electrical), IS 1172:1993 (plumbing) and more — with full titles and scope.'
+const url = '/is-codes-used'
+
 export const metadata: Metadata = {
-  title: 'IS Codes Used in Construction Estimation — 25 Indian Standards',
-  description: 'All 25 IS codes used across NirmanShastra tools: IS 456:2000 (concrete), IS 1786:2008 (steel), IS 1893:2016 (seismic), IS 732:2019 (electrical), IS 1172:1993 (plumbing) and more — with full titles and scope.',
+  title,
+  description,
+  alternates: { canonical: url },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'NirmanShastra',
+    url,
+    title,
+    description,
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'NirmanShastra — India’s IS-Code Construction Cost Estimator',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
 }
 
 const CODES_BY_TOOL = [

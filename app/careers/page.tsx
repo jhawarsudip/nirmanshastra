@@ -1,9 +1,35 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+const title = 'Careers — NirmanShastra'
+const description = 'NirmanShastra is a solo-founder bootstrapped company. Not actively hiring, but we would love to hear from civil engineers, developers, and growth people passionate about construction transparency.'
+const url = '/careers'
+
 export const metadata: Metadata = {
-  title: 'Careers — NirmanShastra',
-  description: 'NirmanShastra is a solo-founder bootstrapped company. Not actively hiring, but we would love to hear from civil engineers, developers, and growth people passionate about construction transparency.',
+  title,
+  description,
+  alternates: { canonical: url },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'NirmanShastra',
+    url,
+    title,
+    description,
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'NirmanShastra — India’s IS-Code Construction Cost Estimator',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
 }
 
 export default function CareersPage() {

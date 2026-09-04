@@ -1,9 +1,35 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+const title = 'Terms of Use — NirmanShastra'
+const description = 'NirmanShastra terms of use — service description, payment terms, accuracy disclaimer, and governing law.'
+const url = '/terms-of-use'
+
 export const metadata: Metadata = {
-  title: 'Terms of Use — NirmanShastra',
-  description: 'NirmanShastra terms of use — service description, payment terms, accuracy disclaimer, and governing law.',
+  title,
+  description,
+  alternates: { canonical: url },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'NirmanShastra',
+    url,
+    title,
+    description,
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'NirmanShastra — India’s IS-Code Construction Cost Estimator',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
 }
 
 const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })

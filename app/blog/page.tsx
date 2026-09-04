@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: 'Construction Knowledge — IS Code Guides | NirmanShastra',
   description:
     'Expert guides on IS 456:2000, IS 1786:2008, IS 1893:2016 and more — written in plain English for Indian homeowners and builders.',
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Construction Knowledge — IS Code Guides | NirmanShastra',
+    description:
+      'Expert guides on IS 456:2000, IS 1786:2008, IS 1893:2016 and more — written in plain English for Indian homeowners and builders.',
+  },
 }
 
 export default function BlogPage() {
