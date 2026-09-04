@@ -148,6 +148,9 @@ const REPORTS_TOOLS = [
 const FREE_CALCULATORS = [
   { phase: 'BBS', name: 'Bar Bending Schedule', descriptor: 'Steel BBS & Cutting Length Calculator', href: '/tools/bar-bending-schedule-calculator', free: true },
   { phase: 'WTS', name: 'Water Tank Size', descriptor: 'Water Storage Tank Size Calculator', href: '/tools/water-tank-size-calculator', free: true },
+  { phase: 'CMR', name: 'Concrete Mix Ratio', descriptor: 'Cement, Sand & Aggregate Calculator', href: '/tools/concrete-mix-ratio-calculator', free: true },
+  { phase: 'BRK', name: 'Brick Calculator', descriptor: 'Wall Brick Count & Wastage Calculator', href: '/tools/brick-calculator', free: true },
+  { phase: 'WIRE', name: 'Wire Size', descriptor: 'Cable Gauge by Circuit Type Calculator', href: '/tools/wire-size-calculator', free: true },
 ]
 
 // Site Templates products — six individual toolkits plus the bundle. Rendered as

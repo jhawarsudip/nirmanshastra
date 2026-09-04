@@ -1111,6 +1111,117 @@ export default function Home() {
                 </div>
               </article>
             </Link>
+
+            <Link href="/tools/concrete-mix-ratio-calculator" style={{ textDecoration: 'none', display: 'block', marginTop: 20 }}>
+              <article className="tool-card-article" style={{
+                border: `1px solid ${BSub}`,
+                borderRadius: 2,
+                padding: '28px 32px',
+                background: SURF,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 28,
+                cursor: 'pointer',
+                position: 'relative',
+              }}>
+                <div style={{ width: 44, height: 44, flexShrink: 0, opacity: 0.9 }}>
+                  <StructureIcon size={44} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: FI, fontSize: 10, color: TS, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                    {locale === 'hi' ? 'सीमेंट, रेत और एग्रीगेट कैलकुलेटर' : 'Cement, Sand & Aggregate Calculator'}
+                  </p>
+                  <h3 style={{ fontFamily: FI, fontSize: 22, fontWeight: 600, color: TP, marginBottom: 8 }}>
+                    {locale === 'hi' ? 'कंक्रीट मिक्स रेशियो कैलकुलेटर' : 'Concrete Mix Ratio Calculator'}
+                  </h3>
+                  <p style={{ fontFamily: FI, fontSize: 14, color: TS, lineHeight: 1.6, maxWidth: 620 }}>
+                    {locale === 'hi'
+                      ? 'IS 456:2000 के अनुसार ग्रेड के हिसाब से सीमेंट बैग, रेत और एग्रीगेट (M20 = 1:1.5:3, M25 = 1:1:2) निकालें — पूरी तरह निःशुल्क, बिना साइन-अप।'
+                      : 'Cement bags, sand and aggregate per grade (M20 = 1:1.5:3, M25 = 1:1:2) using the locked IS 456:2000 quantities — completely free, no sign-up required.'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <span style={{ fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '8px 20px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', display: 'block', borderRadius: 2 }}>
+                    {locale === 'hi' ? 'निःशुल्क →' : 'FREE →'}
+                  </span>
+                </div>
+              </article>
+            </Link>
+
+            <Link href="/tools/brick-calculator" style={{ textDecoration: 'none', display: 'block', marginTop: 20 }}>
+              <article className="tool-card-article" style={{
+                border: `1px solid ${BSub}`,
+                borderRadius: 2,
+                padding: '28px 32px',
+                background: SURF,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 28,
+                cursor: 'pointer',
+                position: 'relative',
+              }}>
+                <div style={{ width: 44, height: 44, flexShrink: 0, opacity: 0.9 }}>
+                  <MasonryIcon size={44} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: FI, fontSize: 10, color: TS, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                    {locale === 'hi' ? 'दीवार ईंट गिनती और वेस्टेज कैलकुलेटर' : 'Wall Brick Count & Wastage Calculator'}
+                  </p>
+                  <h3 style={{ fontFamily: FI, fontSize: 22, fontWeight: 600, color: TP, marginBottom: 8 }}>
+                    {locale === 'hi' ? 'ईंट कैलकुलेटर' : 'Brick Calculator'}
+                  </h3>
+                  <p style={{ fontFamily: FI, fontSize: 14, color: TS, lineHeight: 1.6, maxWidth: 620 }}>
+                    {locale === 'hi'
+                      ? 'IS 1077:1992 के अनुसार 9" और 4.5" दीवारों के लिए दीवार क्षेत्रफल, ईंट गिनती और +5–10% वेस्टेज निकालें — पूरी तरह निःशुल्क, बिना साइन-अप।'
+                      : 'Wall area, brick count and a +5–10% wastage allowance for 9" and 4.5" walls per IS 1077:1992 — completely free, no sign-up required.'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <span style={{ fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '8px 20px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', display: 'block', borderRadius: 2 }}>
+                    {locale === 'hi' ? 'निःशुल्क →' : 'FREE →'}
+                  </span>
+                </div>
+              </article>
+            </Link>
+
+            <Link href="/tools/wire-size-calculator" style={{ textDecoration: 'none', display: 'block', marginTop: 20 }}>
+              <article className="tool-card-article" style={{
+                border: `1px solid ${BSub}`,
+                borderRadius: 2,
+                padding: '28px 32px',
+                background: SURF,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 28,
+                cursor: 'pointer',
+                position: 'relative',
+              }}>
+                <div style={{ width: 44, height: 44, flexShrink: 0, opacity: 0.9 }}>
+                  <ElectricalIcon size={44} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: FI, fontSize: 10, color: TS, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                    {locale === 'hi' ? 'सर्किट अनुसार केबल गेज कैलकुलेटर' : 'Cable Gauge by Circuit Type Calculator'}
+                  </p>
+                  <h3 style={{ fontFamily: FI, fontSize: 22, fontWeight: 600, color: TP, marginBottom: 8 }}>
+                    {locale === 'hi' ? 'वायर साइज़ कैलकुलेटर' : 'Wire Size Calculator'}
+                  </h3>
+                  <p style={{ fontFamily: FI, fontSize: 14, color: TS, lineHeight: 1.6, maxWidth: 620 }}>
+                    {locale === 'hi'
+                      ? 'IS 732:2019 Cl 6.2 के अनुसार हर सर्किट के लिए न्यूनतम तांबे का वायर साइज़ — लाइटिंग, सॉकेट, AC/गीजर, सब-पैनल, मेन इनकमर — पूरी तरह निःशुल्क, बिना साइन-अप।'
+                      : 'Minimum copper wire size per circuit — lighting, sockets, AC/geyser, sub-panel feed and main incomer — per IS 732:2019 Cl 6.2 — completely free, no sign-up required.'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <span style={{ fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '8px 20px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', display: 'block', borderRadius: 2 }}>
+                    {locale === 'hi' ? 'निःशुल्क →' : 'FREE →'}
+                  </span>
+                </div>
+              </article>
+            </Link>
           </div>
 
         </div>
@@ -1454,6 +1565,27 @@ export default function Home() {
               <Link href="/tools/water-tank-size-calculator" className="footer-link"
                 style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {locale === 'hi' ? 'वॉटर टैंक साइज़' : 'Water Tank Size'}
+                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                  {tf('toolFree')}
+                </span>
+              </Link>
+              <Link href="/tools/concrete-mix-ratio-calculator" className="footer-link"
+                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {locale === 'hi' ? 'कंक्रीट मिक्स रेशियो' : 'Concrete Mix Ratio'}
+                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                  {tf('toolFree')}
+                </span>
+              </Link>
+              <Link href="/tools/brick-calculator" className="footer-link"
+                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {locale === 'hi' ? 'ईंट कैलकुलेटर' : 'Brick Calculator'}
+                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                  {tf('toolFree')}
+                </span>
+              </Link>
+              <Link href="/tools/wire-size-calculator" className="footer-link"
+                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {locale === 'hi' ? 'वायर साइज़' : 'Wire Size'}
                 <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
                   {tf('toolFree')}
                 </span>
