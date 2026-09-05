@@ -49,6 +49,7 @@ const TOOL_ROUTES = [
   '/tools/ra-bill-retention-tds-calculator',
   '/tools/concrete-cube-test-calculator',
   '/tools/daily-wage-pf-esi-calculator',
+  '/tools/finish-tier-cost-calculator',
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -154,6 +154,7 @@ const FREE_CALCULATORS = [
   { phase: 'RAB', name: 'RA Bill', descriptor: 'Retention, GST & TDS Net Payable Calculator', href: '/tools/ra-bill-retention-tds-calculator', free: true },
   { phase: 'CUBE', name: 'Concrete Cube Test', descriptor: 'Samples & Cubes Required Calculator', href: '/tools/concrete-cube-test-calculator', free: true },
   { phase: 'WAGE', name: 'Daily-Wage PF & ESI', descriptor: 'Site Labour Muster-Roll Net Pay Calculator', href: '/tools/daily-wage-pf-esi-calculator', free: true },
+  { phase: 'TIER', name: 'Finish-Tier Cost', descriptor: 'Finish Quality Tier Cost Difference Calculator', href: '/tools/finish-tier-cost-calculator', free: true },
 ]
 
 // Site Templates products — six individual toolkits plus the bundle. Rendered as

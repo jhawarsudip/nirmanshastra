@@ -14,6 +14,7 @@ import { VastuIcon } from '@/components/icons/VastuIcon'
 import { BillingIcon } from '@/components/icons/BillingIcon'
 import { CubeIcon } from '@/components/icons/CubeIcon'
 import { WageIcon } from '@/components/icons/WageIcon'
+import { TierIcon } from '@/components/icons/TierIcon'
 import HeroSVGBackground from '@/components/HeroSVGBackground'
 import { STATE_CITIES, INDIAN_STATES_LIST } from '@/lib/state-cities'
 
@@ -1336,6 +1337,43 @@ export default function Home() {
                 </div>
               </article>
             </Link>
+
+            <Link href="/tools/finish-tier-cost-calculator" style={{ textDecoration: 'none', display: 'block', marginTop: 20 }}>
+              <article className="tool-card-article" style={{
+                border: `1px solid ${BSub}`,
+                borderRadius: 2,
+                padding: '28px 32px',
+                background: SURF,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 28,
+                cursor: 'pointer',
+                position: 'relative',
+              }}>
+                <div style={{ width: 44, height: 44, flexShrink: 0, opacity: 0.9 }}>
+                  <TierIcon size={44} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: FI, fontSize: 10, color: TS, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                    {locale === 'hi' ? 'फिनिश क्वालिटी टियर कॉस्ट अंतर कैलकुलेटर' : 'Finish Quality Tier Cost Difference Calculator'}
+                  </p>
+                  <h3 style={{ fontFamily: FI, fontSize: 22, fontWeight: 600, color: TP, marginBottom: 8 }}>
+                    {locale === 'hi' ? 'फिनिश-टियर कॉस्ट डिफरेंस कैलकुलेटर' : 'Finish-Tier Cost Difference Calculator'}
+                  </h3>
+                  <p style={{ fontFamily: FI, fontSize: 14, color: TS, lineHeight: 1.6, maxWidth: 620 }}>
+                    {locale === 'hi'
+                      ? 'बिल्ट-अप एरिया और कोई भी दो टियर (बेसिक/स्टैंडर्ड/प्रीमियम/लक्ज़री) चुनें — स्ट्रक्चर, फ़्लोरिंग, दरवाज़े-खिड़की, इलेक्ट्रिकल, प्लंबिंग, पेंटिंग, फ़ॉल्स सीलिंग व जॉइनरी में एलिमेंट-वार और कुल कॉस्ट का अंतर। दिखाता है कि स्ट्रक्चर लगभग स्थिर रहता है जबकि फ़िनिश कई गुना बढ़ते हैं — पूरी तरह निःशुल्क, बिना साइन-अप।'
+                      : 'Pick a built-up area and any two tiers (Basic/Standard/Premium/Luxury) to see the per-element and total cost difference across structure, flooring, doors & windows, electrical, plumbing, painting and joinery — showing why structure barely moves while finishes multiply. Completely free, no sign-up required.'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <span style={{ fontFamily: FI, fontSize: 13, fontWeight: 500, padding: '8px 20px', border: `1px solid ${C_GREEN}`, color: C_GREEN, letterSpacing: '0.04em', display: 'block', borderRadius: 2 }}>
+                    {locale === 'hi' ? 'निःशुल्क →' : 'FREE →'}
+                  </span>
+                </div>
+              </article>
+            </Link>
           </div>
 
         </div>
@@ -1721,6 +1759,13 @@ export default function Home() {
               <Link href="/tools/daily-wage-pf-esi-calculator" className="footer-link"
                 style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {locale === 'hi' ? 'दैनिक मज़दूरी PF और ESI' : 'Daily-Wage PF & ESI'}
+                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                  {tf('toolFree')}
+                </span>
+              </Link>
+              <Link href="/tools/finish-tier-cost-calculator" className="footer-link"
+                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {locale === 'hi' ? 'फिनिश-टियर कॉस्ट अंतर' : 'Finish-Tier Cost Difference'}
                 <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
                   {tf('toolFree')}
                 </span>
