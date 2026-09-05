@@ -155,6 +155,7 @@ const FREE_CALCULATORS = [
   { phase: 'CUBE', name: 'Concrete Cube Test', descriptor: 'Samples & Cubes Required Calculator', href: '/tools/concrete-cube-test-calculator', free: true },
   { phase: 'WAGE', name: 'Daily-Wage PF & ESI', descriptor: 'Site Labour Muster-Roll Net Pay Calculator', href: '/tools/daily-wage-pf-esi-calculator', free: true },
   { phase: 'TIER', name: 'Finish-Tier Cost', descriptor: 'Finish Quality Tier Cost Difference Calculator', href: '/tools/finish-tier-cost-calculator', free: true },
+  { phase: 'EVM', name: 'Earned Value', descriptor: 'SPI, CPI, EAC & TCPI Earned Value Calculator', href: '/tools/earned-value-calculator', free: true },
 ]
 
 // Site Templates products — six individual toolkits plus the bundle. Rendered as

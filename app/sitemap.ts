@@ -50,6 +50,7 @@ const TOOL_ROUTES = [
   '/tools/concrete-cube-test-calculator',
   '/tools/daily-wage-pf-esi-calculator',
   '/tools/finish-tier-cost-calculator',
+  '/tools/earned-value-calculator',
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {
