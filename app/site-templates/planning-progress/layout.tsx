@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 const title =
   'Construction Project Controls Excel Template — EVM Dashboard & Delay Register | India Edition'
 const description =
-  'A 17-sheet Excel project controls workbook for Indian construction — baseline plan, Gantt, value-weighted S-curve and earned value, cash flow, plus a delay and EOT register with contract classification and notice-deadline tracking. ₹1,499, instant download.'
+  'A 17-sheet Excel project controls workbook for Indian construction — baseline plan, Gantt, value-weighted S-curve and earned value, cash flow, plus a delay and EOT register with contract classification and notice-deadline tracking. ₹2,299, instant download.'
 const url = '/site-templates/planning-progress'
 
 export const metadata: Metadata = {

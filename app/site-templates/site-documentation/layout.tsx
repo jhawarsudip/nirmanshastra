@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 const title =
   'Construction Site Documentation Pack — RFI, Procurement & Test Registers | India Edition'
 const description =
-  'A 14-sheet Excel site documentation pack for Indian projects — drawing register, RFI register, NCR and test registers, procurement log, daily site log and snag list. The contemporaneous record that holds up in a dispute. ₹1,499, instant download.'
+  'A 14-sheet Excel site documentation pack for Indian projects — drawing register, RFI register, NCR and test registers, procurement log, daily site log and snag list. The contemporaneous record that holds up in a dispute. ₹1,699, instant download.'
 const url = '/site-templates/site-documentation'
 
 export const metadata: Metadata = {

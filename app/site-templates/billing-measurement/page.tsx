@@ -9,7 +9,7 @@ const content: ProductContent = {
   h1: 'Billing & Measurement — measured work, through the full Indian billing chain.',
   subhead:
     'A 9-sheet Excel workbook that takes work from the measurement book to a paid RA bill the way Indian construction actually bills it: joint measurement under IS 1200, abstract against the BOQ, then a running-account bill with retention, TDS and GST worked correctly — and a tracker that follows every bill to close.',
-  price: '₹1,499',
+  price: '₹2,299',
   sheetCount: 9,
   codesLabel: 'Codes',
   codes: ['IS 1200', 'CPWD Works Manual Ch. 26', 'Income-tax Act 2025 Section 393(1)'],

@@ -9,7 +9,7 @@ const content: ProductContent = {
   h1: 'Construction Cost Estimator — price a house from IS-code first principles.',
   subhead:
     'A 16-sheet Excel workbook that takes a residential project from plot area to a defensible client quotation — building the BOQ from rate analysis, not a per-square-foot guess. Then it stays useful after the quote is signed: compare contractor bids line by line, and track budget against actual as the money goes out.',
-  price: '₹1,499',
+  price: '₹2,499',
   sheetCount: 16,
   codesLabel: 'Codes',
   codes: ['IS 456:2000', 'IS 1786:2008', 'IS 1077:1992', 'IS 2212', 'IS 1661:1972', 'IS 1893:2016'],

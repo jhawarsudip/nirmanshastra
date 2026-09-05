@@ -9,7 +9,7 @@ const content: ProductContent = {
   h1: 'Site Documentation Pack — the record that holds up when it is disputed.',
   subhead:
     'A 14-sheet Excel workbook of the registers a site actually runs on: drawings, RFIs, instructions, inspections, non-conformances, material tests, procurement, daily logs and snags. Not paperwork for its own sake — the contemporaneous record that decides who is right when a delay or a defect turns into a claim.',
-  price: '₹1,499',
+  price: '₹1,699',
   sheetCount: 14,
   codesLabel: 'Codes',
   codes: ['IS 516', 'IS 1786:2008', 'IS 3495', 'IS 4031', 'IS 383', 'IS 2386', 'IS 456:2000'],

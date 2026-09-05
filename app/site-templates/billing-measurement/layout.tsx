@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 const title =
   'Construction Billing & Measurement Excel Template — IS 1200, CPWD, Section 393 | India Edition'
 const description =
-  'A 9-sheet Excel billing and measurement workbook for Indian construction — measurement book, IS 1200 deductions, abstract against BOQ, and RA bills with retention, TDS (Section 393) and GST, tracked to close. ₹1,499, instant download.'
+  'A 9-sheet Excel billing and measurement workbook for Indian construction — measurement book, IS 1200 deductions, abstract against BOQ, and RA bills with retention, TDS (Section 393) and GST, tracked to close. ₹2,299, instant download.'
 const url = '/site-templates/billing-measurement'
 
 export const metadata: Metadata = {

@@ -57,7 +57,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'productId is required' }, { status: 400 })
     }
 
-    // Server-trusted price: 6 products at ₹1,499 (149900 p), bundle at ₹6,999 (699900 p).
+    // Server-trusted price: each of the 6 products has its own distinct amount
+    // (looked up from its SITE_TEMPLATES entry), bundle at ₹7,999 (799900 p).
     const amount = priceForProduct(productId)
     if (amount === null) {
       return NextResponse.json({ error: 'Unknown product' }, { status: 400 })

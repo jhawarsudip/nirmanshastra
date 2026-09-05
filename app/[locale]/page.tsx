@@ -358,42 +358,42 @@ const SITE_TEMPLATES: TemplateDef[] = [
   {
     title: 'Residential Construction Cost Estimator',
     sheets: 16,
-    price: '₹1,499',
+    price: '₹2,499',
     desc: 'Prices a house from IS-code first principles, generates a client quotation, compares up to 3 contractor quotes line by line, tracks budget against actual once the job starts.',
     href: '/site-templates/cost-estimator',
   },
   {
     title: 'Construction Site Documentation Pack',
     sheets: 14,
-    price: '₹1,499',
+    price: '₹1,699',
     desc: 'Nine registers holding the proof of what happened on site — the contemporaneous record that holds up when a delay or defect is disputed.',
     href: '/site-templates/site-documentation',
   },
   {
     title: 'Billing & Measurement',
     sheets: 9,
-    price: '₹1,499',
+    price: '₹2,299',
     desc: 'Takes measured work through the full Indian billing chain — joint measurement, abstract against BOQ, RA bill with retention/TDS/GST, payment tracking to close.',
     href: '/site-templates/billing-measurement',
   },
   {
     title: 'Bar Bending Schedule',
     sheets: 12,
-    price: '₹1,499',
+    price: '₹2,099',
     desc: 'Turns reinforcement details into a cutting-length schedule and steel order note, with every bend deduction and hook allowance applied per code.',
     href: '/site-templates/bar-bending-schedule',
   },
   {
     title: 'Labour & Statutory Compliance',
     sheets: 16,
-    price: '₹1,499',
+    price: '₹1,999',
     desc: "Runs site payroll end to end under India's current four Labour Codes (in force since Nov 2025) — PF, ESI, minimum wage checks, subcontractor compliance holds.",
     href: '/site-templates/labour-compliance',
   },
   {
     title: 'Planning, Progress & Delay Control',
     sheets: 17,
-    price: '₹1,499',
+    price: '₹2,299',
     desc: 'Value-weighted S-curve and earned value tracking, plus a delay/EOT register that classifies events the way a contract actually does — with notice-deadline tracking.',
     href: '/site-templates/planning-progress',
   },
@@ -794,9 +794,25 @@ export default function Home() {
   ]
 
   // Six toolkits each link to their individual product page; the bundle links to the catalog.
-  const footerTemplateLinks: [string, string][] = [
-    ...SITE_TEMPLATES.map(t => [t.title, t.href] as [string, string]),
-    [tf('templatesBundle'), '/site-templates'],
+  // Third element is the per-product price (distinct per toolkit); bundle at ₹7,999.
+  const footerTemplateLinks: [string, string, string][] = [
+    ...SITE_TEMPLATES.map(t => [t.title, t.href, t.price] as [string, string, string]),
+    [tf('templatesBundle'), '/site-templates', '₹7,999'],
+  ]
+
+  // Free calculators — their own footer column, split out from the Tools column.
+  // Labels switch Hindi/English per calculator (mirrors the on-page calculator list).
+  const footerCalculators: [string, string][] = [
+    ['/tools/bar-bending-schedule-calculator', locale === 'hi' ? 'बार बेंडिंग शेड्यूल' : 'Bar Bending Schedule'],
+    ['/tools/water-tank-size-calculator',      locale === 'hi' ? 'वॉटर टैंक साइज़' : 'Water Tank Size'],
+    ['/tools/concrete-mix-ratio-calculator',   locale === 'hi' ? 'कंक्रीट मिक्स रेशियो' : 'Concrete Mix Ratio'],
+    ['/tools/brick-calculator',                locale === 'hi' ? 'ईंट कैलकुलेटर' : 'Brick Calculator'],
+    ['/tools/wire-size-calculator',            locale === 'hi' ? 'वायर साइज़' : 'Wire Size'],
+    ['/tools/ra-bill-retention-tds-calculator', locale === 'hi' ? 'आरए बिल (रिटेंशन, GST, TDS)' : 'RA Bill (Retention, GST, TDS)'],
+    ['/tools/concrete-cube-test-calculator',   locale === 'hi' ? 'कंक्रीट क्यूब टेस्ट' : 'Concrete Cube Test'],
+    ['/tools/daily-wage-pf-esi-calculator',    locale === 'hi' ? 'दैनिक मज़दूरी PF और ESI' : 'Daily-Wage PF & ESI'],
+    ['/tools/finish-tier-cost-calculator',     locale === 'hi' ? 'फिनिश-टियर कॉस्ट अंतर' : 'Finish-Tier Cost Difference'],
+    ['/tools/earned-value-calculator',         locale === 'hi' ? 'अर्नड वैल्यू (SPI, CPI, EAC)' : 'Earned Value (SPI, CPI, EAC)'],
   ]
 
   const footerLegalLinks = [
@@ -1444,7 +1460,7 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontFamily: FI, fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>SUITE 3</span>
                 <span style={{ fontFamily: FI, fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>{locale === 'hi' ? 'साइट टेम्पलेट्स' : 'Site Templates'}</span>
-                <span style={{ fontFamily: FI, fontSize: 10, padding: '2px 8px', border: `1px solid rgba(197,160,89,0.45)`, color: GOLD, letterSpacing: '0.04em', borderRadius: 2 }}>{locale === 'hi' ? '₹1,499 प्रत्येक' : '₹1,499 each'}</span>
+                <span style={{ fontFamily: FI, fontSize: 10, padding: '2px 8px', border: `1px solid rgba(197,160,89,0.45)`, color: GOLD, letterSpacing: '0.04em', borderRadius: 2 }}>₹1,699–₹2,499</span>
               </div>
               <div style={{ height: 1, flex: 1, background: BSub }} />
             </div>
@@ -1473,11 +1489,11 @@ export default function Home() {
               <p style={{ fontFamily: FI, fontSize: 15, color: TS }}>
                 {locale === 'hi' ? 'साइट ऑपरेशंस सूट' : 'Site Operations Suite'}
                 {' '}&mdash; {locale === 'hi' ? 'एक ही डाउनलोड में सब कुछ, बचत' : 'every toolkit in one download, save'}{' '}
-                <span style={{ color: TP, fontWeight: 600 }}>~22%</span>
+                <span style={{ color: TP, fontWeight: 600 }}>~38%</span>
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 600, color: TP }}>₹6,999</span>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 40, fontWeight: 600, color: TP }}>₹7,999</span>
               <Link
                 href="/site-templates"
                 className="btn-3d"
@@ -1731,7 +1747,7 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ borderBottom: `1px solid ${BSub}` }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5" style={{ borderBottom: `1px solid ${BSub}` }}>
 
           <div className="footer-col-3d" style={{ padding: '28px 28px 32px', borderTop: `2px solid ${GOLD}`, borderRight: `1px solid ${BSub}` }}>
             <p style={{ fontFamily: FI, fontSize: 9, color: 'rgba(197,160,89,0.6)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>{tf('colTools')}</p>
@@ -1745,84 +1761,33 @@ export default function Home() {
                   </span>
                 </Link>
               ))}
-              <Link href="/tools/bar-bending-schedule-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'बार बेंडिंग शेड्यूल' : 'Bar Bending Schedule'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
-              <Link href="/tools/water-tank-size-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'वॉटर टैंक साइज़' : 'Water Tank Size'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
-              <Link href="/tools/concrete-mix-ratio-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'कंक्रीट मिक्स रेशियो' : 'Concrete Mix Ratio'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
-              <Link href="/tools/brick-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'ईंट कैलकुलेटर' : 'Brick Calculator'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
-              <Link href="/tools/wire-size-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'वायर साइज़' : 'Wire Size'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
-              <Link href="/tools/ra-bill-retention-tds-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'आरए बिल (रिटेंशन, GST, TDS)' : 'RA Bill (Retention, GST, TDS)'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
-              <Link href="/tools/concrete-cube-test-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'कंक्रीट क्यूब टेस्ट' : 'Concrete Cube Test'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
-              <Link href="/tools/daily-wage-pf-esi-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'दैनिक मज़दूरी PF और ESI' : 'Daily-Wage PF & ESI'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
-              <Link href="/tools/finish-tier-cost-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'फिनिश-टियर कॉस्ट अंतर' : 'Finish-Tier Cost Difference'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
-              <Link href="/tools/earned-value-calculator" className="footer-link"
-                style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {locale === 'hi' ? 'अर्नड वैल्यू (SPI, CPI, EAC)' : 'Earned Value (SPI, CPI, EAC)'}
-                <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
-                  {tf('toolFree')}
-                </span>
-              </Link>
+            </div>
+          </div>
+
+          {/* Calculators — own column, split out from Tools */}
+          <div className="footer-col-3d" style={{ padding: '28px 28px 32px', borderTop: `2px solid ${GOLD}`, borderRight: `1px solid ${BSub}` }}>
+            <p style={{ fontFamily: FI, fontSize: 9, color: 'rgba(197,160,89,0.6)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>{locale === 'hi' ? 'कैलकुलेटर' : 'Calculators'}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+              {footerCalculators.map(([href, label]) => (
+                <Link key={href} href={href} className="footer-link"
+                  style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {label}
+                  <span style={{ fontFamily: FI, fontSize: 10, color: C_GREEN, flexShrink: 0, marginLeft: 8 }}>
+                    {tf('toolFree')}
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
 
           <div className="footer-col-3d" style={{ padding: '28px 28px 32px', borderTop: `2px solid ${GOLD}`, borderRight: `1px solid ${BSub}` }}>
             <p style={{ fontFamily: FI, fontSize: 9, color: 'rgba(197,160,89,0.6)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>{tf('colTemplates')}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-              {footerTemplateLinks.map(([label, href]) => (
-                <Link key={label} href={href} className="footer-link" style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', lineHeight: 1.35 }}>{label}</Link>
+              {footerTemplateLinks.map(([label, href, price]) => (
+                <Link key={label} href={href} className="footer-link" style={{ fontFamily: FI, fontSize: 14, textDecoration: 'none', lineHeight: 1.35, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                  <span>{label}</span>
+                  <span style={{ fontFamily: FI, fontSize: 10, color: GOLD, flexShrink: 0 }}>{price}</span>
+                </Link>
               ))}
             </div>
           </div>

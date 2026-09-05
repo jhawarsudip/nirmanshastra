@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 const title =
   'Bar Bending Schedule Excel Template — India Rebar Cutting Length Calculator (BBS) | IS 2502'
 const description =
-  'A 12-sheet Excel bar bending schedule template for India — shape library, cutting-length calculator with bend deductions and hook allowances per IS 2502, lap and development lengths, cutting optimiser and steel order note. ₹1,499, instant download.'
+  'A 12-sheet Excel bar bending schedule template for India — shape library, cutting-length calculator with bend deductions and hook allowances per IS 2502, lap and development lengths, cutting optimiser and steel order note. ₹2,099, instant download.'
 const url = '/site-templates/bar-bending-schedule'
 
 export const metadata: Metadata = {

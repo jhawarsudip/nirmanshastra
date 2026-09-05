@@ -9,7 +9,7 @@ const content: ProductContent = {
   h1: 'Labour & Compliance — site payroll, end to end, under the four Labour Codes.',
   subhead:
     'A 16-sheet Excel workbook that runs construction site payroll the way it now has to be run: muster roll to wage register to wage slip, with PF, ESI and minimum-wage checks built in, and subcontractor compliance held before their bill is paid — under India’s four consolidated Labour Codes, in force since November 2025.',
-  price: '₹1,499',
+  price: '₹1,999',
   sheetCount: 16,
   codesLabel: 'Codes',
   codes: [

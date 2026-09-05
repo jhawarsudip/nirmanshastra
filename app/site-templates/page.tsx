@@ -41,7 +41,7 @@ const TOOLKITS: Toolkit[] = [
   {
     id: 'cost-estimator',
     title: 'Residential Construction Cost Estimator',
-    price: '₹1,499',
+    price: '₹2,499',
     sheetCount: 16,
     sheets:
       'Project Inputs, Area Statement, Rate Library, Rate Analysis, BOQ, Material Summary, Quality Tiers, Material Options, Quotation, Margin & Bid, Quote Comparison, Payment Schedule, Budget vs Actual, Change Orders, Cost Diagrams, Dashboard.',
@@ -53,7 +53,7 @@ const TOOLKITS: Toolkit[] = [
   {
     id: 'documentation-pack',
     title: 'Construction Site Documentation Pack',
-    price: '₹1,499',
+    price: '₹1,699',
     sheetCount: 14,
     sheets:
       'Project Info, Drawing Register, RFI Register & Form, Site Instructions, Inspection Requests, NCR Register, Test Register, Procurement Log, Daily Site Log, Snag List, Document Flow, Dashboard.',
@@ -65,7 +65,7 @@ const TOOLKITS: Toolkit[] = [
   {
     id: 'billing-measurement',
     title: 'Billing & Measurement',
-    price: '₹1,499',
+    price: '₹2,299',
     sheetCount: 9,
     sheets:
       'Project & Contract, IS 1200 Deductions, BOQ & Rates, Measurement Book, Abstract, RA Bill, Payment Tracker, Dashboard.',
@@ -77,7 +77,7 @@ const TOOLKITS: Toolkit[] = [
   {
     id: 'bar-bending-schedule',
     title: 'Bar Bending Schedule',
-    price: '₹1,499',
+    price: '₹2,099',
     sheetCount: 12,
     sheets:
       'Project & Standards, Shape Library, Shape Diagrams, Cutting Length Calc, Lap & Development, BBS, Bar Summary, Cutting Optimiser, Reconciliation, Order Note, Dashboard.',
@@ -89,7 +89,7 @@ const TOOLKITS: Toolkit[] = [
   {
     id: 'labour-compliance',
     title: 'Labour & Statutory Compliance',
-    price: '₹1,499',
+    price: '₹1,999',
     sheetCount: 16,
     sheets:
       'Setup, Trade Rates, Worker Master, Muster Roll, Wage Register, Advance Ledger, Wage Slip, Payment Advice, Subcontractor Register & Bill, Contractor Compliance, Safety Register, Statutory Summary, Compliance Checklist, Dashboard.',
@@ -106,7 +106,7 @@ const TOOLKITS: Toolkit[] = [
   {
     id: 'planning-progress',
     title: 'Planning, Progress & Delay Control',
-    price: '₹1,499',
+    price: '₹2,299',
     sheetCount: 17,
     sheets:
       'Project & Baseline, Baseline Plan, Gantt Chart, Progress Update, S-Curve, Earned Value, Cash Flow, Lookahead, Milestones, Delay Register, EOT Claim, Variation Register, Monsoon Planner, Risk Register, Progress Report, Dashboard.',
@@ -760,7 +760,7 @@ export default function SiteTemplatesPage() {
               </p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
                 <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 15, color: TS, textDecoration: 'line-through' }}>
-                  ₹8,994
+                  ₹12,894
                 </span>
                 <span
                   style={{
@@ -774,16 +774,16 @@ export default function SiteTemplatesPage() {
                     fontWeight: 600,
                   }}
                 >
-                  SAVE ~22%
+                  SAVE ~38%
                 </span>
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 16 }}>
               <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 48, fontWeight: 500, color: TP, lineHeight: 1 }}>
-                ₹6,999
+                ₹7,999
               </span>
-              <BuyButton label="Buy Bundle — ₹6,999" productId="bundle" onBuy={onBuy} busy={busy} variant="bundle" />
+              <BuyButton label="Buy Bundle — ₹7,999" productId="bundle" onBuy={onBuy} busy={busy} variant="bundle" />
             </div>
           </div>
         </motion.div>
@@ -802,7 +802,7 @@ export default function SiteTemplatesPage() {
               letterSpacing: '0.1em',
             }}
           >
-            Or buy individually · ₹1,499 each
+            Or buy individually · ₹1,699–₹2,499
           </span>
           <div style={{ height: 1, flex: 1, background: BSub }} />
         </div>

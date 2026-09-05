@@ -9,7 +9,7 @@ const content: ProductContent = {
   h1: 'Planning, Progress & Delay Control — a controls pack that also protects the claim.',
   subhead:
     'A 17-sheet Excel project-controls workbook: a value-weighted baseline and S-curve, earned-value tracking, and cash flow — plus a delay and EOT register that classifies every delaying event the way a contract actually does, with the notice deadlines that decide whether an extension of time is winnable at all.',
-  price: '₹1,499',
+  price: '₹2,299',
   sheetCount: 17,
   codesLabel: 'Reference',
   codes: ['FIDIC Red/Yellow Books', 'Indian Contract Act 1872'],

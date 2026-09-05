@@ -160,16 +160,18 @@ const FREE_CALCULATORS = [
 
 // Site Templates products — six individual toolkits plus the bundle. Rendered as
 // a dropdown on desktop and an expandable section on mobile (mirrors TOOLS).
+// Each toolkit has its own distinct price (not a shared rate); shown in a bordered
+// chip using #C5A059 (a gold distinct from the locked VastuPro Vastu Gold #C9A84C).
 const SITE_TEMPLATES = [
-  { name: 'Residential Construction Cost Estimator', href: '/site-templates/cost-estimator' },
-  { name: 'Construction Site Documentation Pack',    href: '/site-templates/site-documentation' },
-  { name: 'Billing & Measurement',                   href: '/site-templates/billing-measurement' },
-  { name: 'Bar Bending Schedule',                    href: '/site-templates/bar-bending-schedule' },
-  { name: 'Labour & Statutory Compliance',           href: '/site-templates/labour-compliance' },
-  { name: 'Planning, Progress & Delay Control',      href: '/site-templates/planning-progress' },
+  { name: 'Residential Construction Cost Estimator', href: '/site-templates/cost-estimator',       price: '₹2,499' },
+  { name: 'Construction Site Documentation Pack',    href: '/site-templates/site-documentation',    price: '₹1,699' },
+  { name: 'Billing & Measurement',                   href: '/site-templates/billing-measurement',   price: '₹2,299' },
+  { name: 'Bar Bending Schedule',                    href: '/site-templates/bar-bending-schedule',  price: '₹2,099' },
+  { name: 'Labour & Statutory Compliance',           href: '/site-templates/labour-compliance',     price: '₹1,999' },
+  { name: 'Planning, Progress & Delay Control',      href: '/site-templates/planning-progress',     price: '₹2,299' },
 ]
 
-const SITE_TEMPLATES_BUNDLE = { name: 'All 6 Toolkits — Bundle', href: '/site-templates' }
+const SITE_TEMPLATES_BUNDLE = { name: 'All 6 Toolkits — Bundle', href: '/site-templates', price: '₹7,999' }
 
 const NAV_LINKS = [
   { label: 'How It Works', href: '/#how-it-works' },
@@ -181,10 +183,12 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [user, setUser]             = useState<User | null>(null)
   const [toolsOpen, setToolsOpen]   = useState(false)
+  const [calcOpen, setCalcOpen]     = useState(false)
   const [siteTemplatesOpen, setSiteTemplatesOpen] = useState(false)
   const [adminOpen, setAdminOpen]   = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const dropdownRef                 = useRef<HTMLDivElement>(null)
+  const calcDropdownRef             = useRef<HTMLDivElement>(null)
   const siteDropdownRef             = useRef<HTMLDivElement>(null)
   const closeButtonRef              = useRef<HTMLButtonElement>(null)
   const logoClickTimes              = useRef<number[]>([])
@@ -220,6 +224,9 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setToolsOpen(false)
       }
+      if (calcDropdownRef.current && !calcDropdownRef.current.contains(e.target as Node)) {
+        setCalcOpen(false)
+      }
       if (siteDropdownRef.current && !siteDropdownRef.current.contains(e.target as Node)) {
         setSiteTemplatesOpen(false)
       }
@@ -227,6 +234,7 @@ export default function Navbar() {
     function keyHandler(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         setToolsOpen(false)
+        setCalcOpen(false)
         setSiteTemplatesOpen(false)
         setMobileOpen(false)
       }
@@ -388,17 +396,38 @@ export default function Navbar() {
                   <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#8C3A22', border: '1px solid #8C3A22', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
                 </Link>
               ))}
+            </div>
+            </div>
+          )}
+        </div>
 
-              <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderTop: '1px solid rgba(244,244,240,0.1)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
+        {/* Calculators dropdown — top-level peer of Tools, mirrors the Tools pattern */}
+        <div ref={calcDropdownRef} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setCalcOpen(o => !o)}
+            className="nav-link"
+            style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0' }}
+          >
+            Calculators <span style={{ fontSize: 9, opacity: 0.7 }}>▾</span>
+          </button>
+
+          {calcOpen && (
+            <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
+            <div className="dropdown-3d" style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              minWidth: 300,
+            }}>
+              <div style={{ padding: '6px 14px 5px', background: 'rgba(244,244,240,0.04)', borderBottom: '1px solid rgba(244,244,240,0.08)' }}>
                 <span style={{ ...mono, fontSize: 9, color: 'rgba(244,244,240,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Free Calculators</span>
               </div>
-              {FREE_CALCULATORS.map(t => (
+              {FREE_CALCULATORS.map((t, i) => (
                 <Link
                   key={t.name}
                   href={t.href}
-                  onClick={() => setToolsOpen(false)}
+                  onClick={() => setCalcOpen(false)}
                   className="nav-dropdown-item"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', textDecoration: 'none', gap: 10 }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined, textDecoration: 'none', gap: 10 }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="nav-dropdown-name" style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
@@ -440,9 +469,10 @@ export default function Navbar() {
                   href={t.href}
                   onClick={() => setSiteTemplatesOpen(false)}
                   className="nav-dropdown-item"
-                  style={{ display: 'flex', alignItems: 'center', padding: '9px 14px', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined, textDecoration: 'none' }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined, textDecoration: 'none', gap: 10 }}
                 >
                   <div className="nav-dropdown-name" style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{t.name}</div>
+                  <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#C5A059', border: '1px solid #C5A059', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
                 </Link>
               ))}
 
@@ -454,7 +484,7 @@ export default function Navbar() {
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderTop: '1px solid rgba(244,244,240,0.14)', background: 'rgba(244,244,240,0.04)', textDecoration: 'none', gap: 10 }}
               >
                 <div className="nav-dropdown-name" style={{ ...mono, fontSize: 12, color: '#F4F4F0' }}>{SITE_TEMPLATES_BUNDLE.name}</div>
-                <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#1F4E79', border: '1px solid #1F4E79', letterSpacing: '0.04em', flexShrink: 0 }}>ALL 6</span>
+                <span style={{ ...mono, fontSize: 10, padding: '2px 6px', color: '#C5A059', border: '1px solid #C5A059', letterSpacing: '0.04em', flexShrink: 0 }}>{SITE_TEMPLATES_BUNDLE.price}</span>
               </Link>
             </div>
             </div>
@@ -757,12 +787,12 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* ── TOOLS — Free Calculators ───────────────────────────────────── */}
+        {/* ── CALCULATORS — own top-level section, split out from Tools ───── */}
         <div style={{ borderBottom: '1px solid rgba(244,244,240,0.07)' }}>
           <div style={{ padding: '18px 24px 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
             <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', flexShrink: 0 }}>
-              Free Calculators
+              Calculators
             </span>
             <div style={{ height: 1, flex: 1, background: 'rgba(244,244,240,0.07)' }} />
           </div>
@@ -811,6 +841,8 @@ export default function Navbar() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
                 padding: '16px 24px',
                 textDecoration: 'none',
                 minHeight: 56,
@@ -818,6 +850,7 @@ export default function Navbar() {
               }}
             >
               <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#F4F4F0', letterSpacing: '0.02em' }}>{t.name}</div>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#C5A059', border: '1px solid #C5A059', letterSpacing: '0.04em', flexShrink: 0 }}>{t.price}</span>
             </Link>
           ))}
           {/* Bundle — visually separated final item */}
@@ -837,7 +870,7 @@ export default function Navbar() {
             }}
           >
             <div style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#F4F4F0', letterSpacing: '0.02em' }}>{SITE_TEMPLATES_BUNDLE.name}</div>
-            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#1F4E79', border: '1px solid #1F4E79', letterSpacing: '0.04em', flexShrink: 0 }}>ALL 6</span>
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, padding: '4px 10px', color: '#C5A059', border: '1px solid #C5A059', letterSpacing: '0.04em', flexShrink: 0 }}>{SITE_TEMPLATES_BUNDLE.price}</span>
           </Link>
         </div>
 

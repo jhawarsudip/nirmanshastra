@@ -9,7 +9,7 @@ const content: ProductContent = {
   h1: 'Bar Bending Schedule — reinforcement details to a cutting-length steel order.',
   subhead:
     'A 12-sheet Excel workbook that turns drawing reinforcement details into a proper bar bending schedule — cutting lengths with every bend deduction and hook allowance applied per IS 2502, laps and development lengths to IS 456, then a cutting optimiser and a steel order note. The offline, editable companion to the free BBS calculator.',
-  price: '₹1,499',
+  price: '₹2,099',
   sheetCount: 12,
   codesLabel: 'Codes',
   codes: ['IS 2502:1963', 'IS 1786:2008', 'IS 456:2000', 'IS 13920:2016'],
