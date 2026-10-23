@@ -453,6 +453,8 @@ export default function GrandTotalPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F4F4F0' }}>
+        {/* Server-rendered heading so crawlers see exactly one H1 before the client wizard mounts (every later state renders its own H1). Visually hidden. */}
+        <h1 className="sr-only">Grand Total Report — Complete Construction Cost Summary</h1>
         <span style={{ ...mono, fontSize: 12, color: 'rgba(30,34,39,0.4)', letterSpacing: 2 }}>LOADING…</span>
       </div>
     )

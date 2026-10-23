@@ -820,6 +820,8 @@ export default function Home() {
     [tf('terms'), '/terms-of-use'],
     [tf('disclaimer'), '/disclaimer'],
     [tf('isCodes'), '/is-codes-used'],
+    [locale === 'hi' ? 'शब्दावली' : 'Glossary', '/glossary'],
+    [locale === 'hi' ? 'AI असिस्टेंट के लिए' : 'For AI assistants', '/llms.txt'],
   ]
 
   return (

@@ -7,6 +7,10 @@ import {
   SAMPLING_BANDS,
   CUBES_PER_SAMPLE,
 } from './cube-test-engine'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import CalcFaq from '@/components/seo/CalcFaq'
+import RelatedLinks from '@/components/seo/RelatedLinks'
+import { CUBE_CONTENT } from '@/lib/seo/calc-content'
 
 // ── Design tokens — matte dark system, matches the other free tool pages (wire / brick / bbs) ──
 const MONO = 'var(--font-plex-mono)'
@@ -90,6 +94,7 @@ export default function ConcreteCubeTestCalculatorPage() {
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(32px,5vw,50px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
             Concrete Cube Test Calculator
           </h1>
+          <QuickAnswer content={CUBE_CONTENT} />
           <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
             Enter the volume of concrete in a pour or element and get the{' '}
             <strong style={{ color: INK, fontWeight: 600 }}>minimum number of acceptance samples</strong>{' '}
@@ -390,6 +395,11 @@ export default function ConcreteCubeTestCalculatorPage() {
             28-day split.
           </p>
         </Prose>
+
+        <CalcFaq items={CUBE_CONTENT.faq} />
+
+        <RelatedLinks path="/tools/concrete-cube-test-calculator" />
+
 
         {/* Disclaimer note */}
         <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>

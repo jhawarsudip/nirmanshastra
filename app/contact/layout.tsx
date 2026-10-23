@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { breadcrumbSchema } from '@/lib/seo/schema'
 
-const title = "Contact NirmanShastra — Civil Engineering Support"
+const title = "Contact Us — Civil Engineering Support"
 const description = "Questions about your construction cost estimate? Contact the NirmanShastra team for technical support, IS-code clarification, and billing queries."
 const url = '/contact'
 
@@ -32,5 +34,15 @@ export const metadata: Metadata = {
 }
 
 export default function ContactLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: 'Home', path: '/' },
+          { name: 'Contact', path: '/contact' },
+        ])}
+      />
+      {children}
+    </>
+  )
 }

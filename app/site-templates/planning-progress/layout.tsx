@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { templateJsonLd } from '@/lib/seo/schema'
 
 const title =
   'Construction Project Controls Excel Template — EVM Dashboard & Delay Register | India Edition'
@@ -34,5 +36,10 @@ export const metadata: Metadata = {
 }
 
 export default function PlanningProgressLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={templateJsonLd('/site-templates/planning-progress')} />
+      {children}
+    </>
+  )
 }

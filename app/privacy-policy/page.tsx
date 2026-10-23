@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
-const title = 'Privacy Policy — NirmanShastra'
+const title = 'Privacy Policy'
 const description = 'NirmanShastra privacy policy — what data we collect, how we use it, who we share it with, and your rights under Indian law.'
 const url = '/privacy-policy'
 

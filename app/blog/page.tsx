@@ -2,11 +2,24 @@ import Link from 'next/link'
 import { BLOG_ARTICLES } from '@/lib/blog-content'
 import BlogCard from './BlogCard'
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { blogIndexSchema, breadcrumbSchema } from '@/lib/seo/schema'
 
 export const metadata: Metadata = {
-  title: 'Construction Knowledge — IS Code Guides | NirmanShastra',
+  title: 'Construction Knowledge — IS Code Guides',
   description:
     'Expert guides on IS 456:2000, IS 1786:2008, IS 1893:2016 and more — written in plain English for Indian homeowners and builders.',
+  alternates: { canonical: '/blog' },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'NirmanShastra',
+    url: '/blog',
+    title: 'Construction Knowledge — IS Code Guides | NirmanShastra',
+    description:
+      'Expert guides on IS 456:2000, IS 1786:2008, IS 1893:2016 and more — written in plain English for Indian homeowners and builders.',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra — IS Code Guides' }],
+  },
   twitter: {
     card: 'summary_large_image',
     title: 'Construction Knowledge — IS Code Guides | NirmanShastra',
@@ -22,6 +35,15 @@ export default function BlogPage() {
 
   return (
     <div className="sheet-frame" style={{ minHeight: '100vh', background: '#F4F4F0' }}>
+      <JsonLd
+        data={[
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Blog', path: '/blog' },
+          ]),
+          blogIndexSchema(BLOG_ARTICLES),
+        ]}
+      />
 
       {/* Dark header band */}
       <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.1)', padding: '48px 24px 40px' }}>

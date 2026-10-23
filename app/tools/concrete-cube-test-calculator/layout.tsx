@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = 'Concrete Cube Test Calculator — Samples & Cubes Required | IS 456:2000'
 const description =
@@ -36,5 +38,10 @@ export const metadata: Metadata = {
 }
 
 export default function ConcreteCubeTestCalculatorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/concrete-cube-test-calculator')} />
+      {children}
+    </>
+  )
 }

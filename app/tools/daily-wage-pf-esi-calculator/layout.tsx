@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = 'Daily-Wage PF & ESI Calculator — Construction Site Muster Roll | Net Payable'
 const description =
@@ -36,5 +38,10 @@ export const metadata: Metadata = {
 }
 
 export default function DailyWagePfEsiCalculatorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/daily-wage-pf-esi-calculator')} />
+      {children}
+    </>
+  )
 }

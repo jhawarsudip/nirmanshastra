@@ -14,6 +14,8 @@ import Navbar from "@/components/layout/Navbar"
 import AIChatbox from "@/app/components/AIChatbox";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import InstallPrompt from "@/components/InstallPrompt";
+import JsonLd from "@/components/seo/JsonLd";
+import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
 
 const plexSerif = IBM_Plex_Serif({
   variable: "--font-plex-serif",
@@ -76,7 +78,7 @@ export const metadata: Metadata = {
     default: "NirmanShastra — IS-Code Construction Cost Estimator | Stop Contractor Overcharging",
     template: "%s | NirmanShastra",
   },
-  description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. ₹499/report, homeowners across India.",
+  description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. BOQ reports from ₹499, for homeowners across India.",
   alternates: {
     canonical: './',
   },
@@ -95,7 +97,7 @@ export const metadata: Metadata = {
     url: 'https://www.nirmanshastra.in',
     siteName: 'NirmanShastra',
     title: "NirmanShastra — IS-Code Construction Cost Estimator | Stop Contractor Overcharging",
-    description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. ₹499/report, homeowners across India.",
+    description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. BOQ reports from ₹499, for homeowners across India.",
     images: [
       {
         url: '/og-image.png',
@@ -108,7 +110,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: "NirmanShastra — IS-Code Construction Cost Estimator",
-    description: "Exact material quantities and IS-code verified construction cost estimates for Indian homeowners. ₹499/report.",
+    description: "Exact material quantities and IS-code verified construction cost estimates for Indian homeowners. BOQ reports from ₹499.",
   },
 };
 
@@ -129,6 +131,8 @@ export default function RootLayout({
       <body
         className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} ${playfair.variable} ${inter.variable} antialiased`}
       >
+        {/* Site-wide structured data: Organization + WebSite */}
+        <JsonLd data={[organizationSchema(), websiteSchema()]} />
         {/* Announcement bar */}
         <div
           className="announcement-bar"

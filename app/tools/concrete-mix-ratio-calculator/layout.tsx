@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = 'Concrete Mix Ratio Calculator — Cement, Sand & Aggregate | IS 456:2000'
 const description =
@@ -33,5 +35,10 @@ export const metadata: Metadata = {
 }
 
 export default function ConcreteMixRatioCalculatorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/concrete-mix-ratio-calculator')} />
+      {children}
+    </>
+  )
 }

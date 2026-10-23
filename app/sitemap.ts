@@ -5,8 +5,9 @@ const BASE_URL = 'https://www.nirmanshastra.in'
 
 const HOME_ALTERNATES = {
   languages: {
-    en: BASE_URL,
-    hi: `${BASE_URL}/hi`,
+    'en-IN': BASE_URL,
+    'hi-IN': `${BASE_URL}/hi`,
+    'x-default': BASE_URL,
   },
 }
 
@@ -28,6 +29,7 @@ const STATIC_ROUTES: Array<{
   { path: '/about', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/contact', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/is-codes-used', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/glossary', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/careers', priority: 0.4, changeFrequency: 'monthly' },
   { path: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
   { path: '/terms-of-use', priority: 0.3, changeFrequency: 'yearly' },

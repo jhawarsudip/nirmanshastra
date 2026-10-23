@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { templateJsonLd } from '@/lib/seo/schema'
 
 const title =
   'Bar Bending Schedule Excel Template — India Rebar Cutting Length Calculator (BBS) | IS 2502'
@@ -34,5 +36,10 @@ export const metadata: Metadata = {
 }
 
 export default function BarBendingScheduleLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={templateJsonLd('/site-templates/bar-bending-schedule')} />
+      {children}
+    </>
+  )
 }

@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = 'Brick Calculator — Wall Brick Count & Wastage | IS 1077:1992'
 const description =
@@ -33,5 +35,10 @@ export const metadata: Metadata = {
 }
 
 export default function BrickCalculatorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/brick-calculator')} />
+      {children}
+    </>
+  )
 }

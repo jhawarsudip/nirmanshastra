@@ -297,7 +297,7 @@ export default function Navbar() {
       >
         <Image
           src="/logo-mark-reversed.png"
-          alt=""
+          alt="NirmanShastra logo mark: a compass ring around a reinforced-concrete column"
           width={48}
           height={32}
           style={{ width: 48, height: 32, flexShrink: 0 }}
@@ -318,7 +318,7 @@ export default function Navbar() {
           switcher instead of hugging the brand. marginRight keeps clear
           separation before the EN/हिंदी toggle. Equal gap-6 between buttons
           is unchanged. */}
-      <div className="hidden md:flex items-center gap-6" style={{ marginLeft: 'auto', marginRight: 24 }}>
+      <div className="nav-desktop-links hidden min-[1366px]:flex items-center gap-6" style={{ marginLeft: 'auto', marginRight: 24 }}>
         {/* Tools dropdown */}
         <div ref={dropdownRef} style={{ position: 'relative' }}>
           <button
@@ -504,7 +504,8 @@ export default function Navbar() {
           FAQ
         </Link>
         <Link href="/compare-quote" className="nav-link" style={{ fontFamily: 'var(--font-plex-sans)', fontWeight: 500, color: 'rgba(244,244,240,0.65)', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
-          Compare Contractor Quote
+          <span className="hidden min-[1640px]:inline">Compare Contractor Quote</span>
+          <span className="min-[1640px]:hidden">Compare Quote</span>
         </Link>
       </div>
       </div>
@@ -512,28 +513,28 @@ export default function Navbar() {
       {/* Right — desktop auth + mobile hamburger */}
       <div className="flex items-center gap-3 flex-shrink-0">
         {/* Language toggle — visible only on homepage, desktop only */}
-        <LanguageToggle className="hidden md:inline-flex" />
+        <LanguageToggle className="hidden min-[1366px]:inline-flex" />
 
         {/* Desktop auth (hidden on mobile) */}
         {user ? (
           <>
             <span
               style={{ ...mono, color: 'rgba(244,244,240,0.5)', fontSize: 11, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-              className="hidden md:block"
+              className="hidden min-[1366px]:block"
             >
               {user.user_metadata?.full_name || user.email}
             </span>
             <Link
               href="/reports"
               style={{ ...mono, color: 'rgba(244,244,240,0.75)', fontSize: 12, textDecoration: 'none', letterSpacing: '0.05em', border: '1px solid rgba(244,244,240,0.18)', padding: '6px 12px', borderRadius: 6 }}
-              className="hidden md:block"
+              className="hidden min-[1366px]:block"
             >
               My Reports
             </Link>
             <button
               onClick={handleLogout}
               style={{ ...mono, border: '1px solid rgba(244,244,240,0.2)', color: 'rgba(244,244,240,0.6)', fontSize: 11, padding: '6px 12px', borderRadius: 6, background: 'none', cursor: 'pointer' }}
-              className="hidden md:block"
+              className="hidden min-[1366px]:block"
             >
               Log Out
             </button>
@@ -543,13 +544,13 @@ export default function Navbar() {
             <Link
               href="/auth"
               style={{ ...mono, color: '#F4F4F0', fontSize: 14, textDecoration: 'none', letterSpacing: '0.04em', border: '1px solid rgba(244,244,240,0.3)', padding: '10px 24px', borderRadius: 6 }}
-              className="hidden md:block"
+              className="nav-auth-btn hidden min-[1366px]:block"
             >
               Log In
             </Link>
             <Link
               href="/tools/vastu-pro"
-              className="btn-get-started hidden md:inline-block"
+              className="btn-get-started nav-auth-btn hidden min-[1366px]:inline-block"
               style={{ ...mono, background: '#8C3A22', color: '#F4F4F0', fontSize: 14, padding: '10px 24px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.04em', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(140,58,34,0.5)', border: '1px solid rgba(255,255,255,0.15)', transition: 'all 0.25s' }}
             >
               Get Started
@@ -560,7 +561,7 @@ export default function Navbar() {
         {/* Mobile hamburger / close toggle */}
         <button
           onClick={() => setMobileOpen(o => !o)}
-          className="md:hidden"
+          className="flex min-[1366px]:hidden"
           aria-label={mobileOpen ? 'Close menu' : 'Open navigation menu'}
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav-overlay"
@@ -570,7 +571,6 @@ export default function Navbar() {
             cursor: 'pointer',
             padding: '9px 10px',
             color: '#F4F4F0',
-            display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 6,
@@ -601,7 +601,7 @@ export default function Navbar() {
       role="dialog"
       aria-modal="true"
       aria-label="Navigation"
-      className="mobile-overlay md:hidden"
+      className="mobile-overlay min-[1366px]:hidden"
       style={{
         position: 'fixed',
         inset: 0,
@@ -634,7 +634,7 @@ export default function Navbar() {
         >
           <Image
             src="/logo-mark-reversed.png"
-            alt=""
+            alt="NirmanShastra logo mark: a compass ring around a reinforced-concrete column"
             width={42}
             height={28}
             style={{ width: 42, height: 28, flexShrink: 0 }}

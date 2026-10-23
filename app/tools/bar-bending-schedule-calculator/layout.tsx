@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = 'Bar Bending Schedule Calculator — Free Cutting Length Tool | IS 2502'
 const description =
@@ -33,5 +35,10 @@ export const metadata: Metadata = {
 }
 
 export default function BarBendingScheduleLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/bar-bending-schedule-calculator')} />
+      {children}
+    </>
+  )
 }

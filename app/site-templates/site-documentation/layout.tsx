@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { templateJsonLd } from '@/lib/seo/schema'
 
 const title =
   'Construction Site Documentation Pack — RFI, Procurement & Test Registers | India Edition'
@@ -34,5 +36,10 @@ export const metadata: Metadata = {
 }
 
 export default function SiteDocumentationLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={templateJsonLd('/site-templates/site-documentation')} />
+      {children}
+    </>
+  )
 }

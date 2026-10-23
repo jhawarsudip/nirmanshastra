@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import PaidToolInfo from '@/components/seo/PaidToolInfo'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = "InteriorPro — Home Interior Cost Estimator | Flooring, Kitchen & Paint"
 const description = "Calculate flooring, kitchen, false ceiling, and paint costs across 4 quality grades — Basic to Luxury. Get exact interior BOQ for your home construction. ₹899/report."
@@ -32,5 +35,11 @@ export const metadata: Metadata = {
 }
 
 export default function InteriorProLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/interiorpro')} />
+      {children}
+      <PaidToolInfo path="/tools/interiorpro" />
+    </>
+  )
 }

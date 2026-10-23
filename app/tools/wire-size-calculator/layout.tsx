@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = 'Wire Size Calculator — Correct Cable Gauge by Circuit | IS 732:2019'
 const description =
@@ -36,5 +38,10 @@ export const metadata: Metadata = {
 }
 
 export default function WireSizeCalculatorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/wire-size-calculator')} />
+      {children}
+    </>
+  )
 }

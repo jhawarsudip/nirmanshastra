@@ -8,6 +8,10 @@ import {
   TDS_MIN_PCT,
   TDS_MAX_PCT,
 } from './ra-bill-engine'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import CalcFaq from '@/components/seo/CalcFaq'
+import RelatedLinks from '@/components/seo/RelatedLinks'
+import { RABILL_CONTENT } from '@/lib/seo/calc-content'
 
 // ── Design tokens — matte dark system, matches the other free tool pages (wire / brick / bbs) ──
 const MONO = 'var(--font-plex-mono)'
@@ -102,6 +106,7 @@ export default function RABillCalculatorPage() {
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(32px,5vw,50px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
             RA Bill Calculator — Retention, GST &amp; TDS
           </h1>
+          <QuickAnswer content={RABILL_CONTENT} />
           <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
             Enter the gross value of a{' '}
             <strong style={{ color: INK, fontWeight: 600 }}>Running Account (RA) bill</strong> and get the
@@ -446,6 +451,11 @@ export default function RABillCalculatorPage() {
             net payable, updates live.
           </p>
         </Prose>
+
+        <CalcFaq items={RABILL_CONTENT.faq} />
+
+        <RelatedLinks path="/tools/ra-bill-retention-tds-calculator" />
+
 
         {/* Disclaimer note */}
         <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>

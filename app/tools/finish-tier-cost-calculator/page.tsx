@@ -10,6 +10,10 @@ import {
   TIERS,
   type Tier,
 } from './finish-tier-engine'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import CalcFaq from '@/components/seo/CalcFaq'
+import RelatedLinks from '@/components/seo/RelatedLinks'
+import { FINISH_CONTENT } from '@/lib/seo/calc-content'
 
 // ── Design tokens — matte dark system, matches the other free tool pages (wire / brick / ra-bill) ──
 const MONO = 'var(--font-plex-mono)'
@@ -100,6 +104,7 @@ export default function FinishTierCalculatorPage() {
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(32px,5vw,50px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
             Finish-Tier Cost Difference Calculator
           </h1>
+          <QuickAnswer content={FINISH_CONTENT} />
           <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
             Enter your <strong style={{ color: INK, fontWeight: 600 }}>built-up area</strong> and pick any two
             quality tiers — <strong style={{ color: INK, fontWeight: 600 }}>Basic, Standard, Premium or
@@ -457,6 +462,11 @@ export default function FinishTierCalculatorPage() {
             </li>
           </ul>
         </Prose>
+
+        <CalcFaq items={FINISH_CONTENT.faq} />
+
+        <RelatedLinks path="/tools/finish-tier-cost-calculator" />
+
 
         {/* Disclaimer note */}
         <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>

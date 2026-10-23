@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import PaidToolInfo from '@/components/seo/PaidToolInfo'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = "StructurePro — RCC Structure Cost Calculator | IS 456:2000"
 const description = "Calculate exact concrete, steel, and structural costs for your building using IS 456:2000. Get itemised BOQ with material quantities."
@@ -32,5 +35,11 @@ export const metadata: Metadata = {
 }
 
 export default function StructoProLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/structopro')} />
+      {children}
+      <PaidToolInfo path="/tools/structopro" />
+    </>
+  )
 }

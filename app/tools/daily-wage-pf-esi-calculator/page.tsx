@@ -10,6 +10,10 @@ import {
   STANDARD_HOURS_PER_DAY,
   OVERTIME_MULTIPLIER,
 } from './wage-engine'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import CalcFaq from '@/components/seo/CalcFaq'
+import RelatedLinks from '@/components/seo/RelatedLinks'
+import { WAGE_CONTENT } from '@/lib/seo/calc-content'
 
 // ── Design tokens — matte dark system, matches the other free tool pages (wire / brick / ra-bill) ──
 const MONO = 'var(--font-plex-mono)'
@@ -102,6 +106,7 @@ export default function DailyWagePfEsiCalculatorPage() {
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(32px,5vw,50px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
             Daily-Wage PF &amp; ESI Calculator
           </h1>
+          <QuickAnswer content={WAGE_CONTENT} />
           <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
             Work out one worker&rsquo;s net wage the way a construction site actually pays —{' '}
             <strong style={{ color: INK, fontWeight: 600 }}>a daily rate across the days worked</strong>, not a
@@ -421,6 +426,11 @@ export default function DailyWagePfEsiCalculatorPage() {
             on ₹650 for 20.5 days nets ₹11,626.06: basic ₹13,325, PF ₹1,599 — below the cap — and ESI ₹99.94.)
           </p>
         </Prose>
+
+        <CalcFaq items={WAGE_CONTENT.faq} />
+
+        <RelatedLinks path="/tools/daily-wage-pf-esi-calculator" />
+
 
         {/* Disclaimer note */}
         <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>

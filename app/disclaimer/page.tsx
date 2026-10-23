@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
-const title = 'Disclaimer — NirmanShastra'
+const title = 'Disclaimer'
 const description = 'NirmanShastra is a cost estimation tool, not a structural engineering service. Read the full disclaimer before relying on any estimate for construction.'
 const url = '/disclaimer'
 

@@ -3,6 +3,10 @@
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { calculate, readQuadrant } from './evm-engine'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import CalcFaq from '@/components/seo/CalcFaq'
+import RelatedLinks from '@/components/seo/RelatedLinks'
+import { EVM_CONTENT } from '@/lib/seo/calc-content'
 
 // ── Design tokens — matte dark system, matches the other free tool pages (wire / brick / ra-bill) ──
 const MONO = 'var(--font-plex-mono)'
@@ -127,6 +131,7 @@ export default function EarnedValueCalculatorPage() {
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(32px,5vw,50px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
             Earned Value Calculator — SPI, CPI, EAC &amp; TCPI
           </h1>
+          <QuickAnswer content={EVM_CONTENT} />
           <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
             Enter four figures a project already tracks —{' '}
             <strong style={{ color: INK, fontWeight: 600 }}>Budget at Completion, Planned Value, Earned Value and Actual Cost</strong>{' '}
@@ -445,6 +450,11 @@ export default function EarnedValueCalculatorPage() {
             </li>
           </ul>
         </Prose>
+
+        <CalcFaq items={EVM_CONTENT.faq} />
+
+        <RelatedLinks path="/tools/earned-value-calculator" />
+
 
         {/* Disclaimer note */}
         <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>

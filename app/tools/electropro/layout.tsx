@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import PaidToolInfo from '@/components/seo/PaidToolInfo'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = "ElectricalPro — House Wiring Cost Estimator | IS 732:2019"
 const description = "Calculate wire lengths, DB panel circuits, and MCB costs using IS 732:2019. Know exact electrical quantities before your contractor quotes. ₹499/report."
@@ -32,5 +35,11 @@ export const metadata: Metadata = {
 }
 
 export default function ElectroProLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/electropro')} />
+      {children}
+      <PaidToolInfo path="/tools/electropro" />
+    </>
+  )
 }

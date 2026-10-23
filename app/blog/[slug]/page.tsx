@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation'
 import { getArticleBySlug, getRelatedArticles, BLOG_ARTICLES } from '@/lib/blog-content'
 import RelatedCard from './RelatedCard'
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { articleSchema, breadcrumbSchema, faqPageSchema } from '@/lib/seo/schema'
+import { REVIEW_NOTE } from '@/lib/seo/site'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -16,12 +19,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params
   const article = getArticleBySlug(slug)
   if (!article) return { title: 'Article Not Found' }
+  const url = `/blog/${article.slug}`
+  const ogTitle = `${article.title} | NirmanShastra`
   return {
-    title: `${article.title} | NirmanShastra`,
+    // Root layout's title template appends " | NirmanShastra"; do not repeat it here.
+    title: article.title,
     description: article.excerpt,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      locale: article.language === 'hi-Latn' ? 'hi_IN' : 'en_IN',
+      siteName: 'NirmanShastra',
+      url,
+      title: ogTitle,
+      description: article.excerpt,
+      publishedTime: article.publishedDate,
+      modifiedTime: article.updatedDate ?? article.publishedDate,
+      images: [{ url: '/og-image.png', width: 1200, height: 630, alt: article.title }],
+    },
     twitter: {
       card: 'summary_large_image',
-      title: `${article.title} | NirmanShastra`,
+      title: ogTitle,
       description: article.excerpt,
     },
   }
@@ -33,15 +51,26 @@ function renderInline(text: string): React.ReactNode[] {
   const parts: React.ReactNode[] = []
   let remaining = text
   let key = 0
+  // **bold**  and  [label](/internal-path)  — internal links only, so a guide can
+  // point readers to a calculator, another guide or the glossary.
+  const re = /\*\*(.+?)\*\*|\[([^\]]+)\]\((\/[^)\s]*)\)/
 
   while (remaining.length > 0) {
-    const boldMatch = remaining.match(/\*\*(.+?)\*\*/)
-    if (boldMatch && boldMatch.index !== undefined) {
-      if (boldMatch.index > 0) {
-        parts.push(<span key={key++}>{remaining.slice(0, boldMatch.index)}</span>)
+    const m = remaining.match(re)
+    if (m && m.index !== undefined) {
+      if (m.index > 0) {
+        parts.push(<span key={key++}>{remaining.slice(0, m.index)}</span>)
       }
-      parts.push(<strong key={key++} style={{ fontWeight: 600, fontFamily: 'var(--font-plex-sans)' }}>{boldMatch[1]}</strong>)
-      remaining = remaining.slice(boldMatch.index + boldMatch[0].length)
+      if (m[1] !== undefined) {
+        parts.push(<strong key={key++} style={{ fontWeight: 600, fontFamily: 'var(--font-plex-sans)' }}>{m[1]}</strong>)
+      } else {
+        parts.push(
+          <Link key={key++} href={m[3]} style={{ color: '#1F4E79', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+            {m[2]}
+          </Link>
+        )
+      }
+      remaining = remaining.slice(m.index + m[0].length)
     } else {
       parts.push(<span key={key++}>{remaining}</span>)
       break
@@ -267,6 +296,17 @@ export default async function ArticlePage({ params }: PageProps) {
 
   return (
     <div className="sheet-frame" style={{ minHeight: '100vh', background: '#F4F4F0' }}>
+      <JsonLd
+        data={[
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Blog', path: '/blog' },
+            { name: article.title, path: `/blog/${article.slug}` },
+          ]),
+          articleSchema(article),
+          ...(article.faq?.length ? [faqPageSchema(article.faq)] : []),
+        ]}
+      />
 
       {/* Article header */}
       <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.1)', padding: '40px 24px 36px' }}>
@@ -302,26 +342,70 @@ export default async function ArticlePage({ params }: PageProps) {
           </h1>
 
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-            <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.35)' }}>
-              {new Date(article.publishedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+            <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.45)' }}>
+              Published{' '}
+              <time dateTime={article.publishedDate}>
+                {new Date(article.publishedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </time>
+            </span>
+            <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.35)' }}>·</span>
+            <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.45)' }}>
+              Last updated{' '}
+              <time dateTime={article.updatedDate ?? article.publishedDate}>
+                {new Date(article.updatedDate ?? article.publishedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </time>
             </span>
             <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.35)' }}>·</span>
             <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.35)' }}>
               {article.readTime} min read
             </span>
           </div>
+          <div style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.45)', marginTop: 12 }}>
+            {REVIEW_NOTE}
+          </div>
         </div>
       </div>
 
       {/* Article body */}
       <div className="max-w-5xl mx-auto px-6 md:px-12 pt-12 pb-16">
+        {/* Quick answer — the 40–60 word direct answer AI assistants quote */}
+        {article.quickAnswer && (
+          <div
+            role="note"
+            aria-label="Quick answer"
+            style={{ border: '1px solid #1F4E79', background: 'rgba(31,78,121,0.05)', padding: '18px 20px', margin: '0 0 28px' }}
+          >
+            <div style={{ ...mono, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#1F4E79', marginBottom: 8 }}>
+              QUICK ANSWER
+            </div>
+            <p style={{ ...sans, fontSize: 16, fontWeight: 500, color: '#1E2227', lineHeight: 1.65, margin: 0 }}>
+              {article.quickAnswer}
+            </p>
+          </div>
+        )}
+
         {/* Excerpt lead */}
         <p style={{ ...sans, fontSize: 17, color: 'rgba(30,34,39,0.7)', lineHeight: 1.7, margin: '0 0 36px', borderLeft: '3px solid #1F4E79', paddingLeft: 16 }}>
           {article.excerpt}
         </p>
 
         {/* Content */}
-        <div>{renderMarkdown(article.content)}</div>
+        <div lang={article.language === 'hi-Latn' ? 'hi-Latn' : undefined}>{renderMarkdown(article.content)}</div>
+
+        {/* FAQ — each question is its own heading; same data feeds FAQPage JSON-LD */}
+        {article.faq && article.faq.length > 0 && (
+          <section aria-labelledby="article-faq" style={{ marginTop: 40 }}>
+            <h2 id="article-faq" style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(18px, 3vw, 22px)', fontWeight: 600, color: '#1E2227', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
+              Frequently asked questions
+            </h2>
+            {article.faq.map((q) => (
+              <div key={q.question} style={{ marginTop: 20 }}>
+                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 17, fontWeight: 600, color: '#1E2227', marginBottom: 6, lineHeight: 1.35 }}>{q.question}</h3>
+                <p style={{ ...sans, fontSize: 15, color: 'rgba(30,34,39,0.85)', lineHeight: 1.75, margin: 0 }}>{q.answer}</p>
+              </div>
+            ))}
+          </section>
+        )}
       </div>
 
       {/* CTA card */}

@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import JsonLd from '@/components/seo/JsonLd'
+import { templatesIndexSchema } from '@/lib/seo/schema'
 
 declare global {
   interface Window {
@@ -678,6 +680,8 @@ export default function SiteTemplatesPage() {
 
   return (
     <main className="sheet-frame" style={{ background: BG, minHeight: '100vh' }}>
+      {/* BreadcrumbList JSON-LD (server-rendered; JsonLd has no hooks). Sub-pages carry their own via their layouts. */}
+      <JsonLd data={templatesIndexSchema()} />
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <section className="px-6 md:px-16 lg:px-24 pt-20 pb-14" style={{ background: BG }}>
         <div style={{ maxWidth: 900 }}>

@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = 'Water Tank Size Calculator — Free Storage Sizing Tool | IS 1172:1993'
 const description =
@@ -33,5 +35,10 @@ export const metadata: Metadata = {
 }
 
 export default function WaterTankSizeCalculatorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/water-tank-size-calculator')} />
+      {children}
+    </>
+  )
 }

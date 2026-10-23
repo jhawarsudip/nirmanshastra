@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = 'Earned Value Calculator — SV, CV, SPI, CPI, EAC, TCPI | EVM Analysis'
 const description =
@@ -36,5 +38,10 @@ export const metadata: Metadata = {
 }
 
 export default function EarnedValueCalculatorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/earned-value-calculator')} />
+      {children}
+    </>
+  )
 }

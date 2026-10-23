@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { templateJsonLd } from '@/lib/seo/schema'
 
 const title =
   'Construction Cost Estimator Excel Template — India BOQ & Bid Calculator | IS-Code Rate Analysis'
@@ -34,5 +36,10 @@ export const metadata: Metadata = {
 }
 
 export default function CostEstimatorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={templateJsonLd('/site-templates/cost-estimator')} />
+      {children}
+    </>
+  )
 }

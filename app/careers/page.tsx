@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
-const title = 'Careers — NirmanShastra'
+const title = 'Careers'
 const description = 'NirmanShastra is a solo-founder bootstrapped company. Not actively hiring, but we would love to hear from civil engineers, developers, and growth people passionate about construction transparency.'
 const url = '/careers'
 

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
-const title = 'About NirmanShastra — Built by a Civil Engineer'
+const title = 'About Us — Built by a Civil Engineer'
 const description = 'The founder story: a NITian civil engineer building IS-code-verified construction cost transparency for every Indian homeowner.'
 const url = '/about'
 

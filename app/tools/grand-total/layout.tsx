@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import PaidToolInfo from '@/components/seo/PaidToolInfo'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = "Grand Total Report — Complete Construction Cost Summary"
 const description = "Merge all 5 construction phases into one Grand Total report. Complete BOQ covering RCC structure, masonry, electrical, plumbing, and interior. ₹999 or free with all 5 paid tools."
@@ -32,5 +35,11 @@ export const metadata: Metadata = {
 }
 
 export default function GrandTotalLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/grand-total')} />
+      {children}
+      <PaidToolInfo path="/tools/grand-total" />
+    </>
+  )
 }

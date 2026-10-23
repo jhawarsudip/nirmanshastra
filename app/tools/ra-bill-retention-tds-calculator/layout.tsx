@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = 'RA Bill Calculator — Retention, GST & TDS Net Payable | Works Contract'
 const description =
@@ -36,5 +38,10 @@ export const metadata: Metadata = {
 }
 
 export default function RABillCalculatorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/ra-bill-retention-tds-calculator')} />
+      {children}
+    </>
+  )
 }

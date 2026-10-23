@@ -36,9 +36,10 @@ export function LanguageToggle({ className }: Props) {
 
   return (
     <div
-      className={className}
+      // Display lives in a class (default inline-flex), not inline style: an inline
+      // display would override a caller's `hidden` and keep the toggle on small screens.
+      className={className ?? 'inline-flex'}
       style={{
-        display: 'inline-flex',
         alignItems: 'center',
         border: '1px solid rgba(255,255,255,0.15)',
         borderRadius: 2,

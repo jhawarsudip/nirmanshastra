@@ -8,6 +8,10 @@ import {
   calculate,
   type CircuitType,
 } from './wire-size-engine'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import CalcFaq from '@/components/seo/CalcFaq'
+import RelatedLinks from '@/components/seo/RelatedLinks'
+import { WIRE_CONTENT } from '@/lib/seo/calc-content'
 
 // ── Design tokens — matte dark system, matches the tool pages (brick / water-tank / bbs) ──
 const MONO = 'var(--font-plex-mono)'
@@ -76,6 +80,7 @@ export default function WireSizeCalculatorPage() {
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(34px,5vw,52px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
             Wire Size Calculator
           </h1>
+          <QuickAnswer content={WIRE_CONTENT} />
           <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
             Pick the circuit and get the right cable gauge before you buy the wire. Indian wiring is
             sized by the <strong style={{ color: INK, fontWeight: 600 }}>role of the circuit</strong>,
@@ -367,6 +372,11 @@ export default function WireSizeCalculatorPage() {
             ElectroPro puts on its DB schedule.
           </p>
         </Prose>
+
+        <CalcFaq items={WIRE_CONTENT.faq} />
+
+        <RelatedLinks path="/tools/wire-size-calculator" />
+
 
         {/* Disclaimer note */}
         <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>

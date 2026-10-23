@@ -9,6 +9,10 @@ import {
   calculate,
   type WaterSource,
 } from './water-tank-engine'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import CalcFaq from '@/components/seo/CalcFaq'
+import RelatedLinks from '@/components/seo/RelatedLinks'
+import { TANK_CONTENT } from '@/lib/seo/calc-content'
 
 // ── Design tokens — matte dark system, matches the tool pages (plumbpro / bbs) ──
 const MONO = 'var(--font-plex-mono)'
@@ -91,6 +95,7 @@ export default function WaterTankSizeCalculatorPage() {
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(34px,5vw,52px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
             Water Tank Size Calculator
           </h1>
+          <QuickAnswer content={TANK_CONTENT} />
           <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
             Size a home water tank the way the code does. Enter how many people live in the house, the water
             source, and how many days of storage you need — the tool applies the IS 1172:1993 per-capita demand
@@ -439,6 +444,11 @@ export default function WaterTankSizeCalculatorPage() {
             2 would raise the requirement to 1448 litres and push the recommendation to a 1500 litre tank.
           </p>
         </Prose>
+
+        <CalcFaq items={TANK_CONTENT.faq} />
+
+        <RelatedLinks path="/tools/water-tank-size-calculator" />
+
 
         {/* Disclaimer note */}
         <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>

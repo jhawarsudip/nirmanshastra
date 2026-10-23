@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { templateJsonLd } from '@/lib/seo/schema'
 
 const title =
   'Construction Billing & Measurement Excel Template — IS 1200, CPWD, Section 393 | India Edition'
@@ -34,5 +36,10 @@ export const metadata: Metadata = {
 }
 
 export default function BillingMeasurementLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={templateJsonLd('/site-templates/billing-measurement')} />
+      {children}
+    </>
+  )
 }

@@ -5,7 +5,7 @@ import ConsentToggle from './ConsentToggle'
 import GuestUpgradeCard from './GuestUpgradeCard'
 
 export const metadata: Metadata = {
-  title: 'Account Settings — NirmanShastra',
+  title: 'Account Settings',
   description: 'Manage your NirmanShastra account preferences and data-sharing settings.',
 }
 

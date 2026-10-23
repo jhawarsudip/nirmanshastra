@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
-const title = "FAQ — Construction Cost Estimator | NirmanShastra"
+const title = "FAQ — Construction Cost Estimator"
+const ogTitle = `${title} | NirmanShastra`
 const description = "Frequently asked questions about NirmanShastra's IS-code construction cost tools — report accuracy, payment process, material rates, and how calculations are done."
 const url = '/faq'
 
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     siteName: 'NirmanShastra',
     url,
-    title,
+    title: ogTitle,
     description,
     images: [
       {
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title,
+    title: ogTitle,
     description,
   },
 }

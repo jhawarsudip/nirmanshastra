@@ -455,6 +455,18 @@ footer :focus-visible {
 .nav-link:hover { color: rgba(244, 244, 240, 0.95) !important; }
 .nav-link:hover::after { transform: scaleX(1); }
 
+/* Labels must never wrap: a wrapped label is what made the desktop nav collide. */
+.nav-link { white-space: nowrap; }
+
+/* Desktop nav density. The full-size nav needs about 1,640px. The hamburger covers
+   everything below 1,366px; in between, tighter type and spacing keep every label on
+   one line with clear gaps. */
+@media (min-width: 1366px) and (max-width: 1639.98px) {
+  .nav-desktop-links { gap: 16px !important; margin-right: 12px !important; }
+  .nav-desktop-links .nav-link { font-size: 13px !important; letter-spacing: 0.05em !important; }
+  .nav-auth-btn { padding: 8px 14px !important; font-size: 13px !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .nav-link,
   .nav-link::after { transition: none; }

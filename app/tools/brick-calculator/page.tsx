@@ -10,6 +10,10 @@ import {
   calculate,
   type WallThickness,
 } from './brick-engine'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import CalcFaq from '@/components/seo/CalcFaq'
+import RelatedLinks from '@/components/seo/RelatedLinks'
+import { BRICK_CONTENT } from '@/lib/seo/calc-content'
 
 // ── Design tokens — matte dark system, matches the tool pages (water-tank / bbs) ──
 const MONO = 'var(--font-plex-mono)'
@@ -90,6 +94,7 @@ export default function BrickCalculatorPage() {
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(34px,5vw,52px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
             Brick Calculator
           </h1>
+          <QuickAnswer content={BRICK_CONTENT} />
           <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
             Count the bricks in a wall before you order. Enter the wall&rsquo;s length and height, pick the
             thickness, and deduct any door or window openings — the tool applies the IS 1077:1992 /
@@ -433,6 +438,11 @@ export default function BrickCalculatorPage() {
             had a 0.9 × 2.1 m door, you would deduct 1.9 m², leaving 28.1 m² and 2810 bricks before wastage.
           </p>
         </Prose>
+
+        <CalcFaq items={BRICK_CONTENT.faq} />
+
+        <RelatedLinks path="/tools/brick-calculator" />
+
 
         {/* Disclaimer note */}
         <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>

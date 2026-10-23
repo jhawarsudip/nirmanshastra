@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = "VastuPro — Free Vastu Compliance Checker | 33-Room Analysis"
 const description = "Free online Vastu analysis for your home. Upload floor plan, mark 33 rooms, get zone-by-zone compliance score and free PDF report. No payment needed."
@@ -32,5 +34,10 @@ export const metadata: Metadata = {
 }
 
 export default function VastuProLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/vastu-pro')} />
+      {children}
+    </>
+  )
 }

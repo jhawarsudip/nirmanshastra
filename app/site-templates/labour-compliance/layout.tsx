@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import { templateJsonLd } from '@/lib/seo/schema'
 
 const title =
   'Construction Labour Payroll Excel Template — India Contractor Compliance Tracker | Four Labour Codes'
@@ -34,5 +36,10 @@ export const metadata: Metadata = {
 }
 
 export default function LabourComplianceLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={templateJsonLd('/site-templates/labour-compliance')} />
+      {children}
+    </>
+  )
 }

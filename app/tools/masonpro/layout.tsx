@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import JsonLd from '@/components/seo/JsonLd'
+import PaidToolInfo from '@/components/seo/PaidToolInfo'
+import { toolJsonLd } from '@/lib/seo/schema'
 
 const title = "MasonryPro — Brickwork & Masonry Cost Calculator | IS 1077:1992"
 const description = "Calculate exact brick counts, mortar quantities, and plastering costs for 8 wall types. IS 1077:1992 verified. Get itemised masonry BOQ for your home."
@@ -32,5 +35,11 @@ export const metadata: Metadata = {
 }
 
 export default function MasonryProLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={toolJsonLd('/tools/masonpro')} />
+      {children}
+      <PaidToolInfo path="/tools/masonpro" />
+    </>
+  )
 }

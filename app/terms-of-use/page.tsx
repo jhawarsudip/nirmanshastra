@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
-const title = 'Terms of Use — NirmanShastra'
+const title = 'Terms of Use'
 const description = 'NirmanShastra terms of use — service description, payment terms, accuracy disclaimer, and governing law.'
 const url = '/terms-of-use'
 

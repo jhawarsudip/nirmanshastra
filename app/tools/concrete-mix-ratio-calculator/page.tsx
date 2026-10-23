@@ -11,6 +11,10 @@ import {
   calculate,
   type Grade,
 } from './concrete-mix-engine'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import CalcFaq from '@/components/seo/CalcFaq'
+import RelatedLinks from '@/components/seo/RelatedLinks'
+import { MIX_CONTENT } from '@/lib/seo/calc-content'
 
 // ── Design tokens — matte dark system, matches the tool pages (water-tank / bbs) ──
 const MONO = 'var(--font-plex-mono)'
@@ -85,6 +89,7 @@ export default function ConcreteMixRatioCalculatorPage() {
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(34px,5vw,52px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
             Concrete Mix Ratio Calculator
           </h1>
+          <QuickAnswer content={MIX_CONTENT} />
           <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
             Turn a concrete volume into a shopping list. Enter how many cubic metres you need to pour and pick a
             grade — the tool uses NirmanShastra&rsquo;s{' '}
@@ -430,6 +435,11 @@ export default function ConcreteMixRatioCalculatorPage() {
             M20 matches the standard site rule of thumb.
           </p>
         </Prose>
+
+        <CalcFaq items={MIX_CONTENT.faq} />
+
+        <RelatedLinks path="/tools/concrete-mix-ratio-calculator" />
+
 
         {/* Disclaimer note */}
         <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>
