@@ -249,7 +249,7 @@ const GRADE_COST_FACTOR: Record<ConcreteGrade, number> = {
 }
 
 // Default Pune 2026 material rates (Section 5)
-const DEFAULT_RATES = {
+export const DEFAULT_RATES = {
   cement: 495,         // ₹/50kg bag
   steel: 68,           // ₹/kg (Fe500D, TMT)
   aggregate: 20,       // ₹/cft (coarse aggregate)

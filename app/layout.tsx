@@ -19,12 +19,14 @@ import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
 
 const plexSerif = IBM_Plex_Serif({
   variable: "--font-plex-serif",
+  preload: false,
   subsets: ["latin"],
   weight: ["600", "700"],
 });
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
+  preload: false,
   subsets: ["latin"],
   weight: ["400", "500", "600"],
 });
@@ -37,6 +39,7 @@ const plexMono = IBM_Plex_Mono({
 
 const plexDevanagari = IBM_Plex_Sans_Devanagari({
   variable: "--font-plex-devanagari",
+  preload: false,
   subsets: ["devanagari"],
   weight: ["400", "500"],
 });
@@ -45,6 +48,7 @@ const plexDevanagari = IBM_Plex_Sans_Devanagari({
 // Loaded globally for performance; applied only in app/page.tsx
 const fraunces = Fraunces({
   variable: "--font-fraunces",
+  preload: false,
   subsets: ["latin"],
   display: "swap",
   style: ["normal", "italic"],
@@ -52,6 +56,7 @@ const fraunces = Fraunces({
 
 const publicSans = Public_Sans({
   variable: "--font-public-sans",
+  preload: false,
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
@@ -59,6 +64,7 @@ const publicSans = Public_Sans({
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
+  preload: false,
   subsets: ["latin"],
   weight: ["600", "700"],
   style: ["normal", "italic"],
@@ -67,6 +73,7 @@ const playfair = Playfair_Display({
 
 const inter = Inter({
   variable: "--font-inter",
+  preload: false,
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
@@ -89,7 +96,8 @@ export const metadata: Metadata = {
     title: 'NirmanShastra',
   },
   icons: {
-    apple: '/icon-192.png',
+    icon: [{ url: '/brand/nirmanshastra-favicon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
     type: 'website',
@@ -127,7 +135,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning lang="en">
       <body
         className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} ${playfair.variable} ${inter.variable} antialiased`}
       >

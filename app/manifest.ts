@@ -7,18 +7,26 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior",
     start_url: '/',
     display: 'standalone',
-    background_color: '#F4F4F0',
-    theme_color: '#1E2227',
+    background_color: '#EFE7D8',
+    theme_color: '#EFE7D8',
     icons: [
       {
         src: '/icon-192.png',
         sizes: '192x192',
         type: 'image/png',
+        purpose: 'any',
       },
       {
         src: '/icon-512.png',
         sizes: '512x512',
         type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-maskable-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
       },
     ],
   }

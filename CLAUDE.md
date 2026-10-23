@@ -8,6 +8,7 @@
 - Razorpay: server-side HMAC SHA256 only. Key Secret never client-side. Paid content revealed only after server verification.
 - Vastu Gold #C9A84C in VastuPro only. Never in paid tools.
 - IBM Plex Mono for every number, rate, IS clause, and table numeral on the site.
+- DESIGN v2 ("Limewash & Laterite", Oct 2026) supersedes the June palette/fonts: tokens are `--ns-*` under the `.ns2` wrapper (homepage first). Fonts: Big Shoulders Display (display), Instrument Sans (UI), IBM Plex Mono (numbers), Hind (Devanagari). Never Inter/Playfair as a primary face on v2 pages. Hard offset shadows only; 0 px radius; no glassmorphism. Interactive widgets may only show numbers from Build Reference Section 8 or the engines, else label them illustrative.
 - One task at a time. Verify locally, then commit to GitHub.
 
 ## TECH STACK

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nirmanshastra-v1';
+const CACHE_NAME = 'nirmanshastra-v2'; // bumped for the v2 redesign + new logo so old cached icons/assets are purged
 
 const STATIC_ASSETS = [
   '/',

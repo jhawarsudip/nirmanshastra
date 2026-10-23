@@ -3,6 +3,21 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
+import { Big_Shoulders, Instrument_Sans, Hind } from 'next/font/google'
+import '@/styles/v2/base.css'
+import '@/styles/v2/chrome.css'
+import '@/styles/v2/sections.css'
+import '@/styles/v2/labs.css'
+
+// v2 fonts load only for the homepage routes (this layout wraps / and /hi only).
+// Google renamed 'Big Shoulders Display' to the variable 'Big Shoulders'; the opsz axis gives the Display cut at large sizes.
+const bigShoulders = Big_Shoulders({ subsets: ['latin'], axes: ['opsz'], variable: '--font-bsd', display: 'swap' })
+const instrumentSans = Instrument_Sans({ subsets: ['latin'], variable: '--font-isans', display: 'swap' })
+// Hind is static; keep it off the English page's preload list (the browser fetches it on demand via unicode-range).
+const hind = Hind({ subsets: ['devanagari', 'latin'], weight: ['400', '500', '600', '700'], variable: '--font-hind', display: 'swap', preload: false })
+
+// Runs before first paint: theme (day/night), Calm, and the once-per-session plumb-line load.
+const NS2_INIT = `(function(){try{var d=document.documentElement;var t=localStorage.getItem('ns2-theme');if(!t){t='light'}d.setAttribute('data-ns-theme',t);var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;var c=localStorage.getItem('ns2-calm');if(c==='1'||(c===null&&rm)){d.setAttribute('data-calm','1')}if(rm||c==='1'||sessionStorage.getItem('ns2-plumb')){d.setAttribute('data-plumb','skip')}else{sessionStorage.setItem('ns2-plumb','1')}}catch(e){}})();`
 
 type Props = {
   children: React.ReactNode
@@ -69,12 +84,13 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <script dangerouslySetInnerHTML={{ __html: NS2_INIT }} />
       {/* Wrapper applies Devanagari font stack automatically for Hindi locale.
           <html lang> is fixed to "en" in the root layout (it sits above the locale
           segment), so the Hindi page declares its language on this wrapper. */}
       <div
         lang={locale === 'hi' ? 'hi' : undefined}
-        className={locale === 'hi' ? 'devanagari-locale' : undefined}
+        className={`${bigShoulders.variable} ${instrumentSans.variable} ${hind.variable}`}
       >
         {children}
       </div>
