@@ -1,0 +1,280 @@
+/* ============================================================================
+   NIRMANSHASTRA v3 — "Storybook" — tokens + primitives.
+   Warm, human, homeowner-first. Scoped to .ns3 so legacy pages stay untouched.
+   Fonts: Rozha One (headlines), Mukta (body), Kalam (handwritten notes) — all carry Devanagari.
+   ========================================================================== */
+
+.ns3 {
+  --c-paper: #FBF4E4;
+  --c-paper-2: #F5E9CD;
+  --c-card: #FFFCF3;
+  --c-ink: #2A1E16;
+  --c-ink-2: #5E4B3C;
+  --c-indigo: #2E3F94;
+  --c-indigo-deep: #232F73;
+  --c-indigo-soft: #DFE4F8;
+  --c-marigold: #F2A516;
+  --c-marigold-deep: #D98E06;
+  --c-marigold-soft: #FCE4A8;
+  --c-tomato: #D8432B;
+  --c-leaf: #2F7A4F;
+  --c-leaf-soft: #D5EBDD;
+  --c-rust: #B5472B; /* the logo's laterite */
+  --c-sky: #CFE5F2;
+  --c-line: rgba(42, 30, 22, .16);
+  --c-line-strong: rgba(42, 30, 22, .42);
+  --c-btn-ink: #2A1E16;
+  --c-shadow: rgba(46, 63, 148, .28);
+  --c-link: #2E3F94;
+  --c-focus: #2E3F94;
+  --c-grain: .5;
+
+  /* scene (house illustration) */
+  --sc-sky: #CFE5F2;
+  --sc-sky-2: #E8F2F7;
+  --sc-hill: #B5D4C0;
+  --sc-hill-2: #9DC4AE;
+  --sc-grass: #7DB36B;
+  --sc-soil: #C39266;
+  --sc-soil-deep: #A87A4F;
+  --sc-concrete: #D3CCBF;
+  --sc-concrete-d: #B7AE9E;
+  --sc-brick: #D98A5F;
+  --sc-mortar: #F2DBC0;
+  --sc-hole: #4A392E;
+  --sc-paint: #FCE4A8;
+  --sc-glass: #CFE9F7;
+  --sc-sun: #F7B733;
+  --sc-cloud: #FFFFFF;
+
+  --f-display: var(--font-rozha), "Rozha One", Georgia, "Noto Serif Devanagari", serif;
+  --f-body: var(--font-mukta), "Mukta", system-ui, "Noto Sans Devanagari", sans-serif;
+  --f-hand: var(--font-kalam), "Kalam", "Comic Sans MS", cursive;
+
+  --gutter: clamp(20px, 4.6vw, 72px);
+  --max: 1280px;
+  --r-lg: 28px;
+  --r-md: 18px;
+  --r-sm: 12px;
+
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--c-paper);
+  color: var(--c-ink);
+  font-family: var(--f-body);
+  font-size: 18px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+html[data-ns-theme="dark"] .ns3 {
+  --c-paper: #14173A;
+  --c-paper-2: #1A1E4A;
+  --c-card: #212657;
+  --c-ink: #F8EFDB;
+  --c-ink-2: #C9BFDA;
+  --c-indigo: #9FAEF5;
+  --c-indigo-deep: #C6CEFB;
+  --c-indigo-soft: #2B3170;
+  --c-marigold: #F6B33A;
+  --c-marigold-deep: #FFC85E;
+  --c-marigold-soft: #4A3F2A;
+  --c-tomato: #FF7B5E;
+  --c-leaf: #7CCB9B;
+  --c-leaf-soft: #223F3A;
+  --c-rust: #E58A6E;
+  --c-sky: #1B2060;
+  --c-line: rgba(248, 239, 219, .16);
+  --c-line-strong: rgba(248, 239, 219, .42);
+  --c-btn-ink: #2A1E16;
+  --c-shadow: rgba(0, 0, 0, .5);
+  --c-link: #AEBBFF;
+  --c-focus: #F6B33A;
+  --c-grain: .16;
+  --sc-sky: #1B2060;
+  --sc-sky-2: #242A7A;
+  --sc-hill: #232C6E;
+  --sc-hill-2: #1C2260;
+  --sc-grass: #2F5E49;
+  --sc-soil: #5A4660;
+  --sc-soil-deep: #46344D;
+  --sc-concrete: #8E88A0;
+  --sc-concrete-d: #746E88;
+  --sc-brick: #B9684B;
+  --sc-mortar: #D9B79B;
+  --sc-hole: #14173A;
+  --sc-paint: #E7B66A;
+  --sc-glass: #FFD98A;
+  --sc-sun: #F5E7B8;
+  --sc-cloud: #3A4190;
+}
+
+/* paper grain, static */
+.ns3::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--c-grain);
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .4  0 0 0 0 .3  0 0 0 0 .2  0 0 0 .1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+html[data-ns-theme="dark"] .ns3::before { mix-blend-mode: screen; }
+.ns3 > * { position: relative; z-index: 1; }
+
+html:has(.ns3) { background: #FBF4E4; scroll-behavior: smooth; }
+html[data-ns-theme="dark"]:has(.ns3) { background: #14173A; }
+/* hide the legacy global chrome only while the v3 homepage is mounted */
+body:has(.ns3) > .announcement-bar,
+body:has(.ns3) > nav { display: none !important; }
+
+.ns3 *, .ns3 *::before, .ns3 *::after { box-sizing: border-box; }
+.ns3 a { color: inherit; text-decoration: none; }
+.ns3 img { max-width: 100%; height: auto; }
+.ns3 ::selection { background: var(--c-marigold); color: #2A1E16; }
+.ns3 :focus-visible { outline: 3px solid var(--c-focus); outline-offset: 3px; border-radius: 6px; }
+
+/* ---------- type ---------- */
+.ns3 h1, .ns3 h2, .ns3 h3, .ns3 h4 { margin: 0; font-weight: 400; }
+.s3-h1, .s3-h2, .s3-h3 { font-family: var(--f-display); font-weight: 400; letter-spacing: -.005em; margin: 0; text-wrap: balance; }
+.s3-h1 { font-size: clamp(36px, 4.7vw, 70px); line-height: 1.08; }
+.s3-h2 { font-size: clamp(32px, 4.4vw, 64px); line-height: 1.08; }
+.s3-h3 { font-size: clamp(22px, 2.2vw, 30px); line-height: 1.2; }
+.ns3 :lang(hi) .s3-h1, .ns3:lang(hi) .s3-h1 { line-height: 1.28; font-size: clamp(32px, 4.2vw, 62px); }
+.ns3 :lang(hi) .s3-h2, .ns3:lang(hi) .s3-h2 { line-height: 1.3; font-size: clamp(28px, 4vw, 56px); }
+.ns3 :lang(hi) .s3-h3, .ns3:lang(hi) .s3-h3 { line-height: 1.35; }
+.ns3 :lang(hi) { line-height: 1.7; }
+
+.s3-lede { font-size: clamp(18px, 1.5vw, 22px); line-height: 1.6; color: var(--c-ink-2); max-width: 56ch; margin: 0; text-wrap: pretty; }
+.s3-note {
+  font-family: var(--f-hand);
+  font-size: clamp(20px, 1.8vw, 26px);
+  color: var(--c-indigo);
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transform: rotate(-3deg);
+}
+.s3-muted { color: var(--c-ink-2); }
+.s3-num { font-variant-numeric: tabular-nums lining-nums; }
+
+.s3-wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter); }
+.s3-section { padding-block: clamp(64px, 9vw, 128px); position: relative; }
+.s3-section--alt { background: var(--c-paper-2); }
+.s3-head { display: grid; gap: 14px; margin-bottom: clamp(28px, 4vw, 56px); justify-items: start; }
+.s3-head--center { justify-items: center; text-align: center; }
+.s3-head--center .s3-lede { margin-inline: auto; }
+
+/* ---------- buttons ---------- */
+.s3-btn {
+  --b-bg: var(--c-marigold);
+  --b-fg: var(--c-btn-ink);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6em;
+  padding: 14px 26px;
+  min-height: 52px;
+  font-family: var(--f-body);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--b-fg);
+  background: var(--b-bg);
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 10px 22px -10px rgba(217, 142, 6, .9), inset 0 -3px 0 rgba(42, 30, 22, .14);
+  cursor: pointer;
+  transition: transform 160ms cubic-bezier(.3, 1.4, .5, 1), box-shadow 160ms, background-color 160ms;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  text-align: center;
+}
+.ns3 .s3-btn { color: var(--b-fg); }
+.s3-btn:hover { transform: translateY(-3px) rotate(-.6deg); box-shadow: 0 16px 26px -12px rgba(217, 142, 6, .95), inset 0 -3px 0 rgba(42, 30, 22, .14); }
+.s3-btn:active { transform: translateY(1px) scale(.98); box-shadow: 0 4px 10px -6px rgba(217, 142, 6, .9), inset 0 -2px 0 rgba(42, 30, 22, .14); }
+.s3-btn--indigo { --b-bg: var(--c-indigo); --b-fg: #FFFCF3; box-shadow: 0 10px 22px -10px var(--c-shadow), inset 0 -3px 0 rgba(0, 0, 0, .2); }
+html[data-ns-theme="dark"] .s3-btn--indigo { --b-bg: #8E9EF2; --b-fg: #14173A; }
+.s3-btn--ghost { --b-bg: transparent; --b-fg: var(--c-ink); box-shadow: inset 0 0 0 2px var(--c-line-strong); }
+.s3-btn--ghost:hover { box-shadow: inset 0 0 0 2px var(--c-ink); background: color-mix(in srgb, var(--c-ink) 6%, transparent); }
+.s3-btn--sm { min-height: 42px; padding: 9px 18px; font-size: 16px; }
+.s3-btn[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
+
+.s3-link {
+  color: var(--c-link);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  text-decoration-color: color-mix(in srgb, var(--c-link) 40%, transparent);
+  transition: text-decoration-color .15s;
+}
+.s3-link:hover { text-decoration-color: currentColor; }
+
+/* ---------- cards ---------- */
+.s3-card {
+  position: relative;
+  background: var(--c-card);
+  border-radius: var(--r-lg);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 18px 40px -26px rgba(42, 30, 22, .55), 0 0 0 1.5px var(--c-line);
+}
+html[data-ns-theme="dark"] .s3-card { box-shadow: 0 18px 40px -26px rgba(0, 0, 0, .8), 0 0 0 1.5px var(--c-line); }
+.s3-stitch::after {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border-radius: calc(var(--r-lg) - 8px);
+  border: 2px dashed var(--c-line);
+  pointer-events: none;
+}
+
+.s3-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--c-card);
+  box-shadow: 0 0 0 1.5px var(--c-line);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--c-ink);
+  white-space: nowrap;
+}
+.s3-chip svg { flex: none; }
+
+/* ---------- reveal helpers (CSS only; no JS gating on hero) ---------- */
+.s3-rise { transition: opacity .7s cubic-bezier(.2, .7, .2, 1), transform .7s cubic-bezier(.2, .7, .2, 1); transition-delay: var(--d, 0s); }
+html[data-js] .s3-rise:not(.is-in) { opacity: 0; transform: translateY(22px); }
+
+/* ---------- calm / reduced motion ---------- */
+html[data-calm="1"] .ns3 *, html[data-calm="1"] .ns3 *::before, html[data-calm="1"] .ns3 *::after {
+  animation-duration: .001ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .001ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+html[data-calm="1"] .s3-rise:not(.is-in) { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ns3 *, .ns3 *::before, .ns3 *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  html[data-js] .s3-rise:not(.is-in) { opacity: 1; transform: none; }
+}
+
+.s3-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.s3-skip { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--c-ink); color: var(--c-paper); padding: 10px 16px; border-radius: 10px; transition: top .15s; }
+.s3-skip:focus { top: 12px; }
+
+/* wavy divider */
+.s3-wave { display: block; width: 100%; height: clamp(24px, 4vw, 56px); }

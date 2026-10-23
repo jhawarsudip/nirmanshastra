@@ -1,0 +1,50 @@
+/* The storybook house: stage groups build in; idle life (sun, clouds, birds, family) keeps it alive. */
+
+.s3-house { display: block; width: 100%; height: auto; overflow: visible; }
+
+.s3-house .hs { opacity: 0; transition: opacity .5s ease, clip-path 1.1s cubic-bezier(.55, 0, .2, 1), transform .9s cubic-bezier(.2, .9, .25, 1.1); }
+.s3-house .hs.on { opacity: 1; }
+
+/* footings settle into the trench */
+.s3-house .hs-1 { transform: translateY(-18px); }
+.s3-house .hs-1.on { transform: none; }
+/* columns rise from the footings */
+.s3-house .hs-2 { clip-path: inset(100% 0 0 0); }
+.s3-house .hs-2.on { clip-path: inset(0 0 0 0); }
+/* plinth beam is poured left to right */
+.s3-house .hs-3 { clip-path: inset(0 100% 0 0); }
+.s3-house .hs-3.on { clip-path: inset(0 0 0 0); }
+/* walls are laid course by course, bottom to top */
+.s3-house .hs-4 { clip-path: inset(100% 0 0 0); transition-duration: .5s, 1.6s, .9s; }
+.s3-house .hs-4.on { clip-path: inset(0 0 0 0); }
+/* beams */
+.s3-house .hs-5 { clip-path: inset(0 100% 0 0); }
+.s3-house .hs-5.on { clip-path: inset(0 0 0 0); }
+/* the roof slab is lowered into place */
+.s3-house .hs-6 { transform: translateY(-44px); }
+.s3-house .hs-6.on { transform: none; }
+/* paint sweeps across */
+.s3-house .hs-7a { clip-path: inset(0 100% 0 0); }
+.s3-house .hs-7a.on { clip-path: inset(0 0 0 0); transition-delay: .1s; }
+.s3-house .hs-7b.on { transition-delay: .9s; }
+.s3-house .hs-7c { transform: translateY(14px); }
+.s3-house .hs-7c.on { transform: none; transition-delay: 1.4s; }
+
+/* idle life */
+.s3-house .hs-rays { animation: s3-spin 60s linear infinite; }
+@keyframes s3-spin { to { transform: rotate(360deg); } }
+.s3-house .hs-cloud--a { animation: s3-drift 70s linear infinite; transform: translate(90px, 70px); }
+.s3-house .hs-cloud--b { animation: s3-drift 95s linear infinite; animation-delay: -40s; transform: translate(420px, 118px); }
+@keyframes s3-drift {
+  from { translate: -140px 0; }
+  to { translate: 760px 0; }
+}
+.s3-house .hs-birds { animation: s3-fly 26s linear infinite; transform: translate(-60px, 150px); }
+@keyframes s3-fly {
+  from { translate: 0 0; }
+  50% { translate: 420px -26px; }
+  to { translate: 900px 6px; }
+}
+.s3-house .hs-bob { animation: s3-bob 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes s3-bob { 50% { transform: translateY(-2px) rotate(.8deg); } }
+
