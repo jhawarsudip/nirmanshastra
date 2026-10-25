@@ -5,8 +5,8 @@
 // joint mortar, and the cement and sand in that mortar.
 //
 // ONE SOURCE OF TRUTH: the brick sizes, the 10 mm joint, the units-per-m² formula, the exact joint volume, the
-// mortar allowance and the cement-per-m³ figures are all imported from the MasonryPro model
-// (lib/qty/masonry/model.ts). A single wall counted here therefore agrees with the paid report; the paid report
+// mortar allowance and the cement-per-m³ figures are all imported from the MasonryPro tables
+// (lib/qty/masonry/units.ts). A single wall counted here therefore agrees with the paid report; the paid report
 // only adds the room plan, the openings schedule and the plaster.
 //
 //   units per m² = (t + 10 mm) / ((L + 10) × (W + 10) × (H + 10))      t = wall thickness, brick sizes in metres
@@ -28,7 +28,7 @@ import {
   CEMENT_KG_PER_M3,
   SAND_M3_PER_M3,
   CEMENT_BAG_KG,
-} from '@/lib/qty/masonry/model'
+} from '@/lib/qty/masonry/units'
 
 export type BrickKind = 'brick' | 'modular' | 'flyash'
 export type WallKind = 'one' | 'half'

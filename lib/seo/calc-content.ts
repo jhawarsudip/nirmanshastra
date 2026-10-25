@@ -149,7 +149,7 @@ export const BRICK_CONTENT: CalcContent = {
   quickAnswer:
     'A one-brick-thick wall takes about 94 common 230 × 115 × 75 mm bricks per square metre, or 100 modular 190 × 90 × 90 mm bricks (IS 1077:1992), all with 10 mm joints. A half-brick wall takes about half. A 10 m × 3 m red-brick wall is 2,824 bricks; order 5–10% extra.',
   source:
-    'brick-engine.ts imports SYSTEMS, unitsPerM2 and jointMortarPerM2 from lib/qty/masonry/model.ts (the MasonryPro model). bricks per m² = (t + 10 mm) / ((L + 10)(W + 10)(H + 10)). 10 m × 3 m, one brick thick: red 94.12/m² → 2,824; modular 100 → 3,000; 230×110×70 104.17 → 3,125. Half brick: 49.02 → 1,471; 50 → 1,500; 52.08 → 1,562. 1.9 m² door out of the red wall: 28.1 m² → 2,645. Breakage 5% (MasonryPro) and 10% (this page): red 10×3 → 2,965 and 3,106.',
+    'brick-engine.ts imports SYSTEMS, unitsPerM2 and jointMortarPerM2 from lib/qty/masonry/units.ts (the MasonryPro tables). bricks per m² = (t + 10 mm) / ((L + 10)(W + 10)(H + 10)). 10 m × 3 m, one brick thick: red 94.12/m² → 2,824; modular 100 → 3,000; 230×110×70 104.17 → 3,125. Half brick: 49.02 → 1,471; 50 → 1,500; 52.08 → 1,562. 1.9 m² door out of the red wall: 28.1 m² → 2,645. Breakage 5% (MasonryPro) and 10% (this page): red 10×3 → 2,965 and 3,106.',
   howTo: {
     name: 'How to count bricks for a wall',
     description: 'Worked example: a 10 m long, 3 m high wall, one red brick (230 × 115 × 75 mm) thick, no openings.',

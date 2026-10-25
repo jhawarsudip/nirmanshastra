@@ -18,8 +18,16 @@
 import type { BaseInput, Check, Fact, Overlap, Parsed, QtyLine, Ran, Table, Tile, TradeModel } from '../types'
 import { Reader, SQFT_TO_M2, bump, ceilTo, fmt, rangeText, round } from '../util'
 import { planFloors } from '../plan'
+import { buildMasonCalc } from './calc'
+import {
+  ADHESIVE_BAG_KG, ADHESIVE_KG_PER_M3, CEMENT_BAG_KG, CEMENT_KG_PER_M3, DAR_FACTOR,
+  J, MORTAR_ALLOW, SAND_M3_PER_M3, SYSTEMS, jointMortarPerM2, unitsPerM2,
+  type MasonSystem, type Sys,
+} from './units'
 
-export type MasonSystem = 'brick' | 'modular' | 'flyash' | 'aac' | 'block'
+// The brick and block tables and the units-per-m² formulas live in ./units, which the free Brick Calculator and the home
+// page's brick lab import. They stay out of this file so that no page loads the whole model (and its calculation sheet).
+export * from './units'
 
 export interface MasonInput extends BaseInput {
   dwelling: 'house' | 'flats'
@@ -78,77 +86,14 @@ export function parseMason(raw: unknown): Parsed<MasonInput> {
 
 /* ───────────────────────── tables of figures ───────────────────────── */
 
-/** Joint thickness for bricks and blocks, in metres (IS 6041 cl 7.1; IS 2572 cl 11.1.4; IS 2212 cl 6.4.1 allows up to 12 mm). */
-const J = 0.01
-/** Thin-bed adhesive joint for AAC blocks, in metres. */
-const J_THIN = 0.003
-
-export interface Sys {
-  key: MasonSystem
-  label: string
-  unit: string
-  unitsLabel: string
-  kind: 'brick' | 'block'
-  /** length, width, height of a brick (m); for blocks length and height of the face and width unused */
-  L: number
-  W: number
-  H: number
-  /** wall thickness for a one-brick (or thick block) outer wall, and the thin alternative, and for a partition (m) */
-  ext: number
-  extThin?: number
-  int: number
-  size: string
-  /** fraction added for breakage and cutting */
-  loss: number
-  source: string
-  /** the actual block is 10 mm thinner than its nominal thickness (IS 2185 cl 3.2: nominal includes the joint) */
-  short?: boolean
-}
-
-export const SYSTEMS: Record<MasonSystem, Sys> = {
-  brick: { key: 'brick', label: 'Red clay brick', unit: 'brick', unitsLabel: 'bricks', kind: 'brick', L: 0.23, W: 0.115, H: 0.075, ext: 0.23, int: 0.115, size: '230 × 115 × 75 mm', loss: 0.05, source: 'The common field size of red bricks. It is not a BIS size, and it varies from kiln to kiln.' },
-  modular: { key: 'modular', label: 'Modular clay brick', unit: 'brick', unitsLabel: 'bricks', kind: 'brick', L: 0.19, W: 0.09, H: 0.09, ext: 0.19, int: 0.09, size: '190 × 90 × 90 mm', loss: 0.05, source: 'IS 1077:1992 cl 6.1.1' },
-  flyash: { key: 'flyash', label: 'Fly-ash brick', unit: 'brick', unitsLabel: 'bricks', kind: 'brick', L: 0.23, W: 0.11, H: 0.07, ext: 0.23, int: 0.11, size: '230 × 110 × 70 mm', loss: 0.05, source: 'IS 12894:2002 cl 5.1.2' },
-  aac: { key: 'aac', label: 'AAC block', unit: 'block', unitsLabel: 'blocks', kind: 'block', L: 0.6, W: 0, H: 0.2, ext: 0.2, extThin: 0.15, int: 0.1, size: '600 × 200 mm face', loss: 0.04, source: 'IS 2185 (Part 3) cl 3.2 and maker data: face 600 × 200 mm, thickness 100 to 300 mm' },
-  block: { key: 'block', label: 'Concrete block', unit: 'block', unitsLabel: 'blocks', kind: 'block', L: 0.4, W: 0, H: 0.2, ext: 0.2, extThin: 0.15, int: 0.1, size: '400 × 200 mm face', loss: 0.04, short: true, source: 'IS 2185 (Part 1 and 2) cl 3.2.1: 400 × 200 mm face' },
-}
-
-/** Units in one m² of wall of thickness t (m). Bricks: one over the pitch in all three directions times the nominal thickness. */
-export function unitsPerM2(s: Sys, t: number, thin: boolean): number {
-  if (s.kind === 'brick') return (t + J) / ((s.L + J) * (s.W + J) * (s.H + J))
-  return thin ? 1 / ((s.L + J_THIN) * (s.H + J_THIN)) : 1 / (s.L * s.H)
-}
-
-/** Joint mortar in one m² of wall, as the exact volume of the joints (m³). Zero for thin-bed adhesive, which is counted in kg. */
-export function jointMortarPerM2(s: Sys, t: number, thin: boolean): number {
-  if (thin) return 0
-  const n = unitsPerM2(s, t, false)
-  if (s.kind === 'brick') return Math.max(0, t - n * s.L * s.W * s.H)
-  // blocks: nominal size includes the joint; the block itself is 10 mm short of nominal in length and height (IS 2185 cl 3.2),
-  // and a concrete block is 10 mm short in thickness too
-  const ta = s.short ? t - J : t
-  return Math.max(0, ta * (1 - n * (s.L - J) * (s.H - J)))
-}
-
-/** Extra mortar over the exact joint volume for uneven bricks, frogs, droppings and waste. Assumed: no standard gives it. */
-export const MORTAR_ALLOW = 1.25
-/** Thin-bed adhesive, kg per m³ of wall. Derived from the joint volume (28 to 32) and the makers' coverage (24 to 40). */
-const ADHESIVE_KG_PER_M3 = 33
-const ADHESIVE_BAG_KG = 40
-
-/** Cement per m³ of mortar (kg) for 1:X, calibrated to the CPWD DAR 2014 plaster yield of 513 kg for 1:3; sand is 1.069 m³. */
-const DAR_FACTOR = 1.069
-export const CEMENT_KG_PER_M3 = (mix: number) => (1440 / mix) * DAR_FACTOR
-export const SAND_M3_PER_M3 = DAR_FACTOR
-export const CEMENT_BAG_KG = 50
 
 /** Concrete M20 nominal mix 1:1.5:3 per m³ (CPWD DAR 2014 Vol 1 item 4.1.2). */
-const M20 = { cementKg: 400, sandM3: 0.425, stoneM3: 0.85 }
+export const M20 = { cementKg: 400, sandM3: 0.425, stoneM3: 0.85 }
 
 /** CPWD DAR 2014 Vol 2, sub-head 13: mortar per m² for each plaster item (the figure printed per 10 m², divided by 10). */
-interface Layer { t: number; mix: number; mortar: number }
-interface Spec { id: string; label: string; layers: Layer[]; ref: string }
-const SPEC: Record<'inside' | 'ceiling' | 'single' | 'twocoat', Spec> = {
+export interface Layer { t: number; mix: number; mortar: number }
+export interface Spec { id: string; label: string; layers: Layer[]; ref: string }
+export const SPEC: Record<'inside' | 'ceiling' | 'single' | 'twocoat', Spec> = {
   inside: { id: 'inside', label: '12 mm, 1:6', layers: [{ t: 12, mix: 6, mortar: 0.0144 }], ref: 'DAR item 13.4' },
   ceiling: { id: 'ceiling', label: '6 mm, 1:3', layers: [{ t: 6, mix: 3, mortar: 0.0072 }], ref: 'DAR item 13.16' },
   single: { id: 'single', label: '20 mm, 1:4', layers: [{ t: 20, mix: 4, mortar: 0.0224 }], ref: 'DAR item 13.3' },
@@ -156,22 +101,24 @@ const SPEC: Record<'inside' | 'ceiling' | 'single' | 'twocoat', Spec> = {
 }
 
 /* heights and sizes (Assumed unless stated) */
-const BEAM_D = 0.45 // m, the outer beam under each floor
-const SLAB_T = 0.15 // m
-const WALL_UNDER_BEAMS = 0.3 // m: inner walls meet a slab (0.15) or a beam (0.45); the average is taken off the height
-const PLINTH_H = 0.6 // m of masonry between the plinth beam and the floor: 0.15 below ground, 0.45 above
-const PLINTH_ABOVE = 0.45
-const PARAPET_H = 1.0
-const MUMTY = { perimeter: 12, height: 2.4, area: 9 } // a 3 × 3 m staircase room
-const BALCONY = { edge: 6.0, area: 4.5 } // 3.0 m wide and 1.5 m deep: edge walls on three sides
+export const BEAM_D = 0.45 // m, the outer beam under each floor
+export const SLAB_T = 0.15 // m
+export const WALL_UNDER_BEAMS = 0.3 // m: inner walls meet a slab (0.15) or a beam (0.45); the average is taken off the height
+export const PLINTH_H = 0.6 // m of masonry between the plinth beam and the floor: 0.15 below ground, 0.45 above
+export const PLINTH_ABOVE = 0.45
+export const PARAPET_H = 1.0
+/** Thickness of a block parapet or balcony edge wall, m (a brick one is the half-brick width). Assumed. */
+export const PARAPET_BLOCK_T = 0.15
+export const MUMTY = { perimeter: 12, height: 2.4, area: 9 } // a 3 × 3 m staircase room
+export const BALCONY = { edge: 6.0, area: 4.5 } // 3.0 m wide and 1.5 m deep: edge walls on three sides
 
-const WINDOW_SILL = 0.075 // m, a sill under each window is included with the opening (IS 1200 Part 3 cl 4.1.4 note)
-const lintelDepth = (w: number) => (w <= 1.5 ? 0.15 : 0.2)
-const lintelBearing = (w: number) => Math.max(0.15, w / 10) // IS 1905 cl 5.3.3: at least 9 cm or span/10
+export const WINDOW_SILL = 0.075 // m, a sill under each window is included with the opening (IS 1200 Part 3 cl 4.1.4 note)
+export const lintelDepth = (w: number) => (w <= 1.5 ? 0.15 : 0.2)
+export const lintelBearing = (w: number) => Math.max(0.15, w / 10) // IS 1905 cl 5.3.3: at least 9 cm or span/10
 
-type OpenId = 'main' | 'room' | 'bath' | 'balc' | 'balcL' | 'winB' | 'winL' | 'winK' | 'winS' | 'vent' | 'mumty'
-interface OpenDef { name: string; w: number; h: number; win: boolean }
-const OPEN: Record<OpenId, OpenDef> = {
+export type OpenId = 'main' | 'room' | 'bath' | 'balc' | 'balcL' | 'winB' | 'winL' | 'winK' | 'winS' | 'vent' | 'mumty'
+export interface OpenDef { name: string; w: number; h: number; win: boolean }
+export const OPEN: Record<OpenId, OpenDef> = {
   main: { name: 'Main door', w: 1.0, h: 2.1, win: false },
   room: { name: 'Room door', w: 0.9, h: 2.1, win: false },
   bath: { name: 'Bathroom door', w: 0.75, h: 2.1, win: false },
@@ -184,11 +131,43 @@ const OPEN: Record<OpenId, OpenDef> = {
   vent: { name: 'Bathroom ventilator', w: 0.6, h: 0.45, win: true },
   mumty: { name: 'Door of the terrace stair room', w: 0.9, h: 2.1, win: false },
 }
-const oArea = (id: OpenId) => OPEN[id].w * OPEN[id].h
+export const oArea = (id: OpenId) => OPEN[id].w * OPEN[id].h
 
-type Where = 'ext' | 'int' | 'mumty'
+/** Steel in every lintel (Assumed): two 10 mm bars below, two 8 mm above, 6 mm stirrups. Masses per metre are IS 1786:2008 Table 1. */
+export const LINTEL_STEEL = {
+  bottomBars: 2, bottomKgPerM: 0.617,
+  topBars: 2, topKgPerM: 0.395, topShort: 0.05,
+  stirrupKgPerM: 0.222, stirrupSpacing: 0.15, stirrupMinWidth: 0.05, stirrupCover: 0.05, stirrupHook: 0.1,
+}
+/** Lintel bar sizes, mm, for the sheet (the engine holds only the masses per metre). */
+export const LINTEL_BAR_MM = { bottom: 10, top: 8, stirrup: 6 }
 
-function spread(total: number, n: number): number[] {
+/** How far off each class of figure is likely to be: multipliers on the figure shown. */
+export const BANDS = {
+  units: { low: 0.82, high: 1.2 },
+  cement: { low: 0.8, high: 1.3 },
+  sand: { low: 0.8, high: 1.3 },
+  plaster: { low: 0.85, high: 1.18 },
+  adhesive: { low: 0.75, high: 1.35 },
+  lintel: { low: 0.7, high: 1.4 },
+}
+
+/**
+ * How openings come out of plaster (IS 1200 Part 12 cl 3.8): none up to 0.5 m², one face from 0.5 to 3 m² (an outer wall: half from each face),
+ * both faces above 3 m² with the reveals added. The reveal is the wall thickness less a 100 mm door or window frame (Assumed).
+ */
+export const PLASTER_RULE = { noDeductM2: 0.5, bothFacesM2: 3, halfFace: 0.5, frameM: 0.1 }
+
+/** Limits used by the code checks on the free page. */
+export const CHECK_LIMITS = { panelNominalM: 0.2, panelStoreyM: 3.5, partitionSlenderness: 30, parapetSlenderness: 5 }
+
+/** Order sizes: bricks in hundreds, blocks in tens, lintel steel in 5 kg. */
+export const unitPack = (kind: 'brick' | 'block') => (kind === 'brick' ? 100 : 10)
+export const STEEL_PACK_KG = 5
+
+export type Where = 'ext' | 'int' | 'mumty'
+
+export function spread(total: number, n: number): number[] {
   const base = Math.floor(total / n)
   const rem = total % n
   return Array.from({ length: n }, (_, i) => base + (i < rem ? 1 : 0))
@@ -197,7 +176,84 @@ function spread(total: number, n: number): number[] {
 
 /* ───────────────────────── the model ───────────────────────── */
 
-export function runMason(inp: MasonInput): Ran {
+/** One kind of wall: where it is, how thick and high, and what comes out of it. */
+export interface Cls { id: string; name: string; sys: Sys; t: number; thin: boolean; mix: number; len: number; h: number; gross: number; ded: number; rule: string }
+export interface UnitRow { cls: Cls; net: number; upm2: number; units: number; withLoss: number; mortar: number; adhesive: number }
+export interface PlRow { surface: string; gross: number; ded: number; net: number; spec: Spec }
+export interface LintelRow { id: OpenId; n: number; t: number; d: number; L: number; vol: number; steel: number; sills: number }
+export interface MatRow { use: string; mix: string; vol: number; cement: number; sand: number; stone: number }
+
+/**
+ * Every intermediate figure of a run, for the calculation sheet (lib/qty/masonry/calc.ts). It is filled only when a caller
+ * passes one to runMason; the report never carries it, and a run without it is exactly the same run.
+ */
+export interface MasonTrace {
+  S: Sys
+  P_S: Sys
+  thin: boolean
+  tExt: number
+  tInt: number
+  tPar: number
+  tPlinth: number
+  H: number
+  He: number
+  Hi: number
+  Hc: number
+  N: number
+  h: number
+  homes: number
+  footM2: number[]
+  bed: number[]
+  bath: number[]
+  kit: number[]
+  balc: number[]
+  balcTotal: number
+  plans: ReturnType<typeof planFloors>
+  rooms: { bed: number; living: number; kit: number; bath: number }
+  sumP: number
+  sumInt: number
+  sumParty: number
+  sumNet: number
+  topP: number
+  hasMumty: boolean
+  mixInt: number
+  open: Map<OpenId, { n: number; where: Where }>
+  classes: Cls[]
+  unitRows: UnitRow[]
+  unitTotals: Map<MasonSystem, number>
+  mainUnitRaw: number
+  mainUnits: number
+  intFaces: number
+  inInner: number
+  reveals: number
+  dedInt: number
+  dedInSide: number
+  dedOutSide: number
+  outFace: number
+  parapetFaces: number
+  balcFaces: number
+  ceilArea: number
+  plRows: PlRow[]
+  plasterTotal: number
+  lintelRows: LintelRow[]
+  lintelVol: number
+  lintelSteel: number
+  lintelN: number
+  lintelLen: number
+  sillLen: number
+  sillN: number
+  mat: MatRow[]
+  cementKg: number
+  sandM3: number
+  stoneM3: number
+  cementBags: number
+  adhesiveKg: number
+  adhesiveBags: number
+  nDoors: number
+  nWindows: number
+}
+
+export function runMason(inp: MasonInput, trace?: MasonTrace): Ran {
   const N = inp.floorAreasSqft.length
   const flats = inp.dwelling === 'flats'
   const h = flats ? inp.homesPerFloor : 1
@@ -205,7 +261,7 @@ export function runMason(inp: MasonInput): Ran {
   const thin = inp.system === 'aac' && inp.aacJoint === 'thin'
   const tExt = S.kind === 'brick' ? S.ext : inp.thickOuter ? S.ext : (S.extThin as number)
   const tInt = S.int
-  const tPar = S.kind === 'brick' ? S.int : 0.15
+  const tPar = S.kind === 'brick' ? S.int : PARAPET_BLOCK_T
   // AAC is not used below the plinth: it takes up water. Concrete blocks are used there.
   const P_S = inp.system === 'aac' ? SYSTEMS.block : S
   const tPlinth = P_S.kind === 'brick' ? P_S.ext : inp.thickOuter ? P_S.ext : (P_S.extThin as number)
@@ -265,7 +321,6 @@ export function runMason(inp: MasonInput): Ran {
   if (hasMumty) addO('mumty', 1, 'mumty')
 
   // ── wall classes
-  interface Cls { id: string; name: string; sys: Sys; t: number; thin: boolean; mix: number; len: number; h: number; gross: number; ded: number; rule: string }
   const classes: Cls[] = []
   const wallArea = (len: number, ht: number) => len * ht
   const dedFor = (where: Where) => {
@@ -289,7 +344,6 @@ export function runMason(inp: MasonInput): Ran {
   if (hasMumty) classes.push({ id: 'mumty', name: 'Terrace stair room', sys: S, t: tExt, thin, mix: 6, len: MUMTY.perimeter, h: MUMTY.height, gross: wallArea(MUMTY.perimeter, MUMTY.height), ded: dedFor('mumty'), rule: 'A 3 × 3 m room, 2.4 m high' })
 
   // ── units, mortar and adhesive by class
-  interface UnitRow { cls: Cls; net: number; upm2: number; units: number; withLoss: number; mortar: number; adhesive: number }
   const unitRows: UnitRow[] = classes.map((c) => {
     const net = Math.max(0, c.gross - c.ded)
     const upm2 = unitsPerM2(c.sys, c.t, c.thin)
@@ -315,11 +369,11 @@ export function runMason(inp: MasonInput): Ran {
     const def = OPEN[id]
     const a = oArea(id)
     if (o.where === 'int') {
-      if (a > 3) dedInt += 2 * o.n * a
-      else if (a > 0.5) dedInt += o.n * a
+      if (a > PLASTER_RULE.bothFacesM2) dedInt += 2 * o.n * a
+      else if (a > PLASTER_RULE.noDeductM2) dedInt += o.n * a
     } else {
-      if (a > 3) { dedInSide += o.n * a; dedOutSide += o.n * a; reveals += o.n * (def.w + 2 * def.h) * Math.max(0, tExt - 0.1) }
-      else if (a > 0.5) { dedInSide += o.n * a * 0.5; dedOutSide += o.n * a * 0.5 }
+      if (a > PLASTER_RULE.bothFacesM2) { dedInSide += o.n * a; dedOutSide += o.n * a; reveals += o.n * (def.w + 2 * def.h) * Math.max(0, tExt - PLASTER_RULE.frameM) }
+      else if (a > PLASTER_RULE.noDeductM2) { dedInSide += o.n * a * PLASTER_RULE.halfFace; dedOutSide += o.n * a * PLASTER_RULE.halfFace }
     }
   }
   const inInner = sumP * Hc + (hasMumty ? MUMTY.perimeter * MUMTY.height : 0)
@@ -328,7 +382,6 @@ export function runMason(inp: MasonInput): Ran {
   const balcFaces = inp.balconyWall && balcTotal > 0 ? balcTotal * BALCONY.edge * (2 * PARAPET_H + tPar) : 0
   const ceilArea = inp.plasterCeil ? sumNet + balcTotal * BALCONY.area + (hasMumty ? MUMTY.area : 0) : 0
 
-  interface PlRow { surface: string; gross: number; ded: number; net: number; spec: Spec }
   const plRows: PlRow[] = []
   plRows.push({ surface: 'Inner walls, both faces, and the inside of the outer walls', gross: intFaces + inInner + reveals, ded: dedInt + dedInSide, net: Math.max(0, intFaces + inInner + reveals - dedInt - dedInSide), spec: SPEC.inside })
   if (inp.plasterCeil && ceilArea > 0) plRows.push({ surface: 'Ceilings, with the balcony undersides', gross: ceilArea, ded: 0, net: ceilArea, spec: SPEC.ceiling })
@@ -341,7 +394,6 @@ export function runMason(inp: MasonInput): Ran {
   const plasterTotal = plRows.reduce((s, r) => s + r.net, 0)
 
   // ── lintels and sills
-  interface LintelRow { id: OpenId; n: number; t: number; d: number; L: number; vol: number; steel: number; sills: number }
   const lintelRows: LintelRow[] = []
   for (const [id, o] of open) {
     const def = OPEN[id]
@@ -350,9 +402,10 @@ export function runMason(inp: MasonInput): Ran {
     const L = def.w + 2 * lintelBearing(def.w)
     const vol = L * t * d
     // two bars of 10 mm at the bottom, two of 8 mm at the top, 6 mm stirrups at 150 mm (Assumed)
-    const nStir = Math.ceil(L / 0.15) + 1
-    const stirLen = 2 * (Math.max(0.05, t - 0.05) + (d - 0.05)) + 0.1
-    const steel = 2 * L * 0.617 + 2 * (L - 0.05) * 0.395 + nStir * stirLen * 0.222
+    const LS = LINTEL_STEEL
+    const nStir = Math.ceil(L / LS.stirrupSpacing) + 1
+    const stirLen = 2 * (Math.max(LS.stirrupMinWidth, t - LS.stirrupCover) + (d - LS.stirrupCover)) + LS.stirrupHook
+    const steel = LS.bottomBars * L * LS.bottomKgPerM + LS.topBars * (L - LS.topShort) * LS.topKgPerM + nStir * stirLen * LS.stirrupKgPerM
     lintelRows.push({ id, n: o.n, t, d, L, vol, steel, sills: def.win ? o.n : 0 })
   }
   const lintelVol = lintelRows.reduce((s, r) => s + r.n * r.vol, 0)
@@ -363,7 +416,6 @@ export function runMason(inp: MasonInput): Ran {
   const sillN = lintelRows.reduce((s, r) => s + r.sills, 0)
 
   // ── cement and sand, by use
-  interface MatRow { use: string; mix: string; vol: number; cement: number; sand: number; stone: number }
   const mat: MatRow[] = []
   const addMat = (use: string, mixLabel: string, vol: number, cementKg: number, sandM3: number, stoneM3 = 0) => {
     if (vol > 0) mat.push({ use, mix: mixLabel, vol, cement: cementKg, sand: sandM3, stone: stoneM3 })
@@ -396,22 +448,22 @@ export function runMason(inp: MasonInput): Ran {
   checks.push({
     id: 'panel', clause: S.kind === 'brick' ? 'IS 4326:1993 cl 8.2.3 (note)' : inp.system === 'aac' ? 'IS 6041:1985 cl 4.2.1' : 'IS 2572:2005 cl 7.2.1.2',
     description: 'Outer wall thickness in a framed building',
-    status: nomExt >= 0.2 - 1e-9 && H <= 3.5 ? 'pass' : 'advisory',
-    detail: nomExt >= 0.2 - 1e-9
-      ? `Your outer wall is ${round(tExt * 1000)} mm. Infill walls of at least 200 mm in storeys up to 3.5 m high need no separate panel check.${H > 3.5 ? ` Your storey is ${fmt(H, 2)} m, so ask your engineer to check the panels.` : ''}`
+    status: nomExt >= CHECK_LIMITS.panelNominalM - 1e-9 && H <= CHECK_LIMITS.panelStoreyM ? 'pass' : 'advisory',
+    detail: nomExt >= CHECK_LIMITS.panelNominalM - 1e-9
+      ? `Your outer wall is ${round(tExt * 1000)} mm. Infill walls of at least 200 mm in storeys up to 3.5 m high need no separate panel check.${H > CHECK_LIMITS.panelStoreyM ? ` Your storey is ${fmt(H, 2)} m, so ask your engineer to check the panels.` : ''}`
       : `Your outer wall is ${round(tExt * 1000)} mm. Blocks of 150 mm are allowed in a frame only if the wall is braced and reinforced, so ask your engineer to confirm before you choose this.`,
   })
   checks.push({
     id: 'partition', clause: 'IS 1905:1987 Appendix D-3.1(b)', description: 'Inner walls: height against thickness',
-    status: Hi <= 30 * tInt + 1e-9 ? 'pass' : 'advisory',
-    detail: `An inner wall held at its ends and at the top may be up to 30 times its thickness high: ${fmt(30 * tInt, 2)} m for ${round(tInt * 1000)} mm. Yours is about ${fmt(Hi, 2)} m high.${Hi <= 30 * tInt + 1e-9 ? '' : ' It needs a stiffening band at mid-height, which is not counted here.'}`,
+    status: Hi <= CHECK_LIMITS.partitionSlenderness * tInt + 1e-9 ? 'pass' : 'advisory',
+    detail: `An inner wall held at its ends and at the top may be up to 30 times its thickness high: ${fmt(CHECK_LIMITS.partitionSlenderness * tInt, 2)} m for ${round(tInt * 1000)} mm. Yours is about ${fmt(Hi, 2)} m high.${Hi <= CHECK_LIMITS.partitionSlenderness * tInt + 1e-9 ? '' : ' It needs a stiffening band at mid-height, which is not counted here.'}`,
   })
-  const parapetOk = PARAPET_H <= 5 * tPar + 1e-9
+  const parapetOk = PARAPET_H <= CHECK_LIMITS.parapetSlenderness * tPar + 1e-9
   if (inp.parapet || (inp.balconyWall && balcTotal > 0)) {
     checks.push({
       id: 'parapet', clause: 'IS 6041:1985 cl 4.3; IS 2572:2005 cl 7.2.2', description: 'Parapet height against thickness',
       status: parapetOk ? 'pass' : 'advisory',
-      detail: `A parapet unbraced for more than 3 m may be at most 5 times its thickness high: ${fmt(5 * tPar, 2)} m for ${round(tPar * 1000)} mm. Your parapet is ${fmt(PARAPET_H, 1)} m, so ${parapetOk ? 'it stands within the limit' : 'it needs stiffening columns at 3 m or less. They are not counted here. The same limit is used for brick as a guide'}.`,
+      detail: `A parapet unbraced for more than 3 m may be at most 5 times its thickness high: ${fmt(CHECK_LIMITS.parapetSlenderness * tPar, 2)} m for ${round(tPar * 1000)} mm. Your parapet is ${fmt(PARAPET_H, 1)} m, so ${parapetOk ? 'it stands within the limit' : 'it needs stiffening columns at 3 m or less. They are not counted here. The same limit is used for brick as a guide'}.`,
     })
   }
   checks.push({
@@ -470,15 +522,15 @@ export function runMason(inp: MasonInput): Ran {
   // ───────── paid part ─────────
   const sysUnits = [...unitTotals.entries()]
   const mainUnitRaw = unitTotals.get(S.key) ?? 0
-  const unitRoundTo = S.kind === 'brick' ? 100 : 10
+  const unitRoundTo = unitPack(S.kind)
   const mainUnits = ceilTo(mainUnitRaw, unitRoundTo)
   const tiles: Tile[] = [
-    { k: S.kind === 'brick' ? 'Bricks' : 'Blocks', v: fmt(mainUnits), unit: S.kind === 'brick' ? 'nos' : 'nos', range: `${rangeText(mainUnits, 0.82, 1.2)} nos` },
-    { k: 'Cement', v: fmt(cementBags), unit: 'bags of 50 kg', range: `${rangeText(cementBags, 0.8, 1.3)} bags` },
-    { k: 'Sand', v: fmt(sandM3, 1), unit: 'm³', range: `${rangeText(sandM3, 0.8, 1.3, 1)} m³` },
+    { k: S.kind === 'brick' ? 'Bricks' : 'Blocks', v: fmt(mainUnits), unit: S.kind === 'brick' ? 'nos' : 'nos', range: `${rangeText(mainUnits, BANDS.units.low, BANDS.units.high)} nos` },
+    { k: 'Cement', v: fmt(cementBags), unit: 'bags of 50 kg', range: `${rangeText(cementBags, BANDS.cement.low, BANDS.cement.high)} bags` },
+    { k: 'Sand', v: fmt(sandM3, 1), unit: 'm³', range: `${rangeText(sandM3, BANDS.sand.low, BANDS.sand.high, 1)} m³` },
     thin
-      ? { k: 'Block adhesive', v: fmt(adhesiveBags), unit: 'bags of 40 kg', range: `${rangeText(adhesiveBags, 0.75, 1.35)} bags` }
-      : { k: 'Plaster', v: fmt(plasterTotal), unit: 'm²', range: `${rangeText(plasterTotal, 0.85, 1.18)} m²` },
+      ? { k: 'Block adhesive', v: fmt(adhesiveBags), unit: 'bags of 40 kg', range: `${rangeText(adhesiveBags, BANDS.adhesive.low, BANDS.adhesive.high)} bags` }
+      : { k: 'Plaster', v: fmt(plasterTotal), unit: 'm²', range: `${rangeText(plasterTotal, BANDS.plaster.low, BANDS.plaster.high)} m²` },
   ]
 
   const wallRows: (string | number)[][] = classes.map((c) => [c.name, fmt(c.len, 1), fmt(c.h, 2), round(c.t * 1000), fmt(c.gross, 1), fmt(c.ded, 1), fmt(Math.max(0, c.gross - c.ded), 1)])
@@ -487,7 +539,7 @@ export function runMason(inp: MasonInput): Ran {
   const openRows: (string | number)[][] = [...open.entries()].map(([id, o]) => {
     const def = OPEN[id]
     const a = oArea(id)
-    const rule = a <= 0.5 ? 'Not deducted from plaster' : a <= 3 ? 'Deducted once from plaster' : 'Both faces deducted, reveals added'
+    const rule = a <= PLASTER_RULE.noDeductM2 ? 'Not deducted from plaster' : a <= PLASTER_RULE.bothFacesM2 ? 'Deducted once from plaster' : 'Both faces deducted, reveals added'
     return [def.name, `${fmt(def.w, 2)} × ${fmt(def.h, 2)}`, o.n, fmt(a, 2), fmt(o.n * def.w * (def.h + lintelDepth(def.w) + (def.win ? WINDOW_SILL : 0)), 1), rule]
   })
 
@@ -559,13 +611,13 @@ export function runMason(inp: MasonInput): Ran {
   const lines: QtyLine[] = []
   for (const [k, n] of sysUnits) {
     const sd = SYSTEMS[k]
-    lines.push({ key: `masonry-unit-${k}`, item: `${sd.label} ${sd.size}`, qty: ceilTo(n, sd.kind === 'brick' ? 100 : 10), unit: 'nos', group: 'Masonry', basis: `${sd.unitsLabel}, with ${round(sd.loss * 100)}% breakage` })
+    lines.push({ key: `masonry-unit-${k}`, item: `${sd.label} ${sd.size}`, qty: ceilTo(n, unitPack(sd.kind)), unit: 'nos', group: 'Masonry', basis: `${sd.unitsLabel}, with ${round(sd.loss * 100)}% breakage` })
   }
   if (thin) lines.push({ key: 'aac-adhesive-kg', item: 'AAC thin-bed adhesive', qty: ceilTo(adhesiveKg, ADHESIVE_BAG_KG), unit: 'kg', group: 'Masonry', basis: `Bags of ${ADHESIVE_BAG_KG} kg` })
   lines.push({ key: 'cement-bag-50kg', item: 'Cement', qty: cementBags, unit: 'bags of 50 kg', group: 'Cement and sand', basis: 'Joints, plaster and lintels' })
   lines.push({ key: 'sand-m3', item: 'Sand', qty: round(sandM3, 1), unit: 'm³', group: 'Cement and sand', basis: 'Joints, plaster and lintels' })
   if (stoneM3 > 0) lines.push({ key: 'aggregate-20mm-m3', item: 'Stone aggregate 20 mm', qty: round(stoneM3, 2), unit: 'm³', group: 'Cement and sand', basis: 'Lintel concrete' })
-  if (lintelSteel > 0) lines.push({ key: 'steel-lintel-kg', item: 'Steel for lintels (10, 8 and 6 mm)', qty: ceilTo(lintelSteel, 5), unit: 'kg', group: 'Steel', basis: 'Bars and stirrups' })
+  if (lintelSteel > 0) lines.push({ key: 'steel-lintel-kg', item: 'Steel for lintels (10, 8 and 6 mm)', qty: ceilTo(lintelSteel, STEEL_PACK_KG), unit: 'kg', group: 'Steel', basis: 'Bars and stirrups' })
 
   const assumptions = [
     `Code: ${S.label} of ${S.size} (${S.source}); joints of ${thin ? '3 mm adhesive (maker’s figure)' : '10 mm (IS 6041 cl 7.1, IS 2572 cl 11.1.4)'}. Walls are measured and openings deducted to IS 1200 (Part 3) and (Part 12).`,
@@ -599,17 +651,17 @@ export function runMason(inp: MasonInput): Ran {
           { key: 'cement-bag-50kg', unit: 'bags of 50 kg', qty: (lintelVol * M20.cementKg) / CEMENT_BAG_KG },
           { key: 'sand-m3', unit: 'm³', qty: lintelVol * M20.sandM3 },
           ...(stoneM3 > 0 ? [{ key: 'aggregate-20mm-m3', unit: 'm³', qty: lintelVol * M20.stoneM3 }] : []),
-          ...(lintelSteel > 0 ? [{ key: 'steel-lintel-kg', unit: 'kg', qty: ceilTo(lintelSteel, 5) }] : []),
+          ...(lintelSteel > 0 ? [{ key: 'steel-lintel-kg', unit: 'kg', qty: ceilTo(lintelSteel, STEEL_PACK_KG) }] : []),
         ],
       }
     : undefined
 
   const bands = [
-    { label: S.kind === 'brick' ? 'Bricks' : 'Blocks', low: 0.82, high: 1.2 },
-    { label: 'Cement', low: 0.8, high: 1.3 },
-    { label: 'Sand', low: 0.8, high: 1.3 },
-    { label: 'Plaster area', low: 0.85, high: 1.18 },
-    { label: 'Lintel concrete and steel', low: 0.7, high: 1.4 },
+    { label: S.kind === 'brick' ? 'Bricks' : 'Blocks', low: BANDS.units.low, high: BANDS.units.high },
+    { label: 'Cement', low: BANDS.cement.low, high: BANDS.cement.high },
+    { label: 'Sand', low: BANDS.sand.low, high: BANDS.sand.high },
+    { label: 'Plaster area', low: BANDS.plaster.low, high: BANDS.plaster.high },
+    { label: 'Lintel concrete and steel', low: BANDS.lintel.low, high: BANDS.lintel.high },
   ]
   const sources = [
     'IS 1077:1992 Common burnt clay building bricks; IS 12894:2002 Fly ash lime bricks; IS 2212:1991 Brickwork',
@@ -618,6 +670,16 @@ export function runMason(inp: MasonInput): Ran {
     'IS 4326:1993 Earthquake-resistant construction; IS 1905:1987 Masonry; IS 3362:1977 Natural ventilation',
     'CPWD Delhi Analysis of Rates 2014, Volume 1 (concrete, mortar) and Volume 2 (plaster)',
   ]
+
+  if (trace) {
+    Object.assign(trace, {
+      S, P_S, thin, tExt, tInt, tPar, tPlinth, H, He, Hi, Hc, N, h, homes, footM2, bed, bath, kit, balc, balcTotal, plans, rooms,
+      sumP, sumInt, sumParty, sumNet, topP, hasMumty, mixInt, open, classes, unitRows, unitTotals, mainUnitRaw, mainUnits,
+      intFaces, inInner, reveals, dedInt, dedInSide, dedOutSide, outFace, parapetFaces, balcFaces, ceilArea, plRows, plasterTotal,
+      lintelRows, lintelVol, lintelSteel, lintelN, lintelLen, sillLen, sillN, mat, cementKg, sandM3, stoneM3, cementBags,
+      adhesiveKg, adhesiveBags, nDoors, nWindows,
+    })
+  }
 
   return {
     ok: true,
@@ -641,5 +703,6 @@ export const masonryModel: TradeModel<MasonInput> = {
   label: 'MasonryPro',
   code: 'MA',
   parse: parseMason,
-  run: runMason,
+  run: (input) => runMason(input),
+  calc: buildMasonCalc,
 }

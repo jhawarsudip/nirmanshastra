@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { useMotionOK, useReveal, useTween } from '@/lib/v2/store'
 import Calc from '../Calc'
-import { SYSTEMS, unitsPerM2, jointMortarPerM2, MORTAR_ALLOW, CEMENT_KG_PER_M3, SAND_M3_PER_M3, CEMENT_BAG_KG } from '@/lib/qty/masonry/model'
+import { SYSTEMS, unitsPerM2, jointMortarPerM2, MORTAR_ALLOW, CEMENT_KG_PER_M3, SAND_M3_PER_M3, CEMENT_BAG_KG } from '@/lib/qty/masonry/units'
 
 const COPY = {
   en: {
@@ -42,7 +42,7 @@ type Thick = 9 | 4
 
 /**
  * Per m² of wall: bricks, cement bags and sand (cft) in the joint mortar, worked out by the same functions the
- * MasonryPro model and the free Brick Calculator use (lib/qty/masonry/model.ts). One brick thick is the brick's
+ * MasonryPro model and the free Brick Calculator use (lib/qty/masonry/units.ts). One brick thick is the brick's
  * length (190 mm modular, 230 mm red); half brick is its width. Mortar is the exact joint volume plus the model's allowance.
  */
 function rowFor(kind: Kind, thick: Thick) {
