@@ -368,7 +368,7 @@ function plotNotes(house: Poly, ref: Poly, northDeg: number): PlotNote[] {
       severity: 'MODERATE',
       title: `The ${c.dir} corner of the plot is cut`,
       text:
-        `About ${pct(c.share)} of the ${c.dir} corner is missing. The older texts prefer a square or rectangular site and do not name individual corner cuts. ` +
+        `${c.share >= 0.97 ? 'All of' : `About ${pct(c.share)} of`} the ${c.dir} corner of the plot is missing. The older texts prefer a square or rectangular site and do not name individual corner cuts. ` +
         `Teachers today treat a missing corner as a defect${ne ? ', and a missing north-east corner as the one they stress most' : ''}. ` +
         'This check reads the zones from the completed rectangle, as practitioners do, so the rest of the reading is not shifted by the cut.',
       basis: 'modern',
