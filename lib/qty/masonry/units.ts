@@ -4,7 +4,7 @@
 
 export type MasonSystem = 'brick' | 'modular' | 'flyash' | 'aac' | 'block'
 
-/** Joint thickness for bricks and blocks, in metres (IS 6041 cl 7.1; IS 2572 cl 11.1.4; IS 2212 cl 6.4.1 allows up to 12 mm). */
+/** Joint thickness for bricks and blocks, in metres (IS 6041 cl 7.1; IS 2572 cl 11.1.4; IS 2212 cl 6.4.1 allows up to 12 mm: that clause number was not re-read against the published text). */
 export const J = 0.01
 /** Thin-bed adhesive joint for AAC blocks, in metres. */
 export const J_THIN = 0.003
@@ -27,7 +27,7 @@ export interface Sys {
   /** fraction added for breakage and cutting */
   loss: number
   source: string
-  /** the actual block is 10 mm thinner than its nominal thickness (IS 2185 cl 3.2: nominal includes the joint) */
+  /** the actual block is 10 mm thinner than its nominal thickness (IS 2185 (Part 1):2005 cl 4.2: nominal includes the joint) */
   short?: boolean
 }
 
@@ -36,7 +36,7 @@ export const SYSTEMS: Record<MasonSystem, Sys> = {
   modular: { key: 'modular', label: 'Modular clay brick', unit: 'brick', unitsLabel: 'bricks', kind: 'brick', L: 0.19, W: 0.09, H: 0.09, ext: 0.19, int: 0.09, size: '190 × 90 × 90 mm', loss: 0.05, source: 'IS 1077:1992 cl 6.1.1' },
   flyash: { key: 'flyash', label: 'Fly-ash brick', unit: 'brick', unitsLabel: 'bricks', kind: 'brick', L: 0.23, W: 0.11, H: 0.07, ext: 0.23, int: 0.11, size: '230 × 110 × 70 mm', loss: 0.05, source: 'IS 12894:2002 cl 5.1.2' },
   aac: { key: 'aac', label: 'AAC block', unit: 'block', unitsLabel: 'blocks', kind: 'block', L: 0.6, W: 0, H: 0.2, ext: 0.2, extThin: 0.15, int: 0.1, size: '600 × 200 mm face', loss: 0.04, source: 'IS 2185 (Part 3) cl 3.2 and maker data: face 600 × 200 mm, thickness 100 to 300 mm' },
-  block: { key: 'block', label: 'Concrete block', unit: 'block', unitsLabel: 'blocks', kind: 'block', L: 0.4, W: 0, H: 0.2, ext: 0.2, extThin: 0.15, int: 0.1, size: '400 × 200 mm face', loss: 0.04, short: true, source: 'IS 2185 (Part 1 and 2) cl 3.2.1: 400 × 200 mm face' },
+  block: { key: 'block', label: 'Concrete block', unit: 'block', unitsLabel: 'blocks', kind: 'block', L: 0.4, W: 0, H: 0.2, ext: 0.2, extThin: 0.15, int: 0.1, size: '400 × 200 mm face', loss: 0.04, short: true, source: 'IS 2185 (Part 1) cl 4.2.1: 400 × 200 mm face' },
 }
 
 /** Units in one m² of wall of thickness t (m). Bricks: one over the pitch in all three directions times the nominal thickness. */
@@ -50,7 +50,7 @@ export function jointMortarPerM2(s: Sys, t: number, thin: boolean): number {
   if (thin) return 0
   const n = unitsPerM2(s, t, false)
   if (s.kind === 'brick') return Math.max(0, t - n * s.L * s.W * s.H)
-  // blocks: nominal size includes the joint; the block itself is 10 mm short of nominal in length and height (IS 2185 cl 3.2),
+  // blocks: nominal size includes the joint; the block itself is 10 mm short of nominal in length and height (IS 2185 (Part 1):2005 cl 4.2),
   // and a concrete block is 10 mm short in thickness too
   const ta = s.short ? t - J : t
   return Math.max(0, ta * (1 - n * (s.L - J) * (s.H - J)))

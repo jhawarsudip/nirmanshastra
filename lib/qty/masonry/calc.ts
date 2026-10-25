@@ -25,19 +25,28 @@ import type { MasonInput, MasonTrace, MatRow, UnitRow } from './model'
 
 /* ───────────────────────── sources (clauses read in the standards themselves are marked ✓ in the report to the lead, not here) ───────────────────────── */
 
+/** The 1976 editions of IS 1200 Parts 3 and 12 are the ones the tool follows. BIS lists 2026 editions that supersede them; those were not available to the tool. */
+const ED76 = '1976 edition; a 2026 edition exists and was not checked'
+
 const R = {
-  joint: 'Joints of 10 mm: IS 6041:1985 cl 7.1 (AAC); IS 2572:2005 cl 11.1.4 (concrete block); IS 2212:1991 (brickwork), no clause quoted',
   jointThin: 'Makers of AAC block adhesive (3 mm bed): not a BIS figure',
   breakage: 'NirmanShastra assumption: no standard gives it',
   mortarAllow: 'NirmanShastra assumption: no standard gives it',
   nominal: 'Engine rule: the nominal size includes the joint',
-  area: 'IS 1200 (Part 3):1976 cl 4.1.4 and its note',
-  plaster: 'IS 1200 (Part 12):1976 cl 3.8 and 3.12; the sums are the tool’s',
+  area: `IS 1200 (Part 3):1976 cl 4.1.4 and its note (${ED76})`,
+  plaster: `IS 1200 (Part 12):1976 cl 3.8 and 3.12 (${ED76}); the sums are the tool’s`,
   dar: 'CPWD Delhi Analysis of Rates 2014 (DAR)',
   assumed: 'NirmanShastra assumption',
   engine: 'Engine rule',
-  plan: 'NirmanShastra assumption: the room plan (lib/qty/plan.ts)',
+  plan: 'NirmanShastra assumption: the room plan',
 }
+
+/** Where the 10 mm joint comes from, for each kind of masonry. */
+const jointRef = (key: M.MasonSystem) => key === 'aac'
+  ? 'IS 6041:1985 cl 7.1: joint of 10 mm'
+  : key === 'block'
+    ? 'IS 2572:2005 cl 11.1.4: joint of 10 mm'
+    : 'IS 2212:1991 cl 6.4.1: joints up to 12 mm (clause number not re-read against the published text); the tool takes 10 mm'
 
 /* ───────────────────────── reading the report ───────────────────────── */
 
@@ -68,6 +77,9 @@ const PLAN = {
   perimK: 4.082, shareStart: 0.88, minNet: 0.6, minInner: 0.15, aspectRoom: 1.3, aspectPass: 4, aspectCore: 1.5, aspectBlock: 1.5,
   wBed: 1.0, wLivG: 1.3, wLivGBed: 0.3, wLivU: 0.9, wLivUBed: 0.2, wKit: 0.75, wBath: 0.33, wPass0: 0.45, wPassEach: 0.08, coreShare: 0.1, passes: 4,
 }
+
+/** CPWD DAR 2014 Vol 2 item 13.21: cement and mortar for 10 m² of 12 mm plaster in 1:3. Reproduced here; the 513 kg per m³ the engine carries is 73.89 ÷ 0.144. */
+const DAR_13_21 = { cementKg: 73.89, mortarM3: 0.144 }
 
 const WHERE: Record<M.Where, string> = { ext: 'Outer wall', int: 'Inner wall', mumty: 'Stair room wall' }
 
@@ -189,7 +201,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   const answersBlock = blk('answers', '1.1 The answers this sheet starts from')
 
   // ── derived choices
-  L.value('Joint between units', thin ? U.J_THIN * 1000 : U.J * 1000, 'mm', 0, thin ? R.jointThin : R.joint, thin ? 'Thin-bed adhesive' : 'Cement mortar bed and perpend joints')
+  L.value('Joint between units', thin ? U.J_THIN * 1000 : U.J * 1000, 'mm', 0, thin ? R.jointThin : jointRef(S.key), thin ? 'Thin-bed adhesive' : 'Cement mortar bed and perpend joints')
   L.value('Breakage and cutting allowance', S.loss * 100, '%', 0, R.breakage, `Added to the count of ${S.unitsLabel}`)
   L.value('Outer wall thickness', mm(tExt), 'mm', 0, S.kind === 'brick' ? R.engine : panelRef(), S.kind === 'brick' ? `One brick: the length of the ${S.unit}` : 'Block laid flat, as chosen above. The block standards ask for 200 mm in a frame, or 150 mm if braced and reinforced')
   L.value('Inner wall thickness', mm(tInt), 'mm', 0, S.kind === 'brick' ? R.engine : inp.system === 'aac' ? 'IS 6041:1985 cl 4.2.1: non-load-bearing internal walls not less than 10 cm' : 'IS 2572:2005 cl 7.2.1.2: non-load-bearing internal partitions not less than 100 mm', S.kind === 'brick' ? `Half brick: the width of the ${S.unit}` : 'A block partition')
@@ -201,7 +213,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   const H = inp.storeyM
   const He = L.calc('Outer wall height', 'He = H − depth of beam', '{H:2} − {Db:2}', { H, Db: M.BEAM_D }, (v) => v.H - v.Db, { unit: 'm', dp: 2, ref: R.engine, note: 'Plinth beam or floor up to the beam above', ...X(tr.He) })
   const Hi = L.calc('Inner wall height', 'Hi = H − 0.30', '{H:2} − {d:2}', { H, d: M.WALL_UNDER_BEAMS }, (v) => v.H - v.d, { unit: 'm', dp: 2, ref: R.engine, ...X(tr.Hi) })
-  const Hc = L.calc('Clear height for plaster', 'Hc = H − slab thickness', '{H:2} − {ts:2}', { H, ts: M.SLAB_T }, (v) => v.H - v.ts, { unit: 'm', dp: 2, ref: 'IS 1200 (Part 12):1976 cl 3.12: floor to ceiling', note: 'Floor up to the underside of the slab', ...X(tr.Hc) })
+  const Hc = L.calc('Clear height for plaster', 'Hc = H − slab thickness', '{H:2} − {ts:2}', { H, ts: M.SLAB_T }, (v) => v.H - v.ts, { unit: 'm', dp: 2, ref: `IS 1200 (Part 12):1976 cl 3.12 (${ED76}): floor to ceiling`, note: 'Floor up to the underside of the slab', ...X(tr.Hc) })
   const mixInt = S.kind === 'brick' && tInt <= 0.115 ? 4 : 6
   if (thin) {
     L.pick('Joints of the AAC walls', 'thin-bed AAC', 'adhesive, no mortar', R.jointThin, 'The mortar mixes below apply to the concrete-block plinth and to plaster only')
@@ -209,7 +221,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   } else {
     L.pick('Mortar mix, inner walls', 'half-brick wall → 1:4, other → 1:6', `1:${mixInt}`, 'IS 4326:1993 cl 8.1.2 and Table 3, then the tool’s own choice', 'Table 3 gives cement-sand 1:6 for building categories B and C and 1:4 for D and E. The tool does not ask for your seismic zone, so it takes 1:6 and uses 1:4 for half-brick walls')
     L.pick('Mortar mix, outer walls, plinth and stair room', 'always', '1:6', 'IS 4326:1993 cl 8.1.2 and Table 3, then the tool’s own choice', 'The 1:6 mix of Table 3 (categories B and C). For an ordinary building in zones IV and V the table asks for 1:4 or richer; ask your engineer')
-    L.pick('Mortar mix, parapet and balcony edge walls', 'always', '1:4', 'IS 2250:1981 cl 7.1.5, then the tool’s own reading', 'Where a parapet is higher than three times its thickness the mortar is not to be weaker than grade MM 3. The table of grades could not be read, so the tool uses 1:4')
+    L.pick('Mortar mix, parapet and balcony edge walls', 'always', '1:4', 'IS 2250:1981 cl 7.1.5, then the tool’s own reading', 'Where a parapet is higher than three times its thickness the mortar is not to be weaker than grade MM 3. The table that gives the cement-sand ratio of that grade was not read. A secondary source gives MM 3 as 1:5, so the tool’s 1:4 is on the safe side')
   }
   same('Inner wall mix', String(mixInt), String(tr.mixInt))
   const derivedBlock = blk('derived', '1.2 What the tool works out from the answers')
@@ -286,7 +298,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   // the worked floor: the ground floor
   const g = reps[0]
   const A0 = footM2[0]
-  L.say('Where these numbers come from', 'The room plan is the tool’s own planning model (lib/qty/plan.ts), shared with InteriorPro. No Indian Standard fixes room sizes or the length of inner walls. It is worked out for each floor in three steps: the outer wall, the share of the floor each room takes, and the inner walls that are left when every wall between two rooms is counted once.', R.plan)
+  L.say('Where these numbers come from', 'The room plan is the tool’s own planning model, built to find wall lengths and the floor area inside the walls. No Indian Standard fixes room sizes or the length of inner walls. It is worked out for each floor in three steps: the outer wall, the share of the floor each room takes, and the inner walls that are left when every wall between two rooms is counted once.', R.plan)
   L.calc(`Outer wall length, ${floorName(0)}`, 'P = k × √A', '{k:3} × √{A:2}', { k: PLAN.perimK, A: A0 }, (v) => v.k * Math.sqrt(v.A), { unit: 'm', dp: 2, ref: R.plan, note: `The perimeter of a plan 1 to ${PLAN.aspectBlock} (2 (1 + ${PLAN.aspectBlock}) ÷ √${PLAN.aspectBlock} = ${num(perim(1, PLAN.aspectBlock), 4)}), taken as ${PLAN.perimK}`, ...X(plans[0].P) })
   if (flats) {
     L.calc(`Walls between flats, ${floorName(0)}`, 'Lp = (homes − 1) × √(A ÷ 1.5)', '({h:0} − 1) × √({A:2} ÷ {a:1})', { h, A: A0, a: PLAN.aspectBlock }, (v) => (v.h - 1) * Math.sqrt(v.A / v.a), { unit: 'm', dp: 2, ref: R.plan, note: 'One wall across the depth of the plan between each pair of neighbouring flats', ...X(plans[0].Lparty) })
@@ -344,8 +356,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
     note: 'Each row is the same working as the ground floor above, with that floor’s area and rooms. The room plan is a planning model, not a drawing: if the plot is long and thin, or the rooms are laid out very differently, the real walls will be longer.',
   }
   const planAll = blk('plan-4', '2.4 Wall lengths on every floor', { table: planTable })
-  sections.push({ id: 'plan', title: '2. Wall lengths from the room plan', intro: 'Outer wall, inner walls and walls between flats on each floor. These are planning figures from the tool’s room plan; they are not taken off a drawing.', blocks: [planLines1, planL358(planLines2), planRooms, planAll] })
-  function planL358(b: CalcBlock): CalcBlock { return b }
+  sections.push({ id: 'plan', title: '2. Wall lengths from the room plan', intro: 'Outer wall, inner walls and walls between flats on each floor. These are planning figures from the tool’s room plan; they are not taken off a drawing.', blocks: [planLines1, planLines2, planRooms, planAll] })
 
   /* ═════════════ 3. Doors, windows and ventilators ═════════════ */
 
@@ -396,8 +407,8 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
     L.value('Height of the opening', d.h, 'm', 2, R.assumed)
     L.calc('Area of the opening', 'a = w × h', '{w:2} × {h:2}', { w: d.w, h: d.h }, (v) => v.w * v.h, { unit: 'm²', dp: 2, ref: 'Arithmetic', ...X(M.oArea(id)) })
     L.pick('Depth of the lintel over it', 'd = 0.15 m if w ≤ 1.5 m, otherwise 0.20 m', `${fixed(ld, 2)} m`, R.assumed + ': no standard fixes the depth of a small lintel')
-    if (d.win) L.value('Sill under a window', M.WINDOW_SILL, 'm', 3, R.area, 'IS 1200 (Part 3) counts a separate sill with the size of the opening; the 75 mm depth is the tool’s assumption')
-    const each = L.calc('Taken out of the wall, each', d.win ? 'w × (h + d + sill)' : 'w × (h + d)', d.win ? '{w:2} × ({h:2} + {d:2} + {s:3})' : '{w:2} × ({h:2} + {d:2})', { w: d.w, h: d.h, d: ld, s: M.WINDOW_SILL }, (v) => v.w * (v.h + v.d + (d.win ? v.s : 0)), { unit: 'm²', dp: 3, ref: R.area, note: `${d.win ? 'The opening with its lintel and sill' : 'The opening with its lintel'}: IS 1200 (Part 3) counts a separate lintel or sill with the size of the opening, but not the ends of the lintel`, ...X(outEach(id)) })
+    if (d.win) L.value('Sill under a window', M.WINDOW_SILL, 'm', 3, R.area, 'IS 1200 (Part 3):1976 counts a separate sill with the size of the opening; the 75 mm depth is the tool’s assumption')
+    const each = L.calc('Taken out of the wall, each', d.win ? 'w × (h + d + sill)' : 'w × (h + d)', d.win ? '{w:2} × ({h:2} + {d:2} + {s:3})' : '{w:2} × ({h:2} + {d:2})', { w: d.w, h: d.h, d: ld, s: M.WINDOW_SILL }, (v) => v.w * (v.h + v.d + (d.win ? v.s : 0)), { unit: 'm²', dp: 3, ref: R.area, note: `${d.win ? 'The opening with its lintel and sill' : 'The opening with its lintel'}: IS 1200 (Part 3):1976 counts a separate lintel or sill with the size of the opening, but not the ends of the lintel`, ...X(outEach(id)) })
     L.calc('Taken out of the walls, all of them', 'n × each', '{n:0} × {e:3}', { n: o.n, e: each }, (v) => v.n * v.e, { unit: 'm²', dp: 2, ref: R.area, result: true, ...X(o.n * outEach(id)) })
   }
   const doorIds = ids.filter((id) => !M.OPEN[id].win)
@@ -427,7 +438,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   const openAll = blk('open-2', '3.2 Every opening in the building', { table: openTable })
   const countTable: CalcTable = { head: ['Opening', 'How the number is found'], rows: ids.map((id) => [M.OPEN[id].name, COUNT_RULE[id]]) }
   const openCount = blk('open-3', '3.3 How each number is counted', { table: countTable, note: 'The sheet counts each opening again from the rooms of every floor, by these rules, and the count must equal the one in the report.' })
-  sections.push({ id: 'openings', title: '3. Doors, windows and ventilators', intro: 'Counted from the rooms, then taken out of the walls with their lintels and sills as IS 1200 (Part 3) measures openings: no deduction for an opening of 0.1 m² or less, which none of these is.', blocks: [openWorked, openAll, openCount] })
+  sections.push({ id: 'openings', title: '3. Doors, windows and ventilators', intro: 'Counted from the rooms, then taken out of the walls with their lintels and sills as IS 1200 (Part 3):1976 measures openings: no deduction for an opening of 0.1 m² or less, which none of these is. BIS lists a 2026 edition of Part 3 that supersedes the 1976 one. The tool follows the 1976 rules and has not been checked against the 2026 edition.', blocks: [openWorked, openAll, openCount] })
 
   /* ═════════════ 4. Walls measured ═════════════ */
 
@@ -479,7 +490,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   const wallAll = blk('wall-2', '4.2 Every kind of wall', { table: wallTable })
   const wallRule: CalcTable = { head: ['Wall', 'Length is', 'Height is'], rows: wall.map((w) => [w.name, w.lenRule, w.rule]) }
   const wallRules = blk('wall-3', '4.3 Where each length and height comes from', { table: wallRule })
-  sections.push({ id: 'walls', title: '4. Walls measured', intro: 'Each kind of wall is length × height, less the openings in it. The plinth, parapet, balcony edge walls and stair room use the fixed sizes shown, which are planning assumptions.', blocks: [wallWorked, wallAll, wallRules] })
+  sections.push({ id: 'walls', title: '4. Walls measured', intro: 'Each kind of wall is length × height, less the openings in it, measured as IS 1200 (Part 3):1976 does (the 1976 edition, since superseded by a 2026 edition: see the limits). The plinth, parapet, balcony edge walls and stair room use the fixed sizes shown, which are planning assumptions.', blocks: [wallWorked, wallAll, wallRules] })
 
   /* ═════════════ 5. Bricks or blocks and joint mortar ═════════════ */
 
@@ -494,13 +505,13 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
     L.say('Worked example', `${label}: ${s.label}, ${s.size}, wall ${mm(t)} mm thick.`)
     if (s.kind === 'brick') {
       L.input('Length × width × height of the brick', `${mm(s.L)} × ${mm(s.W)} × ${mm(s.H)} mm`, srcOf(s))
-      const Ln = L.calc('Length with a joint', 'L + J', '{L:3} + {J:3}', { L: s.L, J: U.J }, (v) => v.L + v.J, { unit: 'm', dp: 3, ref: R.joint })
-      const Wn = L.calc('Width with a joint', 'W + J', '{W:3} + {J:3}', { W: s.W, J: U.J }, (v) => v.W + v.J, { unit: 'm', dp: 3, ref: R.joint })
-      const Hn = L.calc('Height with a joint', 'H + J', '{H:3} + {J:3}', { H: s.H, J: U.J }, (v) => v.H + v.J, { unit: 'm', dp: 3, ref: R.joint })
+      const Ln = L.calc('Length with a joint', 'L + J', '{L:3} + {J:3}', { L: s.L, J: U.J }, (v) => v.L + v.J, { unit: 'm', dp: 3, ref: jointRef(s.key) })
+      const Wn = L.calc('Width with a joint', 'W + J', '{W:3} + {J:3}', { W: s.W, J: U.J }, (v) => v.W + v.J, { unit: 'm', dp: 3, ref: jointRef(s.key) })
+      const Hn = L.calc('Height with a joint', 'H + J', '{H:3} + {J:3}', { H: s.H, J: U.J }, (v) => v.H + v.J, { unit: 'm', dp: 3, ref: jointRef(s.key) })
       const Vn = L.calc('Volume of one brick with its joints', 'Vn = (L + J)(W + J)(H + J)', '{a:3} × {b:3} × {c:3}', { a: Ln, b: Wn, c: Hn }, (v) => v.a * v.b * v.c, { unit: 'm³', dp: 6, ref: 'Arithmetic: the brick and the mortar around it' })
       n = L.calc(`${cap(s.unitsLabel)} in 1 m² of wall`, 'n = (t + J) ÷ Vn', '({t:3} + {J:3}) ÷ {Vn:6}', { t, J: U.J, Vn }, (v) => (v.t + v.J) / v.Vn, { unit: `${s.unitsLabel} per m²`, dp: 2, ref: 'Derived from the unit size and joint (module method: nominal thickness ÷ nominal volume)', note: 'The nominal thickness is the wall plus one joint, so the count is one over the pitch of the brick in the two directions across the wall face', ...X(expectRow.upm2) })
       const Vb = L.calc(`Volume of the ${s.unitsLabel} in 1 m² of wall`, 'Vb = n × L × W × H', '{n:2} × {L:3} × {W:3} × {H:3}', { n, L: s.L, W: s.W, H: s.H }, (v) => v.n * v.L * v.W * v.H, { unit: 'm³', dp: 4, ref: 'Arithmetic' })
-      mortarM2 = L.calc('Joint mortar in 1 m² of wall, exact joints', 'm = t − Vb', '{t:3} − {Vb:4}', { t, Vb }, (v) => Math.max(0, v.t - v.Vb), { unit: 'm³ per m²', dp: 4, ref: 'Derived: the true volume of the joints, not the nominal one (which would run about a quarter high)', note: 'The wall is its actual thickness, t', ...X(U.jointMortarPerM2(s, t, false)) })
+      mortarM2 = L.calc('Joint mortar in 1 m² of wall, exact joints', 'm = t − Vb', '{t:3} − {Vb:4}', { t, Vb }, (v) => Math.max(0, v.t - v.Vb), { unit: 'm³ per m²', dp: 4, ref: 'Derived: the true volume of the joints, not the nominal one (which would run about a quarter high)', note: 'The wall is taken at its actual thickness, t; the count above used the nominal thickness, t + J', ...X(U.jointMortarPerM2(s, t, false)) })
     } else if (w.thin) {
       L.input('Face of the block', `${mm(s.L)} × ${mm(s.H)} mm`, srcOf(s))
       const Ln = L.calc('Length with the adhesive bed', 'L + Jt', '{L:3} + {J:3}', { L: s.L, J: U.J_THIN }, (v) => v.L + v.J, { unit: 'm', dp: 3, ref: R.jointThin })
@@ -514,11 +525,17 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
       const f = L.calc('Share of the wall that is block', 'f = n × (L − J)(H − J)', '{n:2} × ({L:3} − {J:3}) × ({H:3} − {J:3})', { n, L: s.L, H: s.H, J: U.J }, (v) => v.n * (v.L - v.J) * (v.H - v.J), { dp: 4, ref: 'Arithmetic: block face as a share of the nominal face' })
       mortarM2 = L.calc('Joint mortar in 1 m² of wall, exact joints', s.short ? 'm = ta × (1 − f)' : 'm = t × (1 − f)', '{ta:3} × (1 − {f:4})', { ta, f }, (v) => Math.max(0, v.ta * (1 - v.f)), { unit: 'm³ per m²', dp: 4, ref: 'Derived: the true volume of the joints', ...X(U.jointMortarPerM2(s, t, false)) })
     }
-    const mortarIn = w.thin ? 0 : L.calc('Joint mortar with the allowance for waste', 'm × 1.25', '{m:4} × {a:2}', { m: mortarM2, a: U.MORTAR_ALLOW }, (v) => v.m * v.a, { unit: 'm³ per m²', dp: 4, ref: R.mortarAllow, note: 'For uneven units, frogs, droppings and mortar left on the board' })
+    const mortarIn = w.thin ? 0 : L.calc('Joint mortar with the allowance for waste', 'm′ = m × 1.25', '{m:4} × {a:2}', { m: mortarM2, a: U.MORTAR_ALLOW }, (v) => v.m * v.a, { unit: 'm³ per m²', dp: 4, ref: R.mortarAllow, note: 'For uneven units, frogs, droppings and mortar left on the board' })
+    if (s.kind === 'brick' && !w.thin) {
+      const perM3 = L.calc('Joint mortar in 1 m³ of wall, with the allowance', 'm′ ÷ t', '{m:4} ÷ {t:3}', { m: mortarIn, t }, (v) => v.m / v.t, { unit: 'm³ per m³', dp: 3, ref: 'Arithmetic', note: 'The mortar as a share of the volume of the wall' })
+      const half = mortarOf(s, s.int) * U.MORTAR_ALLOW / s.int
+      const exactNominal = (t + U.J) - n * s.L * s.W * s.H
+      L.say('Joint mortar: a check against a published table', `The count uses the nominal thickness (${fixed(t + U.J, 3)} m) but the exact joint volume uses the actual thickness (${fixed(t, 3)} m): ${fixed(mortarM2, 4)} m³ per m² against ${fixed(exactNominal, 4)} m³ per m² on the nominal thickness. The ${round((U.MORTAR_ALLOW - 1) * 100)}% allowance then brings the figure up to about the nominal one. The result is ${fixed(perM3, 3)} m³ of mortar for each m³ of ${mm(t)} mm wall and ${fixed(half, 3)} for each m³ of ${mm(s.int)} mm wall. A published table based on the CPWD rates implies about 0.25 to 0.27 for standard 230 mm brickwork. If that table is right, the joint mortar here is low, by up to about a quarter in half-brick walls. The method is unchanged; check the mortar against what your mason uses.`, `${R.dar}, Vol 1 brickwork items, as reported by a published table; not read in full by the tool`)
+    }
     const net = w.net
     const units = L.calc(`${cap(s.unitsLabel)} needed`, 'N = net area × n', '{A:2} × {n:2}', { A: net, n }, (v) => v.A * v.n, { unit: s.unitsLabel, dp: 1, ref: 'Arithmetic', ...X(expectRow.units) })
     const withLoss = L.calc(`With ${round(s.loss * 100)}% for breakage and cutting`, 'N × (1 + b)', '{N:1} × (1 + {b:2})', { N: units, b: s.loss }, (v) => v.N * (1 + v.b), { unit: s.unitsLabel, dp: 1, ref: R.breakage, result: true, ...X(expectRow.withLoss) })
-    const mortar = w.thin ? 0 : L.calc('Joint mortar needed', 'M = net area × m × 1.25', '{A:2} × {m:4}', { A: net, m: mortarIn }, (v) => v.A * v.m, { unit: 'm³', dp: 2, ref: R.mortarAllow, result: true, ...X(expectRow.mortar) })
+    const mortar = w.thin ? 0 : L.calc('Joint mortar needed', 'M = net area × m′', '{A:2} × {m:4}', { A: net, m: mortarIn }, (v) => v.A * v.m, { unit: 'm³', dp: 2, ref: R.mortarAllow, result: true, note: 'm′ is the mortar per m² with the allowance, from the line above (it already includes the 25%)', ...X(expectRow.mortar) })
     let adhesive = 0
     if (w.thin) {
       adhesive = L.calc('Thin-bed adhesive needed', 'kg = net area × t × 33 kg per m³ of wall', '{A:2} × {t:3} × {k:0}', { A: net, t, k: U.ADHESIVE_KG_PER_M3 }, (v) => v.A * v.t * v.k, { unit: 'kg', dp: 1, ref: 'About 33 kg for every m³ of wall (a 3 mm joint with some waste); makers’ coverage works out between 24 and 40 kg per m³', result: true, ...X(expectRow.adhesive) })
@@ -528,7 +545,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
 
   // unit and joint block
   L.input('Unit', `${S.label}, ${S.size}`, srcOf(S))
-  L.value('Joint', thin ? U.J_THIN * 1000 : U.J * 1000, 'mm', 0, thin ? R.jointThin : R.joint, thin ? 'A thin bed of block adhesive' : 'Bed and perpend joints alike')
+  L.value('Joint', thin ? U.J_THIN * 1000 : U.J * 1000, 'mm', 0, thin ? R.jointThin : jointRef(S.key), thin ? 'A thin bed of block adhesive' : 'Bed and perpend joints alike')
   L.value('Allowance on the exact joint mortar', (U.MORTAR_ALLOW - 1) * 100, '%', 0, R.mortarAllow)
   L.value('Breakage and cutting', S.loss * 100, '%', 0, R.breakage)
   let sn = 0
@@ -619,11 +636,11 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
 
   /* ═════════════ 6. Plaster ═════════════ */
 
-  L.say('Rule 1', `An opening of ${M.PLASTER_RULE.noDeductM2} m² or less is not deducted from plaster, and no reveals are added.`, 'IS 1200 (Part 12):1976 cl 3.8.1(a)')
-  L.say('Rule 2', `An opening over ${M.PLASTER_RULE.noDeductM2} m² and up to ${M.PLASTER_RULE.bothFacesM2} m² comes off once, no reveals added. In an inner wall (plastered alike on both faces) it comes off one face. In an outer wall, where the two faces are plastered differently and the reveals are taken as equal, half comes off each face.`, 'IS 1200 (Part 12):1976 cl 3.8.1(b)(1) and (2)')
-  L.say('Rule 3', `An opening over ${M.PLASTER_RULE.bothFacesM2} m² comes off each face and its jambs and soffit are measured and added. The tool adds one set of reveals, as width + 2 × height, deep by the wall thickness less a ${mm(M.PLASTER_RULE.frameM)} mm frame (assumed).`, 'IS 1200 (Part 12):1976 cl 3.8.2')
-  L.say('Rule 4', 'Wall plaster is measured between walls for length, and from the floor to the ceiling for height.', 'IS 1200 (Part 12):1976 cl 3.12')
-  L.say('Rule 5', 'The tool takes the plaster of columns, beams and slab edges as part of the wall at full height and adds nothing for them. The inside half of an outer-wall opening is deducted even where the outside is left bare; cl 3.8.1(b)(3) would deduct nothing there if the reveals are equal, so the plaster is slightly under-counted in that case.', R.engine)
+  L.say('Rule 1', `An opening of ${M.PLASTER_RULE.noDeductM2} m² or less is not deducted from plaster, and no reveals are added.`, `IS 1200 (Part 12):1976 cl 3.8.1(a) (${ED76})`)
+  L.say('Rule 2', `An opening over ${M.PLASTER_RULE.noDeductM2} m² and up to ${M.PLASTER_RULE.bothFacesM2} m² comes off once, no reveals added. In an inner wall (plastered alike on both faces) it comes off one face. In an outer wall, where the two faces are plastered differently and the reveals are taken as equal, half comes off each face.`, `IS 1200 (Part 12):1976 cl 3.8.1(b)(1) and (2) (${ED76})`)
+  L.say('Rule 3', `An opening over ${M.PLASTER_RULE.bothFacesM2} m² comes off each face and its jambs and soffit are measured and added. The tool adds one set of reveals, as width + 2 × height, deep by the wall thickness less a ${mm(M.PLASTER_RULE.frameM)} mm frame (assumed).`, `IS 1200 (Part 12):1976 cl 3.8.2 (${ED76})`)
+  L.say('Rule 4', 'Wall plaster is measured between walls for length, and from the floor to the ceiling for height.', `IS 1200 (Part 12):1976 cl 3.12 (${ED76})`)
+  L.say('Rule 5', 'The tool takes the plaster of columns, beams and slab edges as part of the wall at full height and adds nothing for them. The inside half of an outer-wall opening is deducted even where the outside is left bare; cl 3.8.1(b)(3) of the 1976 edition would deduct nothing there if the reveals are equal, so the plaster is slightly under-counted in that case.', R.engine)
   const plRulesBlock = blk('pl-0', '6.1 How plaster is measured')
 
   // deductions by opening
@@ -728,7 +745,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   const plAll = blk('pl-4', '6.5 Plaster and its mortar', { table: plTable })
   plSpecs.forEach((r, i) => { const e = tr.plRows[i]; if (e) { cmp(`${r.surface}: gross`, r.gross, e.gross); cmp(`${r.surface}: out`, r.ded, e.ded); cmp(`${r.surface}: plaster`, r.net, e.net) } })
   same('Plaster surfaces', String(plSpecs.length), String(tr.plRows.length))
-  sections.push({ id: 'plaster', title: '6. Plaster', intro: 'Measured to IS 1200 (Part 12): the plaster area is the area of the surfaces less what the openings take off. The mortar in it comes from the CPWD analysis-of-rates yield for each plaster item.', blocks: [plRulesBlock, dedBlock, plSurf, darBlock, plAll] })
+  sections.push({ id: 'plaster', title: '6. Plaster', intro: 'Measured to IS 1200 (Part 12):1976: the plaster area is the area of the surfaces less what the openings take off. BIS lists a 2026 edition of Part 12 that supersedes the 1976 one; the rules in 6.1 and their limits of 0.5 m² and 3 m² are the 1976 ones and have not been checked against the 2026 edition. The mortar in the plaster comes from the CPWD analysis-of-rates yield for each plaster item.', blocks: [plRulesBlock, dedBlock, plSurf, darBlock, plAll] })
 
   /* ═════════════ 7. Lintels and sills ═════════════ */
 
@@ -813,22 +830,24 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   /* ═════════════ 8. Mortar mixes, cement and sand ═════════════ */
 
   L.value('Bulk density of cement', U.CEMENT_BULK_KG_M3, 'kg/m³', 0, 'Assumed: the usual figure in rate analyses (a 50 kg bag is about 0.035 m³)')
-  L.value('CPWD cement for 1 m³ of 1:3 plaster mortar', U.DAR_1_3_CEMENT_KG, 'kg', 0, `${R.dar}, plaster items (as the tool cites it)`, 'The yield the tool is calibrated to')
+  L.value('CPWD cement for 10 m² of 12 mm plaster in 1:3', DAR_13_21.cementKg, 'kg', 2, `${R.dar}, Vol 2 item 13.21`, 'The one CPWD figure the tool is calibrated to')
+  L.value('CPWD mortar for the same 10 m² of plaster', DAR_13_21.mortarM3, 'm³', 3, `${R.dar}, Vol 2 item 13.21`)
+  L.calc('Cement in 1 m³ of 1:3 mortar, as CPWD counts it', 'cement ÷ mortar', '{c:2} ÷ {m:3}', { c: DAR_13_21.cementKg, m: DAR_13_21.mortarM3 }, (v) => v.c / v.m, { unit: 'kg', dp: 1, ref: `${R.dar}, Vol 2 item 13.21`, note: `The tool carries ${U.DAR_1_3_CEMENT_KG} kg, rounded`, expect: U.DAR_1_3_CEMENT_KG, tol: 0.5 + 1e-9 })
   const plain13 = L.calc('Cement in 1 m³ by the simple count, 1:3', '1440 ÷ 3', '{d:0} ÷ {m:0}', { d: U.CEMENT_BULK_KG_M3, m: 3 }, (v) => v.d / v.m, { unit: 'kg', dp: 0, ref: 'Arithmetic: the cement is a third of the volume of the sand' })
-  L.calc('CPWD factor', 'f = CPWD cement ÷ simple count', '{c:0} ÷ {p:0}', { c: U.DAR_1_3_CEMENT_KG, p: plain13 }, (v) => v.c / v.p, { dp: 4, ref: R.dar, note: `The tool uses ${U.DAR_FACTOR}, rounded`, expect: U.DAR_FACTOR, tol: 0.0005 + 1e-9 })
-  L.value('Factor used', U.DAR_FACTOR, '', 3, R.dar, 'The same factor is applied to every mix: cement 1,440 ÷ X × f, sand f')
-  L.say('Sand in 1 m³ of mortar', 'Sand is the factor, in m³, for every mix: 1 m³ of mortar takes 1.069 m³ of loose sand. The cement is the part of that sand volume that the mix calls for, by the bulk density above.', R.dar + ' (calibrated; see the limits)')
+  L.calc('CPWD factor', 'f = CPWD cement ÷ simple count', '{c:0} ÷ {p:0}', { c: U.DAR_1_3_CEMENT_KG, p: plain13 }, (v) => v.c / v.p, { dp: 4, ref: `${R.dar}, Vol 2 item 13.21`, note: `The tool uses ${U.DAR_FACTOR}, rounded`, expect: U.DAR_FACTOR, tol: 0.0005 + 1e-9 })
+  L.value('Factor used', U.DAR_FACTOR, '', 3, `${R.engine}: one factor for every mix`, 'The same factor is applied to every mix: cement 1,440 ÷ X × f, sand f')
+  L.say('Sand in 1 m³ of mortar', 'Sand is the factor, in m³, for every mix: 1 m³ of mortar takes 1.069 m³ of loose sand. The cement is the part of that sand volume that the mix calls for, by the bulk density above. The same factor is used for the sand as for the cement; that is the tool’s choice and was not read from a CPWD table.', `${R.engine}: scaled from the 1:3 figure`)
   const mixes = [...new Set(tr.mat.filter((m) => /^1:\d+$/.test(m.mix)).map((m) => Number(m.mix.slice(2))))].sort((a, b) => a - b)
   for (const x of mixes) {
-    L.calc(`Cement in 1 m³ of 1:${x} mortar`, 'C = 1440 ÷ X × f', '{d:0} ÷ {x:0} × {f:3}', { d: U.CEMENT_BULK_KG_M3, x, f: U.DAR_FACTOR }, (v) => (v.d / v.x) * v.f, { unit: 'kg', dp: 1, ref: R.dar, note: `${fixed(U.CEMENT_KG_PER_M3(x) / U.CEMENT_BAG_KG, 2)} bags of 50 kg; sand ${fixed(U.SAND_M3_PER_M3, 3)} m³`, ...X(U.CEMENT_KG_PER_M3(x)) })
+    L.calc(`Cement in 1 m³ of 1:${x} mortar`, 'C = 1440 ÷ X × f', '{d:0} ÷ {x:0} × {f:3}', { d: U.CEMENT_BULK_KG_M3, x, f: U.DAR_FACTOR }, (v) => (v.d / v.x) * v.f, { unit: 'kg', dp: 1, ref: x === 3 ? `${R.dar}, Vol 2 item 13.21` : `Scaled from the 1:3 figure by the tool (1,440 ÷ ${x} × ${U.DAR_FACTOR}); not read from a CPWD table`, note: `${fixed(U.CEMENT_KG_PER_M3(x) / U.CEMENT_BAG_KG, 2)} bags of 50 kg; sand ${fixed(U.SAND_M3_PER_M3, 3)} m³`, ...X(U.CEMENT_KG_PER_M3(x)) })
   }
-  const mixBlock = blk('mat-0', '8.1 Cement and sand in a cubic metre of mortar: the CPWD analysis-of-rates basis', { note: 'Only the mixes used in this report are listed. The one CPWD figure the tool was calibrated to (1:3 plaster) is carried to the leaner mixes in the same ratio.' })
+  const mixBlock = blk('mat-0', '8.1 Cement and sand in a cubic metre of mortar: the CPWD analysis-of-rates basis', { note: `Only the mixes used in this report are listed. The one CPWD figure the tool was calibrated to is for 1:3 plaster (item 13.21). The tool scales it to the other mixes in the same ratio, so the figures for 1:4, 1:5 and 1:6 (${fixed(U.CEMENT_KG_PER_M3(4), 0)}, ${fixed(U.CEMENT_KG_PER_M3(5), 0)} and ${fixed(U.CEMENT_KG_PER_M3(6), 0)} kg) are scaled, not read from the CPWD table. A third-party table based on the 2023 Delhi Schedule of Rates gives about 380, 310 and 250 kg for those three mixes, so the scaled figures differ slightly from published tables (by up to about 3%).` })
 
   // concrete for lintels
-  L.value('Cement in 1 m³ of M20 concrete', M.M20.cementKg, 'kg', 0, `${R.dar} Vol 1 item 4.1.2; IS 456:2000 cl 9.3: nominal mix concrete may be used for M 20 or lower`, 'Mix 1:1.5:3 by volume')
+  L.value('Cement in 1 m³ of M20 concrete', M.M20.cementKg, 'kg', 0, `${R.dar} Vol 1 item 4.1.2 (not re-read); IS 456:2000 cl 9.3: nominal mix concrete may be used for M 20 or lower`, 'Mix 1:1.5:3 by volume')
   L.value('Sand in 1 m³ of M20 concrete', M.M20.sandM3, 'm³', 3, `${R.dar} Vol 1 item 4.1.2`)
   L.value('Stone (20 mm) in 1 m³ of M20 concrete', M.M20.stoneM3, 'm³', 3, `${R.dar} Vol 1 item 4.1.2`)
-  const concBlock = blk('mat-1', '8.2 Cement, sand and stone in a cubic metre of lintel concrete')
+  const concBlock = blk('mat-1', '8.2 Cement, sand and stone in a cubic metre of lintel concrete', { note: 'The quantities for M20 are CPWD DAR 2014 Vol 1 item 4.1.2. That item number is as given in the tool’s research notes and was not re-read against the published volume; treat it as a pointer to check.' })
 
   // the mat rows, independent
   const matM: MatRow[] = []
@@ -883,7 +902,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
     note: 'Cement = volume × cement per m³ (8.1, or 8.2 for concrete); sand and stone likewise. Joints come from the section 5 table of every wall, plaster from table 6.5, lintels from table 7.3.',
   }
   const matAll = blk('mat-3', '8.4 Cement and sand, use by use', { table: matTable })
-  sections.push({ id: 'materials', title: '8. Mortar mixes, cement and sand', intro: 'Every mortar and the lintel concrete, converted to cement and sand. The factors are from the CPWD Delhi Analysis of Rates 2014 as the tool applies them; see the notes on how they were carried to the other mixes.', blocks: [mixBlock, concBlock, matWorked, matAll] })
+  sections.push({ id: 'materials', title: '8. Mortar mixes, cement and sand', intro: 'Every mortar and the lintel concrete, converted to cement and sand. The 1:3 figure is the CPWD Delhi Analysis of Rates 2014 figure; the tool scales it to the other mixes, as 8.1 shows.', blocks: [mixBlock, concBlock, matWorked, matAll] })
 
   /* ═════════════ 9. What to buy ═════════════ */
 
@@ -938,7 +957,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
     head: ['Item', 'Exact quantity', 'Rounded how', 'Order quantity'],
     rows: buys.map((b) => [b.item, `${fixed(b.exact, b.dp === 0 ? 1 : 2)} ${b.exactUnit}`, b.rule, `${fixed(b.qty, b.dp)} ${b.unit}`]),
     num: [1, 3],
-    note: 'These are the order lines of the report. Bricks and blocks are the count including breakage; cement, sand and stone are the totals of table 8.4; steel is the total of table 7.3.',
+    note: 'These are the order lines of the report. Bricks and blocks are the count including breakage; cement, sand and stone are the totals of table 8.4; steel is the total of table 7.3. Final quantities for ordering come from the signed drawings.',
   }
   const buyAll = blk('buy-2', '9.2 The order list', { table: buyTable })
 
@@ -989,7 +1008,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
       ovLines.forEach((o) => {
         const r = ov.lines.find((x) => x.key === o.key)
         if (!r) { miss(`Overlap line ${o.key} is not in the report`); return }
-        L.calc(ovName[o.key] ?? o.key, o.key === 'steel-lintel-kg' ? 'lintel steel, rounded up to 5 kg' : o.key === 'cement-bag-50kg' ? 'lintel concrete × 400 kg ÷ 50 kg' : o.key === 'sand-m3' ? 'lintel concrete × 0.425' : 'lintel concrete × 0.85', 'from tables 7.3 and 8.2', {}, () => o.qty, { unit: o.unit, dp: 2, ref: R.engine, ...X(r.qty) })
+        L.calc(ovName[o.key] ?? o.key, o.key === 'steel-lintel-kg' ? 'lintel steel, rounded up to 5 kg' : o.key === 'cement-bag-50kg' ? 'lintel concrete × 400 kg ÷ 50 kg' : o.key === 'sand-m3' ? 'lintel concrete × 0.425' : 'lintel concrete × 0.85', o.key === 'steel-lintel-kg' ? 'from table 7.3' : 'from tables 7.3 and 8.2', {}, () => o.qty, { unit: o.unit, dp: 2, ref: R.engine, ...X(r.qty) })
         same(`Overlap ${o.key}: unit`, o.unit, r.unit)
         ties.push(tie(`Counted in both reports: ${(ovName[o.key] ?? o.key).toLowerCase()}`, r.qty, o.qty, o.unit, 2))
       })
@@ -1017,7 +1036,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   })
   const bandTable: CalcTable = {
     head: ['Figure', 'Low factor', 'High factor', 'As printed in the report'], rows: bandRows, num: [1, 2],
-    note: 'The factors are the tool’s own judgement of how far the real figure is likely to fall from the one shown; they are not statistical limits. The range under each total in the report is the total × the low factor and × the high factor (section 9.2 shows the tie).',
+    note: 'The factors are the tool’s own judgement of how far the real figure may fall from the one shown. They are a judgement band, not a statistical interval: nothing was measured to set them and they carry no confidence level. The range under each total in the report is the total × the low factor and × the high factor.',
   }
   const bandBlock = blk('band-1', '10.1 The bands', { table: bandTable })
   tileWant.forEach((tw) => {
@@ -1025,26 +1044,30 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
     L.calc(`Range for ${tw.k}: high end`, 'total × high factor', '{b:' + tw.dp + '} × {f:2}', { b: tw.base, f: tw.high }, (v) => v.b * v.f, { unit: tw.unit, dp: tw.dp, ref: R.assumed })
   })
   const bandRange = blk('band-2', '10.2 The range under each total')
-  sections.push({ id: 'bands', title: '10. How far off the figures can be', intro: 'The report gives, under each total, the range the real figure is likely to fall in. These are the factors behind them.', blocks: [bandBlock, bandRange] })
+  sections.push({ id: 'bands', title: '10. How far off the figures can be', intro: 'The report gives, under each total, a range that the tool’s own judgement puts the real figure in. It is a judgement band, not a statistical interval. These are the factors behind it.', blocks: [bandBlock, bandRange] })
 
   /* ═════════════ 11. Code checks that use a number ═════════════ */
 
   const CL = M.CHECK_LIMITS
   const nomExt = S.kind === 'brick' ? tExt + U.J : tExt
-  const panelWhy = S.kind === 'brick'
-    ? 'IS 4326:1993 cl 8.2.3 and 8.2.6 ask for a panel wall in a frame to be bonded and checked in bending. The 200 mm and 3.5 m thresholds are the tool’s own screening rule (NirmanShastra assumption), not a clause of IS 4326'
-    : `${panelRef()}. The 3.5 m storey limit is the tool’s own screening rule (NirmanShastra assumption)`
+  const panelRefLine = S.kind === 'brick'
+    ? 'IS 4326:1993 cl 8.2.3 Note; cl 8.2.6 sends bonded filler walls to cl 8.2.3'
+    : `${panelRef()}; the storey limit and the support at the top are from IS 4326:1993 cl 8.2.3 Note, which the tool applies to block walls as well`
+  const panelNote = `The Note to IS 4326:1993 cl 8.2.3 reads: For panel walls of 200 mm or larger thickness having a storey height not more than 3.5 metres and laterally supported at the top, this check need not be exercised. The tool does not check the support at the top: it assumes the wall is held there. ${S.kind === 'brick' ? 'It tests the nominal thickness (the wall plus one 10 mm joint), so a 190 mm modular-brick wall counts as 200 mm and passes.' : 'It tests the thickness of the block wall as chosen.'}`
   L.calc('Outer wall, nominal thickness', S.kind === 'brick' ? 'tn = t + J' : 'tn = t', S.kind === 'brick' ? '{t:3} + {J:3}' : '{t:3}', { t: tExt, J: S.kind === 'brick' ? U.J : 0 }, (v) => v.t + v.J, { unit: 'm', dp: 3, ref: R.engine, note: 'A brick wall’s nominal thickness includes one joint' })
   const panelPass = nomExt >= CL.panelNominalM - 1e-9 && H <= CL.panelStoreyM
-  L.pick('Panel wall in a frame: need no separate panel check', 'tn ≥ 0.20 m and storey ≤ 3.5 m', `${fixed(nomExt, 3)} m against ${fixed(CL.panelNominalM, 2)} m, and ${fixed(H, 2)} m against ${fixed(CL.panelStoreyM, 1)} m: ${panelPass ? 'pass' : 'advisory'}`, panelWhy)
+  L.pick('Panel wall in a frame: need no separate panel check', 'tn ≥ 0.20 m and storey ≤ 3.5 m', `${fixed(nomExt, 3)} m against ${fixed(CL.panelNominalM, 2)} m, and ${fixed(H, 2)} m against ${fixed(CL.panelStoreyM, 1)} m: ${panelPass ? 'pass' : 'advisory'}`, panelRefLine, panelNote)
   const partLimit = L.calc('Inner wall: greatest height', 'H ≤ 30 × thickness', '{k:0} × {t:3}', { k: CL.partitionSlenderness, t: tInt }, (v) => v.k * v.t, { unit: 'm', dp: 2, ref: 'IS 1905:1987 App. D-3.1(b): a panel held at its ends and at the top, of any length, may be 30 times its thickness high' })
   const partPass = Hi <= partLimit + 1e-9
   L.pick('Inner wall: result', 'inner wall height ≤ limit', `${fixed(Hi, 2)} m against ${fixed(partLimit, 2)} m: ${partPass ? 'pass' : 'advisory (needs a stiffening band at mid-height, not counted)'}`, 'IS 1905:1987 App. D-3.1(b)')
   const parOn = inp.parapet || (inp.balconyWall && balcTotal > 0)
-  const parLimit = L.calc('Parapet: greatest height unbraced', 'H ≤ 5 × thickness', '{k:0} × {t:3}', { k: CL.parapetSlenderness, t: tPar }, (v) => v.k * v.t, { unit: 'm', dp: 2, ref: 'IS 6041:1985 cl 4.3; IS 2572:2005 cl 7.2.2: unless braced at 3 m or less, five times the thickness' })
-  const parPass = M.PARAPET_H <= parLimit + 1e-9
-  L.pick('Parapet: result', 'parapet height ≤ limit', `${fixed(M.PARAPET_H, 2)} m against ${fixed(parLimit, 2)} m: ${parPass ? 'pass' : 'advisory (needs stiffening columns, not counted)'}`, 'IS 6041:1985 cl 4.3; IS 2572:2005 cl 7.2.2')
-  const chkBlock = blk('chk-1', '11.1 The three checks that depend on a number')
+  let parPass = true
+  if (parOn) {
+    const parLimit = L.calc('Parapet: greatest height unbraced', 'H ≤ 5 × thickness', '{k:0} × {t:3}', { k: CL.parapetSlenderness, t: tPar }, (v) => v.k * v.t, { unit: 'm', dp: 2, ref: 'IS 6041:1985 cl 4.3; IS 2572:2005 cl 7.2.2: unless braced at 3 m or less, five times the thickness', note: S.kind === 'brick' ? 'These two standards are for block masonry; the tool applies the limit to brick by analogy' : undefined })
+    parPass = M.PARAPET_H <= parLimit + 1e-9
+    L.pick('Parapet: result', 'parapet height ≤ limit', `${fixed(M.PARAPET_H, 2)} m against ${fixed(parLimit, 2)} m: ${parPass ? 'pass' : 'advisory (needs stiffening columns, not counted)'}`, 'IS 6041:1985 cl 4.3; IS 2572:2005 cl 7.2.2')
+  }
+  const chkBlock = blk('chk-1', `11.1 The ${parOn ? 'three' : 'two'} checks that depend on a number`)
   const chkWant: [string, boolean][] = [['panel', panelPass], ['partition', partPass], ...(parOn ? ([['parapet', parPass]] as [string, boolean][]) : [])]
   chkWant.forEach(([id, pass]) => {
     const c = free.checks.find((x) => x.id === id)
@@ -1052,7 +1075,7 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
     tieText(`Check: ${c.description}`, c.status === 'pass' ? 'Pass' : 'Advisory', pass ? 'Pass' : 'Advisory')
   })
   if (!parOn && free.checks.some((c) => c.id === 'parapet')) miss('The report has a parapet check but the sheet finds no parapet')
-  sections.push({ id: 'checks', title: '11. Code checks that depend on a number', intro: 'The report’s checks against the Indian Standards. Three of them compare a size with a limit; they are worked here. The others (mortar mix, plaster thickness, ties to the frame) are statements of practice and carry no sum.', blocks: [chkBlock] })
+  sections.push({ id: 'checks', title: '11. Code checks that depend on a number', intro: `The report’s checks against the Indian Standards. ${parOn ? 'Three' : 'Two'} of them compare a size with a limit; they are worked here. The others (mortar mix, plaster thickness, ties to the frame) are statements of practice and carry no sum. The editions followed are IS 4326:1993, IS 6041:1985, IS 2572:2005 and IS 1905:1987; newer editions of some of them exist and were not checked.`, blocks: [chkBlock] })
 
   /* ═════════════ the facts and the tiles of the first page ═════════════ */
 
@@ -1068,44 +1091,64 @@ export function makeMasonSheet(inp: MasonInput, rpt: TradeResult): MasonSheetRes
   /* ═════════════ the words ═════════════ */
 
   const refs: CalcReference[] = [
-    { code: 'IS 1200 (Part 3):1976', title: 'Method of measurement of building and civil engineering works, Part III: Brickwork', usedFor: 'Taking openings, with their lintels and sills, out of the walls (cl 4.1.4 and its note).' },
-    { code: 'IS 1200 (Part 12):1976', title: 'Method of measurement of building and civil engineering works, Part XII: Plastering and pointing', usedFor: 'Measuring plaster and deducting openings from it (cl 3.8, 3.12).' },
+    { code: 'IS 1200 (Part 3):1976', title: 'Method of measurement of building and civil engineering works, Part III: Brickwork', usedFor: 'Taking openings, with their lintels and sills, out of the walls (cl 4.1.4 and its note). This is the 1976 edition. BIS lists IS 1200 (Part 3):2026, which supersedes it; the tool follows the 1976 rules and has not been checked against the 2026 edition.' },
+    { code: 'IS 1200 (Part 12):1976', title: 'Method of measurement of building and civil engineering works, Part XII: Plastering and pointing', usedFor: 'Measuring plaster and deducting openings from it (cl 3.8, 3.12). This is the 1976 edition. BIS lists IS 1200 (Part 12):2026, which supersedes it; the tool follows the 1976 rules and has not been checked against the 2026 edition.' },
     { code: 'IS 1077:1992', title: 'Common burnt clay building bricks: Specification', usedFor: 'The modular brick, 190 × 90 × 90 mm.' },
     { code: 'IS 12894:2002', title: 'Pulverized fuel ash-lime bricks: Specification', usedFor: 'The fly-ash brick, 230 × 110 × 70 mm (cl 5.1.2).' },
     { code: 'IS 2185 (Part 1):2005', title: 'Concrete masonry units, Part 1: Hollow and solid concrete blocks', usedFor: 'The 400 × 200 mm concrete block; the nominal size includes the mortar joint (cl 4.2, 4.2.1).' },
     { code: 'IS 2185 (Part 3):1984', title: 'Concrete masonry units, Part 3: Autoclaved cellular (aerated) concrete blocks', usedFor: 'The 600 × 200 mm AAC block face (with the makers’ data).' },
-    { code: 'IS 6041:1985', title: 'Construction of autoclaved cellular concrete block masonry: Code of practice', usedFor: 'The 10 mm joint (cl 7.1); minimum thickness of internal and external panel walls (cl 4.2.1); parapet height (cl 4.3).' },
-    { code: 'IS 2572:2005', title: 'Construction of hollow and solid concrete block masonry: Code of practice', usedFor: 'The 10 mm joint (cl 11.1.4); minimum thickness of internal partitions (cl 7.2.1.2) and external panel walls (cl 7.2.1.3); parapet height (cl 7.2.2).' },
-    { code: 'IS 2212:1991', title: 'Brickwork: Code of practice', usedFor: 'The code of practice the brick joint follows (no clause quoted on the sheet).' },
-    { code: 'IS 2250:1981', title: 'Preparation and use of masonry mortars: Code of practice', usedFor: 'Richer mortar for parapets higher than three times their thickness (cl 7.1.5).' },
-    { code: 'IS 1905:1987', title: 'Structural safety of buildings: Masonry walls: Code of practice', usedFor: 'Bearing of a lintel on the wall (cl 5.3.3) and the height of a held panel against its thickness (App. D-3.1(b)).' },
-    { code: 'IS 4326:1993', title: 'Earthquake resistant design and construction of buildings: Code of practice', usedFor: 'Recommended mortar mixes (cl 8.1.2, Table 3); panel walls in a frame to be bonded and checked in bending (cl 8.2.3, 8.2.6).' },
+    { code: 'IS 6041:1985', title: 'Construction of autoclaved cellular concrete block masonry: Code of practice', usedFor: 'The 10 mm joint (cl 7.1); minimum thickness of internal and external panel walls (cl 4.2.1); parapet height (cl 4.3). This sheet follows the 1985 edition; a newer edition exists and was not checked.' },
+    { code: 'IS 2572:2005', title: 'Construction of hollow and solid concrete block masonry: Code of practice', usedFor: 'The 10 mm joint (cl 11.1.4); minimum thickness of internal partitions (cl 7.2.1.2) and external panel walls (cl 7.2.1.3); parapet height (cl 7.2.2). This sheet follows the 2005 edition; a newer edition exists and was not checked.' },
+    { code: 'IS 2212:1991', title: 'Brickwork: Code of practice', usedFor: 'The code of practice for brickwork. Its joint limit of 12 mm (cl 6.4.1) is as given in the tool’s research notes and was not re-read against the published text; the tool takes 10 mm.' },
+    { code: 'IS 2250:1981', title: 'Preparation and use of masonry mortars: Code of practice', usedFor: 'Richer mortar for parapets higher than three times their thickness (cl 7.1.5). The grade named there (MM 3) and its cement-sand ratio were not read; a secondary source gives MM 3 as 1:5, so the tool’s 1:4 is on the safe side.' },
+    { code: 'IS 1905:1987', title: 'Structural use of unreinforced masonry: Code of practice', usedFor: 'Bearing of a lintel on the wall (cl 5.3.3) and the height of a held panel against its thickness (App. D-3.1(b)).' },
+    { code: 'IS 4326:1993', title: 'Earthquake resistant design and construction of buildings: Code of practice', usedFor: 'Recommended mortar mixes (cl 8.1.2, Table 3); panel walls in a frame (cl 8.2.3 and its Note for walls of 200 mm or more in storeys of 3.5 m or less, held at the top; cl 8.2.6 sends bonded filler walls to cl 8.2.3). This sheet follows the 1993 edition; IS 4326:2013 is a newer edition and was not checked.' },
     { code: 'IS 1786:2008', title: 'High strength deformed steel bars and wires for concrete reinforcement: Specification', usedFor: 'Mass per metre of the 6, 8 and 10 mm bars in the lintels (Table 1).' },
     { code: 'IS 456:2000', title: 'Plain and reinforced concrete: Code of practice', usedFor: 'Nominal mix concrete may be used for M 20 or lower (cl 9.3): the lintels.' },
-    { code: 'CPWD DAR 2014', title: 'Delhi Analysis of Rates 2014, Volumes 1 and 2 (Central Public Works Department)', usedFor: 'Mortar in each plaster item, cement and sand in a cubic metre of mortar, and the M20 concrete quantities. These are the CPWD analysis-of-rates basis the tool uses; they are not Indian Standard clauses.' },
+    { code: 'CPWD DAR 2014', title: 'Delhi Analysis of Rates 2014, Volumes 1 and 2 (Central Public Works Department)', usedFor: 'Mortar in each plaster item (Vol 2 items 13.3, 13.4, 13.11, 13.16); cement in 1:3 plaster mortar (Vol 2 item 13.21); the M20 concrete quantities (Vol 1 item 4.1.2, as given in the tool’s research notes and not re-read against the published volume). These are the CPWD analysis-of-rates basis the tool uses; they are not Indian Standard clauses. The cement for the other mixes is scaled by the tool from the 1:3 figure.' },
   ]
 
-  const purpose = `This sheet shows how MasonryPro worked out the ${S.unitsLabel}, mortar, cement, sand, plaster and lintels in your report. Each step gives the formula, the numbers put in, the answer and where the rule comes from, so a mason, a contractor or an engineer can check the working without the tool. The walls and openings come from a planning model of your rooms, not from a drawing, so where the sheet says Assumed the figure is the tool’s own planning value and not a code requirement.`
+  // joint mortar for each m³ of brick wall, as the report carries it (for the limits)
+  const mPerM3 = (u: UnitW) => u.mortarM2 / u.w.t
+  const uOut = uw[0]
+  const uIn = uw.find((u) => u.w.id === 'int')
+  const jointMortarLimit = S.kind === 'brick' && uOut && uIn
+    ? `For brickwork the tool counts the bricks on the nominal thickness (the wall plus one joint) but takes the exact joint volume on the actual thickness, and then adds ${round((U.MORTAR_ALLOW - 1) * 100)}%. The joint mortar comes out at ${fixed(mPerM3(uOut), 3)} m³ for each m³ of ${mm(uOut.w.t)} mm wall and ${fixed(mPerM3(uIn), 3)} for each m³ of ${mm(uIn.w.t)} mm wall. A published table based on the CPWD rates (Vol 1 brickwork items) implies about 0.25 to 0.27 for standard 230 mm brickwork. If that table is right, the joint mortar here is low, by up to about a quarter in half-brick walls. The method has not been changed to match; check the joint mortar against what your mason uses.`
+    : null
+
+  const purpose = `This sheet shows how MasonryPro worked out the ${S.unitsLabel}, mortar, cement, sand, plaster and lintels in your report. Each step gives the formula, the numbers put in, the answer and where the rule comes from, so that the working can be checked. The wall lengths come from the tool’s room plan, which is an assumption and not a drawing, so checking the working checks the arithmetic and the rules named, not your building. Where the sheet says Assumed the figure is the tool’s own planning value and not a code requirement.`
   const method: string[] = [
     'Your answers fix the wall material, the thickness of each kind of wall and the floor-to-floor height. The wall heights follow by taking off the depth of the beams and slab.',
     'A room plan is worked out for each floor from its area and the number of bedrooms, bathrooms and kitchens. It gives the length of the outer walls, the inner walls and any walls between flats.',
-    'Doors, windows and ventilators are counted from the rooms. Each is taken out of its wall together with its lintel and its sill, the way IS 1200 (Part 3) measures an opening.',
+    'Doors, windows and ventilators are counted from the rooms. Each is taken out of its wall together with its lintel and its sill, the way IS 1200 (Part 3):1976 measures an opening (the 1976 edition, which a 2026 edition supersedes: see the limits).',
     'Each kind of wall is measured: length times height is the gross area, and the openings come off to give the net area.',
     `The ${S.unitsLabel} in a square metre of wall come from the size of the ${S.unit} and the joint. The joint mortar in a square metre is the true volume of the joints, with an allowance added. Breakage is added to the count.`,
-    'Plaster is measured to IS 1200 (Part 12): the surfaces of the walls, ceilings, parapet and balcony edges, less what the openings take off. The mortar in it comes from the CPWD analysis-of-rates figure for each plaster item.',
-    'Every lintel is sized from its opening: length, concrete, and steel in a fixed arrangement of bars and stirrups. Every mortar is turned into cement and sand on the CPWD analysis-of-rates basis, and the lintel concrete into cement, sand and stone with the M20 quantities.',
-    'The exact quantities are rounded to the sizes in which each material is ordered (hundreds of bricks, 50 kg bags, 5 kg of steel). The range under each total is the total times a low and a high factor.',
-    'Finally every total, table row and order line of the report is compared with the figure this sheet worked out. The comparison is at the end of the sheet; if any figure had disagreed, the sheet would have been left out.',
+    'Plaster is measured to IS 1200 (Part 12):1976 (the 1976 edition, which a 2026 edition supersedes: see the limits): the surfaces of the walls, ceilings, parapet and balcony edges, less what the openings take off. The mortar in it comes from the CPWD analysis-of-rates figure for each plaster item.',
+    'Every lintel is sized from its opening: length, concrete, and steel in a fixed arrangement of bars and stirrups. Every mortar is turned into cement and sand on the CPWD analysis-of-rates basis, scaled by the tool from one CPWD figure, and the lintel concrete into cement, sand and stone with the M20 quantities.',
+    'The exact quantities are rounded to the sizes in which each material is ordered (hundreds of bricks, 50 kg bags, 5 kg of steel). The range under each total is the total times a low and a high factor, which the tool sets by its own judgement.',
+    'Finally every total, table row and order line of the report is compared with the figure this sheet worked out. The comparison is at the end of the sheet, and the sheet is printed only if every figure agrees. That shows the sheet and the report agree with each other, because the same sums were done twice. It is not a check against the standards or against what a site will use.',
   ]
   const limits: string[] = [
     'The walls are not measured from your drawing. The length of outer and inner walls comes from a room plan the tool builds from your floor areas and room counts. If your plot is long and thin, or the rooms are laid out very differently, the real walls will be longer than the sheet shows.',
+    'The room plan is built only to find wall lengths and the floor inside the walls. Another NirmanShastra tool may lay out the same rooms by its own rule, so a room’s area here can differ from the same room in another NirmanShastra report.',
     'Door and window sizes and numbers, and the sizes of the plinth, parapet, balcony and stair room, are planning values. No standard fixes them. Change them on your drawing and the quantities change.',
+    `IS 1200 (Part 3) and (Part 12) are cited here in their 1976 editions. BIS lists IS 1200 (Part 3):2026 and IS 1200 (Part 12):2026, which supersede them. The tool follows the 1976 rules (no deduction for an opening up to 0.1 m² in masonry; for plaster none up to 0.5 m², one face up to 3 m², both faces and the reveals above) and has not been checked against the 2026 text. A 2025 draft of the revision, read only in summary and not the published text, appears to keep these limits and the between-walls rule but numbers its clauses differently, so the clause numbers on this sheet are the 1976 numbers. Check them, and the limits, against the 2026 edition before relying on them.`,
+    `The outer wall length is the perimeter of the built-up area (${fixed(reps[0].P, 1)} m on the ground floor here). Measured between the walls, which is how IS 1200 (Part 12):1976 cl 3.12 measures plaster, the inside perimeter is shorter by 8 times the wall thickness (${fixed(8 * tExt, 2)} m here). The tool uses the built-up length for the brickwork and for the inside plaster of the outer walls, so both are a little high.`,
+    'No deduction is made for concrete columns standing inside a framed wall, while the Grand Total adds the columns of the frame separately. The masonry may be high by a few per cent for that reason.',
     `The count of ${S.unitsLabel} follows from the nominal size of the unit and a 10 mm joint.${inp.system === 'brick' ? ' The 230 × 115 × 75 mm red brick is the common field size, not a BIS size; if your kiln’s brick differs, the count changes in the ratio of the volumes. Measure a few.' : ''} The ${round(S.loss * 100)}% for breakage and the ${round((U.MORTAR_ALLOW - 1) * 100)}% extra joint mortar are assumptions; no standard gives either.`,
-    'Cement and sand per cubic metre of mortar are calibrated to one CPWD figure (513 kg of cement in 1 m³ of 1:3 plaster mortar) and carried to the other mixes in the same ratio. The CPWD figures for brickwork were not available to cross-check, so the joint-mortar quantities are less certain than the plaster ones. Check them against your mason’s own mix.',
+    ...(jointMortarLimit ? [jointMortarLimit] : []),
+    `Cement per cubic metre of mortar is calibrated to one CPWD figure (73.89 kg of cement for 10 m² of 12 mm plaster in 1:3, which is ${U.DAR_1_3_CEMENT_KG} kg in 1 m³; DAR 2014 Vol 2 item 13.21) and scaled by the tool to the other mixes. The scaled figures are not read from a CPWD table and differ slightly from published tables (up to about 3% from a third-party table based on the 2023 Delhi Schedule of Rates). The CPWD Volume 1 brickwork items were not used to check the joint mortar.`,
+    'Sand is the CPWD volume of loose sand for each cubic metre of mortar. The bulking of damp sand and the moisture in it are not allowed for, so the sand as delivered may measure differently.',
+    'Inside plaster is taken as one coat of 12 mm for every wall and ceiling. Many sites use 15 to 20 mm; the plaster mortar rises in proportion to the thickness.',
     'Mortar mixes follow the tool’s choice, not your seismic zone. IS 4326 Table 3 asks for a richer mortar (1:4 or better) in the higher zones and the tool does not ask for the zone. Your engineer decides the mortar grade; richer mortar raises the cement.',
-    'The steel in the lintels is a standard arrangement for a small lintel (two 10 mm bars, two 8 mm bars, 6 mm stirrups at 150 mm). It is not the design of any lintel; the engineer who signs your drawings decides lintel sizes and steel.',
+    'The steel in the lintels is a standard arrangement for a small lintel (two 10 mm bars, two 8 mm bars, 6 mm stirrups at 150 mm). It is not the design of any lintel; the engineer who signs your drawings decides lintel sizes and steel. No allowance is made for cutting the bars to length or for laps; the rounding up to 5 kg is the only margin.',
     'Not counted: dowels, ties and horizontal bands in tall walls, stiffening columns and copings on parapets, damp-proof course and waterproofing, door and window frames, scaffolding and curing water. The report lists them. A 150 mm wall in a frame needs bracing and reinforcement that the engineer decides.',
-    'The code checks compare a wall’s thickness and height with limits taken from the standards. They are screening checks for estimating, not a seismic or structural design of the walls. The 3.5 m storey limit in the panel-wall check is the tool’s own.',
+    'The code checks compare a wall’s thickness and height with limits taken from the standards. They are screening checks for estimating, not a seismic or structural design of the walls. The panel-wall check follows the Note to IS 4326:1993 cl 8.2.3 (200 mm or more thick, storey not more than 3.5 m, held at the top). The tool does not know whether the wall is held at the top and assumes it is. It tests the nominal thickness, the wall plus one 10 mm joint for brick, so a 190 mm modular-brick wall counts as 200 mm and passes.',
+    ...(S.kind === 'brick' ? ['The limit of five times the thickness for a parapet comes from the block-masonry standards IS 6041 and IS 2572. The tool applies it to brick by analogy.'] : []),
+    'The ranges under the totals are a judgement band set by the tool, not a statistical interval.',
+    'The sheet follows IS 4326:1993, IS 6041:1985 and IS 2572:2005. Newer editions exist (IS 4326:2013, and newer editions of IS 6041 and IS 2572), and their clause numbers and limits may differ.',
+    'The clause number given for IS 2212 (cl 6.4.1), the item number given for CPWD DAR Vol 1 (item 4.1.2) and the mapping of grade MM 3 of IS 2250 to a mix are as found in the tool’s research notes and were not re-read against the published text. Treat such a number as a pointer to check, not a quotation.',
+    'The ok marks in the reconciliation at the end show that this sheet and the report agree with each other, because the same sums were done twice. They do not show that the figures agree with the standards or with what a site will use.',
     'State and city do not change any figure. Brick sizes and mixes vary from place to place, and the tool has no local factor, so confirm the brick size and the mortar mix with your mason before you order.',
     'Quantities are carried at full precision and rounded only for the order list in section 9. Re-keying the rounded figures printed here can differ in the last digit.',
   ]

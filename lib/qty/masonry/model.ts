@@ -114,7 +114,7 @@ export const BALCONY = { edge: 6.0, area: 4.5 } // 3.0 m wide and 1.5 m deep: ed
 
 export const WINDOW_SILL = 0.075 // m, a sill under each window is included with the opening (IS 1200 Part 3 cl 4.1.4 note)
 export const lintelDepth = (w: number) => (w <= 1.5 ? 0.15 : 0.2)
-export const lintelBearing = (w: number) => Math.max(0.15, w / 10) // IS 1905 cl 5.3.3: at least 9 cm or span/10
+export const lintelBearing = (w: number) => Math.max(0.15, w / 10) // IS 1905 cl 5.3.3 asks for 9 cm or span/10, whichever is more; the tool takes 15 cm as its minimum
 
 export type OpenId = 'main' | 'room' | 'bath' | 'balc' | 'balcL' | 'winB' | 'winL' | 'winK' | 'winS' | 'vent' | 'mumty'
 export interface OpenDef { name: string; w: number; h: number; win: boolean }
@@ -446,11 +446,11 @@ export function runMason(inp: MasonInput, trace?: MasonTrace): Ran {
   const nomExt = S.kind === 'brick' ? tExt + J : tExt
   const checks: Check[] = []
   checks.push({
-    id: 'panel', clause: S.kind === 'brick' ? 'IS 4326:1993 cl 8.2.3 (note)' : inp.system === 'aac' ? 'IS 6041:1985 cl 4.2.1' : 'IS 2572:2005 cl 7.2.1.2',
+    id: 'panel', clause: S.kind === 'brick' ? 'IS 4326:1993 cl 8.2.3 (note)' : inp.system === 'aac' ? 'IS 6041:1985 cl 4.2.1' : 'IS 2572:2005 cl 7.2.1.3',
     description: 'Outer wall thickness in a framed building',
     status: nomExt >= CHECK_LIMITS.panelNominalM - 1e-9 && H <= CHECK_LIMITS.panelStoreyM ? 'pass' : 'advisory',
     detail: nomExt >= CHECK_LIMITS.panelNominalM - 1e-9
-      ? `Your outer wall is ${round(tExt * 1000)} mm. Infill walls of at least 200 mm in storeys up to 3.5 m high need no separate panel check.${H > CHECK_LIMITS.panelStoreyM ? ` Your storey is ${fmt(H, 2)} m, so ask your engineer to check the panels.` : ''}`
+      ? `Your outer wall is ${round(tExt * 1000)} mm. Infill walls of at least 200 mm in storeys up to 3.5 m high, held at the top (the tool assumes they are), need no separate panel check.${H > CHECK_LIMITS.panelStoreyM ? ` Your storey is ${fmt(H, 2)} m, so ask your engineer to check the panels.` : ''}`
       : `Your outer wall is ${round(tExt * 1000)} mm. Blocks of 150 mm are allowed in a frame only if the wall is braced and reinforced, so ask your engineer to confirm before you choose this.`,
   })
   checks.push({
@@ -467,7 +467,7 @@ export function runMason(inp: MasonInput, trace?: MasonTrace): Ran {
     })
   }
   checks.push({
-    id: 'mortar', clause: 'IS 2250:1981 cl 7.1; IS 4326:1993 cl 8.1.2', description: 'Mortar mix',
+    id: 'mortar', clause: 'IS 2250:1981 cl 7.1.5; IS 4326:1993 cl 8.1.2', description: 'Mortar mix',
     status: 'pass',
     detail: thin
       ? 'AAC is laid in thin-bed adhesive; the plinth, which is concrete block, uses 1:6 cement mortar. Parapets use 1:4 where IS 2250 asks for a richer mortar for parapets taller than three times their thickness.'
@@ -620,9 +620,9 @@ export function runMason(inp: MasonInput, trace?: MasonTrace): Ran {
   if (lintelSteel > 0) lines.push({ key: 'steel-lintel-kg', item: 'Steel for lintels (10, 8 and 6 mm)', qty: ceilTo(lintelSteel, STEEL_PACK_KG), unit: 'kg', group: 'Steel', basis: 'Bars and stirrups' })
 
   const assumptions = [
-    `Code: ${S.label} of ${S.size} (${S.source}); joints of ${thin ? '3 mm adhesive (maker’s figure)' : '10 mm (IS 6041 cl 7.1, IS 2572 cl 11.1.4)'}. Walls are measured and openings deducted to IS 1200 (Part 3) and (Part 12).`,
+    `Code: ${S.label} of ${S.size} (${S.source}); joints of ${thin ? '3 mm adhesive (maker’s figure)' : '10 mm (IS 6041 cl 7.1 for AAC, IS 2572 cl 11.1.4 for concrete block, IS 2212 for brickwork)'}. Walls are measured and openings deducted to IS 1200 (Part 3) and (Part 12).`,
     `Derived: units per m² = the nominal thickness over the pitch of the unit in all three directions, so a one-brick wall of this brick holds ${fmt(unitsPerM2(SYSTEMS[inp.system], SYSTEMS[inp.system].kind === 'brick' ? SYSTEMS[inp.system].ext : tExt, thin), 1)} units a m². Joint mortar is the true volume of the joints, not the nominal one, which would run about a quarter high.`,
-    `Practice: plaster mortar per m² is the CPWD Delhi Analysis of Rates 2014 yield for each item (12 mm, 6 mm, 18 mm in two coats, 20 mm). Cement per m³ of mortar is calibrated to the CPWD figure of 513 kg for 1:3 and carried to the other mixes in the same ratio. The CPWD volume 1 yields for brickwork were not available to cross-check, so the masonry figures are the less certain ones.`,
+    `Practice: plaster mortar per m² is the CPWD Delhi Analysis of Rates 2014 yield for each item (12 mm, 6 mm, 18 mm in two coats, 20 mm). Cement per m³ of mortar is calibrated to the CPWD figure of 513 kg for 1:3 and carried to the other mixes in the same ratio. The CPWD Volume 1 brickwork items were not used to check the joint mortar, and a published table based on them suggests the tool’s joint mortar may be low, most of all in half-brick walls, so the masonry figures are the less certain ones.`,
     `Assumed: the room plan. A bedroom is one share of the floor, a living room 1.3 shares plus 0.3 for each bedroom, a kitchen 0.75, a bathroom 0.33 and the passages about half a share; rooms are 1 to 1.3 in plan and passages 1 to 4. Walls between rooms are counted once.`,
     `Assumed: outer wall length 4.08 × √(floor area), a plan of 1 to 1.5. Outer walls ${fmt(He, 2)} m high (floor to beam, ${fmt(BEAM_D, 2)} m deep), inner walls ${fmt(Hi, 2)} m. Floor to floor height ${fmt(H, 2)} m${inp.storeyM === 3.0 ? ', which matches the structure report' : ''}.`,
     `Assumed: door and window sizes in the schedule, one window in each bedroom and kitchen, two in a ground floor living room, a ventilator in each bathroom, a stair window on every floor above one storey.`,
@@ -666,8 +666,8 @@ export function runMason(inp: MasonInput, trace?: MasonTrace): Ran {
   const sources = [
     'IS 1077:1992 Common burnt clay building bricks; IS 12894:2002 Fly ash lime bricks; IS 2212:1991 Brickwork',
     'IS 2185 (Part 1 to 3) Concrete masonry units; IS 6041:1985 AAC masonry; IS 2572:2005 Concrete masonry construction',
-    'IS 1200 (Part 3):1976 and (Part 12):1976 Methods of measurement; IS 2250:1981 Masonry mortars; IS 2402:1963 External rendering',
-    'IS 4326:1993 Earthquake-resistant construction; IS 1905:1987 Masonry; IS 3362:1977 Natural ventilation',
+    'IS 1200 (Part 3):1976 and (Part 12):1976 Methods of measurement (1976 editions; BIS lists 2026 editions that supersede them, not checked here); IS 2250:1981 Masonry mortars; IS 2402:1963 External rendering',
+    'IS 4326:1993 Earthquake-resistant construction; IS 1905:1987 Structural use of unreinforced masonry; IS 3362:1977 Natural ventilation',
     'CPWD Delhi Analysis of Rates 2014, Volume 1 (concrete, mortar) and Volume 2 (plaster)',
   ]
 
