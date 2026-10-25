@@ -51,7 +51,7 @@ export default function DisclaimerPage() {
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="dc-5">
           <h2 id="dc-5" style={H2}>5. VastuPro</h2>
-          <p>VastuPro applies classical Vastu Shastra principles as set out in traditional texts and commonly used in Indian residential construction. Vastu Shastra is a traditional architectural practice, not a science with controlled empirical validation. NirmanShastra makes no claim about the measurable effect of following or not following Vastu on any person, household or outcome. VastuPro is offered for information and planning only.</p>
+          <p>VastuPro reads a plan against rules taken from the traditional Vastu Shastra texts and from what teachers commonly teach today; each finding says which. Some rules are modern conventions with no basis in the old texts, and the teachers differ on several. Vastu Shastra is a traditional architectural practice, not a science with controlled empirical validation. NirmanShastra makes no claim about the measurable effect of following or not following Vastu on any person, household or outcome. VastuPro is offered for information and planning only.</p>
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="dc-6">

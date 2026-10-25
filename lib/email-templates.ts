@@ -96,7 +96,7 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
       if (dayNumber === 0) {
         return mail('Your VastuPro check, and what to look at next', `Your Vastu check, ${firstName}`, `
             ${p('Thank you for trying VastuPro. When you have marked your rooms and read your plan, you can download a free PDF of your findings. It has:')}
-            ${ul(['Your plan with the 16 zones turned to your North', 'Every room you marked, rated by the zone it sits in', 'An overall score out of 100', 'What the Vastu tradition says about each placement'])}
+            ${ul(['Your plan with the 16 zones turned to your North', 'Every door and room you marked, read against the old texts and today’s teachers, with where each rule comes from', 'A count of what to look at first, and a rough overall index', 'What could be done about each concern if the plan can still change'])}
             ${p('Vastu is a traditional system. It is not part of any BIS code and says nothing about the strength of the structure.')}
             ${p('Once the layout is settled, the next question is how much material the frame of the house will need. StructurePro answers that from a few plain questions about your plot and plan.')}
             ${p('The first look is free: your earthquake zone, the concrete and steel grades that apply, the IS-code checks and a 3D model of your frame. The full quantity report is paid.')}

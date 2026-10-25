@@ -61,7 +61,7 @@ Reference facts that are safe to state:
 
 # 8. VastuPro
 
-Free. The person sets where North lies on their drawing, marks up to 33 kinds of room on the plan, and each room is rated by which of the 16 Vastu zones it sits in. The result is an overall score out of 100, a reading of each room, and a free PDF of the plan and findings (made on request, not stored). There are no remedies or do's and don'ts in it. Vastu is a traditional belief system, not part of any BIS code, and says nothing about whether a structure is strong or safe.
+Free. The person sets where North lies on their drawing, draws the outline of the house (rectangle, L-shape or their own shape), taps where the main, back and side doors are, and adds up to 24 kinds of room. Each door and room is read against the old Vastu texts and today's teachers. The main door is read by its position along the plot boundary, using the 32 positions of the old texts; rooms are read by which of 16 compass zones they sit in, which is a modern convention. Every finding says where the rule comes from (traditional texts, widely taught today, or modern convention), says where teachers disagree, and offers remedies that need no building work and ones that do. The result is a count of serious, to-review, acceptable and favourable findings, a rough overall index, and a free PDF (made on request, not stored). It makes no claim about health, money or luck: no controlled study shows that a layout decides them. Vastu is a traditional system, not part of any BIS code, and says nothing about whether a structure is strong or safe.
 
 # 9. Limits the guide must keep
 

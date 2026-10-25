@@ -6,7 +6,7 @@ import { toolJsonLd } from '@/lib/seo/schema'
 // The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
 const title = 'VastuPro: free Vastu check of your home plan'
 const description =
-  'Free Vastu check of a home plan: set where North is, mark your rooms, and get a 16-zone reading of each one, an overall score and a PDF of your findings. Traditional guidance, not an IS code.'
+  'Free Vastu reading of a home plan: draw the outline of your house, set North, mark the doors and rooms, and see how the old texts and today’s teachers read each one, with where every rule comes from. Traditional guidance, not an IS code.'
 const url = '/tools/vastu-pro'
 
 export const metadata: Metadata = {

@@ -437,14 +437,14 @@ export const GLOSSARY: GlossaryGroup[] = [
         id: "vastu-purusha-mandala",
         term: "Vastu Purusha Mandala",
         definition:
-          "A grid diagram in Vastu Shastra that divides a site into zones, each tied to a direction and a use. VastuPro works with a 16-zone model.",
+          "A grid diagram in Vastu Shastra that stands for the plot: 64 or 81 squares, each held by a guardian, with 32 positions on the boundary. VastuPro shows 16 compass zones for rooms, which is a modern convention, and reads the main door by the 32 old positions.",
         links: [{"label": "Vastu and Vedic architecture: the 16 zones", "href": "/blog/vastu-vedic-architecture-16-zones"}],
       },
       {
         id: "brahmasthan",
         term: "Brahmasthan",
         definition:
-          "The central zone of a plot or house in Vastu Shastra, traditionally kept open. VastuPro measures directions from the Brahmasthan at the centre of the house.",
+          "The central part of a plot or house in Vastu Shastra, traditionally kept open and clean, with no door facing it. VastuPro measures it as the middle ninth of the smallest rectangle that holds your outline.",
         links: [],
       },
     ],

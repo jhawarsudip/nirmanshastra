@@ -132,7 +132,7 @@ export const TOOLS: ToolEntry[] = [
     name: 'VastuPro',
     kind: 'free-tool',
     summary:
-      'Free Vastu check of a home plan: set where North is, mark your rooms, and get each one read by its zone among the 16, an overall score and a PDF of your findings. A traditional system, not an IS code.',
+      'Free Vastu reading of a home plan: set where North is, draw the outline of your house, mark the doors and rooms, and get each one read against the old texts and today’s teachers, with its source, and a PDF of your findings. A traditional system, not an IS code.',
     isCodes: [],
   },
   {

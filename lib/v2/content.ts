@@ -48,7 +48,7 @@ export const TOOLS: ToolMeta[] = [
     key: 'vastu', phase: 'P0', name: 'VastuPro', href: '/tools/vastu-pro', price: 'FREE', free: true,
     accent: '--ns-t-vastu', plate: '/v2/products/p06-vastupro.webp',
     plateAlt: 'Plan-view drawing of a house with a 16-zone Vastu compass grid in gold line',
-    chips: ['33 ROOMS', '16 ZONES'],
+    chips: ['24 ROOMS', 'SOURCED RULES'],
     descriptorKey: 'vastuDescriptor', descKey: 'vastuDesc',
   },
   {

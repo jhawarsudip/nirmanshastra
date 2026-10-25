@@ -540,68 +540,73 @@ Isme koi daam, labour ya contractor rate nahi hota. Daam aap apne suppliers se k
   },
   {
     slug: 'vastu-vedic-architecture-16-zones',
-    title: 'Vastu and Vedic Architecture: Understanding the 16 Zones',
+    title: 'Vastu and the 16 Zones: What the Old Texts Say and What They Do Not',
     excerpt:
-      'Vastu Shastra is not superstition — it is a 3,000-year-old environmental design system. The Vastu Purusha Mandala divides your plot into 16 functional zones, each with specific directional guidelines. Here is how it works.',
+      'The 16-zone compass that many Vastu apps use is a modern convention. The old texts divide a plot into a grid of squares and its boundary into 32 positions. A plain account of what they say, what teachers add, and what no study has shown.',
     category: 'Vastu',
-    readTime: 5,
+    readTime: 6,
     publishedDate: '2026-06-30',
-    updatedDate: '2026-10-23',
-    quickAnswer: "The Vastu Purusha Mandala divides a plot into zones, each tied to a direction and a use. VastuPro works with a 16-zone model. The central Brahmasthan stays open or lightly loaded, with no pillar, staircase or toilet in it. Kitchens sit in the southeast (Agni), prayer rooms in the northeast (Ishan), heavy rooms in the southwest (Nairutya).",
+    updatedDate: '2026-10-25',
+    quickAnswer: "One of the oldest dated texts with a chapter on house-building, Varahamihira's Brihat Samhita (about the 6th century CE), divides a plot into a grid of 81 squares and its boundary into 32 positions. A split into 16 zones of 22.5 degrees is a modern convention that none of the old texts we read uses. VastuPro shows 16 zones for rooms, reads the main door by the 32 old positions, and marks every finding as traditional texts, widely taught today, or modern convention. No controlled study has shown that following Vastu changes health, money or relationships.",
     faq: [
-      { question: "What is the Vastu Purusha Mandala?", answer: "A square grid that divides a plot into zones, each associated with a deity or energy principle, a direction and a set of activities. The common residential version is a 9×9 grid of 81 padas, while VastuPro uses a 16-zone model that maps more directly to modern room types." },
-      { question: "What is the Brahmasthan?", answer: "The central zone of the plot. It should remain open or lightly loaded; a pillar, staircase or toilet there is considered the most adverse Vastu placement." },
-      { question: "Where does Vastu place the kitchen?", answer: "In the southeast (Agni) zone. The guide notes this aligns with prevailing wind patterns, so cooking fumes tend to blow away from living areas." },
-      { question: "Why are heavy rooms placed in the southwest?", answer: "The southwest (Nairutya) zone gets the harshest afternoon sun, so thick walls, the master bedroom and storage placed there give the most mass to block it." },
-      { question: "Is VastuPro free?", answer: "Yes. VastuPro is a free tool that overlays the Vastu Purusha Mandala on your plot and scores each room's placement, with no payment required." },
+      { question: "What is the Vastu Purusha Mandala?", answer: "A square grid that stands for the plot, with a figure, the Vastu Purusha, lying face down across it. The texts use a grid of 64 squares (manduka) or 81 squares (paramasayika). A guardian holds each square or group of squares: 45 in all, one at the centre, twelve inside and thirty-two round the boundary." },
+      { question: "What is the Brahmasthan?", answer: "The middle of the grid, held by Brahma. The old texts say it is kept open and clean, and that no door faces it. The list of rooms to keep out of the centre, such as the toilet, kitchen, stairs and bedroom, comes from modern manuals. The texts we could check do not give it." },
+      { question: "Are the 16 zones in the old texts?", answer: "No. We found no old text or scholarly source for a split into 16 zones of 22.5 degrees. Modern consultants and apps use it. The old texts divide the boundary into 32 positions, eight on each side, and give a result for a door at each one. VastuPro uses the 16-zone split for rooms and says it is a modern convention, and it reads the main door by the 32 positions." },
+      { question: "Where do the old texts put the kitchen?", answer: "In the south-east, the side of Agni, the guardian of fire (Brihat Samhita, chapter 53). They name directions for only a few rooms. Most of what is taught about bedrooms, toilets, study rooms and living rooms comes from later manuals, and VastuPro marks each rule as traditional, widely taught or modern." },
+      { question: "Does true north or magnetic north matter?", answer: "The old text Mayamata finds east and west with the sun and a gnomon, not with a magnetic needle. In India a compass differs from true north by only about 2 degrees west to 3 degrees east, but steel, wiring and phone sensors can throw a reading off by much more, and builders' plans are often 10 to 25 degrees off true north. Check North on site, away from steel." },
+      { question: "Is there evidence that following Vastu changes health, money or luck?", answer: "We found no peer-reviewed controlled study that shows it. A few rules do have a practical reason, such as light and air from the north and east, or keeping toilets away from drinking water. VastuPro shows the reason where there is one, and makes no claim about outcomes." },
+      { question: "Is VastuPro free?", answer: "Yes. You draw the outline of your house, mark the doors and rooms, and get a reading with a PDF, with no payment. It is a reading of a plan against traditional rules, not a structural check." },
     ],
     relatedSlugs: ['rccb-electrical-safety-is-732-2019', 'water-requirements-is-1172-1993', 'verify-contractor-quote-is-456-2000'],
-    content: `## Vastu Shastra — What It Actually Is
+    content: `## What Vastu is, and how old the texts are
 
-Vastu Shastra ("the science of dwelling") is the ancient Indian system of spatial arrangement that predates modern building science by millennia. Its core document, the Manasara (roughly 4th–6th century CE), describes the placement of rooms, doors, and structures in relation to cardinal directions, solar angles, and wind patterns.
+Vastu Shastra is the traditional Indian body of rules for siting and planning buildings. It is often described as 3,000 years old. The texts that can be dated are younger: Varahamihira's **Brihat Samhita**, chapter 53, on house-building, is from about the 6th century CE. The south Indian **Mayamata** is placed between the 5th and 7th centuries by some scholars, and later by others. Bhoja's **Samarangana Sutradhara** is from the 11th century. Some scholars trace the ideas back to earlier Vedic and Puranic writing, but the dated treatises are about 1,500 years old.
 
-Unlike popular misconception, Vastu is not primarily about ritual or superstition. At its base, it encodes environmental logic: the sun rises in the east, bringing light and warmth; prevailing summer winds in the Indian subcontinent come from the southwest; the north direction in the Northern Hemisphere receives less direct solar radiation. These observations informed where kitchens, bedrooms, and water bodies should sit.
+Two books help a reader who wants to check this against a more careful source: Vibhuti Chakrabarti's *Indian Architectural Theory and Practice* (Routledge, 2013), which sets what the texts say beside how consultants use them today, and En-Yu Huang's open-access study that compares the old texts with modern manuals.
 
-## The Vastu Purusha Mandala
+## The mandala is a grid, not a compass
 
-The foundational tool of Vastu is the **Vastu Purusha Mandala** — a square grid that divides any plot into zones, each associated with a deity (energy principle), a direction, and a set of activities.
+The **Vastu Purusha Mandala** is a square grid that stands for the plot. The texts use 64 squares (manduka) or 81 squares (paramasayika). A guardian holds each square or group of squares: 45 in all, with Brahma at the centre, twelve around him and thirty-two on the boundary.
 
-The most common version used in residential design is the **9×9 grid (81 pada)**, but NirmanShastra's VastuPro works with the **16-zone model** that maps more directly to modern room types:
+Two ideas in the old texts matter for a house plan:
 
-| Zone | Direction | Primary Association |
-|---|---|---|
-| 1 | North | Water bodies, treasury, cashflow |
-| 2 | Northeast (Ishan) | Prayer room, open space, water |
-| 3 | East | Social spaces, living room |
-| 4 | Southeast (Agni) | Kitchen, fire elements, generator |
-| 5 | South | Master bedroom, heavy storage |
-| 6 | Southwest (Nairutya) | Master bedroom, heavy structures |
-| 7 | West | Children's rooms, dining |
-| 8 | Northwest (Vayu) | Guest room, movement-related rooms |
-| 9 | Brahmasthan | Open centre — never built upon |
-| 10–16 | Sub-zones | Transitional and service spaces |
+- **The centre stays open.** The Brahmasthan, the middle of the grid, is kept clear and clean, and no door faces it.
+- **The boundary has 32 positions.** Eight on each side, each with its own guardian. The texts say what a door at each position means.
 
-The **Brahmasthan** (central zone) is the most critical — it should remain open or lightly loaded. Placing a pillar, staircase, or toilet in the Brahmasthan is considered the most adverse Vastu placement.
+## How the main door is read
 
-## Why Direction Matters — The Environmental Logic
+A door is not read by the side it is on alone. It is read by where along that side it sits. In the 1884 English translation of the Brihat Samhita by N. Chidambaram Iyer, which VastuPro follows, the positions named as favourable are:
 
-**Northeast (Ishan):** The low morning sun enters from this direction, providing gentle light. Water here (a well, underground sump, or fountain) keeps this zone cool and receives sunlight — preventing stagnation. Scientifically: northeast-facing slopes and openings receive the most beneficial morning solar radiation in India.
+| Side | Positions named as favourable |
+|---|---|
+| East | Jayanta, Indra |
+| West | Pushpadanta, Varuna |
+| North | Mukhya, Bhallata, Soma |
+| South | None; Grihakshata is mixed |
 
-**Southeast (Agni):** The kitchen here aligns with prevailing wind patterns — cooking fumes and smoke typically blow toward the northwest, away from the living areas.
+Other translations name some positions a little differently, so treat the table as one reading of the text, not the last word. Teachers differ on the south side in particular: some texts list a south position as acceptable, while many consultants advise against a south door altogether.
 
-**Southwest (Nairutya):** Heaviest rooms here — master bedroom, thick walls, storage — because this direction needs the most mass to block the harsh afternoon sun from the southwest.
+## Where the 16 zones come from
 
-**North:** Open or water-related spaces here take advantage of the cooler, less direct northern light — ideal for studies, meditation spaces, and areas requiring consistent lighting.
+A split of the compass into 16 zones of 22.5 degrees is common in modern Vastu apps and consultancies. We found no old text or scholarly source for it. It is a convenient way to say where a room sits, and VastuPro uses it for that, but it is a modern convention and the tool says so. A rule with no basis in the older texts is never called "Serious" in the reading; it is marked "To review" at most.
 
-## Vastu and Modern Architecture
+Most room-by-room rules sit in the same modern layer. The Brihat Samhita names directions for only a handful of rooms, such as the kitchen in the south-east and the room of the household deity in the north-east, and it gives a direction for each water source. The lists for bedrooms, toilets, study rooms and living rooms come from later manuals. Each finding in VastuPro carries a tag: **Traditional texts**, **Widely taught today** or **Modern convention**.
 
-Contemporary Vastu consultation integrates these principles with structural requirements, local climatic conditions, and the specific plot's microenvironment. A north-facing plot in a cold high-altitude city (Shimla) needs different treatment than the same plot in Chennai.
+## True north, magnetic north and your plan
 
-NirmanShastra's **VastuPro** is a free tool that overlays the Vastu Purusha Mandala on your plot, scores each room's placement, and provides directional analysis with zone-by-zone recommendations. It uses precise compass bearings (not just cardinal directions) and accounts for true north vs magnetic north deviation.
+Mayamata finds east and west from the sun, using a gnomon, and does not mention a magnetic needle. A modern consultant reads a compass. Across India the compass differs from true north by only a few degrees, about 2 degrees west to 3 degrees east, but steel in the structure, wiring, and a phone's sensor can throw a reading off by far more. The bigger problem is usually the drawing: a builder's plan is often 10 to 25 degrees off true north. VastuPro asks you to set North on the plan, shows a "close to a zone line" warning when a room is within 5 degrees of a boundary, and shows the reading on both sides of the line. Check North on site, away from steel, before you act on a close call.
+
+## What no study has shown
+
+We searched for controlled studies on whether following Vastu changes health, money or relationships and found none that is peer-reviewed and controlled. A few rules do have a practical reason that stands on its own: light and air from the north and east, keeping toilets and septic lines away from drinking water, a staircase that is safe to climb. VastuPro shows that reason where there is one. For the rest it reports what the texts and teachers say, attributes it, and makes no claim about what will happen to anyone.
+
+## Using VastuPro
+
+You set where North lies on your drawing, draw the outline of the house, tap where the doors are, and add each room. The reading comes back door by door and room by room, with where each rule comes from, where teachers differ, and what could be done if the plan can still change. It is a reading of a plan against traditional rules. It is not a structural check, and it is not part of any BIS code.
 
 ---
 
-*Analyse your plot layout against the Vastu Purusha Mandala with VastuPro — free, no payment required.*`,
+*Read your plan with VastuPro: free, no payment required.*`,
   },
   {
     slug: "construction-cost-per-sq-ft-india",

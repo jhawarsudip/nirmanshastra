@@ -39,7 +39,7 @@ const COPY = {
 } as const
 
 const DESC: Record<string, Bi> = {
-  vastu: { en: 'See how each room of your plan scores against Vastu, with simple fixes where it falls short. Free, with a PDF report.', hi: 'देखिए आपके नक्शे का हर कमरा वास्तु पर कितना खरा उतरता है, और जहाँ कमी है वहाँ आसान उपाय। मुफ़्त, PDF रिपोर्ट के साथ।' },
+  vastu: { en: 'See how the old Vastu texts and today’s teachers read each door and room of your plan, and where each rule comes from. Free, with a PDF report.', hi: 'देखिए पुराने वास्तु ग्रंथ और आज के जानकार आपके नक्शे के हर दरवाज़े और कमरे को कैसे पढ़ते हैं, और हर नियम कहाँ से आया है। मुफ़्त, PDF रिपोर्ट के साथ।' },
   struct: { en: 'How much concrete, steel and cement your frame needs, member by member and bar size by bar size.', hi: 'आपके ढाँचे को कितना कंक्रीट, स्टील और सीमेंट चाहिए, हिस्सा-दर-हिस्सा और सरिया साइज़ के हिसाब से।' },
   mason: { en: 'How many bricks or blocks, and how much cement and sand for your walls and plaster. Covers brick, AAC and hollow blocks.', hi: 'कितनी ईंटें या ब्लॉक, और दीवारों व प्लास्टर के लिए कितना सीमेंट और रेत। ईंट, AAC और खोखले ब्लॉक शामिल।' },
   elec: { en: 'Every circuit planned, with the metres of wire, the points and switches and the distribution board you will need.', hi: 'हर सर्किट की योजना, साथ में तार के मीटर, पॉइंट, स्विच और डिस्ट्रीब्यूशन बोर्ड जो आपको चाहिए।' },
