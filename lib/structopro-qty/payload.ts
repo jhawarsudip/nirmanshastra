@@ -158,18 +158,18 @@ export function complianceChecks(r: QtyResult): Compliance[] {
     },
     {
       id: 'steel_grade',
-      clause: 'IS 13920:2016 cl 5.3; IS 1786:2008',
+      clause: 'IS 13920:1993 cl 5.3 (Amendment No. 2); IS 1786:2008',
       description: 'Reinforcement grade',
       status: 'pass',
       detail: seismic ? `Zone ${zone} calls for ductile steel: this report uses Fe500D throughout.` : `Zone ${zone}: Fe500D is used throughout; Fe500 is also acceptable.`,
     },
     {
       id: 'ductile',
-      clause: 'IS 13920:2016 cl 6 and 7',
+      clause: 'IS 13920:1993 cl 6 and 7',
       description: 'Ductile detailing',
       status: seismic ? 'advisory' : 'pass',
       detail: seismic
-        ? `Zone ${zone}: closer stirrups at beam and column ends, 135-degree hooks, strong-column weak-beam check. These are in the bar counts. Your contractor must follow them on site.`
+        ? `Zone ${zone}: closer stirrups at beam and column ends and 135-degree hooks are in the bar counts. The strong-column weak-beam check uses the tool's own factor of 1.1, where IS 13920:2016 asks for 1.4, and the confining steel of the columns is not checked, so the ties on signed drawings are likely to be heavier. Your contractor must follow the engineer's drawings on site.`
         : `Zone ${zone}: ordinary detailing to IS 456 is enough. Closer stirrups at joints are still good practice.`,
     },
     {
@@ -187,7 +187,7 @@ export function complianceChecks(r: QtyResult): Compliance[] {
       clause: 'IS 456:2000 cl 26.4, Table 16',
       description: 'Nominal cover',
       status: 'advisory',
-      detail: 'Footing 50 mm, column 40 mm, beam 30 mm, slab 20 mm for mild exposure (more for severe sites). Cover blocks must be placed on site.',
+      detail: 'Footing 50 mm, column 40 mm, beam 25 mm, slab 20 mm, the same for every site. For moderate or severe exposure IS 456 Table 16 asks for more cover than the beam and slab figures here, which the engineer sets on the drawings. Cover blocks must be placed on site.',
     },
   ]
   const w = r.wind

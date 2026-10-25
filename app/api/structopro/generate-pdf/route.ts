@@ -332,7 +332,7 @@ function buildEmailHtml(rawName: string, reportId: string, pdfUrl: string): stri
             <td style="padding:16px 28px;border-top:1px solid #E4DAC6;background:#FAF6EC;">
               <p style="margin:0;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;line-height:1.6;">
                 NirmanShastra &middot; India&apos;s IS-code construction quantities platform<br/>
-                IS 456:2000 &middot; IS 13920:2016 &middot; IS 1904:2016 &middot; IS 1893:2016<br/>
+                IS 456:2000 &middot; IS 13920 &middot; IS 1904 &middot; IS 1893 &middot; IS 875<br/>
                 This report is for estimation purposes only. Not a substitute for licensed structural engineer&apos;s drawings.
               </p>
             </td>

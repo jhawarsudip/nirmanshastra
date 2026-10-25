@@ -173,7 +173,8 @@ export default function StructoProQtyPDF({ report: r, contact, reportId, project
           <View style={S.fact}><Text style={S.factK}>WIND SPEED USED</Text><Text style={S.factV}>{r.wind.vbMs} m/s</Text><Text style={S.factS}>{r.wind.governs.x === 'wind' || r.wind.governs.y === 'wind' ? 'Wind is the larger force in one direction' : 'Earthquake is the larger force'}</Text></View>
         </View>
 
-        <Text style={S.h2} minPresenceAhead={90}>Checked against the Indian Standards</Text>
+        <Text style={S.h2} minPresenceAhead={90}>Checks against the Indian Standards</Text>
+        <Text style={S.h2s}>These are the checks the tool makes. A status of PASS for the steel grade or the concrete grade follows from the tool&apos;s own choices. Where a line says a limit is reached, the section shown does not pass it. Appendix A lists what the tool does not check.</Text>
         {r.compliance.map(c => {
           const sc = statusColor(c.status)
           return (
@@ -205,7 +206,7 @@ export default function StructoProQtyPDF({ report: r, contact, reportId, project
         {r.practice && (
           <View>
             <Text style={S.h2} minPresenceAhead={110}>Against buildings that were actually built</Text>
-            <Text style={S.h2s}>The figures in this report are what the frame needs to pass the codes. Built houses usually use more, because site practice adds margin that no code asks for. For orientation, here is what a published study of real {r.practice.classLabel} found.</Text>
+            <Text style={S.h2s}>The figures in this report are the steel and concrete a code-based design of this regular frame needs, at the section sizes shown. Built houses usually use more, because site practice adds margin that no code asks for. For orientation, here is what a published study of real {r.practice.classLabel} found.</Text>
             <Table
               cols={[2.4, 1.6, 2.4, 2.6]}
               num={[1, 2, 3]}
@@ -228,7 +229,7 @@ export default function StructoProQtyPDF({ report: r, contact, reportId, project
         <Text style={S.h2} minPresenceAhead={90}>Standards and sources used</Text>
         <Bullets items={[
           'IS 456:2000 Plain and reinforced concrete: limit state design, cover, detailing, slabs, beams, columns and footings.',
-          'IS 875 Parts 1, 2 and 3: dead, imposed and wind loads. IS 1893 Part 1: earthquake forces, zone factors and the open-storey rule. IS 13920:2016: ductile detailing.',
+          'IS 875 Parts 1, 2 and 3: dead, imposed and wind loads. IS 1893 Part 1 (2002 edition): earthquake forces, zone factors and the open-storey rule. IS 13920: ductile detailing (the tool works to the 1993 edition; the 2016 edition is now in force).',
           'IS 1786:2008: Fe500D bars and mass per metre. IS 10262: concrete mix proportioning. IS 1904: foundations on soil.',
           'CPWD Delhi Analysis of Rates 2014: nominal-mix cement, sand and aggregate for M20 and below, and the 5% steel cutting waste.',
         ]} />

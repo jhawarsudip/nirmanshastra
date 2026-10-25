@@ -17,7 +17,7 @@ import { putText } from './figs'
 
 const REF_T12 = `${STD.is456} cl. 22.5.1, Table 12 (dead load with fixed imposed load)`
 const REF_ECC = `${STD.is456} cl. 25.4`
-const REF_SCWB = `${STD.rule}: a strong-column weak-beam check with a factor of 1.1, which is the model's own value. IS 13920:1993 has no clause for it; the current edition of IS 13920 should be read for its rule`
+const REF_SCWB = `${STD.rule}: a strong-column weak-beam check with a factor of 1.1, which is the model's own value. IS 13920:1993 has no clause for it. A software help page gives 1.4 for IS 13920:2016 (cl. 7.2; the 2016 text was not read), so a column meant for the 2016 rule may need more moment capacity than this`
 const TYPE_LABEL = { corner: 'Corner', edge: 'Edge', interior: 'Interior' } as const
 
 const CASE_BASE = [
@@ -134,6 +134,18 @@ function caseDetail(col: ColRec, cs: NodeLoad['cases'][number], fck: number) {
   const ay = My <= 0 ? 0 : sy.M <= 0 ? 9 : Math.pow(My / sy.M, alpha)
   const ratio = cs.Pu >= Puz ? 9 : ax + ay
   return { Mx, My, Puz, r, alpha, sx, sy, ax, ay, ratio, Asc, Ac }
+}
+
+/** The confining steel of IS 13920 cl. 7.4.8 for one column, beside the tie steel the model counts, under the two readings of the clause. */
+function confinement(col: ColRec, fck: number): { s: number; h: number; need: number; one: number; all: number } {
+  const { b, D, cfg } = col.des
+  const h = Math.min(300, Math.max(b - 80, D - 80))
+  const Ag = b * D
+  const Ak = (b - 80) * (D - 80)
+  const s = col.tie.sConf ?? 100
+  const need = 0.18 * s * h * (fck / FY_SHEAR) * (Ag / Ak - 1)
+  const one = barArea(col.tie.tiePhi)
+  return { s, h, need, one, all: one * (2 + Math.max(cfg.crossB, cfg.crossD)) }
 }
 
 function columnExample(c: CalcCtx, col: ColRec): CalcBlock[] {
@@ -293,7 +305,7 @@ function columnExample(c: CalcCtx, col: ColRec): CalcBlock[] {
   })
   blocks.push(
     tableBlock('col-ex-cases', 'Worked column: the load cases', table(['Case', 'Combination and moments', 'Pu (kN)', 'Mx (kN·m)', 'My (kN·m)'], crow, { num: [2, 3, 4] }), {
-      intro: 'Each case is a column load that must be carried by the section. EL is the earthquake or wind. 100 % of the lateral force acts one way and 30 % the other (IS 1893 cl. 6.3.2.2). Moments are taken positive: the section is symmetrical, so the sign of the lateral load does not matter.',
+      intro: 'Each case is a column load that must be carried by the section. EL is the earthquake or wind. 100 % of the lateral force acts one way and 30 % the other (IS 1893 cl. 6.3.2; the model applies this to every column, which is on the safe side for a frame with its elements along two perpendicular axes). Moments are taken positive: the section is symmetrical, so the sign of the lateral load does not matter.',
       note: 'The axial load does not change with the lateral load. The extra column load and relief from the overturning of the building are not added (see the limits at the start of the sheet).',
     })
   )
@@ -426,7 +438,7 @@ function columnExample(c: CalcCtx, col: ColRec): CalcBlock[] {
       unit: 'mm²',
       dp: 1,
       ref: `${STD.is13920} cl. 7.4.8`,
-      note: `h = longer side of the hoop, measured to its outside (${d0(Math.max(b - 80, D - 80))} mm; the code caps it at 300 mm, cross-ties shorten it); Ak = area inside the hoop; fy of the hoop taken as ${d0(FY_SHEAR)} N/mm² (IS 13920:1993 cl. 5.3 allows Fe 415 or less only)`,
+      note: `h = longer side of the hoop, measured to its outside (${d0(Math.max(b - 80, D - 80))} mm; the code caps it at 300 mm, cross-ties shorten it); Ak = area inside the hoop; fy of the hoop taken as ${d0(FY_SHEAR)} N/mm², the value the model uses for every stirrup and tie (IS 456 cl. 40.4). Amendment No. 2 of IS 13920:1993 admits Fe 500 and Fe 550 thermo-mechanically treated bars, and with fy = 500 the area needed would be about 17 % smaller`,
     })
     const one = L.calc('Area of one tie bar', 'A = π φ² ÷ 4', 'π × {p}² ÷ 4', { p: tr.tiePhi }, (v) => barArea(v.p), { unit: 'mm²', dp: 1, ref: STD.rule })
     const legs = 2 + Math.max(cfg.crossB, cfg.crossD)
@@ -434,9 +446,13 @@ function columnExample(c: CalcCtx, col: ColRec): CalcBlock[] {
       unit: 'mm²',
       dp: 1,
       ref: `${STD.is13920} cl. 7.4.8`,
-      note: 'The 1993 text compares Ash with the area of the bar forming the hoop, one bar. Designers commonly count every leg of the hoop and its cross-ties in the direction considered, which is the more favourable reading, and it is used here. The side with more cross-ties is taken',
+      note: 'The 1993 text defines Ash as the area of the bar forming the hoop, one bar. Designers commonly count every leg of the hoop and its cross-ties in the direction considered, which is the more favourable reading. Both readings are shown below. The side with more cross-ties is taken',
     })
-    L.pick('Confinement of the ties against IS 13920 cl. 7.4.8', 'all legs ≥ needed', have >= need ? 'Met' : 'Not met by the tie size the model counts', `${STD.is13920} cl. 7.4.8`, have >= need ? undefined : `The model chooses the tie size from its spacing rules and does not make this check. Even with every leg counted the area is ${d2(have / need)} of the area asked for (one bar alone: ${d2(one / need)}). A structural engineer must give the confining ties of the drawings; the tie steel quantity here is for the tie size shown`)
+    const cn = confinement(col, fck)
+    check(L, 'Confining steel needed, as the table of every column row works it', need, cn.need)
+    check(L, 'Area of all the legs, as the table of every column row works it', have, cn.all)
+    L.pick('Confinement, reading 1: the one bar forming the hoop (the wording of the 1993 text)', 'one bar ≥ needed', one >= need ? 'Met' : 'Not met', `${STD.is13920} cl. 7.4.8`, `One bar gives ${d2(one / need)} of the area asked for`)
+    L.pick('Confinement, reading 2: every leg of the hoop and its cross-ties counted', 'all legs ≥ needed', have >= need ? 'Met' : 'Not met', `${STD.is13920} cl. 7.4.8`, `Every leg counted gives ${d2(have / need)} of the area asked for. The model chooses the tie size from its spacing rules and does not make this check. A structural engineer must give the confining ties of the drawings; the tie steel quantity here is for the tie size shown`)
     blocks.push(takeBlock(L, 'col-ex-ash', 'Worked column: confining steel check (not made by the model)', { intro: 'IS 13920 asks for a minimum area of the bar forming the hoop in the closely tied zone. The quantity model does not make this check, so it is worked here beside the model\'s tie size for the engineer who reads the sheet.' }))
   }
   return blocks
@@ -511,6 +527,27 @@ export function columnsSection(c: CalcCtx): CalcSection {
       note: `Storey 0 is the lowest storey of the frame. A ratio above 1 would mean the search reached the largest section on its list; the model then warns that a larger section or higher grade will be needed. lu ÷ least side is the slenderness measure of IS 456 cl. 25.1.2 (short when under 12).`,
     })
   )
+
+  if (ctx.seismic) {
+    const crow: string[][] = []
+    let metOne = 0
+    let metAll = 0
+    const grp = [...groups.values()].sort((p, q) => p.k - q.k || ord(p.type) - ord(q.type) || q.rep.des.b * q.rep.des.D - p.rep.des.b * p.rep.des.D)
+    for (const g of grp) {
+      const cn = confinement(g.rep, ctx.fck)
+      const o = cn.one >= cn.need
+      const al = cn.all >= cn.need
+      if (o) metOne++
+      if (al) metAll++
+      crow.push([storeyName(g.k, ctx.stilt), TYPE_LABEL[g.type], `${g.rep.des.b} × ${g.rep.des.D}`, `${g.rep.tie.tiePhi} @ ${d0(cn.s)}`, d1(cn.need), d1(cn.one), d1(cn.all), o ? 'Met' : 'Not met', al ? 'Met' : 'Not met'])
+    }
+    blocks.push(
+      tableBlock('col-confinement', 'Confining steel of IS 13920 cl. 7.4.8 for every column row (worked here, not made by the model)', table(['Storey', 'Type', 'Size (mm)', 'Tie dia @ spacing (mm)', 'Ash needed (mm²)', 'One bar (mm²)', 'All legs (mm²)', 'One bar', 'All legs'], crow, { num: [4, 5, 6] }), {
+        intro: 'The area of the hoop bar asked for in the closely tied zone, Ash = 0.18 s h (fck ÷ fy) (Ag ÷ Ak − 1), is worked for the representative column of each row of the schedule above, beside the area of the tie the model counts. Reading 1 compares it with the one bar that forms the hoop, as the 1993 text words it. Reading 2 counts every leg of the hoop and its cross-ties in the direction considered, as designers commonly do.',
+        note: `${metOne} of ${grp.length} rows meet it by reading 1 and ${metAll} of ${grp.length} by reading 2. The model does not make this check: it chooses the tie size from its spacing rules, and the tie steel quantity of the report is for that size. Where a row is not met, the signed drawings are likely to carry heavier ties than the model counts.`,
+      })
+    )
+  }
 
   return {
     id: 'columns',

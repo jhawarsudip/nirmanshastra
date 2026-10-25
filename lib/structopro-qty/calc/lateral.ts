@@ -254,7 +254,7 @@ export function lateralSection(c: CalcCtx): CalcSection {
     tableBlock('lat-eq-distribution', 'Earthquake: force at each level and shear in each storey (kN)', table(['Level', 'Height h (m)', 'Weight W', 'Force Qx', 'Force Qy', 'Storey shear Vx', 'Storey shear Vy'], qRows, { num: [1, 2, 3, 4, 5, 6] }), {
       intro: 'The base shear is shared between the levels in proportion to W h²: force at a level = VB × W h² ÷ Σ W h² (IS 1893 cl. 7.7.1). The shear in a storey is the sum of the forces above it.',
       note: ctx.stilt
-        ? `Open parking level: the shear in the parking storey is multiplied by ${STILT_FACTOR} (IS 1893 cl. 7.10.3(a)) before it is compared with the wind. The same code clause also asks for the stiffness of the infill in the other storeys to be ignored; the model does not do that, and the 2016 edition of IS 1893, now in force, treats an open storey differently (its rules were not read for this sheet). The sum of the storey shears shown here is therefore before the factor.`
+        ? `Open parking level: the shear in the parking storey is multiplied by ${STILT_FACTOR} (IS 1893 cl. 7.10.3(a)) before it is compared with the wind. The same code clause also asks for the stiffness of the infill in the other storeys to be ignored; the model does not do that, IS 1893:2002 cl. 7.8.1 asks for a dynamic analysis of an irregular framed building taller than 12 m in Zone IV or V, which a soft storey makes it; the model makes none. The 2016 edition of IS 1893, now in force, treats an open storey differently (its rules were not read for this sheet). The sum of the storey shears shown here is therefore before the factor.`
         : undefined,
     })
   )
@@ -270,7 +270,7 @@ export function lateralSection(c: CalcCtx): CalcSection {
   const hRoof = plan.floors[roof].zTop
   const k2 = L.calc(
     'Height factor k2 at the roof',
-    'k2 from Table 2: terrain category 2, class A, interpolated',
+    'k2 from Table 2 (the Class A column of the terrain category), interpolated between the table heights',
     `z = {z} m between table heights`,
     { z: hRoof },
     (v) => {
@@ -279,7 +279,7 @@ export function lateralSection(c: CalcCtx): CalcSection {
       for (let i = 0; i < K2_HEIGHTS.length - 1; i++) if (v.z <= K2_HEIGHTS[i + 1]) return t[i] + ((t[i + 1] - t[i]) * (v.z - K2_HEIGHTS[i])) / (K2_HEIGHTS[i + 1] - K2_HEIGHTS[i])
       return t[t.length - 1]
     },
-    { dp: 4, ref: `${STD.is875_3} Table 2; cl. 5.3.2`, note: `Class A (largest dimension under 20 m) is used throughout. Table 2 heights ${K2_HEIGHTS.join(', ')} m give ${K2_CLASS_A[ctx.terrain].join(', ')}`, ...ex(k2At(hRoof, ctx.terrain)) }
+    { dp: 4, ref: `${STD.is875_3} Table 2; cl. 5.3.2`, note: `The model reads the Class A column at every height. Table 2 heights ${K2_HEIGHTS.join(', ')} m give ${K2_CLASS_A[ctx.terrain].join(', ')}. IS 875 (Part 3) cl. 5.3.2.2 gives Class A to a building whose greatest dimension is under 20 m and Class B to one of 20 to 50 m${hRoof > K2_HEIGHTS[K2_HEIGHTS.length - 1] ? `; here the height is ${d1(hRoof)} m, so the code would use Class B, and the model holds k2 at its ${K2_HEIGHTS[K2_HEIGHTS.length - 1]} m value above ${K2_HEIGHTS[K2_HEIGHTS.length - 1]} m where the code continues the table to 50 m. The effect on the pressure is about 2 %` : ''}.`, ...ex(k2At(hRoof, ctx.terrain)) }
   )
   const vz = L.calc('Design wind speed at the roof', 'Vz = Vb × k1 × k2 × k3', '{vb} × 1.0 × {k2} × 1.0', { vb, k2 }, (v) => v.vb * v.k2, { unit: 'm/s', dp: 2, ref: `${STD.is875_3} cl. 5.3` })
   L.calc('Design wind pressure at the roof', 'pz = 0.6 Vz²', '0.6 × {vz}² ÷ 1000', { vz }, (v) => (0.6 * v.vz * v.vz) / 1000, { unit: 'kN/m²', dp: 3, ref: `${STD.is875_3} cl. 5.4`, ...ex(lat.wind.pzRoof), result: true })

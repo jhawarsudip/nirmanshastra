@@ -189,7 +189,7 @@ export function reportSection(c: CalcCtx): CalcSection {
     foundation: ['Section 8', 'The footing sizes follow the bearing capacity assumed for the ground class.'],
     cover: ['Section 2', coverNote],
     wind: ['Section 5', 'The tool follows IS 875 (Part 3):1987. IS 875 (Part 3):2015 is the edition now in force.'],
-    stilt: ['Sections 5 and 7', 'The tool follows IS 1893 (Part 1):2002. IS 1893 (Part 1):2016 is the edition now in force; its rules for an open storey were not read for this sheet.'],
+    stilt: ['Sections 5 and 7', 'The tool follows IS 1893 (Part 1):2002. IS 1893 (Part 1):2016 is the edition now in force; its rules for an open storey were not read for this sheet. IS 1893:2002 cl. 7.8.1 asks for a dynamic analysis of an irregular framed building over 12 m in Zone IV or V; the model makes none.'],
     balcony: ['Section 10', 'Balcony thickness, bars and anchorage are worked in Section 10.'],
     review: ['the warnings below', 'This line gathers the warnings of the report.'],
   }

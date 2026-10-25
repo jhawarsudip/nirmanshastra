@@ -174,7 +174,7 @@ export function loadsSection(c: CalcCtx): CalcSection {
         [1, 2, 3, 4, 5].map((n) => [n === 5 ? '5 or more' : String(n), `${d0(llReduction(n) * 100)} %`]),
         { num: [1] }
       ),
-      { intro: 'The imposed load on a column is reduced by the number of floors it carries.', note: `${STD.is875_2} cl. 3.2.1 lets a designer reduce the imposed load on columns in this way. The model applies it to columns only. Beams and slabs take the full imposed load (cl. 3.2.2 would allow a small reduction on large beam areas: not taken, which is on the safe side).` }
+      { intro: 'The imposed load on a column is reduced by the number of floors it carries.', note: `${STD.is875_2} cl. 3.2.1 lets a designer reduce the imposed load on columns in this way. The model applies it to columns only. Beams and slabs take the full imposed load (cl. 3.2.2 would allow a small reduction on large beam areas: not taken, which is on the safe side). The model stops at 40 %; the code allows 50 % for a column that carries more than 10 floors, so a taller building is on the safe side. Cl. 3.2.1.1 allows the reduction where a floor is designed for 5.0 kN/m² or more, or where the loading is not less than if all floors had been designed for that; the model applies it to residential floors as designers commonly do.` }
     )
   )
 
