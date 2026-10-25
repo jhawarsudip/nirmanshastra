@@ -115,7 +115,8 @@ html[data-calm="1"] .ns-hero__scroll svg { animation: none; }
 @media (max-width: 700px) {
   #main { display: flex; flex-direction: column; }
   #main > .ns-hero, #main > .ns-hero > .ns-wrap, #main > .ns-hero .ns-hero__grid { display: contents; }
-  #main .ns-hero__top { order: -5; margin: clamp(26px, 4.4vw, 70px) var(--ns-gutter) clamp(26px, 4vw, 56px); }
+  /* the extra 38px at the top keeps the first line clear of the drips that hang from the header (see pour.css) */
+  #main .ns-hero__top { order: -5; margin: calc(clamp(26px, 4.4vw, 70px) + 38px) var(--ns-gutter) clamp(26px, 4vw, 56px); }
   #main .ns-hero__copy { order: -4; margin-inline: var(--ns-gutter); }
   #main > .ns-ex { order: -3; }
   #main > .ns-tape, #main > #problems { order: -2; }
