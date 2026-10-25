@@ -91,9 +91,11 @@ const tidyQty = (unit: string, v: number): number => (unit === 'm³' ? round(v, 
 const dpOf = (unit: string): number => (unit === 'm³' ? 2 : unit === 'm²' ? 1 : 0)
 const ruleOf = (unit: string): string => (unit === 'm³' ? 'to 0.01 m³' : unit === 'm²' ? 'to 0.1 m²' : 'up to a whole number')
 /* How the report prints a quantity in its tables (grand.ts `showQty`). */
+const M3_ONE_DP_FROM = 10
+const M2_WHOLE_FROM = 100
 const showQty = (unit: string, w: number): string => {
   const v = w + 0 // turns -0 into 0
-  return unit === 'm³' ? fmt(v, v >= 10 ? 1 : 2) : unit === 'm²' ? fmt(v, v >= 100 ? 0 : 1) : fmt(v, 0)
+  return unit === 'm³' ? fmt(v, v >= M3_ONE_DP_FROM ? 1 : 2) : unit === 'm²' ? fmt(v, v >= M2_WHOLE_FROM ? 0 : 1) : fmt(v, 0)
 }
 
 /* Thresholds of the same-building test (grand.ts `agreement` and the check in buildGrand). */
@@ -176,7 +178,7 @@ interface Cut {
   unit: string
   item: string
   have: number
-  frame: number
+  lintel: number
   cut: number
   left: number
 }
@@ -248,7 +250,7 @@ function build(input: PhaseSource[], free: GrandFree, paid: GrandPaid, opts: Gra
     L.say('Name and group', 'The item name, group and "how it is counted" wording are taken from the first phase, in the order of work on site, that has the item.', 'NirmanShastra rule')
     L.say('Order of work', `Frame, walls, wiring, plumbing, finishing. ${n === 5 ? 'All five are in this total.' : `This total has ${n} of the 5.`}`, 'NirmanShastra rule')
     L.value('Lines in the reports added', lineCount, 'lines', 0, 'Phase reports named in section 1')
-    L.value('Different items after merging', rows.length, 'items', 0, 'Engine rule: key and unit', `${rows.length - shared.length} items come from one report only and pass through unchanged; ${shared.length} come from more than one report.`)
+    L.value('Different items after merging (before the overlap is taken out)', rows.length, 'items', 0, 'Engine rule: key and unit')
     if (splitKeys.length > 0) L.say('Same key, different units', `Kept apart: ${splitKeys.join('; ')}.`, 'NirmanShastra rule')
     mergeBlocks.push({ id: 'merge-rule', title: '2.1 The rule', lines: L.take() })
 
@@ -311,13 +313,13 @@ function build(input: PhaseSource[], free: GrandFree, paid: GrandPaid, opts: Gra
           const dp = dpOf(o.unit)
           const dpq = Math.max(dp, 2)
           L.value(`${nm}: in the ${d.short.toLowerCase()} report`, have, o.unit, dp, `${idOf(s.key)}, buying list`)
-          L.value(`${nm}: the frame also counts`, o.qty, o.unit, dpq, `${idOf(s.key)}, overlap list "${ov.label}"`, 'The share of this item that is inside the lintels.')
+          L.value(`${nm}: lintels inside the ${d.short.toLowerCase()} report`, o.qty, o.unit, dpq, `${idOf(s.key)}, overlap list "${ov.label}"`, `The part of the ${d.short.toLowerCase()} report's own figure that is its lintels. The frame report counts lintels as well, by its own rules.`)
           const engCut = eng.removed.find(x => x.phase === s.key && x.key === o.key && x.unit === o.unit)
-          const cut = L.calc(`${nm}: taken out`, 'cut = the smaller of the two figures', 'smaller of {have:3} and {frame:3}', { have, frame: o.qty }, v => Math.min(v.have, v.frame), { unit: o.unit, dp: dpq, ref: 'NirmanShastra rule: take the overlap out once', expect: engCut?.qty })
+          const cut = L.calc(`${nm}: taken out`, 'cut = the smaller of the item in the report and the lintels inside it', 'smaller of {have:3} and {lintel:3}', { have, lintel: o.qty }, v => Math.min(v.have, v.lintel), { unit: o.unit, dp: dpq, ref: 'NirmanShastra rule: take the overlap out once', expect: engCut?.qty })
           if (!engCut) bad(`The engine took nothing out of ${nm} (${d.short}) but the sheet took out ${cut}`)
           const left = L.calc(`${nm}: left for the ${d.short.toLowerCase()} report`, `left = round (in the report − taken out), ${ruleOf(o.unit)}`, 'round ({have:3} − {cut:3})', { have, cut }, v => tidyQty(o.unit, v.have - v.cut), { unit: o.unit, dp, ref: 'NirmanShastra rule: rounded to the buying unit', expect: eng.rows.get(r.id)?.by[s.key], tol: 1e-6 })
           r.after[s.key] = left
-          mine.push({ rowId: r.id, phase: s.key, unit: o.unit, item: nm, have, frame: o.qty, cut, left })
+          mine.push({ rowId: r.id, phase: s.key, unit: o.unit, item: nm, have, lintel: o.qty, cut, left })
           sbs.push([nm, o.unit, showQty(o.unit, have), fmt(o.qty, dpq), fmt(cut, dpq), showQty(o.unit, left)])
         }
         cuts.push(...mine)
@@ -327,11 +329,11 @@ function build(input: PhaseSource[], free: GrandFree, paid: GrandPaid, opts: Gra
         const blk: CalcBlock = {
           id: `overlap-${s.key}`,
           title: `3.${overlapBlocks.length + 1} ${d.label} (${idOf(s.key)}): ${ov.label.toLowerCase()}`,
-          intro: `Both the frame report (${frameSrc ? idOf('structure') : 'StructurePro'}) and the ${d.label} report count ${ov.label.toLowerCase()}. Each report is complete on its own, so each shows them. In the Grand Total the frame's figure is kept and the ${d.label} report's share is taken out, so the same concrete and steel are not ordered twice. For each item the two figures are set side by side; the amount taken out is the smaller of the two.`,
+          intro: `Both the frame report (${frameSrc ? idOf('structure') : 'StructurePro'}) and the ${d.label} report count ${ov.label.toLowerCase()}. Each report is complete on its own, so each shows them, and each sizes them by its own rule, so the two figures are not the same. In the Grand Total the frame report's figure is kept. The ${d.label} report's own lintel share is taken out of its list, so the same concrete and steel are not ordered twice. For each item the table shows the ${d.label} report's total, the part of it that is lintels, and what is left; the amount taken out is the smaller of those two figures.`,
         }
         if (sbs.length > 0) {
           blk.table = {
-            head: ['Item', 'Unit', `In the ${d.short.toLowerCase()} report`, 'Also counted in the frame', 'Taken out', `Left for ${d.short.toLowerCase()}`],
+            head: ['Item', 'Unit', `In the ${d.short.toLowerCase()} report`, `Lintels inside it (${d.short.toLowerCase()} report)`, 'Taken out', `Left for ${d.short.toLowerCase()}`],
             rows: sbs,
             num: [2, 3, 4, 5],
           }
@@ -340,7 +342,7 @@ function build(input: PhaseSource[], free: GrandFree, paid: GrandPaid, opts: Gra
         const fl = opts.framePaid?.secondary.find(i => i.key === 'lintels')
         const steelCut = mine.find(c => c.unit === 'kg' && c.rowId.startsWith('steel-'))
         if (fl && steelCut) {
-          blk.note = `For comparison, the frame report's own lintels: ${fl.count} lintels, ${num(fl.concreteM3, 2)} m³ of concrete and ${num(fl.steelKg, 0)} kg of steel (${idOf('structure')}). The ${d.label} report counted ${num(steelCut.frame, 0)} kg of lintel steel. The two reports size the lintels with their own rules, so the figures need not be equal; the frame's are kept.`
+          blk.note = `The frame report's own lintels, which stay in the total: ${fl.count} lintels, ${num(fl.concreteM3, 2)} m³ of concrete and ${num(fl.steelKg, 0)} kg of steel (${idOf('structure')}). The ${d.label} report's lintel steel, which is taken out of its list: ${num(steelCut.lintel, 0)} kg. The two reports size the lintels by their own rules, so the figures need not be equal. The frame report's figure is the one kept, whether it is larger or smaller than the ${d.label} report's.`
         }
         overlapBlocks.push(blk)
       }
@@ -524,7 +526,7 @@ function build(input: PhaseSource[], free: GrandFree, paid: GrandPaid, opts: Gra
     unitBlocks.push({
       id: 'units-rule',
       title: '4.1 How a total is rounded to a buying unit',
-      intro: 'After the lists are added and the overlap is taken out, each total is rounded to the unit it is bought in. Whole things (bags, kilograms, metres, litres, pieces) are rounded UP, because a part-bag cannot be bought. Volumes are kept to 0.01 m³ and areas to 0.1 m². Each phase has already rounded its own figures before they are added, so a total can sit a little above the sum of unrounded figures.',
+      intro: `After the lists are added and the overlap is taken out, each total is rounded to the unit it is bought in. Whole things (bags, kilograms, metres, litres, pieces) are rounded UP, because a part-bag cannot be bought. A total in m³ is held to 0.01 m³ and a total in m² to 0.1 m² (the frame report hands in its sand, stone and excavation already rounded to 0.1 m³). In the printed tables a volume shows to 0.01 m³ below ${M3_ONE_DP_FROM} m³ and to 0.1 m³ from ${M3_ONE_DP_FROM} m³ up, and an area shows to 0.1 m² below ${M2_WHOLE_FROM} m² and as a whole number from ${M2_WHOLE_FROM} m² up. Each phase has already rounded its own figures before they are added, so a total can sit a little above the sum of unrounded figures.`,
       table: {
         head: ['Rule', 'Units it applies to', 'Items in this list'],
         rows: [...counts.entries()].map(([rule, c]) => [`Rounded ${rule}`, [...c.units].join(', '), String(c.n)]),
@@ -590,6 +592,17 @@ function build(input: PhaseSource[], free: GrandFree, paid: GrandPaid, opts: Gra
     listRows.push([r.group, r.item, r.unit, showQty(r.unit, r.qty), madeOf])
   }
   H.compare('Items in the report\'s merged list', paid.lines.length, finalRows.length, 0)
+  {
+    // section 2.1 counts the items before the overlap is taken out; say how many are left in the final list (derived, not typed)
+    const itemLine = mergeBlocks[0]?.lines?.find(l => l.label.startsWith('Different items after merging'))
+    const gone = rows.length - finalRows.length
+    if (itemLine) {
+      itemLine.note = `${rows.length - shared.length} items come from one report only and pass through unchanged; ${shared.length} come from more than one report. ` +
+        (gone === 0
+          ? `All ${finalRows.length} are in the final list (section 7).`
+          : `${gone} ${gone === 1 ? 'item falls' : 'items fall'} to zero when the overlap is taken out (section 3) and ${gone === 1 ? 'is' : 'are'} not in the final list, which has ${finalRows.length} items (section 7).`)
+    }
+  }
   const listBlock: CalcBlock = {
     id: 'final-list',
     title: '7.1 Every item to buy',
@@ -655,8 +668,8 @@ function build(input: PhaseSource[], free: GrandFree, paid: GrandPaid, opts: Gra
     L.pick('Result of the test', 'pass, pass with a note, or refuse', sbStatus === 'pass' ? 'Pass' : sbStatus === 'advisory' ? 'Pass, with a note' : 'Fail: different buildings', 'NirmanShastra rule: same-building test')
     sec1Blocks.push({
       id: 'same',
-      title: '1.3 Are the reports for the same building?',
-      intro: 'The floors, the state and the total floor area must agree. The test looks at nothing else: it does not compare room counts, wall materials or storey heights, which each phase takes from its own questions.',
+      title: '1.3 Are the reports for the same building? (a rough test)',
+      intro: `This is a rough test. It checks that the number of floors and the state agree and that the total floor areas are within ${num(AREA_REFUSE * 100)}% of each other, and nothing else: it does not compare room counts, wall materials, storey heights or the plan, which each phase takes from its own questions. Passing it does not prove that the reports describe the same house.`,
       lines: L.take(),
     })
   }
@@ -830,13 +843,13 @@ function build(input: PhaseSource[], free: GrandFree, paid: GrandPaid, opts: Gra
      Assemble
      ================================================================================================ */
   const sections: CalcSection[] = [
-    { id: 'reports', title: '1. The reports that were added', intro: 'Which paid reports are in this total, which are not, and whether they describe the same building.', blocks: sec1Blocks },
+    { id: 'reports', title: '1. The reports that were added', intro: 'Which paid reports are in this total, which are not, and whether they pass a rough test for being the same building.', blocks: sec1Blocks },
     { id: 'merge', title: '2. Adding the lists into one', intro: 'Every phase report ends in a list of buying lines. The Grand Total adds those lists item by item.', blocks: mergeBlocks },
     { id: 'overlap', title: '3. Counted twice: taken out once', intro: 'Two reports can count the same thing. On its own each report is complete, so each shows it; in a Grand Total it must be ordered once.', blocks: overlapBlocks },
     { id: 'units', title: '4. Buying units and rounding', blocks: unitBlocks },
     { id: 'bulk', title: '5. The big materials, added across phases', intro: 'Cement, sand and stone are used by more than one phase; steel bars and bricks or blocks are added across their lines. These are the totals shown as the big figures at the top of the report.', blocks: bulkBlocks },
     { id: 'range', title: '6. How far off can it be: the range beside each total', blocks: rangeBlocks },
-    { id: 'list', title: '7. The final buying list', blocks: [listBlock] },
+    { id: 'list', title: '7. The final buying list', intro: 'This is the list the report prints, with the working behind each quantity. Final quantities for ordering come from the signed drawings.', blocks: [listBlock] },
   ]
 
   const allMismatches = [...L.mismatches, ...H.mismatches, ...extra]
@@ -846,24 +859,25 @@ function build(input: PhaseSource[], free: GrandFree, paid: GrandPaid, opts: Gra
     purpose: `This sheet shows how the Grand Total was made from the ${n === 1 ? 'one report' : `${n} reports`} named in section 1. It shows how their lists were added, which quantities were counted by two reports and taken out once, how the totals were rounded to buying units, how the range beside each big total was built, and the final list. It does not repeat the working inside each phase: that is in the calculation sheet at the end of that phase's own report.`,
     method: [
       'Each phase report is read as a list of buying lines: a key, an item name, a quantity and a unit. The frame report\'s own figures are first turned into buying lines (cement up to whole bags, bars up to whole kilograms, sand and stone to 0.1 m³).',
-      'The reports are checked to be for the same building: the same number of floors, the same state, and total floor areas within 10% of each other (within 2% is a clean pass).',
+      `The reports are checked to be for the same building: the same number of floors, the same state, and total floor areas within ${num(AREA_REFUSE * 100)}% of each other (within ${num(AREA_NOTE * 100)}% is a clean pass).`,
       'Lines with the same key and the same unit are one item and their quantities are added. A key in two different units is never merged.',
       'Where two reports count the same thing (the lintels over doors and windows are in the frame report and in the walls report) and both reports are in the total, the walls report\'s share is taken out and the frame\'s is kept. The amount taken out is the smaller of the two figures.',
       'Each total is then rounded to the unit it is bought in: whole units upwards, volumes to 0.01 m³, areas to 0.1 m².',
       'Cement, sand, stone, steel bars and bricks or blocks are added across the phases to give the big totals at the top of the report.',
       'A range is put beside each big total: each phase\'s quantity is multiplied by that phase\'s own low and high multipliers and the results are added end to end (not in quadrature). Each phase\'s widest range is also shown on its own, as a percentage below and above its figures.',
       'The final list gives every item once, in the order of work on site, with the phases it came from.',
-      'Every step above is carried out again in this sheet and compared with the engine, and every figure in the report is compared with its counterpart here; the reconciliation at the end must read the same on both sides.',
+      'Every step above is carried out again in this sheet and compared with the engine, and every figure in the report is compared with its counterpart here; the reconciliation at the end must read the same on both sides. If any figure had disagreed the sheet would have been left out; agreement shows that the sheet matches the report, not that the report is right.',
     ],
     limits: [
       'The Grand Total adds the reports. It does not recalculate them. Every quantity carries the simplifications of its own phase (room plan, wall and door sizes, wastage, site practice); they are set out in that phase\'s calculation sheet and in the assumptions under "The assumptions in each phase".',
-      'The test for "the same building" looks only at the number of floors, the state and the total floor area (within 10%). It does not compare the plan, the number of bedrooms, the wall material or the storey height, so two reports made with different answers to those questions can still be added.',
+      `The test for "the same building" looks only at the number of floors, the state and the total floor area (within ${num(AREA_REFUSE * 100)}%). It does not compare the plan, the number of bedrooms, the wall material or the storey height, so two reports made with different answers to those questions can still be added.`,
       'Only the lintels over doors and windows are known to be counted by two reports, and only they are taken out. If other overlaps exist they are not looked for. The frame and the walls report size the lintels by their own rules, so the figure that stays (the frame\'s) can differ from the one taken out.',
       'Each phase rounds its figures up to whole bags, bars and units before they are added, and the total is rounded up again, so the total can sit a little above a single unrounded calculation of the whole building. Cement is rounded up by every phase that supplies it.',
       'The range beside each total adds the phases\' ends straight (as if all were wrong in the same direction at once). That is cautious, not statistical: the multipliers are judgement ranges set by the tool authors, not confidence limits, and no probability goes with them. Section 6 shows the narrower range that independent errors would give.',
       'A partial total (fewer than five phases) is a list for those phases only. Missing phases are not estimated, and the total does not change when a phase is added later: make a new Grand Total.',
       'The total is made from the phase reports as they were when it was made. If a phase report is run again with different answers, this Grand Total does not follow it.',
       'A total of "bricks or blocks" counts pieces. When the walls report uses two kinds (for example AAC blocks above the plinth and concrete blocks in the plinth) the two are added as pieces although they are different sizes.',
+      'Each trade tool lays out rooms by its own rule, so a quantity in one phase report can differ from the "same" room in another. The Grand Total adds the buying lines; it does not reconcile room plans.',
       'Quantities only: no price, rate or labour figure. Nothing here is a design, a drawing or a certificate. Final quantities for ordering come from the signed drawings and from the site.',
     ],
     sections,
