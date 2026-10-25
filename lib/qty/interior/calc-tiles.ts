@@ -191,8 +191,8 @@ export function tiles(c: Ctx, P: PlanOut, S: SurfOut) {
   })
 
   const sections: CalcSection[] = [
-    { id: 's5', title: '5. Floor and wall tiles, skirting, fixing and grout', intro: 'Floors are measured before the skirting and dado go on (IS 1200 Part 11). Pieces are counted from the size of the tile plus its joint.', blocks: [b0, b3b, b1, b2, b3, b4, b5] },
-    { id: 's6', title: '6. Wet areas and stone', blocks: [b6] },
+    { id: 's5', title: '[[s5]]. Floor and wall tiles, skirting, fixing and grout', intro: 'Floors are measured before the skirting and dado go on (IS 1200 Part 11, 1977 edition; a 2024 revision exists and has not been checked). Pieces are counted from the size of the tile plus its joint.', blocks: [b0, b3b, b1, b2, b3, b4, b5] },
+    { id: 's6', title: '[[s6]]. Wet areas and stone', blocks: [b6] },
   ]
   return { sections, tileBuyTotal, sizeRows, bedCementBags, bedSandM3, adhesiveBags, groutKg, wpArea, thresholdRM, thresholdN, counterArea, granite, counterEdge, skirtRM }
 }

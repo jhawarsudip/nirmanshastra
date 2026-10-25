@@ -25,13 +25,16 @@ export const REF = {
   rule: 'Engine rule',
   derived: 'Derived: arithmetic shown',
   maker: "Makers' data sheets",
-  p11: 'IS 1200 (Part 11):1977',
-  p13: 'IS 1200 (Part 13):1994 cl. 3.1.1',
-  p13m: 'IS 1200 (Part 13):1994',
+  p11: 'IS 1200 (Part 11):1977 (a 2024 revision exists; not checked)',
+  p13: 'IS 1200 (Part 13):1994, rules for deduction of openings (a 2024 revision exists; not checked)',
+  p13m: 'IS 1200 (Part 13):1994 (a 2024 revision exists; not checked)',
   dar: 'CPWD Delhi Analysis of Rates 2016',
 }
 
 export const sum = (a: number[]) => a.reduce((s, x) => s + x, 0)
+
+/** "1 bedroom", "2 bedrooms". */
+export const count = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
 
 /** The step is checked against the engine's figure to a part in a billion. */
 export const X = (v: number): Pick<CalcOpts, 'expect' | 'tol'> => ({ expect: v, tol: Math.max(1e-9, Math.abs(v) * 1e-9) })

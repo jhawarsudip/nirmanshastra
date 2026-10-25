@@ -26,9 +26,9 @@ export function doorsAndWindows(c: Ctx, P: PlanOut, S: SurfOut) {
   const rw = w.doorRows.find((r) => r.op === room)
   L.calc('Timber frame of one room door', 'V = (2 × height + width + 2 × horn) × section width × section depth', '(2 × {h} + {w} + 2 × {hn}) × {b} × {d}',
     { h: room.h, w: room.w, hn: FRAME.horn, b: FRAME.b, d: FRAME.d }, (v) => (2 * v.h + v.w + 2 * v.hn) * v.b * v.d,
-    { unit: 'm³', dp: 4, ref: REF.assume, note: 'Two sides and the head, with a 100 mm horn at each top corner, in a section of 100 × 65 mm. IS 4021, which fixes frame sections, could not be read, so the section is an assumption.', ...(rw ? X(rw.frame / rw.n) : {}) })
+    { unit: 'm³', dp: 4, ref: REF.assume, note: 'Two sides and the head, with a 100 mm horn at each top corner, in a section of 100 × 65 mm. IS 4021, which fixes frame sections, could not be read, so the section is an assumption. This is the net volume of the frame: no allowance is added for converting rough timber (sawing, planing and waste).', ...(rw ? X(rw.frame / rw.n) : {}) })
   const hn = L.calc('Hinges on one room door', 'three up to 0.9 m wide, four above', `${room.w} m wide, so ${hingesFor(room.w)}`, {}, () => hingesFor(room.w),
-    { dp: 0, ref: 'IS 1003 (Part 1):2003 cl. 8.2', note: 'Applied here to the width of the opening; the standard speaks of the width of the shutter.' })
+    { dp: 0, ref: 'IS 1003 (Part 1):2003 cl. 8.2', note: `Applied here to the width of the opening; the standard speaks of the width of the shutter. A 900 mm shutter takes three hinges, so the main door (${fmt(DOOR.main.w, 2)} m opening, ${DOOR.main.des}) is given ${hingesFor(DOOR.main.w)} here, one more than the standard would give its 900 mm shutter. The report keeps the count of ${hingesFor(DOOR.main.w)}.` })
   void hn
   const kinds = (['main', 'room', 'bath', 'mumty'] as const).map((k) => [k, open[k]] as const).filter(([, n]) => n > 0)
   const doorRows = kinds.map(([k, n]) => ({ op: DOOR[k], n, leaf: n * area(DOOR[k]), frame: n * frameVol(DOOR[k]), hinges: n * hingesFor(DOOR[k].w) }))
@@ -41,7 +41,7 @@ export function doorsAndWindows(c: Ctx, P: PlanOut, S: SurfOut) {
     head: ['Door', 'Size (m)', 'Shutter', 'Number', 'Shutters (m²)', 'Frame timber (m³)', 'Hinges on one', 'Hinges'], num: [3, 4, 5, 6, 7],
     rows: doorRows.map((r) => [r.op.name, `${fmt(r.op.w, 2)} × ${fmt(r.op.h, 2)}`, r.op.des ?? '', fmt(r.n), fmt(r.leaf, 1), fmt(r.frame, 3), String(hingesFor(r.op.w)), fmt(r.hinges)]),
     foot: ['All doors', '', '', fmt(S.nDoors), fmt(S.leafArea, 1), fmt(frameTotal, 3), '', fmt(doorHinges)],
-    note: 'Shutters = number × width × height of the opening. Frame timber = number × the volume of one frame, worked above. The shutter designation (9 DS 21 and so on) is that of IS 1003 Table 3; InteriorPro uses the size of the modular opening for the shutter.',
+    note: `Shutters = number × width × height of the opening. Frame timber = number × the volume of one frame, worked above. The shutter designation (9 DS 21 and so on) is that of IS 1003 Table 3; InteriorPro uses the size of the modular opening for the shutter, which is larger than the shutter itself: for ${DOOR.room.des} the shutter of Table 3 is 1.60 m² against an opening of ${fmt(area(DOOR.room), 2)} m², so the area printed here is about ${Math.round((area(DOOR.room) / 1.6 - 1) * 100)}% more than the shutter. The paint on the doors is worked on that area.`,
   }
   cmpTable(c, 'doors', doorRows.map((r) => [null, null, null, r.n, r.leaf, r.frame, r.hinges]), [null, null, null, S.nDoors, S.leafArea, frameTotal, doorHinges])
   T(c, 'Doors: number', repFoot(c, 'doors', 3), S.nDoors, 'nos')
@@ -97,7 +97,7 @@ export function doorsAndWindows(c: Ctx, P: PlanOut, S: SurfOut) {
   ;['Door hinges', 'Lock sets', 'Tower bolts', 'Handle pairs', 'Door stoppers'].forEach((lab, i) => T(c, `Hardware: ${lab}`, repNum(c, 'hw', i, 1), hw[i], 'nos'))
   const b3: CalcBlock = { id: 'hardware', title: 'Door hardware', intro: 'Hinges are the total of the door table. The rest follow one set to a door.', lines: L.take() }
 
-  const sections: CalcSection[] = [{ id: 's9', title: '9. Doors, windows, frames and hardware', intro: 'Sizes and counts are assumptions; the door designations are those of IS 1003 (Part 1).', blocks: [b1, b2, b3] }]
+  const sections: CalcSection[] = [{ id: 's9', title: '[[s9]]. Doors, windows, frames and hardware', intro: 'Sizes and counts are assumptions; the door designations are those of IS 1003 (Part 1). The shutter area is that of the whole opening, and the hinges follow the width of the opening (see the notes under the door table).', blocks: [b1, b2, b3] }]
   return { sections, doorRows, frameTotal, doorHinges, locks, bolts, glassTotal, sectionTotal, nGlazed }
 }
 export type FitOut = ReturnType<typeof doorsAndWindows>
@@ -179,7 +179,7 @@ export function carpentry(c: Ctx, P: PlanOut) {
   T(c, 'Sheets: laminate', repNum(c, 'sheets', 2, 2), sheetsLam, 'sheets')
   const b3: CalcBlock = { id: 'sheets', title: 'Plywood and laminate to order', intro: 'A sheet is 2440 × 1220 mm. Plywood is 19 mm for the carcass and shutters and 8 mm for the backs.', lines: L.take() }
 
-  const sections: CalcSection[] = [{ id: 's10', title: '10. Wardrobes and kitchen units', blocks: [b1, b2, b3] }]
+  const sections: CalcSection[] = [{ id: 's10', title: '[[s10]]. Wardrobes and kitchen units', blocks: [b1, b2, b3] }]
   return { sections, sheetsPly19, sheetsPly8, sheetsLam, edgeBand, cabHinges, cabHandles, hasCarpentry: true }
 }
 export type CarpOut = ReturnType<typeof carpentry>

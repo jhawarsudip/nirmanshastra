@@ -35,9 +35,9 @@ export function buyList(c: Ctx, o: Parts) {
   }
   B('primer-wood-l', Math.ceil(Pa.woodPrimerL - 1e-9), 0, `${fmt(Pa.woodPrimerL, 2)} L`, up)
   B('enamel-wood-l', Math.ceil(Pa.enamelL - 1e-9), 0, `${fmt(Pa.enamelL, 2)} L`, up)
-  for (const r of Ti.sizeRows) B(`tile-${r.t.key}-nos`, r.pcs, 0, `${fmt(r.buy, 1)} m²`, 'Pieces worked out in section 5')
+  for (const r of Ti.sizeRows) B(`tile-${r.t.key}-nos`, r.pcs, 0, `${fmt(r.buy, 1)} m²`, 'Pieces worked out in section [[s5]]')
   if (inp.tileFix === 'mortar') {
-    B('cement-bag-50kg', Ti.bedCementBags, 0, 'see section 5', `Whole bags of ${CEMENT_BAG_KG} kg`)
+    B('cement-bag-50kg', Ti.bedCementBags, 0, 'see section [[s5]]', `Whole bags of ${CEMENT_BAG_KG} kg`)
     B('sand-m3', round(Ti.bedSandM3, 1), 1, `${fmt(Ti.bedSandM3, 2)} m³`, 'Rounded to 0.1 m³')
   } else B('tile-adhesive-kg', Ti.adhesiveBags * ADHESIVE_BAG_KG, 0, `${fmt(Ti.adhesiveBags)} bags`, `Whole bags of ${ADHESIVE_BAG_KG} kg`)
   B('tile-grout-kg', Math.ceil(Ti.groutKg - 1e-9), 0, `${fmt(Ti.groutKg, 1)} kg`, up)
@@ -49,32 +49,32 @@ export function buyList(c: Ctx, o: Parts) {
   B('threshold-m', round(Ti.thresholdRM, 1), 1, `${fmt(Ti.thresholdRM, 2)} m`, 'Rounded to 0.1 m')
   if (Fc.fcArea > 0) {
     const f = Fc.fcv
-    B('gypsum-board-2400x1200-nos', f.boards, 0, 'see section 8', 'Whole sheets')
+    B('gypsum-board-2400x1200-nos', f.boards, 0, 'see section [[s8]]', 'Whole sheets')
     B('fc-section-m', Math.ceil(f.sectionM - 1e-9), 0, `${fmt(f.sectionM, 2)} m`, up)
     B('fc-channel-m', Math.ceil(f.channelM - 1e-9), 0, `${fmt(f.channelM, 2)} m`, up)
     B('fc-perimeter-m', Math.ceil(f.perimM - 1e-9), 0, `${fmt(f.perimM, 2)} m`, up)
-    B('fc-cleat-nos', f.cleats, 0, 'see section 8', 'Whole numbers')
-    B('fc-fastener-nos', f.fasteners, 0, 'see section 8', 'Whole numbers')
-    B('fc-hanger-nos', f.hangers, 0, 'see section 8', 'Whole numbers')
-    B('fc-screw-nos', f.screws, 0, 'see section 8', 'Whole numbers')
+    B('fc-cleat-nos', f.cleats, 0, 'see section [[s8]]', 'Whole numbers')
+    B('fc-fastener-nos', f.fasteners, 0, 'see section [[s8]]', 'Whole numbers')
+    B('fc-hanger-nos', f.hangers, 0, 'see section [[s8]]', 'Whole numbers')
+    B('fc-screw-nos', f.screws, 0, 'see section [[s8]]', 'Whole numbers')
     B('fc-wire-m', Math.ceil(f.wireM - 1e-9), 0, `${fmt(f.wireM, 2)} m`, up)
   }
-  for (const r of Fi.doorRows) B(`door-${r.op === DOOR.main ? 'main' : r.op === DOOR.room ? 'room' : r.op === DOOR.bath ? 'bath' : 'stair'}-nos`, r.n, 0, 'counted in section 3', 'Whole doors')
+  for (const r of Fi.doorRows) B(`door-${r.op === DOOR.main ? 'main' : r.op === DOOR.room ? 'room' : r.op === DOOR.bath ? 'bath' : 'stair'}-nos`, r.n, 0, 'counted in section [[s3]]', 'Whole doors')
   B('door-frame-timber-m3', round(Fi.frameTotal, 2), 2, `${fmt(Fi.frameTotal, 3)} m³`, 'Rounded to 0.01 m³')
-  B('door-hinge-nos', Fi.doorHinges, 0, 'see section 9', 'Whole numbers')
-  B('door-lock-nos', Fi.locks, 0, 'see section 9', 'Whole numbers')
-  B('door-bolt-nos', Fi.bolts, 0, 'see section 9', 'Whole numbers')
-  B('door-handle-nos', S.nDoors, 0, 'see section 9', 'One pair to a door')
-  B('door-stopper-nos', S.nDoors, 0, 'see section 9', 'One to a door')
+  B('door-hinge-nos', Fi.doorHinges, 0, 'see section [[s9]]', 'Whole numbers')
+  B('door-lock-nos', Fi.locks, 0, 'see section [[s9]]', 'Whole numbers')
+  B('door-bolt-nos', Fi.bolts, 0, 'see section [[s9]]', 'Whole numbers')
+  B('door-handle-nos', S.nDoors, 0, 'see section [[s9]]', 'One pair to a door')
+  B('door-stopper-nos', S.nDoors, 0, 'see section [[s9]]', 'One to a door')
   B('glass-5mm-sqm', round(Fi.glassTotal, 1), 1, `${fmt(Fi.glassTotal, 2)} m²`, 'Rounded to 0.1 m²')
   B('window-section-m', Math.ceil(Fi.sectionTotal - 1e-9), 0, `${fmt(Fi.sectionTotal, 2)} m`, up)
   if (Cp.hasCarpentry) {
-    B('ply-19mm-sheet', Cp.sheetsPly19, 0, 'see section 10', 'Whole sheets')
-    B('ply-8mm-sheet', Cp.sheetsPly8, 0, 'see section 10', 'Whole sheets')
-    B('laminate-sheet', Cp.sheetsLam, 0, 'see section 10', 'Whole sheets')
+    B('ply-19mm-sheet', Cp.sheetsPly19, 0, 'see section [[s10]]', 'Whole sheets')
+    B('ply-8mm-sheet', Cp.sheetsPly8, 0, 'see section [[s10]]', 'Whole sheets')
+    B('laminate-sheet', Cp.sheetsLam, 0, 'see section [[s10]]', 'Whole sheets')
     B('edge-band-m', Math.ceil(Cp.edgeBand - 1e-9), 0, `${fmt(Cp.edgeBand, 2)} m`, up)
-    B('cabinet-hinge-nos', Cp.cabHinges, 0, 'see section 10', 'Whole numbers')
-    B('cabinet-handle-nos', Cp.cabHandles, 0, 'see section 10', 'One to a shutter')
+    B('cabinet-hinge-nos', Cp.cabHinges, 0, 'see section [[s10]]', 'Whole numbers')
+    B('cabinet-handle-nos', Cp.cabHandles, 0, 'see section [[s10]]', 'One to a shutter')
   }
 
   if (paid.lines.length !== buy.length) miss(c, `buy list: ${paid.lines.length} lines in the report, ${buy.length} in the sheet`)
@@ -87,9 +87,9 @@ export function buyList(c: Ctx, o: Parts) {
   })
   const table: CalcTable = {
     head: ['Item', 'Worked out as', 'Rounded', 'To order', 'Unit'], num: [3],
-    rows, note: 'Each quantity above is the figure worked out in sections 4 to 10, rounded up to something that can be bought. The list is the same as the one the Grand Total adds across the trades.',
+    rows, note: 'Each quantity above is the figure worked out in the sections above, rounded up to something that can be bought. The list is the same as the one the Grand Total adds across the trades.',
   }
-  const sections: CalcSection[] = [{ id: 's11', title: '11. The buy list', blocks: [{ id: 'buy', title: 'What to order, and how each figure was rounded', table }] }]
+  const sections: CalcSection[] = [{ id: 's11', title: '[[s11]]. The buy list', blocks: [{ id: 'buy', title: 'What to order, and how each figure was rounded', table }] }]
   return { sections }
 }
 
@@ -110,9 +110,9 @@ export function checks(c: Ctx, P: PlanOut) {
   const bOk = avgBath >= MIN_ROOM.bath - 1e-9
   const lOk = bedRatio >= MIN_ROOM.light - 1e-9 && livRatio >= MIN_ROOM.light - 1e-9
   L.pick('Kitchen and bathroom against the usual minimum', `kitchen ≥ ${MIN_ROOM.kitchen} m², bathroom with WC ≥ ${MIN_ROOM.bath} m²`, kOk && bOk ? 'Both reach the minimum' : 'One is under the minimum',
-    'NBC 2016 Part 3 (read in a summary; the clause was not read)', 'Advisory only; it does not change a quantity.')
+    'NBC 2016 Part 3, as summarised in secondary sources; clause numbers not given', 'Advisory only; it does not change a quantity.')
   L.pick('Windows against the floor area', `window area ≥ ${fmt(MIN_ROOM.light * 100)}% of the floor area`, lOk ? 'Both reach a tenth' : 'One falls short',
-    'NBC 2016 Part 8 (read in a summary; the clause was not read)', 'Advisory only; it does not change a quantity.')
+    'NBC 2016 Part 8, as summarised in secondary sources; clause numbers not given', 'Advisory only; it does not change a quantity.')
   const chk = (id: string) => free.checks.find((x) => x.id === id)
   const rm = chk('rooms-min')
   const lt = chk('light')
@@ -123,7 +123,7 @@ export function checks(c: Ctx, P: PlanOut) {
   }
   const rooms = agg.nBed + agg.nLiv + agg.nKit + agg.nBath
   const fact = free.facts.find((f) => f.k === 'Rooms counted')
-  T(c, 'Rooms counted', cellNum(fact?.v), rooms, 'rooms')
+  T(c, 'Rooms counted in the report', cellNum(fact?.v), rooms, 'rooms')
   const blocks: CalcBlock[] = [{ id: 'checks', title: 'Room sizes and window sizes quoted in the report', lines: L.take() }]
   return { blocks, rooms }
 }
@@ -140,10 +140,10 @@ export function bands(c: Ctx, vals: { painted: number; tiles: number; doorsWindo
   const rows: string[][] = []
   rg.forEach(([k, v, [lo, hi], unit], i) => {
     const t = paid.tiles[i]
-    if (!t || t.k !== k) { miss(c, `tile ${i + 1}: report "${t?.k}" vs sheet "${k}"`); return }
-    T(c, `Total: ${k}`, cellNum(t.v), v, unit, 0)
+    if (!t || t.k !== k) { miss(c, `headline total ${i + 1}: report "${t?.k}" vs sheet "${k}"`); return }
+    T(c, `Total in the report: ${k}`, cellNum(t.v), v, unit, 0)
     const m = String(t.range ?? '').match(/^([\d,.]+) to ([\d,.]+)/)
-    if (!m) { miss(c, `tile "${k}": no range in the report`); return }
+    if (!m) { miss(c, `headline total "${k}": no range in the report`); return }
     T(c, `Likely range, low end: ${k}`, cellNum(m[1]), v * lo, unit, 0)
     T(c, `Likely range, high end: ${k}`, cellNum(m[2]), v * hi, unit, 0)
     rows.push([k, `${fmt(v)} ${unit}`, String(lo), String(hi), `${rangeText(v, lo, hi)} ${unit}`])
@@ -177,7 +177,7 @@ export function bands(c: Ctx, vals: { painted: number; tiles: number; doorsWindo
     note: 'Printed in the report as "from X% below to Y% above the figure shown": below = (1 − low) × 100 and above = (high − 1) × 100.',
   }
   const sections: CalcSection[] = [{
-    id: 's13', title: '13. How far off the figures can be',
+    id: 's13', title: '[[s13]]. How far off the figures can be',
     intro: 'The ranges and bands are planning judgement. They are not statistics from measured buildings.',
     blocks: [{ id: 'ranges', title: 'Likely range under each total', table: rangeTable }, { id: 'bands', title: 'Bands for each class of figure', table: bandTable }],
   }]

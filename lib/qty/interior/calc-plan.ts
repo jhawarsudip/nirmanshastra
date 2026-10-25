@@ -8,7 +8,7 @@ import { CORE_M2, floorName, perim, planFloors } from '../plan'
 import { TILES } from './finish'
 import { ASPECT, DOOR, EXT_SYS, GLAZED, SLAB_T, T_EXT, T_INT, spread, type InteriorInput } from './model'
 import { IN_SYS } from './finish'
-import { REF, X, same, sameArr, type Ctx } from './calc-kit'
+import { REF, X, count, same, sameArr, type Ctx } from './calc-kit'
 
 /*
   The room plan lives in lib/qty/plan.ts and is shared with MasonryPro. Its weights are written inline there, not exported,
@@ -111,7 +111,7 @@ export function answersAndPlan(c: Ctx) {
   const bI = bed[0], baI = bath[0], kI = kit[0]
   const P0 = L.calc('Outer wall, all round the floor', 'P = 4.082 × √A', '{k} × √{A:2}', { k: PLAN.perimFactor, A: A0 }, (v) => v.k * Math.sqrt(v.A),
     { unit: 'm', dp: 2, ref: REF.plan, note: 'The wall round a plan whose sides are in the ratio 1 to 1.5 is 2 × (1 + 1.5) ÷ √1.5 = 4.0825 √A. InteriorPro uses 4.082.', ...X(p0.P) })
-  L.input('Rooms in one home on this floor', `${bI} bedrooms, ${baI} bathrooms, ${kI} kitchens, 1 living room`, REF.plan)
+  L.input('Rooms in one home on this floor', `${count(bI, 'bedroom')}, ${count(baI, 'bathroom')}, ${count(kI, 'kitchen')}, 1 living room`, REF.plan)
   const wLiv = L.calc('Weight of the living room', 'wL = 1.3 + 0.3 × bedrooms', '{a} + {b} × {n}', { a: PLAN.livGround.base, b: PLAN.livGround.perBed, n: bI }, (v) => v.a + v.b * v.n,
     { dp: 2, ref: REF.plan, note: 'Ground floor and flats. On the upper floors of a house the weight is 0.9 + 0.2 × bedrooms.' })
   const wPass = L.calc('Weight of the passages', 'wP = 0.45 + 0.08 × (bedrooms + bathrooms + kitchens)', '{a} + {b} × ({x} + {y} + {z})', { a: PLAN.pass.base, b: PLAN.pass.perRoom, x: bI, y: baI, z: kI }, (v) => v.a + v.b * (v.x + v.y + v.z),
@@ -260,9 +260,9 @@ export function answersAndPlan(c: Ctx) {
   const b9: CalcBlock = { id: 'openings', title: 'Doors and windows counted from the rooms', table: openTable }
 
   const sections: CalcSection[] = [
-    { id: 's1', title: '1. Your answers and the building', blocks: [b1, b2, b3] },
-    { id: 's2', title: '2. The room plan', intro: 'Rooms are not measured from a drawing. The plan below is what the tool assumes, and everything after it follows from it.', blocks: [b4, b5, b6, b7, b8] },
-    { id: 's3', title: '3. Openings', blocks: [b9] },
+    { id: 's1', title: '[[s1]]. Your answers and the building', blocks: [b1, b2, b3] },
+    { id: 's2', title: '[[s2]]. The room plan', intro: 'Rooms are not measured from a drawing. The plan below is what the tool assumes, and everything after it follows from it.', blocks: [b4, b5, b6, b7, b8] },
+    { id: 's3', title: '[[s3]]. Openings', blocks: [b9] },
   ]
   void M2_TO_SQFT
   return { sections, N, flats, h, H, Hc, footM2, bed, bath, kit, balc, plans, agg, open, balcTotal, hasMumty }

@@ -130,7 +130,7 @@ export function surfaces(c: Ctx, P: PlanOut) {
   const b7: CalcBlock = { id: 'areas-table', title: 'The surfaces, as listed in the report', intro: 'These are the results of the steps above, set out as in the report table "Surfaces, measured".', table: summary }
 
   const sections: CalcSection[] = [
-    { id: 's4', title: '4. Surfaces measured', intro: 'Measured as IS 1200 measures: openings up to 0.5 m² are not taken out; from 0.5 m² to 3 m², one face is taken out (a door between two painted rooms once, a window or an outer door half from each face because the finish differs). Plaster is not here: it belongs to MasonryPro.', blocks: [b1, b2, b3, ...b4lines, b5, b6, b7] },
+    { id: 's4', title: '[[s4]]. Surfaces measured', intro: 'Measured following the rules of IS 1200 as the tool reads them (editions named in the references; the 2024 revisions have not been checked): openings up to 0.5 m² are not taken out; from 0.5 m² to 3 m², one face is taken out (a door between two painted rooms once, a window or an outer door half from each face because the finish differs). Plaster is not here: it belongs to MasonryPro.', blocks: [b1, b2, b3, ...b4lines, b5, b6, b7] },
   ]
   return { sections, dado, run, kitSplash, bathWallTile, bathPaint, wallsNet, wallPaint, roomsArea, interiorPaint, extPaint, doorSurf, nDoors, leafArea, floorMain, balcFloor, floorsTotal }
 }

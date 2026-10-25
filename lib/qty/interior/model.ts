@@ -445,11 +445,11 @@ export function interiorWork(inp: InteriorInput) {
     detail: 'Floor tiles in bathrooms, balconies and kitchens should be of water absorption group BIa (up to 0.08%), which means vitrified or porcelain tiles. Glazed ceramic tiles are for walls. This report counts the sizes you chose; the group is your choice at the shop.',
   })
   checks.push({
-    id: 'measure', clause: 'IS 1200 (Part 11):1977, (Part 12):1976, (Part 13):1994', description: 'How the surfaces are measured', status: 'pass',
-    detail: 'Floors are measured before the skirting and dado go on. Openings up to 0.5 m² are not taken out of paint or plaster; from 0.5 to 3 m², one face is taken out. Doors, windows and glazed balcony doors are taken out on that rule, and the skirting is measured in running metres after the door widths.',
+    id: 'measure', clause: 'IS 1200 (Part 11):1977, (Part 12):1976, (Part 13):1994; later editions exist (BIS lists 2024 revisions of Parts 11 and 13, not checked)', description: 'How the surfaces are measured', status: 'pass',
+    detail: 'Floors are measured before the skirting and dado go on. Openings up to 0.5 m² are not taken out of paint or plaster; from 0.5 to 3 m², one face is taken out. Doors, windows and glazed balcony doors are taken out on that rule, and the skirting is measured in running metres after the door widths. This follows the rules of the editions named, as the tool reads them; the 2024 revisions of Parts 11 and 13 have not been checked.',
   })
   checks.push({
-    id: 'rooms-min', clause: 'NBC 2016 Part 3 (read in a summary; the code itself was not read)', description: 'Kitchen and bathroom sizes',
+    id: 'rooms-min', clause: 'NBC 2016 Part 3, as summarised in secondary sources; clause numbers not given', description: 'Kitchen and bathroom sizes',
     status: kitchenOk && bathOk ? 'pass' : 'advisory',
     detail: `The rooms in this report are sized from your floor area. The kitchen works out near ${fmt(avgKit, 1)} m² against a minimum of 5.0 m² (1.8 m wide), and a bathroom with a WC near ${fmt(avgBath, 1)} m² against 2.8 m².${kitchenOk && bathOk ? '' : ' One of them is under the minimum, so your real plan needs a check against your local rules.'}`,
   })
@@ -459,7 +459,7 @@ export function interiorWork(inp: InteriorInput) {
     detail: `Doors are sized to the standard designations: ${DOOR.main.des} for the main door (1.0 m), ${DOOR.room.des} for rooms and the kitchen (0.9 m) and ${DOOR.bath.des} for bathrooms (0.8 m), all 2.1 m high. The number in the name times 100 mm is the opening width.`,
   })
   checks.push({
-    id: 'light', clause: 'NBC 2016 Part 8 (read in a summary; the code itself was not read)', description: 'Window size against room size',
+    id: 'light', clause: 'NBC 2016 Part 8, as summarised in secondary sources; clause numbers not given', description: 'Window size against room size',
     status: bedRatio >= MIN_ROOM.light - 1e-9 && livRatio >= MIN_ROOM.light - 1e-9 ? 'pass' : 'advisory',
     detail: `A habitable room needs windows of at least a tenth of its floor area. The bedroom window counted is ${fmt(area(GLAZED.winB), 1)} m² for a room of about ${fmt(avgBed, 1)} m² (${fmt(bedRatio * 100)}%) and the living room has ${fmt(livWinPer * area(GLAZED.winL), 1)} m² of window for about ${fmt(avgLiv, 1)} m² (${fmt(livRatio * 100)}%).${bedRatio >= 0.1 && livRatio >= 0.1 ? '' : ' One falls short, so ask for a larger window.'}`,
   })
@@ -492,7 +492,7 @@ export function interiorWork(inp: InteriorInput) {
   if (inp.exterior === 'textured') warnings.push('A textured finish takes more material on a rough wall than on a smooth one. IS 1200 (Part 13) adds a percentage for uneven surfaces; ask the applicator how rough yours will be.')
   if (!kitchenOk || !bathOk) warnings.push('With this floor area the kitchen or the bathroom works out smaller than the usual minimum. The tiles, paint and carpentry here follow those sizes, so measure your real rooms and compare.')
 
-  const homesNote = flats ? `${h * N} flats` : 'One house'
+  const homesNote = flats ? `${h * N} ${h * N === 1 ? 'flat' : 'flats'}` : 'One house'
   const facts: Fact[] = [
     { k: 'Rooms counted', v: String(agg.nBed + agg.nLiv + agg.nKit + agg.nBath), note: `${agg.nBed} ${agg.nBed === 1 ? 'bedroom' : 'bedrooms'}, ${agg.nBath} ${agg.nBath === 1 ? 'bathroom' : 'bathrooms'}, ${agg.nKit} ${agg.nKit === 1 ? 'kitchen' : 'kitchens'}, ${agg.nLiv} living ${agg.nLiv === 1 ? 'room' : 'rooms'}` },
     { k: 'Building', v: homesNote, note: `${N} ${N === 1 ? 'floor' : 'floors'}, ${fmt(H, 2)} m floor to floor` },
@@ -589,7 +589,7 @@ export function interiorWork(inp: InteriorInput) {
 
   const tables: Table[] = [
     {
-      id: 'areas', title: 'Surfaces, measured', sub: 'Every area comes from the room plan, measured as IS 1200 measures it. Walls are the clear height of the room, floor to the underside of the slab.',
+      id: 'areas', title: 'Surfaces, measured', sub: 'Every area comes from the room plan, measured following the rules of IS 1200 as the tool reads them (editions named under Standards and sources; the 2024 revisions have not been checked). Walls are the clear height of the room, floor to the underside of the slab.',
       head: ['Surface', 'Measured (m²)', 'Taken out (m²)', 'Net (m²)', 'Basis'], num: [1, 2, 3], rows: areaRows,
       note: `Clear height is ${fmt(Hc, 2)} m (${fmt(H, 2)} m floor to floor less a ${fmt(SLAB_T, 2)} m slab). Rooms are the same ones MasonryPro uses, so the two reports measure the same walls.`,
     },
@@ -719,7 +719,7 @@ export function interiorWork(inp: InteriorInput) {
   }
 
   const assumptions = [
-    `Code: surfaces are measured to IS 1200 (Part 11) floors, dado and skirting, (Part 12) plaster and (Part 13) paint: openings to 0.5 m² are not taken out, from 0.5 to 3 m² one face is. Door shutters are the standard sizes of IS 1003 (Part 1). Plywood sheets are IS 303.`,
+    `Code: surfaces are measured following the rules of IS 1200 as the tool reads them, in the editions named under Standards and sources: (Part 11) floors, dado and skirting, (Part 12) plaster and (Part 13) paint. BIS lists 2024 revisions of Parts 11 and 13; the tool has not been checked against them. Openings to 0.5 m² are not taken out, from 0.5 to 3 m² one face is. Door shutters are the standard sizes of IS 1003 (Part 1). Plywood sheets are IS 303.`,
     `Practice: the exterior paint spread is the CPWD Delhi Analysis of Rates 2016 coefficient (cement paint 0.384 kg, smooth acrylic 0.167 L, textured 0.328 L a m²) and the door paint is 0.075 L of primer and 0.090 L of paint a m². The DAR's exterior primer is 0.22 kg a m² in 2016 and 0.09 L in a later schedule; the maker's sheet (0.09 to 0.108 L) agrees with the later figure, so 0.095 L is used.`,
     `Maker: the inside spread (putty, primer, emulsion, distemper) is from the data sheets of Asian Paints, Nerolac and Berger, because the DAR emulsion items could not be read. These vary widely between brands (an emulsion is 0.063 to 0.138 L a m² for two coats), so the range around the paint figure is wide.`,
     `Derived: tiles a m² is one over (length + joint) times (width + joint). Grout is 1.6 kg a litre times the joint length, width and tile thickness. Panel areas for wardrobes and kitchen units are worked out from the box geometry. Board joint and hanger counts for the false ceiling follow the spacing of a public gypsum specification.`,
@@ -744,7 +744,7 @@ export function interiorWork(inp: InteriorInput) {
   ]
   const bands = BANDS.map((b) => ({ ...b }))
   const sources = [
-    'IS 1200 (Part 11):1977, (Part 12):1976, (Part 13):1994 Methods of measurement of building and civil engineering works',
+    'IS 1200 (Part 11):1977, (Part 12):1976, (Part 13):1994 Methods of measurement of building and civil engineering works (BIS lists 2024 revisions of Parts 11 and 13; the tool has not been checked against them)',
     'IS 15622:2006 Pressed ceramic tiles; IS 2395 (Part 1):1994 Painting practice; IS 3067:1988 Damp-proofing and waterproofing',
     'IS 1003 (Part 1):2003 Timber panelled and glazed shutters; IS 2202 (Part 2):1983 Flush door shutters; IS 303:2024 Plywood',
     'CPWD Delhi Analysis of Rates 2016, Volume 2 sub-head 13 (finishing: plaster, paint, primers) and Volume 1 materials list',

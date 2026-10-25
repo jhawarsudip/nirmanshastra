@@ -63,7 +63,7 @@ export function paint(c: Ctx, P: PlanOut, S: SurfOut) {
   rows.forEach((r, i) => T(c, `Paint: ${r.label}`, repNum(c, 'paint', i, 3), r.q, r.unit, 0))
 
   const sections: CalcSection[] = [{
-    id: 's7', title: '7. Putty, primer and paint',
+    id: 's7', title: '[[s7]]. Putty, primer and paint',
     intro: `Putty, primer and paint are counted by the area they cover. Paint area × spread × ${PAINT_WASTE} gives what to buy. The number of coats is already inside each spread.`,
     blocks: [b0, b1, b2],
   }]
@@ -112,7 +112,7 @@ export function falseCeiling(c: Ctx, P: PlanOut) {
   cmpTable(c, 'fc', vals.map((v) => [null, v]))
   vals.forEach((v, i) => T(c, `False ceiling: ${labs[i]}`, repNum(c, 'fc', i, 1), v, units[i], dps[i]))
   const sections: CalcSection[] = [{
-    id: 's8', title: '8. False ceiling',
+    id: 's8', title: '[[s8]]. False ceiling',
     intro: 'Gypsum board on a steel frame. The counts for each m² are the spacings of a public CPWD-pattern specification, written down once and multiplied by the area. Jointing tape and compound, cove lights and access panels are not counted.',
     blocks: [{ id: 'fc', title: `False ceiling in ${hall ? 'the living rooms' : 'the living rooms and bedrooms'}`, lines: L.take() }],
   }]
