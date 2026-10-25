@@ -288,7 +288,7 @@ function readDoor(door: PlanInput['doors'][number], ref: Poly, northDeg: number)
         const a = combine(padaSev, dirSev(neighbourZone))
         if (a !== severity && (!alt || Math.abs(SEV_SCORE[a] - SEV_SCORE[severity]) > Math.abs(SEV_SCORE[alt] - SEV_SCORE[severity]))) alt = a
       }
-      tradition = `${rule.principle} Brihat Samhita ch. 53 names this position, ${here.name}, as ${TONE_WORD[here.tone]}.`
+      tradition = rule.principle
       if (padaSev === 'POSITIVE' && dirSev(zone) === 'CRITICAL') {
         tradition += ' Teachers today would still advise against this direction, so both readings are shown and the verdict is lowered one step, to “acceptable”.'
       }

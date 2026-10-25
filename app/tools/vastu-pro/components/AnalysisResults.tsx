@@ -1,52 +1,156 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
-import { type VastuAnalysis, type VastuFinding, type PlacedMarker } from '../vastu-engine'
-import { ZONE_SCORE, type Severity } from '../vastu-data'
+import PlanEditor from './PlanEditor'
+import { CATALOGUE } from '../vastu-catalogue'
+import type { DoorMark, PlacedItem, PlanImage } from '../vastu-model'
+import type { Poly } from '../vastu-geometry'
+import { SOURCES, ZONES } from '../vastu-rules'
+import { BASIS_LABEL, SEVERITY_LABEL, SEVERITY_ORDER, type Finding, type PlotNote, type Reading, type RemedySet, type Severity } from '../vastu-types'
 import { Note, IcArrow } from '@/components/v2/inner/kit'
 import { TOOLS } from '@/lib/v2/content'
 
-const VastuMassingPreview3DWrapper = dynamic(
-  () => import('./MassingPreview3DWrapper'),
-  { ssr: false, loading: () => null }
-)
-
 interface Props {
-  analysis: VastuAnalysis
+  reading: Reading
   contactName: string
+  house: Poly
   northDeg: number
-  markers: PlacedMarker[]
+  items: PlacedItem[]
+  doors: DoorMark[]
+  image: PlanImage | null
   onBackToPlan: () => void
 }
 
-const SEVERITY_LABEL: Record<Severity, string> = { CRITICAL: 'Critical', MODERATE: 'Moderate', NEUTRAL: 'Neutral', POSITIVE: 'Positive' }
+// The sheet is always paper-coloured, so the plan uses the light-theme severity colours.
+const SEV_COLOUR: Record<Severity, string> = { POSITIVE: '#2F7D5B', NEUTRAL: '#7A7266', MODERATE: '#9A6A12', CRITICAL: '#A3322A' }
+const ZONE_NAMES = ZONES.map(z => z.short)
+const NOOP = () => {}
 
-const RING_R = 70
-const RING_C = 2 * Math.PI * RING_R
+const hasRemedies = (r: RemedySet) => r.structural.length + r.practical.length > 0
 
-function FindingCard({ finding }: { finding: VastuFinding }) {
+function List({ items }: { items: string[] }) {
   return (
-    <article className="ns-plate ns-v-find" data-sev={finding.severity}>
-      <div className="ns-v-find__top">
-        <h3>{finding.roomLabel}</h3>
-        <span className="ns-v-badge" data-sev={finding.severity}>{SEVERITY_LABEL[finding.severity]}</span>
+    <ul className="ns-v-list">
+      {items.map((t, i) => <li key={i}>{t}</li>)}
+    </ul>
+  )
+}
+
+function Remedies({ r, dos, donts }: { r: RemedySet; dos: string[]; donts: string[] }) {
+  if (!hasRemedies(r) && dos.length + donts.length === 0) return null
+  return (
+    <details className="ns-v-more">
+      <summary>If you want to act on this</summary>
+      <div className="ns-v-more__b">
+        {r.practical.length > 0 && (
+          <div>
+            <h4>Without building work</h4>
+            <List items={r.practical} />
+          </div>
+        )}
+        {r.structural.length > 0 && (
+          <div>
+            <h4>If you can still change the plan</h4>
+            <List items={r.structural} />
+          </div>
+        )}
+        {dos.length > 0 && (
+          <div>
+            <h4>Usually advised</h4>
+            <List items={dos} />
+          </div>
+        )}
+        {donts.length > 0 && (
+          <div>
+            <h4>Usually advised against</h4>
+            <List items={donts} />
+          </div>
+        )}
       </div>
-      <p className="ns-v-find__z">{finding.zoneFull} zone ({finding.zoneName})</p>
-      <p className="ns-v-find__t">{finding.impact}</p>
+    </details>
+  )
+}
+
+function FindingCard({ f }: { f: Finding }) {
+  return (
+    <article className="ns-plate ns-v-find" data-sev={f.severity}>
+      <div className="ns-v-find__top">
+        <h3>{f.label}</h3>
+        <span className="ns-v-badge" data-sev={f.severity}>{SEVERITY_LABEL[f.severity]}</span>
+      </div>
+      <p className="ns-v-find__z">
+        {f.zoneText}
+        {f.alsoText ? `, ${f.alsoText}` : ''}
+        {f.centre && <span className="ns-v-tag">part is in the Brahmasthan</span>}
+        {f.borderline && <span className="ns-v-tag">close to a zone line</span>}
+      </p>
+
+      <p className="ns-v-find__t"><b>{f.headline}</b></p>
+      <p className="ns-v-find__t">{f.tradition}</p>
+
+      {f.detail.length > 0 && <List items={f.detail} />}
+
+      {f.borderline && f.altSeverity && f.altSeverity !== f.severity && (
+        <p className="ns-v-find__alt">
+          This one sits close to a zone line. Read from the other side of the line it would be <b>{SEVERITY_LABEL[f.altSeverity].toLowerCase()}</b>. Check it against a measured plan before acting.
+        </p>
+      )}
+
+      {f.disputed && <p className="ns-v-find__disp"><b>Teachers differ.</b> {f.disputed}</p>}
+      {f.practical && <p className="ns-v-find__prac"><b>A practical reason.</b> {f.practical}</p>}
+
+      <p className="ns-v-find__basis">
+        <span className="ns-v-basis" data-basis={f.basis}>{BASIS_LABEL[f.basis]}</span>
+        {f.source && <span>{f.source}</span>}
+      </p>
+
+      {f.severity !== 'POSITIVE' && <Remedies r={f.remedies} dos={f.dos} donts={f.donts} />}
     </article>
   )
 }
 
-export default function AnalysisResults({ analysis, contactName, northDeg, markers, onBackToPlan }: Props) {
-  const { findings, score, criticalCount, moderateCount, positiveCount, neutralCount } = analysis
-  const [show3D, setShow3D] = useState(false)
+function PlotCard({ n }: { n: PlotNote }) {
+  return (
+    <article className="ns-plate ns-v-find ns-v-find--plot" data-sev={n.severity}>
+      <div className="ns-v-find__top">
+        <h3>{n.title}</h3>
+        <span className="ns-v-badge" data-sev={n.severity}>{n.counted ? SEVERITY_LABEL[n.severity] : 'For your information'}</span>
+      </div>
+      <p className="ns-v-find__t">{n.text}</p>
+      <p className="ns-v-find__basis"><span className="ns-v-basis" data-basis={n.basis}>{BASIS_LABEL[n.basis]}</span></p>
+      {n.remedies && <Remedies r={n.remedies} dos={[]} donts={[]} />}
+    </article>
+  )
+}
+
+export default function AnalysisResults({ reading, contactName, house, northDeg, items, doors, image, onBackToPlan }: Props) {
   const [pdfBusy, setPdfBusy] = useState(false)
   const [pdfError, setPdfError] = useState('')
   const struct = TOOLS.find(t => t.key === 'struct')!
+  const { findings, plot, score, range, counts, missing, basisNotes } = reading
 
-  const scoreSev: Severity = score >= 70 ? 'POSITIVE' : score >= 40 ? 'MODERATE' : 'CRITICAL'
+  const sevOf = useMemo(() => {
+    const m = new Map<string, Severity>()
+    for (const f of findings) m.set(f.id, f.severity)
+    return m
+  }, [findings])
+  const zoneOf = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const f of findings) {
+      const hit = /\(([A-Z]+)\)/.exec(f.zoneText)
+      if (hit) m.set(f.id, hit[1])
+    }
+    return m
+  }, [findings])
+
+  // Worst first, then the heavier rule first, so what matters most is at the top.
+  const ordered = useMemo(
+    () => [...findings].sort((a, b) => SEVERITY_ORDER.indexOf(a.severity) - SEVERITY_ORDER.indexOf(b.severity) || b.weight - a.weight),
+    [findings],
+  )
+  const countedPlot = plot.filter(p => p.counted)
+  const infoPlot = plot.filter(p => !p.counted)
 
   async function downloadPdf() {
     setPdfBusy(true)
@@ -58,7 +162,9 @@ export default function AnalysisResults({ analysis, contactName, northDeg, marke
         body: JSON.stringify({
           name: contactName,
           northDeg,
-          markers: markers.map(m => ({ roomKey: m.roomKey, x: m.x, y: m.y })),
+          house: house.map(p => ({ x: p.x, y: p.y })),
+          items: items.map(i => ({ id: i.id, kind: i.kind, x: i.x, y: i.y, w: i.w, h: i.h })),
+          doors: doors.map(d => ({ id: d.id, kind: d.kind, pt: { x: d.pt.x, y: d.pt.y } })),
         }),
       })
       if (!res.ok) {
@@ -81,69 +187,99 @@ export default function AnalysisResults({ analysis, contactName, northDeg, marke
     }
   }
 
+  const indexSev: Severity = score === null ? 'NEUTRAL' : score >= 85 ? 'POSITIVE' : score >= 55 ? 'NEUTRAL' : score >= 20 ? 'MODERATE' : 'CRITICAL'
+
   return (
     <div>
       <div className="ns-v-reshead">
         <div>
           <span className="ns-i-pill ns-i-pill--tc">VastuPro · Your reading</span>
           <h1>Your Vastu reading</h1>
-          <p>Every room you marked is rated by the zone it sits in, the way the Vastu tradition reads it.</p>
+          <p>What the traditional texts and today’s teachers say about each door and room you marked, and where each rule comes from.</p>
         </div>
         <button type="button" className="ns-v-sbtn" onClick={onBackToPlan}>← Back to my plan</button>
       </div>
 
-      <div className="ns-plate ns-v-score">
-        <div className="ns-v-ring" data-sev={scoreSev}>
-          <svg viewBox="0 0 164 164" aria-hidden="true">
-            <circle className="ns-v-ring__track" cx="82" cy="82" r={RING_R} />
-            <circle
-              className="ns-v-ring__arc"
-              cx="82"
-              cy="82"
-              r={RING_R}
-              strokeDasharray={RING_C}
-              strokeDashoffset={RING_C * (1 - Math.max(0, Math.min(100, score)) / 100)}
-            />
-          </svg>
-          <div className="ns-v-ring__v" role="img" aria-label={`Vastu score ${score} out of 100`}>
-            <b>{score}</b>
-            <span>out of 100</span>
-          </div>
-        </div>
+      <Note kind="info" title="What this reading is, and is not">
+        It is a reading of your plan against the rules that the old Vastu texts and today’s teachers give. It is not a structural or safety check, and it does not say what will happen to anyone who lives there: no text or study shows that a layout decides health, money or luck. Some rules below are old and widely repeated, some are only taught today, and a few are modern habits. Each finding says which, and says where teachers disagree.
+      </Note>
 
-        <div>
-          <h2>{contactName ? `Prepared for ${contactName}` : 'Vastu score'}</h2>
+      <div className="ns-plate ns-v-summary">
+        <div className="ns-v-summary__l">
+          <h2>{contactName ? `Prepared for ${contactName}` : 'Summary'}</h2>
           <p className="ns-v-score__meta">
-            North at {Math.round(northDeg)}° · {markers.length} room{markers.length !== 1 ? 's' : ''} read
+            North at {Math.round(northDeg)}° · {items.length} room{items.length !== 1 ? 's' : ''} and {doors.length} door{doors.length !== 1 ? 's' : ''} read
           </p>
           <div className="ns-v-counts">
-            {([
-              ['CRITICAL', criticalCount],
-              ['MODERATE', moderateCount],
-              ['NEUTRAL', neutralCount],
-              ['POSITIVE', positiveCount],
-            ] as [Severity, number][]).map(([sev, n]) => (
+            {([...SEVERITY_ORDER] as Severity[]).map(sev => (
               <div key={sev} className="ns-v-count" data-sev={sev}>
-                <b>{n}</b>
+                <b>{counts[sev]}</b>
                 <span>{SEVERITY_LABEL[sev]}</span>
               </div>
             ))}
           </div>
-          <p className="ns-v-score__how">
-            The score is the average of the room ratings: Positive counts {ZONE_SCORE.POSITIVE}, Neutral {ZONE_SCORE.NEUTRAL}, Moderate {ZONE_SCORE.MODERATE} and Critical {ZONE_SCORE.CRITICAL}.
-          </p>
+        </div>
+
+        <div className="ns-v-summary__r" data-sev={indexSev}>
+          {score === null ? (
+            <>
+              <p className="ns-v-index__k">Overall index</p>
+              <p className="ns-v-index__none">Not given yet: too little is on the plan for a fair number.</p>
+            </>
+          ) : (
+            <>
+              <p className="ns-v-index__k">Overall index, a rough summary</p>
+              <p className="ns-v-index__v"><b>{score}</b><span> out of 100</span></p>
+              {range && range[0] !== range[1] && (
+                <p className="ns-v-index__r">Between {range[0]} and {range[1]} once the “to review” items are settled.</p>
+              )}
+            </>
+          )}
+          {missing.length > 0 && (
+            <p className="ns-v-index__m">Not on the plan yet: {missing.join(', ')}. The reading is provisional until they are.</p>
+          )}
+          <p className="ns-v-index__how">Each finding counts by its weight: doors, kitchen and toilets count most. The counts on the left are the real result; the index only summarises them.</p>
         </div>
       </div>
 
+      <div className="ns-v-twin">
       <div className="ns-v-block">
-        <Note kind="info" title="How to read this">
-          Vastu Shastra is a traditional system of layout and orientation. It is not part of any BIS code, and it has no bearing on the strength or safety of the structure. Each finding below is what the tradition says about that room in that zone.
-        </Note>
+        <h2>Your plan, as read</h2>
+        <div className="ns-plate ns-v-sheet">
+          <div className="ns-v-canvaswrap">
+            <PlanEditor
+              mode="view"
+              house={house}
+              onHouse={NOOP}
+              northDeg={northDeg}
+              items={items}
+              onItems={NOOP}
+              doors={doors}
+              onDoors={NOOP}
+              catalogue={CATALOGUE}
+              activeDoorKind="main_door"
+              selectedId={null}
+              onSelect={NOOP}
+              image={image}
+              zoneNames={ZONE_NAMES}
+              colourOf={id => { const s = sevOf.get(id); return s ? SEV_COLOUR[s] : undefined }}
+              chipOf={id => zoneOf.get(id)}
+            />
+          </div>
+          <div className="ns-v-sheet__foot">
+            <ul className="ns-v-legend" aria-label="Colour key">
+              {([...SEVERITY_ORDER].reverse() as Severity[]).map(s => (
+                <li key={s}><i style={{ background: SEV_COLOUR[s] }} />{SEVERITY_LABEL[s]}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
 
+        <div className="ns-v-twin__side">
       <div className="ns-v-block ns-plate ns-v-next">
         <h2>Keep a copy</h2>
-        <p>A PDF with your plan, the score and every finding below. It is made when you ask, from the marks on this page, and it is not stored.</p>
+        <p>A PDF with your plan, every finding with its source, and the remedies. It is made when you ask, from the plan on this page, and it is not stored.</p>
         {pdfError && <Note kind="err" title="That did not work">{pdfError}</Note>}
         <div className="ns-v-next__row">
           <button type="button" className="ns-btn" onClick={downloadPdf} disabled={pdfBusy}>
@@ -154,33 +290,42 @@ export default function AnalysisResults({ analysis, contactName, northDeg, marke
         </div>
       </div>
 
-      <div className="ns-v-block">
-        <h2>Room by room</h2>
-        <div className="ns-v-finds">
-          {findings.map(finding => (
-            <FindingCard key={finding.markerKey} finding={finding} />
-          ))}
         </div>
       </div>
 
-      <div className="ns-v-block ns-plate ns-v-3d-wrap">
-        <div className="ns-v-3d">
-          <div>
-            <h2>See North on a 3D block of the house</h2>
-            <p>A simple block with an arrow pointing North. Drag to turn it, scroll or pinch to zoom.</p>
-          </div>
-          <button type="button" className="ns-v-sbtn ns-v-sbtn--tc" aria-expanded={show3D} onClick={() => setShow3D(v => !v)}>
-            {show3D ? 'Hide the 3D view' : 'Show the 3D view'}
-          </button>
-        </div>
-        {show3D && (
-          <div className="ns-v-stagebox">
-            <VastuMassingPreview3DWrapper northDeg={northDeg} />
-            <p className="ns-v-stage__cap">
-              Schematic only. The arrow points to North, {Math.round(northDeg)}° clockwise from the top of your drawing. The block is a fixed two-floor shape; VastuPro does not ask for floors or area.
-            </p>
+      <div className="ns-v-block">
+        <h2>Door and room by room</h2>
+        {ordered.length === 0 ? (
+          <Note kind="info">Nothing on the plan could be read yet. Go back and mark a door or a room.</Note>
+        ) : (
+          <div className="ns-v-finds">
+            {ordered.map(f => <FindingCard key={f.id} f={f} />)}
           </div>
         )}
+      </div>
+
+      {plot.length > 0 && (
+        <div className="ns-v-block">
+          <h2>About the plot itself</h2>
+          <div className="ns-v-finds">
+            {countedPlot.map(n => <PlotCard key={n.id} n={n} />)}
+            {infoPlot.map(n => <PlotCard key={n.id} n={n} />)}
+          </div>
+        </div>
+      )}
+
+      <div className="ns-v-block ns-plate ns-v-how2">
+        <h2>How this was read</h2>
+        <List items={basisNotes} />
+        <h3>Where the rules come from</h3>
+        <ul className="ns-v-sources">
+          {SOURCES.map(s => (
+            <li key={s.work}><b>{s.work}.</b> {s.note}</li>
+          ))}
+        </ul>
+        <p className="ns-i-fine">
+          Where the older texts and today’s teachers differ, the finding says so. Rules marked “Modern convention” never count as more than “to review”. {reading.rulesVersion}.
+        </p>
       </div>
 
       <div className="ns-v-block ns-plate ns-v-next">

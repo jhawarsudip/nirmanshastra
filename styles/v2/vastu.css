@@ -147,23 +147,11 @@ html[data-calm="1"] .ns-v-placing::before { animation: none; }
 .ns-v-reshead h1 { margin: 6px 0 0; font-family: var(--ns-display); font-weight: 400; font-size: clamp(32px, 4.2vw, 54px); line-height: 1.05; }
 .ns-v-reshead p { margin: 8px 0 0; max-width: 60ch; font-size: 17.5px; line-height: 1.55; color: var(--ns-ink-2); }
 
-.ns-v-score { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(18px, 3vw, 36px); align-items: center; padding: clamp(18px, 2.4vw, 30px); }
-@media (max-width: 560px) { .ns-v-score { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; } }
-.ns-v-ring { position: relative; width: 164px; height: 164px; }
-.ns-v-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.ns-v-ring__track { fill: none; stroke: color-mix(in srgb, var(--ns-ink) 12%, transparent); stroke-width: 12; }
-.ns-v-ring__arc { fill: none; stroke: var(--sev); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 700ms ease-out; }
-html[data-calm="1"] .ns-v-ring__arc { transition: none; }
-.ns-v-ring__v { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1; }
-.ns-v-ring__v b { font-family: var(--ns-display); font-weight: 400; font-size: 52px; color: var(--ns-ink); font-variant-numeric: tabular-nums; }
-.ns-v-ring__v span { margin-top: 4px; font-size: 14px; font-weight: 700; color: var(--ns-ink-2); }
-.ns-v-score h2 { margin: 0; font-size: 20px; font-weight: 800; }
 .ns-v-score__meta { margin: 4px 0 14px; font-size: 15.5px; color: var(--ns-ink-2); }
 .ns-v-counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; text-align: left; }
 .ns-v-count { display: flex; align-items: baseline; gap: 10px; padding: 9px 14px; border-radius: 12px; border: 1.5px solid color-mix(in srgb, var(--sev) 45%, transparent); background: color-mix(in srgb, var(--sev) 9%, transparent); }
 .ns-v-count b { font-family: var(--ns-display); font-weight: 400; font-size: 28px; line-height: 1; color: var(--sev); font-variant-numeric: tabular-nums; }
 .ns-v-count span { font-size: 15px; font-weight: 700; }
-.ns-v-score__how { margin: 14px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--ns-ink-2); }
 
 .ns-v-block { margin-top: clamp(16px, 2vw, 26px); }
 .ns-v-block > h2 { margin: 0 0 12px; font-family: var(--ns-display); font-weight: 400; font-size: clamp(24px, 2.6vw, 34px); line-height: 1.1; }
@@ -174,16 +162,138 @@ html[data-calm="1"] .ns-v-ring__arc { transition: none; }
 .ns-v-find__z { margin: 3px 0 0; font-size: 15.5px; color: var(--ns-ink-2); }
 .ns-v-find p.ns-v-find__t { margin: 12px 0 0; font-size: 16.5px; line-height: 1.65; max-width: 72ch; }
 
-.ns-v-stagebox { margin-top: 14px; border-radius: var(--ns-r); overflow: hidden; border: 1.5px solid var(--ns-line-2); background: var(--ns-stage); }
-.ns-v-stage__cap { margin: 0; padding: 10px 16px; font-size: 14.5px; line-height: 1.5; color: var(--ns-chalk); background: color-mix(in srgb, var(--ns-stage) 88%, #000); }
-.ns-v-3d { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 18px; padding: clamp(16px, 2vw, 22px); }
-.ns-v-3d-wrap .ns-v-stagebox { margin: 0 clamp(16px, 2vw, 22px) clamp(16px, 2vw, 22px); }
-.ns-v-3d h2 { margin: 0; font-size: 19px; font-weight: 800; }
-.ns-v-3d p { margin: 4px 0 0; font-size: 15.5px; line-height: 1.5; color: var(--ns-ink-2); max-width: 60ch; }
-
 .ns-v-next { display: grid; gap: 14px; padding: clamp(18px, 2.4vw, 30px); }
 .ns-v-next h2 { margin: 0; font-family: var(--ns-display); font-weight: 400; font-size: clamp(24px, 2.6vw, 34px); line-height: 1.1; }
 .ns-v-next p { margin: 0; font-size: 17px; line-height: 1.6; color: var(--ns-ink-2); max-width: 64ch; }
 .ns-v-next__row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
 
 @media (max-width: 520px) { .ns-v-counts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .ns-v-find h3 { font-size: 18.5px; } }
+
+/* ============================================================================
+   The plan editor and its controls (outline, doors, rooms), and the new reading.
+   ========================================================================== */
+
+/* segmented control (starting shape) */
+.ns-v-seg { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 4px; }
+.ns-v-seg__b {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 16px; border-radius: 999px;
+  font: inherit; font-size: 15.5px; font-weight: 700; line-height: 1.2; cursor: pointer; color: var(--ns-ink); background: var(--ns-paper);
+  border: 2px solid var(--ns-line-2); transition: border-color 140ms, background-color 140ms;
+}
+.ns-v-seg__b:hover { border-color: var(--ns-ink); }
+.ns-v-seg__b[aria-pressed="true"] { border-color: var(--tc); background: color-mix(in srgb, var(--tc) 14%, var(--ns-paper)); box-shadow: inset 0 0 0 1px var(--tc); }
+.ns-v-seg__b:focus-visible { outline: 3px solid var(--ns-focus); outline-offset: 3px; }
+
+/* the three things being marked: outline, doors, rooms */
+.ns-v-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 clamp(14px, 1.8vw, 22px); }
+.ns-v-modes .ns-v-seg__b { border-radius: 14px; min-height: 52px; padding: 8px 10px; font-size: 16px; }
+.ns-v-modes__n {
+  flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; font-size: 14px; font-weight: 800;
+  color: var(--tc); border: 2px solid var(--tc); background: color-mix(in srgb, var(--tc) 10%, transparent);
+}
+.ns-v-modes .ns-v-seg__b[aria-pressed="true"] .ns-v-modes__n { background: var(--tc); color: #fff; }
+html[data-ns-theme="dark"] .ns-v-modes .ns-v-seg__b[aria-pressed="true"] .ns-v-modes__n { color: #1C1B19; }
+@media (max-width: 480px) { .ns-v-modes .ns-v-seg__b { flex-direction: column; gap: 4px; font-size: 14.5px; } }
+
+/* the house controls */
+.ns-v-house__f { display: grid; gap: 12px; margin-top: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ns-v-house__f > :nth-child(n+3) { grid-column: 1 / -1; }
+@media (min-width: 1100px) { .ns-v-house__f { grid-template-columns: minmax(0, 1fr); } }
+.ns-v-house__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 14px; }
+.ns-v-house__row small { flex: 1 1 200px; }
+.ns-v-house__pic { margin-top: 6px; padding-top: 14px; border-top: 1.5px solid var(--ns-line); }
+.ns-v-range { width: 100%; accent-color: var(--tc); min-height: 32px; }
+.ns-v-pic { margin-top: 12px; }
+.ns-v-pic summary { cursor: pointer; font-weight: 800; font-size: 15.5px; min-height: 40px; display: flex; align-items: center; }
+.ns-v-pic__g { display: grid; gap: 10px; }
+.ns-v-pic__g label { display: grid; gap: 4px; font-size: 14.5px; font-weight: 700; color: var(--ns-ink-2); }
+
+/* small chips and steppers */
+.ns-v-tag { display: inline-flex; align-items: center; margin-left: 8px; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--ns-ink-2); border: 1.5px solid var(--ns-line-2); background: color-mix(in srgb, var(--ns-ink) 4%, transparent); }
+.ns-v-sel__z .ns-v-tag { margin-left: 0; }
+.ns-v-size { display: inline-flex; align-items: center; gap: 6px; font-size: 14.5px; font-weight: 700; color: var(--ns-ink-2); }
+.ns-v-step { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; font: inherit; font-size: 18px; font-weight: 800; cursor: pointer; color: var(--ns-ink); background: var(--ns-paper); border: 2px solid var(--ns-line-2); }
+.ns-v-step:hover { border-color: var(--ns-ink); }
+.ns-v-step:focus-visible { outline: 3px solid var(--ns-focus); outline-offset: 2px; }
+.ns-v-room__add { font-size: 14px; font-weight: 800; color: var(--tc); white-space: nowrap; }
+
+/* the doors panel */
+.ns-v-doors__intro { padding: 12px 16px; border-bottom: 1.5px solid var(--ns-line); }
+.ns-v-doors__intro p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ns-ink-2); }
+.ns-v-doors__key { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px !important; font-size: 14px !important; }
+.ns-v-doors__key span { display: inline-flex; align-items: center; gap: 7px; }
+.ns-v-doors__key i { width: 22px; height: 7px; border-radius: 2px; background: rgba(42,38,34,.3); }
+.ns-v-doors__key i[data-tone="favourable"] { background: #2F7A4F; height: 9px; }
+.ns-v-doors__key i[data-tone="mixed"] { background: #C99A2B; }
+.ns-v-doors__diag { margin-top: 10px !important; padding: 8px 12px; border-radius: 10px; font-size: 14.5px !important; color: var(--ns-ink) !important; background: color-mix(in srgb, var(--sev-mod) 12%, transparent); border: 1.5px solid color-mix(in srgb, var(--sev-mod) 45%, transparent); }
+.ns-v-doorrow { display: flex; align-items: stretch; border-bottom: 1px solid var(--ns-line); }
+.ns-v-doorrow .ns-v-room { flex: 1 1 auto; border-bottom: 0; }
+.ns-v-doorrow__x { margin: 8px 12px 8px 0; min-height: 40px; padding: 4px 12px; font-size: 14px; }
+
+/* the sheet itself */
+.ns-v-svg { display: block; width: 100%; aspect-ratio: 1 / 1; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
+.ns-v-svg[data-mode="door"] { cursor: crosshair; }
+.ns-v-svg:focus-visible { outline: 3px solid var(--ns-focus); outline-offset: -3px; }
+.ns-v-zl { user-select: none; }
+.ns-v-item { cursor: grab; }
+.ns-v-item:active { cursor: grabbing; }
+.ns-v-item:focus-visible, .ns-v-vertex:focus-visible { outline: none; stroke: var(--ns-focus); stroke-width: 4; }
+.ns-v-svg[data-mode="view"] .ns-v-item { cursor: default; }
+.ns-v-vertex { cursor: grab; }
+.ns-v-add:hover circle { fill: color-mix(in srgb, var(--tc) 18%, #FAF6EC); }
+
+/* ---- the reading --------------------------------------------------------------- */
+.ns-v-summary { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 36px); padding: clamp(18px, 2.4vw, 30px); margin-top: clamp(16px, 2vw, 26px); align-items: start; }
+@media (max-width: 820px) { .ns-v-summary { grid-template-columns: minmax(0, 1fr); } }
+.ns-v-summary h2 { margin: 0; font-size: 20px; font-weight: 800; }
+.ns-v-summary__r { padding: 14px 16px; border-radius: 14px; border: 1.5px solid var(--ns-line-2); background: color-mix(in srgb, var(--ns-ink) 3%, transparent); }
+.ns-v-summary__r p { margin: 0; }
+.ns-v-index__k { font-size: 14.5px; font-weight: 800; color: var(--ns-ink-2); }
+.ns-v-index__v { margin-top: 4px !important; line-height: 1; }
+.ns-v-index__v b { font-family: var(--ns-display); font-weight: 400; font-size: 44px; color: var(--sev); font-variant-numeric: tabular-nums; }
+.ns-v-index__v span { font-size: 15px; font-weight: 700; color: var(--ns-ink-2); }
+.ns-v-index__r, .ns-v-index__none { margin-top: 6px !important; font-size: 15px; color: var(--ns-ink); line-height: 1.45; }
+.ns-v-index__m { margin-top: 10px !important; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; line-height: 1.45; background: color-mix(in srgb, var(--sev-mod) 12%, transparent); border: 1.5px solid color-mix(in srgb, var(--sev-mod) 45%, transparent); }
+.ns-v-index__how { margin-top: 10px !important; font-size: 14px; line-height: 1.5; color: var(--ns-ink-2); }
+
+.ns-v-block > .ns-v-sheet { max-width: 640px; }
+.ns-v-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14.5px; font-weight: 700; }
+.ns-v-legend li { display: inline-flex; align-items: center; gap: 8px; }
+.ns-v-legend i { width: 14px; height: 14px; border-radius: 3px; flex: none; }
+
+.ns-v-find__z .ns-v-tag { margin-left: 8px; }
+.ns-v-find .ns-v-list { margin-top: 10px; }
+.ns-v-list { margin: 8px 0 0; padding-left: 1.2em; list-style: disc; display: grid; gap: 6px; font-size: 16px; line-height: 1.55; max-width: 72ch; }
+.ns-v-list li::marker { color: var(--tc); }
+.ns-v-find__alt, .ns-v-find__disp, .ns-v-find__prac { margin: 12px 0 0; padding: 9px 13px; border-radius: 10px; font-size: 15.5px; line-height: 1.55; max-width: 72ch; border: 1.5px solid var(--ns-line-2); background: color-mix(in srgb, var(--ns-ink) 3.5%, transparent); }
+.ns-v-find__alt { border-color: color-mix(in srgb, var(--sev-mod) 50%, transparent); background: color-mix(in srgb, var(--sev-mod) 10%, transparent); }
+.ns-v-find__prac { border-color: color-mix(in srgb, var(--sev-pos) 45%, transparent); background: color-mix(in srgb, var(--sev-pos) 8%, transparent); }
+.ns-v-find__basis { margin: 14px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 14px; color: var(--ns-ink-2); }
+.ns-v-basis { display: inline-flex; padding: 2px 10px; border-radius: 6px; font-size: 13px; font-weight: 800; color: var(--ns-ink); background: color-mix(in srgb, var(--ns-ink) 8%, transparent); }
+.ns-v-basis[data-basis="classical"] { background: color-mix(in srgb, var(--sev-pos) 15%, transparent); }
+.ns-v-basis[data-basis="modern"] { background: color-mix(in srgb, var(--sev-mod) 18%, transparent); }
+
+.ns-v-more { margin-top: 12px; border-top: 1.5px solid var(--ns-line); padding-top: 4px; }
+.ns-v-more summary { cursor: pointer; display: flex; align-items: center; min-height: 46px; font-weight: 800; font-size: 16px; color: var(--tc); }
+.ns-v-more summary:focus-visible { outline: 3px solid var(--ns-focus); outline-offset: 2px; }
+.ns-v-more__b { display: grid; gap: 14px; padding-bottom: 6px; }
+.ns-v-more__b h4 { margin: 0; font-size: 14px; font-weight: 800; letter-spacing: .02em; color: var(--ns-ink-2); text-transform: uppercase; }
+.ns-v-more__b .ns-v-list { margin-top: 6px; font-size: 15.5px; }
+
+.ns-v-how2 { padding: clamp(18px, 2.4vw, 30px); }
+.ns-v-how2 h2 { margin: 0 0 4px; font-family: var(--ns-display); font-weight: 400; font-size: clamp(24px, 2.6vw, 34px); line-height: 1.1; }
+.ns-v-how2 h3 { margin: 22px 0 4px; font-size: 18px; font-weight: 800; }
+.ns-v-sources { margin: 8px 0 14px; padding-left: 1.2em; list-style: disc; display: grid; gap: 8px; font-size: 15.5px; line-height: 1.55; color: var(--ns-ink-2); max-width: 78ch; }
+.ns-v-sources b { color: var(--ns-ink); }
+
+/* the plan and the PDF card sit side by side on a wide screen */
+.ns-v-twin { display: grid; gap: clamp(14px, 1.8vw, 22px); grid-template-columns: minmax(0, 1fr); align-items: start; margin-top: clamp(16px, 2vw, 26px); }
+@media (min-width: 1000px) { .ns-v-twin { grid-template-columns: minmax(0, 640px) minmax(0, 1fr); } }
+.ns-v-twin > .ns-v-block { margin-top: 0; }
+.ns-v-twin__side { display: grid; gap: clamp(14px, 1.8vw, 22px); }
+.ns-v-twin__side > .ns-v-block { margin-top: 0; }
+
+/* On a phone the compass is only in the way once North is set: in the door and room steps the list and the sheet come first. */
+@media (max-width: 1099px) {
+  .ns-v-plan[data-mode="door"], .ns-v-plan[data-mode="rooms"] { grid-template-areas: "rooms" "sheet" "go" "compass"; }
+}
