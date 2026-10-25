@@ -142,7 +142,7 @@ export default function CalcAppendix({ sheet, chrome, letter = 'A' }: { sheet: C
       <Page size="A4" style={S.page}>
       <Chrome tool={chrome.tool} tag={chrome.tag} reportId={chrome.reportId} />
       <Text style={S.h2} minPresenceAhead={120}>Reconciliation: the report against this sheet</Text>
-      <Text style={k.intro}>The totals printed in the report, rebuilt from the working above. Every row must read the same on both sides.</Text>
+      <Text style={k.intro}>The totals printed in the report, rebuilt from the working above. Every row must read the same on both sides. This shows that the report and this sheet agree with each other, which is a check of the arithmetic; it does not show that either one is right against a standard or against your site.</Text>
       <View style={S.tbl}>
         <View style={[S.tr, S.trHead]} wrap={false}>
           <Text style={[k.head, { flex: 4 }]}>ITEM</Text><Text style={[k.head, { flex: 2, textAlign: 'right' }]}>IN THE REPORT</Text><Text style={[k.head, { flex: 2, textAlign: 'right' }]}>FROM THIS SHEET</Text><Text style={[k.head, { flex: 0.8, textAlign: 'center' }]}>MATCH</Text>
