@@ -266,7 +266,7 @@ export default function AnalysisResults({ reading, contactName, house, northDeg,
         <div className="ns-v-twin__side">
       <div className="ns-v-block ns-plate ns-v-next">
         <h2>Keep a copy</h2>
-        <p>A PDF with your plan, every finding with its source, and the remedies. It is made when you ask, from the plan on this page, and it is not stored.</p>
+        <p>A PDF with your plan, every finding with its source and the remedies, and at the end the working behind each verdict and the books the rules come from. It is as long as your plan needs. It is made when you ask, from the plan on this page, and it is not stored.</p>
         {pdfError && <Note kind="err" title="That did not work">{pdfError}</Note>}
         <div className="ns-v-next__row">
           <button type="button" className="ns-btn" onClick={downloadPdf} disabled={pdfBusy}>
