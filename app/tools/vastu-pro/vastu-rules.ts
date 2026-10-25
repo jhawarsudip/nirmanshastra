@@ -1,10 +1,12 @@
 // VastuPro: the rule table. Plain data and small helpers; the reading itself is in vastu-reading.ts.
 //
 // Every rule carries a basis so a reader can tell an old text from a modern habit:
-//   classical  stated in the traditional texts (Brihat Samhita ch. 53, Mayamata) and repeated by most teachers
-//   taught     widely taught today; the older texts are silent on it, or teachers differ
+//   classical  stated in the traditional texts (Brihat Samhita ch. 53, Mayamata). For a rule that names only one or two
+//              places (kitchen, prayer room) it is classical in those places only; see RoomRule.named.
+//   taught     documented as established manual practice today (Huang 2012, Chakrabarti 2013) but not found in the older texts
 //   modern     a recent convention with no basis in the texts we could check
-// A "modern" rule can never read worse than "To review" (see capSeverity); only rules with older roots can be "Serious".
+// Only a placement the older texts themselves caution against can read "Cautioned" (see capSeverity). Everything else
+// reads at worst "To review", however firmly today's teachers put it. Nothing in the table is a prediction.
 //
 // Zone indices: 0 N, 1 NNE, 2 NE, 3 ENE, 4 E, 5 ESE, 6 SE, 7 SSE, 8 S, 9 SSW, 10 SW, 11 WSW, 12 W, 13 WNW, 14 NW, 15 NNW.
 // The 16-way split of the compass is itself a modern convention. The older texts divide the boundary of the plot
@@ -14,6 +16,7 @@ import type { Basis, RemedySet, Severity } from './vastu-types'
 
 export const RULES_VERSION = 'VP rules 1.0, 25 Oct 2026'
 
+/** Used only to turn the share of a room in each zone into one reading. Not shown, not a score of the plan. */
 export const SEV_SCORE: Record<Severity, number> = { POSITIVE: 100, NEUTRAL: 70, MODERATE: 40, CRITICAL: 0 }
 
 /** Worst first. */
@@ -23,10 +26,16 @@ export function worse(a: Severity, b: Severity): Severity {
   return SEV_RANK[a] <= SEV_RANK[b] ? a : b
 }
 
-/** A rule with no basis in the older texts is not allowed to call anything "Serious". */
+/** A rule the older texts do not state is not allowed to call anything "Cautioned". */
 export function capSeverity(basis: Basis, s: Severity): Severity {
-  if (basis === 'modern' && s === 'CRITICAL') return 'MODERATE'
+  if (basis !== 'classical' && s === 'CRITICAL') return 'MODERATE'
   return s
+}
+
+/** The basis a finding really stands on: a rule that is classical only in the places the text names is "taught" elsewhere. */
+export function basisAt(rule: { basis: Basis; named?: number[] }, zone: number): Basis {
+  if (rule.basis !== 'classical' || !rule.named) return rule.basis
+  return zone >= 0 && rule.named.includes(zone) ? 'classical' : 'taught'
 }
 
 // ------------------------------------------------------------------------------------------------ zones
@@ -35,7 +44,7 @@ export interface ZoneInfo {
   index: number
   short: string
   full: string
-  /** the guardian of the eight main directions (agreed in the texts); the in-between zones have none */
+  /** the guardian of the eight main directions as usually listed (the dikpalas); the in-between zones have none */
   lord?: string
 }
 
@@ -72,9 +81,11 @@ export function zoneText(z: number): string {
  * the first part is the corner it starts from, and the ninth part is the corner it ends on, which is the first
  * pada of the next side.
  *
- * The favourable / mixed / cautioned split follows the Iyer (1884) translation and agrees with the tables most
- * teachers use. Names of the corner padas differ between Brihat Samhita and Mayamata. The translation has quirks,
- * so this table must be checked against a printed edition (Bhat, Motilal Banarsidass) before it is published.
+ * The favourable / mixed / cautioned split follows one translation, N. Chidambaram Iyer (1884), read through online
+ * copies, and gives 7 favourable, 2 mixed and 23 cautioned positions, the same count another reader of that translation
+ * reports. It has NOT been checked against a printed edition. Names of the corner padas differ between Brihat Samhita
+ * and Mayamata, and the translation lists the west side in reverse order, so this table must be checked against a
+ * printed edition (Bhat, Motilal Banarsidass) and Dagens's Mayamata before any position is quoted as "per verse".
  */
 export type PadaTone = 'favourable' | 'mixed' | 'cautioned'
 export type Side = 'E' | 'S' | 'W' | 'N'
@@ -114,11 +125,12 @@ export interface SourceNote {
 }
 
 export const SOURCES: SourceNote[] = [
-  { work: 'Brihat Samhita, ch. 53, “On House-building” (Varahamihira, about the 6th century)', note: 'The earliest datable text with a chapter on the house. Read in the 1884 translation by N. Chidambaram Iyer. Source of the 32 entrance positions, the kitchen and prayer-room directions, and the directions for a water source.' },
-  { work: 'Mayamata (south India, about the 5th to 7th century)', note: 'Read in Bruno Dagens’s translation and in Ripan Ghosh’s 2024 study. Source of the Vastu grid, the Brahmasthana kept open, and the rule that no door faces it.' },
+  { work: 'Brihat Samhita, ch. 53, “On House-building” (Varahamihira, about the 6th century)', note: 'An early text with a chapter on the house (Kautilya’s Arthashastra 3.8 has one earlier). Read in the 1884 translation by N. Chidambaram Iyer, through online copies, not a printed edition. Source of the 32 entrance positions, the kitchen and prayer-room directions, and the directions for a water source.' },
+  { work: 'Mayamata (south India; scholars date it variously within the first millennium CE)', note: 'Read through online reposts of Bruno Dagens’s translation, which are not the printed edition, and in Ripan Ghosh’s 2024 study. Source of the Vastu grid, the Brahmasthana kept open, and the rule that no door faces it.' },
   { work: 'Samarangana Sutradhara (Bhoja, 11th century)', note: 'Read through D. N. Shukla’s digest. Source for door defects and house types.' },
-  { work: 'Vibhuti Chakrabarti, Indian Architectural Theory and Practice (Routledge, 2013)', note: 'The best synthesis of what the texts say and of how consultants use them today. It is also critical of consultant practice.' },
+  { work: 'Vibhuti Chakrabarti, Indian Architectural Theory and Practice (Routledge, 2013)', note: 'The best synthesis of what the texts say and of how consultants use them today. It is also critical of consultant practice. Read through reviews and excerpts, not the full book.' },
   { work: 'En-Yu Huang, Comparing the Do’s and Taboos in Chinese Feng-Shui and Indian Vastu-Shastra (Leiden, 2012)', note: 'Separates what the old texts say from what modern manuals teach.' },
+  { work: 'Bureau of Energy Efficiency, Eco-Niwas Samhita 2018 (energy code for residential buildings)', note: 'Source of the orientation factors used for the one practical reason given for north-facing rooms.' },
 ]
 
 // ------------------------------------------------------------------------------------------------ rooms
@@ -129,6 +141,8 @@ export type CentreRule = 'open' | 'ok' | 'avoid' | 'avoid-serious'
 export interface RoomRule {
   kind: string
   basis: Basis
+  /** for a classical rule that names only some places: the zones the text itself speaks of. Elsewhere the rule stands as "taught". */
+  named?: number[]
   /** a verse or chapter, shown beside the basis; only for rules with a source */
   source?: string
   zones: Severity[]
@@ -156,7 +170,7 @@ function z(positive: number[], moderate: number[], critical: number[], neutral: 
   return arr
 }
 
-const N_E_LIGHT = 'In most of India the north and east sides get the softer light and the south and west take the afternoon sun, so rooms used in the day do well on the north and east side.'
+const NORTH_LIGHT = 'In most of India a north-facing opening takes the least direct sun, so a room used mostly in the day stays cooler and gets even daylight there. East and west openings take the most heat (Eco-Niwas Samhita 2018 orientation factors). In cold hill climates the south sun is wanted instead.'
 
 export const ROOM_RULES: Record<string, RoomRule> = {
   main_door: {
@@ -164,7 +178,7 @@ export const ROOM_RULES: Record<string, RoomRule> = {
     basis: 'classical',
     source: 'Brihat Samhita ch. 53',
     zones: z([0, 1, 2, 3, 4, 13, 14, 15], [5, 7, 12], [6, 8, 9, 10, 11]),
-    prefer: 'the north or east side, at one of the favoured positions of the boundary',
+    prefer: 'a favoured position of the boundary; in the translation read these fall on the east, west and north sides',
     principle: 'The texts do not just say which side the door is on. They say where along that side it sits: each of the 32 positions of the boundary has a guardian, and a few positions are named as favourable.',
     disputed: 'Some texts list a position on the south side as acceptable, while many consultants advise against a south door altogether. Teachers also differ on whether a door should be in the middle of a wall.',
     centre: 'ok',
@@ -190,23 +204,23 @@ export const ROOM_RULES: Record<string, RoomRule> = {
   },
 
   living_room: {
-    kind: 'living_room', basis: 'taught',
+    kind: 'living_room', basis: 'modern',
     zones: z([0, 1, 2, 3, 4], [12, 13, 14, 15, 6, 7], [8, 9, 10, 11]),
     prefer: 'the north, north-east or east',
     principle: 'Teachers place the main sitting space on the north or east side, the side that opens to guests and morning light. The older texts do not fix a place for it.',
-    practical: N_E_LIGHT,
+    practical: NORTH_LIGHT,
     centre: 'open', weight: 1,
   },
   hall: {
-    kind: 'hall', basis: 'taught',
+    kind: 'hall', basis: 'modern',
     zones: z([0, 1, 2, 3, 4], [12, 13, 14, 15, 6, 7], [8, 9, 10, 11]),
     prefer: 'the north, north-east or east',
     principle: 'A hall is read like the living room. A hall or open court at the centre fits the old idea of keeping the middle of the house open.',
-    practical: N_E_LIGHT,
+    practical: NORTH_LIGHT,
     centre: 'open', weight: 1,
   },
   lobby: {
-    kind: 'lobby', basis: 'taught',
+    kind: 'lobby', basis: 'modern',
     zones: z([0, 1, 2, 4, 15], [3, 12, 13, 14, 8], [6, 7, 9, 10, 11]),
     prefer: 'the north, north-east or east',
     principle: 'A lobby or foyer is the first space a visitor enters, so teachers place it on the favoured sides of the house.',
@@ -217,7 +231,7 @@ export const ROOM_RULES: Record<string, RoomRule> = {
     zones: z([0, 1, 2, 3, 4], [12, 13, 14, 6, 7, 15], [8, 9, 10, 11]),
     prefer: 'the north, north-east or east',
     principle: 'A lounge is a modern room type, read like the living room.',
-    practical: N_E_LIGHT,
+    practical: NORTH_LIGHT,
     centre: 'open', weight: 1,
   },
   dining_room: {
@@ -229,41 +243,41 @@ export const ROOM_RULES: Record<string, RoomRule> = {
   },
 
   master_bedroom: {
-    kind: 'master_bedroom', basis: 'taught',
+    kind: 'master_bedroom', basis: 'modern',
     zones: z([9, 10, 11], [8, 12, 14, 0, 15, 13], [1, 2, 3, 4, 5, 6, 7]),
     prefer: 'the south-west',
-    principle: 'Teachers today put the heads of the household in the south-west, the heavy, stable corner. No older text we could check names a place for the master bedroom; the south-west is a later teaching.',
+    principle: 'Teachers today put the heads of the household in the south-west, which they call the heavy, stable corner. No older text we could check names a place for the master bedroom; the south-west is a later teaching.',
     disputed: 'Some teachers prefer the south or west for the master bedroom; the south-west is the most common teaching.',
     disputedZones: [8, 12],
     centre: 'avoid', weight: 2,
   },
   parents_room: {
-    kind: 'parents_room', basis: 'taught',
+    kind: 'parents_room', basis: 'modern',
     zones: z([10, 11, 9], [14, 8, 12, 0, 15, 13], [1, 2, 3, 4, 5, 6]),
     prefer: 'the south-west or west',
     principle: 'Teachers place elders’ rooms on the south-west or west side, away from the north-east.',
     centre: 'avoid', weight: 1,
   },
   childrens_room: {
-    kind: 'childrens_room', basis: 'taught',
+    kind: 'childrens_room', basis: 'modern',
     zones: z([4, 12, 14, 13], [0, 1, 15, 3, 8, 7], [9, 10, 2, 6, 11]),
     prefer: 'the east, west or north-west',
     principle: 'Teachers place children’s rooms on the east, west or north-west side. The older texts say nothing specific.',
     centre: 'avoid', weight: 1,
   },
   guest_bedroom: {
-    kind: 'guest_bedroom', basis: 'taught',
+    kind: 'guest_bedroom', basis: 'modern',
     zones: z([14, 15, 12, 13], [0, 4, 8, 5, 1], [2, 6, 9, 10, 11]),
     prefer: 'the north-west or west',
-    principle: 'Teachers place guest rooms on the north-west or west side, the side of Vayu, the guardian of movement.',
+    principle: 'Teachers place guest rooms on the north-west or west side. The older texts say nothing specific.',
     centre: 'avoid', weight: 1,
   },
 
   kitchen: {
-    kind: 'kitchen', basis: 'classical', source: 'Brihat Samhita ch. 53',
+    kind: 'kitchen', basis: 'classical', named: [6], source: 'Brihat Samhita ch. 53',
     zones: z([5, 6, 7], [14, 15, 8, 4, 12], [0, 1, 2, 3, 9, 10, 11]),
-    prefer: 'the south-east, the side of Agni, the guardian of fire',
-    principle: 'Brihat Samhita names the south-east for the kitchen, the side of Agni, the guardian of fire. How serious the other directions are comes from later teachers, who keep the fire room away from the north-east, the side kept for the prayer room and for water.',
+    prefer: 'the south-east, the place Brihat Samhita names for the kitchen',
+    principle: 'Brihat Samhita ch. 53 names the south-east for the kitchen, and teachers link that side to Agni, the guardian of fire in the usual list of direction guardians. How firmly the other directions are cautioned comes from later teachers, who keep the fire room away from the north-east, the side they keep for the prayer room and for water.',
     disputed: 'Many teachers accept the north-west as a second choice. The older text names the south-east only.',
     disputedZones: [14, 15],
     centre: 'avoid-serious', weight: 3,
@@ -287,18 +301,18 @@ export const ROOM_RULES: Record<string, RoomRule> = {
   },
 
   puja_room: {
-    kind: 'puja_room', basis: 'classical', source: 'Brihat Samhita ch. 53',
+    kind: 'puja_room', basis: 'classical', named: [2], source: 'Brihat Samhita ch. 53',
     zones: z([2], [3, 12, 14, 13, 0, 1, 4], [5, 6, 7, 8, 9, 10, 11]),
-    prefer: 'the north-east, the side of Ishana',
-    principle: 'Brihat Samhita places the room of the household deity in the north-east, the side of Ishana. The north and east next to it are accepted by most teachers.',
+    prefer: 'the north-east, the place Brihat Samhita names for the room of the household deity',
+    principle: 'Brihat Samhita ch. 53 names the north-east for the room of the household deity. The north and east next to it are accepted by most teachers.',
     centre: 'ok', weight: 2,
   },
   study_room: {
-    kind: 'study_room', basis: 'taught',
+    kind: 'study_room', basis: 'modern',
     zones: z([0, 1, 2, 3, 4, 12], [13, 15, 14, 8], [9, 10, 11, 6, 7]),
     prefer: 'the north, north-east, east or west',
     principle: 'Teachers place the room used for study on the north or east side, facing the morning light. The older texts do not fix a place for it.',
-    practical: N_E_LIGHT,
+    practical: NORTH_LIGHT,
     centre: 'ok', weight: 1,
   },
   office: {
@@ -306,16 +320,16 @@ export const ROOM_RULES: Record<string, RoomRule> = {
     zones: z([0, 1, 2, 3, 4, 12], [13, 15, 14, 8], [9, 10, 11, 6, 7]),
     prefer: 'the north, north-east, east or west',
     principle: 'A work area at home is a modern room type, read like the study.',
-    practical: N_E_LIGHT,
+    practical: NORTH_LIGHT,
     centre: 'ok', weight: 1,
   },
 
   ug_water_tank: {
-    kind: 'ug_water_tank', basis: 'classical', source: 'Brihat Samhita ch. 53',
-    zones: z([0, 1, 2], [12, 14, 15, 8, 9], [5, 6, 7, 10, 11], [3, 4]),
+    kind: 'ug_water_tank', basis: 'taught', source: 'Brihat Samhita ch. 53 (directions for a water source)',
+    zones: z([0, 1, 2], [12, 14, 15, 8, 9, 4], [5, 6, 7, 10, 11], [3]),
     prefer: 'the north-east or north',
-    principle: 'Brihat Samhita lists the direction of a water source and names the north-east and the north as favourable, the others as cautioned. The south-east is the side of fire, and the south-west is the heaviest corner.',
-    disputed: 'Brihat Samhita cautions against the east for a water source, but most teachers today accept the east. Both readings are shown, and the east counts as acceptable here.',
+    principle: 'Brihat Samhita ch. 53 lists a direction for a water source (a well or pond, not a tank) and names the north-east and the north as favourable and the other directions as cautioned. Teachers today apply the same list to an underground tank and keep water away from the south-east, the side they link to fire, and from the south-west, the corner they call the heaviest.',
+    disputed: 'Brihat Samhita cautions against the east for a water source, but most teachers today accept the east. Both views are shown, and the east reads “To review” here.',
     disputedZones: [3, 4],
     practical: 'A tank on the side of the plot where the ground is lowest is easy to fill and drain.',
     centre: 'avoid-serious', weight: 2,
@@ -329,7 +343,7 @@ export const ROOM_RULES: Record<string, RoomRule> = {
     centre: 'avoid', weight: 1,
   },
   swimming_pool: {
-    kind: 'swimming_pool', basis: 'taught',
+    kind: 'swimming_pool', basis: 'modern',
     zones: z([0, 1, 2, 3, 4], [12, 14, 15, 13], [5, 6, 7, 8, 9, 10]),
     prefer: 'the north, north-east or east',
     principle: 'Teachers follow the rule for water sources: a body of water belongs on the north or east side and away from the fire side and the heavy south-west.',
@@ -337,7 +351,7 @@ export const ROOM_RULES: Record<string, RoomRule> = {
   },
 
   staircase: {
-    kind: 'staircase', basis: 'taught',
+    kind: 'staircase', basis: 'modern',
     zones: z([8, 9, 10, 11, 12], [6, 7, 14, 13, 15], [0, 1, 2, 3, 4]),
     prefer: 'the south, west or south-west',
     principle: 'Teachers put the staircase, a heavy and enclosed element, on the south, west or south-west side, away from the north-east and the centre. No older text names a place for it.',
@@ -363,12 +377,12 @@ export const ROOM_RULES: Record<string, RoomRule> = {
     kind: 'balcony', basis: 'modern',
     zones: z([0, 1, 2, 3, 4], [12, 14, 8, 7, 15], [9, 10, 11]),
     prefer: 'the north, north-east or east',
-    principle: 'Samarangana Sutradhara asks for a verandah. The direction of a balcony comes from later teachers, who keep the open side to the north and east and the closed, heavy side to the south-west.',
-    practical: N_E_LIGHT,
+    principle: 'Samarangana Sutradhara asks for a verandah. The direction of a balcony comes from later teachers, who keep the open side to the north and east and the closed side they call heavy to the south-west.',
+    practical: NORTH_LIGHT,
     centre: 'ok', weight: 1,
   },
   garden: {
-    kind: 'garden', basis: 'taught',
+    kind: 'garden', basis: 'modern',
     zones: z([0, 1, 2, 3, 4], [12, 14, 15, 8], [9, 10, 11]),
     prefer: 'the north, north-east or east',
     principle: 'Teachers keep more open space on the north and east than on the south and west. Large trees close to the house are kept on the south and west.',
@@ -390,18 +404,18 @@ export const ROOM_RULES: Record<string, RoomRule> = {
  * tradition’s view; none of them is a prediction.
  */
 export const SPECIAL: Record<string, string> = {
-  kitchen_2: 'A kitchen in the north-east is the placement teachers warn against most firmly. The north-east is the side of Ishana, kept for the prayer room and for water, and a cooking fire there is the opposite of what the tradition puts in that corner.',
-  kitchen_10: 'A kitchen in the south-west is cautioned by teachers: the south-west is the side of Nirriti, the heaviest and most stable corner, and the tradition keeps the fire room on the south-east instead.',
-  kitchen_6: 'The south-east is the side of Agni, the guardian of fire, and is the place Brihat Samhita names for the kitchen.',
-  master_bedroom_2: 'A bedroom in the north-east is cautioned by teachers: the north-east is meant to stay the lightest and quietest part of the house, with the prayer room or an open space.',
-  master_bedroom_10: 'The south-west is the side of Nirriti, the heavy, stable corner, and is where teachers place the heads of the household.',
-  puja_room_2: 'The north-east is the side of Ishana, and Brihat Samhita names it for the room of the household deity.',
-  puja_room_10: 'A prayer room in the south-west is cautioned by teachers: the south-west is the heavy, stable corner, while the tradition puts the prayer room on the light north-east side.',
-  toilet_2: 'A toilet in the north-east is the placement teachers warn against most firmly: the north-east is the side kept for the prayer room, water and the open, light part of the house.',
-  bathroom_2: 'A bathroom in the north-east is cautioned by teachers, who keep the north-east for the prayer room, water and light.',
-  staircase_2: 'A staircase in the north-east is cautioned by teachers: it is a heavy, enclosed element, and the north-east is meant to stay the lightest part of the house.',
-  ug_water_tank_2: 'The north-east is where Brihat Samhita places a water source, and it is the favoured place in most teaching.',
-  ug_water_tank_6: 'Water in the south-east, the side of Agni, the guardian of fire, is cautioned both by Brihat Samhita and by today’s teachers.',
+  kitchen_2: 'A kitchen in the north-east is the placement teachers warn against most firmly. They keep the north-east for the prayer room and for water, and a cooking fire there is the opposite of what they put in that corner. Brihat Samhita names the south-east for the kitchen and says nothing against the north-east in so many words.',
+  kitchen_10: 'A kitchen in the south-west is cautioned by teachers, who call the south-west the heaviest and most stable corner. Brihat Samhita names the south-east for the kitchen instead.',
+  kitchen_6: 'The south-east is the place Brihat Samhita ch. 53 names for the kitchen, and teachers link it to Agni, the guardian of fire.',
+  master_bedroom_2: 'A bedroom in the north-east is cautioned by teachers, who keep the north-east as the light, quiet part of the house, with the prayer room or an open space. No older text we could check says so.',
+  master_bedroom_10: 'Teachers place the heads of the household in the south-west, which they call the heavy, stable corner. No older text we could check says so.',
+  puja_room_2: 'Brihat Samhita ch. 53 names the north-east for the room of the household deity.',
+  puja_room_10: 'A prayer room in the south-west is cautioned by teachers, who call the south-west the heavy corner. Brihat Samhita names the north-east for the room of the household deity.',
+  toilet_2: 'A toilet in the north-east is the placement teachers warn against most firmly: they keep the north-east for the prayer room, water and the open, light part of the house. No older text we could check names a place for a toilet.',
+  bathroom_2: 'A bathroom in the north-east is cautioned by teachers, who keep the north-east for the prayer room, water and light. No older text we could check names a place for a bathroom.',
+  staircase_2: 'A staircase in the north-east is cautioned by teachers: it is a heavy, enclosed element, and they keep the north-east as the lightest part of the house.',
+  ug_water_tank_2: 'The north-east is where Brihat Samhita ch. 53 places a water source, and it is the favoured place in most teaching.',
+  ug_water_tank_6: 'Water in the south-east, the side teachers link to fire, is cautioned both in Brihat Samhita’s list of directions for a water source and by today’s teachers.',
 }
 
 // ------------------------------------------------------------------------------------------------ remedies, dos and don’ts
@@ -415,7 +429,7 @@ const NONSTRUCT = 'Do not move a wall, column, beam or plumbing line for Vastu w
 export const REMEDIES: Record<string, RemedySet> = {
   main_door: {
     structural: ['If the door is being moved or rebuilt anyway, shift it along the same wall to one of the favoured positions of the boundary shown above.', NONSTRUCT],
-    practical: ['Keep the entrance well lit, clean and clear of shoes and clutter.', 'Check the approach on site: a pole, a tree, a well or the end of a road directly facing the door is cautioned in the older texts.', 'A door that sticks, creaks or swings by itself is also cautioned. Fix the hinges.'],
+    practical: ['Keep the entrance well lit, clean and clear of shoes and clutter.', 'Check the approach on site: a tree, a well, a pillar or the end of a road directly facing the door is cautioned in the older texts unless it stands farther away than twice the height of the house. Today’s equivalent is an electric pole.', 'A door that sticks, creaks or swings by itself is also cautioned. Fix the hinges.'],
   },
   back_door: {
     structural: ['If the wall is being rebuilt anyway, move the back door toward the south or west side.', NONSTRUCT],
@@ -427,21 +441,21 @@ export const REMEDIES: Record<string, RemedySet> = {
   },
   living_room: {
     structural: ['Keep the living room on the north or east side if the plan is still open.'],
-    practical: ['Place the heavier furniture on the south and west walls and keep the north and east side open and light.', 'Sit facing north or east when you receive guests, if the layout allows.'],
+    practical: ['Keep the room well lit and the middle of the room free of heavy furniture.'],
   },
   hall: {
     structural: ['Keep the hall on the north or east side if the plan is still open.'],
-    practical: ['Keep the middle of the hall free of heavy furniture.', 'Place the heavier pieces on the south and west walls.'],
+    practical: ['Keep the middle of the hall free of heavy furniture.'],
   },
   lobby: { structural: [], practical: ['Keep the lobby clear and well lit.'] },
-  lounge: { structural: [], practical: ['Place the heavier furniture on the south and west walls.'] },
+  lounge: { structural: [], practical: [] },
   dining_room: {
     structural: ['Keep the dining space next to the kitchen if the plan is still open.'],
-    practical: ['Sit facing east or north while eating, if the layout allows.'],
+    practical: [],
   },
   master_bedroom: {
     structural: ['If the plan is still open, place the master bedroom in the south-west.', NONSTRUCT],
-    practical: ['Place the bed against the south or west wall, so that you sleep with your head to the south or east, as most teachers advise.', 'Keep the bedroom free of clutter and keep electronics away from the bed.'],
+    practical: ['Sleep with your head to the south or east, as most teachers advise. Brihat Samhita cautions against the head to the north or west.', 'Keep the bedroom airy and free of clutter.'],
   },
   parents_room: {
     structural: ['If the plan is still open, place the elders’ room in the south-west or west.'],
@@ -449,7 +463,7 @@ export const REMEDIES: Record<string, RemedySet> = {
   },
   childrens_room: {
     structural: ['If the plan is still open, place the children’s room on the east, west or north-west.'],
-    practical: ['Place the study table so the child faces east or north when studying.'],
+    practical: [],
   },
   guest_bedroom: {
     structural: ['If the plan is still open, place the guest room on the north-west or west.'],
@@ -457,7 +471,7 @@ export const REMEDIES: Record<string, RemedySet> = {
   },
   kitchen: {
     structural: ['If you are re-planning anyway, move the kitchen to the south-east of the house.', 'If only the room is being re-laid, move the cooking platform to the south-east part of the kitchen.', NONSTRUCT],
-    practical: ['Cook facing east if the layout allows.', 'Keep the stove on the south-east side of the kitchen and the sink and water filter on the north-east side, apart from the stove.', 'Keep the north-east corner of the kitchen light and free of clutter.'],
+    practical: ['Keep the stove and the sink apart, and the stove away from the doorway and from windows that draw a draught: a safety point on any plan.', 'Keep the kitchen clean, dry and well ventilated.'],
   },
   bathroom: {
     structural: ['If you are re-planning anyway, move the bathroom to the east, west or north-west side.', NONSTRUCT],
@@ -465,19 +479,19 @@ export const REMEDIES: Record<string, RemedySet> = {
   },
   toilet: {
     structural: ['If you are re-planning anyway, move the toilet to the north-west, west or south side.', NONSTRUCT],
-    practical: ['Keep the toilet door closed and the room well ventilated.', 'Keep the toilet seat facing north or south, not east or west, as most teachers advise.', 'Check that the septic line runs away from the kitchen and any drinking-water source.'],
+    practical: ['Keep the toilet door closed and the room well ventilated.', 'Check that the septic line runs away from the kitchen and any drinking-water source.'],
   },
   puja_room: {
     structural: ['If you are re-planning anyway, move the prayer room to the north-east.', NONSTRUCT],
-    practical: ['Keep the prayer space clean and keep nothing else stored in it.', 'Face east or north while praying, if the layout allows.', 'A small shelf or wall niche in the north-east of a living room is a lighter alternative where a separate room is not possible.'],
+    practical: ['Keep the prayer space clean and keep nothing else stored in it.', 'Many teachers advise facing east or north while praying.', 'A small shelf or wall niche in the north-east of a living room is a lighter alternative where a separate room is not possible.'],
   },
   study_room: {
     structural: ['If the plan is still open, place the study on the north or east side.'],
-    practical: ['Place the desk so you face north or east when you study.', 'Keep the desk away from a beam overhead.'],
+    practical: [],
   },
   office: {
     structural: [],
-    practical: ['Place the desk so you face north or east when you work.', 'Sit with a solid wall behind you, not a door.'],
+    practical: [],
   },
   ug_water_tank: {
     structural: ['If the tank is being built or replaced anyway, place it in the north-east or north of the plot.', NONSTRUCT],
@@ -485,7 +499,7 @@ export const REMEDIES: Record<string, RemedySet> = {
   },
   oh_water_tank: {
     structural: ['If the tank is being relocated anyway, place it on the south-west or west of the roof, over a column or beam designed for it.', NONSTRUCT],
-    practical: ['Keep the north-east of the roof light and uncluttered.'],
+    practical: ['Keep the tank covered and its supports in good order.'],
   },
   swimming_pool: {
     structural: ['If the pool is still being planned, place it on the north or east of the plot.'],
@@ -498,41 +512,39 @@ export const REMEDIES: Record<string, RemedySet> = {
   lift: { structural: [], practical: ['Keep the lift lobby clear and well lit.'] },
   store_room: {
     structural: ['If the plan is still open, place the store room in the south-west, west or north-west.'],
-    practical: ['Keep heavy goods on the south and west side of the store room and the north-east corner light.'],
+    practical: ['Keep the store room dry and clear of clutter.'],
   },
-  balcony: { structural: [], practical: ['Keep the north and east balcony light and open.', 'Keep heavy planters and furniture on the south and west side.'] },
+  balcony: { structural: [], practical: ['Keep the balcony railing sound and the floor drained.'] },
   garden: {
     structural: [],
-    practical: ['Keep the north and east of the plot more open, and larger trees to the south and west.'],
+    practical: ['Teachers advise keeping more open space on the north and east of the plot and larger trees to the south and west.'],
   },
   car_parking: {
     structural: ['If the plan is still open, place parking on the south-east or north-west.'],
-    practical: ['Keep the north-east of the plot free of parked vehicles and stored goods.'],
+    practical: ['Keep the parking area clear and well drained.'],
   },
 }
 
 export const DOS: Record<string, string[]> = {
   main_door: ['Keep the entrance well lit and clean.', 'Make the main door the best-made door in the house.'],
-  kitchen: ['Keep the kitchen clean and ventilated.', 'Cook facing east if the layout allows.'],
-  puja_room: ['Keep the prayer room clean and quiet.', 'Face east or north while praying.'],
+  kitchen: ['Keep the kitchen clean and ventilated.'],
+  puja_room: ['Keep the prayer room clean and quiet.', 'Many teachers advise facing east or north while praying.'],
   master_bedroom: ['Keep the room airy and uncluttered.', 'Sleep with your head to the south or east.'],
   bathroom: ['Keep it dry and ventilated.'],
   toilet: ['Keep it dry and ventilated.'],
   staircase: ['Keep it well lit.', 'Keep it clear of stored items.'],
   ug_water_tank: ['Keep it covered.'],
-  study_room: ['Face north or east while you study.'],
-  living_room: ['Keep the north and east side open and light.'],
+  living_room: ['Keep the room well lit.'],
 }
 
 export const DONTS: Record<string, string[]> = {
   main_door: ['Do not put a dustbin or shoe stack at the front door.', 'Do not leave a door that creaks or swings by itself.'],
-  kitchen: ['Do not put the stove directly opposite the entrance to the kitchen.', 'Do not store waste in the north-east of the kitchen.'],
+  kitchen: ['Do not leave cooking waste to stand in the kitchen.'],
   puja_room: ['Do not store anything else in the prayer room.', 'Do not place it next to a toilet or under a staircase.'],
-  master_bedroom: ['Do not sleep under an exposed beam.', 'Do not place the bed so the feet point at the door.'],
+  master_bedroom: ['Do not sleep under an exposed beam: Brihat Samhita cautions against it.'],
   bathroom: ['Do not leave leaks unrepaired.'],
   toilet: ['Do not place it next to the prayer room or the kitchen.'],
   staircase: ['Do not store things under the stairs that block air or light.'],
   ug_water_tank: ['Do not build a septic tank near it.'],
-  study_room: ['Do not sit with your back to the door.'],
   living_room: ['Do not crowd the middle of the room with heavy furniture.'],
 }

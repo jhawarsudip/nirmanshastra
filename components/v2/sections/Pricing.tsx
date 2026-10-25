@@ -11,7 +11,7 @@ const COPY = {
     h: 'Pay per report. Start free.',
     free: {
       tag: 'Start here', name: 'VastuPro', sub: 'Check your plan against Vastu', price: 'FREE', per: 'always free · no payment needed',
-      f: ['Vastu check of your plan', '33 room types', '16-zone Vastu compass', 'A score with simple fixes', 'Full PDF report', 'Earthquake-safety warnings'],
+      f: ['Vastu reading of your plan', '24 kinds of room', '16-zone compass, 32 door positions', 'Every rule traced to its source', 'Simple fixes where a rule is raised', 'Full PDF with the working and sources'],
       cta: 'Start free',
     },
     one: {
@@ -30,7 +30,7 @@ const COPY = {
     h: 'हर रिपोर्ट का अलग दाम। शुरुआत मुफ़्त।',
     free: {
       tag: 'यहाँ से शुरू कीजिए', name: 'VastuPro', sub: 'अपने नक्शे को वास्तु पर जाँचिए', price: 'मुफ़्त', per: 'हमेशा मुफ़्त · कोई भुगतान नहीं',
-      f: ['आपके नक्शे की वास्तु जाँच', '33 तरह के कमरे', '16-ज़ोन वास्तु कंपास', 'स्कोर और आसान उपाय', 'पूरी PDF रिपोर्ट', 'भूकंप-सुरक्षा की चेतावनियाँ'],
+      f: ['आपके नक्शे की वास्तु रीडिंग', '24 तरह के कमरे', '16-ज़ोन कंपास, दरवाज़े की 32 स्थितियाँ', 'हर नियम का स्रोत बताया गया', 'जहाँ नियम उठे, वहाँ आसान उपाय', 'काम और स्रोतों के साथ पूरी PDF'],
       cta: 'मुफ़्त शुरू करें',
     },
     one: {

@@ -128,7 +128,7 @@ export default function AnalysisResults({ reading, contactName, house, northDeg,
   const [pdfBusy, setPdfBusy] = useState(false)
   const [pdfError, setPdfError] = useState('')
   const struct = TOOLS.find(t => t.key === 'struct')!
-  const { findings, plot, score, range, counts, missing, basisNotes } = reading
+  const { findings, plot, counts, missing, basisNotes } = reading
 
   const sevOf = useMemo(() => {
     const m = new Map<string, Severity>()
@@ -187,8 +187,6 @@ export default function AnalysisResults({ reading, contactName, house, northDeg,
     }
   }
 
-  const indexSev: Severity = score === null ? 'NEUTRAL' : score >= 85 ? 'POSITIVE' : score >= 55 ? 'NEUTRAL' : score >= 20 ? 'MODERATE' : 'CRITICAL'
-
   return (
     <div>
       <div className="ns-v-reshead">
@@ -220,25 +218,14 @@ export default function AnalysisResults({ reading, contactName, house, northDeg,
           </div>
         </div>
 
-        <div className="ns-v-summary__r" data-sev={indexSev}>
-          {score === null ? (
-            <>
-              <p className="ns-v-index__k">Overall index</p>
-              <p className="ns-v-index__none">Not given yet: too little is on the plan for a fair number.</p>
-            </>
-          ) : (
-            <>
-              <p className="ns-v-index__k">Overall index, a rough summary</p>
-              <p className="ns-v-index__v"><b>{score}</b><span> out of 100</span></p>
-              {range && range[0] !== range[1] && (
-                <p className="ns-v-index__r">Between {range[0]} and {range[1]} once the “to review” items are settled.</p>
-              )}
-            </>
-          )}
+        <div className="ns-v-summary__r">
+          <p className="ns-v-index__k">How to read these counts</p>
+          <p className="ns-v-index__how">
+            There is no overall mark out of 100, because no text gives one and a single number would hide which rules sit behind it. “Cautioned” is used only where the traditional texts themselves caution against a placement. Where only today’s teachers (or a recent habit) say so, the most a finding can read is “To review”.
+          </p>
           {missing.length > 0 && (
             <p className="ns-v-index__m">Not on the plan yet: {missing.join(', ')}. The reading is provisional until they are.</p>
           )}
-          <p className="ns-v-index__how">Each finding counts by its weight: doors, kitchen and toilets count most. The counts on the left are the real result; the index only summarises them.</p>
         </div>
       </div>
 

@@ -588,7 +588,7 @@ Other translations name some positions a little differently, so treat the table 
 
 ## Where the 16 zones come from
 
-A split of the compass into 16 zones of 22.5 degrees is common in modern Vastu apps and consultancies. We found no old text or scholarly source for it. It is a convenient way to say where a room sits, and VastuPro uses it for that, but it is a modern convention and the tool says so. A rule with no basis in the older texts is never called "Serious" in the reading; it is marked "To review" at most.
+A split of the compass into 16 zones of 22.5 degrees is common in modern Vastu apps and consultancies. We found no old text or scholarly source for it. It is a convenient way to say where a room sits, and VastuPro uses it for that, but it is a modern convention and the tool says so. A rule with no basis in the older texts is never called "Cautioned" in the reading; it is marked "To review" at most.
 
 Most room-by-room rules sit in the same modern layer. The Brihat Samhita names directions for only a handful of rooms, such as the kitchen in the south-east and the room of the household deity in the north-east, and it gives a direction for each water source. The lists for bedrooms, toilets, study rooms and living rooms come from later manuals. Each finding in VastuPro carries a tag: **Traditional texts**, **Widely taught today** or **Modern convention**.
 

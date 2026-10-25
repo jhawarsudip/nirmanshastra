@@ -4,24 +4,26 @@ import type { Poly } from './vastu-geometry'
 import type { DoorMark, PlacedItem } from './vastu-model'
 
 /**
- * How a placement reads, worst to best. The words on screen are "Serious", "To review", "Acceptable" and "Favourable";
- * the keys stay as they are so the styling and the lead records keep working.
+ * How a placement reads, worst to best. The words on screen are "Cautioned", "To review", "Acceptable" and "Favoured";
+ * the keys stay as they are so the styling and the lead records keep working. "Cautioned" is only ever used for a
+ * placement the traditional texts themselves caution against; a rule that comes from later teachers reads at worst
+ * "To review" (see capSeverity in vastu-rules.ts).
  */
 export type Severity = 'CRITICAL' | 'MODERATE' | 'NEUTRAL' | 'POSITIVE'
 
 export const SEVERITY_ORDER: Severity[] = ['CRITICAL', 'MODERATE', 'NEUTRAL', 'POSITIVE']
 
 export const SEVERITY_LABEL: Record<Severity, string> = {
-  CRITICAL: 'Serious',
+  CRITICAL: 'Cautioned',
   MODERATE: 'To review',
   NEUTRAL: 'Acceptable',
-  POSITIVE: 'Favourable',
+  POSITIVE: 'Favoured',
 }
 
 /**
  * Where a rule comes from. Shown beside every finding so a reader can tell an old text from a modern habit.
- * - classical: stated in the traditional texts and repeated by most teachers
- * - taught: widely taught today, not clearly in the older texts, or the teachers differ
+ * - classical: stated in the traditional texts we read (for a rule that names only some places, in those places only)
+ * - taught: documented as established manual practice today, but not found in the older texts we read
  * - modern: a recent convention with no basis in the texts
  */
 export type Basis = 'classical' | 'taught' | 'modern'
@@ -67,7 +69,7 @@ export interface Finding {
   borderline: boolean
   /** part of the room is in the Brahmasthan */
   centre: boolean
-  /** how much this finding counts in the score: 1 (low), 2 (medium) or 3 (high) */
+  /** how much the traditional texts stress this item: 1 (low), 2 (medium) or 3 (high). Used only to put the findings in order. */
   weight: 1 | 2 | 3
   /** extra lines that show how the verdict was reached, such as the entrance position on the boundary */
   detail: string[]
@@ -79,6 +81,10 @@ export interface Finding {
   practical?: string
   /** share of the room in each of the 16 zones, for the report */
   shares: number[]
+  /** share of the room inside the Brahmasthan (rooms only); with shares it adds up to 1. Lets the report show the working. */
+  centreShare?: number
+  /** the entrance position the main door fell on, when it could be read (side of the plot and position 0 to 7 from the start corner) */
+  pada?: { side: 'E' | 'S' | 'W' | 'N'; index: number }
   remedies: RemedySet
   dos: string[]
   donts: string[]
@@ -98,10 +104,6 @@ export interface PlotNote {
 export interface Reading {
   findings: Finding[]
   plot: PlotNote[]
-  /** 0 to 100, or null when too little is on the plan to give one */
-  score: number | null
-  /** the score if every "To review" were settled the best way and the worst way */
-  range: [number, number] | null
   counts: Record<Severity, number>
   /** the important things not yet on the plan, by name */
   missing: string[]
