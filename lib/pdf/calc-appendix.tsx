@@ -88,7 +88,7 @@ function Block({ b }: { b: CalcBlock }) {
   const long = (b.lines?.length ?? 0) > 6
   return (
     <View wrap={long || !!b.table}>
-      <Text style={k.h3} minPresenceAhead={long ? 120 : 0}>{b.title}</Text>
+      <Text style={k.h3} minPresenceAhead={long || b.table ? 120 : 0}>{b.title}</Text>
       {b.intro ? <Text style={k.intro}>{b.intro}</Text> : null}
       {b.lines && b.lines.length > 0 ? <Lines lines={b.lines} /> : null}
       {b.table ? <SheetTable t={b.table} /> : null}
@@ -120,7 +120,7 @@ export default function CalcAppendix({ sheet, chrome, letter = 'A' }: { sheet: C
 
       <Text style={S.h2} minPresenceAhead={90}>Method in brief</Text>
       {sheet.method.map((m, i) => (
-        <View key={i} style={S.li} wrap={false}><Text style={[S.liDot, { width: 14, color: C.laterite }]}>{i + 1}.</Text><Text style={S.liT}>{m}</Text></View>
+        <View key={i} style={S.li} wrap={false}><Text style={[S.liDot, { width: 18, color: C.laterite }]}>{i + 1}.</Text><Text style={S.liT}>{m}</Text></View>
       ))}
 
       <Text style={S.h2} minPresenceAhead={90}>Read this before relying on the sheet</Text>

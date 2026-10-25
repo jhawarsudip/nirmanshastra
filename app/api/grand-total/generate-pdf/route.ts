@@ -7,10 +7,14 @@ import GrandTotalQtyPDF from '@/lib/pdf/grand-total-qty-pdf'
 import type { ContactInfo } from '@/lib/pdf/qty-kit'
 import { GRAND_META, buildGrand, type GrandFree, type GrandPaid, type PhaseSource } from '@/lib/qty/grand'
 import { loadPhase } from '@/lib/qty/grand-server'
+import { buildGrandCalcFromRows } from '@/lib/qty/grand-calc'
+import type { CalcSheet } from '@/lib/calcsheet'
 import { buildTradeEmail } from '@/lib/qty/email'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 export const runtime = 'nodejs'
+// The report now carries a calculation sheet of 20 to 40 pages; laying it out takes several seconds, longer than the 10 s default.
+export const maxDuration = 60
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const bad = (error: string, status = 400) => NextResponse.json({ error }, { status })
@@ -51,17 +55,21 @@ export async function POST(req: NextRequest) {
       state: contact.state ?? '',
     }
 
+    // The reports in this Grand Total, as saved. They are needed twice: to add the phases again when no list was frozen, and to
+    // rebuild the calculation sheet, which is checked against the list as it will be printed (frozen or fresh).
+    const { data: rows, error: rowsErr } = await supabase
+      .from('estimates')
+      .select('id, app_type, project_name, state, city, input_data, result_data')
+      .in('id', input.selectedEstimateIds)
+      .eq('user_id', estimate.user_id)
+    const haveRows = !rowsErr && !!rows && rows.length === input.selectedEstimateIds.length
+
     // The list frozen when the customer first opened the report; otherwise add the phases again (deterministic).
     const prior = estimate.result_data as { paid?: GrandPaid; free?: GrandFree } | null
     let paid = prior?.paid
     let free = prior?.free
     if (!paid || !free) {
-      const { data: rows, error: rowsErr } = await supabase
-        .from('estimates')
-        .select('id, app_type, project_name, state, city, input_data, result_data')
-        .in('id', input.selectedEstimateIds)
-        .eq('user_id', estimate.user_id)
-      if (rowsErr || !rows || rows.length !== input.selectedEstimateIds.length) return bad('One of the reports in this Grand Total could not be found.', 409)
+      if (!haveRows || !rows) return bad('One of the reports in this Grand Total could not be found.', 409)
       const srcs: PhaseSource[] = []
       for (const r of rows) {
         const loaded = loadPhase(r)
@@ -73,13 +81,25 @@ export async function POST(req: NextRequest) {
       free = built.free
     }
 
+    // The calculation sheet is rebuilt from the saved reports and reconciled with the list as it will be printed.
+    // If it cannot be made to agree, the report goes out without it rather than with working that does not match.
+    let calc: CalcSheet | null = null
+    if (haveRows && rows) {
+      try {
+        calc = buildGrandCalcFromRows(rows, free, paid)
+      } catch (calcErr) {
+        console.error(`[NS-CALC] Grand Total calculation sheet threw for ${estimateId}:`, calcErr instanceof Error ? calcErr.message : calcErr)
+      }
+    }
+    if (!calc) console.error(`[CRITICAL][NS-CALC] Grand Total calculation sheet was left out of report ${estimateId}: it did not reconcile with the report.`)
+
     const reportId = `NS-${GRAND_META.code}-${estimateId.slice(0, 8).toUpperCase()}`
     const projectName = (estimate.project_name ?? 'My project').replace(/^Grand Total:\s*/i, '') || 'My project'
     const where = [estimate.city, estimate.state].filter(Boolean).join(', ')
 
     let pdfBuffer: Buffer
     try {
-      const el = React.createElement(GrandTotalQtyPDF, { free, paid, contact: contactInfo, reportId, projectName, date: new Date(), where })
+      const el = React.createElement(GrandTotalQtyPDF, { free, paid, contact: contactInfo, reportId, projectName, date: new Date(), where, calc })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       pdfBuffer = await renderToBuffer(el as any)
     } catch (pdfErr) {
