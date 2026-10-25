@@ -9,8 +9,10 @@
   produced for the same step; if the two differ, the Ledger records a mismatch, and the report leaves the sheet out
   rather than print working that does not agree with the quantities.
 
-  Intermediate values are carried at full precision and shown rounded, so a reader who re-keys the rounded numbers can
-  differ in the last printed digit.
+  Intermediate values are carried at full precision and shown rounded. The working is then checked the way a reader
+  would check it: the printed numbers are put back into the same function, and if that does not give the printed result
+  the working is printed with one more decimal place, up to four more, until it does. So "1.34 + 2.14 = 3.5" is never
+  printed as "1.3 + 2.1 = 3.5".
 */
 
 import type { CalcLine } from './types'
@@ -48,12 +50,59 @@ export interface CalcOpts {
   result?: boolean
 }
 
+/** How many decimals `num` prints for a value when no number of decimals is given. */
+function autoDp(v: number): number {
+  if (Number.isInteger(v)) return 0
+  const a = Math.abs(v)
+  return a >= 1000 ? 0 : a >= 100 ? 1 : a >= 10 ? 2 : 3
+}
+
+/** `num` with `extra` more decimals than it would normally print (a whole number stays whole). */
+function numMore(v: number, dp: number | undefined, extra: number): string {
+  if (extra === 0) return num(v, dp)
+  if (!Number.isFinite(v)) return 'n/a'
+  if (dp !== undefined) return fixed(v, dp + extra)
+  if (Number.isInteger(v)) return fixed(v, 0)
+  const s = fixed(v, autoDp(v) + extra)
+  return s.includes('.') ? s.replace(/0+$/, '').replace(/\.$/, '') : s
+}
+
+const PLACEHOLDER = /\{([A-Za-z_][A-Za-z0-9_]*)(?::(\d+))?\}/g
+
 /** Puts {name} or {name:dp} from vars into a template. An unknown name is a programming error and throws. */
-export function fill(template: string, vars: Vars): string {
-  return template.replace(/\{([A-Za-z_][A-Za-z0-9_]*)(?::(\d+))?\}/g, (_m, name: string, dp?: string) => {
+export function fill(template: string, vars: Vars, extra = 0): string {
+  return template.replace(PLACEHOLDER, (_m, name: string, dp?: string) => {
     if (!(name in vars)) throw new Error(`calcsheet: "${name}" is not given for the working "${template}"`)
-    return num(vars[name], dp === undefined ? undefined : Number(dp))
+    return numMore(vars[name], dp === undefined ? undefined : Number(dp), extra)
   })
+}
+
+/** The values as they print in the working with `extra` more decimals: what a reader would key in. */
+function printedVars(template: string, vars: Vars, extra: number): Vars {
+  const out: Vars = { ...vars }
+  const best: Record<string, number> = {}
+  for (const m of template.matchAll(PLACEHOLDER)) {
+    const name = m[1]
+    const dp = m[2] === undefined ? undefined : Number(m[2])
+    const txt = numMore(vars[name], dp, extra)
+    const shown = Number(txt.replace(/,/g, ''))
+    const digits = (txt.split('.')[1] ?? '').length
+    if (Number.isFinite(shown) && digits >= (best[name] ?? -1)) { best[name] = digits; out[name] = shown }
+  }
+  return out
+}
+
+/** The working as printed: with as many extra decimals as it takes for the printed numbers to give the printed result. */
+function workingThatRekeys(template: string, vars: Vars, fn: (v: Vars) => number, shown: string, dp: number | undefined): string {
+  for (let extra = 0; extra <= 4; extra++) {
+    let ok = false
+    try {
+      const again = fn(printedVars(template, vars, extra))
+      ok = Number.isFinite(again) && num(again, dp) === shown
+    } catch { ok = false }
+    if (ok || extra === 4) return fill(template, vars, extra)
+  }
+  return fill(template, vars)
 }
 
 export class Ledger {
@@ -80,7 +129,7 @@ export class Ledger {
     this.buf.push({
       label,
       formula,
-      working: fill(working, vars),
+      working: workingThatRekeys(working, vars, fn, num(value, o.dp), o.dp),
       result: `${num(value, o.dp)}${o.unit ? ' ' + o.unit : ''}`,
       ref: o.ref,
       note: o.note,

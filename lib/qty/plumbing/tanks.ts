@@ -16,6 +16,9 @@
 import { ceilTo } from '../util'
 import { STANDARD_TANK_SIZES } from './constants'
 
+/** A built underground sump is sized to the next multiple of this many litres. */
+export const SUMP_STEP_L = 500
+
 export type WaterSource = 'municipal' | 'borewell' | 'tanker'
 
 /** Litres a day's demand needs in each tank. Zero means that tank is not fitted. */
@@ -29,7 +32,7 @@ export function tankSplit(water: WaterSource, demandL: number): { ugtL: number; 
 export function tankPlan(litres: number, underground: boolean): { each: number; count: number; kind: string } {
   const largest = STANDARD_TANK_SIZES[STANDARD_TANK_SIZES.length - 1]
   if (litres <= largest) return { each: STANDARD_TANK_SIZES.find((s) => litres <= s) ?? largest, count: 1, kind: 'ready-made tank' }
-  if (underground) return { each: ceilTo(litres, 500), count: 1, kind: 'built sump (RCC or masonry), internal volume' }
+  if (underground) return { each: ceilTo(litres, SUMP_STEP_L), count: 1, kind: 'built sump (RCC or masonry), internal volume' }
   const count = Math.ceil(litres / largest)
   const per = litres / count
   return { each: STANDARD_TANK_SIZES.find((s) => per <= s) ?? largest, count, kind: 'ready-made tanks' }

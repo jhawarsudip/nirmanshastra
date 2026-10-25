@@ -14,9 +14,10 @@
 */
 
 import type { BaseInput, Check, Fact, Parsed, QtyLine, Ran, Table, Tile, TradeModel } from '../types'
-import { Reader, SQFT_TO_M2, bump, ceilTo, fmt, interp, pieces, rangeText, round } from '../util'
+import { Reader, SQFT_TO_M2, bump, ceilTo, fmt, interp, pieces, rangeText } from '../util'
 import { WATER_DEMAND_LPCD } from './constants'
 import { tankPlan, tankSplit } from './tanks'
+import { buildPlumbingCalc } from './calc'
 
 export interface PlumbInput extends BaseInput {
   dwelling: 'house' | 'flats'
@@ -63,63 +64,213 @@ export function parsePlumb(raw: unknown): Parsed<PlumbInput> {
 
 /* ───────────────────────── tables of figures ───────────────────────── */
 
-const H_FLOOR = 3.0 // m, floor to floor (Assumed; the project's structure uses 3.0 m)
+export const H_FLOOR = 3.0 // m, floor to floor (Assumed; the project's structure uses 3.0 m)
 
 /** Nominal supply sizes (mm) and the inside diameter of CPVC SDR 11 pipe (IS 15778 Table 2, mid-wall; 65 to 100 Derived at 0.806 x outside diameter). */
-const SUPPLY_DN = [15, 20, 25, 32, 40, 50, 65, 80, 100] as const
-const CPVC_ID_MM: Record<number, number> = { 15: 12.0, 20: 17.7, 25: 22.9, 32: 28.0, 40: 33.2, 50: 43.6, 65: 53.8, 80: 64.0, 100: 84.5 }
+export const SUPPLY_DN = [15, 20, 25, 32, 40, 50, 65, 80, 100] as const
+export const CPVC_ID_MM: Record<number, number> = { 15: 12.0, 20: 17.7, 25: 22.9, 32: 28.0, 40: 33.2, 50: 43.6, 65: 53.8, 80: 64.0, 100: 84.5 }
 
 /** Simultaneous demand in L/min for a number of water supply fixture units, flush-tank column (NBC Part 9 Section 1 draft, Table 3). */
-const WSFU_FLOW: ReadonlyArray<readonly [number, number]> = [[5, 22.7], [10, 30.3], [20, 53.0], [50, 109.8], [100, 166.5], [200, 246.0], [300, 321.7], [500, 473.1]]
+export const WSFU_FLOW: ReadonlyArray<readonly [number, number]> = [[5, 22.7], [10, 30.3], [20, 53.0], [50, 109.8], [100, 166.5], [200, 246.0], [300, 321.7], [500, 473.1]]
 
 /** Water supply fixture units, private use, flush tank (NBC Part 9 Section 1 draft, Table 2). */
-const WSFU = { bathroom: 5, sink: 2, washer: 4, hoseBib: 2.5, basin: 1.5 }
+export const WSFU = { bathroom: 5, sink: 2, washer: 4, hoseBib: 2.5, basin: 1.5 }
 
 /** Drainage fixture units (IS 1742:1983 Table 1). */
-const DFU = { bathroom: 6, floorTrap: 1, sink: 2, washer: 3 }
+export const DFU = { bathroom: 6, floorTrap: 1, sink: 2, washer: 3 }
 
 /** Septic tank, liquid volume in m3 for WC-only discharge, desludged every two years (IS 2470 Part 1:1985 Appendix A). */
-const SEPTIC_V: ReadonlyArray<readonly [number, number]> = [[5, 1.18], [10, 2.52], [15, 3.6], [20, 4.55], [50, 12.4], [100, 24.6], [300, 74.4]]
+export const SEPTIC_V: ReadonlyArray<readonly [number, number]> = [[5, 1.18], [10, 2.52], [15, 3.6], [20, 4.55], [50, 12.4], [100, 24.6], [300, 74.4]]
 
 /** Soak pit application rate in litres per m2 per day, by percolation time in minutes per 25 mm (IS 2470 Part 2:1985 Table 2). */
-const SOIL = {
+export const SOIL = {
   good: { min: 3, rate: 118, label: 'good (water drains quickly)' },
   medium: { min: 15, rate: 52, label: 'medium' },
   poor: { min: 45, rate: 33, label: 'poor (water drains slowly)' },
 } as const
 
 /** Roof area in m2 that one down-pipe drains, by pipe and rainfall intensity (IS 1742:1983 Table 5). */
-const RAIN_INTENSITY = { heavy: 75, veryheavy: 100, extreme: 150 } as const
-const RAIN_LABEL = { heavy: 'about 75 mm in an hour', veryheavy: 'about 100 mm in an hour', extreme: 'about 150 mm in an hour' } as const
-const DOWNPIPE_AREA: Record<number, Record<number, number>> = {
+export const RAIN_INTENSITY = { heavy: 75, veryheavy: 100, extreme: 150 } as const
+export const RAIN_LABEL = { heavy: 'about 75 mm in an hour', veryheavy: 'about 100 mm in an hour', extreme: 'about 150 mm in an hour' } as const
+export const DOWNPIPE_AREA: Record<number, Record<number, number>> = {
   75: { 75: 27.0, 100: 20.4, 150: 13.6 },
   100: { 75: 57.0, 100: 42.7, 150: 28.5 },
 }
 
-const PUMP_HP = [0.5, 0.75, 1, 1.5, 2, 3, 5, 7.5, 10] as const
+export const PUMP_HP = [0.5, 0.75, 1, 1.5, 2, 3, 5, 7.5, 10] as const
 
-const floorName = (i: number) => ['Ground floor', 'First floor', 'Second floor', 'Third floor', 'Fourth floor', 'Fifth floor', 'Sixth floor', 'Seventh floor', 'Eighth floor', 'Ninth floor'][i] ?? `Floor ${i}`
+/** Hazen-Williams roughness coefficient for plastic pipe (SP 35 eq. 1). */
+export const HAZEN_C = 120
+
+/** Limits on drainage fixture units (IS 1742:1983 Tables 3 and 4): on a floor's branch interval of one stack, on a stack in all, on a 150 mm building drain. */
+export const FU_LIMITS = { interval: 90, stack: 500, drain: 700 } as const
+
+/** Pipe is bought in whole lengths of this many metres, with this much cut-off waste (Assumed). */
+export const PIECE_M = 3
+export const WASTE = 1.05
+
+/** How far off each class of figure is likely to be: multipliers on the figure shown (Assumed). */
+export const BANDS = {
+  supply: { low: 0.75, high: 1.35 },
+  drain: { low: 0.8, high: 1.3 },
+  fittings: { low: 0.7, high: 1.4 },
+  tanks: { low: 0.9, high: 1.2 },
+} as const
+
+/**
+ * The planning rules the model applies where no standard fixes a figure (all Assumed; the report says so).
+ * They sit here, not in the middle of the sums, so that the calculation sheet reads the very numbers the model used.
+ */
+export const RULES = {
+  /** people in a home = bedrooms + this (NBC Part 9 draft relation, the larger of two readings) */
+  extraPeople: 3,
+  /** supply pipe: velocity limit in m/s (NBC Part 9 Section 1 draft 4.7.6) and the smallest size for a home header or riser, mm */
+  vSupply: 2.4,
+  minHeaderDn: 20,
+  /** the header from the riser to the wet rooms of a home: this x the side of the home, plus this many metres for each bathroom after the first */
+  headerSide: 0.6,
+  headerExtraBath: 2.5,
+  /** the 20 mm feed into each bathroom (m each) and into the kitchen (m) */
+  feedDn: 20,
+  feedPerBathM: 3.0,
+  feedKitchenM: 3.0,
+  /** 15 mm pipe to each outlet: outlets of a bathroom (WC cistern, basin, shower, health faucet) at pointM each, a geyser inlet, a kitchen, a washer, the balcony tap, the dining basin */
+  pointDn: 15,
+  pointsPerBath: 4,
+  pointM: 3.0,
+  geyserInletM: 2.0,
+  kitchenPointM: 6.0,
+  washerPointM: 5.0,
+  balconyPointM: 5.0,
+  diningPointM: 3.0,
+  /** hot water: two outlets in each bathroom with a geyser, pointM-style runs of hotPointM each */
+  hotPointsPerBath: 2,
+  hotPointM: 3.0,
+  /** riser top: outlet stand-off at the overhead tank, the run across the terrace, the terrace tap feed, the garden tap feed (m) */
+  standoffM: 1.5,
+  terraceRunM: 4.0,
+  terraceTapM: 5.0,
+  gardenTapM: 10.0,
+  /** pump: peak hour demand = this x the day's demand spread over this many hours; the tank is refilled in this many minutes */
+  peakFactor: 1.5,
+  peakHours: 12,
+  fillMinutes: 30,
+  /** pump lift above the terrace: tank stand, water depth in the tank, depth of the water below ground (m) */
+  tankStandM: 1.0,
+  waterDepthM: 1.0,
+  belowGroundM: 2.0,
+  /** delivery pipe: velocity limit (m/s), smallest size (mm), extra length beyond the lift (m), allowance for fittings, residual head at the tank (m) */
+  vDelivery: 2.0,
+  minDeliveryDn: 25,
+  deliveryExtraM: 10,
+  fittingsFactor: 1.3,
+  residualHeadM: 3.0,
+  /** below the first row of the flow table, the flow falls in proportion to the units, but not below this share of the first row */
+  smallFlowShare: 0.5,
+  /** pump power = flow (L/min) x head (m) / (hpFactor x efficiency); 1 metric HP = 4,500 kgf m per minute */
+  hpFactor: 4500,
+  pumpEff: 0.5,
+  /** two or more homes get this many pumps (one working, one standby); fewer get one */
+  homesForStandby: 2,
+  pumpsWithStandby: 2,
+  /** suction pipe per pump (m); water main to the underground tank (mm, m); tanker filling pipe (mm, m) */
+  suctionM: 3.0,
+  mainDn: 25,
+  mainM: 12,
+  tankerDn: 50,
+  tankerM: 8,
+  /** drainage: WCs one soil stack takes on a floor; vent pipes from this many floors; stack foot below the slab and top above the roof (m) */
+  wcPerStack: 2,
+  ventFromFloors: 6,
+  stackFootM: 1.0,
+  stackAboveRoofM: 1.5,
+  /** uPVC SWR sizes (mm): soil stack and WC branch; waste stack and shower branch; vent, kitchen and overflow pipes; basin waste; the larger building drain */
+  soilDn: 110,
+  wasteDn: 75,
+  smallDn: 50,
+  basinDn: 40,
+  bigDrainDn: 160,
+  /** drain branches (m each) */
+  wcBranchM: 1.5,
+  bathBranchM: 2.5,
+  basinWasteM: 1.2,
+  kitchenWasteM: 3.0,
+  washerWasteM: 2.0,
+  balconyWasteM: 2.5,
+  tankOverflowM: 6.0,
+  /** building drain: 110 mm up to this many fixture units, then 160 mm; run = stack foot to chamber (m) per stack plus the run to the plot edge (m); a chamber every this many metres */
+  drain110MaxFu: 180,
+  stackToChamberM: 4.0,
+  plotEdgeM: 8.0,
+  chamberEveryM: 30,
+  /** the pipe from the last chamber to the soak pit or the public sewer (m) */
+  connectionM: 6.0,
+  /** waste water leaving the home per person per day (L) */
+  effluentLpcd: 108,
+  /** septic tank: the table is read for between these numbers of users; a day's detention of the other waste water per person (m3); least volume (m3); one tank takes this many users */
+  septicMinUsers: 5,
+  septicMaxUsers: 300,
+  septicOtherM3: 0.063,
+  septicMinM3: 1.0,
+  septicUsersEach: 100,
+  /** liquid depth (m) by volume of one tank: up to septicV1 m3, up to septicV2 m3, above */
+  septicV1: 2.5,
+  septicD1: 1.0,
+  septicV2: 6,
+  septicD2: 1.3,
+  septicD3: 1.5,
+  /** plan: length = this x width at the start; width is at least septicMinB (m); length at least this x width; sizes rounded up to dimStep (m); free-board (m); two chambers above this volume (m3) */
+  septicLtoB: 3,
+  septicMinB: 0.75,
+  septicMinLtoB: 2,
+  dimStep: 0.05,
+  freeboardM: 0.3,
+  twoChamberAboveM3: 2.0,
+  /** digging: working space round the tank (m, in length and in width), extra depth below the liquid level (m) */
+  tankWorkM: 1.0,
+  tankDigExtraM: 0.6,
+  /** soak pit: diameter (m), deepest wall counted (m), shallowest pit (m), depth below the inlet pipe (m), working space round the lining (m) */
+  pitDia: 1.5,
+  pitMaxDepthM: 3.0,
+  pitMinDepthM: 1.0,
+  pitBelowPipeM: 0.15,
+  pitWorkM: 0.3,
+  /** rain: fewest down-pipes; the most 75 mm pipes before 100 mm is used; length of a down-pipe beyond the building height (m) */
+  minDownpipes: 2,
+  maxDownpipes75: 4,
+  downpipeExtraM: 0.5,
+  /** fittings: elbows at the pump and tanks; ball valves and unions at each tank; isolation valves and unions at each pump; clamp spacing on supply pipe and on drain pipe (m) */
+  pumpTankElbows: 8,
+  valvesPerTank: 2,
+  unionsPerTank: 2,
+  isolationPerPump: 2,
+  unionsPerPump: 2,
+  clampEveryM: 1.0,
+  dclampEveryM: 1.5,
+} as const
+
+export const floorName = (i: number) => ['Ground floor', 'First floor', 'Second floor', 'Third floor', 'Fourth floor', 'Fifth floor', 'Sixth floor', 'Seventh floor', 'Eighth floor', 'Ninth floor'][i] ?? `Floor ${i}`
 
 /* ───────────────────────── small calculations ───────────────────────── */
 
-const capLpm = (dn: number, v: number) => (Math.PI / 4) * (CPVC_ID_MM[dn] / 1000) ** 2 * v * 60000
+export const capLpm = (dn: number, v: number) => (Math.PI / 4) * (CPVC_ID_MM[dn] / 1000) ** 2 * v * 60000
 
 /** Smallest supply size whose bore carries the flow at the velocity limit (2.4 m/s NBC draft 4.7.6). */
-function sizeFor(flowLpm: number, vmax: number, min = 15): number {
+export function sizeFor(flowLpm: number, vmax: number, min = 15): number {
   for (const dn of SUPPLY_DN) if (dn >= min && capLpm(dn, vmax) >= flowLpm) return dn
   return 100
 }
 
-const flowFor = (wsfu: number) => (wsfu < 5 ? 22.7 * Math.max(0.5, wsfu / 5) : interp(WSFU_FLOW, wsfu, true))
+export const flowFor = (wsfu: number) => (wsfu < WSFU_FLOW[0][0] ? WSFU_FLOW[0][1] * Math.max(RULES.smallFlowShare, wsfu / WSFU_FLOW[0][0]) : interp(WSFU_FLOW, wsfu, true))
 
 /** Hazen-Williams head loss in metres of water (SP 35 eq. 1, C = 120 for plastic pipe). */
-function headLoss(lengthM: number, qLps: number, dn: number, c = 120): number {
+export function headLoss(lengthM: number, qLps: number, dn: number, c = HAZEN_C): number {
   const q = qLps / 1000
   const d = CPVC_ID_MM[dn] / 1000
   return (10.67 * lengthM * q ** 1.852) / (c ** 1.852 * d ** 4.87)
 }
 
-function spread(total: number, n: number): number[] {
+export function spread(total: number, n: number): number[] {
   const base = Math.floor(total / n)
   const rem = total % n
   return Array.from({ length: n }, (_, i) => base + (i < rem ? 1 : 0))
@@ -127,7 +278,87 @@ function spread(total: number, n: number): number[] {
 
 /* ───────────────────────── the model ───────────────────────── */
 
-export function runPlumb(inp: PlumbInput): Ran {
+/**
+ * The in-between figures of one run, handed back when a trace object is passed to runPlumb.
+ * The calculation sheet checks its own working against these. They are not part of the result, never stored and never sent.
+ */
+export interface PlumbTrace {
+  N: number
+  flats: boolean
+  homesOnFloor: number
+  homes: number
+  perHome: number
+  people: number
+  lpcd: number
+  demandL: number
+  ugtL: number
+  ohtL: number
+  ugt: { each: number; count: number; kind: string } | null
+  oht: { each: number; count: number; kind: string }
+  tankCount: number
+  footM2: number[]
+  bath: number[]
+  kit: number[]
+  wsfuHome: number[]
+  wsfuCarried: number[]
+  riserDn: number[]
+  headerDn: number[]
+  wc: number
+  basins: number
+  showers: number
+  health: number
+  sinks: number
+  washers: number
+  balconyTaps: number
+  geysers: number
+  floorTraps: number
+  terraceTaps: number
+  gardenTaps: number
+  coldOutlets: number
+  hotOutlets: number
+  runs: { use: 'cold' | 'hot'; dn: number; m: number }[]
+  qLpm: number
+  staticM: number
+  deliveryDn: number
+  deliveryLen: number
+  frictionM: number
+  headM: number
+  hpRaw: number
+  hp: number
+  pumps: number
+  soilStacks: number
+  wasteStacks: number
+  stackH: number
+  ventStacks: number
+  fuTotal: number
+  drainDn: number
+  drainRun: number
+  chambers: number
+  effluentL: number
+  septic: { vM3: number; lM: number; bM: number; dM: number; chambers: number; count: number; excavM3: number } | null
+  pit: { count: number; dia: number; depthM: number; areaM2: number; excavM3: number } | null
+  roofM2: number
+  iMM: number
+  dpDn: number
+  dpN: number
+  dpLen: number
+  dpBuy: number
+  fit: [string, number][]
+  exposedM: number
+  clamps: number
+  dfit: [string, number][]
+  dclamps: number
+  stackJunctions: number
+  supplyLines: [number, number][]
+  supplyM: number
+  supplyBuyM: number
+  drainLines: [number, number][]
+  drainM: number
+  drainBuyM: number
+  lines: { key: string; qty: number }[]
+}
+
+export function runPlumb(inp: PlumbInput, trace?: PlumbTrace): Ran {
   const N = inp.floorAreasSqft.length
   const flats = inp.dwelling === 'flats'
   const homesOnFloor = flats ? inp.homesPerFloor : 1
@@ -143,7 +374,7 @@ export function runPlumb(inp: PlumbInput): Ran {
   const footM2 = inp.floorAreasSqft.map((a) => a * SQFT_TO_M2)
 
   // people and daily water
-  const perHome = inp.persons ?? inp.bedrooms + 3
+  const perHome = inp.persons ?? inp.bedrooms + RULES.extraPeople
   const people = perHome * homes
   const lpcd = inp.water === 'borewell' ? WATER_DEMAND_LPCD.borewell : WATER_DEMAND_LPCD.municipal
   const demandL = people * lpcd
@@ -186,106 +417,105 @@ export function runPlumb(inp: PlumbInput): Ran {
     wsfuCarried[i] = acc + (i === N - 1 ? WSFU.hoseBib * terraceTaps : 0)
   }
   const riserDn: number[] = []
-  for (let i = 0; i < N; i++) riserDn.push(sizeFor(flowFor(wsfuCarried[i]), 2.4, 20))
+  for (let i = 0; i < N; i++) riserDn.push(sizeFor(flowFor(wsfuCarried[i]), RULES.vSupply, RULES.minHeaderDn))
 
   const headerDn: number[] = []
   for (let i = 0; i < N; i++) {
     const b = bathPerHome(i), k = kitPerHome(i)
     const s = Math.sqrt(footM2[i] / homesOnFloor)
-    const hdn = sizeFor(flowFor(wsfuHome[i]), 2.4, 20)
+    const hdn = sizeFor(flowFor(wsfuHome[i]), RULES.vSupply, RULES.minHeaderDn)
     headerDn.push(hdn)
     for (let h = 0; h < homesOnFloor; h++) {
-      add('cold', hdn, 0.6 * s + 2.5 * Math.max(0, b - 1)) // from the riser to the wet rooms
-      add('cold', 20, b * 3.0 + (k > 0 ? 3.0 : 0)) // feed into each bathroom and the kitchen
+      add('cold', hdn, RULES.headerSide * s + RULES.headerExtraBath * Math.max(0, b - 1)) // from the riser to the wet rooms
+      add('cold', RULES.feedDn, b * RULES.feedPerBathM + (k > 0 ? RULES.feedKitchenM : 0)) // feed into each bathroom and the kitchen
       // outlets, cold side: WC cistern, basin, shower, health faucet, each 3 m; geyser inlet 2 m
-      const coldPts = b * 4 + k + (washerOn(i) ? 1 : 0) + 1 + (diningBasin(i) ? 1 : 0)
-      add('cold', 15, b * 4 * 3.0 + (inp.geyser ? b * 2.0 : 0) + k * 6.0 + (washerOn(i) ? 5.0 : 0) + 5.0 + (diningBasin(i) ? 3.0 : 0))
+      const coldPts = b * RULES.pointsPerBath + k + (washerOn(i) ? 1 : 0) + 1 + (diningBasin(i) ? 1 : 0)
+      add('cold', RULES.pointDn, b * RULES.pointsPerBath * RULES.pointM + (inp.geyser ? b * RULES.geyserInletM : 0) + k * RULES.kitchenPointM + (washerOn(i) ? RULES.washerPointM : 0) + RULES.balconyPointM + (diningBasin(i) ? RULES.diningPointM : 0))
       coldOutlets += coldPts
-      if (inp.geyser) { add('hot', 15, b * 2 * 3.0); hotOutlets += b * 2 }
+      if (inp.geyser) { add('hot', RULES.pointDn, b * RULES.hotPointsPerBath * RULES.hotPointM); hotOutlets += b * RULES.hotPointsPerBath }
     }
     floorRows.push([floorName(i), bath[i], kit[i], fmt(wsfuCarried[i], 1), `${riserDn[i]} mm`])
   }
   // risers: one segment of floor height per floor, sized for what is below the segment's top
   for (let i = 0; i < N; i++) add('cold', riserDn[i], H_FLOOR)
-  add('cold', riserDn[N - 1], 1.5 + 4.0) // outlet stand-off at the overhead tank and the run across the terrace
-  add('cold', 20, 5.0 * terraceTaps) // terrace tap
-  if (gardenTaps) add('cold', 20, 10.0)
+  add('cold', riserDn[N - 1], RULES.standoffM + RULES.terraceRunM) // outlet stand-off at the overhead tank and the run across the terrace
+  add('cold', RULES.feedDn, RULES.terraceTapM * terraceTaps) // terrace tap
+  if (gardenTaps) add('cold', RULES.feedDn, RULES.gardenTapM)
 
   // ── pump and delivery to the overhead tank
-  const qLpm = Math.max((1.5 * demandL) / (12 * 60), (oht.each * oht.count) / 30)
-  const staticM = N * H_FLOOR + 1.0 + 1.0 + 2.0 // up to the terrace, tank stand, water depth, water level below ground
-  const deliveryDn = sizeFor(qLpm, 2.0, 25)
-  const deliveryLen = staticM + 10
-  const frictionM = headLoss(deliveryLen * 1.3, qLpm / 60, deliveryDn)
-  const headM = staticM + frictionM + 3.0
-  const hpRaw = (qLpm * headM) / (4500 * 0.5)
+  const qLpm = Math.max((RULES.peakFactor * demandL) / (RULES.peakHours * 60), (oht.each * oht.count) / RULES.fillMinutes)
+  const staticM = N * H_FLOOR + RULES.tankStandM + RULES.waterDepthM + RULES.belowGroundM // up to the terrace, tank stand, water depth, water level below ground
+  const deliveryDn = sizeFor(qLpm, RULES.vDelivery, RULES.minDeliveryDn)
+  const deliveryLen = staticM + RULES.deliveryExtraM
+  const frictionM = headLoss(deliveryLen * RULES.fittingsFactor, qLpm / 60, deliveryDn)
+  const headM = staticM + frictionM + RULES.residualHeadM
+  const hpRaw = (qLpm * headM) / (RULES.hpFactor * RULES.pumpEff)
   const hp = PUMP_HP.find((h) => hpRaw <= h) ?? 10
-  const pumps = inp.water === 'borewell' ? 0 : homes >= 2 ? 2 : 1
+  const pumps = inp.water === 'borewell' ? 0 : homes >= RULES.homesForStandby ? RULES.pumpsWithStandby : 1
   add('cold', deliveryDn, deliveryLen) // delivery to the overhead tank (the borewell's own line when there is no underground tank)
-  if (inp.water !== 'borewell') add('cold', Math.min(100, SUPPLY_DN[Math.min(SUPPLY_DN.length - 1, SUPPLY_DN.indexOf(deliveryDn as typeof SUPPLY_DN[number]) + 1)]), 3.0 * pumps) // suction, one size larger
-  if (inp.water === 'municipal') add('cold', 25, 12) // from the water main to the underground tank
-  if (inp.water === 'tanker') add('cold', 50, 8) // filling pipe from the road
+  if (inp.water !== 'borewell') add('cold', Math.min(100, SUPPLY_DN[Math.min(SUPPLY_DN.length - 1, SUPPLY_DN.indexOf(deliveryDn as typeof SUPPLY_DN[number]) + 1)]), RULES.suctionM * pumps) // suction, one size larger
+  if (inp.water === 'municipal') add('cold', RULES.mainDn, RULES.mainM) // from the water main to the underground tank
+  if (inp.water === 'tanker') add('cold', RULES.tankerDn, RULES.tankerM) // filling pipe from the road
 
   // ── drainage
-  const soilStacks = Math.max(1, ...bath.map((b) => Math.ceil(b / 2)))
+  const soilStacks = Math.max(1, ...bath.map((b) => Math.ceil(b / RULES.wcPerStack)))
   const wasteStacks = Math.max(1, ...kit)
-  const stackH = N * H_FLOOR + 1.0 + 1.5 // foot below the slab, 1.5 m above the roof (IS 5329 cl 6.8.4)
-  const ventStacks = N >= 6 ? soilStacks : 0
+  const stackH = N * H_FLOOR + RULES.stackFootM + RULES.stackAboveRoofM // foot below the slab, 1.5 m above the roof (IS 5329 cl 6.8.4)
+  const ventStacks = N >= RULES.ventFromFloors ? soilStacks : 0
   const dRuns = new Map<number, number>() // SWR size -> metres
   const dAdd = (dn: number, m: number) => bump(dRuns, dn, m)
-  dAdd(110, soilStacks * stackH)
-  dAdd(75, wasteStacks * stackH)
-  if (ventStacks) dAdd(50, ventStacks * (N * H_FLOOR + 1.5))
+  dAdd(RULES.soilDn, soilStacks * stackH)
+  dAdd(RULES.wasteDn, wasteStacks * stackH)
+  if (ventStacks) dAdd(RULES.smallDn, ventStacks * (N * H_FLOOR + RULES.stackAboveRoofM))
   // branches
   const bathrooms = wc
   const kitchensN = sinks
-  dAdd(110, bathrooms * 1.5) // WC branch
-  dAdd(75, bathrooms * 2.5) // shower and floor trap branch
-  dAdd(40, basins * 1.2) // basin waste
-  dAdd(50, kitchensN * 3.0 + washers * 2.0 + balconyTaps * 2.5)
+  dAdd(RULES.soilDn, bathrooms * RULES.wcBranchM) // WC branch
+  dAdd(RULES.wasteDn, bathrooms * RULES.bathBranchM) // shower and floor trap branch
+  dAdd(RULES.basinDn, basins * RULES.basinWasteM) // basin waste
+  dAdd(RULES.smallDn, kitchensN * RULES.kitchenWasteM + washers * RULES.washerWasteM + balconyTaps * RULES.balconyWasteM)
   // overflow and scour at each tank
-  dAdd(50, tankCount * 6.0)
+  dAdd(RULES.smallDn, tankCount * RULES.tankOverflowM)
 
   // loads and the building drain
   const fuTotal = bathrooms * (DFU.bathroom + DFU.floorTrap) + kitchensN * (DFU.sink + DFU.floorTrap) + washers * DFU.washer + balconyTaps * DFU.floorTrap
-  const fuPerStack = fuTotal / Math.max(1, soilStacks + wasteStacks)
-  const drainDn = fuTotal <= 180 ? 110 : 160
-  const drainRun = (soilStacks + wasteStacks) * 4.0 + 8.0
+  const drainDn = fuTotal <= RULES.drain110MaxFu ? RULES.soilDn : RULES.bigDrainDn
+  const drainRun = (soilStacks + wasteStacks) * RULES.stackToChamberM + RULES.plotEdgeM
   dAdd(drainDn, drainRun)
-  const chambers = soilStacks + wasteStacks + 1 + Math.floor(drainRun / 30)
+  const chambers = soilStacks + wasteStacks + 1 + Math.floor(drainRun / RULES.chamberEveryM)
 
   // ── disposal
   const users = people
-  const effluentL = users * 108
+  const effluentL = users * RULES.effluentLpcd
   let septic: null | { vM3: number; lM: number; bM: number; dM: number; chambers: number; count: number; excavM3: number } = null
   let pit: null | { count: number; dia: number; depthM: number; areaM2: number; excavM3: number } = null
   if (!inp.sewer) {
-    const vTable = interp(SEPTIC_V, Math.max(5, Math.min(300, users)), false)
-    const vComb = Math.max(1.0, vTable + users * 0.063)
-    const count = users > 100 ? Math.ceil(users / 100) : 1
+    const vTable = interp(SEPTIC_V, Math.max(RULES.septicMinUsers, Math.min(RULES.septicMaxUsers, users)), false)
+    const vComb = Math.max(RULES.septicMinM3, vTable + users * RULES.septicOtherM3)
+    const count = users > RULES.septicUsersEach ? Math.ceil(users / RULES.septicUsersEach) : 1
     const v = vComb / count
-    const d = v <= 2.5 ? 1.0 : v <= 6 ? 1.3 : 1.5
-    const b = ceilTo(Math.max(0.75, Math.sqrt(v / (d * 3))), 0.05)
-    const l = Math.max(ceilTo(v / (d * b), 0.05), 2 * b)
-    septic = { vM3: v * count, lM: l, bM: b, dM: d + 0.3, chambers: v > 2.0 ? 2 : 1, count, excavM3: count * (l + 1.0) * (b + 1.0) * (d + 0.6) }
+    const d = v <= RULES.septicV1 ? RULES.septicD1 : v <= RULES.septicV2 ? RULES.septicD2 : RULES.septicD3
+    const b = ceilTo(Math.max(RULES.septicMinB, Math.sqrt(v / (d * RULES.septicLtoB))), RULES.dimStep)
+    const l = Math.max(ceilTo(v / (d * b), RULES.dimStep), RULES.septicMinLtoB * b)
+    septic = { vM3: v * count, lM: l, bM: b, dM: d + RULES.freeboardM, chambers: v > RULES.twoChamberAboveM3 ? 2 : 1, count, excavM3: count * (l + RULES.tankWorkM) * (b + RULES.tankWorkM) * (d + RULES.tankDigExtraM) }
     const area = effluentL / SOIL[inp.soil].rate
-    const dia = 1.5
-    const nPits = Math.max(1, Math.ceil(area / (Math.PI * dia * 3.0)))
+    const dia = RULES.pitDia
+    const nPits = Math.max(1, Math.ceil(area / (Math.PI * dia * RULES.pitMaxDepthM)))
     const eff = area / (nPits * Math.PI * dia)
-    const depth = Math.max(1.0, eff) + 0.15
-    pit = { count: nPits, dia, depthM: depth, areaM2: area, excavM3: nPits * Math.PI * (dia / 2 + 0.3) ** 2 * depth }
-    dAdd(110, 6.0) // tank to soak pit
+    const depth = Math.max(RULES.pitMinDepthM, eff) + RULES.pitBelowPipeM
+    pit = { count: nPits, dia, depthM: depth, areaM2: area, excavM3: nPits * Math.PI * (dia / 2 + RULES.pitWorkM) ** 2 * depth }
+    dAdd(RULES.soilDn, RULES.connectionM) // tank to soak pit
   } else {
-    dAdd(110, 6.0) // connection to the public sewer
+    dAdd(RULES.soilDn, RULES.connectionM) // connection to the public sewer
   }
 
   // ── rainwater
   const roofM2 = Math.max(...footM2)
   const iMM = RAIN_INTENSITY[inp.rain]
   let dpDn = 75
-  let dpN = Math.max(2, Math.ceil(roofM2 / DOWNPIPE_AREA[75][iMM]))
-  if (dpN > 4) { dpDn = 100; dpN = Math.max(2, Math.ceil(roofM2 / DOWNPIPE_AREA[100][iMM])) }
-  const dpLen = dpN * (N * H_FLOOR + 0.5)
+  let dpN = Math.max(RULES.minDownpipes, Math.ceil(roofM2 / DOWNPIPE_AREA[75][iMM]))
+  if (dpN > RULES.maxDownpipes75) { dpDn = 100; dpN = Math.max(RULES.minDownpipes, Math.ceil(roofM2 / DOWNPIPE_AREA[100][iMM])) }
+  const dpLen = dpN * (N * H_FLOOR + RULES.downpipeExtraM)
   const dpBuy = dpDn === 100 ? 110 : 75 // uPVC SWR is sold as 75 and 110 mm; 110 mm drains at least what 100 mm does
   dAdd(dpBuy, dpLen)
 
@@ -306,19 +536,19 @@ export function runPlumb(inp: PlumbInput): Ran {
     }
   }
   for (let i = 1; i < N; i++) if (riserDn[i] !== riserDn[i - 1]) f(`Reducer, ${riserDn[i - 1]} × ${riserDn[i]} mm (riser)`, 1)
-  f(`Elbow 90°, ${deliveryDn} mm (pump and tank connections)`, 8)
+  f(`Elbow 90°, ${deliveryDn} mm (pump and tank connections)`, RULES.pumpTankElbows)
   f('Float valve (one for each tank)', tankCount)
-  f(`Ball valve, ${deliveryDn} mm (tank inlet and outlet)`, tankCount * 2)
-  f(`Union, ${deliveryDn} mm (tank connections)`, tankCount * 2)
+  f(`Ball valve, ${deliveryDn} mm (tank inlet and outlet)`, tankCount * RULES.valvesPerTank)
+  f(`Union, ${deliveryDn} mm (tank connections)`, tankCount * RULES.unionsPerTank)
   if (pumps > 0) {
     f(`Foot valve, ${deliveryDn} mm`, pumps)
     f(`Non-return valve, ${deliveryDn} mm`, pumps)
-    f(`Gate or ball valve, ${deliveryDn} mm (pump isolation)`, pumps * 2)
-    f(`Union, ${deliveryDn} mm (pump)`, pumps * 2)
+    f(`Gate or ball valve, ${deliveryDn} mm (pump isolation)`, pumps * RULES.isolationPerPump)
+    f(`Union, ${deliveryDn} mm (pump)`, pumps * RULES.unionsPerPump)
   }
   // clamps on exposed pipe only (risers, terrace, delivery); concealed branches in walls are not clamped
-  const exposedM = N * H_FLOOR + 5.5 + deliveryLen
-  const clamps = Math.ceil(exposedM / 1.0)
+  const exposedM = N * H_FLOOR + (RULES.standoffM + RULES.terraceRunM) + deliveryLen
+  const clamps = Math.ceil(exposedM / RULES.clampEveryM)
 
   // drainage fittings
   const dfit = new Map<string, number>()
@@ -341,18 +571,17 @@ export function runPlumb(inp: PlumbInput): Ran {
   df(`Shoe, ${dpBuy} mm (down-pipe foot)`, dpN)
   df('Inspection chamber with cover (0.8 × 0.8 m, up to 1 m deep)', chambers)
   const stackJunctions = bathrooms * 2 + kitchensN + washers
-  const dclamps = Math.ceil((soilStacks + wasteStacks + ventStacks) * stackH / 1.5 + dpLen / 1.5)
+  const dclamps = Math.ceil((soilStacks + wasteStacks + ventStacks) * stackH / RULES.dclampEveryM + dpLen / RULES.dclampEveryM)
 
   // ── purchase lengths: add 5 per cent, round up to whole pieces
-  const WASTE = 1.05
   const supply = new Map<number, number>()
   for (const r of runs) bump(supply, r.dn, r.m)
   const supplyLines = [...supply.entries()].sort((a, b) => a[0] - b[0])
   const supplyM = supplyLines.reduce((s, [, m]) => s + m, 0)
-  const supplyBuyM = supplyLines.reduce((s, [, m]) => s + pieces(m * WASTE, 3) * 3, 0)
+  const supplyBuyM = supplyLines.reduce((s, [, m]) => s + pieces(m * WASTE, PIECE_M) * PIECE_M, 0)
   const drainLines = [...dRuns.entries()].sort((a, b) => a[0] - b[0])
   const drainM = drainLines.reduce((s, [, m]) => s + m, 0)
-  const drainBuyM = drainLines.reduce((s, [, m]) => s + pieces(m * WASTE, 3) * 3, 0)
+  const drainBuyM = drainLines.reduce((s, [, m]) => s + pieces(m * WASTE, PIECE_M) * PIECE_M, 0)
 
   // ───────── free part ─────────
   const sizeNote = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
@@ -363,7 +592,7 @@ export function runPlumb(inp: PlumbInput): Ran {
     { id: 'storage', clause: 'NBC Part 9 Sec 1 cl 4.4.10', description: 'Storage', status: 'pass', detail: inp.water === 'borewell' ? 'A borewell fills the overhead tank on demand, so one overhead tank holds half a day’s water.' : inp.water === 'tanker' ? 'Tanker water arrives in lots, so the underground tank holds a day and a half and the overhead tank a third of a day.' : 'With an underground and an overhead tank, the underground holds two-thirds of a day’s water and the overhead one-third.' },
     { id: 'fixtures', clause: 'NBC Part 9 Sec 2 cl 4.2', description: 'Fixtures in every home', status: 'pass', detail: 'Each home has at least one WC, one kitchen sink and one bathing place.' },
     { id: 'stack', clause: 'IS 5329:1983 cl 6.1.1', description: 'Soil stack', status: N >= 6 ? 'advisory' : 'pass', detail: N >= 6 ? `A single 100 mm stack without vents is allowed up to five storeys. At ${N} floors, a vent stack runs beside each soil stack, so ${soilStacks} vent ${soilStacks === 1 ? 'pipe is' : 'pipes are'} counted.` : `A single 100 mm stack without a vent pipe is allowed up to five storeys and two WCs on a floor. You have ${N} ${N === 1 ? 'floor' : 'floors'}, so ${soilStacks} stack${soilStacks === 1 ? '' : 's'} carry the WCs.` },
-    { id: 'drainload', clause: 'IS 1742:1983 Tables 3 and 4', description: 'Drain loads', status: fuStackPerInterval <= 90 && stackTotalFu <= 500 && fuTotal <= 700 ? 'pass' : 'fail', detail: `The building drain carries ${fmt(fuTotal)} fixture units, so a ${drainDn} mm drain at 1 in 100 is enough (limit 180 for 110 mm). One stack takes up to 90 units in a floor and 500 in all; yours takes ${fmt(fuStackPerInterval)} and ${fmt(stackTotalFu)}.` },
+    { id: 'drainload', clause: 'IS 1742:1983 Tables 3 and 4', description: 'Drain loads', status: fuStackPerInterval <= FU_LIMITS.interval && stackTotalFu <= FU_LIMITS.stack && fuTotal <= FU_LIMITS.drain ? 'pass' : 'fail', detail: `The building drain carries ${fmt(fuTotal)} fixture units, so a ${drainDn} mm drain at 1 in 100 is enough (limit 180 for 110 mm). One stack takes up to 90 units in a floor and 500 in all; yours takes ${fmt(fuStackPerInterval)} and ${fmt(stackTotalFu)}.` },
     { id: 'rain', clause: 'IS 1742:1983 cl 4.10.3.8', description: 'Rain water', status: 'advisory', detail: `For rain of ${RAIN_LABEL[inp.rain]}, a ${fmt(roofM2)} m² roof needs ${dpN} down-pipes of ${dpBuy} mm. IS 1742 gives no rainfall for each town, so the rain figure is the one you chose.` },
   ]
   if (!inp.sewer) {
@@ -388,9 +617,9 @@ export function runPlumb(inp: PlumbInput): Ran {
 
   // ───────── paid part ─────────
   const tiles: Tile[] = [
-    { k: 'Water supply pipe', v: fmt(supplyBuyM), unit: 'm', range: `${rangeText(supplyBuyM, 0.75, 1.35)} m` },
-    { k: 'Drain and rain pipe', v: fmt(drainBuyM), unit: 'm', range: `${rangeText(drainBuyM, 0.8, 1.3)} m` },
-    { k: 'Tanks', v: fmt((ugt ? ugt.each * ugt.count : 0) + oht.each * oht.count), unit: 'litres', range: `${rangeText((ugt ? ugt.each * ugt.count : 0) + oht.each * oht.count, 0.9, 1.2)} L` },
+    { k: 'Water supply pipe', v: fmt(supplyBuyM), unit: 'm', range: `${rangeText(supplyBuyM, BANDS.supply.low, BANDS.supply.high)} m` },
+    { k: 'Drain and rain pipe', v: fmt(drainBuyM), unit: 'm', range: `${rangeText(drainBuyM, BANDS.drain.low, BANDS.drain.high)} m` },
+    { k: 'Tanks', v: fmt((ugt ? ugt.each * ugt.count : 0) + oht.each * oht.count), unit: 'litres', range: `${rangeText((ugt ? ugt.each * ugt.count : 0) + oht.each * oht.count, BANDS.tanks.low, BANDS.tanks.high)} L` },
     pumps > 0
       ? { k: 'Transfer pump', v: `${hp}`, unit: pumps > 1 ? 'HP × 2' : 'HP' }
       : { k: 'Fixtures and taps', v: fmt(wc + basins + showers + health + sinks + washers + balconyTaps + terraceTaps + gardenTaps), unit: 'counted' },
@@ -404,13 +633,13 @@ export function runPlumb(inp: PlumbInput): Ran {
   const matLabel = (dn: number) => `${dn} mm`
   const supplyRows = supplyLines.map(([dn, m]) => {
     const withWaste = m * WASTE
-    const pc = pieces(withWaste, 3)
-    return [matLabel(dn), fmt(m, 1), fmt(withWaste, 1), pc, `${pc * 3} m`]
+    const pc = pieces(withWaste, PIECE_M)
+    return [matLabel(dn), fmt(m, 1), fmt(withWaste, 1), pc, `${pc * PIECE_M} m`]
   })
   const drainRows = drainLines.map(([dn, m]) => {
     const withWaste = m * WASTE
-    const pc = pieces(withWaste, 3)
-    return [matLabel(dn), fmt(m, 1), fmt(withWaste, 1), pc, `${pc * 3} m`]
+    const pc = pieces(withWaste, PIECE_M)
+    return [matLabel(dn), fmt(m, 1), fmt(withWaste, 1), pc, `${pc * PIECE_M} m`]
   })
   const sumPieces = (rows: (string | number)[][]) => rows.reduce((s, r) => s + Number(r[3]), 0)
 
@@ -433,11 +662,11 @@ export function runPlumb(inp: PlumbInput): Ran {
 
   const tables: Table[] = [
     { id: 'tanks', title: 'Tanks and pump', sub: 'Sized to the NBC storage split for your water source. Round-up sizes are the ones sold in India.', head: ['Item', 'Size', 'Number', 'Kind', 'Basis'], num: [1, 2], rows: tanksRows, note: `Pump head is the climb to the terrace plus pipe friction (Hazen-Williams) plus 3 m of residual; power = flow × head ÷ (4,500 × 0.5), rounded up to a pump size sold. Delivery pipe: ${deliveryDn} mm.` },
-    { id: 'supply', title: 'Water supply pipe (CPVC, IS 15778)', sub: 'Runs worked out floor by floor from your plan. The last column is what to buy, in whole 3 m lengths.', head: ['Size', 'Run (m)', 'With 5% cutting waste (m)', '3 m lengths', 'To buy'], num: [1, 2, 3, 4], rows: supplyRows, foot: ['All sizes', fmt(supplyM, 1), fmt(supplyM * WASTE, 1), sumPieces(supplyRows), `${sumPieces(supplyRows) * 3} m`], note: 'If your plumber prefers uPVC for cold water (6 m lengths) or PPR, the metres stay the same and the number of lengths changes.' },
+    { id: 'supply', title: 'Water supply pipe (CPVC, IS 15778)', sub: 'Runs worked out floor by floor from your plan. The last column is what to buy, in whole 3 m lengths.', head: ['Size', 'Run (m)', 'With 5% cutting waste (m)', '3 m lengths', 'To buy'], num: [1, 2, 3, 4], rows: supplyRows, foot: ['All sizes', fmt(supplyM, 1), fmt(supplyM * WASTE, 1), sumPieces(supplyRows), `${sumPieces(supplyRows) * PIECE_M} m`], note: 'If your plumber prefers uPVC for cold water (6 m lengths) or PPR, the metres stay the same and the number of lengths changes.' },
     { id: 'floors', title: 'Supply riser, floor by floor', sub: 'Water comes down from the overhead tank, so each floor’s riser is sized for the water used on that floor and every floor below it. The pipe narrows towards the ground.', head: ['Floor', 'Bathrooms', 'Kitchens', 'Demand carried here (fixture units)', 'Riser size'], num: [1, 2, 3], rows: floorRows, note: 'Fixture units follow NBC Part 9 Section 1 Table 2. The flow for those units is read from Table 3 and the smallest pipe that carries it at 2.4 m/s is chosen.' },
     { id: 'fit', title: 'Supply fittings and valves', sub: 'Counted per tap and per piece of equipment.', head: ['Item', 'Number'], num: [1], rows: [...fitRows, [`Pipe clamps on exposed pipe (about 1 per metre)`, clamps]], tight: true, note: 'Pipes inside walls are chased in and need no clamps. Only risers, the terrace and the pump line are clamped.' },
     { id: 'fix', title: 'Fixtures and taps counted', head: ['Item', 'Number'], num: [1], rows: fixtureRows, tight: true, note: 'Counted, not specified: the make, finish and model are yours to choose.' },
-    { id: 'drain', title: 'Drain and rain pipe (uPVC SWR)', sub: `Soil, waste and vent stacks, branches, the building drain (${drainDn} mm) and down-pipes, in whole 3 m lengths.`, head: ['Size', 'Run (m)', 'With 5% cutting waste (m)', '3 m lengths', 'To buy'], num: [1, 2, 3, 4], rows: drainRows, foot: ['All sizes', fmt(drainM, 1), fmt(drainM * WASTE, 1), sumPieces(drainRows), `${sumPieces(drainRows) * 3} m`] },
+    { id: 'drain', title: 'Drain and rain pipe (uPVC SWR)', sub: `Soil, waste and vent stacks, branches, the building drain (${drainDn} mm) and down-pipes, in whole 3 m lengths.`, head: ['Size', 'Run (m)', 'With 5% cutting waste (m)', '3 m lengths', 'To buy'], num: [1, 2, 3, 4], rows: drainRows, foot: ['All sizes', fmt(drainM, 1), fmt(drainM * WASTE, 1), sumPieces(drainRows), `${sumPieces(drainRows) * PIECE_M} m`] },
     { id: 'dfit', title: 'Drainage fittings, traps and chambers', head: ['Item', 'Number'], num: [1], rows: [...dfitRows, ['Pipe clamps on stacks and down-pipes (about 1 per 1.5 m)', dclamps]], tight: true, note: `Stack junctions: ${stackJunctions}. Chambers are counted, not built: bricks, mortar and covers are in MasonryPro and the structure.` },
   ]
 
@@ -458,8 +687,8 @@ export function runPlumb(inp: PlumbInput): Ran {
   tables.push({ id: 'rain', title: 'Rain-water down-pipes', head: ['Item', 'Number', 'Size', 'Basis'], num: [1], rows: [['Down-pipes', dpN, `${dpBuy} mm uPVC, ${fmt(N * H_FLOOR + 0.5, 1)} m each`, `${fmt(roofM2)} m² of roof, rain ${RAIN_LABEL[inp.rain]}; a ${dpDn} mm pipe drains ${DOWNPIPE_AREA[dpDn][iMM]} m² (IS 1742 Table 5)`]] })
 
   const lines: QtyLine[] = []
-  for (const [dn, m] of supplyLines) lines.push({ key: `pipe-cpvc-${dn}`, item: `CPVC pipe ${dn} mm`, qty: pieces(m * WASTE, 3) * 3, unit: 'm', group: 'Plumbing', basis: 'Whole 3 m lengths, 5% cutting waste' })
-  for (const [dn, m] of drainLines) lines.push({ key: `pipe-swr-${dn}`, item: `uPVC SWR pipe ${dn} mm`, qty: pieces(m * WASTE, 3) * 3, unit: 'm', group: 'Plumbing', basis: 'Whole 3 m lengths, 5% cutting waste' })
+  for (const [dn, m] of supplyLines) lines.push({ key: `pipe-cpvc-${dn}`, item: `CPVC pipe ${dn} mm`, qty: pieces(m * WASTE, PIECE_M) * PIECE_M, unit: 'm', group: 'Plumbing', basis: 'Whole 3 m lengths, 5% cutting waste' })
+  for (const [dn, m] of drainLines) lines.push({ key: `pipe-swr-${dn}`, item: `uPVC SWR pipe ${dn} mm`, qty: pieces(m * WASTE, PIECE_M) * PIECE_M, unit: 'm', group: 'Plumbing', basis: 'Whole 3 m lengths, 5% cutting waste' })
   if (ugt) lines.push({ key: 'tank-ugt', item: 'Underground tank', qty: ugt.each * ugt.count, unit: 'L', group: 'Plumbing', basis: ugt.kind })
   lines.push({ key: 'tank-oht', item: 'Overhead tank', qty: oht.each * oht.count, unit: 'L', group: 'Plumbing', basis: oht.kind })
   if (pumps > 0) lines.push({ key: 'pump', item: `Transfer pump ${hp} HP`, qty: pumps, unit: 'nos', group: 'Plumbing', basis: 'One working, one standby for two or more homes' })
@@ -489,10 +718,10 @@ export function runPlumb(inp: PlumbInput): Ran {
     'Kitchen hot water, which is cold-only in this count.',
   ]
   const bands = [
-    { label: 'Water supply pipe', low: 0.75, high: 1.35 },
-    { label: 'Drain and rain pipe', low: 0.8, high: 1.3 },
-    { label: 'Fittings and valves', low: 0.7, high: 1.4 },
-    { label: 'Tanks and pump', low: 0.9, high: 1.2 },
+    { label: 'Water supply pipe', low: BANDS.supply.low, high: BANDS.supply.high },
+    { label: 'Drain and rain pipe', low: BANDS.drain.low, high: BANDS.drain.high },
+    { label: 'Fittings and valves', low: BANDS.fittings.low, high: BANDS.fittings.high },
+    { label: 'Tanks and pump', low: BANDS.tanks.low, high: BANDS.tanks.high },
   ]
   const sources = [
     'IS 1172:1993 Basic requirements for water supply, drainage and sanitation',
@@ -502,6 +731,20 @@ export function runPlumb(inp: PlumbInput): Ran {
     'IS 15778:2007 CPVC pipes; IS 4985:2000 uPVC pressure pipes; SP 35:1987 Water supply and drainage handbook',
     'NBC 2016 Part 9 Section 1 and Section 2, read from the BIS preliminary drafts of November 2024',
   ]
+
+  if (trace) {
+    Object.assign(trace, {
+      N, flats, homesOnFloor, homes, perHome, people, lpcd, demandL, ugtL, ohtL, ugt, oht, tankCount,
+      footM2, bath, kit, wsfuHome, wsfuCarried, riserDn, headerDn,
+      wc, basins, showers, health, sinks, washers, balconyTaps, geysers, floorTraps, terraceTaps, gardenTaps, coldOutlets, hotOutlets,
+      runs, qLpm, staticM, deliveryDn, deliveryLen, frictionM, headM, hpRaw, hp, pumps,
+      soilStacks, wasteStacks, stackH, ventStacks, fuTotal, drainDn, drainRun, chambers, effluentL, septic, pit,
+      roofM2, iMM, dpDn, dpN, dpLen, dpBuy,
+      fit: [...fit.entries()], exposedM, clamps, dfit: [...dfit.entries()], dclamps, stackJunctions,
+      supplyLines, supplyM, supplyBuyM, drainLines, drainM, drainBuyM,
+      lines: lines.map((l) => ({ key: l.key, qty: l.qty })),
+    })
+  }
 
   return {
     ok: true,
@@ -525,6 +768,7 @@ export const plumbingModel: TradeModel<PlumbInput> = {
   label: 'PlumbingPro',
   code: 'PL',
   parse: parsePlumb,
-  run: runPlumb,
+  run: (input) => runPlumb(input),
+  calc: (input, report) => buildPlumbingCalc(input, report),
 }
 

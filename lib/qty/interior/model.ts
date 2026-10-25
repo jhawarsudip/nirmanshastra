@@ -19,6 +19,7 @@
 import type { BaseInput, Check, Fact, Parsed, QtyLine, Ran, Table, Tile, TradeModel } from '../types'
 import { Reader, SQFT_TO_M2, ceilTo, fmt, rangeText, round } from '../util'
 import { perim, planFloors } from '../plan'
+import { buildInteriorCalc } from './calc'
 import {
   ADHESIVE_BAG_KG, BED, CEMENT_BAG_KG, GROUT_WASTE, IN_SYS, PAINT_WASTE, TILES,
   adhesivePerM2, groutPerM2, tileWaste, tilesPerM2,
@@ -84,44 +85,44 @@ export function parseInterior(raw: unknown): Parsed<InteriorInput> {
 /* ───────────────────────── tables of figures ───────────────────────── */
 
 /* heights and sizes (Assumed unless stated) */
-const SLAB_T = 0.15 // m
-const PLINTH_ABOVE = 0.45
-const PARAPET_H = 1.0
-const PARAPET_T = 0.115
-const MUMTY = { perimeter: 12, height: 2.4 }
-const BALCONY = { edge: 6.0, area: 4.5 }
-const T_EXT = 0.23 // outer wall (m): the room plan needs a wall thickness
-const T_INT = 0.115
+export const SLAB_T = 0.15 // m
+export const PLINTH_ABOVE = 0.45
+export const PARAPET_H = 1.0
+export const PARAPET_T = 0.115
+export const MUMTY = { perimeter: 12, height: 2.4 }
+export const BALCONY = { edge: 6.0, area: 4.5 }
+export const T_EXT = 0.23 // outer wall (m): the room plan needs a wall thickness
+export const T_INT = 0.115
 
-interface ExSys { label: string; primer?: number; finish: { label: string; v: number; unit: 'kg' | 'L' }; src: string }
-const EXT_SYS: Record<Exclude<ExtTier, 'none'>, ExSys> = {
+export interface ExSys { label: string; primer?: number; finish: { label: string; v: number; unit: 'kg' | 'L' }; src: string }
+export const EXT_SYS: Record<Exclude<ExtTier, 'none'>, ExSys> = {
   cement: { label: 'Cement paint, 2 coats', finish: { label: 'Cement paint', v: 0.384, unit: 'kg' }, src: 'CPWD DAR 2016 item 13.44.1 (0.384 kg a m²); IS 2395 (Part 1) says 0.25 to 0.33 kg a m² for two coats' },
   acrylic: { label: 'Smooth acrylic exterior emulsion, 2 coats over exterior primer', primer: 0.095, finish: { label: 'Exterior acrylic emulsion', v: 0.167, unit: 'L' }, src: 'CPWD DAR 2016 item 13.46.1 (0.167 L a m²); primer from the maker sheet, 100 to 120 sq ft a litre' },
   textured: { label: 'Textured exterior finish over exterior primer', primer: 0.095, finish: { label: 'Textured exterior finish', v: 0.328, unit: 'L' }, src: 'CPWD DAR 2016 item 13.45.1 (0.328 L a m²); primer from the maker sheet, 100 to 120 sq ft a litre' },
 }
 
 /** Wood and steel: CPWD DAR 2016 items 13.48.2 and 13.50.1: primer 0.075 L, multi-surface paint 0.090 L a m², two coats. */
-const WOOD = { primer: 0.075, paint: 0.09 }
+export const WOOD = { primer: 0.075, paint: 0.09 }
 
-const SKIRT_H = 0.10
-const SKIRT_LOSS = 1.10
-const WP_UPSTAND = 0.30
+export const SKIRT_H = 0.10
+export const SKIRT_LOSS = 1.10
+export const WP_UPSTAND = 0.30
 
 /** False ceiling, per m² of ceiling, from a public specification for a gypsum ceiling (450 / 1200 / 1200 / 230 mm spacing). */
-const FC = {
+export const FC = {
   boardM2: 2.88, boardWaste: 1.08,
   sectionM: 2.22, channelM: 0.83, cleats: 0.69, fasteners: 0.69, hangers: 0.69, hangerM: 0.45, screws: 9.7, screwPitch: 0.23, wireM: 0.43,
 }
 
 /* doors and windows */
-interface Op { name: string; w: number; h: number; des?: string }
-const DOOR = {
+export interface Op { name: string; w: number; h: number; des?: string }
+export const DOOR = {
   main: { name: 'Main door', w: 1.0, h: 2.1, des: '10 DS 21' } as Op,
   room: { name: 'Room door', w: 0.9, h: 2.1, des: '9 DS 21' } as Op,
   bath: { name: 'Bathroom door', w: 0.8, h: 2.1, des: '8 DS 21' } as Op,
   mumty: { name: 'Door of the terrace stair room', w: 0.9, h: 2.1, des: '9 DS 21' } as Op,
 }
-const GLAZED = {
+export const GLAZED = {
   balc: { name: 'Balcony door, glazed', w: 1.2, h: 2.1 } as Op,
   winB: { name: 'Bedroom window', w: 1.5, h: 1.2 } as Op,
   winL: { name: 'Living room window', w: 1.8, h: 1.2 } as Op,
@@ -129,31 +130,70 @@ const GLAZED = {
   winS: { name: 'Stair window', w: 1.2, h: 1.2 } as Op,
   vent: { name: 'Bathroom ventilator', w: 0.6, h: 0.45 } as Op,
 }
-const FRAME = { b: 0.10, d: 0.065, horn: 0.10 } // timber door frame section and the horn at each top corner, m (section Assumed)
-const GLASS_SHARE = 0.80
-const GLASS_WASTE = 1.05
-const hingesFor = (w: number) => (w <= 0.9 + 1e-9 ? 3 : 4)
+export const FRAME = { b: 0.10, d: 0.065, horn: 0.10 } // timber door frame section and the horn at each top corner, m (section Assumed)
+export const GLASS_SHARE = 0.80
+export const GLASS_WASTE = 1.05
+export const hingesFor = (w: number) => (w <= 0.9 + 1e-9 ? 3 : 4)
 
 /* carpentry */
-const SHEET_M2 = 2.44 * 1.22
-const CUT_WASTE = 1.12
-const KITCHEN_RUN = { straight: 3.0, l: 4.2, u: 5.4 } as const
-const COUNTER_D = 0.60
-const BASE = { H: 0.72, D: 0.60 }
-const WALL_UNIT = { share: 0.70, H: 0.70, D: 0.35 }
-const WARDROBE = { H: 2.1, D: 0.6, master: 2.4, other: 1.8 }
-const GRANITE_WASTE = 1.10
+export const SHEET_M2 = 2.44 * 1.22
+export const CUT_WASTE = 1.12
+export const KITCHEN_RUN = { straight: 3.0, l: 4.2, u: 5.4 } as const
+export const COUNTER_D = 0.60
+export const BASE = { H: 0.72, D: 0.60 }
+export const WALL_UNIT = { share: 0.70, H: 0.70, D: 0.35 }
+export const WARDROBE = { H: 2.1, D: 0.6, master: 2.4, other: 1.8 }
+export const GRANITE_WASTE = 1.10
+
+/*
+  Rules the model applies inline. They were written as bare numbers inside runInterior; they are named here so the calculation
+  sheet (calc.ts) reads the same values. The values are unchanged.
+*/
+/** long side over short side of a room, a passage and the stair lobby, for the length of wall round each */
+export const ASPECT = { room: 1.3, pass: 4, core: 1.5 }
+/** height of the bathroom wall tiling: to the door height (full) or half way (half), and the door height it cannot pass */
+export const DADO = { full: 2.1, half: 1.2 }
+export const DOOR_H = 2.1
+/** height of the tiled strip above the kitchen counter */
+export const SPLASH_H = 0.6
+/** a window sash is the opening height less this, per pane; a window wider than PANE_W has two panes */
+export const SASH_DROP = 0.1
+export const PANE_W = 0.9
+/** bay width used to count the shutters of a cabinet run, and the shelves, tops and hinges of each run */
+export const CAB = {
+  wardrobe: { bay: 0.9, fullShelves: 2, topBottom: 2, hingePerLeaf: 4 },
+  base: { bay: 0.6, fullShelves: 1, topBottom: 1, hingePerLeaf: 2 },
+  wall: { bay: 0.6, fullShelves: 1, topBottom: 2, hingePerLeaf: 2 },
+}
+/** wall putty is ordered in whole multiples of this many kg */
+export const PUTTY_STEP_KG = 5
+/** the minimum sizes the free checks compare the room plan with: kitchen m², bathroom with WC m², window over floor area */
+export const MIN_ROOM = { kitchen: 5.0, bath: 2.8, light: 0.10 }
+/** the range the real figure is likely to fall in, as multipliers on the figure shown: the four big totals in the report */
+export const RANGE = {
+  painted: [0.85, 1.2], tiles: [0.9, 1.15], doorsWindows: [0.85, 1.25], plywood: [0.7, 1.4], falseCeiling: [0.85, 1.2], glass: [0.8, 1.3],
+} as const
+/** the bands printed under "How far off can this be" */
+export const BANDS = [
+  { label: 'Painted area', low: 0.85, high: 1.2 },
+  { label: 'Putty, primer and paint', low: 0.7, high: 1.35 },
+  { label: 'Tiles', low: 0.9, high: 1.15 },
+  { label: 'Mortar, adhesive and grout', low: 0.65, high: 1.3 },
+  { label: 'False ceiling', low: 0.85, high: 1.2 },
+  { label: 'Doors and windows', low: 0.85, high: 1.25 },
+  { label: 'Plywood and laminate', low: 0.7, high: 1.4 },
+]
 
 /** One cabinet run as panels (m²) and edges (m). Derived: the formula comes from the box geometry. */
-interface Cab { carcass: number; shutters: number; back: number; edge: number; leaves: number; hinges: number }
-function cabinet(w: number, H: number, D: number, bays: number, fullShelves: number, topBottom: number, hingePerLeaf: number): Cab {
+export interface Cab { carcass: number; shutters: number; back: number; edge: number; leaves: number; hinges: number }
+export function cabinet(w: number, H: number, D: number, bays: number, fullShelves: number, topBottom: number, hingePerLeaf: number): Cab {
   const verticals = bays + 1
   const carcass = verticals * H * D + (topBottom + fullShelves) * w * D
   const edge = verticals * H + (topBottom + fullShelves) * w + 2 * w + 2 * bays * H
   return { carcass, shutters: w * H, back: w * H, edge, leaves: bays, hinges: bays * hingePerLeaf }
 }
 
-function spread(total: number, n: number): number[] {
+export function spread(total: number, n: number): number[] {
   const base = Math.floor(total / n)
   const rem = total % n
   return Array.from({ length: n }, (_, i) => base + (i < rem ? 1 : 0))
@@ -162,6 +202,15 @@ function spread(total: number, n: number): number[] {
 /* ───────────────────────── the model ───────────────────────── */
 
 export function runInterior(inp: InteriorInput): Ran {
+  return interiorWork(inp).ran
+}
+
+/**
+ * The model, with the working left on show: `ran` is exactly what runInterior returns, and `w` holds the intermediate
+ * values (areas, counts, quantities before rounding) that the calculation sheet (calc.ts) re-derives and checks. `w` is
+ * never stored or sent anywhere; nothing in `ran` depends on it.
+ */
+export function interiorWork(inp: InteriorInput) {
   const N = inp.floorAreasSqft.length
   const flats = inp.dwelling === 'flats'
   const h = flats ? inp.homesPerFloor : 1
@@ -183,12 +232,12 @@ export function runInterior(inp: InteriorInput): Ran {
     const p = plans[i]
     const nh = p.homes
     const bI = nh * bed[i], baI = nh * bath[i], kI = nh * kit[i]
-    agg.nBed += bI; agg.aBed += bI * p.areas.bed; agg.pBed += bI * perim(p.areas.bed, 1.3)
-    agg.nLiv += nh; agg.aLiv += nh * p.areas.living; agg.pLiv += nh * perim(p.areas.living, 1.3)
-    agg.nKit += kI; agg.aKit += kI * p.areas.kit; agg.pKit += kI * perim(p.areas.kit, 1.3)
-    agg.nBath += baI; agg.aBath += baI * p.areas.bath; agg.pBath += baI * perim(p.areas.bath, 1.3)
-    agg.aPass += nh * p.areas.pass; agg.pPass += nh * perim(p.areas.pass, 4)
-    if (p.core > 0) { agg.aCore += p.core; agg.pCore += perim(p.core, 1.5) }
+    agg.nBed += bI; agg.aBed += bI * p.areas.bed; agg.pBed += bI * perim(p.areas.bed, ASPECT.room)
+    agg.nLiv += nh; agg.aLiv += nh * p.areas.living; agg.pLiv += nh * perim(p.areas.living, ASPECT.room)
+    agg.nKit += kI; agg.aKit += kI * p.areas.kit; agg.pKit += kI * perim(p.areas.kit, ASPECT.room)
+    agg.nBath += baI; agg.aBath += baI * p.areas.bath; agg.pBath += baI * perim(p.areas.bath, ASPECT.room)
+    agg.aPass += nh * p.areas.pass; agg.pPass += nh * perim(p.areas.pass, ASPECT.pass)
+    if (p.core > 0) { agg.aCore += p.core; agg.pCore += perim(p.core, ASPECT.core) }
     open.room += bI + kI
     open.bath += baI
     open.vent += baI
@@ -208,13 +257,12 @@ export function runInterior(inp: InteriorInput): Ran {
   // ── paint area, measured as IS 1200 Part 13 measures it
   // Openings up to 0.5 m² are not taken out. From 0.5 to 3 m², one face is taken out: a door between two painted rooms once
   // in all, a window or an outer door half from each face, because the finish differs inside and outside.
-  const dado = inp.bathTile === 'full' ? 2.1 : 1.2
+  const dado = inp.bathTile === 'full' ? DADO.full : DADO.half
   const run = KITCHEN_RUN[inp.kitchenShape]
-  const SPLASH_H = 0.6
   const kitSplash = agg.nKit * run * SPLASH_H
-  const bathWallTile = Math.max(0, agg.pBath * dado - open.bath * DOOR.bath.w * Math.min(2.1, dado))
+  const bathWallTile = Math.max(0, agg.pBath * dado - open.bath * DOOR.bath.w * Math.min(DOOR_H, dado))
   const bathAbove = agg.pBath * (Hc - dado)
-  const bathAboveDed = open.bath * DOOR.bath.w * Math.max(0, 2.1 - dado)
+  const bathAboveDed = open.bath * DOOR.bath.w * Math.max(0, DOOR_H - dado)
   const bathPaint = Math.max(0, bathAbove - bathAboveDed)
 
   const wallsGross = (agg.pBed + agg.pLiv + agg.pKit + agg.pPass + agg.pCore) * Hc
@@ -340,14 +388,14 @@ export function runInterior(inp: InteriorInput): Ran {
   const bolts = 2 * open.main + open.bath
 
   interface GlRow { id: keyof typeof GLAZED; op: Op; n: number; glass: number; sections: number }
-  const panes = (o: Op) => (o.w <= 0.9 ? 1 : 2)
+  const panes = (o: Op) => (o.w <= PANE_W ? 1 : 2)
   const glRows: GlRow[] = (Object.keys(GLAZED) as (keyof typeof GLAZED)[])
     .map((id) => ({ id, n: open[id] }))
     .filter((x) => x.n > 0)
     .map(({ id, n }) => {
       const o = GLAZED[id]
       const frame = 2 * (o.w + o.h)
-      const sash = id === 'vent' ? 0 : panes(o) * 2 * (o.h - 0.1 + o.w / panes(o))
+      const sash = id === 'vent' ? 0 : panes(o) * 2 * (o.h - SASH_DROP + o.w / panes(o))
       return { id, op: o, n, glass: n * area(o) * GLASS_SHARE * GLASS_WASTE, sections: n * (frame + sash) }
     })
   const glassTotal = glRows.reduce((s, r) => s + r.glass, 0)
@@ -360,13 +408,13 @@ export function runInterior(inp: InteriorInput): Ran {
   const otherN = inp.wardrobes === 'all' ? Math.max(0, agg.nBed - dwellings) : 0
   interface CabRow { item: string; n: number; w: number; cab: Cab }
   const cabs: CabRow[] = []
-  const wardrobe = (w: number) => cabinet(w, WARDROBE.H, WARDROBE.D, Math.ceil(w / 0.9 - 1e-9), 2, 2, 4)
+  const wardrobe = (w: number) => cabinet(w, WARDROBE.H, WARDROBE.D, Math.ceil(w / CAB.wardrobe.bay - 1e-9), CAB.wardrobe.fullShelves, CAB.wardrobe.topBottom, CAB.wardrobe.hingePerLeaf)
   if (masterN > 0) cabs.push({ item: 'Wardrobe, master bedroom', n: masterN, w: WARDROBE.master, cab: wardrobe(WARDROBE.master) })
   if (otherN > 0) cabs.push({ item: 'Wardrobe, other bedroom', n: otherN, w: WARDROBE.other, cab: wardrobe(WARDROBE.other) })
   if (inp.kitchenCabinets && agg.nKit > 0) {
     const wRun = run * WALL_UNIT.share
-    cabs.push({ item: 'Kitchen, units below the counter', n: agg.nKit, w: run, cab: cabinet(run, BASE.H, BASE.D, Math.ceil(run / 0.6 - 1e-9), 1, 1, 2) })
-    cabs.push({ item: 'Kitchen, units on the wall', n: agg.nKit, w: wRun, cab: cabinet(wRun, WALL_UNIT.H, WALL_UNIT.D, Math.ceil(wRun / 0.6 - 1e-9), 1, 2, 2) })
+    cabs.push({ item: 'Kitchen, units below the counter', n: agg.nKit, w: run, cab: cabinet(run, BASE.H, BASE.D, Math.ceil(run / CAB.base.bay - 1e-9), CAB.base.fullShelves, CAB.base.topBottom, CAB.base.hingePerLeaf) })
+    cabs.push({ item: 'Kitchen, units on the wall', n: agg.nKit, w: wRun, cab: cabinet(wRun, WALL_UNIT.H, WALL_UNIT.D, Math.ceil(wRun / CAB.wall.bay - 1e-9), CAB.wall.fullShelves, CAB.wall.topBottom, CAB.wall.hingePerLeaf) })
   }
   const sum = (f: (c: CabRow) => number) => cabs.reduce((s, c) => s + c.n * f(c), 0)
   const ply19 = sum((c) => c.cab.carcass + c.cab.shutters)
@@ -388,8 +436,8 @@ export function runInterior(inp: InteriorInput): Ran {
   const livWinPer = agg.nLiv > 0 ? open.winL / agg.nLiv : 1
   const bedRatio = avgBed > 0 ? area(GLAZED.winB) / avgBed : 1
   const livRatio = avgLiv > 0 ? (livWinPer * area(GLAZED.winL)) / avgLiv : 1
-  const kitchenOk = avgKit >= 5.0 - 1e-9
-  const bathOk = avgBath >= 2.8 - 1e-9
+  const kitchenOk = avgKit >= MIN_ROOM.kitchen - 1e-9
+  const bathOk = avgBath >= MIN_ROOM.bath - 1e-9
 
   const checks: Check[] = []
   checks.push({
@@ -412,7 +460,7 @@ export function runInterior(inp: InteriorInput): Ran {
   })
   checks.push({
     id: 'light', clause: 'NBC 2016 Part 8 (read in a summary; the code itself was not read)', description: 'Window size against room size',
-    status: bedRatio >= 0.10 - 1e-9 && livRatio >= 0.10 - 1e-9 ? 'pass' : 'advisory',
+    status: bedRatio >= MIN_ROOM.light - 1e-9 && livRatio >= MIN_ROOM.light - 1e-9 ? 'pass' : 'advisory',
     detail: `A habitable room needs windows of at least a tenth of its floor area. The bedroom window counted is ${fmt(area(GLAZED.winB), 1)} m² for a room of about ${fmt(avgBed, 1)} m² (${fmt(bedRatio * 100)}%) and the living room has ${fmt(livWinPer * area(GLAZED.winL), 1)} m² of window for about ${fmt(avgLiv, 1)} m² (${fmt(livRatio * 100)}%).${bedRatio >= 0.1 && livRatio >= 0.1 ? '' : ' One falls short, so ask for a larger window.'}`,
   })
   checks.push({
@@ -463,14 +511,14 @@ export function runInterior(inp: InteriorInput): Ran {
   const sheetsLam = hasCarpentry ? sheets(laminate) : 0
   const paintedTotal = interiorPaint + extPaint
   const t4: Tile = hasCarpentry
-    ? { k: 'Plywood', v: fmt(sheetsPly19 + sheetsPly8), unit: 'sheets', range: `${rangeText(sheetsPly19 + sheetsPly8, 0.7, 1.4)} sheets` }
+    ? { k: 'Plywood', v: fmt(sheetsPly19 + sheetsPly8), unit: 'sheets', range: `${rangeText(sheetsPly19 + sheetsPly8, RANGE.plywood[0], RANGE.plywood[1])} sheets` }
     : fcArea > 0
-      ? { k: 'False ceiling', v: fmt(fcArea), unit: 'm²', range: `${rangeText(fcArea, 0.85, 1.2)} m²` }
-      : { k: 'Window glass', v: fmt(glassTotal), unit: 'm²', range: `${rangeText(glassTotal, 0.8, 1.3)} m²` }
+      ? { k: 'False ceiling', v: fmt(fcArea), unit: 'm²', range: `${rangeText(fcArea, RANGE.falseCeiling[0], RANGE.falseCeiling[1])} m²` }
+      : { k: 'Window glass', v: fmt(glassTotal), unit: 'm²', range: `${rangeText(glassTotal, RANGE.glass[0], RANGE.glass[1])} m²` }
   const tiles: Tile[] = [
-    { k: 'Painted area', v: fmt(paintedTotal), unit: 'm²', range: `${rangeText(paintedTotal, 0.85, 1.2)} m²` },
-    { k: 'Tiles', v: fmt(tileBuyTotal), unit: 'm²', range: `${rangeText(tileBuyTotal, 0.9, 1.15)} m²` },
-    { k: 'Doors and windows', v: fmt(nDoors + nGlazed), unit: 'nos', range: `${rangeText(nDoors + nGlazed, 0.85, 1.25)} nos` },
+    { k: 'Painted area', v: fmt(paintedTotal), unit: 'm²', range: `${rangeText(paintedTotal, RANGE.painted[0], RANGE.painted[1])} m²` },
+    { k: 'Tiles', v: fmt(tileBuyTotal), unit: 'm²', range: `${rangeText(tileBuyTotal, RANGE.tiles[0], RANGE.tiles[1])} m²` },
+    { k: 'Doors and windows', v: fmt(nDoors + nGlazed), unit: 'nos', range: `${rangeText(nDoors + nGlazed, RANGE.doorsWindows[0], RANGE.doorsWindows[1])} nos` },
     t4,
   ]
 
@@ -618,7 +666,7 @@ export function runInterior(inp: InteriorInput): Ran {
   const L = (key: string, item: string, qty: number, unit: string, group: string, basis: string) => {
     if (qty > 0) lines.push({ key, item, qty, unit, group, basis })
   }
-  if (sys.putty) L('wall-putty-kg', sys.putty.label, ceilTo(puttyKg, 5), 'kg', 'Paint', 'Inside walls and ceilings')
+  if (sys.putty) L('wall-putty-kg', sys.putty.label, ceilTo(puttyKg, PUTTY_STEP_KG), 'kg', 'Paint', 'Inside walls and ceilings')
   L('primer-interior-l', 'Primer, inside', Math.ceil(primerL - 1e-9), 'L', 'Paint', 'Inside walls and ceilings')
   L(inp.paint === 'economy' ? 'distemper-interior-l' : 'emulsion-interior-l', sys.finish.label, Math.ceil(finishL - 1e-9), 'L', 'Paint', 'Inside walls and ceilings')
   if (ex) {
@@ -694,15 +742,7 @@ export function runInterior(inp: InteriorInput): Ran {
     'Inside of the terrace stair room, the compound wall and gate, and polishing of timber.',
     'Scaffolding, masking, putty sanding, curing water and the carriage of materials.',
   ]
-  const bands = [
-    { label: 'Painted area', low: 0.85, high: 1.2 },
-    { label: 'Putty, primer and paint', low: 0.7, high: 1.35 },
-    { label: 'Tiles', low: 0.9, high: 1.15 },
-    { label: 'Mortar, adhesive and grout', low: 0.65, high: 1.3 },
-    { label: 'False ceiling', low: 0.85, high: 1.2 },
-    { label: 'Doors and windows', low: 0.85, high: 1.25 },
-    { label: 'Plywood and laminate', low: 0.7, high: 1.4 },
-  ]
+  const bands = BANDS.map((b) => ({ ...b }))
   const sources = [
     'IS 1200 (Part 11):1977, (Part 12):1976, (Part 13):1994 Methods of measurement of building and civil engineering works',
     'IS 15622:2006 Pressed ceramic tiles; IS 2395 (Part 1):1994 Painting practice; IS 3067:1988 Damp-proofing and waterproofing',
@@ -711,7 +751,7 @@ export function runInterior(inp: InteriorInput): Ran {
     'Data sheets of paint, putty, adhesive, grout and tile makers (Asian Paints, Nerolac, Berger, Sika, Laticrete, Mapei, Kajaria); public CPWD-pattern tender documents for gypsum ceilings and tile beds',
   ]
 
-  return {
+  const ran: Ran = {
     ok: true,
     result: {
       free: {
@@ -725,6 +765,21 @@ export function runInterior(inp: InteriorInput): Ran {
       paid: { engine: 'trade-v1', tool: 'interior', tiles, tables, lines, bands, assumptions, notIncluded, sources },
     },
   }
+
+  const w = {
+    N, flats, h, H, Hc, footM2, bed, bath, kit, balc, plans, agg, open, homes, hasMumty, balcTotal,
+    dado, run, kitSplash, bathWallTile, bathAbove, bathAboveDed, bathPaint,
+    wallsGross, dedRoomDoors, dedMain, dedWin, wallsDed, wallsNet, wallPaint, roomsArea, ceilPaint, interiorPaint,
+    topP, outFace, parapetFaces, balcFaces, balcUnder, extDed, extGross, extPaint,
+    nDoors, leafArea, doorSurf, sys, puttyKg, primerL, finishL, ex, exPrimerL, exFinish, woodPrimerL, enamelL,
+    mainT, floorMain, skirtRM, skirtArea, balcFloor, tileUses, sizeRows, tileBuyTotal,
+    floorFix, wallFix, bedCementKg, bedSandM3, bedCementBags, adhesiveKg, adhesiveBags, groutBySize, groutKg,
+    wpArea, thresholdRM, thresholdN, counterArea, counterEdge,
+    fcArea, fcPerim, fc, doorRows, frameTotal, doorHinges, locks, bolts, glRows, glassTotal, sectionTotal, nGlazed, nWindows,
+    dwellings, masterN, otherN, cabs, ply19, ply8, laminate, edgeBand, cabHinges, cabHandles, hasCarpentry, sheetsPly19, sheetsPly8, sheetsLam,
+    paintedTotal, avgKit, avgBath, avgBed, avgLiv, livWinPer, bedRatio, livRatio, kitchenOk, bathOk,
+  }
+  return { ran, w }
 }
 
 export const interiorModel: TradeModel<InteriorInput> = {
@@ -734,4 +789,5 @@ export const interiorModel: TradeModel<InteriorInput> = {
   code: 'IN',
   parse: parseInterior,
   run: runInterior,
+  calc: buildInteriorCalc,
 }

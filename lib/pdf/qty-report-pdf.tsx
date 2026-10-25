@@ -140,8 +140,8 @@ export default function QtyReportPDF({ meta, free, paid, contact, reportId, proj
           NirmanShastra · India&apos;s IS-code construction quantities platform. This report is for estimation and planning only. It is not a substitute for drawings and calculations signed by a licensed professional. Where a figure is an assumption, change it and the quantities change.
         </Text>
 
-        {calc ? <CalcAppendix sheet={calc} /> : null}
       </Page>
+      {calc ? <CalcAppendix sheet={calc} chrome={{ tool: meta.label, tag: meta.tag, reportId }} /> : null}
     </Document>
   )
 }

@@ -110,6 +110,31 @@ export const CIRCUIT_RULES: Record<CircuitKey, CircuitRule> = {
 /** Highest load the draft IS 4648 Table 4 gives a mains size for. */
 export const DRAFT_MAINS_LIMIT_KW = 10
 
+/** A look-up written as steps: the value of the first step whose upper limit the figure does not pass, else the value above the last. */
+export interface Steps { readonly upTo: readonly (readonly [number, number])[]; readonly above: number }
+const stepped = (st: Steps, x: number): number => {
+  for (const [hi, v] of st.upTo) if (x <= hi) return v
+  return st.above
+}
+
+/** Mains copper size (mm²) by design load (kW): the steps behind mainsMm2, shared with the calculation sheet. */
+export const MAINS_STEPS: { single: Steps; three: Steps } = {
+  single: { upTo: [[5, 4], [7, 6], [10, 10], [14, 16]], above: 25 },
+  three: { upTo: [[7, 4], [12, 6], [20, 10]], above: 16 },
+}
+
+/** Main breaker (A) by design load (kW): the steps behind incomerA. */
+export const INCOMER_STEPS: { single: Steps; three: Steps } = {
+  single: { upTo: [[7, 32], [9.2, 40]], above: 63 },
+  three: { upTo: [[15, 32], [25, 63]], above: 100 },
+}
+
+/** Conduit (mm) by copper size (mm²): the steps behind conduitFor. */
+export const CONDUIT_STEPS: { single: Steps; three: Steps } = {
+  single: { upTo: [[4, 20], [10, 25], [25, 32]], above: 40 },
+  three: { upTo: [[4, 25], [10, 32], [16, 40]], above: 50 },
+}
+
 /**
   Mains and sub-main copper size in mm² for a design load in kW.
   Single phase, up to 5 kW 4 mm², to 7 kW 6, to 10 kW 10: draft IS 4648 Table 4, which leaves exactly 7 kW out of its two
@@ -118,8 +143,7 @@ export const DRAFT_MAINS_LIMIT_KW = 10
   Three phase: the draft only hints (4 or 6 mm² with the load balanced to within 10%), so every three-phase size is Assumed.
 */
 export function mainsMm2(kw: number, three: boolean): number {
-  if (three) return kw <= 7 ? 4 : kw <= 12 ? 6 : kw <= 20 ? 10 : 16
-  return kw <= 5 ? 4 : kw <= 7 ? 6 : kw <= 10 ? 10 : kw <= 14 ? 16 : 25
+  return stepped(three ? MAINS_STEPS.three : MAINS_STEPS.single, kw)
 }
 
 export function mainsStatus(kw: number, three: boolean): WireStatus {
@@ -128,8 +152,7 @@ export function mainsStatus(kw: number, three: boolean): WireStatus {
 
 /** Conduit that goes with a cable set (CPWD DAR 2016 items 1.7.1 to 1.7.11, extended for the larger sizes). */
 export function conduitFor(mm2: number, three: boolean): number {
-  if (three) return mm2 <= 4 ? 25 : mm2 <= 10 ? 32 : mm2 <= 16 ? 40 : 50
-  return mm2 <= 4 ? 20 : mm2 <= 10 ? 25 : mm2 <= 25 ? 32 : 40
+  return stepped(three ? CONDUIT_STEPS.three : CONDUIT_STEPS.single, mm2)
 }
 
 /**
@@ -138,7 +161,7 @@ export function conduitFor(mm2: number, three: boolean): number {
   not be larger than the wire it guards, so a 6 mm² supply (up to 7 kW, 30 A) gets 32 A and not 40 A.
 */
 export function incomerA(kw: number, three: boolean): number {
-  return three ? (kw <= 15 ? 32 : kw <= 25 ? 63 : 100) : kw <= 7 ? 32 : kw <= 9.2 ? 40 : 63
+  return stepped(three ? INCOMER_STEPS.three : INCOMER_STEPS.single, kw)
 }
 
 /** Earth conductor: equal to the line conductor up to 16 mm², half of it above (draft IS 4648 cl 8), taken to the next size sold. */

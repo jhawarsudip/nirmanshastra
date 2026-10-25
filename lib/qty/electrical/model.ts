@@ -12,12 +12,21 @@
   The research behind each number is in the project file "research-electrical-2026-10-25". Where the sources disagree
   (lighting-circuit limits, where 6 A sockets sit, conduit fill), the choice made here is stated in the report.
 
+  The tables, constants and planning rules this file works from are in rules.ts (and wire.ts for wire sizes); the
+  calculation sheet at the end of the paid report (calc.ts) reads the same files and re-works every figure from them.
+
   The site is quantity-only: nothing here knows a price, a labour rate or a dealer.
 */
 
 import type { BaseInput, Check, Fact, Parsed, QtyLine, Ran, Table, Tile, TradeModel } from '../types'
 import { Reader, SQFT_TO_M2, bump, ceilTo, fmt, pieces, rangeText, round } from '../util'
 import { CIRCUIT_RULES, conduitFor, earthMm2, incomerA, mainsMm2 } from './wire'
+import { buildElectricalCalc } from './calc'
+import {
+  A_MAX, A_MIN, AREA_KINDS, BAS, CARPET_SHARE, CIRCUIT_COLOURS, COIL_M, COLOUR, COLOUR_ORDER, DAR, ELEC_BANDS, FIXED_M2, MAINS_COLOURS, NAME, PER_M, PHASE_KIND, RULE, RUN, STD, W, WASTE, WATTS,
+  accLineKey, addTo, dbLineKey, dedicatedKw, designKw, floorName, rccbA, spread, waysFor, zero,
+  type AreaKind, type Cnt, type Kind,
+} from './rules'
 
 export interface ElecInput extends BaseInput {
   dwelling: 'house' | 'flats'
@@ -74,91 +83,6 @@ export function parseElec(raw: unknown): Parsed<ElecInput> {
   }
 }
 
-/* ───────────────────────── tables of figures ───────────────────────── */
-
-type Kind = 'hall' | 'dining' | 'kitchen' | 'bedroom' | 'bath' | 'passage' | 'entrance' | 'balcony' | 'utility' | 'pooja'
-
-/** Counts of everything a room, or a whole building, gets. */
-interface Cnt { L: number; F: number; X: number; B: number; S6: number; S16: number; TV: number; D: number }
-const zero = (): Cnt => ({ L: 0, F: 0, X: 0, B: 0, S6: 0, S16: 0, TV: 0, D: 0 })
-const addTo = (a: Cnt, b: Partial<Cnt>, k = 1) => { for (const x of Object.keys(a) as (keyof Cnt)[]) a[x] += (b[x] ?? 0) * k }
-
-/**
-  Points in each room. u: lights (L), ceiling fans (F), 6 A sockets (S6) and 6/16 A sockets (S16), per 12 m² of room;
-  f: exhaust fans (X), call bells (B), TV (TV) and data (D) points, per room.
-
-  Standard = the room-wise tables of the BIS draft revision of IS 4648 (ETD 20, September 2024), Tables 2 and 3.
-  Basic    = the socket schedule of the published IS 4648:1968 (cl 9.8), with lights and fans so that an 85 m² home
-             has about 12 lights and 5 fans (the yardstick in the NIMI electrician text, Table 1).
-  The column positions of the draft's Table 2 were read from text, so the Standard rows are treated as a guide.
-*/
-const STD: Record<Kind, { u: Partial<Cnt>; f: Partial<Cnt> }> = {
-  hall: { u: { L: 4, F: 1, S6: 8, S16: 1 }, f: { TV: 1, D: 1 } },
-  dining: { u: { L: 2, F: 1, S6: 2 }, f: {} },
-  kitchen: { u: { L: 2, F: 1, S6: 4, S16: 4 }, f: { X: 1, B: 1 } },
-  bedroom: { u: { L: 5, F: 1, S6: 7, S16: 1 }, f: { TV: 1, D: 1 } },
-  bath: { u: { L: 2, S6: 1 }, f: { X: 1 } },
-  passage: { u: { L: 1, S6: 2 }, f: {} },
-  entrance: { u: { L: 1, S6: 1 }, f: { B: 1 } },
-  balcony: { u: { L: 1, S6: 1 }, f: {} },
-  utility: { u: { L: 1 }, f: {} },
-  pooja: { u: { L: 1, S6: 1 }, f: {} },
-}
-const BAS: Record<Kind, { u: Partial<Cnt>; f: Partial<Cnt> }> = {
-  hall: { u: { L: 3, F: 2, S6: 3, S16: 2 }, f: { TV: 1 } },
-  dining: { u: { L: 1, F: 1, S6: 2, S16: 1 }, f: {} },
-  kitchen: { u: { L: 1, S6: 1, S16: 2 }, f: { X: 1 } },
-  bedroom: { u: { L: 2, F: 1, S6: 3, S16: 1 }, f: {} },
-  bath: { u: { L: 1 }, f: { X: 1 } },
-  passage: { u: { L: 1 }, f: {} },
-  entrance: { u: { L: 1 }, f: { B: 1 } },
-  balcony: { u: { L: 1, S6: 1 }, f: {} },
-  utility: { u: { L: 1 }, f: {} },
-  pooja: { u: { L: 1, S6: 1 }, f: {} },
-}
-
-/** Room sizes are not asked; they are shared out of the floor area by these weights (Assumed), then held between these limits (m²). */
-const AREA_KINDS = ['hall', 'dining', 'kitchen', 'bedroom', 'bath', 'passage', 'utility', 'pooja'] as const
-type AreaKind = (typeof AREA_KINDS)[number]
-const W: Record<AreaKind, number> = { hall: 1.6, dining: 0.9, kitchen: 0.8, bedroom: 1.0, bath: 0.35, passage: 0.5, utility: 0.3, pooja: 0.25 }
-const A_MIN: Record<AreaKind, number> = { hall: 9.5, dining: 6, kitchen: 5, bedroom: 9.5, bath: 2.8, passage: 3, utility: 2.5, pooja: 1.5 }
-const A_MAX: Record<AreaKind, number> = { hall: 30, dining: 14, kitchen: 14, bedroom: 20, bath: 6, passage: 10, utility: 6, pooja: 3 }
-const FIXED_M2: Record<'entrance' | 'balcony', number> = { entrance: 4, balcony: 4.5 }
-const CARPET_SHARE = 0.75
-
-const NAME: Record<Kind, string> = {
-  hall: 'Hall or living room', dining: 'Dining room', kitchen: 'Kitchen', bedroom: 'Bedroom', bath: 'Bathroom', passage: 'Passage',
-  entrance: 'Entrance', balcony: 'Balcony', utility: 'Wash area or dry balcony', pooja: 'Pooja room',
-}
-
-/** Wire. DAR 2016 item 1.1: 3 m each of live and neutral and 1.5 m of earth per point in Group A, 4 + 4 + 2 in Group B; 1.01 m of conductor per metre of route; 5% waste. */
-const COIL_M = 90
-const WASTE = 1.05
-const RUN = 1.01
-const DAR = { A: { wire: 3.0, earth: 1.5, conduit: 2.5, couplers: 0, saddles: 4 }, B: { wire: 4.0, earth: 2.0, conduit: 3.5, couplers: 2, saddles: 9 } }
-/** Per metre of circuit route (DAR items 1.5, 1.7: per 50 m, 4 bends, 15 couplers, 85 saddles, 6 junction boxes on power runs). */
-const PER_M = { bends: 4 / 50, couplers: 15 / 50, saddles: 85 / 50, jbox: 6 / 50 }
-
-/** Connected load per point in watts: draft IS 4648 Table 5 (light 50, fan 75, 6 A outlet 100), CPWD GS 3.9 (16 A socket 1,000), draft Table 6 (appliances). */
-const WATTS = { L: 50, F: 75, X: 75, S6: 100, S16: 1000, ac: 1500, geyser: 2000, washer: 2000, dish: 1500, pump: 1100, ev: 7400 }
-
-const floorName = (i: number) => ['Ground floor', 'First floor', 'Second floor', 'Third floor', 'Fourth floor', 'Fifth floor', 'Sixth floor', 'Seventh floor', 'Eighth floor', 'Ninth floor'][i] ?? `Floor ${i}`
-
-function spread(total: number, n: number): number[] {
-  const base = Math.floor(total / n)
-  const rem = total % n
-  return Array.from({ length: n }, (_, i) => base + (i < rem ? 1 : 0))
-}
-
-/* Mains size, conduit, main breaker and earth conductor come from ./wire, shared with the free Wire Size calculator. */
-/** Distribution board sizes seen in tender schedules (outgoing ways). */
-const SPN_WAYS = [4, 6, 8, 12, 16, 18, 24, 32] as const
-const TPN_WAYS = [4, 6, 8, 12, 16, 24] as const
-const waysFor = (n: number, three: boolean) => {
-  const list = three ? TPN_WAYS : SPN_WAYS
-  return list.find((w) => n <= w) ?? Math.ceil(n / 8) * 8
-}
-const rccbA = (inc: number) => (inc <= 40 ? 40 : inc <= 63 ? 63 : 100)
 
 /* ───────────────────────── the model ───────────────────────── */
 
@@ -187,23 +111,23 @@ export function runElec(inp: ElecInput): Ran {
   const N = inp.floorAreasSqft.length
   const flats = inp.dwelling === 'flats'
   const std = inp.wiring === 'standard'
-  const H = inp.storeyM ?? 3.0
+  const H = inp.storeyM ?? RULE.storeyDefaultM
   const homesOnFloor = flats ? inp.homesPerFloor : 1
   const homes = flats ? inp.homesPerFloor * N : 1
   const builtM2 = inp.floorAreasSqft.map((a) => a * SQFT_TO_M2)
   const T = std ? STD : BAS
   const parking = inp.ev && inp.parking === 0 ? homes : inp.parking
-  const pumps = homes >= 2 ? 2 : 1
-  const evCircuits = inp.ev ? Math.max(1, Math.ceil(parking * 0.2)) : 0
+  const pumps = homes >= RULE.pumpsTwoFromHomes ? RULE.pumpsTwo : RULE.pumpsOne
+  const evCircuits = inp.ev ? Math.max(1, Math.ceil(parking * RULE.evPerSpace)) : 0
 
   /* ── what each board serves ── */
   const specs: Spec[] = []
-  const acPerHome = Math.min(inp.acRooms, inp.bedrooms + 1)
+  const acPerHome = Math.min(inp.acRooms, inp.bedrooms + RULE.acBeyondBedrooms)
   const base = (): Spec => ({ label: '', floor: 0, mult: 1, builtM2: 0, carpetM2: 0, rooms: {}, extras: [], ac: 0, geysers: 0, washers: 0, dish: 0, pumps: 0, evs: 0, main: false, sub: false, common: false })
-  const stairLights = (floors: number) => ({ name: 'Staircase', n: floors, c: { L: 2 * floors } })
-  const terraceExtra = () => ({ name: 'Terrace and stair room', n: 1, c: { L: N > 1 ? 2 : 1, S6: 1 } })
-  const gateExtra = () => ({ name: 'Gate and porch', n: 1, c: { L: 2 } })
-  const parkingExtra = () => (parking > 0 ? [{ name: 'Parking', n: parking, c: { L: Math.max(2, Math.ceil(parking * 0.5)), S6: 2 } }] : [])
+  const stairLights = (floors: number) => ({ name: 'Staircase', n: floors, c: { L: RULE.stairLightsPerFloor * floors } })
+  const terraceExtra = () => ({ name: 'Terrace and stair room', n: 1, c: { L: N > 1 ? RULE.terraceLightsMulti : RULE.terraceLightsSingle, S6: RULE.terraceS6 } })
+  const gateExtra = () => ({ name: 'Gate and porch', n: 1, c: { L: RULE.gateLights } })
+  const parkingExtra = () => (parking > 0 ? [{ name: 'Parking', n: parking, c: { L: Math.max(RULE.parkingLightsMin, Math.ceil(parking * RULE.parkingLightsPerSpace)), S6: RULE.parkingS6 } }] : [])
 
   if (flats) {
     for (let i = 0; i < N; i++) {
@@ -225,7 +149,7 @@ export function runElec(inp: ElecInput): Ran {
     c.label = 'Common board'
     c.floor = 0
     c.builtM2 = Math.max(...builtM2)
-    c.extras = [stairLights(N), { name: 'Lift lobby and passages', n: N, c: { L: 2 * N } }, terraceExtra(), gateExtra(), ...parkingExtra()]
+    c.extras = [stairLights(N), { name: 'Lift lobby and passages', n: N, c: { L: RULE.liftLobbyLightsPerFloor * N } }, terraceExtra(), gateExtra(), ...parkingExtra()]
     c.pumps = pumps
     c.evs = evCircuits
     c.main = true
@@ -254,7 +178,7 @@ export function runElec(inp: ElecInput): Ran {
       s.dish = i === 0 && inp.utility && std ? 1 : 0
       s.main = i === 0
       s.sub = i !== 0
-      if (N > 1) s.extras.push({ name: 'Staircase', n: 1, c: { L: 2 } })
+      if (N > 1) s.extras.push({ name: 'Staircase', n: 1, c: { L: RULE.houseStairLights } })
       if (i === 0) {
         s.extras.push(terraceExtra(), gateExtra(), ...parkingExtra())
         s.pumps = pumps
@@ -285,7 +209,7 @@ export function runElec(inp: ElecInput): Ran {
   const addRoute = (size: number, routeM: number, n: number, power = true) => {
     if (n <= 0 || routeM <= 0) return
     const m = routeM * n
-    for (const col of ['Red', 'Black', 'Green']) wadd(size, col, m * RUN)
+    for (const col of CIRCUIT_COLOURS) wadd(size, col, m * RUN)
     cadd(conduitFor(size, false), m)
     acc.bends += m * PER_M.bends
     acc.couplers += m * PER_M.couplers
@@ -294,8 +218,8 @@ export function runElec(inp: ElecInput): Ran {
   }
   const addMain = (size: number, routeM: number, n: number, three: boolean) => {
     const m = routeM * n
-    for (const col of three ? ['Red', 'Yellow', 'Blue', 'Black'] : ['Red', 'Black']) wadd(size, col, m * RUN)
-    wadd(earthMm2(size), 'Green', m * RUN)
+    for (const col of three ? MAINS_COLOURS.three : MAINS_COLOURS.single) wadd(size, col, m * RUN)
+    wadd(earthMm2(size), COLOUR.earth, m * RUN)
     cadd(conduitFor(size, three), m)
     acc.bends += m * PER_M.bends
     acc.couplers += m * PER_M.couplers
@@ -311,21 +235,20 @@ export function runElec(inp: ElecInput): Ran {
   const mcbAdd = (rating: number, n: number) => { if (n > 0) bump(mcb, rating, n) }
 
   /* design load of the whole consumer (a house) or of one flat, in kW (draft IS 4648 cl 7: not less than 75 W/m² of carpet area) */
-  const dedKw = (s: Spec) => (s.ac * WATTS.ac + s.geysers * WATTS.geyser + s.washers * WATTS.washer + s.dish * WATTS.dish + s.pumps * WATTS.pump + s.evs * WATTS.ev) / 1000
+  const dedKw = (s: Spec) => dedicatedKw(s)
   const houseCarpet = specs.reduce((a, s) => a + s.carpetM2, 0)
   const houseDed = specs.reduce((a, s) => a + dedKw(s), 0)
-  const designKw = (carpet: number, ded: number) => Math.max(0.075 * carpet, 0.6 * ded + 1.5)
 
   const housePd = flats ? 0 : designKw(houseCarpet, houseDed)
   const pdOf = (s: Spec) => (flats ? (s.common ? designKw(0, dedKw(s)) : designKw(s.carpetM2, dedKw(s))) : housePd)
-  const threeOf = (s: Spec) => (s.common || !s.main ? false : inp.supply === 'three' ? true : inp.supply === 'single' ? false : pdOf(s) > 10)
+  const threeOf = (s: Spec) => (s.common || !s.main ? false : inp.supply === 'three' ? true : inp.supply === 'single' ? false : pdOf(s) > RULE.threePhaseAboveKw)
   const threePhase = specs.some((s) => threeOf(s))
   const kwShown = flats ? Math.max(...specs.filter((s) => !s.common).map(pdOf)) : housePd
 
   /* ── plan each board ── */
   for (const s of specs) {
     const mult = s.mult
-    const f = Math.max(0, Math.min(1, (s.builtM2 / SQFT_TO_M2 - 1000) / 1500)) // 0 = DAR Group A, 1 = Group B
+    const f = Math.max(0, Math.min(1, (s.builtM2 / SQFT_TO_M2 - RULE.groupAFromSqft) / (RULE.groupBFromSqft - RULE.groupAFromSqft))) // 0 = DAR Group A, 1 = Group B
     const cnt = zero()
     const rows = new Map<string, { n: number; c: Cnt }>()
 
@@ -341,7 +264,7 @@ export function runElec(inp: ElecInput): Ran {
         const n = s.rooms[kind] ?? 0
         if (n <= 0) continue
         const area = kind === 'entrance' ? FIXED_M2.entrance : kind === 'balcony' ? FIXED_M2.balcony : areaOf[kind as AreaKind]!
-        const units = Math.max(1, area / 12)
+        const units = Math.max(1, area / RULE.unitM2)
         const row = T[kind]
         const c = zero()
         for (const x of ['L', 'F', 'S6', 'S16'] as const) c[x] = n * Math.round((row.u[x] ?? 0) * units)
@@ -382,43 +305,43 @@ export function runElec(inp: ElecInput): Ran {
     const dw = DAR.A.wire + f * (DAR.B.wire - DAR.A.wire)
     const de = DAR.A.earth + f * (DAR.B.earth - DAR.A.earth)
     const dc = DAR.A.conduit + f * (DAR.B.conduit - DAR.A.conduit)
-    wadd(1.5, 'Red', pts * dw * mult); wadd(1.5, 'Black', pts * dw * mult); wadd(1.5, 'Green', pts * de * mult)
-    cadd(20, pts * dc * mult)
+    wadd(RULE.pointMm2, COLOUR.live, pts * dw * mult); wadd(RULE.pointMm2, COLOUR.neutral, pts * dw * mult); wadd(RULE.pointMm2, COLOUR.earth, pts * de * mult)
+    cadd(RULE.pointConduitMm, pts * dc * mult)
     acc.bends += pts * mult
     acc.couplers += pts * (DAR.A.couplers + f * (DAR.B.couplers - DAR.A.couplers)) * mult
     acc.saddles += pts * (DAR.A.saddles + f * (DAR.B.saddles - DAR.A.saddles)) * mult
     acc.jbox += pts * mult
 
     // sockets: a run from the nearest point, in 2.5 mm² on a power circuit (1.5 mm² on the lighting circuit in the Basic level)
-    const tap = 2.5 + 1.5 * f
-    const sockSize = std ? 2.5 : 1.5
+    const tap = RULE.tapBaseM + RULE.tapRiseM * f
+    const sockSize = std ? RULE.tapMm2.std : RULE.tapMm2.basic
     addRoute(sockSize, tap * cnt.S6 * mult, 1)
-    addRoute(2.5, tap * cnt.S16 * mult, 1)
+    addRoute(RULE.tapMm2.s16, tap * cnt.S16 * mult, 1)
 
     // TV and data points: a conduit from the board's media box
-    const rMedia = 0.5 * Math.sqrt(s.builtM2) + 3
+    const rMedia = RULE.mediaPerSqrtM * Math.sqrt(s.builtM2) + RULE.mediaBaseM
     tot.tvM += cnt.TV * rMedia * mult
     tot.dataM += cnt.D * rMedia * mult
-    cadd(20, (cnt.TV + cnt.D) * rMedia * mult)
+    cadd(RULE.pointConduitMm, (cnt.TV + cnt.D) * rMedia * mult)
     if (cnt.TV + cnt.D > 0) tot.mediaBoxes += mult
 
     // circuits
     const bathRow = rows.get(NAME.bath)
     const bathPts = std && bathRow ? bathRow.c.L + bathRow.c.X : 0
     const lightPts = pts - bathPts
-    const cBath = bathPts > 0 ? Math.ceil(bathPts / 8) : 0
+    const cBath = bathPts > 0 ? Math.ceil(bathPts / RULE.ptsPerBathCkt) : 0
     let cL: number
-    if (std) cL = Math.max(lightPts > 0 ? 1 : 0, 2 - cBath, Math.ceil(lightPts / 8))
-    else cL = Math.max(2, Math.ceil((pts + cnt.S6) / 10))
-    if (s.common) cL = Math.max(cL, Math.ceil(pts / 8), pts > 0 ? 1 : 0)
-    const cS6 = std ? Math.ceil(cnt.S6 / 8) : 0
-    const cS16 = Math.ceil(cnt.S16 / 2)
+    if (std) cL = Math.max(lightPts > 0 ? 1 : 0, RULE.minLightCkts - cBath, Math.ceil(lightPts / RULE.ptsPerLightCkt))
+    else cL = Math.max(RULE.minLightCkts, Math.ceil((pts + cnt.S6) / RULE.ptsPerLightCktBasic))
+    if (s.common) cL = Math.max(cL, Math.ceil(pts / RULE.ptsPerLightCkt), pts > 0 ? 1 : 0)
+    const cS6 = std ? Math.ceil(cnt.S6 / RULE.s6PerCkt) : 0
+    const cS16 = Math.ceil(cnt.S16 / RULE.s16PerCkt)
     const inv = inp.inverter && s.main && !s.common ? 1 : 0
 
-    const rLight = 0.6 * Math.sqrt(s.builtM2) + 3
-    const rSock = 0.7 * Math.sqrt(s.builtM2) + 3
-    const rDed = 0.8 * Math.sqrt(s.builtM2) + 3
-    const rGround = 0.8 * Math.sqrt(Math.max(...builtM2)) + 3 + s.floor * H
+    const rLight = RULE.routeLight * Math.sqrt(s.builtM2) + RULE.routeBaseM
+    const rSock = RULE.routeSock * Math.sqrt(s.builtM2) + RULE.routeBaseM
+    const rDed = RULE.routeDed * Math.sqrt(s.builtM2) + RULE.routeBaseM
+    const rGround = RULE.routeGround * Math.sqrt(Math.max(...builtM2)) + RULE.routeBaseM + s.floor * H
     circ('Lights and fans', cL, CIRCUIT_RULES.lights.mcb, `${CIRCUIT_RULES.lights.mm2} mm², 2 + earth`, std ? 'Up to 8 points on a circuit (draft IS 4648 cl 6.2.1)' : 'Up to 10 points, with the 5 A sockets, on a circuit (IS 4648:1968 cl 7.2)', mult)
     circ('Bathroom lights and exhaust fans', cBath, CIRCUIT_RULES.lights.mcb, `${CIRCUIT_RULES.lights.mm2} mm², 2 + earth`, 'Bathrooms on a circuit of their own (draft IS 4648 cl 6.2.1)', mult)
     circ('6 A sockets', cS6, CIRCUIT_RULES.sockets6.mcb, `${CIRCUIT_RULES.sockets6.mm2} mm², 2 + earth`, 'Up to 8 sockets on a circuit; the sources disagree on this limit', mult)
@@ -426,33 +349,33 @@ export function runElec(inp: ElecInput): Ran {
     circ('Air conditioner', s.ac, CIRCUIT_RULES.ac.mcb, `${CIRCUIT_RULES.ac.mm2} mm², 2 + earth`, 'One circuit for each air conditioner (draft IS 4648 cl 6.2.2)', mult)
     circ('Water heater', s.geysers, CIRCUIT_RULES.heater.mcb, `${CIRCUIT_RULES.heater.mm2} mm², 2 + earth`, 'One circuit for each water heater', mult)
     circ('Washing machine and dishwasher', s.washers + s.dish, CIRCUIT_RULES.heater.mcb, `${CIRCUIT_RULES.heater.mm2} mm², 2 + earth`, 'One circuit for each appliance of 2 kW or more', mult)
-    circ('Transfer pump', s.pumps, '16 A', '2.5 mm², 2 + earth', 'One circuit for each pump', 1)
-    circ('EV charger', s.evs, '32 A', '6 mm², 2 + earth', 'One 7.4 kW charger circuit for each charging point', 1)
-    circ('Inverter', inv, '16 A', '4 mm², 2 + earth', 'Inverter input and output, with its own isolator', mult)
+    circ('Transfer pump', s.pumps, `${RULE.mcb.power} A`, `${RULE.pumpMm2} mm², 2 + earth`, 'One circuit for each pump', 1)
+    circ('EV charger', s.evs, `${RULE.mcb.ev} A`, `${RULE.evMm2} mm², 2 + earth`, 'One 7.4 kW charger circuit for each charging point', 1)
+    circ('Inverter', inv, `${RULE.mcb.power} A`, `${RULE.inverterMm2} mm², 2 + earth`, 'Inverter input and output, with its own isolator', mult)
 
     addRoute(CIRCUIT_RULES.lights.mm2, rLight, (cL + cBath) * mult, false)
     addRoute(CIRCUIT_RULES.sockets6.mm2, rSock, (cS6 + cS16) * mult)
     addRoute(CIRCUIT_RULES.ac.mm2, rDed, s.ac * mult)
     addRoute(CIRCUIT_RULES.heater.mm2, rDed, (s.geysers + s.washers + s.dish) * mult)
-    addRoute(2.5, 15, s.pumps)
-    addRoute(6, rGround, s.evs)
-    addRoute(4, 6, inv * mult)
+    addRoute(RULE.pumpMm2, RULE.pumpRouteM, s.pumps)
+    addRoute(RULE.evMm2, rGround, s.evs)
+    addRoute(RULE.inverterMm2, RULE.inverterRouteM, inv * mult)
     tot.inverters += inv * mult
 
     const light6 = cL + cBath
-    mcbAdd(6, light6 * mult)
-    mcbAdd(std ? 10 : 6, cS6 * mult)
-    mcbAdd(16, (cS16 + s.geysers + s.washers + s.dish + inv) * mult + s.pumps)
-    mcbAdd(20, s.ac * mult)
-    mcbAdd(32, s.evs)
+    mcbAdd(RULE.mcb.light, light6 * mult)
+    mcbAdd(std ? RULE.mcb.sockets6 : RULE.mcb.sockets6Basic, cS6 * mult)
+    mcbAdd(RULE.mcb.power, (cS16 + s.geysers + s.washers + s.dish + inv) * mult + s.pumps)
+    mcbAdd(RULE.mcb.ac, s.ac * mult)
+    mcbAdd(RULE.mcb.ev, s.evs)
 
     const outgoing = cL + cBath + cS6 + cS16 + s.ac + s.geysers + s.washers + s.dish + inv + s.pumps + s.evs
     const three = threeOf(s)
-    const ways = waysFor(outgoing + 1, three)
-    const boardPd = s.sub ? Math.max(1.5, housePd * (s.carpetM2 / Math.max(1, houseCarpet))) : pdOf(s)
+    const ways = waysFor(outgoing + RULE.spareWays, three)
+    const boardPd = s.sub ? Math.max(RULE.subBoardMinKw, housePd * (s.carpetM2 / Math.max(1, houseCarpet))) : pdOf(s)
     const inc = incomerA(boardPd, three)
     const rc = rccbA(inc)
-    const kind = three ? 'Three-phase (TPN)' : 'Single-phase (SPN)'
+    const kind = three ? PHASE_KIND.three : PHASE_KIND.single
     const key = `${s.label}|${kind}|${ways}`
     const prev = dbs.get(key)
     if (prev) prev.n += mult
@@ -463,16 +386,16 @@ export function runElec(inp: ElecInput): Ran {
     // mains, rising mains and sub-mains
     if (flats) {
       const size = mainsMm2(boardPd, three)
-      const each = (s.common ? 10 : 12) + s.floor * H
+      const each = (s.common ? RULE.mainsCommonM : RULE.mainsFlatM) + s.floor * H
       addMain(size, each, mult, three)
       mains.push({ run: s.common ? 'Meter board to the common board' : `Meter room to the ${s.label.toLowerCase()} board`, cable: `${three ? '4' : '2'} × ${size} mm² + ${earthMm2(size)} mm² earth`, n: mult, each: round(each, 1), conduit: `${conduitFor(size, three)} mm` })
     } else if (s.main) {
       const size = mainsMm2(housePd, three)
-      addMain(size, 10, 1, three)
-      mains.push({ run: 'Meter to the main board', cable: `${three ? '4' : '2'} × ${size} mm² + ${earthMm2(size)} mm² earth`, n: 1, each: 10, conduit: `${conduitFor(size, three)} mm` })
+      addMain(size, RULE.mainsHouseM, 1, three)
+      mains.push({ run: 'Meter to the main board', cable: `${three ? '4' : '2'} × ${size} mm² + ${earthMm2(size)} mm² earth`, n: 1, each: RULE.mainsHouseM, conduit: `${conduitFor(size, three)} mm` })
     } else {
-      const size = Math.max(4, mainsMm2(boardPd, false))
-      const each = s.floor * H + 4
+      const size = Math.max(RULE.subMainMinMm2, mainsMm2(boardPd, false))
+      const each = s.floor * H + RULE.subMainExtraM
       addMain(size, each, 1, false)
       mains.push({ run: `Main board to the ${s.label.toLowerCase()} board`, cable: `2 × ${size} mm² + ${earthMm2(size)} mm² earth`, n: 1, each: round(each, 1), conduit: `${conduitFor(size, false)} mm` })
     }
@@ -482,8 +405,8 @@ export function runElec(inp: ElecInput): Ran {
   }
 
   /* ── earthing ── */
-  const electrodes = flats ? 2 + Math.floor(homes / 10) : threePhase ? 2 : 1
-  const stripM = electrodes * 10
+  const electrodes = flats ? RULE.electrodesFlatsBase + Math.floor(homes / RULE.electrodesPerHomes) : threePhase ? RULE.electrodesThreePhase : RULE.electrodesSingle
+  const stripM = electrodes * RULE.stripPerElectrodeM
 
   /* ── accessories ── */
   const L = total.L, F = total.F, X = total.X, B = total.B, S6 = total.S6, S16 = total.S16
@@ -503,22 +426,22 @@ export function runElec(inp: ElecInput): Ran {
   a('Ceiling rose or connector', L + F + B)
   a('Fan hook and box', F)
   a('Junction box or ceiling box, 20 mm', Math.ceil(acc.jbox))
-  const boards = Math.ceil(tot.modules / 4)
+  const boards = Math.ceil(tot.modules / RULE.modulesPerBox)
   a('Switch box (GI or PVC) with cover plate, about 4 modules each', boards)
 
   /* ── purchase lengths ── */
-  const colourOrder = ['Red', 'Yellow', 'Blue', 'Black', 'Green']
+  const colourOrder = COLOUR_ORDER
   const wireRows = [...wire.entries()]
     .map(([k, m]) => { const [size, colour] = k.split('|'); return { size: Number(size), colour, m } })
     .sort((x, y) => x.size - y.size || colourOrder.indexOf(x.colour) - colourOrder.indexOf(y.colour))
-  const buyWire = (size: number, m: number) => (size <= 6 ? pieces(m * WASTE, COIL_M) * COIL_M : ceilTo(m * WASTE, 5))
+  const buyWire = (size: number, m: number) => (size <= RULE.coilMaxMm2 ? pieces(m * WASTE, COIL_M) * COIL_M : ceilTo(m * WASTE, RULE.byMetreStepM))
   const wireBuyTotal = wireRows.reduce((s, r) => s + buyWire(r.size, r.m), 0)
   const wireRunTotal = wireRows.reduce((s, r) => s + r.m, 0)
   const condRows = [...cond.entries()].sort((x, y) => x[0] - y[0])
-  const condBuy = condRows.reduce((s, [, m]) => s + pieces(m * WASTE, 3) * 3, 0)
+  const condBuy = condRows.reduce((s, [, m]) => s + pieces(m * WASTE, RULE.conduitPieceM) * RULE.conduitPieceM, 0)
   const condRun = condRows.reduce((s, [, m]) => s + m, 0)
-  const coaxBuy = total.TV > 0 ? ceilTo(tot.tvM * WASTE, 5) : 0
-  const catBuy = total.D > 0 ? ceilTo(tot.dataM * WASTE, 5) : 0
+  const coaxBuy = total.TV > 0 ? ceilTo(tot.tvM * WASTE, RULE.byMetreStepM) : 0
+  const catBuy = total.D > 0 ? ceilTo(tot.dataM * WASTE, RULE.byMetreStepM) : 0
 
   const points = L + F + X + B
   const sockets = S6 + S16 + tot.washers + tot.dish + tot.ac
@@ -530,7 +453,7 @@ export function runElec(inp: ElecInput): Ran {
     { id: 'lightckt', clause: std ? 'Draft IS 4648 cl 6.2.1; CPWD GS 3.10(i)' : 'IS 4648:1968 cl 7.2; CPWD GS 3.10(i)', description: 'Lighting circuits', status: 'pass', detail: std ? 'A lighting circuit carries at most 8 points or 1,000 W, and bathrooms have a circuit of their own. The older standard allows 10 points or 800 W; the stricter limit is used.' : 'A lighting circuit carries at most 10 points, with the 5 A sockets, and 800 W (more with LED or CFL). There are at least two lighting circuits in a home.' },
     { id: 'powerckt', clause: 'CPWD GS 3.10(iii); draft IS 4648 cl 6.2.2', description: 'Power circuits', status: 'pass', detail: 'No power circuit has more than two 16 A outlets, and each air conditioner, water heater and appliance of 2 kW or more has a circuit of its own.' },
     { id: 'conductor', clause: 'CPWD GS 3.12; draft IS 4648 Table 4', description: 'Wire size', status: 'advisory', detail: 'All wire is copper: 1.5 mm² for lights, 2.5 mm² for sockets, 4 mm² for an air conditioner, with an earth wire of the same size in every circuit. CPWD asks for 4 mm² on power wiring in its own works; the draft IS 4648 allows 2.5 mm² on a socket circuit of up to two outlets, and this report follows the draft. For a long run the electrician should check the voltage drop, which this report does not work out.' },
-    { id: 'rccb', clause: 'Draft IS 4648 cl 6.2.9; IS 732:1989 cl 5.1.3.1', description: 'Shock protection', status: 'pass', detail: 'A 30 mA residual current breaker (RCCB) is counted on every board.' },
+    { id: 'rccb', clause: 'Draft IS 4648 cl 6.2.9', description: 'Shock protection', status: 'pass', detail: 'A 30 mA residual current breaker (RCCB) is counted on every board.' },
     { id: 'load', clause: 'Draft IS 4648 cl 7', description: 'Design load', status: kwShown > 10 && !threePhase ? 'advisory' : 'pass', detail: `The design load is the larger of 75 W for every m² of floor (the minimum in the draft IS 4648) and a share of the big appliances. For yours it is about ${fmt(kwShown, 1)} kW${flats ? ' for each flat' : ''}, so a ${threePhase ? 'three-phase' : 'single-phase'} supply is counted. Your electricity board fixes the sanctioned load and decides single or three phase.` },
     { id: 'earth', clause: 'Draft IS 4648 cl 8; IS 3043', description: 'Earthing', status: 'advisory', detail: `${electrodes} earth ${electrodes === 1 ? 'electrode is' : 'electrodes are'} counted. The number needed depends on the soil, so your electrician must measure the earth resistance after installation.` },
     { id: 'fill', clause: 'CPWD DAR 2016 items 1.7; tender conduit tables', description: 'Conduit size', status: 'advisory', detail: 'Conduit sizes follow the CPWD analysis (three wires of up to 4 mm² in 20 mm). Some tender specifications allow fewer wires in 20 mm, so an electrician may choose the next size up. This changes the conduit price, not the number of metres.' },
@@ -553,10 +476,10 @@ export function runElec(inp: ElecInput): Ran {
 
   /* ───────── paid part ───────── */
   const tiles: Tile[] = [
-    { k: 'Points and sockets', v: fmt(points + sockets), unit: 'counted', range: `${rangeText(points + sockets, 0.7, 1.4)}` },
-    { k: 'Copper wire', v: fmt(wireBuyTotal), unit: 'm', range: `${rangeText(wireBuyTotal, 0.75, 1.35)} m` },
-    { k: 'Conduit', v: fmt(condBuy), unit: 'm', range: `${rangeText(condBuy, 0.8, 1.3)} m` },
-    { k: 'Circuits', v: fmt(tot.circuits), unit: 'on ' + fmt(tot.boards) + (tot.boards === 1 ? ' board' : ' boards'), range: `${rangeText(tot.circuits, 0.8, 1.25)} circuits` },
+    { k: 'Points and sockets', v: fmt(points + sockets), unit: 'counted', range: `${rangeText(points + sockets, ELEC_BANDS.points.low, ELEC_BANDS.points.high)}` },
+    { k: 'Copper wire', v: fmt(wireBuyTotal), unit: 'm', range: `${rangeText(wireBuyTotal, ELEC_BANDS.wire.low, ELEC_BANDS.wire.high)} m` },
+    { k: 'Conduit', v: fmt(condBuy), unit: 'm', range: `${rangeText(condBuy, ELEC_BANDS.conduit.low, ELEC_BANDS.conduit.high)} m` },
+    { k: 'Circuits', v: fmt(tot.circuits), unit: 'on ' + fmt(tot.boards) + (tot.boards === 1 ? ' board' : ' boards'), range: `${rangeText(tot.circuits, ELEC_BANDS.circuits.low, ELEC_BANDS.circuits.high)} circuits` },
   ]
 
   const pointsRows: (string | number)[][] = [...roomRows.entries()].map(([name, r]) => [name, r.n, r.c.L, r.c.F, r.c.X, r.c.B, r.c.S6, r.c.S16, r.c.TV + r.c.D])
@@ -575,12 +498,12 @@ export function runElec(inp: ElecInput): Ran {
   const wireRowsOut = wireRows.map((r) => {
     const w = r.m * WASTE
     const buy = buyWire(r.size, r.m)
-    return [`${r.size} mm²`, r.colour, fmt(r.m, 0), fmt(w, 0), r.size <= 6 ? buy / COIL_M : '', r.size <= 6 ? `${buy} m` : `${buy} m, by the metre`]
+    return [`${r.size} mm²`, r.colour, fmt(r.m, 0), fmt(w, 0), r.size <= RULE.coilMaxMm2 ? buy / COIL_M : '', r.size <= RULE.coilMaxMm2 ? `${buy} m` : `${buy} m, by the metre`]
   })
   const condRowsOut = condRows.map(([mm, m]) => {
     const w = m * WASTE
-    const pc = pieces(w, 3)
-    return [`${mm} mm`, fmt(m, 0), fmt(w, 0), pc, `${pc * 3} m`]
+    const pc = pieces(w, RULE.conduitPieceM)
+    return [`${mm} mm`, fmt(m, 0), fmt(w, 0), pc, `${pc * RULE.conduitPieceM} m`]
   })
   const mainsRows = mains.map((m) => [m.run, m.cable, m.n, fmt(m.each, 1), m.conduit])
   const loadRows = [...connected.entries()].filter(([, kw]) => kw > 0).map(([k, kw]) => [k, fmt(kw, 1)])
@@ -617,17 +540,17 @@ export function runElec(inp: ElecInput): Ran {
 
   const lines: QtyLine[] = []
   for (const r of wireRows) {
-    lines.push({ key: `wire-cu-${r.size}-${r.colour.toLowerCase()}`, item: `Copper wire ${r.size} mm², ${r.colour.toLowerCase()}`, qty: buyWire(r.size, r.m), unit: 'm', group: 'Electrical', basis: r.size <= 6 ? `Whole coils of ${COIL_M} m, 5% waste` : 'By the metre, 5% waste' })
+    lines.push({ key: `wire-cu-${r.size}-${r.colour.toLowerCase()}`, item: `Copper wire ${r.size} mm², ${r.colour.toLowerCase()}`, qty: buyWire(r.size, r.m), unit: 'm', group: 'Electrical', basis: r.size <= RULE.coilMaxMm2 ? `Whole coils of ${COIL_M} m, 5% waste` : 'By the metre, 5% waste' })
   }
-  for (const [mm, m] of condRows) lines.push({ key: `conduit-pvc-${mm}`, item: `PVC conduit ${mm} mm`, qty: pieces(m * WASTE, 3) * 3, unit: 'm', group: 'Electrical', basis: 'Whole 3 m lengths, 5% waste' })
+  for (const [mm, m] of condRows) lines.push({ key: `conduit-pvc-${mm}`, item: `PVC conduit ${mm} mm`, qty: pieces(m * WASTE, RULE.conduitPieceM) * RULE.conduitPieceM, unit: 'm', group: 'Electrical', basis: 'Whole 3 m lengths, 5% waste' })
   for (const [r, n] of [...mcb.entries()].sort((x, y) => x[0] - y[0])) lines.push({ key: `mcb-${r}a`, item: `MCB ${r} A`, qty: round(n), unit: 'nos', group: 'Electrical', basis: 'One-pole, one for each circuit' })
   for (const [k, n] of incomers) { const [poles, amps] = k.split('|'); lines.push({ key: `mcb-incomer-${poles}p-${amps}a`, item: `Incomer MCB ${poles}-pole ${amps} A`, qty: n, unit: 'nos', group: 'Electrical', basis: 'One at the head of each board' }) }
   lines.push({ key: 'rccb', item: 'RCCB 30 mA', qty: tot.boards, unit: 'nos', group: 'Electrical', basis: 'One on every board' })
-  for (const d of dbs.values()) lines.push({ key: `db-${d.ways}way-${d.kind.startsWith('Three') ? 'tpn' : 'spn'}-${d.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, item: `Distribution board ${d.ways} way, ${d.kind.startsWith('Three') ? 'three-phase' : 'single-phase'} (${d.name.toLowerCase()})`, qty: d.n, unit: 'nos', group: 'Electrical', basis: 'Outgoing ways, with a spare' })
+  for (const d of dbs.values()) lines.push({ key: dbLineKey(d), item: `Distribution board ${d.ways} way, ${d.kind.startsWith('Three') ? 'three-phase' : 'single-phase'} (${d.name.toLowerCase()})`, qty: d.n, unit: 'nos', group: 'Electrical', basis: 'Outgoing ways, with a spare' })
   lines.push({ key: 'light-points', item: 'Light, fan, exhaust and bell points', qty: points, unit: 'nos', group: 'Electrical', basis: 'Counted room by room' })
   lines.push({ key: 'sockets', item: 'Socket outlets (6 A, 6/16 A, 20/25 A)', qty: sockets, unit: 'nos', group: 'Electrical', basis: 'Counted room by room, with the dedicated outlets' })
   if (electrodes > 0) lines.push({ key: 'earth-electrode', item: 'Earth electrode with pit', qty: electrodes, unit: 'nos', group: 'Electrical', basis: 'One for a single-phase house, two for three-phase or flats' })
-  for (const [k, n] of acc2) lines.push({ key: `elec-${k.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}`, item: k, qty: n, unit: 'nos', group: 'Electrical', basis: 'Counted' })
+  for (const [k, n] of acc2) lines.push({ key: accLineKey(k), item: k, qty: n, unit: 'nos', group: 'Electrical', basis: 'Counted' })
 
   const assumptions = [
     std
@@ -656,13 +579,7 @@ export function runElec(inp: ElecInput): Ran {
     'Screws, tape, glands, lugs, ferrules, cable ties and other small items.',
     'The make, model and finish of any switch, socket or board.',
   ]
-  const bands = [
-    { label: 'Points and sockets', low: 0.7, high: 1.4 },
-    { label: 'Copper wire', low: 0.75, high: 1.35 },
-    { label: 'Conduit', low: 0.8, high: 1.3 },
-    { label: 'Circuits and boards', low: 0.8, high: 1.25 },
-    { label: 'Switches, boxes and fittings', low: 0.75, high: 1.35 },
-  ]
+  const bands = Object.values(ELEC_BANDS).map((b) => ({ label: b.label, low: b.low, high: b.high }))
   const sources = [
     'CPWD General Specifications for Electrical Works Part I (Internal) 2013, Sections 2 and 3',
     'CPWD Delhi Analysis of Rates for Electrical Works (E&M) 2016, items 1.1 to 1.17',
@@ -695,4 +612,5 @@ export const electricalModel: TradeModel<ElecInput> = {
   code: 'EL',
   parse: parseElec,
   run: runElec,
+  calc: buildElectricalCalc,
 }

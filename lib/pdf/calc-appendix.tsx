@@ -1,11 +1,14 @@
 // The calculation sheet at the end of a report. @react-pdf/renderer only.
 // Formulas and workings are set in IBM Plex Sans, not Mono: the Mono files have no Greek letters (φ, σ, τ).
-// Renders inside the report's own <Page>, so the page count follows the length of the working.
+// Renders as its own pages after the report's pages. A `break` inside the report's page made react-pdf either pile the
+// whole sheet onto one page or take minutes to lay out, and one very long flowing page re-lays out its remainder on every
+// page break (about 35% slower than this). So: one page run for the front matter, one for each section, one for the
+// reconciliation and references. Each run flows, so the page count follows the length of the working.
 
 import React from 'react'
-import { Text, View } from '@react-pdf/renderer'
+import { Page, Text, View } from '@react-pdf/renderer'
 import type { CalcBlock, CalcLine, CalcSheet, CalcTable } from '@/lib/calcsheet'
-import { C, S } from './qty-kit'
+import { C, Chrome, S } from './qty-kit'
 
 const COLS = { step: 2.5, formula: 2.5, working: 3.1, result: 1.7, ref: 2.0 }
 
@@ -94,10 +97,14 @@ function Block({ b }: { b: CalcBlock }) {
   )
 }
 
-export default function CalcAppendix({ sheet, letter = 'A' }: { sheet: CalcSheet; letter?: string }) {
+export interface CalcChrome { tool: string; tag: string; reportId: string }
+
+export default function CalcAppendix({ sheet, chrome, letter = 'A' }: { sheet: CalcSheet; chrome: CalcChrome; letter?: string }) {
   return (
-    <View>
-      <Text style={S.eyebrow} break>APPENDIX {letter}</Text>
+    <>
+    <Page size="A4" style={S.page}>
+      <Chrome tool={chrome.tool} tag={chrome.tag} reportId={chrome.reportId} />
+      <Text style={S.eyebrow}>APPENDIX {letter}</Text>
       <Text style={[S.title, { fontSize: 20 }]}>Calculation sheet</Text>
       <Text style={S.project}>{sheet.tool}: how every figure in this report was worked out</Text>
 
@@ -121,14 +128,19 @@ export default function CalcAppendix({ sheet, letter = 'A' }: { sheet: CalcSheet
         <View key={i} style={S.li} wrap={false}><Text style={S.liDot}>•</Text><Text style={S.liT}>{m}</Text></View>
       ))}
 
+    </Page>
+
       {sheet.sections.map(sec => (
-        <View key={sec.id}>
-          <Text style={S.h2} minPresenceAhead={140}>{sec.title}</Text>
+        <Page key={sec.id} size="A4" style={S.page}>
+          <Chrome tool={chrome.tool} tag={chrome.tag} reportId={chrome.reportId} />
+          <Text style={S.h2}>{sec.title}</Text>
           {sec.intro ? <Text style={k.intro}>{sec.intro}</Text> : null}
           {sec.blocks.map(b => <Block key={b.id} b={b} />)}
-        </View>
+        </Page>
       ))}
 
+      <Page size="A4" style={S.page}>
+      <Chrome tool={chrome.tool} tag={chrome.tag} reportId={chrome.reportId} />
       <Text style={S.h2} minPresenceAhead={120}>Reconciliation: the report against this sheet</Text>
       <Text style={k.intro}>The totals printed in the report, rebuilt from the working above. Every row must read the same on both sides.</Text>
       <View style={S.tbl}>
@@ -161,6 +173,7 @@ export default function CalcAppendix({ sheet, letter = 'A' }: { sheet: CalcSheet
       <Text style={S.small}>
         This sheet shows the method and the arithmetic behind a planning-level quantity estimate. It lets a qualified person check the formulas and the working. It is not a structural design, a drawing or a certificate, and it does not replace the drawings and calculations that a licensed professional signs for your building.
       </Text>
-    </View>
+      </Page>
+    </>
   )
 }

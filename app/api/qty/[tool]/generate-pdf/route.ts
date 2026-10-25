@@ -13,6 +13,8 @@ import type { CalcSheet } from '@/lib/calcsheet'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 export const runtime = 'nodejs'
+// The report now carries a calculation sheet of 15 to 40 pages; laying it out takes several seconds, longer than the 10 s default.
+export const maxDuration = 60
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const bad = (error: string, status = 400) => NextResponse.json({ error }, { status })
