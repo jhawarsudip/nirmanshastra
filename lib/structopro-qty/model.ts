@@ -1134,7 +1134,7 @@ function assemble(
   const assumptions: string[] = [
     `Layout: regular grid of ${plan.nx} x ${plan.ny} bays of about ${plan.sx.toFixed(2)} x ${plan.sy.toFixed(2)} m, storey height ${plan.hs} m, plinth ${plan.plinth} m. Your own drawing will differ.`,
     `Seismic zone ${zr.zone}. ${zr.note}`,
-    ctx.seismic ? 'Zone III and above: special moment-resisting frame, ductile detailing to IS 13920 (closer stirrups, confining ties, strong-column weak-beam).' : 'Zone II: ordinary moment-resisting frame, detailing to IS 456.',
+    ctx.seismic ? 'Zone III and above: special moment-resisting frame, ductile detailing to IS 13920:1993 (closer stirrups at the ends and tie spacing to cl. 7.4.6, a strong-column weak-beam check at the tool\'s own factor of 1.1; the confining-steel area of cl. 7.4.8 is not checked).' : 'Zone II: ordinary moment-resisting frame, detailing to IS 456.',
     `Concrete: ${gradeAbove} above ground and ${gradeBelow} for foundations, chosen from the exposure condition (IS 456 Table 5). Steel: Fe500D.`,
     `Foundation: ${a.raft ? 'raft' : 'isolated footings'} on ${site.label}, safe bearing capacity ${site.sbc} kN/m2 assumed, founding depth ${site.depth} m. Replace with a soil test.`,
     `Loads: floor finish ${1.5} kN/m2, imposed 2.0 kN/m2 on floors and ${ctx.terraceLL} kN/m2 on the roof (IS 875), ${wallType} walls ${ctx.wallT * 1000} mm outside, 115 mm brick partitions on half the inner beams, 15 % off for openings.`,

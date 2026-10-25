@@ -264,7 +264,8 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
       </dl>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-chk-t">
-        <h3 id="r-chk-t">Checked against the Indian Standards</h3>
+        <h3 id="r-chk-t">Checks against the Indian Standards</h3>
+        <p className="ns-r-sec__sub">These are the checks the tool makes. A PASS for the steel grade or the concrete grade follows from the tool&apos;s own choices. Where a line says a limit is reached, the section shown does not pass it.</p>
         <ul className="ns-r-chks">
           {free.compliance.filter(c => c.id !== 'review').map(c => (
             <li key={c.id} className="ns-r-chk" data-s={c.status}>
@@ -455,7 +456,7 @@ function PaidSections({ r, preview, pdfStatus, pdfUrl, emailSent, downloading, o
           num={[2]}
           rows={r.schedules.beams.map(x => [beamLevelLabel(x.floor, storeys), x.type, f(x.count), `${x.bMm}\u00a0×\u00a0${x.dMm}`, x.note])}
         />
-        <p className="ns-r-tblnote">Bars read as number-diameter: 8-16 means eight 16 mm bars. In beams, the top bars are two continuous bars plus the extra bars after the plus sign, which sit over the supports. Every size is a minimum that passes the IS 456 and IS 13920 checks for your zone; your engineer may round up.</p>
+        <p className="ns-r-tblnote">Bars read as number-diameter: 8-16 means eight 16 mm bars. In beams, the top bars are two continuous bars plus the extra bars after the plus sign, which sit over the supports. Every size is the smallest the tool&apos;s IS 456 and IS 13920 checks accept for your zone, except where the report says a limit is reached; your engineer may round up.</p>
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-sec-t">
@@ -496,7 +497,7 @@ function PaidSections({ r, preview, pdfStatus, pdfUrl, emailSent, downloading, o
       {r.practice && (
       <section className="ns-plate ns-r-sec" aria-labelledby="r-prac-t">
         <h3 id="r-prac-t">Against buildings that were actually built</h3>
-        <p className="ns-r-sec__sub">The figures above are what the frame needs to pass the codes. Built houses usually use more, because site practice adds margin that no code asks for. For orientation, here is what a published study of real {r.practice.classLabel} found.</p>
+        <p className="ns-r-sec__sub">The figures above are the steel and concrete a code-based design of this regular frame needs, at the section sizes shown. Built houses usually use more, because site practice adds margin that no code asks for. For orientation, here is what a published study of real {r.practice.classLabel} found.</p>
         <Table
           head={['', 'This report', 'Real buildings, low to high', 'For your floor area']}
           num={[1, 2, 3]}

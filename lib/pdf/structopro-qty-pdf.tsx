@@ -152,7 +152,7 @@ export default function StructoProQtyPDF({ report: r, contact, reportId, project
           head={['SLAB LEVEL', 'BEAM', 'PIECES', 'SIZE mm', 'BARS']}
           rows={r.schedules.beams.map(x => [beamLevelLabel(x.floor, storeys), x.type, f(x.count), `${x.bMm} x ${x.dMm}`, x.note])}
         />
-        <Text style={S.note}>Bars read as number-diameter: 8-16 means eight 16 mm bars. In beams, the top bars are two continuous bars plus the extra bars after the plus sign, which sit over the supports. Every size is a minimum that passes the IS 456 and IS 13920 checks for your zone; your engineer may round up.</Text>
+        <Text style={S.note}>Bars read as number-diameter: 8-16 means eight 16 mm bars. In beams, the top bars are two continuous bars plus the extra bars after the plus sign, which sit over the supports. Every size is the smallest the tool&apos;s IS 456 and IS 13920 checks accept for your zone, except where the report says a limit is reached; your engineer may round up.</Text>
 
         <Text style={S.h2} minPresenceAhead={90}>Smaller items, counted</Text>
         <Table
