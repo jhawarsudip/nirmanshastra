@@ -181,3 +181,117 @@ export function placeRoom(room: Poly, house: Poly, northDeg: number, grid = 40):
     area: polygonArea(room),
   }
 }
+
+// ------------------------------------------------------------------------------------------------ the completed rectangle
+
+/**
+ * Andrew's monotone chain. Returns the convex hull in clockwise order on screen (y down).
+ */
+export function convexHull(points: Poly): Poly {
+  const pts = [...points].sort((a, b) => a.x - b.x || a.y - b.y)
+  if (pts.length < 3) return pts
+  const cross = (o: Pt, a: Pt, b: Pt) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
+  const lower: Pt[] = []
+  for (const p of pts) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop()
+    lower.push(p)
+  }
+  const upper: Pt[] = []
+  for (let i = pts.length - 1; i >= 0; i--) {
+    const p = pts[i]
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop()
+    upper.push(p)
+  }
+  upper.pop()
+  lower.pop()
+  // With y down, this order is clockwise on screen.
+  return lower.concat(upper)
+}
+
+/**
+ * The smallest rectangle, turned to any angle, that holds the whole outline: the "completed rectangle" that
+ * practitioners draw before they read a plan with a missing or extra corner. For a rectangle it is the rectangle
+ * itself. The four corners run clockwise on screen, starting at the top-left of the rectangle's own frame.
+ */
+export function minAreaRect(poly: Poly): Poly {
+  const hull = convexHull(poly)
+  if (hull.length < 3) {
+    const b = bounds(poly)
+    return rectPoly(b.minX, b.minY, Math.max(b.w, 1e-6), Math.max(b.h, 1e-6))
+  }
+  let best: { area: number; rect: Poly } | null = null
+  for (let i = 0; i < hull.length; i++) {
+    const a = hull[i]
+    const c = hull[(i + 1) % hull.length]
+    const len = Math.hypot(c.x - a.x, c.y - a.y)
+    if (len < 1e-9) continue
+    const ux = (c.x - a.x) / len
+    const uy = (c.y - a.y) / len
+    const vx = -uy
+    const vy = ux
+    let minU = Infinity, maxU = -Infinity, minV = Infinity, maxV = -Infinity
+    for (const p of hull) {
+      const u = p.x * ux + p.y * uy
+      const v = p.x * vx + p.y * vy
+      if (u < minU) minU = u
+      if (u > maxU) maxU = u
+      if (v < minV) minV = v
+      if (v > maxV) maxV = v
+    }
+    const area = (maxU - minU) * (maxV - minV)
+    if (!best || area < best.area - 1e-9) {
+      const at = (U: number, V: number): Pt => ({ x: U * ux + V * vx, y: U * uy + V * vy })
+      best = { area, rect: [at(minU, minV), at(maxU, minV), at(maxU, maxV), at(minU, maxV)] }
+    }
+  }
+  return best ? best.rect : rectPoly(0, 0, 1, 1)
+}
+
+/**
+ * Where a ray from `from` through `through` leaves a convex polygon: which side (the side that runs from corner i to
+ * corner i+1) and how far along that side, 0 at corner i and 1 at corner i+1.
+ */
+export function rayExit(from: Pt, through: Pt, poly: Poly): { side: number; t: number; pt: Pt } | null {
+  const dx = through.x - from.x
+  const dy = through.y - from.y
+  if (Math.abs(dx) < 1e-12 && Math.abs(dy) < 1e-12) return null
+  let best: { side: number; t: number; pt: Pt; s: number } | null = null
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i]
+    const b = poly[(i + 1) % poly.length]
+    const ex = b.x - a.x
+    const ey = b.y - a.y
+    const den = dx * ey - dy * ex
+    if (Math.abs(den) < 1e-12) continue
+    const s = ((a.x - from.x) * ey - (a.y - from.y) * ex) / den // along the ray
+    const t = ((a.x - from.x) * dy - (a.y - from.y) * dx) / den // along the side
+    if (s > 1e-9 && t >= -1e-9 && t <= 1 + 1e-9 && (!best || s > best.s)) {
+      // the exit point is the farthest crossing of a convex polygon
+      best = { side: i, t: Math.min(Math.max(t, 0), 1), pt: { x: from.x + dx * s, y: from.y + dy * s }, s }
+    }
+  }
+  return best ? { side: best.side, t: best.t, pt: best.pt } : null
+}
+
+/**
+ * How much of the corner third of a rectangle the outline actually covers, 0 to 1. The corner third is the
+ * square-ish block made of the first third of each of the two sides that meet at corner `i`.
+ */
+export function cornerCover(outline: Poly, rect: Poly, i: number, grid = 14): number {
+  const c = rect[i]
+  const next = rect[(i + 1) % 4]
+  const prev = rect[(i + 3) % 4]
+  const ax = (next.x - c.x) / 3
+  const ay = (next.y - c.y) / 3
+  const bx = (prev.x - c.x) / 3
+  const by = (prev.y - c.y) / 3
+  let inside = 0
+  for (let p = 0; p < grid; p++) {
+    for (let q = 0; q < grid; q++) {
+      const fu = (p + 0.5) / grid
+      const fv = (q + 0.5) / grid
+      if (pointInPolygon({ x: c.x + ax * fu + bx * fv, y: c.y + ay * fu + by * fv }, outline)) inside++
+    }
+  }
+  return inside / (grid * grid)
+}

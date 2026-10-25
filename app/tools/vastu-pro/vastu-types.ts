@@ -67,8 +67,18 @@ export interface Finding {
   borderline: boolean
   /** part of the room is in the Brahmasthan */
   centre: boolean
-  /** how much this finding counts in the score */
-  weight: number
+  /** how much this finding counts in the score: 1 (low), 2 (medium) or 3 (high) */
+  weight: 1 | 2 | 3
+  /** extra lines that show how the verdict was reached, such as the entrance position on the boundary */
+  detail: string[]
+  /** how it would read if the room sat just across the nearest zone edge; set only when it is borderline */
+  altSeverity?: Severity
+  /** "Brihat Samhita ch. 53" and so on, set only when the rule has a source */
+  source?: string
+  /** a real engineering or climate reason, set only when there is one */
+  practical?: string
+  /** share of the room in each of the 16 zones, for the report */
+  shares: number[]
   remedies: RemedySet
   dos: string[]
   donts: string[]
@@ -81,6 +91,8 @@ export interface PlotNote {
   text: string
   basis: Basis
   remedies?: RemedySet
+  /** false for notes that only inform and are not checked against the plan */
+  counted: boolean
 }
 
 export interface Reading {
@@ -95,4 +107,6 @@ export interface Reading {
   missing: string[]
   /** the visitor's own steps, so the report can say what it was based on */
   basisNotes: string[]
+  /** which version of the rule table produced this reading */
+  rulesVersion: string
 }
