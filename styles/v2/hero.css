@@ -108,3 +108,16 @@ html[data-calm="1"] .ns-hero__scroll svg { animation: none; }
 .ns-est__tiles dt { font-size: 13.5px; line-height: 1.35; color: var(--ns-ink-2); }
 .ns-est__tiles dd { margin: 3px 0 0; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 @media (prefers-reduced-motion: reduce) { .ns-est__planbox { transition: none; } }
+
+/* ---------- phones: the Eight steps house takes the estimator's old place under the headline, and the estimator moves down to where
+   the Eight steps used to be (after "Why quotes are so hard to check"). Pure CSS reorder: nothing is rendered twice and desktop is untouched.
+   The hero boxes dissolve (display: contents) so the headline, the copy, the estimator and the page sections become siblings of <main>. ---------- */
+@media (max-width: 700px) {
+  #main { display: flex; flex-direction: column; }
+  #main > .ns-hero, #main > .ns-hero > .ns-wrap, #main > .ns-hero .ns-hero__grid { display: contents; }
+  #main .ns-hero__top { order: -5; margin: clamp(26px, 4.4vw, 70px) var(--ns-gutter) clamp(26px, 4vw, 56px); }
+  #main .ns-hero__copy { order: -4; margin-inline: var(--ns-gutter); }
+  #main > .ns-ex { order: -3; }
+  #main > .ns-tape, #main > #problems { order: -2; }
+  #main .ns-est { margin: clamp(8px, 2vw, 24px) var(--ns-gutter) clamp(48px, 7vw, 110px); }
+}

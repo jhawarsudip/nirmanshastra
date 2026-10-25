@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, type KeyboardEvent } from 'react'
-import { useReveal } from '@/lib/v2/store'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useMotionOK, useReveal } from '@/lib/v2/store'
 import { QUOTE_PROBLEMS, pick, type Bi, type Loc } from '@/lib/v2/copy'
 import '@/styles/v2/story.css'
 
@@ -70,7 +70,7 @@ function Art({ i, loc }: { i: number; loc: Loc }) {
   if (i === 1) {
     return (
       <svg viewBox="0 0 260 150" className="ns-prob__art" aria-hidden="true">
-        <text x="130" y="62" textAnchor="middle" className="ns-prob__big">{pick(ART.perSqft, loc)}</text>
+        <text x="130" y="62" textAnchor="middle" className="ns-prob__big" style={{ fontSize: loc === 'hi' ? 19 : 22 }}>{pick(ART.perSqft, loc)}</text>
         <g className="ns-prob__lines">
           <text x="130" y="94" textAnchor="middle" className="ns-prob__t">{pick(ART.mortar, loc)}</text>
           <text x="130" y="110" textAnchor="middle" className="ns-prob__t">{pick(ART.pipes, loc)}</text>
@@ -102,15 +102,42 @@ function Art({ i, loc }: { i: number; loc: Loc }) {
 
 export default function Problems({ loc }: { loc: Loc }) {
   const { ref } = useReveal<HTMLDivElement>()
-  // Tapping a card toggles the peek on touch screens, where hover and keyboard focus do not fire reliably.
-  const [open, setOpen] = useState<number | null>(null)
-  const toggle = (i: number) => setOpen(o => (o === i ? null : i))
+  const motion = useMotionOK()
+  // Each card has its own "peek" state. On a computer, hover and keyboard focus show it (CSS). On a phone there is no hover,
+  // so a card plays by itself when it scrolls into view and plays again if you scroll back to it; a tap still toggles it.
+  const [on, setOn] = useState<boolean[]>([false, false, false])
+  const cards = useRef<(HTMLElement | null)[]>([])
+  const toggle = (i: number) => setOn(o => o.map((v, k) => (k === i ? !v : v)))
   const onKey = (e: KeyboardEvent, i: number) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       toggle(i)
     }
   }
+
+  useEffect(() => {
+    if (!motion || typeof IntersectionObserver === 'undefined' || typeof window.matchMedia !== 'function') return
+    if (!window.matchMedia('(max-width: 899px), (hover: none)').matches) return
+    const timers: number[] = []
+    const set = (i: number, v: boolean) => setOn(o => (o[i] === v ? o : o.map((x, k) => (k === i ? v : x))))
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        const i = Number((e.target as HTMLElement).dataset.i)
+        const tallEnough = e.rootBounds ? e.intersectionRect.height >= e.rootBounds.height * 0.5 : false
+        if (e.intersectionRatio >= 0.55 || tallEnough) {
+          // a short beat after the card settles on screen, so the movement is noticed
+          window.clearTimeout(timers[i])
+          timers[i] = window.setTimeout(() => set(i, true), 350)
+        } else if (!e.isIntersecting) {
+          // fully out of view: reset, so it plays again next time it comes back
+          window.clearTimeout(timers[i])
+          set(i, false)
+        }
+      }
+    }, { threshold: Array.from({ length: 21 }, (_, k) => k / 20) })
+    cards.current.forEach(el => { if (el) io.observe(el) })
+    return () => { io.disconnect(); timers.forEach(t => window.clearTimeout(t)) }
+  }, [motion])
 
   return (
     <section className="ns-section" id="problems" aria-labelledby="ns-prob-h">
@@ -122,10 +149,12 @@ export default function Problems({ loc }: { loc: Loc }) {
           {QUOTE_PROBLEMS.cards.map((c, i) => (
             <article
               key={i}
+              ref={el => { cards.current[i] = el }}
+              data-i={i}
               className="ns-plate ns-prob__card ns-rise"
               tabIndex={0}
               data-snap
-              data-open={open === i ? 'true' : 'false'}
+              data-open={on[i] ? 'true' : 'false'}
               onClick={() => toggle(i)}
               onKeyDown={e => onKey(e, i)}
               style={{ ['--d' as string]: `${0.12 * (i + 1)}s` }}

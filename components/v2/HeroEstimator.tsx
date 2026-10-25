@@ -63,19 +63,23 @@ function Storeys({ n }: { n: number }) {
   )
 }
 
-/** The ground-floor plan: columns as squares, beams as lines. Drawn in metres. */
+/** The ground-floor plan: columns as squares, beams as lines. Drawn in metres.
+ *  The two dimension lines stand off the building by a clear gap (about two text heights), so the numbers sit between the wall
+ *  and their own line and never touch the drawing. */
 function PlanSketch({ plan, label }: { plan: Glance['plan']; label: string }) {
-  const pad = 1.6
   const L = plan.lengthM
   const W = plan.widthM
-  const vw = L + pad * 2
-  const vh = W + pad * 2
-  const fs = Math.max(0.75, Math.min(L, W) * 0.075)
-  const cs = Math.max(0.32, Math.min(L, W) * 0.034)
-  const dx = L + pad * 0.55
-  const dy = W + pad * 0.55
+  const fs = Math.max(0.8, Math.min(L, W) * 0.08)   // dimension text height
+  const cs = Math.max(0.32, Math.min(L, W) * 0.034) // column square
+  const gap = fs * 2.2                                // wall to dimension line
+  const tick = fs * 0.4
+  const m = cs * 0.9                                  // room for the corner columns and the wall stroke
+  const dx = L + gap
+  const dy = W + gap
+  const vw = L + m + gap + tick + fs * 0.6
+  const vh = W + m + gap + tick + fs * 0.6
   return (
-    <svg className="ns-est__plan" viewBox={`${-pad} ${-pad} ${vw} ${vh}`} role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
+    <svg className="ns-est__plan" viewBox={`${-m} ${-m} ${vw} ${vh}`} role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
       <rect x={0} y={0} width={L} height={W} className="ns-est__plan-wall" />
       {plan.beams.map((b, i) => (
         <line key={i} x1={b.x0} y1={b.y0} x2={b.x1} y2={b.y1} className="ns-est__plan-beam" vectorEffect="non-scaling-stroke" />
@@ -84,10 +88,16 @@ function PlanSketch({ plan, label }: { plan: Glance['plan']; label: string }) {
         <rect key={i} x={c.x - cs / 2} y={c.y - cs / 2} width={cs} height={cs} className="ns-est__plan-col" />
       ))}
       <g className="ns-est__plan-dim" fontSize={fs}>
+        {/* across: line below the building, ticks at both ends, number above the line */}
         <line x1={0} y1={dy} x2={L} y2={dy} vectorEffect="non-scaling-stroke" />
-        <text x={L / 2} y={dy - fs * 0.35} textAnchor="middle">{L.toFixed(1)} m</text>
+        <line x1={0} y1={dy - tick} x2={0} y2={dy + tick} vectorEffect="non-scaling-stroke" />
+        <line x1={L} y1={dy - tick} x2={L} y2={dy + tick} vectorEffect="non-scaling-stroke" />
+        <text x={L / 2} y={dy - fs * 0.4} textAnchor="middle">{L.toFixed(1)} m</text>
+        {/* down: line right of the building, number to the left of the line, turned to read upward */}
         <line x1={dx} y1={0} x2={dx} y2={W} vectorEffect="non-scaling-stroke" />
-        <text x={dx - fs * 0.35} y={W / 2} textAnchor="middle" transform={`rotate(-90 ${dx - fs * 0.35} ${W / 2})`}>{W.toFixed(1)} m</text>
+        <line x1={dx - tick} y1={0} x2={dx + tick} y2={0} vectorEffect="non-scaling-stroke" />
+        <line x1={dx - tick} y1={W} x2={dx + tick} y2={W} vectorEffect="non-scaling-stroke" />
+        <text x={dx - fs * 0.4} y={W / 2} textAnchor="middle" transform={`rotate(-90 ${dx - fs * 0.4} ${W / 2})`}>{W.toFixed(1)} m</text>
       </g>
     </svg>
   )
