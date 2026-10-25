@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useReveal } from '@/lib/v2/store'
 import { Arrow } from '../Icons'
 import '@/styles/v2/plain.css'
+import Pour from '../Pour'
 
 const COPY = {
   en: {
@@ -53,6 +54,7 @@ export default function FreeCalcs() {
           ))}
         </ul>
       </div>
+      <Pour tone="bg" v={8} />
     </section>
   )
 }

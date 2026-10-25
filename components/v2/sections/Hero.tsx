@@ -4,6 +4,7 @@ import Link from 'next/link'
 import CutLink from '../CutLink'
 import Sticker from '../Sticker'
 import HeroEstimator from '../HeroEstimator'
+import Pour from '../Pour'
 import { Arrow } from '../Icons'
 import { HERO, pick, type Loc } from '@/lib/v2/copy'
 import '@/styles/v2/hero.css'
@@ -21,7 +22,7 @@ export default function Hero({ loc }: { loc: Loc }) {
             </span>
           </h1>
           <Sticker src="/v2/cutouts/o01-spirit-level.webp" w={820} h={324} width="clamp(150px, 21vw, 330px)" rot={-7}
-            pos={{ right: '1%', top: '44%' }} />
+            pos={{ right: '1%', top: '74%' }} />
         </div>
 
         <div className="ns-hero__grid">
@@ -43,7 +44,10 @@ export default function Hero({ loc }: { loc: Loc }) {
             <Sticker src="/v2/cutouts/o03-trowel.webp" w={820} h={537} width="clamp(96px, 10vw, 150px)" rot={14}
               pos={{ right: '0%', bottom: '0%' }} />
           </div>
+          {/* phones only (see pour.css): the page is re-ordered there, so these two joins are not section boundaries */}
+          <div className="ns-pourline" style={{ order: -3 }}><Pour tone="bg" v={11} /></div>
           <HeroEstimator loc={loc} />
+          <div className="ns-pourline"><Pour tone="bg" v={12} /></div>
         </div>
       </div>
     </section>

@@ -1,0 +1,99 @@
+/* ============================================================================
+   Poured edges (components/v2/Pour.tsx): the lip under the header and every join between page sections.
+   By day the material is white putty and sand render that has just been trowelled on; at night it is wet concrete.
+   Each tile in public/v2/texture/pour-N.webp is the shape (its alpha) and the lighting (its grey, hard-light);
+   the texture under it is putty.webp by day and slurry.webp (wet, flowing, glossy) at night.
+   Made by scripts/brand/build-pour-edges.py and build-slurry.py. putty.webp is the brush-trowelled putty SJ approved
+   on 25 Oct 2026 (long tapering strokes, dark and white marks on a transparent 1024 x 384 tile); it is a shipped asset,
+   not generated. scripts/brand/build-putty-skim.py makes a smooth, stroke-free alternative (not used).
+   ========================================================================== */
+
+.ns2 {
+  --pour-sh: rgba(54, 38, 24, .46);                  /* soft shadow the material throws on what it hangs over */
+  --pour-tex: url("/v2/texture/putty.webp");
+  --pour-tex-size: 1024px 384px;
+  --pour-tex-blend: normal;
+}
+html[data-ns-theme="dark"] .ns2 {
+  --pour-sh: rgba(0, 0, 0, .62);
+  --pour-tex: url("/v2/texture/slurry.webp");
+  --pour-tex-size: 1024px 512px;
+  --pour-tex-blend: overlay;
+}
+
+.ns2 .ns-pour {
+  --pour-h: clamp(92px, 12vw, 172px);
+  --jr: .118;                                         /* share of the tile that melts into its own section along the top */
+  --pour-j: calc(var(--pour-h) * var(--jr));
+  position: absolute; left: 0; right: 0; height: var(--pour-h);
+  top: calc(100% - var(--pour-j)); transform-origin: 50% 0;
+  z-index: 4; pointer-events: none; contain: layout style;
+  animation: ns-ooze var(--oz, 13s) ease-in-out var(--od, 0s) infinite alternate;
+}
+/* nothing is fetched until the edge is about two screens away (see Pour.tsx) */
+.ns-pour:not(.is-near) { display: none; }
+
+.ns-pour__s, .ns-pour__m {
+  position: absolute; display: block;
+  transform-origin: 50% 0;
+  transition: transform 1.8s cubic-bezier(.16, .84, .24, 1), opacity 1.1s ease;
+}
+.ns-pour__m {
+  inset: 0;
+  -webkit-mask-image: var(--mm); mask-image: var(--mm);
+  -webkit-mask-size: auto 100%; mask-size: auto 100%;
+  -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+  -webkit-mask-position: var(--ox, 0) 0; mask-position: var(--ox, 0) 0;
+  background-color: var(--pm);
+  background-image: var(--mm), var(--pour-tex);
+  background-size: auto 100%, var(--pour-tex-size);
+  background-position: var(--ox, 0) 0, 0 0;
+  background-repeat: repeat-x, repeat;
+  background-blend-mode: hard-light, var(--pour-tex-blend);
+}
+/* the shadow: a blurred copy of the shape, a few pixels lower, without its top (which sits inside the section) */
+.ns-pour__s { inset: 5px 0 -5px 0; filter: blur(3.4px); clip-path: inset(18% 0 -40% 0); }
+.ns-pour__s::before {
+  content: ""; position: absolute; inset: 0; background: var(--pour-sh);
+  -webkit-mask-image: var(--mm); mask-image: var(--mm);
+  -webkit-mask-size: auto 100%; mask-size: auto 100%;
+  -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+  -webkit-mask-position: var(--ox, 0) 0; mask-position: var(--ox, 0) 0;
+}
+
+/* not yet seen: low and thin; it pours out to full length as it reaches the screen */
+.ns-pour.is-pre :is(.ns-pour__s, .ns-pour__m) { transform: scaleY(.16); }
+.ns-pour.is-pre .ns-pour__s { opacity: 0; }
+
+@keyframes ns-ooze { from { transform: scaleY(1); } to { transform: scaleY(1.05); } }
+
+/* ---------- materials: the colour of the section the edge belongs to ---------- */
+.ns-pour[data-tone="bg"] { --pm: var(--ns-bg); }
+.ns-pour[data-tone="alt"] { --pm: var(--ns-bg-2); }
+.ns-pour[data-tone="stage"] { --pm: var(--ns-stage); }
+.ns-pour[data-tone="header"] { --pm: #FBF8F0; }
+html[data-ns-theme="dark"] .ns-pour[data-tone="header"] { --pm: var(--ns-stage); }
+/* the dark band is wet concrete in either theme */
+.ns-pour[data-tone="stage"] { --pour-tex: url("/v2/texture/slurry.webp"); --pour-tex-size: 1024px 512px; --pour-tex-blend: overlay; }
+
+/* ---------- the lip under the header ---------- */
+.ns2 .ns-pour--lip { --pour-h: clamp(72px, 8.6vw, 128px); --jr: .093; z-index: 0; animation-duration: calc(var(--oz, 13s) * .7); }
+/* on first paint the lip pours down from the bar */
+@keyframes ns-lip-in { from { transform: scaleY(.08); } to { transform: scaleY(1); } }
+.ns-pour--lip :is(.ns-pour__s, .ns-pour__m) { animation: ns-lip-in 1.6s cubic-bezier(.16, .84, .24, 1) .25s backwards; }
+
+/* ---------- Calm mode, reduced motion: the finished edge, still ---------- */
+html[data-calm="1"] .ns-pour, html[data-calm="1"] .ns-pour :is(.ns-pour__s, .ns-pour__m) { animation: none; transition: none; }
+html[data-calm="1"] .ns-pour.is-pre :is(.ns-pour__s, .ns-pour__m) { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ns-pour, .ns-pour :is(.ns-pour__s, .ns-pour__m) { animation: none; transition: none; }
+  .ns-pour.is-pre :is(.ns-pour__s, .ns-pour__m) { transform: none; opacity: 1; }
+}
+@media print { .ns-pour { display: none; } }
+
+/* phones: the join between the headline block and the Eight steps, and the one between the estimator and the dark band,
+   are not section boundaries on a phone (the page is re-ordered with CSS), so they get a zero-height carrier of their own */
+.ns-pourline { display: none; }
+@media (max-width: 700px) {
+  #main .ns-pourline { display: block; position: relative; height: 0; z-index: 5; pointer-events: none; }
+}

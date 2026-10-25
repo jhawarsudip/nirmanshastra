@@ -4,6 +4,7 @@ import { useLocale } from 'next-intl'
 import { useReveal } from '@/lib/v2/store'
 import Sticker from '../Sticker'
 import '@/styles/v2/closing.css'
+import Pour from '../Pour'
 
 /** Four small drafted marks, one per step. Each answers hover / focus. */
 function Mark({ i }: { i: number }) {
@@ -81,6 +82,7 @@ export default function HowItWorks() {
         <Sticker src="/v2/cutouts/o05-auto-level-tripod.webp" w={519} h={820} width="clamp(48px, 6.4vw, 96px)" rot={6} pos={{ right: '14%', bottom: '16px' }} />
         <Sticker src="/v2/cutouts/o08-binding-wire-pliers.webp" w={820} h={496} width="clamp(80px, 10vw, 150px)" rot={-12} pos={{ left: '2%', bottom: '14px' }} />
       </div>
+      <Pour tone="bg" v={5} />
     </section>
   )
 }

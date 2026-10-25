@@ -6,6 +6,7 @@ import { useReveal } from '@/lib/v2/store'
 import { DEALER_QUERIES } from '@/lib/v2/content'
 import { STATE_CITIES, INDIAN_STATES_LIST } from '@/lib/state-cities'
 import '@/styles/v2/closing.css'
+import Pour from '../Pour'
 
 const CATS = ['cat0', 'cat1', 'cat2', 'cat3', 'cat4', 'cat5', 'cat6', 'cat7'] as const
 
@@ -81,6 +82,7 @@ export default function Dealers() {
           </form>
         </div>
       </div>
+      <Pour tone="bg" v={10} />
     </section>
   )
 }

@@ -8,6 +8,7 @@ import { IS_CODES } from '@/lib/v2/content'
 import { Arrow } from '../Icons'
 import Calc from '../Calc'
 import '@/styles/v2/closing.css'
+import Pour from '../Pour'
 
 const N = IS_CODES.length
 
@@ -37,7 +38,7 @@ export default function IsCodes() {
   const flip = (k: string) => setOn(s => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n })
 
   return (
-    <section className="ns-section ns-stage ns-stage--drip ns-isc" id="is-codes" aria-labelledby="ns-isc-h">
+    <section className="ns-section ns-stage ns-isc" id="is-codes" aria-labelledby="ns-isc-h">
       <div className="ns-wrap" ref={ref}>
         <p className="ns-eyebrow ns-rise">{c.eye}</p>
         <h2 className="ns-h2 ns-rise" id="ns-isc-h" style={{ ['--d' as string]: '.05s' }}>{c.h}</h2>
@@ -62,6 +63,7 @@ export default function IsCodes() {
           </div>
         </Calc>
       </div>
+      <Pour tone="stage" v={7} />
     </section>
   )
 }

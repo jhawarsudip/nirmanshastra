@@ -9,6 +9,7 @@ import { TOOLS } from '@/lib/v2/content'
 import { TOOL_PLAIN, pick, type Bi } from '@/lib/v2/copy'
 import { useMotionOK } from '@/lib/v2/store'
 import '@/styles/v2/story.css'
+import Pour from '../Pour'
 
 const COPY = {
   en: {
@@ -112,7 +113,7 @@ export default function Disciplines() {
   }
 
   return (
-    <section className="ns-stage ns-stage--drip ns-section ns-dis" id="tools" aria-labelledby="ns-dis-h">
+    <section className="ns-stage ns-section ns-dis" id="tools" aria-labelledby="ns-dis-h">
       <div className="ns-wrap">
         <p className="ns-eyebrow">{c.eyebrow}</p>
         <h2 className="ns-h2 ns-dis__h" id="ns-dis-h">{c.h}</h2>
@@ -173,6 +174,7 @@ export default function Disciplines() {
           </div>
         </div>
       </div>
+      <Pour tone="stage" v={3} />
     </section>
   )
 }

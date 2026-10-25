@@ -61,7 +61,7 @@ export default function Footer() {
   const company: [string, string][] = [[t('about'), '/about'], [t('contact'), '/contact'], [t('blog'), '/blog'], [t('careers'), '/careers']]
 
   return (
-    <footer className="ns-foot ns-stage ns-stage--crest">
+    <footer className="ns-foot ns-stage">
       <Strata />
       <div className="ns-wrap">
         <p className="ns-foot__big">{pick(FOOT.tag, loc)}</p>

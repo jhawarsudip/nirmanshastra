@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useMotionOK, useReveal } from '@/lib/v2/store'
 import { QUOTE_PROBLEMS, pick, type Bi, type Loc } from '@/lib/v2/copy'
 import '@/styles/v2/story.css'
+import Pour from '../Pour'
 
 const TOOL_COLOURS = ['--ns-t-struct', '--ns-t-mason', '--ns-t-elec', '--ns-t-plumb', '--ns-t-int']
 
@@ -163,6 +164,7 @@ export default function Problems({ loc }: { loc: Loc }) {
           ))}
         </div>
       </div>
+      <Pour tone="bg" v={1} />
     </section>
   )
 }

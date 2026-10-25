@@ -9,11 +9,19 @@
 ::view-transition-new(root) { z-index: 2; }
 
 /* ---------- header ---------- */
+/* The bar is a slab of white putty by day and wet concrete by night; its lower edge is a poured, uneven lip with slow
+   drips (components/v2/Pour.tsx, styles/v2/pour.css), not a ruled line. */
 .ns-header {
   position: sticky; top: 0; z-index: 80;
-  background: color-mix(in srgb, var(--ns-bg) 92%, transparent);
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--ns-line);
+  background-color: #FBF8F0;
+  background-image: url("/v2/texture/putty.webp");
+  background-size: 1024px 384px;
+}
+html[data-ns-theme="dark"] .ns-header {
+  background-color: var(--ns-stage);
+  background-image: url("/v2/texture/slurry.webp");
+  background-size: 1024px 512px;
+  background-blend-mode: overlay;
 }
 .ns-header__bar {
   display: flex; align-items: center; gap: 20px;

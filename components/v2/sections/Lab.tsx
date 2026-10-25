@@ -7,6 +7,7 @@ import RebarLab from '../lab/RebarLab'
 import BrickLab from '../lab/BrickLab'
 import MixLab from '../lab/MixLab'
 import '@/styles/v2/labs.css'
+import Pour from '../Pour'
 
 const L = {
   en: { eye: 'Try it yourself', h: 'Play with the numbers', p: 'Three small tools you can use right now. Move a slider, see the answer, and open “Show the calculation” only if you want to see how it was worked out.' },
@@ -39,6 +40,7 @@ export default function Lab() {
           </div>
         </div>
       </div>
+      <Pour tone="alt" v={4} />
     </section>
   )
 }

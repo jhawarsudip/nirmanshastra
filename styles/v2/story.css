@@ -37,7 +37,7 @@ html[data-calm="1"] .ns-prob__redact rect, html[data-calm="1"] .ns-prob__lid, ht
 html[data-calm="1"] .ns-prob__lines, html[data-calm="1"] .ns-prob__q, html[data-calm="1"] .ns-prob__sum { transition: none; }
 
 /* ---------- exploded structure ---------- */
-.ns-ex { position: relative; background: var(--ns-bg-2); border-block: 1px solid var(--ns-line); }
+.ns-ex { position: relative; background: var(--ns-bg-2); }
 .ns-ex__outer { height: 560vh; position: relative; }
 .ns-ex[data-motion="0"] .ns-ex__outer { height: auto; }
 .ns-ex__stick { position: sticky; top: 68px; height: calc(100vh - 68px); display: flex; align-items: center; overflow: clip; }
@@ -124,7 +124,7 @@ html[data-calm="1"] .ns-ex__layer { transition: none; }
 /* ---------- five disciplines (stage band) ---------- */
 .ns-dis { padding-bottom: 0; position: relative; }
 
-.ns-dis > * { position: relative; }
+.ns-dis > :not(.ns-pour) { position: relative; }
 .ns-dis__h { max-width: 22ch; margin-bottom: 20px; }
 .ns-dis__lede { color: rgba(251, 244, 228, .85); margin-bottom: clamp(32px, 4vw, 56px); }
 .ns-dis__suite { display: block; margin: 0 0 14px; color: rgba(251, 244, 228, .75); border-bottom: 1px solid rgba(251, 244, 228, .35); padding-bottom: 8px; }

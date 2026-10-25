@@ -7,6 +7,7 @@ import { SITE_TEMPLATES, TEMPLATES_BUNDLE } from '@/lib/v2/content'
 import { CALCULATORS } from '@/lib/v2/calculators'
 import { Arrow } from '../Icons'
 import '@/styles/v2/closing.css'
+import Pour from '../Pour'
 
 const L = {
   en: { eye: 'For builders, contractors and engineers', h: 'Working on site every day?', p: 'Six ready-made spreadsheet toolkits for the work that starts once the quote is signed: billing, bar bending schedules, labour and compliance, site records and progress.', sheets: 'sheets', bundle: 'All six toolkits, bundled', open: 'Open',
@@ -63,6 +64,7 @@ export default function Toolkits() {
           </ul>
         </div>
       </div>
+      <Pour tone="alt" v={9} />
     </section>
   )
 }

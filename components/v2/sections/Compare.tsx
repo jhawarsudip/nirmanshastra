@@ -4,6 +4,7 @@ import { useLocale } from 'next-intl'
 import { useReveal } from '@/lib/v2/store'
 import { IS_CODES } from '@/lib/v2/content'
 import '@/styles/v2/closing.css'
+import Pour from '../Pour'
 
 const COPY = {
   en: {
@@ -68,6 +69,7 @@ export default function Compare() {
         </div>
         <p className="ns-cmp__foot ns-rise">{c.foot}</p>
       </div>
+      <Pour tone="alt" v={6} />
     </section>
   )
 }

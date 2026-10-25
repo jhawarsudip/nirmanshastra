@@ -120,7 +120,8 @@ html[data-ns-theme="dark"] .ns2 {
   mix-blend-mode: multiply;
   background: url("/v2/texture/concrete-dry.webp") 0 0 / 1024px 1024px repeat;
 }
-html[data-ns-theme="dark"] .ns2::before { mix-blend-mode: overlay; }
+/* at night the whole page is wet: runs, damp patches and a few shining bubbles instead of the pitted dry surface */
+html[data-ns-theme="dark"] .ns2::before { mix-blend-mode: overlay; background: url("/v2/texture/slurry.webp") 0 0 / 1024px 512px repeat; opacity: .95; }
 .ns2 > * { position: relative; z-index: 1; }
 
 html:has(.ns2) { background: #F3EEE2; scroll-behavior: auto; }
@@ -196,7 +197,7 @@ body:has(.ns2) > nav { display: none !important; }
 .ns-section { padding-block: clamp(72px, 10vw, 150px); position: relative; }
 .ns-section--alt { background: var(--ns-bg-2); }
 
-/* ---------- stage band: wet concrete ---------- */
+/* ---------- stage band: wet concrete, just poured (slurry.webp) ---------- */
 .ns-stage {
   --ns-ink: #F3EEE2;
   --ns-ink-2: rgba(243, 238, 226, .84);
@@ -211,10 +212,10 @@ body:has(.ns2) > nav { display: none !important; }
   --ns-shadow-c: rgba(8, 7, 6, .5);
   background-color: var(--ns-stage);
   background-image:
-    url("/v2/texture/concrete-wet.webp"),
+    url("/v2/texture/slurry.webp"),
     radial-gradient(900px 520px at 88% -8%, rgba(247, 183, 51, .12), transparent 62%),
     radial-gradient(760px 520px at -6% 108%, rgba(226, 214, 190, .09), transparent 60%);
-  background-size: 1024px 1024px, auto, auto;
+  background-size: 1024px 512px, auto, auto;
   background-blend-mode: overlay, normal, normal;
   color: var(--ns-chalk);
 }

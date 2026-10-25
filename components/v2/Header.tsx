@@ -7,6 +7,7 @@ import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import CutLink from './CutLink'
 import AdminGate from './AdminGate'
+import Pour from './Pour'
 import { Arrow, BrandMark, BubbleIcon, Burger, Caret, Cross, LampIcon } from './Icons'
 import { CALCULATORS } from '@/lib/v2/calculators'
 import { SITE_TEMPLATES, TEMPLATES_BUNDLE, TOOLS } from '@/lib/v2/content'
@@ -170,6 +171,8 @@ export default function Header({ locale }: { locale: Loc }) {
             </button>
           </div>
         </div>
+
+        <Pour kind="lip" tone="header" v={1} />
 
         {mega && (
           <div className="ns-megawrap" id="ns-mega">

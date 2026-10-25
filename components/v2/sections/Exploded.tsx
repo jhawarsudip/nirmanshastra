@@ -7,6 +7,7 @@ import { LAYERS } from '@/lib/v2/content'
 import { CALC } from '@/lib/v2/copy'
 import { useMotionOK } from '@/lib/v2/store'
 import '@/styles/v2/story.css'
+import Pour from '../Pour'
 
 const COPY = {
   en: {
@@ -246,6 +247,7 @@ export default function Exploded() {
           </div>
         </div>
       </div>
+      <Pour tone="alt" v={2} />
     </section>
   )
 }
