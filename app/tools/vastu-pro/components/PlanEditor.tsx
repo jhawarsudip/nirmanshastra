@@ -10,14 +10,18 @@ import {
 import {
   brahmasthan,
   compassBearing,
+  minAreaRect,
   placeRoom,
+  polygonArea,
   polygonCentroid,
   rectPoly,
   type Pt,
   type Poly,
 } from '../vastu-geometry'
+import { PADA_RING } from '../vastu-rules'
+import { ringSides } from '../vastu-reading'
 
-export type EditorMode = 'outline' | 'rooms' | 'door'
+export type EditorMode = 'outline' | 'rooms' | 'door' | 'view'
 
 export interface CatalogueEntry {
   key: string
@@ -103,8 +107,45 @@ export default function PlanEditor(props: Props) {
   const drag = useRef<Drag | null>(null)
   const moved = useRef(false)
 
-  const centre = useMemo(() => polygonCentroid(house), [house])
-  const core = useMemo(() => brahmasthan(house), [house])
+  // Zones and the Brahmasthan are measured on the completed rectangle: the smallest rectangle that holds the outline.
+  const ref = useMemo(() => minAreaRect(house), [house])
+  const centre = useMemo(() => polygonCentroid(ref), [ref])
+  const core = useMemo(() => brahmasthan(ref), [ref])
+  const completed = useMemo(() => polygonArea(house) < polygonArea(ref) * 0.97, [house, ref])
+
+  // The nine-part bars along the boundary, drawn in door mode: eight positions on each side, coloured by what the old text says of them.
+  const bars = useMemo(() => {
+    if (mode !== 'door') return []
+    const sides = ringSides(ref, northDeg)
+    if (!sides) return []
+    const out: { key: string; x1: number; y1: number; x2: number; y2: number; tone: 'favourable' | 'mixed' | 'cautioned'; name: string; lx: number; ly: number }[] = []
+    for (let i = 0; i < 4; i++) {
+      const a = ref[i]
+      const b = ref[(i + 1) % 4]
+      const dx = b.x - a.x
+      const dy = b.y - a.y
+      const len = Math.hypot(dx, dy) || 1
+      let nx = -dy / len
+      let ny = dx / len
+      const mx = (a.x + b.x) / 2
+      const my = (a.y + b.y) / 2
+      if ((mx - centre.x) * nx + (my - centre.y) * ny < 0) { nx = -nx; ny = -ny }
+      for (let k = 0; k < 8; k++) {
+        const t0 = k / 9
+        const t1 = (k + 1) / 9
+        const pad = PADA_RING[sides[i]!][k]
+        out.push({
+          key: `${i}-${k}`,
+          x1: a.x + dx * t0 + nx * 9, y1: a.y + dy * t0 + ny * 9,
+          x2: a.x + dx * t1 + nx * 9, y2: a.y + dy * t1 + ny * 9,
+          tone: pad.tone,
+          name: pad.name,
+          lx: a.x + dx * (t0 + t1) / 2 + nx * 24, ly: a.y + dy * (t0 + t1) / 2 + ny * 24,
+        })
+      }
+    }
+    return out
+  }, [mode, ref, northDeg, centre])
 
   const toSheet = useCallback((clientX: number, clientY: number): Pt => {
     const svg = svgRef.current!
@@ -225,7 +266,9 @@ export default function PlanEditor(props: Props) {
           ? 'Plan sheet. Drag the corners of the house outline to match your plan.'
           : mode === 'door'
             ? 'Plan sheet. Tap the outline where the door is.'
-            : 'Plan sheet. Drag each room to where it sits on your plan.'
+            : mode === 'view'
+              ? 'Your plan with each room coloured by how it was read.'
+              : 'Plan sheet. Drag each room to where it sits on your plan.'
       }
       onPointerMove={onMove}
       onPointerUp={onSheetPointerUp}
@@ -248,6 +291,9 @@ export default function PlanEditor(props: Props) {
       )}
 
       {/* house outline and the Brahmasthan */}
+      {completed && (
+        <path d={ref.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') + ' Z'} fill="none" stroke={INK2} strokeWidth={1.4} strokeDasharray="7 5" pointerEvents="none" />
+      )}
       <path d={outlinePath} fill="rgba(42,38,34,0.045)" stroke={INK} strokeWidth={2.4} strokeLinejoin="round" pointerEvents="none" />
       <path d={corePath} fill="rgba(47,122,79,0.14)" stroke={GREEN} strokeWidth={1.6} strokeDasharray="5 4" pointerEvents="none" />
 
@@ -281,6 +327,20 @@ export default function PlanEditor(props: Props) {
         <circle cx={nx} cy={ny} r={4.5} fill={NORTH} />
         <text x={centre.x + (arrowLen + 14) * Math.sin(northRad)} y={centre.y - (arrowLen + 14) * Math.cos(northRad)} textAnchor="middle" dominantBaseline="central" fontSize={15} fontWeight={800} fill={NORTH} stroke={PAPER} strokeWidth={3.5} paintOrder="stroke">N</text>
       </g>
+
+      {/* door mode: the eight positions on each side of the boundary, favourable ones in green */}
+      {bars.length > 0 && (
+        <g pointerEvents="none">
+          {bars.map(b => (
+            <g key={b.key}>
+              <line x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={b.tone === 'favourable' ? GREEN : b.tone === 'mixed' ? '#C99A2B' : 'rgba(42,38,34,0.30)'} strokeWidth={b.tone === 'favourable' ? 7 : 5} strokeLinecap="butt" />
+              {b.tone === 'favourable' && (
+                <text x={b.lx} y={b.ly} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={800} fill={GREEN} stroke={PAPER} strokeWidth={3} paintOrder="stroke">{b.name}</text>
+              )}
+            </g>
+          ))}
+        </g>
+      )}
 
       {/* rooms */}
       {items.map(it => {
@@ -425,10 +485,10 @@ export default function PlanEditor(props: Props) {
 
 /** Helper used by the page: the placement of one item against the current outline. */
 export function placementOf(it: PlacedItem, house: Poly, northDeg: number) {
-  return placeRoom(rectPoly(it.x, it.y, it.w, it.h), house, northDeg)
+  return placeRoom(rectPoly(it.x, it.y, it.w, it.h), minAreaRect(house), northDeg)
 }
 
 /** Bearing of a point on the outline, for a door. */
 export function bearingOfDoor(d: DoorMark, house: Poly, northDeg: number) {
-  return compassBearing(polygonCentroid(house), d.pt, northDeg)
+  return compassBearing(polygonCentroid(minAreaRect(house)), d.pt, northDeg)
 }

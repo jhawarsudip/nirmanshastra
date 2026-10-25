@@ -223,7 +223,7 @@ const RING: { side: Side; index: number; name: string; tone: PadaTone }[] = SIDE
 )
 
 /** The side of the completed rectangle, named by the compass direction it faces, or null if the plot sits diagonally. */
-function ringSides(ref: Poly, northDeg: number): (Side | null)[] | null {
+export function ringSides(ref: Poly, northDeg: number): (Side | null)[] | null {
   const centre = polygonCentroid(ref)
   const names: Side[] = ['N', 'E', 'S', 'W']
   const out: Side[] = []
