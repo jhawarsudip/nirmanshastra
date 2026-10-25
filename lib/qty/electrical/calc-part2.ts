@@ -4,7 +4,7 @@ import { num } from '@/lib/calcsheet'
 import type { CalcSection, Vars } from '@/lib/calcsheet'
 import { REF, block, d0, d1, d2, pl, table, type Ctx } from './calc-ctx'
 import { PROT_NAMES, cellNumber } from './calc-rows'
-import { SRC } from './derive'
+import { LOAD_CATS, SRC } from './derive'
 import {
   COLOUR, MAINS_COLOURS, NAME, PHASE_KIND, RULE, RUN, SPN_WAYS, TPN_WAYS, rccbA, waysFor,
 } from './rules'
@@ -32,14 +32,14 @@ export function section5(c: Ctx): CalcSection {
     ['Circuit', 'Copper (mm²)', 'Breaker', 'What goes on one circuit', 'Source'],
     [
       ['Lights and fans', num(CIRCUIT_RULES.lights.mm2), CIRCUIT_RULES.lights.mcb,
-        std ? `Up to ${RULE.ptsPerLightCkt} points, and at least ${RULE.minLightCkts} lighting circuits in a home (the bathroom circuits count)` : `Up to ${RULE.ptsPerLightCktBasic} points including the 5 A sockets, and at least ${RULE.minLightCkts} circuits`,
+        std ? `Up to ${RULE.ptsPerLightCkt} points, and at least ${RULE.minLightCkts} lighting circuits in a home (the bathroom circuits count). The draft also gives 1,000 W; the model counts points only and does not check the watts` : `Up to ${RULE.ptsPerLightCktBasic} points including the 5 A sockets, and at least ${RULE.minLightCkts} circuits. The 800 W limit is not checked`,
         std ? REF.draftC621 : REF.old1968c72],
       ['Bathroom lights and exhaust fans', std ? num(CIRCUIT_RULES.lights.mm2) : '—', std ? CIRCUIT_RULES.lights.mcb : '—', std ? `Bathrooms on a circuit of their own, up to ${RULE.ptsPerBathCkt} points` : 'Not separate at the Basic level', std ? REF.draftC621 : '—'],
       ['6 A sockets', std ? num(CIRCUIT_RULES.sockets6.mm2) : '—', std ? CIRCUIT_RULES.sockets6.mcb : 'none', std ? `Up to ${RULE.s6PerCkt} sockets. The sources disagree on this limit (CPWD GS 3.10 allows three), so it is an assumption` : 'None: the 5 A sockets are on the lighting circuits', std ? `${REF.draftT4}; ${REF.draftC628}; ${REF.assume}` : REF.old1968c72],
       ['6/16 A sockets', num(CIRCUIT_RULES.sockets16.mm2), CIRCUIT_RULES.sockets16.mcb, `Up to ${RULE.s16PerCkt} outlets`, REF.draftC622],
       ['Air conditioner', num(CIRCUIT_RULES.ac.mm2), CIRCUIT_RULES.ac.mcb, 'One circuit for each air conditioner', REF.draftC622],
       ['Water heater', num(CIRCUIT_RULES.heater.mm2), CIRCUIT_RULES.heater.mcb, 'One circuit for each water heater', REF.draftC622],
-      ['Washing machine and dishwasher', num(CIRCUIT_RULES.heater.mm2), CIRCUIT_RULES.heater.mcb, 'One circuit for each appliance of 2 kW or more', REF.draftC622],
+      ['Washing machine and dishwasher', num(CIRCUIT_RULES.heater.mm2), CIRCUIT_RULES.heater.mcb, std ? 'One circuit for each washing machine and each dishwasher. The Standard level adds the dishwasher. The draft asks for a separate circuit at 2 kW or more and gives a dishwasher 1.5 kW (Table 6), so the dishwasher circuit is the model\'s choice' : 'One circuit for each washing machine (no dishwasher at the Basic level)', std ? `${REF.draftC622}; ${REF.assume} (the dishwasher)` : REF.draftC622],
       ['Transfer pump', num(RULE.pumpMm2), `${RULE.mcb.power} A`, 'One circuit for each pump', REF.assume],
       ['EV charger', num(RULE.evMm2), `${RULE.mcb.ev} A`, 'One circuit for each charging point', REF.assume],
       ['Inverter', num(RULE.inverterMm2), `${RULE.mcb.power} A`, 'One circuit for each home that has an inverter', REF.assume],
@@ -138,7 +138,7 @@ export function section6(c: Ctx): CalcSection {
   const sizes = table(
     ['Circuit', 'Copper (mm²)', 'Earth wire (mm²)', 'Conduit (mm)', 'Breaker', 'Source of the size'],
     [
-      ...kinds.map((r) => [r.label, num(r.mm2), num(earthMm2(r.mm2)), d0(conduitFor(r.mm2, false)), r.mcb, r.status === 'assumed' ? `${r.source} (assumed)` : r.source]),
+      ...kinds.map((r) => [r.label, num(r.mm2), num(earthMm2(r.mm2)), d0(conduitFor(r.mm2, false)), r.mcb, r.key === 'lights' ? `${REF.draftT4}: 1.5 mm² for point wiring; draft cl 6.2.8: a breaker of up to 6 A on a lighting circuit` : r.status === 'assumed' ? `${r.source} (assumed)` : r.source]),
       ['Transfer pump', num(RULE.pumpMm2), num(earthMm2(RULE.pumpMm2)), d0(conduitFor(RULE.pumpMm2, false)), `${RULE.mcb.power} A`, REF.assume],
       ['Inverter', num(RULE.inverterMm2), num(earthMm2(RULE.inverterMm2)), d0(conduitFor(RULE.inverterMm2, false)), `${RULE.mcb.power} A`, REF.assume],
       ['EV charger', num(RULE.evMm2), num(earthMm2(RULE.evMm2)), d0(conduitFor(RULE.evMm2, false)), `${RULE.mcb.ev} A`, REF.assume],
@@ -157,8 +157,16 @@ export function section6(c: Ctx): CalcSection {
   L.value('Design load this run is sized for', gov.boardPd, 'kW', 2, REF.draftC7)
   L.input('Supply', m.three ? 'Three-phase' : 'Single-phase', REF.rule)
   const code = mainsStatus(gov.boardPd, m.three) === 'code'
+  const connGov = gov.spec.main && !d.flats ? d.connectedKw : LOAD_CATS.reduce((a, x) => a + gov.loadKw[x], 0)
+  L.value('Connected load this run serves', connGov, 'kW', 1, 'Section 4')
+  L.say('How the draft sizes the mains, and what the model does',
+    `Draft IS 4648 Table 4 gives the mains and sub-mains for the total connected load, up to ${DRAFT_MAINS_LIMIT_KW} kW. The model applies the steps of that table to the design load, which is smaller because it allows for diversity (section 4). That is the tool's choice; the draft does not say to size by design load. `
+    + (connGov >= DRAFT_MAINS_LIMIT_KW
+      ? `Here the connected load is ${d1(connGov)} kW and the design load ${d2(gov.boardPd)} kW. For a connected load of ${DRAFT_MAINS_LIMIT_KW} kW or more the draft asks for a diversity factor, the current worked out, a size taken from the current ratings of IS 732 (Annex T) with further derating factors, and one size higher for future additions. The model reads none of those tables and adds no size, so ${m.size} mm² is the step of the table for ${d2(gov.boardPd)} kW, not a size worked from the current. An electrician or the electricity board should confirm the mains size.`
+      : `Here the connected load is ${d1(connGov)} kW and the design load ${d2(gov.boardPd)} kW.${m.three ? '' : ` Read by connected load, the table would give ${mainsMm2(connGov, false)} mm²; the model gives ${m.size} mm² from the design load.`}`),
+    REF.draftT4)
   const raw = L.calc('Copper size from the table below', 'size = the step of the table that the design load falls in', `design load {kw:2} kW, ${m.three ? 'three' : 'single'}-phase`, { kw: gov.boardPd, three: m.three ? 1 : 0 },
-    (v) => mainsMm2(v.kw, v.three === 1), { unit: 'mm²', dp: 1, ref: code ? 'Draft IS 4648 Table 4' : `${REF.assume}: the draft gives no size for this load or for three-phase`, expect: gov.spec.sub ? mainsMm2(gov.boardPd, false) : m.size })
+    (v) => mainsMm2(v.kw, v.three === 1), { unit: 'mm²', dp: 1, ref: code ? 'Draft IS 4648 Table 4, applied to the design load (the draft applies it to the connected load)' : `${REF.assume}: the draft gives no size for this load or for three-phase`, expect: gov.spec.sub ? mainsMm2(gov.boardPd, false) : m.size })
   if (gov.spec.sub) L.calc('Sub-main size', `the larger of ${RULE.subMainMinMm2} mm² and the size above`, 'max({min}, {s})', { min: RULE.subMainMinMm2, s: raw }, (v) => Math.max(v.min, v.s), { unit: 'mm²', dp: 1, ref: REF.assume, expect: m.size })
   L.calc('Earth wire', 'equal to the line wire up to 16 mm², half of it above, to the next size sold', '{s} mm² line wire', { s: m.size }, (v) => earthMm2(v.s), { unit: 'mm²', dp: 1, ref: REF.draftC8, expect: earthMm2(m.size) })
   L.calc('Conduit', 'conduit for this cable set from the conduit table below', '{s} mm² cable, {ph}-phase', { s: m.size, ph: m.three ? 3 : 1, t: m.three ? 1 : 0 }, (v) => conduitFor(v.s, v.t === 1), { unit: 'mm', dp: 0, ref: REF.dar17, expect: conduitFor(m.size, m.three) })
@@ -167,10 +175,10 @@ export function section6(c: Ctx): CalcSection {
   const phases: boolean[] = d.threePhase ? [false, true] : [false]
   const bandBlocks = phases.map((three) =>
     block(`mains-band-${three ? 3 : 1}`, `6.${3 + (three ? 2 : 1)} Supply cable by design load, ${three ? 'three' : 'single'}-phase`, undefined,
-      table(['Design load', 'Copper (mm²)', 'Source'], stepRows(three ? MAINS_STEPS.three : MAINS_STEPS.single, 'kW', 'mm²', (hi) => (mainsStatus(hi, three) === 'code' ? 'Draft IS 4648 Table 4' : REF.assume)), {
+      table(['Design load', 'Copper (mm²)', 'Source'], stepRows(three ? MAINS_STEPS.three : MAINS_STEPS.single, 'kW', 'mm²', (hi) => (mainsStatus(hi, three) === 'code' ? 'Draft IS 4648 Table 4, applied to the design load' : REF.assume)), {
         note: three
           ? 'The draft IS 4648 only hints at three phase (4 or 6 mm² with the load balanced to within 10%), so every three-phase size is an assumption. Your electricity board fixes the supply and the cable.'
-          : `Draft IS 4648 Table 4 gives sizes up to ${DRAFT_MAINS_LIMIT_KW} kW. It leaves exactly 7 kW out of its two bands (over 5 and under 7, over 7 and under 10); the model puts 7 kW with the 6 mm² band. Above ${DRAFT_MAINS_LIMIT_KW} kW the draft asks for diversity and a size worked from the IS 732 current ratings, so the larger sizes are assumptions.`,
+          : `Draft IS 4648 Table 4 gives sizes up to ${DRAFT_MAINS_LIMIT_KW} kW. It leaves exactly 7 kW out of its two bands (over 5 and under 7, over 7 and under 10); the model puts 7 kW with the 6 mm² band. The draft writes this table for the connected load; the model applies it to the design load. For a connected load of ${DRAFT_MAINS_LIMIT_KW} kW or more the draft asks for diversity, the current worked out, a size from the IS 732 current ratings (Annex T, with derating) and one size higher; the model does none of that, so the larger sizes are assumptions.`,
       })),
   )
   const conduitTable = table(['Copper (mm²)', 'Conduit, single-phase (mm)', 'Conduit, three-phase (mm)'],
@@ -192,6 +200,19 @@ export function section6(c: Ctx): CalcSection {
 }
 
 /* ───────────────────────────────────────────────────────────────────────────────────────────── */
+
+/** Voltage and power factor used only for the design current printed in section 7. The model uses neither. */
+const SHOWN_V = { single: 230, three: 415 } as const
+const SHOWN_PF = 0.9
+
+/** The incomer and the mains cable the model gives at the same design load, band by band: they come from two separate tables. */
+export function incomerAndCable(three: boolean): { lo: number | null; hi: number | null; inc: number; mm2: number }[] {
+  const cuts = [...new Set([...(three ? INCOMER_STEPS.three : INCOMER_STEPS.single).upTo.map((x) => x[0]), ...(three ? MAINS_STEPS.three : MAINS_STEPS.single).upTo.map((x) => x[0])])].sort((a, b) => a - b)
+  const rows = cuts.map((hi, i) => ({ lo: i === 0 ? null : cuts[i - 1], hi: hi as number | null, inc: incomerA(hi, three), mm2: mainsMm2(hi, three) }))
+  const last = cuts[cuts.length - 1]
+  rows.push({ lo: last, hi: null, inc: incomerA(last + 1, three), mm2: mainsMm2(last + 1, three) })
+  return rows
+}
 
 export function section7(c: Ctx): CalcSection {
   const { d, L } = c
@@ -228,6 +249,7 @@ export function section7(c: Ctx): CalcSection {
     { a: gov.cL, b: gov.cBath, c6: gov.cS6, c16: gov.cS16, ac: s.ac, g: s.geysers, w: s.washers, di: s.dish, iv: gov.inv, p: s.pumps, e: s.evs },
     (v) => v.a + v.b + v.c6 + v.c16 + v.ac + v.g + v.w + v.di + v.iv + v.p + v.e, { dp: 0, ref: REF.rule, expect: gov.outgoing })
   const need = L.calc('Ways needed', `ways needed = outgoing circuits + ${RULE.spareWays} spare way`, '{o} + {s}', { o: out, s: RULE.spareWays }, (v) => v.o + v.s, { dp: 0, ref: REF.assume })
+  const inc0 = (rating: number, current: number) => (rating >= current ? `The incomer is at or above the design current.` : `The design current is above the incomer rating.`)
   const list = gov.three ? TPN_WAYS : SPN_WAYS
   L.calc('Board size', `the smallest size sold with at least that many ways (${list.join(', ')}; above the list, the next multiple of 8)`, 'smallest size ≥ {n}, {ph}-phase', { n: need, t: gov.three ? 1 : 0, ph: gov.three ? 3 : 1 },
     (v) => waysFor(v.n, v.t === 1), { unit: 'ways', dp: 0, ref: REF.tender, expect: gov.ways, result: true })
@@ -235,10 +257,17 @@ export function section7(c: Ctx): CalcSection {
     L.calc('Design load for this board', `the larger of ${RULE.subBoardMinKw} kW and the house design load × this board's share of the carpet area`, 'max({min}, {pd:2} × {c:2} ÷ max(1, {hc:2}))',
       { min: RULE.subBoardMinKw, pd: d.housePd, c: s.carpetM2, hc: d.houseCarpet }, (v) => Math.max(v.min, v.pd * (v.c / Math.max(1, v.hc))), { unit: 'kW', dp: 2, ref: REF.assume, expect: gov.boardPd })
   } else L.value('Design load for this board', gov.boardPd, 'kW', 2, 'Section 4')
+  const volts = gov.three ? SHOWN_V.three : SHOWN_V.single
+  const amps = L.calc('Design current (for information, not used by the model)', gov.three ? 'I = P ÷ (√3 × V × power factor)' : 'I = P ÷ (V × power factor)',
+    gov.three ? '{p:2} × 1000 ÷ (√3 × {v} × {pf})' : '{p:2} × 1000 ÷ ({v} × {pf})', { p: gov.boardPd, v: volts, pf: SHOWN_PF, t: gov.three ? 1 : 0 },
+    (v) => (v.p * 1000) / ((v.t === 1 ? Math.sqrt(3) : 1) * v.v * v.pf), { unit: 'A', dp: 1, ref: `Illustration only: the model does not work this out. ${volts} V and a power factor of ${SHOWN_PF} are stated here for the sum; the model uses neither`,
+      note: 'A lower power factor gives a larger current.' })
   const inc = L.calc('Incoming breaker', 'main breaker for the design load, from the table below', 'design load {kw:2} kW, {ph}-phase', { kw: gov.boardPd, t: gov.three ? 1 : 0, ph: gov.three ? 3 : 1 },
-    (v) => incomerA(v.kw, v.t === 1), { unit: 'A', dp: 0, ref: `${REF.tender}; the steps above 32 A are assumptions`, expect: gov.inc, result: true })
+    (v) => incomerA(v.kw, v.t === 1), { unit: 'A', dp: 0, ref: `${REF.tender}; the steps above 32 A are assumptions`, expect: gov.inc, result: true,
+      note: `The rating comes from the design load alone. The model does not compare it with the design current above or with the current rating of the cable it feeds (${gov.mains.size} mm² here). ${inc0(gov.inc, amps)} Whether that cable can carry ${gov.inc} A is not checked.` })
   L.calc('Residual current breaker (RCCB) rating', 'rating = 40 A up to a 40 A incomer, 63 A up to 63 A, else 100 A; sensitivity 30 mA', 'incomer {i} A', { i: inc }, (v) => rccbA(v.i),
-    { unit: 'A', dp: 0, ref: `${REF.draftC629} (30 mA); the rating steps are ${REF.assume}`, expect: gov.rc, result: true })
+    { unit: 'A', dp: 0, ref: `${REF.draftC629}; the rating steps are ${REF.assume}`, expect: gov.rc, result: true,
+      note: `One 30 mA RCCB serves every circuit of the board (${d0(gov.outgoing)} here). The extra device of up to 300 mA at the point of supply, which the draft asks for in the same clause, is not counted.` })
   const sizing = L.take()
 
   const boardsTable = table(
@@ -250,8 +279,13 @@ export function section7(c: Ctx): CalcSection {
   const phases: boolean[] = [...new Set(d.boards.map((b) => b.three))].sort()
   const incomerTables = phases.map((three, i) => block(`incomer-${three ? 3 : 1}`, `7.${4 + i} Incoming breaker by design load, ${three ? 'three' : 'single'}-phase`, undefined,
     table(['Design load', 'Incomer', 'Source'], stepRows(three ? INCOMER_STEPS.three : INCOMER_STEPS.single, 'kW', 'A', () => REF.tender), {
-      note: `The model takes the rating from the design load alone and does not compare it with a current rating of the cable. Tender board items show 32 A double-pole incomers for homes and 63 A four-pole for three phase (a secondary source); the other steps are assumptions. RCCB rating for these incomers: ${[...new Set((three ? INCOMER_STEPS.three : INCOMER_STEPS.single).upTo.map((x) => x[1]).concat([(three ? INCOMER_STEPS.three : INCOMER_STEPS.single).above]))].map((a) => `${a} A incomer, ${rccbA(a)} A RCCB`).join('; ')}.`,
+      note: `The model takes the rating from the design load alone and does not compare it with the design current or with a current rating of the cable (see the table after these). Tender board items show 32 A double-pole incomers for homes and 63 A four-pole for three phase (a secondary source); the other steps are assumptions. RCCB rating for these incomers: ${[...new Set((three ? INCOMER_STEPS.three : INCOMER_STEPS.single).upTo.map((x) => x[1]).concat([(three ? INCOMER_STEPS.three : INCOMER_STEPS.single).above]))].map((a) => `${a} A incomer, ${rccbA(a)} A RCCB`).join('; ')}.`,
     })))
+
+  const sideBySide = block('incomer-cable', `7.${4 + phases.length} Incomer and mains cable side by side (not compared by the model)`, undefined,
+    table(['Supply', 'Design load', 'Incomer (A)', 'Mains cable (mm²)'],
+      phases.flatMap((three) => incomerAndCable(three).map((r) => [three ? 'Three-phase' : 'Single-phase', r.hi === null ? `Over ${r.lo} kW` : r.lo === null ? `Up to ${r.hi} kW` : `Over ${r.lo} up to ${r.hi} kW`, d0(r.inc), num(r.mm2)])),
+      { num: [2, 3], note: 'The incomer comes from one table and the mains cable from another, both by design load. The model does not check that the cable can carry the current the incomer allows.' }))
 
   /* counts that are in the report */
   const incomerRows = [...d.incomers.entries()].sort()
@@ -273,7 +307,8 @@ export function section7(c: Ctx): CalcSection {
       block('db-ex', `7.2 Worked example: sizing ${s.label.toLowerCase()}`, sizing),
       block('db-all', '7.3 Every board', undefined, boardsTable),
       ...incomerTables,
-      block('db-counts', `7.${4 + phases.length} Incomers, RCCBs and meter boards to buy`, countLines),
+      sideBySide,
+      block('db-counts', `7.${5 + phases.length} Incomers, RCCBs and meter boards to buy`, countLines),
     ],
   }
 }
@@ -299,7 +334,7 @@ export function section8(c: Ctx): CalcSection {
   L.calc('Wire of each line colour', `length of wire = run length × runs × ${RUN} (the wire is a little longer than its route)`, '{l:1} × {n} × {r}', { l: m.each, n: m.n, r: RUN },
     (v) => v.l * v.n * v.r, { unit: 'm', dp: 1, ref: `${REF.dar11}: ${RUN} m of conductor for each metre of route`, expect: c.wireOf(s.label, SRC.mains, m.size, COLOUR.live) })
   L.calc('Earth wire', 'same length, in the earth size for this cable', '{l:1} × {n} × {r}', { l: m.each, n: m.n, r: RUN }, (v) => v.l * v.n * v.r, { unit: 'm', dp: 1, ref: REF.draftC8, expect: c.wireOf(s.label, SRC.mains, earthMm2(m.size), COLOUR.earth) })
-  L.say('Colours', `${colours} line ${pl(colours, 'colour', 'colours')} plus the green earth: ${(m.three ? MAINS_COLOURS.three : MAINS_COLOURS.single).join(', ').toLowerCase()}.`, REF.gs35)
+  L.say('Colours', `${colours} line ${pl(colours, 'colour', 'colours')}: ${(m.three ? MAINS_COLOURS.three : MAINS_COLOURS.single).join(', ').toLowerCase()}; and the ${COLOUR.earth.toLowerCase()} earth.`, REF.gs35)
   const ex = L.take()
 
   const tbl = table(

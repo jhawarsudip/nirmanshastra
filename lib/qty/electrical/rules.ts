@@ -195,8 +195,8 @@ export const dedicatedKw = (s: Dedicated) => (s.ac * WATTS.ac + s.geysers * WATT
 /** Names of the two board kinds, as they are printed and keyed. */
 export const PHASE_KIND = { three: 'Three-phase (TPN)', single: 'Single-phase (SPN)' } as const
 
-/** Wire colours (CPWD GS 3.5(v)): the order they are listed in, the sets used on circuits and on mains. */
-export const COLOUR = { live: 'Red', neutral: 'Black', earth: 'Green', phase2: 'Yellow', phase3: 'Blue' } as const
+/** Wire colours: the order they are listed in, the sets used on circuits and on mains. The earth is green-yellow (draft IS 4648 cl 8: "Colour of insulated protective conductor shall be green-yellow"); the colours of the line and neutral wires are the usual ones, an Assumed choice. */
+export const COLOUR = { live: 'Red', neutral: 'Black', earth: 'Green-yellow', phase2: 'Yellow', phase3: 'Blue' } as const
 export const CIRCUIT_COLOURS: readonly string[] = [COLOUR.live, COLOUR.neutral, COLOUR.earth]
 export const MAINS_COLOURS: { single: readonly string[]; three: readonly string[] } = {
   single: [COLOUR.live, COLOUR.neutral],

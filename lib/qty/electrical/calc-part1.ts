@@ -12,6 +12,9 @@ import {
   type Kind,
 } from './rules'
 
+/** "in all 3 bedrooms", "in the bedroom" */
+const inAll = (n: number, nm: string) => (n === 1 ? `in the ${nm}` : `in all ${n} ${nm}s`)
+
 export function section1(c: Ctx): CalcSection {
   const { inp, d, L } = c
   const { flats, std, N } = d
@@ -25,7 +28,8 @@ export function section1(c: Ctx): CalcSection {
   L.value(flats ? 'Balconies in each home' : 'Balconies in the house', inp.balconies, '', 0, REF.yours)
   L.input('Dining room apart from the kitchen', yn(inp.dining), REF.yours)
   L.input('Pooja room', yn(inp.pooja), REF.yours)
-  L.input('Wash area or dry balcony with a washing machine point', yn(inp.utility), REF.yours)
+  L.input('Wash area or dry balcony with a washing machine point', yn(inp.utility), REF.yours,
+    std ? 'At the Standard level a yes also adds a dishwasher outlet and circuit (one for each home, on the ground floor of a house). A dishwasher is not one of the questions.' : 'A yes adds a washing machine outlet and circuit. No dishwasher is added at the Basic level.')
   L.value(flats ? 'Rooms with an air conditioner, in each home' : 'Rooms with an air conditioner', inp.acRooms, '', 0, REF.yours)
   L.input('Water heater in every bathroom', yn(inp.geyser), REF.yours)
   L.input('Inverter for lights and fans', yn(inp.inverter), REF.yours)
@@ -164,20 +168,45 @@ export function section3(c: Ctx): CalcSection {
     const nm = roomName(exKind).toLowerCase()
     L.calc(`Area of one ${nm}`, 'area = k × weight, held between the smallest and the largest area', 'min({mx}, max({mn}, {k:3} × {w}))', { mx: A_MAX[exKind as keyof typeof A_MAX], mn: A_MIN[exKind as keyof typeof A_MIN], k: b0.k0, w: W[exKind as keyof typeof W] },
       (v) => Math.min(v.mx, Math.max(v.mn, v.k * v.w)), { unit: 'm²', dp: 2, ref: `${REF.assume} (limits, table 3.1)`, expect: rr.area ?? 0 })
+    L.say('How the count rises with the size of a room', std
+      ? `The draft gives lights, fans and sockets "per 10-12 m² or part" of a room. The model takes ${RULE.unitM2} m² as one unit, counts the units in proportion to the area (an 18 m² room is 1.5 units, and any room under ${RULE.unitM2} m² is one unit) and rounds each count to the nearest whole point. It does not round the area up to whole blocks. That is the tool's choice, and ${RULE.unitM2} m² is its choice within the draft's 10 to 12 m²; read strictly, "or part" would give a room just over ${RULE.unitM2} m² two blocks and about twice the points.`
+      : `The schedule is applied for each ${RULE.unitM2} m² of a room. The model counts the units in proportion to the area (an 18 m² room is 1.5 units, and any room under ${RULE.unitM2} m² is one unit) and rounds each count to the nearest whole point. It does not round the area up to whole blocks.`,
+    std ? REF.draftT23 : REF.assume)
     L.calc('Units of floor area in one room', `units = the larger of 1 and area ÷ ${RULE.unitM2} m²`, 'max(1, {a:2} ÷ {u})', { a: rr.area ?? 0, u: RULE.unitM2 }, (v) => Math.max(1, v.a / v.u),
-      { dp: 4, ref: `${std ? REF.draftT23 : 'IS 4648:1968 and the NIMI yardstick'}: points rise with each ${RULE.unitM2} m² or part`, expect: rr.units ?? 0 })
+      { dp: 4, ref: `${std ? REF.draftT23 : 'IS 4648:1968 and the NIMI yardstick'}: ${RULE.unitM2} m² is the tool's choice; the count is in proportion to the area`, expect: rr.units ?? 0 })
+
     for (const x of ['L', 'F', 'S6', 'S16'] as const) {
       const rate = T[exKind].u[x] ?? 0
       if (rate <= 0) continue
       const lab = { L: 'Lights', F: 'Fans', S6: '6 A sockets', S16: '6/16 A sockets' }[x]
-      L.calc(`${lab} in all ${n} ${pl(n, nm, `${nm}s`)}`, 'points = rooms × round(points for each unit × units)', '{n} × round({r} × {u:4})', { n, r: rate, u: rr.units ?? 0 },
+      L.calc(`${lab} ${inAll(n, nm)}`, 'points = rooms × round(points for each unit × units)', '{n} × round({r} × {u:4})', { n, r: rate, u: rr.units ?? 0 },
         (v) => v.n * Math.round(v.r * v.u), { dp: 0, ref: std ? REF.draftT23 : x === 'S6' || x === 'S16' ? REF.old1968 : 'Model value chosen to match the NIMI yardstick', expect: rr.c[x] })
     }
     for (const x of ['X', 'B', 'TV', 'D'] as const) {
       const rate = T[exKind].f[x] ?? 0
       if (rate <= 0) continue
       const lab = { X: 'Exhaust fans', B: 'Call bells', TV: 'TV points', D: 'Data points' }[x]
-      L.calc(`${lab} in all ${n} ${pl(n, nm, `${nm}s`)}`, 'points = rooms × points in one room', '{n} × {r}', { n, r: rate }, (v) => v.n * v.r, { dp: 0, ref: std ? REF.draftT23 : REF.old1968, expect: rr.c[x] })
+      L.calc(`${lab} ${inAll(n, nm)}`, 'points = rooms × points in one room', '{n} × {r}', { n, r: rate }, (v) => v.n * v.r, { dp: 0, ref: std ? REF.draftT23 : REF.old1968, expect: rr.c[x] })
+    }
+  }
+  if (std) {
+    /* the difference the draft's "or part" would make, shown on the largest room of the board */
+    const big = b0.rooms.filter((r) => r.kind !== null && r.units !== null).reduce<(typeof b0.rooms)[number] | undefined>((a, r) => (!a || (r.units ?? 0) > (a.units ?? 0) ? r : a), undefined)
+    if (big && big.kind && (big.units ?? 0) > 1) {
+      const nm = big.label.toLowerCase()
+      L.calc(`Comparison: the largest room, ${nm}`, 'units = area ÷ 12 m², as the model counts them', '{a:2} ÷ {u}', { a: big.area ?? 0, u: RULE.unitM2 }, (v) => v.a / v.u, { dp: 4, ref: 'For comparison only', expect: big.units ?? 0 })
+      const blocks = L.calc('Comparison: whole blocks if "or part" were rounded up (not used)', `blocks = up(area ÷ ${RULE.unitM2} m²)`, 'up({a:2} ÷ {u})', { a: big.area ?? 0, u: RULE.unitM2 }, (v) => Math.ceil(v.a / v.u), { dp: 0, ref: 'For comparison only: the report does not use this' })
+      for (const x of ['L', 'S6'] as const) {
+        const rate = T[big.kind].u[x] ?? 0
+        if (rate <= 0) continue
+        const lab = { L: 'lights', S6: '6 A sockets' }[x]
+        L.calc(`Comparison: ${lab} ${inAll(big.n, nm)}, as the model counts them`, 'points = rooms × round(points for each unit × units)', '{n} × round({r} × {u:4})', { n: big.n, r: rate, u: big.units ?? 0 },
+          (v) => v.n * Math.round(v.r * v.u), { dp: 0, ref: 'As in the report', expect: big.c[x] })
+        L.calc(`Comparison: ${lab} ${inAll(big.n, nm)}, with whole blocks (not used)`, 'points = rooms × points for each block × whole blocks', '{n} × {r} × {b}', { n: big.n, r: rate, b: blocks },
+          (v) => v.n * v.r * v.b, { dp: 0, ref: 'For comparison only: the report does not use this' })
+      }
+    } else {
+      L.say('Comparison with whole blocks', `No room on this board is larger than ${RULE.unitM2} m², so counting whole blocks would give the same points here. It makes a difference only for a room over ${RULE.unitM2} m².`, 'For comparison only')
     }
   }
   const example = L.take()
@@ -197,8 +226,8 @@ export function section3(c: Ctx): CalcSection {
     {
       num: [1, 2, 3, 4, 5, 6, 7, 8],
       note: std
-        ? `Standard level: ${REF.draftT23}. Lights, fans and the two socket columns are for each ${RULE.unitM2} m² of the room; exhaust fans, bells, TV and data points are for each room. The draft is not yet a published standard and a few columns were read by position, so these rows are a guide.`
-        : `Basic level: the socket schedule of IS 4648:1968 (cl 9.8; where it gives two to three, the larger is used), with lights and fans chosen so that an 85 m² home has about 12 lights and 5 fans (the NIMI electrician text, which is a yardstick and not a standard). Lights, fans and the two socket columns are for each ${RULE.unitM2} m² of the room; the rest are for each room.`,
+        ? `Standard level: ${REF.draftT23}. Lights, fans and the two socket columns are for each ${RULE.unitM2} m² of the room, in proportion to its area and not rounded up to whole blocks (the draft says 10 to 12 m² or part; ${RULE.unitM2} m² and the proportional count are the tool's choice); exhaust fans, bells, TV and data points are for each room. The draft is not yet a published standard and a few columns were read by position, so these rows are a guide.`
+        : `Basic level: the socket schedule of IS 4648:1968 (cl 9.8; where it gives two to three, the larger is used), with lights and fans chosen so that an 85 m² home has about 12 lights and 5 fans (the NIMI electrician text, which is a yardstick and not a standard). Lights, fans and the two socket columns are for each ${RULE.unitM2} m² of the room, in proportion to its area and not rounded up; the rest are for each room.`,
     },
   )
   const fixedArea = (r: { kind: Kind | null; area: number | null }) => (r.kind === 'entrance' || r.kind === 'balcony' ? FIXED_M2[r.kind] : r.area)
@@ -228,17 +257,18 @@ export function section3(c: Ctx): CalcSection {
   const names = ['lights', 'ceiling fans', 'exhaust fans', 'call bells', '6 A sockets', '6/16 A sockets', 'TV and data points']
   const mine = [d.total.L, d.total.F, d.total.X, d.total.B, d.total.S6, d.total.S16, d.total.TV + d.total.D]
   names.forEach((nm, i) => c.tieNum(`Points table, all rooms: ${nm}`, cellNumber(foot[i + 2]), mine[i], 'nos'))
-  c.tieNum('Points and sockets (total under "What to order")', cellNumber(c.report.paid.tiles.find((t) => t.k === 'Points and sockets')?.v), d.points + d.sockets, 'counted')
+  c.tieNum('Points and sockets (total under "What to order")', cellNumber(c.report.paid.tiles.find((t) => t.k === 'Points and sockets')?.v), d.points + d.sockets, 'points and sockets')
 
   L.calc('Air conditioner outlets', 'Σ over boards (air conditioners on a board × copies)', '{a}', { a: c.sumM((b) => b.spec.ac) }, (v) => v.a, { dp: 0, ref: REF.rule, expect: d.tot.ac })
   L.calc('Water heater outlets', 'Σ over boards (heaters × copies); one in every bathroom if asked for', '{a}', { a: c.sumM((b) => b.spec.geysers) }, (v) => v.a, { dp: 0, ref: REF.rule, expect: d.tot.geysers })
-  L.calc('Washing machine and dishwasher outlets', 'washers + dishwashers (the dishwasher only at the Standard level)', '{w} + {x}', { w: c.sumM((b) => b.spec.washers), x: c.sumM((b) => b.spec.dish) }, (v) => v.w + v.x, { dp: 0, ref: REF.rule, expect: d.tot.washers + d.tot.dish })
+  L.calc('Washing machine and dishwasher outlets', 'washers + dishwashers (the dishwasher only at the Standard level)', '{w} + {x}', { w: c.sumM((b) => b.spec.washers), x: c.sumM((b) => b.spec.dish) }, (v) => v.w + v.x,
+    { dp: 0, ref: REF.rule, expect: d.tot.washers + d.tot.dish, note: std && d.tot.dish > 0 ? `The Standard level adds ${d.tot.dish === 1 ? 'one dishwasher outlet' : `${d0(d.tot.dish)} dishwasher outlets`} that you did not ask for, one for each home that has the washing machine point. The draft's Table 6 gives a dishwasher ${WATTS.dish / 1000} kW, below the 2 kW at which its cl 6.2.2 asks for a circuit of its own; the model gives it one all the same.` : std ? 'No washing machine point was asked for, so no dishwasher is added.' : 'No dishwasher is added at the Basic level.' })
   L.calc('Pump outlets', 'pumps worked out in section 1', '{p}', { p: d.pumps }, (v) => (d.tot.pumps > 0 ? v.p : 0), { dp: 0, ref: REF.assume, expect: d.tot.pumps })
   L.calc('EV charger points', 'EV circuits worked out in section 1', '{p}', { p: d.evCircuits }, (v) => v.p, { dp: 0, ref: REF.assume, expect: d.tot.evs })
   L.calc('Inverter connections', 'one for each home whose board takes the supply, if an inverter is asked for', '{p}', { p: d.tot.inverters }, (v) => v.p, { dp: 0, ref: REF.assume, expect: d.tot.inverters })
   const ded = L.take()
   const dedRows: [string, number][] = [['Air conditioner outlets, 20/25 A', d.tot.ac], ['Water heater outlets, 6/16 A', d.tot.geysers], ['Washing machine and dishwasher outlets, 6/16 A', d.tot.washers + d.tot.dish], ['Pump outlets', d.tot.pumps], ['EV charger points, 32 A', d.tot.evs], ['Inverter connections', d.tot.inverters]]
-  for (const [label, n] of dedRows) if (n > 0) c.tieNum(`Outlets with a circuit of their own: ${label.toLowerCase()}`, c.rowNum('dedicated', label), n, 'nos')
+  for (const [label, n] of dedRows) if (n > 0) c.tieNum(`Outlets with a circuit of their own: ${label.charAt(0).toLowerCase()}${label.slice(1)}`, c.rowNum('dedicated', label), n, 'nos')
 
   return {
     id: 's3', title: '3. Points and sockets, room by room and board by board',

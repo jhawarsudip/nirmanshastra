@@ -19,6 +19,10 @@ export const d3 = (v: number) => fixed(v, 3)
 export const yn = (b: boolean) => (b ? 'Yes' : 'No')
 export const pl = (n: number, one: string, many: string) => (n === 1 ? one : many)
 
+/** A unit that agrees with the number in front of it: "1 home", "2 homes". Units not listed are left as they are (m, kW, mm). */
+const SINGULAR: Record<string, string> = { homes: 'home', boards: 'board', circuits: 'circuit', rooms: 'room', nos: 'no.', ways: 'way', electrodes: 'electrode' }
+export const unitFor = (n: number, unit: string) => (n === 1 ? SINGULAR[unit] ?? unit : unit)
+
 export const table = (head: string[], rows: string[][], o: { foot?: string[]; num?: number[]; note?: string } = {}): CalcTable => ({ head, rows, foot: o.foot, num: o.num, note: o.note })
 export const block = (id: string, title: string, lines: CalcLine[] | undefined, tbl?: CalcTable, o: { intro?: string; note?: string } = {}): CalcBlock => ({
   id, title, intro: o.intro, lines: lines && lines.length > 0 ? lines : undefined, table: tbl, note: o.note,
@@ -28,13 +32,13 @@ export const block = (id: string, title: string, lines: CalcLine[] | undefined, 
 export const REF = {
   draft: 'BIS draft of IS 4648, first revision (ETD 20, September 2024)',
   draftT23: 'Draft IS 4648 Tables 2 and 3 (room-wise points)',
-  draftT4: 'Draft IS 4648 Table 4 (wire sizes); CPWD GS 3.12',
+  draftT4: 'Draft IS 4648 Table 4 (wire sizes)',
   draftT5: 'Draft IS 4648 Table 5 (load per point)',
-  draftT6: 'Draft IS 4648 Table 6 (appliance loads), as cited by the model',
-  draftC621: 'Draft IS 4648 cl 6.2.1; CPWD GS 3.10(i)',
+  draftT6: 'Draft IS 4648 Table 6 (appliance loads)',
+  draftC621: 'Draft IS 4648 cl 6.2.1 note (8 points; CPWD GS 3.10(i) allows 10 points or 800 W)',
   draftC622: 'Draft IS 4648 cl 6.2.2; CPWD GS 3.10(iii)',
   draftC628: 'Draft IS 4648 cl 6.2.8 (breaker ratings)',
-  draftC629: 'Draft IS 4648 cl 6.2.9 (BIS draft, ETD 20, September 2024)',
+  draftC629: 'Draft IS 4648 cl 6.2.9 (a 30 mA residual current device on every installation)',
   draftC7: 'Draft IS 4648 cl 7 (design load)',
   draftC8: 'Draft IS 4648 cl 8 (earth conductor)',
   old1968: 'IS 4648:1968 cl 9.8 (sockets)',
@@ -44,9 +48,9 @@ export const REF = {
   dar11: 'CPWD DAR 2016 item 1.1',
   dar17: 'CPWD DAR 2016 item 1.7',
   dar15: 'CPWD DAR 2016 items 1.5 and 1.7',
-  dar: 'CPWD DAR 2016, as the model cites it (no item number given)',
-  gs35: 'CPWD GS 3.5(v) (wire colours), as the free Wire Size calculator cites it',
-  is3043: 'IS 3043:2018 (earthing, topic only)',
+  dar: 'NirmanShastra assumption (the tool names CPWD DAR 2016 for this; the item is not known)',
+  gs35: 'Earth: draft IS 4648 cl 8 (green-yellow). Line and neutral colours: NirmanShastra assumption (the usual colours)',
+  is3043: 'IS 3043:2018 (earthing, named as the topic only; no clause given)',
   assume: 'NirmanShastra assumption',
   rule: 'Engine rule',
   yours: 'Your answer',
@@ -92,7 +96,8 @@ export function makeCtx(inp: ElecInput, report: TradeResult): Ctx {
   return {
     inp, report, d, L, ties, bad,
     tieNum(item, reportValue, sheetValue, unit, dp = 0) {
-      const t = tie(item, reportValue, sheetValue, unit, dp)
+      const u = reportValue === 1 && sheetValue === 1 ? unitFor(1, unit) : unit
+      const t = tie(item, reportValue, sheetValue, u, dp)
       ties.push(t)
       if (!t.ok) bad.push(`${item}: report ${reportValue} vs sheet ${sheetValue}`)
     },

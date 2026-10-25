@@ -3,7 +3,7 @@
 import { num } from '@/lib/calcsheet'
 import type { CalcSection, Vars } from '@/lib/calcsheet'
 import { SQFT_TO_M2, bump, ceilTo, fmt, pieces, rangeText } from '../util'
-import { REF, block, d0, d1, d2, d3, table, type Ctx } from './calc-ctx'
+import { REF, block, d0, d1, d2, d3, pl, table, type Ctx } from './calc-ctx'
 import { ACC_NAMES, PROT_NAMES, accessories, buyLines, cellNumber, sheetTables } from './calc-rows'
 import { SRC } from './derive'
 import { COIL_M, COLOUR, DAR, ELEC_BANDS, PER_M, RULE, RUN, WASTE } from './rules'
@@ -160,10 +160,10 @@ export function section9(c: Ctx): CalcSection {
       (x) => parts.reduce((s, _p, i) => s + x[`p${i}`], 0), { unit: 'm', dp: 0, ref: 'Sum of sections 8 and 9', expect: cellNumber(rrow?.[2]) })
     const withW = L.calc('With waste', `length = needed × ${WASTE}`, '{n:2} × {w}', { n: need, w: WASTE }, (x) => x.n * x.w, { unit: 'm', dp: 0, ref: `${REF.dar}: ${Math.round((WASTE - 1) * 100)}% for cutting waste`, expect: cellNumber(rrow?.[3]) })
     if (wr.size <= RULE.coilMaxMm2) {
-      const n = L.calc(`Coils of ${COIL_M} m`, `coils = up(length with waste ÷ ${COIL_M})`, 'up({w:2} ÷ {c})', { w: withW, c: COIL_M }, (x) => pieces(x.w, x.c), { dp: 0, ref: `Pack size: ${REF.assume}`, expect: cellNumber(rrow?.[4]) })
+      const n = L.calc(`Coils of ${COIL_M} m`, `coils = up(length with waste ÷ ${COIL_M})`, 'up({w:2} ÷ {c})', { w: withW, c: COIL_M }, (x) => pieces(x.w, x.c), { dp: 0, ref: `Pack size: ${REF.assume}`, expect: cellNumber(rrow?.[4]), note: `Wire up to ${RULE.coilMaxMm2} mm² is bought in whole coils of ${COIL_M} m (the common pack; no standard fixes it), so a size that needs only a little wire still takes one whole coil.` })
       L.calc('Wire to buy', `length = coils × ${COIL_M}`, '{n} × {c}', { n, c: COIL_M }, (x) => x.n * x.c, { unit: 'm', dp: 0, ref: 'Buy list', expect: cellNumber(rrow?.[5]), result: true })
     } else {
-      L.calc('Wire to buy', `length = length with waste rounded up to a multiple of ${RULE.byMetreStepM} m`, 'up({w:2} ÷ {s}) × {s}', { w: withW, s: RULE.byMetreStepM }, (x) => ceilTo(x.w, x.s), { unit: 'm', dp: 0, ref: `Sold by the metre: ${REF.assume}`, expect: cellNumber(rrow?.[5]), result: true })
+      L.calc('Wire to buy', `length = length with waste rounded up to a multiple of ${RULE.byMetreStepM} m`, 'up({w:2} ÷ {s}) × {s}', { w: withW, s: RULE.byMetreStepM }, (x) => ceilTo(x.w, x.s), { unit: 'm', dp: 0, ref: `Sold by the metre: ${REF.assume}`, expect: cellNumber(rrow?.[5]), result: true, note: `Sizes above ${RULE.coilMaxMm2} mm² are bought by the metre in steps of ${RULE.byMetreStepM} m, not in coils, so they are rounded up far less than the smaller sizes.` })
     }
   }
   const wrMax = d.wireRows.reduce((a, b) => (b.m > a.m ? b : a), d.wireRows[0])
@@ -174,7 +174,21 @@ export function section9(c: Ctx): CalcSection {
   if (wrBig && wrBig !== wrMax) { wireEx(wrBig); wireExample2 = L.take() }
   const sh = sheetTables(d)
   const wireTab = sh.find((t) => t.id === 'wire')!
-  const wireTable = table(['Size', 'Colour', 'Length needed (m)', 'With waste (m)', 'Coils', 'To buy'], wireTab.rows.map((r) => r.map(String)), { num: [2, 3, 4], foot: wireTab.foot?.map(String), note: 'Red is the live wire, black the neutral, green the earth; a three-phase supply adds yellow and blue to the mains only.' })
+  const wireTable = table(['Size', 'Colour', 'Length needed (m)', 'With waste (m)', 'Coils', 'To buy'], wireTab.rows.map((r) => r.map(String)), { num: [2, 3, 4], foot: wireTab.foot?.map(String), note: 'Red is the live wire, black the neutral, green-yellow the earth; a three-phase supply adds yellow and blue to the mains only.' })
+
+  /* ── why more wire is bought than is counted ── */
+  const coilRows = d.wireRows.filter((r) => r.size <= RULE.coilMaxMm2)
+  const metreRows = d.wireRows.filter((r) => r.size > RULE.coilMaxMm2)
+  const counted = L.calc('Wire counted, all sizes and colours, before waste', 'Σ over sizes and colours of the length needed', '{n:1}', { n: d.wireRunTotal }, (v) => v.n, { unit: 'm', dp: 0, ref: 'Section 9.7', expect: sumW })
+  const withWasteAll = L.calc('With waste', `length = counted × ${WASTE}`, '{n:1} × {w}', { n: counted, w: WASTE }, (v) => v.n * v.w, { unit: 'm', dp: 0, ref: `${REF.dar}: ${Math.round((WASTE - 1) * 100)}% for cutting waste` })
+  const inCoils = L.calc(`Bought in whole coils of ${COIL_M} m (sizes up to ${RULE.coilMaxMm2} mm²)`, 'Σ over those sizes and colours of the coils × the coil length', '{n:1}', { n: coilRows.reduce((a, r) => a + d.buyWire(r.size, r.m), 0) }, (v) => v.n, { unit: 'm', dp: 0, ref: `Pack size: ${REF.assume}` })
+  const byMetre = L.calc(`Bought by the metre in steps of ${RULE.byMetreStepM} m (larger sizes)`, 'Σ over those sizes and colours of the length rounded up', '{n:1}', { n: metreRows.reduce((a, r) => a + d.buyWire(r.size, r.m), 0) }, (v) => v.n, { unit: 'm', dp: 0, ref: `Sold by the metre: ${REF.assume}` })
+  const bought = L.calc('Wire to buy, all sizes and colours', 'bought = in coils + by the metre', '{a:1} + {b:1}', { a: inCoils, b: byMetre }, (v) => v.a + v.b, { unit: 'm', dp: 0, ref: 'Buy list', expect: d.wireBuyTotal, result: true })
+  L.calc('More bought than counted', 'extra = (bought ÷ counted − 1) × 100', '({b:1} ÷ {n:1} − 1) × 100', { b: bought, n: counted }, (v) => (v.b / v.n - 1) * 100, { unit: '%', dp: 0, ref: 'From the two lines above',
+    note: `${fmt(withWasteAll - counted, 0)} m of the extra is waste; the other ${fmt(bought - withWasteAll, 0)} m is rounding up.` })
+  const small = coilRows.length > 0 ? coilRows.reduce((a, b) => (b.m < a.m ? b : a), coilRows[0]) : undefined
+  if (small) L.say('Why a small need still buys a coil', `The smallest need is ${small.size} mm², ${small.colour.toLowerCase()}: ${fmt(small.m, 1)} m (${fmt(small.m * WASTE, 1)} m with waste), and ${fmt(d.buyWire(small.size, small.m), 0)} m is bought, which is ${fmt(d.buyWire(small.size, small.m) / COIL_M, 0)} whole ${pl(d.buyWire(small.size, small.m) / COIL_M, 'coil', 'coils')} of ${COIL_M} m. The ${COIL_M} m coil is the tool's choice of pack, and a shop may sell a part coil or cut a length, which would bring the quantity to buy down.`, REF.assume)
+  const whyMore = L.take()
 
   /* ── conduit to buy ── */
   const cr = d.condRows.reduce((a, b) => (b[1] > a[1] ? b : a), d.condRows[0])
@@ -221,7 +235,7 @@ export function section9(c: Ctx): CalcSection {
       block('len-src', '9.7 Where the wire and conduit go, whole building', undefined, bySource),
       block('wire-ex', '9.8 Worked example: wire to buy', wireExample),
       ...(wireExample2.length > 0 ? [block('wire-ex2', '9.9 Worked example: a size bought by the metre', wireExample2)] : []),
-      block('wire-all', '9.10 Wire to buy, every size and colour', undefined, wireTable),
+      block('wire-all', '9.10 Wire to buy, every size and colour', whyMore, wireTable),
       block('cond-ex', '9.11 Worked example: conduit to buy', condExample),
       block('cond-all', '9.12 Conduit to buy, every size', undefined, condTable),
       ...(mediaLines.length > 0 ? [block('media', '9.13 TV and data cable', mediaLines)] : []),
@@ -355,7 +369,7 @@ export function section12(c: Ctx): CalcSection {
   const { d, L } = c
   const tiles = c.report.paid.tiles
   const rows: { label: string; tile: string; band: { label: string; low: number; high: number }; value: number; suffix: string; unit: string; dp: number }[] = [
-    { label: 'Points and sockets', tile: 'Points and sockets', band: ELEC_BANDS.points, value: d.points + d.sockets, suffix: '', unit: 'counted', dp: 0 },
+    { label: 'Points and sockets', tile: 'Points and sockets', band: ELEC_BANDS.points, value: d.points + d.sockets, suffix: '', unit: 'points and sockets', dp: 0 },
     { label: 'Copper wire', tile: 'Copper wire', band: ELEC_BANDS.wire, value: d.wireBuyTotal, suffix: ' m', unit: 'm', dp: 0 },
     { label: 'Conduit', tile: 'Conduit', band: ELEC_BANDS.conduit, value: d.condBuy, suffix: ' m', unit: 'm', dp: 0 },
     { label: 'Circuits', tile: 'Circuits', band: ELEC_BANDS.circuits, value: d.tot.circuits, suffix: ' circuits', unit: 'circuits', dp: 0 },
@@ -373,13 +387,13 @@ export function section12(c: Ctx): CalcSection {
     c.tieText(`Range shown beside "${r.tile}"`, tile?.range ?? '', `${rangeText(r.value, r.band.low, r.band.high, 0)}${r.suffix}`)
   }
   const worked = L.take()
-  c.tieNum('Copper wire tile', cellNumber(tiles.find((t) => t.k === 'Copper wire')?.v), d.wireBuyTotal, 'm')
-  c.tieNum('Conduit tile', cellNumber(tiles.find((t) => t.k === 'Conduit')?.v), d.condBuy, 'm')
+  c.tieNum('Copper wire to buy, total at the top of the report', cellNumber(tiles.find((t) => t.k === 'Copper wire')?.v), d.wireBuyTotal, 'm')
+  c.tieNum('Conduit to buy, total at the top of the report', cellNumber(tiles.find((t) => t.k === 'Conduit')?.v), d.condBuy, 'm')
 
   const bands = Object.values(ELEC_BANDS)
   const rb = c.report.paid.bands
   if (rb.length !== bands.length) c.bad.push(`bands: report has ${rb.length}, sheet ${bands.length}`)
-  bands.forEach((b, i) => c.tieText(`Band: ${b.label}`, rb[i] ? `${rb[i].label}, ${rb[i].low} to ${rb[i].high}` : '', `${b.label}, ${b.low} to ${b.high}`))
+  bands.forEach((b, i) => c.tieText(`Low and high factors for ${b.label.toLowerCase()}`, rb[i] ? `${rb[i].label}, ${rb[i].low} to ${rb[i].high}` : '', `${b.label}, ${b.low} to ${b.high}`))
   const bandTable = table(
     ['Kind of figure', 'Low factor', 'High factor', 'Applies to'],
     bands.map((b) => [b.label, num(b.low), num(b.high), rows.find((r) => r.band === b) ? `The "${rows.find((r) => r.band === b)!.tile}" total` : 'The counts of switches, boxes and fittings (section 11.2)']),
