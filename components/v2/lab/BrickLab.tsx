@@ -3,38 +3,56 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { useMotionOK, useReveal, useTween } from '@/lib/v2/store'
-import { DEFAULT_RATES } from '@/app/tools/structopro/structopro-engine'
+import Calc from '../Calc'
+import { SYSTEMS, unitsPerM2, jointMortarPerM2, MORTAR_ALLOW, CEMENT_KG_PER_M3, SAND_M3_PER_M3, CEMENT_BAG_KG } from '@/lib/qty/masonry/model'
 
 const COPY = {
   en: {
-    bench: 'Bench 02', title: 'Brick wall',
-    lede: 'A 9″ wall is not 50 bricks a square metre — it is 100. Half of them hide inside the thickness. Pick the brick and the wall, then lay a metre.',
-    kind: 'Brick', mod: 'Modular', non: 'Non-modular', thick: 'Wall thickness', area: 'Wall area', rate: 'Your brick rate',
-    rateHint: 'optional · ₹ per brick', lay: 'Lay it again', laid: 'Laid', face: 'One m² of face, running left to right',
-    bricks: 'Bricks', cement: 'Cement (mortar)', sand: 'Sand (mortar)', mortar: 'Mortar', cc: 'Cement cost', sc: 'Sand cost',
-    bc: 'Brick cost', tot: 'Brick + mortar', tot2: 'Mortar materials only', bags: 'bags', cft: 'cft', sqm: 'm²',
-    rule: 'IS 1077:1992 · IS 2212:1991', bond9: 'English bond · stretchers and headers alternate', bond4: 'Stretcher bond · half-lap',
-    note: 'Cement ₹495/bag and sand ₹24/cft are the calculator’s default rates. Brick rates differ town to town, so we leave that to you. Drawing shows one face; the table counts every brick through the thickness.',
+    bench: 'Try it · 2', title: 'How many bricks does my wall need?',
+    lede: 'A one-brick wall takes 94 to 104 bricks for every square metre, depending on the size of the brick, because the wall is two bricks deep behind the face you see. Pick your brick and wall, then watch one metre go up.',
+    one: 'One brick', half: 'Half brick',
+    kind: 'Brick', mod: 'Modular', non: 'Red brick', thick: 'Wall thickness', area: 'Wall area',
+    lay: 'Lay it again', laid: 'Laid', face: 'One m² of face, running left to right',
+    ansK: 'Bricks for your wall', unit: 'bricks',
+    ansS: (b: string, c: string) => `Plus about ${b} bags of cement and ${c} cft of sand for the mortar between them.`,
+    stCem: 'Cement', stSand: 'Sand', stMix: 'Mortar mix',
+    bricks: 'Bricks', cement: 'Cement (mortar)', sand: 'Sand (mortar)', mortar: 'Mortar mix', bags: 'bags', cft: 'cft', sqm: 'm²',
+    per: 'per m²', bond9: 'English bond · stretchers and headers alternate', bond4: 'Stretcher bond · half-lap',
+    note: 'Quantities only. Cement and sand are for the mortar between the bricks. The drawing shows one face; the count includes every brick through the thickness. Doors and windows are not taken out here; the MasonryPro report does that.',
   },
   hi: {
-    bench: 'बेंच 02', title: 'ईंट की दीवार',
-    lede: '9″ की दीवार प्रति वर्ग मीटर 50 नहीं, 100 ईंट लेती है। आधी ईंटें मोटाई के भीतर छिपी रहती हैं। ईंट और दीवार चुनिए, फिर एक मीटर चिनिए।',
-    kind: 'ईंट', mod: 'मॉड्यूलर', non: 'नॉन-मॉड्यूलर', thick: 'दीवार की मोटाई', area: 'दीवार का क्षेत्रफल', rate: 'आपकी ईंट का रेट',
-    rateHint: 'वैकल्पिक · ₹ प्रति ईंट', lay: 'फिर से चिनें', laid: 'चिनी', face: '1 m² का सामना, बाएँ से दाएँ',
-    bricks: 'ईंटें', cement: 'सीमेंट (मसाला)', sand: 'रेत (मसाला)', mortar: 'मसाला', cc: 'सीमेंट खर्च', sc: 'रेत खर्च',
-    bc: 'ईंट खर्च', tot: 'ईंट + मसाला', tot2: 'सिर्फ़ मसाले की सामग्री', bags: 'बोरी', cft: 'cft', sqm: 'm²',
-    rule: 'IS 1077:1992 · IS 2212:1991', bond9: 'इंग्लिश बॉन्ड · स्ट्रेचर और हेडर बारी-बारी', bond4: 'स्ट्रेचर बॉन्ड · आधी-आधी लैप',
-    note: 'सीमेंट ₹495/बोरी और रेत ₹24/cft कैलकुलेटर के डिफ़ॉल्ट रेट हैं। ईंट का रेट शहर-शहर बदलता है, इसलिए वह आप भरें। चित्र में एक सतह है; तालिका मोटाई के भीतर की हर ईंट गिनती है।',
+    bench: 'आज़माइए · 2', title: 'मेरी दीवार में कितनी ईंटें लगेंगी?',
+    lede: 'एक ईंट मोटी दीवार में ईंट के आकार के हिसाब से प्रति वर्ग मीटर 94 से 104 ईंटें लगती हैं, क्योंकि दिखने वाली सतह के पीछे दीवार दो ईंट गहरी होती है। अपनी ईंट और दीवार चुनिए, फिर एक मीटर दीवार उठते देखिए।',
+    one: 'एक ईंट मोटी', half: 'आधी ईंट मोटी',
+    kind: 'ईंट', mod: 'मॉड्यूलर', non: 'लाल ईंट', thick: 'दीवार की मोटाई', area: 'दीवार का क्षेत्रफल',
+    lay: 'फिर से चिनें', laid: 'चिनी', face: '1 m² का सामना, बाएँ से दाएँ',
+    ansK: 'आपकी दीवार के लिए ईंटें', unit: 'ईंटें',
+    ansS: (b: string, c: string) => `साथ में बीच के मसाले के लिए लगभग ${b} बोरी सीमेंट और ${c} cft रेत।`,
+    stCem: 'सीमेंट', stSand: 'रेत', stMix: 'मसाले का अनुपात',
+    bricks: 'ईंटें', cement: 'सीमेंट (मसाला)', sand: 'रेत (मसाला)', mortar: 'मसाले का अनुपात', bags: 'बोरी', cft: 'cft', sqm: 'm²',
+    per: 'प्रति m²', bond9: 'इंग्लिश बॉन्ड · स्ट्रेचर और हेडर बारी-बारी', bond4: 'स्ट्रेचर बॉन्ड · आधी-आधी लैप',
+    note: 'सिर्फ़ मात्राएँ। सीमेंट और रेत ईंटों के बीच के मसाले के लिए हैं। चित्र में एक सतह दिखती है; गिनती में मोटाई के भीतर की हर ईंट शामिल है। दरवाज़े-खिड़कियाँ यहाँ घटाई नहीं गई हैं; MasonryPro रिपोर्ट यह करती है।',
   },
 } as const
 
-/** Build Reference Section 8 (LOCKED) — Brickwork, per m² of wall. */
-const TABLE = {
-  mod: { 9: { n: 100, c: 0.2, s: 2.13, r: '1:6' }, 4: { n: 50, c: 0.1, s: 0.72, r: '1:4' } },
-  non: { 9: { n: 90, c: 0.18, s: 1.65, r: '1:6' }, 4: { n: 48, c: 0.09, s: 0.6, r: '1:4' } },
-} as const
-type Kind = keyof typeof TABLE
+const CFT_PER_M3 = 35.3147
+const KIND_SYS = { mod: 'modular', non: 'brick' } as const
+type Kind = keyof typeof KIND_SYS
 type Thick = 9 | 4
+
+/**
+ * Per m² of wall: bricks, cement bags and sand (cft) in the joint mortar, worked out by the same functions the
+ * MasonryPro model and the free Brick Calculator use (lib/qty/masonry/model.ts). One brick thick is the brick's
+ * length (190 mm modular, 230 mm red); half brick is its width. Mortar is the exact joint volume plus the model's allowance.
+ */
+function rowFor(kind: Kind, thick: Thick) {
+  const S = SYSTEMS[KIND_SYS[kind]]
+  const tt = thick === 9 ? S.ext : S.int
+  const n = unitsPerM2(S, tt, false)
+  const mortar = jointMortarPerM2(S, tt, false) * MORTAR_ALLOW
+  const mix = thick === 9 ? 6 : 4
+  return { n, c: (mortar * CEMENT_KG_PER_M3(mix)) / CEMENT_BAG_KG, s: mortar * SAND_M3_PER_M3 * CFT_PER_M3, r: `1:${mix}`, mm: Math.round(tt * 1000) }
+}
 
 interface B { x: number; y: number; w: number; h: number; hd: boolean; tone: number }
 
@@ -65,14 +83,13 @@ export default function BrickLab() {
   const [kind, setKind] = useState<Kind>('mod')
   const [thick, setThick] = useState<Thick>(9)
   const [area, setArea] = useState(60)
-  const [rate, setRate] = useState('')
   const [play, setPlay] = useState(0)
   const [armed, setArmed] = useState(false)
   const [prog, setProg] = useState(1)
   const ok = useMotionOK()
   const { ref, seen } = useReveal<HTMLDivElement>()
 
-  const t = TABLE[kind][thick]
+  const t = useMemo(() => rowFor(kind, thick), [kind, thick])
   const bricks = useMemo(() => layout(kind, thick), [kind, thick])
   const dur = Math.min(1800, bricks.length * 14 + 350)
 
@@ -95,14 +112,8 @@ export default function BrickLab() {
   const nBr = t.n * area
   const bags = t.c * area
   const cft = t.s * area
-  const cementCost = bags * DEFAULT_RATES.cement
-  const sandCost = cft * DEFAULT_RATES.sand
-  const r = parseFloat(rate)
-  const brickCost = Number.isFinite(r) && r > 0 ? nBr * r : null
-  const total = cementCost + sandCost + (brickCost ?? 0)
 
-  const tBr = useTween(nBr), tBags = useTween(bags), tCft = useTween(cft), tTot = useTween(total)
-  const tCc = useTween(cementCost), tSc = useTween(sandCost), tBc = useTween(brickCost ?? 0)
+  const tBr = useTween(nBr), tBags = useTween(bags), tCft = useTween(cft)
   const laid = Math.round(t.n * prog)
 
   return (
@@ -114,7 +125,7 @@ export default function BrickLab() {
       <p className="ns-bench__lede">{c.lede}</p>
       <div className="ns-bench__grid">
         <div className="ns-bench__fig">
-          <svg className="ns-bench__svg" viewBox="0 0 330 366" role="img" aria-label={`${c.face}: ${t.n} / m²`}>
+          <svg className="ns-bench__svg" viewBox="0 0 330 366" role="img" aria-label={`${c.face}: ${Math.round(t.n)} / m²`}>
             <defs><clipPath id="ns-bk-clip"><rect x="0" y="0" width="300" height="300" /></clipPath></defs>
             <g transform="translate(24 8)">
               <rect x="0" y="0" width="300" height="300" fill="var(--ns-paper)" stroke="var(--ns-ink)" strokeWidth="2" />
@@ -137,7 +148,7 @@ export default function BrickLab() {
           </svg>
           <div className="ns-bk-lab__laid">
             <span className="ns-mono">{c.laid}</span>
-            <b className="ns-mono">{laid} / {t.n}</b>
+            <b className="ns-mono">{laid} / {Math.round(t.n)}</b>
             <button type="button" className="ns-btn ns-btn--sm" onClick={() => setPlay(v => v + 1)}>{c.lay}</button>
           </div>
         </div>
@@ -151,32 +162,40 @@ export default function BrickLab() {
             </div>
           </div>
           <div className="ns-sc__row" role="radiogroup" aria-label={c.thick}>
-            <span>{c.thick}</span><output className="ns-mono">{thick === 9 ? '9″ · 230' : '4.5″ · 115'} mm</output>
+            <span>{c.thick}</span><output className="ns-mono">{t.mm} mm</output>
             <div className="ns-seg">
-              <button type="button" role="radio" aria-checked={thick === 9} className="ns-mono" onClick={() => setThick(9)}>9″</button>
-              <button type="button" role="radio" aria-checked={thick === 4} className="ns-mono" onClick={() => setThick(4)}>4.5″</button>
+              <button type="button" role="radio" aria-checked={thick === 9} onClick={() => setThick(9)}>{c.one}</button>
+              <button type="button" role="radio" aria-checked={thick === 4} onClick={() => setThick(4)}>{c.half}</button>
             </div>
           </div>
           <label className="ns-sc__row">
             <span>{c.area}</span><output className="ns-mono">{area} {c.sqm}</output>
             <input type="range" className="ns-range" min={10} max={200} step={5} value={area} onChange={e => setArea(+e.target.value)} />
           </label>
-          <label className="ns-field ns-bk-lab__rate">
-            <span className="ns-label">{c.rate} <i className="ns-mono">{c.rateHint}</i></span>
-            <input className="ns-input ns-mono" inputMode="decimal" placeholder="—" value={rate} onChange={e => setRate(e.target.value.replace(/[^0-9.]/g, '').slice(0, 6))} />
-          </label>
         </div>
 
-        <div className="ns-boq ns-bench__boq" aria-live="polite">
-          <div className="ns-boq__head ns-mono">{c.rule} · {c.mortar} {t.r}</div>
-          <div className="ns-boq__r"><span>{c.bricks} <i className="ns-mono">{t.n} / {c.sqm}</i></span><b className="ns-mono">{nf.format(tBr)}</b></div>
-          <div className="ns-boq__r"><span>{c.cement} <i className="ns-mono">{t.c.toFixed(2)} / {c.sqm}</i></span><b className="ns-mono">{tBags.toFixed(1)} {c.bags}</b></div>
-          <div className="ns-boq__r"><span>{c.sand} <i className="ns-mono">{t.s.toFixed(2)} / {c.sqm}</i></span><b className="ns-mono">{nf.format(tCft)} {c.cft}</b></div>
-          <div className="ns-boq__r"><span>{c.cc}</span><b className="ns-mono">₹{nf.format(tCc)}</b></div>
-          <div className="ns-boq__r"><span>{c.sc}</span><b className="ns-mono">₹{nf.format(tSc)}</b></div>
-          {brickCost !== null && <div className="ns-boq__r"><span>{c.bc}</span><b className="ns-mono">₹{nf.format(tBc)}</b></div>}
-          <div className="ns-boq__r ns-boq__tot"><span>{brickCost !== null ? c.tot : c.tot2}</span><b className="ns-mono">₹{nf.format(tTot)}</b></div>
-          <p className="ns-sc__note">{c.note}</p>
+        <div className="ns-bench__boq">
+          <div className="ns-ans" aria-live="polite">
+            <p className="ns-ans__k">{c.ansK}</p>
+            <p className="ns-ans__v">{nf.format(tBr)}<small>{c.unit}</small></p>
+            <p className="ns-ans__s">{c.ansS(bags.toFixed(1), nf.format(cft))}</p>
+            <dl className="ns-ans__stats">
+              <div><dt>{c.stCem}</dt><dd>{tBags.toFixed(1)} {c.bags}</dd></div>
+              <div><dt>{c.stSand}</dt><dd>{nf.format(tCft)} {c.cft}</dd></div>
+              <div><dt>{c.stMix}</dt><dd>{t.r}</dd></div>
+            </dl>
+          </div>
+          <Calc
+            loc={loc}
+            rows={[
+              { label: c.bricks, how: `${t.n.toFixed(1)} ${c.per} × ${area} ${c.sqm}`, value: nf.format(nBr) },
+              { label: c.cement, how: `${t.c.toFixed(2)} ${c.bags} ${c.per} × ${area} ${c.sqm}`, value: `${bags.toFixed(1)} ${c.bags}` },
+              { label: c.sand, how: `${t.s.toFixed(2)} ${c.cft} ${c.per} × ${area} ${c.sqm}`, value: `${nf.format(cft)} ${c.cft}` },
+              { label: c.mortar, how: `1 : ${t.r.split(':')[1]}`, value: t.r, strong: true },
+            ]}
+            note={c.note}
+            standards={['IS 1077:1992', 'IS 2212:1991']}
+          />
         </div>
       </div>
     </div>

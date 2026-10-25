@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
-import StructoProPDF from '@/lib/pdf/structopro-pdf'
-import type { ContactInfo } from '@/lib/pdf/structopro-pdf'
-import type { StructoInput, StructoResult } from '@/app/tools/structopro/structopro-engine'
+import StructoProQtyPDF from '@/lib/pdf/structopro-qty-pdf'
+import { runQuantityModel, toPaid, savedInput, type PaidPayload, type QtyInput } from '@/lib/structopro-qty'
+import { SITE } from '@/lib/structopro-qty/sites'
+import type { ContactInfo } from '@/lib/pdf/qty-kit'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -14,7 +15,6 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 // Called from ResultsPage after payment is confirmed.
 // Verifies estimate is paid server-side before generating.
 export async function POST(req: NextRequest) {
-  console.log('PDF generation starting, bypass mode: true')
   try {
     const { estimateId } = await req.json()
     if (!estimateId) {
@@ -64,30 +64,45 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const input    = estimate.input_data  as StructoInput
-    const result   = estimate.result_data as StructoResult
     const reportId = `NS-SP-${estimateId.slice(0, 8).toUpperCase()}`
     const projectName = estimate.project_name ?? 'My Project'
+
+    // Only the quantities model (qty-v2) has a report. Estimates saved by the earlier thumb-rule engine are not rebuilt.
+    const qtyInput = estimate.input_data as (QtyInput & { engine?: string }) | null
+    if (qtyInput?.engine !== 'qty-v2') {
+      return NextResponse.json({ error: 'This estimate was made with an earlier version of StructurePro. Please run it again.' }, { status: 410 })
+    }
 
     // 3. Generate PDF buffer
     let pdfBuffer: Buffer
     try {
-      const pdfElement = React.createElement(StructoProPDF, {
-        input,
-        result,
-        contact: contactInfo,
-        reportId,
-        projectName,
-        date: new Date(),
-      })
+      let pdfElement: React.ReactElement
+      {
+        // Use the numbers frozen when the customer first opened the paid report; otherwise work them out again (deterministic).
+        const frozen = (estimate.result_data as { paid?: PaidPayload } | null)?.paid
+        let report = frozen
+        if (!report) {
+          const run = runQuantityModel(savedInput(qtyInput as unknown as Record<string, unknown>))
+          if (!run.ok) return NextResponse.json({ error: run.error }, { status: 422 })
+          report = toPaid(run)
+        }
+        pdfElement = React.createElement(StructoProQtyPDF, {
+          report,
+          contact: contactInfo,
+          reportId,
+          projectName,
+          date: new Date(),
+          where: [qtyInput.city, qtyInput.state].filter(Boolean).join(', '),
+          siteLabel: SITE[qtyInput.site ?? 'flat']?.label ?? 'Flat ground',
+          wallLabel: qtyInput.wall === 'block' ? 'Concrete or AAC block walls' : 'Burnt clay brick walls',
+        })
+      }
       // renderToBuffer expects ReactElement<DocumentProps>; our component returns Document
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       pdfBuffer = await renderToBuffer(pdfElement as any)
     } catch (pdfErr) {
       console.error('PDF render error:', pdfErr instanceof Error ? pdfErr.message : pdfErr)
       console.error('PDF render stack:', pdfErr instanceof Error ? pdfErr.stack : '')
-      console.error('PDF input snapshot:', JSON.stringify(input, null, 2).slice(0, 2000))
-      console.error('PDF result snapshot:', JSON.stringify(result, null, 2).slice(0, 2000))
       return NextResponse.json({ error: 'PDF generation failed — estimate data may be malformed' }, { status: 500 })
     }
 
@@ -118,18 +133,20 @@ export async function POST(req: NextRequest) {
     const { data: urlData } = supabase.storage.from('reports').getPublicUrl(storagePath)
     const pdfUrl = urlData.publicUrl
 
-    // 7. Upsert into reports table
-    const { error: reportErr } = await supabase
+    // 7. Save the report row. The table has no unique key on estimate_id, so look first, then update or insert
+    //    (an ON CONFLICT upsert fails with 42P10 and the row, and the "already generated" lookup, were lost).
+    const { data: existingRows, error: lookErr } = await supabase
       .from('reports')
-      .upsert({
-        estimate_id:    estimateId,
-        pdf_url:        pdfUrl,
-        email_sent:     false,
-        download_count: 0,
-      }, { onConflict: 'estimate_id' })
-
+      .select('id')
+      .eq('estimate_id', estimateId)
+      .limit(1)
+    if (lookErr) console.error('Report table lookup error:', lookErr)
+    const reportRow = { estimate_id: estimateId, pdf_url: pdfUrl, email_sent: false, download_count: 0 }
+    const { error: reportErr } = existingRows && existingRows.length > 0
+      ? await supabase.from('reports').update({ pdf_url: pdfUrl, email_sent: false }).eq('estimate_id', estimateId)
+      : await supabase.from('reports').insert(reportRow)
     if (reportErr) {
-      console.error('Report table upsert error:', reportErr)
+      console.error('Report table write error:', reportErr)
     }
 
     // 8. Send email via Resend
@@ -196,20 +213,28 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Not authorised' }, { status: 403 })
   }
 
-  const { data: report } = await supabase
+  const { data: rows } = await supabase
     .from('reports')
     .select('pdf_url')
     .eq('estimate_id', estimateId)
-    .single()
+    .limit(1)
 
-  if (report?.pdf_url) {
-    return NextResponse.json({ pdfUrl: report.pdf_url, success: true })
+  const found = rows?.[0]?.pdf_url
+  if (found) {
+    return NextResponse.json({ pdfUrl: found, success: true })
   }
   return NextResponse.json({ pdfUrl: null, success: false })
 }
 
 // ─── Email template ───────────────────────────────────────────────────────────
-function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string {
+function escHtml(v: string): string {
+  return v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+function buildEmailHtml(rawName: string, reportId: string, pdfUrl: string): string {
+  const name = escHtml(rawName || 'there')
+  const includes = ['Concrete, steel, cement, sand, aggregate and shuttering totals', 'Steel by bar diameter with 12 m bar counts', 'Column and beam sizes, bars and stirrups, floor by floor', 'IS code checks, assumptions and what is not counted', 'How far off the numbers can be']
+  const includesHtml = includes.map(i => `<li>${i}</li>`).join('\n                      ')
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -217,23 +242,23 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Your StructurePro Report</title>
 </head>
-<body style="margin:0;padding:0;background:#F4F4F0;font-family:'IBM Plex Sans',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F4F0;padding:32px 0;">
+<body style="margin:0;padding:0;background:#FAF6EC;font-family:'IBM Plex Sans',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#FAF6EC;padding:32px 0;">
     <tr>
       <td align="center">
-        <table width="580" cellpadding="0" cellspacing="0" style="background:#F4F4F0;border:1px solid #1E2227;max-width:580px;">
+        <table width="580" cellpadding="0" cellspacing="0" style="background:#FAF6EC;border:1px solid #2A2622;max-width:580px;">
 
           <!-- Header -->
           <tr>
-            <td style="padding:20px 28px;border-bottom:1px solid #1E2227;">
+            <td style="padding:20px 28px;border-bottom:1px solid #2A2622;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <p style="margin:0;font-family:'IBM Plex Mono',Courier,monospace;font-size:13px;font-weight:700;color:#1F4E79;letter-spacing:2px;">NIRMANSHASTRA</p>
+                    <p style="margin:0;font-family:'IBM Plex Mono',Courier,monospace;font-size:13px;font-weight:700;color:#B5502D;letter-spacing:2px;">NIRMANSHASTRA</p>
                     <p style="margin:2px 0 0;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;">Build With Certainty</p>
                   </td>
                   <td align="right">
-                    <span style="display:inline-block;border:1px solid #1F4E79;padding:4px 10px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;">PHASE 1 · STRUCTUREPRO</span>
+                    <span style="display:inline-block;border:1px solid #B5502D;padding:4px 10px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#B5502D;">PHASE 1 · STRUCTUREPRO</span>
                   </td>
                 </tr>
               </table>
@@ -244,26 +269,20 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
           <tr>
             <td style="padding:28px 28px 20px;">
               <p style="margin:0 0 6px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">REPORT READY</p>
-              <h1 style="margin:0 0 16px;font-family:'IBM Plex Serif',Georgia,serif;font-size:22px;color:#1E2227;font-weight:700;">Your StructurePro Report is Ready</h1>
+              <h1 style="margin:0 0 16px;font-family:'IBM Plex Serif',Georgia,serif;font-size:22px;color:#2A2622;font-weight:700;">Your StructurePro Report is Ready</h1>
 
-              <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#1E2227;line-height:1.6;">Dear ${name},</p>
-              <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#1E2227;line-height:1.6;">
-                Thank you for using NirmanShastra StructurePro. Your Phase 1 RCC Structure cost estimate report
+              <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#2A2622;line-height:1.6;">Dear ${name},</p>
+              <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#2A2622;line-height:1.6;">
+                Thank you for using NirmanShastra StructurePro. Your RCC frame quantities report
                 (<strong style="font-family:'IBM Plex Mono',Courier,monospace;">${reportId}</strong>) is ready for download.
               </p>
 
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
                 <tr>
-                  <td style="background:#EBF0F7;border:1px solid #1F4E79;padding:14px 20px;">
-                    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;letter-spacing:1px;">10+ PAGE IS 456:2000 REPORT INCLUDES:</p>
-                    <ul style="margin:8px 0 0;padding:0 0 0 18px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;line-height:1.8;">
-                      <li>IS Compliance Panel (6 checks)</li>
-                      <li>Foundation BOQ with quantities and costs</li>
-                      <li>Superstructure BOQ per floor</li>
-                      <li>Material Purchase Schedule</li>
-                      <li>Cost Summary — Basic / Standard / Premium</li>
-                      <li>Concrete Grade Comparison Chart</li>
-                      <li>Finishing Costs Guide for all phases</li>
+                  <td style="background:#F2E9D8;border:1px solid #B5502D;padding:14px 20px;">
+                    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#B5502D;letter-spacing:1px;">YOUR REPORT INCLUDES:</p>
+                    <ul style="margin:8px 0 0;padding:0 0 0 18px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#2A2622;line-height:1.8;">
+                      ${includesHtml}
                     </ul>
                   </td>
                 </tr>
@@ -272,7 +291,7 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
                 <tr>
                   <td align="center">
-                    <a href="${pdfUrl}" target="_blank" style="display:inline-block;background:#8C3A22;color:#ffffff;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;font-weight:600;text-decoration:none;padding:14px 32px;border-radius:4px;">
+                    <a href="${pdfUrl}" target="_blank" style="display:inline-block;background:#B5502D;color:#ffffff;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;font-weight:600;text-decoration:none;padding:14px 32px;border-radius:4px;">
                       Download PDF Report
                     </a>
                   </td>
@@ -282,28 +301,28 @@ function buildEmailHtml(name: string, reportId: string, pdfUrl: string): string 
               <p style="margin:0 0 6px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:12px;color:#888;line-height:1.6;">
                 If the button above does not work, copy and paste this link into your browser:
               </p>
-              <p style="margin:0 0 20px;font-family:'IBM Plex Mono',Courier,monospace;font-size:11px;color:#1F4E79;word-break:break-all;">
+              <p style="margin:0 0 20px;font-family:'IBM Plex Mono',Courier,monospace;font-size:11px;color:#B5502D;word-break:break-all;">
                 ${pdfUrl}
               </p>
 
-              <hr style="border:none;border-top:1px solid #D0D2D4;margin:20px 0;"/>
+              <hr style="border:none;border-top:1px solid #E4DAC6;margin:20px 0;"/>
 
               <p style="margin:0 0 6px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">NEXT STEP — PHASE 2</p>
-              <p style="margin:0 0 10px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;line-height:1.6;">
-                Your RCC structure is Phase 1. Masonry (Phase 2) can begin 60-90 days after the RCC pour.
-                Use MasonryPro to estimate brickwork, plaster, and waterproofing costs before masons arrive on site.
+              <p style="margin:0 0 10px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#2A2622;line-height:1.6;">
+                With the frame sized, MasonryPro works out the bricks or blocks and the mortar for the walls of the same building,
+                so you can order them before the masons arrive on site.
               </p>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL}/tools/masonpro" style="font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1F4E79;text-decoration:underline;">
-                Try MasonryPro Phase 2 &rarr; Rs.699
+              <a href="${process.env.NEXT_PUBLIC_APP_URL}/tools/masonpro" style="font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#B5502D;text-decoration:underline;">
+                Open MasonryPro for Phase 2 &rarr;
               </a>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="padding:16px 28px;border-top:1px solid #D0D2D4;background:#F4F4F0;">
+            <td style="padding:16px 28px;border-top:1px solid #E4DAC6;background:#FAF6EC;">
               <p style="margin:0;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;line-height:1.6;">
-                NirmanShastra &middot; India&apos;s IS-Code Construction Cost Platform<br/>
+                NirmanShastra &middot; India&apos;s IS-code construction quantities platform<br/>
                 IS 456:2000 &middot; IS 13920:2016 &middot; IS 1904:2016 &middot; IS 1893:2016<br/>
                 This report is for estimation purposes only. Not a substitute for licensed structural engineer&apos;s drawings.
               </p>

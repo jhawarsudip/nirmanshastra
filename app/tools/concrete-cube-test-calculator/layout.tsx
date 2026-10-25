@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
+import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
 import { toolJsonLd } from '@/lib/seo/schema'
 
-const title = 'Concrete Cube Test Calculator — Samples & Cubes Required | IS 456:2000'
+// The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
+const title = 'Concrete Cube Test Calculator: samples and cubes for a pour'
 const description =
-  'Free concrete cube test calculator. Enter the volume of concrete in a pour and get the minimum number of acceptance samples and total cubes to cast, per IS 456:2000 Cl 15.2.2: 1–5 m³ = 1 sample, 6–15 = 2, 16–30 = 3, 31–50 = 4, and 51 m³+ = 4 plus one more per further 50 m³. Each sample is 6 cubes (3 tested at 7 days, 3 at 28 days per IS 516), and at least one sample must come from every work shift. Permanently free, no login.'
+  'Free concrete cube test calculator. Enter the volume of one grade of concrete to get the least number of samples IS 456:2000 clause 15.2.2 asks for, and the cubes to cast: three a sample, tested at 28 days. Counts "or part thereof" above 50 m³. No sign-in.'
 const url = '/tools/concrete-cube-test-calculator'
 
 export const metadata: Metadata = {
@@ -16,32 +18,18 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     siteName: 'NirmanShastra',
     url,
-    title: 'Concrete Cube Test Calculator — Samples & Cubes by Volume',
-    description:
-      'Enter concrete volume, get the IS 456:2000 Cl 15.2.2 minimum samples and total cubes to cast (6 per sample: 3 at 7 days, 3 at 28 days per IS 516). Free, no login.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — Concrete Cube Test Calculator (IS 456:2000 Cl 15.2.2)',
-      },
-    ],
+    title: `${title} | NirmanShastra`,
+    description,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra Concrete Cube Test Calculator' }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Concrete Cube Test Calculator — Samples & Cubes | IS 456:2000',
-    description:
-      'Volume in, sampling out: IS 456:2000 Cl 15.2.2 samples and total cubes (6 per sample, 7-day + 28-day breaks per IS 516). Free, no login.',
-    images: ['/og-image.png'],
-  },
+  twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
 export default function ConcreteCubeTestCalculatorLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <InnerShell>
       <JsonLd data={toolJsonLd('/tools/concrete-cube-test-calculator')} />
       {children}
-    </>
+    </InnerShell>
   )
 }

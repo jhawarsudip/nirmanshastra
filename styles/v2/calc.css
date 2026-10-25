@@ -1,0 +1,53 @@
+/* ============================================================================
+   "Show the calculation" — the only place the homepage shows formulas.
+   A quiet pill; the working opens underneath on request.
+   ========================================================================== */
+
+.ns-calc { margin-top: 18px; }
+.ns-calc__btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  min-height: 42px; padding: 8px 16px 8px 13px;
+  font-family: var(--ns-sans); font-size: 15px; font-weight: 700; line-height: 1;
+  color: var(--ns-link); background: transparent;
+  border: 1.5px solid currentColor; border-radius: 999px; cursor: pointer;
+  transition: background-color 150ms, color 150ms, transform 110ms;
+}
+.ns-calc__btn:hover { background: var(--ns-link); color: var(--ns-bg); }
+.ns-calc__btn:active { transform: translateY(1px); }
+.ns-calc__btn[aria-expanded="true"] { background: var(--ns-link); color: var(--ns-bg); }
+.ns-calc__ico { width: 18px; height: 18px; flex: none; }
+.ns-calc__caret { width: 11px; height: 11px; flex: none; transition: transform 240ms cubic-bezier(.3, 1.3, .5, 1); }
+.ns-calc.is-open .ns-calc__caret { transform: rotate(180deg); }
+
+.ns-calc__panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 420ms cubic-bezier(.3, 0, .2, 1); }
+.ns-calc.is-open .ns-calc__panel { grid-template-rows: 1fr; }
+.ns-calc__inner { overflow: hidden; min-height: 0; }
+.ns-calc__sheet {
+  margin-top: 14px; padding: 18px 20px 20px;
+  background: var(--ns-bg-2); border: 1.5px dashed var(--ns-hair-strong); border-radius: var(--ns-r);
+  opacity: 0; transform: translateY(-6px); transition: opacity 260ms 80ms, transform 320ms 80ms;
+}
+.ns-calc.is-open .ns-calc__sheet { opacity: 1; transform: none; }
+.ns-plate .ns-calc__sheet { background: var(--ns-bg); }
+.ns-stage .ns-calc__sheet { background: rgba(251, 244, 228, .08); }
+.ns-calc__title { margin: 0 0 8px; font-weight: 800; font-size: 15px; color: var(--ns-ink); }
+.ns-calc__rows { list-style: none; margin: 0; padding: 0; display: grid; }
+.ns-calc__rows li {
+  display: grid; grid-template-columns: minmax(84px, .55fr) minmax(0, 1.6fr) auto; gap: 4px 14px; align-items: baseline;
+  padding: 9px 0; border-bottom: 1px dashed var(--ns-hair-strong); font-size: 15.5px;
+}
+.ns-calc__rows li:last-child { border-bottom: 0; }
+.ns-calc__lab { font-weight: 700; }
+.ns-calc__how { font-family: var(--ns-mono); font-size: 13px; line-height: 1.5; color: var(--ns-ink-2); overflow-wrap: anywhere; }
+.ns-calc__val { font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.ns-calc__rows li.is-strong { border-top: 2px solid var(--ns-line-2); border-bottom: 0; margin-top: 4px; padding-top: 12px; }
+.ns-calc__rows li.is-strong .ns-calc__val { font-size: 1.15em; }
+.ns-calc__note { margin: 12px 0 0; font-size: 14.5px; line-height: 1.6; color: var(--ns-ink-2); max-width: 70ch; }
+.ns-calc__std { margin: 12px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ns-ink-2); }
+.ns-calc__std span { font-weight: 700; margin-right: 2px; }
+.ns-calc__std code { font-family: var(--ns-mono); font-size: 12.5px; padding: 3px 9px; border: 1.5px solid var(--ns-hair-strong); border-radius: 999px; color: var(--ns-ink); }
+@media (max-width: 560px) {
+  .ns-calc__rows li { grid-template-columns: 1fr auto; }
+  .ns-calc__how { grid-column: 1 / -1; grid-row: 2; }
+}
+html[data-calm="1"] .ns-calc__sheet { opacity: 1; transform: none; }

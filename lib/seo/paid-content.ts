@@ -1,13 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Answer-first content for the 6 paid report pages (StructurePro … Grand Total).
+// Answer-first content for the 6 paid quantity-report pages (StructurePro … Grand Total).
 //
 // RULES
 //  • No price is typed here. Prices are read from lib/tool-pricing.ts via site.ts.
 //  • CLAUDE.md: "Never reveal paid quantities before server HMAC verification."
 //    So every worked example uses ONLY numbers the free calculators / free guides
-//    already publish (bricks per m², litres per person, wire sizes, the 0.4 bag and
-//    4 kg per sq ft thumb rules, interior paint/tile constants). It is a sample of
-//    the method, never a per-project paid output.
+//    already publish (bricks per m², litres per person, wire sizes, interior
+//    paint/tile constants). It is a sample of the method, never a per-project paid
+//    output. The old per-sq-ft thumb rules are not used on any product page.
 //  • Every figure traces to an engine constant; `source` says which.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -42,197 +42,224 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
   '/tools/structopro': {
     heading: 'What StructurePro gives you',
     whatsInside: [
-      'Cement bags, steel (kg), coarse aggregate, sand, binding wire, admixture and formwork quantities for the whole structure.',
-      'A foundation recommendation matched to your site condition, with a cost range.',
-      'The seismic zone for your state (IS 1893:2016) and the exposure class (IS 456:2000).',
-      'IS compliance checks against IS 456:2000, with the clause shown.',
-      'A cost comparison across M20, M25, M30 and M35 concrete grades.',
-      'A Basic, Standard and Premium grand-total cost range, with or without labour.',
-      'A separate vertical-extension estimate for adding floors to an existing building.',
+      'Concrete, steel, cement, sand, coarse aggregate and shuttering quantities for the whole RCC structure, worked out from a few answers about your building.',
+      'Steel by bar diameter, with the number of 12 m bars to buy.',
+      'Column and beam sizes with their bars and stirrups, floor by floor.',
+      'Footings (or a raft on weak ground), plinth beams, slabs and the staircase, each counted on its own.',
+      'Lintels, sunshades, the terrace parapet band and the stair head-room roof, counted from your plan.',
+      'An open parking level under the house and balconies that stick out, counted when you have them. Wind is checked alongside earthquake and the larger force is used.',
+      'The earthquake zone for your city (IS 1893) and checks against IS 456, IS 875 Part 3 and IS 13920, with the clause shown.',
+      'A range around every total, because the real figure depends on your drawings.',
+      'A 3D model of the structure that matches the quantities, and a PDF report for your contractor and engineer.',
     ],
     whoFor:
-      'Homeowners and small builders planning a ground-floor to G+5 RCC house who want the structure’s quantities and cost before they sign a contractor’s quote.',
+      'Homeowners and small builders planning a new RCC house, from one floor up to G+5, with or without parking underneath, who want to know how much concrete, steel and cement the frame needs before they speak to a contractor.',
     example: {
-      title: 'Sample: 1,000 sq ft built-up, G+1, M20 concrete, Fe500 steel',
+      title: 'How it works: a few answers in, a full quantity list out',
       intro:
-        'The report starts from the thumb rules below, then applies your own area, floors, state, site condition and grades.',
+        'You do not need drawings or bar sizes. Tell us the four things below and the quantities are worked out on our side.',
       rows: [
-        { label: 'Cement', value: '400 bags', note: '0.4 bag per sq ft of built-up area' },
-        { label: 'Steel', value: '4,000 kg', note: '4 kg per sq ft of built-up area' },
+        { label: 'Built-up area of each floor', value: 'In sq ft', note: 'Sets the plan size and the number of floors' },
+        { label: 'City and state', value: 'Earthquake zone', note: 'IS 1893 zone, which decides the ductile detailing' },
+        { label: 'Ground', value: 'Soil and slope', note: 'Decides the foundation: footings or a raft' },
+        { label: 'Walls', value: 'Brick or block', note: 'Sets the wall load carried by the beams' },
+        { label: 'Parking and balconies', value: 'Open level, balcony count', note: 'An open ground level gets larger columns; balconies get their own slabs' },
       ],
       footnote:
-        'These are the same thumb rules explained in our free guides, valid for G+1 to G+3. The paid report adds aggregate, sand, binding wire, admixture, formwork, the foundation and the IS compliance checks for your inputs.',
+        'The model chooses the rest from the Indian Standards: the column grid, member sizes, bars, concrete mixes and the cutting waste. The report states every assumption it made.',
     },
     faq: [
       {
         question: 'What does StructurePro calculate?',
         answer:
-          'It estimates the RCC structure of a house: cement, steel, aggregate, sand, binding wire, admixture and formwork quantities, a foundation recommendation for your site, IS 456:2000 compliance checks, a concrete-grade cost comparison and a Basic, Standard and Premium cost range.',
+          'It works out the quantities for the RCC structure of a house: concrete, steel, cement, sand, coarse aggregate, shuttering and binding wire. The report gives column and beam sizes with their bars, steel by bar diameter, footings, slabs, the staircase and the smaller items, all worked out to the Indian Standards.',
       },
       {
         question: 'How much does StructurePro cost?',
-        answer: `The StructurePro report costs ${priceLine('/tools/structopro')} per report, inclusive of GST.`,
+        answer: `The StructurePro report costs ${priceLine('/tools/structopro')} per report.`,
       },
       {
-        question: 'How much cement and steel does a 1,000 sq ft house need?',
+        question: 'How much cement and steel does a house need?',
         answer:
-          'By the thumb rules the report starts from, 0.4 bag of cement and 4 kg of steel per sq ft of built-up area for G+1 to G+3, so 1,000 sq ft needs about 400 bags of cement and 4,000 kg of steel. The report refines this for your own floors, grade and site.',
+          'There is no honest single figure per square foot. The real quantity depends on the number of floors, the earthquake zone, the ground and the column grid. Rules of thumb are only a rough sanity check. StructurePro works it out for your own plan and shows a range around each total.',
       },
       {
         question: 'Which IS codes does StructurePro follow?',
         answer:
-          'IS 456:2000 for plain and reinforced concrete, IS 1786:2008 for reinforcement bars and IS 1893:2016 for seismic zoning.',
+          'IS 456:2000 for concrete, IS 875 for loads, IS 1893 for earthquake forces, IS 13920:2016 for ductile detailing, IS 1786:2008 for reinforcement bars and IS 10262 for concrete mixes. Cement, sand and aggregate for the common mixes follow the CPWD Analysis of Rates.',
       },
       {
-        question: 'Does the estimate include labour?',
+        question: 'What is not included in the StructurePro report?',
         answer:
-          'Labour can be included or left out of the grand-total range, so you can compare it with a materials-only quote or a labour-inclusive one.',
+          'The report counts the RCC frame only: footings, plinth beams, columns, beams, slabs, the staircase, balconies, lintels and sunshades. It leaves out brick walls and plaster (MasonryPro covers those), electrical, plumbing and finishes, a soil test, and a structural design for your drawing. It also carries no labour, material rate or rupee figure, so you can lay it next to any quote and compare line by line.',
+      },
+      {
+        question: 'Does it handle parking underneath and balconies?',
+        answer:
+          'Yes. If the ground level is left open for parking, its columns are made larger and the earthquake force on it is raised, as IS 1893 asks for an open storey. Balconies are sized as cantilever slabs with their own top bars. Wind is checked alongside earthquake (IS 875 Part 3) and the larger of the two is used.',
       },
       {
         question: 'Is StructurePro a structural design?',
         answer:
-          'No. It is a quantity and cost estimate (a BOQ). A structural engineer must design and approve the structure before construction.',
+          'No. It is a code-based quantity estimate with its assumptions stated. A structural engineer must design the structure and sign the drawings. Use the report to budget, to check a contractor’s quantities for gross errors and to order the first lots.',
       },
     ],
     source:
-      'structopro-engine.ts IS_THUMB (0.4 bag, 4 kg per sq ft), floorFactor (1.00 for G+1..G+3), GRADE_COST_FACTOR M20..M40, includeLabour flag; prices via tool-pricing. Sample uses only the two thumb rules already printed in lib/blog-content.ts.',
+      'lib/structopro-qty (model.ts; report assumptions and not-counted lists). Quantities-only model, no labour or rate inputs. No worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',
   },
 
   // ── MasonryPro ─────────────────────────────────────────────────────────────
   '/tools/masonpro': {
     heading: 'What MasonryPro gives you',
     whatsInside: [
-      'Brick or block counts for 8 external wall types: modular and non-modular red clay brick, modular and non-modular fly ash brick, hollow and solid concrete block, AAC block and CLC foam block.',
-      'Internal partition options: 4.5-inch clay or fly ash brick, 100 mm hollow concrete, AAC or CLC block, and gypsum board.',
-      'Mortar quantities and plastering costs.',
-      'An itemised masonry BOQ built on IS 1077:1992.',
+      'Bricks or blocks for the outer walls, inner walls, plinth, terrace parapet and stair room, worked out from your rooms. Five wall materials: red clay brick, modular brick, fly-ash brick, AAC block and concrete block.',
+      'Mortar, cement and sand for the joints, for the plaster inside and out, and for the lintels, each with its mix.',
+      'Doors, windows and ventilators taken out of the walls the way IS 1200 measures them, with a lintel over every opening.',
+      'Plaster area inside and outside, with the CPWD plaster yield for each coat.',
+      'Thin-bed adhesive by weight when you choose AAC.',
+      'Checks against IS 1905, IS 2250, IS 2402, IS 4326 and the block standards, with the clause shown, every assumption stated, what is not counted, and a range around each total.',
     ],
     whoFor:
-      'Homeowners comparing a mason’s or contractor’s quote for bricks, blocks, mortar and plaster on a new house.',
+      'Homeowners and small builders who want the brick or block, mortar, cement, sand and plaster quantities for the walls before they speak to a mason or contractor.',
     example: {
-      title: 'Sample: 10 m × 3 m external wall, 9-inch modular red clay brick, no openings',
-      intro: 'The same counting method the free Brick Calculator uses.',
+      title: 'How it works: a few answers in, a full wall list out',
+      intro:
+        'You do not need a plan. Tell us the rooms and the wall material and the walls are measured on our side.',
       rows: [
-        { label: 'Wall area', value: '30 m²', note: '10 m × 3 m' },
-        { label: 'Bricks per m²', value: '100', note: '9-inch modular clay, IS 1077:1992' },
-        { label: 'Bricks laid', value: '3,000', note: '30 × 100' },
-        { label: 'Order with 5–10% wastage', value: 'about 3,150 to 3,300' },
+        { label: 'Floors and area', value: 'From your project', note: 'Sets the length of the outer walls' },
+        { label: 'Bedrooms, bathrooms, kitchens, balconies', value: 'Per home', note: 'Sets the inner walls, doors and windows' },
+        { label: 'Wall material', value: 'Brick or block', note: 'Sets the count per m², the joint and the mortar' },
+        { label: 'Plaster', value: 'One or two coats outside', note: 'Sets the plaster mortar per m²' },
       ],
       footnote:
-        'MasonryPro extends this to all 8 external wall types and the internal partitions, adds mortar and plaster, and totals them for your whole house.',
+        'The model chooses the rest from the Indian Standards and the CPWD Analysis of Rates: the room sizes, the heights, the opening schedule, the mortar mixes and the waste. The report states every assumption it made.',
     },
     faq: [
       {
         question: 'What does MasonryPro calculate?',
         answer:
-          'Brick or block counts, mortar quantities and plastering costs for 8 external wall types and a range of internal partitions, as an itemised masonry BOQ based on IS 1077:1992.',
+          'The bricks or blocks, joint mortar, cement, sand, plaster area and lintels for the walls of a framed house or building. The report measures the walls from your rooms, takes out the openings as IS 1200 does, and gives every quantity with its basis.',
       },
       {
         question: 'How much does MasonryPro cost?',
-        answer: `The MasonryPro report costs ${priceLine('/tools/masonpro')} per report, inclusive of GST.`,
+        answer: `The MasonryPro report costs ${priceLine('/tools/masonpro')} per report.`,
       },
       {
         question: 'Which wall materials does it cover?',
         answer:
-          'Red clay brick and fly ash brick (modular and non-modular), hollow and solid concrete blocks, AAC blocks and CLC foam blocks for external walls, plus 4.5-inch brick, 100 mm blocks and gypsum board partitions inside.',
+          'Red clay brick, modular clay brick, fly-ash brick, AAC block (in thin adhesive or cement mortar) and concrete block, with 230 or 115 mm brick walls and 200 or 150 mm outer block walls.',
       },
       {
         question: 'How is it different from the free Brick Calculator?',
         answer:
-          'The free Brick Calculator counts modular clay bricks for one wall at a time, at 100 bricks per m² for a 9-inch wall and 50 for a 4.5-inch partition. MasonryPro covers all 8 external wall materials and the partitions, and adds mortar and plaster for the whole house.',
+          'The free Brick Calculator counts bricks for one wall at a time from its length and height. MasonryPro starts from your rooms, works out every wall on every floor, and adds the mortar, cement, sand, plaster and lintels, so the totals will not match a single-wall count.',
       },
       {
-        question: 'How many bricks are in a 10 m × 3 m wall?',
+        question: 'Does it include labour?',
         answer:
-          'A 9-inch modular clay wall of 30 m² needs 3,000 bricks before wastage, about 3,150 to 3,300 once 5–10% is added.',
+          'No. The report is about quantities only, so it carries no labour, material or contractor rates. You can lay it next to any quote and compare line by line.',
       },
     ],
     source:
-      'masonpro-engine.ts EXTERNAL_WALL_SPECS (8) / INTERNAL_WALL_SPECS (6) labels; brick-engine.ts 100 bricks per m², wastage 5/10%. Sample equals the free Brick Calculator default.',
+      'lib/qty/masonry/model.ts (IS 1077, 12894, 2185, 6041, 2572 sizes and joints; IS 1200 measurement; CPWD DAR 2014 plaster yields). Quantities-only model, no rate inputs. No worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',
   },
 
   // ── ElectricalPro ──────────────────────────────────────────────────────────
   '/tools/electropro': {
     heading: 'What ElectricalPro gives you',
     whatsInside: [
-      'Wire lengths for the whole house, sized by circuit.',
-      'A distribution-board (DB) panel schedule with each circuit and its MCB.',
-      'A schedule of electrical points.',
-      'MCB and material costs.',
-      'Compliance checks against IS 732:2019.',
+      'Light, fan, exhaust, bell, socket and TV or data points counted room by room, from the room-wise tables of the BIS draft of IS 4648 or the socket schedule of IS 4648:1968, in proportion to the size of each room.',
+      'The circuits and distribution boards: lighting, power, air conditioner, water heater, washing machine and the rest, each on its own breaker, with the MCBs and the 30 mA RCCB counted for every board.',
+      'Copper wire by size and colour, in whole 90 m coils, with the earth wire in every circuit and the extra wire for the mains and sub-mains.',
+      'Conduit by size, with the boxes, saddles, bends and couplers counted, and the cable from the meter to each board sized by the design load.',
+      'The design load of the home, the single or three-phase supply it needs, and the earthing set.',
+      'The Indian Standards checks with the clause shown, every assumption stated, what is not counted, and a range around each total.',
     ],
     whoFor:
-      'Homeowners who want the wiring quantities and MCB costs worked out before an electrician quotes.',
+      'Homeowners and small builders who want the points, wire, conduit and board quantities for the wiring of a house or a block of flats before they speak to an electrician or a contractor.',
     example: {
-      title: 'Sample: minimum copper wire and typical MCB for each circuit',
-      intro: 'IS 732:2019 Cl 6.2 minimum cross-sections, the same table the free Wire Size Calculator uses.',
+      title: 'How it works: a few answers in, a full wiring list out',
+      intro:
+        'You do not need a plan. Tell us the rooms and the big appliances and the wiring is counted on our side.',
       rows: [
-        { label: 'Lighting and fans', value: '1.5 mm²', note: 'typical 6 A MCB' },
-        { label: 'Power sockets', value: '2.5 mm²', note: 'typical 16 A MCB' },
-        { label: 'AC or geyser (2 kW and above)', value: '4 mm²', note: 'typical 20 A MCB, dedicated circuit' },
-        { label: 'Sub-panel feed', value: '6 mm²', note: 'typical 32 A MCB or isolator' },
-        { label: 'Main incomer', value: '10 mm²', note: 'main MCB or MCCB, 32 A to 63 A by demand' },
+        { label: 'Floors and area', value: 'From your project', note: 'Sets the size of the rooms and the length of every run' },
+        { label: 'Bedrooms, bathrooms, kitchens, balconies', value: 'Per home', note: 'Sets the points in each room' },
+        { label: 'Air conditioners, water heaters, inverter, EV charger', value: 'Yes or no, and how many', note: 'Each gets a circuit of its own' },
+        { label: 'Standard or basic wiring', value: 'Your choice', note: 'Sets how many sockets each room gets' },
       ],
       footnote:
-        'ElectricalPro applies this to your own rooms and points to produce the wire lengths, DB schedule and cost.',
+        'The model chooses the rest from the Indian Standards and the CPWD specifications: the circuit limits, the wire sizes, the conduit sizes, the board ways and the waste. The report states every assumption it made.',
     },
     faq: [
       {
         question: 'What does ElectricalPro calculate?',
         answer:
-          'Wire lengths, DB panel circuits, electrical points and MCB costs for a house, checked against IS 732:2019.',
+          'The electrical points, circuits, distribution boards, MCBs, wire by size and colour, conduit and fittings for the wiring of a house or building, counted room by room. It also works out the design load and the single or three-phase supply, and shows every assumption.',
       },
       {
         question: 'How much does ElectricalPro cost?',
-        answer: `The ElectricalPro report costs ${priceLine('/tools/electropro')} per report, inclusive of GST.`,
+        answer: `The ElectricalPro report costs ${priceLine('/tools/electropro')} per report.`,
       },
       {
-        question: 'What wire size is needed for an AC?',
+        question: 'Which standards does it follow?',
         answer:
-          'The IS 732:2019 minimum used here is 4 mm² copper on a dedicated circuit, with a typical 20 A MCB.',
+          'The room-wise points follow the BIS draft revision of IS 4648 (September 2024) for Standard wiring, and the socket schedule of IS 4648:1968 for Basic wiring. The circuit limits follow CPWD General Specifications for Electrical Works and the draft; protection follows IS 732. The report names the clause for each check. The draft is not yet published, and the report says so.',
+      },
+      {
+        question: 'Why does Standard wiring count more points than my electrician does?',
+        answer:
+          'The 1968 standard asks for very few sockets, and most electricians now fit more. The BIS draft asks for many sockets in every room, and Standard follows it. Choose Basic to count with the older schedule instead.',
       },
       {
         question: 'Is there a free way to check a wire size?',
         answer:
-          'Yes. The free Wire Size Calculator gives the minimum copper size and typical MCB for each of the five circuit types. ElectricalPro adds the lengths, DB schedule and costs for your whole house.',
+          'Yes. The free Wire Size Calculator gives the least copper size, the breaker and the conduit for each kind of circuit, and for the supply from the meter by load. ElectricalPro counts the whole house: the points, the circuits, the boards, the wire and the conduit.',
+      },
+      {
+        question: 'Does it include labour?',
+        answer:
+          'No. The report is about quantities only, so it carries no labour, material or contractor rates. What is not counted, such as fittings, fans, lights and the meter, is listed in the report.',
       },
     ],
     source:
-      'electropro-engine.ts WIRE_SIZES via wire-size-engine.ts CIRCUIT_SPECS (1.5/2.5/4/6/10 mm², typical MCBs); interfaces DBPanelSchedule, WireSchedule, PointSchedule, ComplianceCheck.',
+      'lib/qty/electrical/model.ts (BIS draft IS 4648 ETD 20 Sept 2024 Tables 2 to 6; IS 4648:1968 cl 9.8; IS 732:1989; CPWD General Specifications for Electrical Works Part I GS 3.9 to 3.12). Quantities-only model, no rate inputs. No worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',
   },
 
   // ── PlumbingPro ────────────────────────────────────────────────────────────
   '/tools/plumbpro': {
     heading: 'What PlumbingPro gives you',
     whatsInside: [
-      'Daily water demand and tank size for your household.',
-      'Pipe lengths and a pipe schedule.',
-      'Pump horsepower.',
-      'A fixture schedule with costs.',
-      'An itemised plumbing BOQ based on IS 1172:1993.',
+      'Water supply and drain pipe by size, in whole 3 m lengths, worked out floor by floor.',
+      'Underground and overhead tank sizes for your water source, and the transfer pump.',
+      'Every tap, valve, trap, fitting and fixture, counted.',
+      'A septic tank and soak pit for your ground, or the sewer connection.',
+      'Rain-water down-pipes for your roof.',
+      'Checks against IS 1172, IS 1742, IS 5329 and IS 2470 with the clause shown, every assumption stated, what is not counted, and a range around each total.',
     ],
     whoFor:
-      'Homeowners who want the water tank, pipe and fixture quantities worked out before a plumber quotes.',
+      'Homeowners and small builders who want the pipes, tanks, pump and fixtures worked out before a plumber quotes.',
     example: {
-      title: 'Sample: 5 people on municipal supply',
-      intro: 'The IS 1172:1993 method, the same one the free Water Tank Size Calculator uses.',
+      title: 'How it works: a few answers in, a full plumbing list out',
+      intro:
+        'You do not need a drawing. Tell us the homes, bathrooms and where the water comes from, and the sizes are worked out on our side.',
       rows: [
-        { label: 'Daily demand', value: '675 L', note: '5 people × 135 litres per person per day' },
-        { label: 'Storage', value: '452 L', note: 'two-thirds of a day’s demand (× 0.67)' },
-        { label: 'Tank to buy', value: '500 L', note: 'next standard size' },
+        { label: 'Homes, bedrooms and bathrooms', value: 'People and fixtures', note: 'Sets the water used and the pipe sizes' },
+        { label: 'Water supply', value: 'Municipal, borewell or tanker', note: 'Sets the tank sizes and the pump' },
+        { label: 'Sewer or septic tank', value: 'And the ground', note: 'Sets the drain and the soak pit' },
+        { label: 'Rain', value: 'Heavy to extreme', note: 'Sets the number of down-pipes' },
       ],
       footnote:
-        'Borewell supply uses 150 litres per person per day. PlumbingPro adds pipe lengths, pump horsepower and fixtures for your own bathrooms and floors.',
+        'The model chooses the rest from the Indian Standards: the fixture units, the flow, the pipe sizes and the tank split. The report states every assumption it made.',
     },
     faq: [
       {
         question: 'What does PlumbingPro calculate?',
         answer:
-          'Pipe lengths, tank sizes, pump horsepower and fixture costs as an itemised plumbing BOQ, based on IS 1172:1993.',
+          'Pipe lengths by size, tank sizes, the transfer pump, every fitting and fixture, the drains, the septic tank and soak pit where there is no sewer, and the rain-water pipes, as an itemised plumbing quantity report worked out to the Indian Standards.',
       },
       {
         question: 'How much does PlumbingPro cost?',
-        answer: `The PlumbingPro report costs ${priceLine('/tools/plumbpro')} per report, inclusive of GST.`,
+        answer: `The PlumbingPro report costs ${priceLine('/tools/plumbpro')} per report.`,
       },
       {
         question: 'How much water per person does it assume?',
@@ -242,102 +269,127 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       {
         question: 'What tank does a family of 5 need?',
         answer:
-          'On municipal supply, 675 litres a day means 452 litres of storage, so a 500 L tank. On borewell supply it is 750 litres a day and 503 litres of storage, which steps up to a 1,000 L tank.',
+          'On municipal supply, 5 people use 675 litres a day. The PlumbingPro report follows the NBC split: two-thirds underground and one-third overhead, which here is a 500 L underground tank and a 500 L overhead tank. The free Water Tank Size calculator uses the same split and gives the same tanks.',
+      },
+      {
+        question: 'Does it include labour?',
+        answer:
+          'No. The report is about quantities only, so it carries no labour, material or contractor rates. You can lay it next to any quote and compare line by line.',
       },
     ],
     source:
-      'plumbpro-engine.ts WATER_DEMAND_LPCD {135,150}, TANK_RATIO 0.67; water-tank-engine.ts STANDARD_TANK_SIZES; calculate({5, municipal, 1 day}) = 675 / 452 / 500.',
+      'lib/qty/plumbing/model.ts (IS 1172 WATER_DEMAND_LPCD {135,150}; NBC Part 9 storage split; IS 1742, IS 5329, IS 2470 tables). Quantities-only model, no rate inputs. No worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',
   },
 
   // ── InteriorPro ────────────────────────────────────────────────────────────
   '/tools/interiorpro': {
     heading: 'What InteriorPro gives you',
     whatsInside: [
-      'Flooring, kitchen, false ceiling and paint costs.',
-      'Four quality grades, Basic, Standard, Premium and Luxury, side by side.',
-      'A room-by-room breakdown.',
-      'A flooring schedule that includes tile wastage, and a paint schedule.',
-      'An interior BOQ you can set against a designer’s or contractor’s quote.',
+      'Putty, primer and paint in litres and kilograms, inside and out, with the coats counted.',
+      'Floor and wall tiles by size, in pieces and boxes, with the cement, sand or adhesive, grout and skirting that go with them.',
+      'Doors and their frames, windows, ventilators and glass, and the door hardware.',
+      'A false ceiling, board by board with the framing, and the plywood and laminate for wardrobes and the kitchen.',
+      'Checks against IS 1200, IS 15622, IS 1003 and IS 2395 with the clause shown, every assumption stated, what is not counted, and a range around each total.',
     ],
     whoFor:
-      'Homeowners who want to see what moving between Basic and Luxury finishes does to the interior budget before they sign an interior quote.',
+      'Homeowners and small builders who want the paint, tiles, doors, ceilings and plywood worked out before a contractor or designer quotes.',
     example: {
-      title: 'Sample: 1,000 sq ft built-up area',
-      intro: 'Two of the planning constants the report applies.',
+      title: 'How it works: a few answers in, a full finishing list out',
+      intro:
+        'You do not need a drawing. Tell us the rooms and the finishes you have in mind, and the areas are worked out on our side.',
       rows: [
-        { label: 'Interior paint', value: '180 L', note: '0.18 litre per sq ft of built-up area' },
-        { label: 'Floor tile to order', value: '1,100 sq ft', note: '1,000 sq ft of floor plus 10% wastage' },
+        { label: 'Bedrooms, bathrooms and kitchens', value: 'Rooms and their walls', note: 'Sets the wall, ceiling and floor areas' },
+        { label: 'Paint level and outside finish', value: 'Economy to premium', note: 'Sets the layers and the spread' },
+        { label: 'Floor tile, laying and fixing', value: 'Size, pattern, bed', note: 'Sets the tiles, the extra and the cement or adhesive' },
+        { label: 'Ceiling, kitchen and wardrobes', value: 'Yes or no', note: 'Sets the board, the framing and the plywood' },
       ],
       footnote:
-        'InteriorPro uses your own rooms, finishes and grade to produce the full cost, room by room.',
+        'The model chooses the rest from the Indian Standards and the makers’ data sheets: the openings, the coats, the wastage. The report states every assumption it made.',
     },
     faq: [
       {
         question: 'What does InteriorPro calculate?',
         answer:
-          'Flooring, kitchen, false ceiling and paint costs across four quality grades, Basic to Luxury, as an interior BOQ.',
+          'Paint, putty and primer; floor and wall tiles with the bed or adhesive and grout; doors, windows and glass; a false ceiling; and the plywood and laminate for wardrobes and the kitchen. Each is counted from the rooms you describe, with a range around the total.',
       },
       {
         question: 'How much does InteriorPro cost?',
-        answer: `The InteriorPro report costs ${priceLine('/tools/interiorpro')} per report, inclusive of GST.`,
+        answer: `The InteriorPro report costs ${priceLine('/tools/interiorpro')} per report.`,
       },
       {
-        question: 'How much extra tile should I order?',
+        question: 'How does it measure the walls and floors?',
         answer:
-          'The report adds 10% for tile wastage, so 1,000 sq ft of floor means ordering about 1,100 sq ft.',
+          'It measures as IS 1200 does: floors before the skirting goes on, and an opening of up to 0.5 m² is not taken out of the paint. From 0.5 to 3 m² one face is taken out. The report shows each area it measured.',
       },
       {
-        question: 'How much paint does a house need?',
+        question: 'How much extra tile does it allow?',
         answer:
-          'The report uses 0.18 litre of paint per sq ft of built-up area, so 1,000 sq ft needs about 180 litres.',
+          'It allows 5% for a straight layout and 10% for a diagonal one, and more for large tiles and small rooms. No standard fixes these numbers, so the report marks them as assumed.',
       },
       {
-        question: 'Is there a free way to compare finish tiers?',
+        question: 'Does it include labour?',
         answer:
-          'Yes. The free Finish-Tier Cost Calculator shows, element by element, what moving between Basic, Standard, Premium and Luxury adds to the cost of a home.',
+          'No. The report is about quantities only, so it carries no labour, material or contractor rates. What is not counted, such as plaster, stairs, sanitary fittings and loose furniture, is listed in the report.',
+      },
+      {
+        question: 'Is there a free way to estimate finishing quantities?',
+        answer:
+          'Yes. The free Finishing Quantity Calculator gives a rough tile and paint area from a built-up area. InteriorPro measures your rooms and counts everything.',
       },
     ],
     source:
-      'interiorpro-engine.ts PAINT_LITRES_PER_SQFT_BUA 0.18, TILE_WASTAGE_FACTOR 1.10, InteriorGrade basic/standard/premium/luxury, RoomBreakdown / FlooringSchedule / PaintSchedule interfaces.',
+      'lib/qty/interior/model.ts (IS 1200 Parts 11 to 13; IS 15622:2006; IS 1003 Part 1:2003; IS 2395 Part 1:1994; IS 303:2024; CPWD Delhi Analysis of Rates 2016; paint, tile, adhesive and board makers’ data sheets). Quantities-only model, no rate inputs. No worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',
   },
 
   // ── Grand Total ────────────────────────────────────────────────────────────
   '/tools/grand-total': {
-    heading: 'What the Grand Total Report gives you',
+    heading: 'What the Grand Total gives you',
     whatsInside: [
-      'All five phases merged into one complete BOQ: RCC structure, masonry, electrical, plumbing and interior.',
-      'One total to set against a contractor’s all-in quote.',
+      'Your paid frame, walls, wiring, plumbing and finishing reports added into one list of what to buy.',
+      'Cement, sand and stone from every phase added into one figure to order.',
+      'Anything two reports both count, such as the lintels over doors and windows, taken out so it is ordered once.',
+      'A check that the reports are for the same building, and a plain note of which phases are not in the total.',
+      'The list laid out in the order the work happens on site, with the assumptions behind every phase and what is not counted.',
     ],
     whoFor:
-      'Homeowners who have estimated each phase and want one consolidated BOQ to check a single, all-inclusive contractor quote.',
+      'Homeowners and small builders who have bought two or more phase reports and want one list to order from and to set against a contractor’s quantities.',
     example: {
-      title: 'How the total is built',
-      intro: 'The Grand Total is the sum of the five phase reports.',
+      title: 'How it works: your paid reports in, one list out',
+      intro: 'You answer nothing new. The Grand Total reads the reports you already bought for one project and adds them.',
       rows: [
-        { label: 'Phase 1', value: 'RCC structure', note: 'StructurePro' },
-        { label: 'Phase 2', value: 'Masonry', note: 'MasonryPro' },
-        { label: 'Phase 3', value: 'Electrical', note: 'ElectricalPro' },
-        { label: 'Phase 4', value: 'Plumbing', note: 'PlumbingPro' },
-        { label: 'Phase 5', value: 'Interior', note: 'InteriorPro' },
+        { label: 'Frame', value: 'StructurePro', note: 'Concrete, steel and shuttering' },
+        { label: 'Walls', value: 'MasonryPro', note: 'Bricks or blocks, mortar, lintels, plaster' },
+        { label: 'Wiring and plumbing', value: 'ElectricalPro, PlumbingPro', note: 'Points, wire, conduit, pipes, tanks, fixtures' },
+        { label: 'Finishing', value: 'InteriorPro', note: 'Paint, tiles, ceilings, doors, carpentry' },
       ],
-      footnote: 'The Grand Total Report merges these five into a single BOQ.',
+      footnote: 'You need at least two paid reports for the same project. The list is made from the reports you have today and does not change when you add a phase later.',
     },
     faq: [
       {
-        question: 'What is the Grand Total Report?',
+        question: 'What is the Grand Total?',
         answer:
-          'It merges all five construction phases, structure, masonry, electrical, plumbing and interior, into one complete BOQ report.',
+          'It adds the phase reports you have already bought for one project, structure, masonry, electrical, plumbing and interior, into one list of what to buy. It does not ask any new questions and it does not recalculate a phase.',
       },
       {
-        question: 'How much does the Grand Total Report cost?',
-        answer: `The Grand Total Report costs ${priceLine('/tools/grand-total')}, inclusive of GST. The tool page lists it as free if you have bought all five phase reports.`,
+        question: 'How much does the Grand Total cost?',
+        answer: `The Grand Total costs ${priceLine('/tools/grand-total')}, on top of the phase reports it adds.`,
       },
       {
-        question: 'Which phases does it include?',
+        question: 'How many phases do I need?',
         answer:
-          'Phase 1 RCC structure, phase 2 masonry, phase 3 electrical, phase 4 plumbing and phase 5 interior.',
+          'At least two paid reports for the same project, with the same number of floors, the same state and floor areas within 10% of each other. The page tells you which phases are not in the total.',
+      },
+      {
+        question: 'Is anything counted twice when the reports are added?',
+        answer:
+          'No. The lintels over doors and windows appear in both the frame report and the walls report. The Grand Total keeps the frame’s and takes the walls report’s share out. Cement, sand and stone used by several phases are added into one figure.',
+      },
+      {
+        question: 'Does it include labour?',
+        answer:
+          'No. It lists quantities only, so it carries no labour, material or contractor rates. You can lay it next to any quote and compare line by line.',
       },
     ],
-    source: 'site.ts TOOLS summary for /tools/grand-total; app/tools/grand-total/layout.tsx metadata (“₹999 or free with all 5 paid tools”).',
+    source: 'lib/qty/grand.ts (merge, overlap removal, consistency checks) and lib/qty/grand-server.ts; every figure comes from the phase reports. Quantities-only; no worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',
   },
 }

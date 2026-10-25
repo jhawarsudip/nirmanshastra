@@ -33,6 +33,20 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServiceClient()
 
+    // Bind the paid order to THIS estimate. A valid signature only proves that some order was paid;
+    // without this check, a ₹1 order could be used to unlock any other estimate.
+    if (!PAYMENT_BYPASS) {
+      const { data: order } = await supabase
+        .from('payments')
+        .select('estimate_id')
+        .eq('razorpay_order_id', razorpayOrderId)
+        .single()
+      if (!order || order.estimate_id !== estimateId) {
+        console.error('Verify payment: order does not belong to estimate', { razorpayOrderId, estimateId })
+        return NextResponse.json({ error: 'This payment does not match the report' }, { status: 400 })
+      }
+    }
+
     // Update payment record
     const { error: payError } = await supabase
       .from('payments')

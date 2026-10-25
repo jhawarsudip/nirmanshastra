@@ -1,570 +1,199 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
-import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { ToolHead, Field, Input, Select } from '@/components/v2/inner/kit'
+import { ReportTable } from '@/components/v2/qty/parts'
+import {
+  CalcPage, CalcGrid, CalcLabel, Big, Figures, Rows, Chips, CalcSection, Prose, Formula, CalcCta, CalcFine,
+} from '@/components/v2/inner/calc'
 import {
   SHAPES,
-  STANDARD_DIAMETERS,
+  BAR_SIZES,
+  PROCURE,
   calculate,
-  hookAllowancePerHook,
-  toSigFigs,
+  type ShapeKey,
   type DimKey,
-  type ShapeDef,
 } from './bbs-engine'
 import QuickAnswer from '@/components/seo/QuickAnswer'
 import CalcFaq from '@/components/seo/CalcFaq'
 import RelatedLinks from '@/components/seo/RelatedLinks'
 import { BBS_CONTENT } from '@/lib/seo/calc-content'
 
-// ── Design tokens — matte dark system, matches the tool pages (plumbpro / electropro) ──
-const MONO = 'var(--font-plex-mono)'
-const SANS = 'var(--font-plex-sans)'
-const SERIF = 'var(--font-plex-serif)'
-const INK = '#F4F4F0'
-const INK_65 = 'rgba(244,244,240,0.65)'
-const INK_45 = 'rgba(244,244,240,0.45)'
-const INK_35 = 'rgba(244,244,240,0.35)'
-const SURF = '#171717'
-const BSUB = 'rgba(255,255,255,0.08)'
-const BLUEPRINT = '#1F4E79'
-const OXIDE = '#8C3A22'
-
-// ── Small presentational helpers ───────────────────────────────────────────────
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p style={{ fontFamily: MONO, fontSize: 11, color: BLUEPRINT, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 14 }}>
-      {children}
-    </p>
-  )
-}
-
-function ISChip({ code }: { code: string }) {
-  return (
-    <span style={{ fontFamily: MONO, fontSize: 10, color: INK_65, border: `1px solid ${BLUEPRINT}`, borderRadius: 2, padding: '3px 7px', letterSpacing: '0.03em', whiteSpace: 'nowrap' }}>
-      {code}
-    </span>
-  )
-}
-
 function num(n: number, dp: number) {
   return n.toLocaleString('en-IN', { minimumFractionDigits: dp, maximumFractionDigits: dp })
 }
 
-// ── Page ────────────────────────────────────────────────────────────────────────
-
 export default function BarBendingScheduleCalculatorPage() {
-  const [shapeCode, setShapeCode] = useState('07')
-  const [diameter, setDiameter] = useState<number>(8)
-  const [quantity, setQuantity] = useState<string>('1')
-  const [dimValues, setDimValues] = useState<Record<string, string>>({ A: '180', B: '400', C: '', crankDepth: '' })
+  const [shapeKey, setShapeKey] = useState<ShapeKey>('stirrup')
+  const [diameter, setDiameter] = useState(8)
+  const [count, setCount] = useState('1')
+  const [vals, setVals] = useState<Record<DimKey, string>>({ A: '300', B: '200', C: '500' })
 
-  const shape: ShapeDef = useMemo(
-    () => SHAPES.find((s) => s.code === shapeCode) ?? SHAPES[0],
-    [shapeCode],
-  )
-
-  function setDim(key: string, value: string) {
-    setDimValues((prev) => ({ ...prev, [key]: value }))
-  }
-
-  // Numeric snapshot of the dimensions this shape actually uses.
+  const shape = SHAPES.find((s) => s.key === shapeKey) ?? SHAPES[0]
   const dims = useMemo(() => {
-    const out: Record<DimKey, number> = { A: 0, B: 0, C: 0, crankDepth: 0 }
-    for (const spec of shape.dims) {
-      out[spec.key] = parseFloat(dimValues[spec.key] || '0') || 0
-    }
-    return out
-  }, [shape, dimValues])
-
-  const qty = Math.max(1, Math.floor(parseFloat(quantity || '1') || 1))
-
-  const allFilled = shape.dims.every((s) => (parseFloat(dimValues[s.key] || '0') || 0) > 0)
-  const result = useMemo(() => calculate(shape, diameter, dims, qty), [shape, diameter, dims, qty])
-
-  const cuttingMm = Math.round(result.cuttingLength)
-  const cuttingM = result.cuttingLength / 1000
-  const weightBar = toSigFigs(result.weightPerBar, 4)
-  const weightTotal = toSigFigs(result.totalWeight, 4)
-
-  // Field styling
-  const labelStyle: React.CSSProperties = { fontFamily: MONO, fontSize: 10, color: INK_45, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }
-  const fieldStyle: React.CSSProperties = {
-    width: '100%',
-    boxSizing: 'border-box',
-    background: 'rgba(244,244,240,0.06)',
-    border: `1px solid ${BSUB}`,
-    color: INK,
-    padding: '11px 12px',
-    fontSize: 14,
-    fontFamily: MONO,
-    borderRadius: 6,
-    outline: 'none',
-  }
+    const o: Record<DimKey, number> = { A: 0, B: 0, C: 0 }
+    for (const s of shape.dims) o[s.key] = Math.max(0, parseFloat(vals[s.key] || '0') || 0)
+    return o
+  }, [shape, vals])
+  const n = Math.max(1, Math.floor(parseFloat(count || '1') || 1))
+  const filled = shape.dims.every((s) => dims[s.key] > 0)
+  const r = useMemo(() => calculate(shapeKey, diameter, dims, n), [shapeKey, diameter, dims, n])
+  const closed = shapeKey === 'stirrup' || shapeKey === 'square'
 
   return (
-    <main className="sheet-frame" style={{ background: 'var(--bg-base)', minHeight: '100vh' }}>
-      {/* ── HERO ──────────────────────────────────────────────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 pt-16 pb-10">
-        <div style={{ maxWidth: 860 }}>
-          <Eyebrow>Free Calculator · IS 2502 · No Login</Eyebrow>
-          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(34px,5vw,52px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
-            Bar Bending Schedule Calculator
-          </h1>
-          <QuickAnswer content={BBS_CONTENT} />
-          <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
-            Work out the exact <strong style={{ color: INK, fontWeight: 600 }}>cutting length</strong> and{' '}
-            <strong style={{ color: INK, fontWeight: 600 }}>weight</strong> of any reinforcement bar. Choose a
-            standard shape, enter its dimensions, and the tool applies the IS 2502 bend deductions, hook
-            allowances, and crank additions the way a steel yard actually cuts bars. Permanently free — nothing
-            to unlock, no sign-in.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 22 }}>
-            {['IS 2502', 'IS 1786:2008', 'IS 456:2000', 'IS 13920:2016'].map((c) => (
-              <ISChip key={c} code={c} />
-            ))}
-          </div>
-        </div>
-      </section>
+    <CalcPage>
+      <ToolHead
+        eyebrow="Free calculator · no sign-in"
+        name="Bar Bending Calculator"
+        blurb="Work out the length to cut and the weight of one bar shape. Choose the shape, the bar size and the lengths, and the calculator takes off the bends, adds the hooks, rounds up to the next 25 mm and weighs the bar."
+      />
+      <QuickAnswer content={BBS_CONTENT} />
 
-      {/* ── CALCULATOR ────────────────────────────────────────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ alignItems: 'start' }}>
-
-          {/* INPUT CARD */}
-          <div style={{ background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '28px' }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 }}>
-              Bar Details
-            </p>
-
-            {/* Shape */}
-            <div style={{ marginBottom: 18 }}>
-              <label style={labelStyle} htmlFor="bbs-shape">Bar shape</label>
-              <select
-                id="bbs-shape"
-                value={shapeCode}
-                onChange={(e) => setShapeCode(e.target.value)}
-                style={{ ...fieldStyle, appearance: 'none' }}
-              >
-                {SHAPES.map((s) => (
-                  <option key={s.code} value={s.code} style={{ background: '#1a1a1a', color: '#fff' }}>
-                    {s.code} — {s.name}
-                  </option>
-                ))}
-              </select>
-              <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_45, lineHeight: 1.6, marginTop: 10 }}>
-                {shape.note}
-              </p>
-            </div>
-
-            {/* Diameter */}
-            <div style={{ marginBottom: 18 }}>
-              <label style={labelStyle} htmlFor="bbs-dia">Bar diameter (mm)</label>
-              <select
-                id="bbs-dia"
-                value={diameter}
-                onChange={(e) => setDiameter(parseFloat(e.target.value))}
-                style={{ ...fieldStyle, appearance: 'none' }}
-              >
-                {STANDARD_DIAMETERS.map((d) => (
-                  <option key={d} value={d} style={{ background: '#1a1a1a', color: '#fff' }}>
-                    {d} mm
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Dimensions */}
-            <div className="grid grid-cols-2 gap-4" style={{ marginBottom: 18 }}>
-              {shape.dims.map((spec) => (
-                <div key={spec.key}>
-                  <label style={labelStyle} htmlFor={`bbs-${spec.key}`}>{spec.label} (mm)</label>
-                  <input
-                    id={`bbs-${spec.key}`}
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    value={dimValues[spec.key] ?? ''}
-                    onChange={(e) => setDim(spec.key, e.target.value)}
-                    placeholder="0"
-                    style={fieldStyle}
-                  />
-                  <p style={{ fontFamily: SANS, fontSize: 11, color: INK_35, marginTop: 5, lineHeight: 1.5 }}>{spec.hint}</p>
-                </div>
+      <CalcGrid
+        input={
+          <>
+            <CalcLabel>The bar</CalcLabel>
+            <div className="ns-i-fields">
+              <Field id="bb-shape" label="Shape of the bar" wide hint={shape.note}>
+                <Select value={shapeKey} onChange={(e) => setShapeKey(e.target.value as ShapeKey)}>
+                  {SHAPES.map((s) => (
+                    <option key={s.key} value={s.key}>{s.name}</option>
+                  ))}
+                </Select>
+              </Field>
+              <Field id="bb-dia" label="Bar size (mm)">
+                <Select value={String(diameter)} onChange={(e) => setDiameter(parseInt(e.target.value, 10))}>
+                  {BAR_SIZES.map((d) => (
+                    <option key={d} value={d}>{d} mm</option>
+                  ))}
+                </Select>
+              </Field>
+              <Field id="bb-n" label="How many bars?">
+                <Input type="number" inputMode="numeric" min={1} step="1" value={count} onChange={(e) => setCount(e.target.value)} placeholder="1" />
+              </Field>
+              {shape.dims.map((s) => (
+                <Field key={s.key} id={`bb-${s.key}`} label={s.label} hint={s.hint} wide={shape.dims.length === 1}>
+                  <Input type="number" inputMode="decimal" min={0} step="1" value={vals[s.key]} onChange={(e) => setVals((v) => ({ ...v, [s.key]: e.target.value }))} placeholder="0" />
+                </Field>
               ))}
             </div>
-
-            {/* Quantity */}
-            <div>
-              <label style={labelStyle} htmlFor="bbs-qty">Number of bars</label>
-              <input
-                id="bbs-qty"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="1"
-                style={{ ...fieldStyle, maxWidth: 160 }}
+          </>
+        }
+        result={
+          filled ? (
+            <>
+              <Big
+                k={`Length to cut · ${shape.name.split(':')[0]}, ${diameter} mm`}
+                v={num(r.cutMm, 0)}
+                unit="mm"
+                sub={`${num(r.cutMm / 1000, 3)} m a bar, rounded up from ${num(r.exactMm, 0)} mm to the next 25 mm`}
               />
-            </div>
-          </div>
-
-          {/* RESULT CARD */}
-          <div style={{ background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '28px' }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
-              Cutting Length · Shape {shape.code}
-            </p>
-
-            {allFilled ? (
-              <>
-                <div style={{ fontFamily: MONO, fontSize: 'clamp(48px,7vw,72px)', fontWeight: 700, color: INK, lineHeight: 1, marginBottom: 4 }}>
-                  {num(cuttingMm, 0)}
-                  <span style={{ fontSize: 22, fontWeight: 500, color: INK_45, marginLeft: 8 }}>mm</span>
-                </div>
-                <p style={{ fontFamily: MONO, fontSize: 13, color: INK_35, marginBottom: 24 }}>
-                  = {num(cuttingM, 3)} m per bar
-                </p>
-
-                {/* Weight pills */}
-                <div className="grid grid-cols-2 gap-4" style={{ marginBottom: 24 }}>
-                  <div style={{ border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-                    <p style={{ fontFamily: MONO, fontSize: 9, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Weight / bar</p>
-                    <p style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, color: INK }}>{num(weightBar, weightBar < 1 ? 4 : 3)} <span style={{ fontSize: 12, color: INK_45 }}>kg</span></p>
-                  </div>
-                  <div style={{ border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-                    <p style={{ fontFamily: MONO, fontSize: 9, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Total · {qty} bar{qty > 1 ? 's' : ''}</p>
-                    <p style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, color: INK }}>{num(weightTotal, weightTotal < 1 ? 4 : 3)} <span style={{ fontSize: 12, color: INK_45 }}>kg</span></p>
-                  </div>
-                </div>
-
-                {/* Breakdown — BOQ table */}
-                <p style={{ fontFamily: MONO, fontSize: 10, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-                  Calculation breakdown
-                </p>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 12.5 }}>
-                  <tbody>
-                    <BreakRow label={shape.closedLink ? 'Perimeter' : 'Straight segments'} detail={shape.straightLabel(dims)} value={`+ ${num(result.straight, 0)} mm`} />
-                    {shape.hooks > 0 && (
-                      <BreakRow
-                        label="Hook allowance"
-                        detail={`${shape.hooks} × max(9×${diameter}, 75) = ${shape.hooks} × ${num(hookAllowancePerHook(diameter), 0)}`}
-                        value={`+ ${num(result.hookTotal, 0)} mm`}
-                        positive
-                      />
-                    )}
-                    {result.bendDeduction > 0 && (
-                      <BreakRow
-                        label="Bend deduction"
-                        detail={bendDetail(shape, diameter)}
-                        value={`− ${num(result.bendDeduction, 0)} mm`}
-                        negative
-                      />
-                    )}
-                    {shape.hasCrank && (
-                      <BreakRow
-                        label="Crank addition"
-                        detail={`0.42 × ${num(dims.crankDepth, 0)}`}
-                        value={`+ ${num(result.crankAddition, 1)} mm`}
-                        positive
-                      />
-                    )}
-                    <BreakRow label="Unit weight" detail={`${diameter}² ÷ 162`} value={`${num(result.unitWeight, 4)} kg/m`} muted />
-                    <tr>
-                      <td colSpan={2} style={{ padding: '11px 0 0', borderTop: `1px solid ${BSUB}`, color: INK, fontWeight: 500 }}>Cutting length</td>
-                      <td style={{ padding: '11px 0 0', borderTop: `1px solid ${BSUB}`, textAlign: 'right', color: INK, fontWeight: 600 }}>{num(cuttingMm, 0)} mm</td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <p style={{ fontFamily: SANS, fontSize: 11.5, color: INK_35, lineHeight: 1.6, marginTop: 18 }}>
-                  Cutting length figures round to the nearest millimetre; weights are shown to four significant figures.
-                  Add development / lap lengths (IS 2502 Cl. 6, IS 456 Cl. 26.2) separately where bars are spliced.
-                </p>
-              </>
-            ) : (
-              <p style={{ fontFamily: SANS, fontSize: 14, color: INK_45, lineHeight: 1.7, paddingTop: 8 }}>
-                Enter all dimensions for shape {shape.code} to see the cutting length, weight, and a full breakdown.
+              <Figures
+                items={[
+                  { k: 'Weight of one bar', v: num(r.weightPerBar, r.weightPerBar < 1 ? 3 : 2), unit: 'kg' },
+                  { k: `All ${num(n, 0)} ${n === 1 ? 'bar' : 'bars'}`, v: num(r.totalKg, r.totalKg < 10 ? 2 : 1), unit: 'kg', tone: 'ok' },
+                  { k: `To buy, +${Math.round((PROCURE - 1) * 100)}%`, v: num(r.buyKg, r.buyKg < 10 ? 2 : 1), unit: 'kg' },
+                ]}
+              />
+              <CalcLabel>The working</CalcLabel>
+              <Rows
+                rows={[
+                  {
+                    label: closed ? 'Perimeter' : 'Lengths added up',
+                    detail: closed ? (shapeKey === 'square' ? `4 × ${num(dims.A, 0)}` : `2 × (${num(dims.A, 0)} + ${num(dims.B, 0)})`) : shapeKey === 'crank' ? 'overall length' : shape.dims.map((s) => num(dims[s.key], 0)).join(' + '),
+                    value: `${num(r.runMm, 0)} mm`,
+                  },
+                  ...(closed ? [{ label: 'Hooks and corners', detail: '12 × bar size (two 10d hook tails less the corners), tails 75 mm at least', value: `+ ${num(r.hookMm, 0)} mm` }] : []),
+                  ...(r.slopeMm > 0 ? [{ label: 'Slope of the crank', detail: `0.414 × the rise of ${num(dims.B, 0)}`, value: `+ ${num(r.slopeMm, 0)} mm` }] : []),
+                  ...(r.bendMm > 0 ? [{ label: 'Bends', detail: shapeKey === 'crank' ? 'two 45° bends' : shapeKey === 'U' ? 'two right-angle bends, 3 × bar size each' : 'a right-angle bend, 3 × bar size', value: `− ${num(r.bendMm, 0)} mm`, tone: 'dim' as const }] : []),
+                  { label: 'Length before rounding', value: `${num(r.exactMm, 0)} mm`, tone: 'dim' },
+                  { label: 'Rounded up to the next 25 mm', detail: 'IS 2502 cl 5.1.1', value: `${num(r.cutMm, 0)} mm`, tone: 'ok' },
+                  { label: 'Weight of one bar', detail: `${num(r.cutMm / 1000, 3)} m × ${num(r.massPerM, 3)} kg a metre`, value: `${num(r.weightPerBar, 3)} kg` },
+                ]}
+              />
+              <p className="ns-calc-help">
+                The weight is that of the bar placed. Steel is bought with {Math.round((PROCURE - 1) * 100)}% more, the allowance CPWD uses for cutting waste; your yard may differ.
               </p>
-            )}
-          </div>
-        </div>
+            </>
+          ) : (
+            <p className="ns-calc-empty">Enter the lengths of the bar to see the length to cut and its weight.</p>
+          )
+        }
+      />
 
-        {/* ── CTA — full offline spreadsheet ──────────────────────────────────── */}
-        <div
-          style={{
-            marginTop: 28,
-            background: SURF,
-            border: `1px solid ${OXIDE}`,
-            borderRadius: 2,
-            padding: '28px 32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 20,
-          }}
-        >
-          <div style={{ flex: 1, minWidth: 260 }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, color: 'rgba(200,120,90,0.95)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-              Need the full schedule?
-            </p>
-            <p style={{ fontFamily: SANS, fontSize: 15.5, color: INK_65, lineHeight: 1.6, maxWidth: 620 }}>
-              Need the full offline spreadsheet with editable formulas? Get the Bar Bending Schedule Excel
-              Template — a 12-sheet workbook with a shape library, cutting-length calc, lap &amp; development
-              schedule, BBS, bar summary, cutting optimiser, and steel order note built to IS 2502.
-            </p>
-          </div>
-          <Link
-            href="/site-templates/bar-bending-schedule"
-            className="btn-3d"
-            style={{
-              fontFamily: SANS,
-              fontSize: 14,
-              fontWeight: 600,
-              letterSpacing: '0.02em',
-              padding: '13px 26px',
-              borderRadius: 2,
-              background: OXIDE,
-              color: INK,
-              textDecoration: 'none',
-              border: '1px solid rgba(255,255,255,0.15)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Get the Excel Template →
-          </Link>
-        </div>
-      </section>
+      <CalcCta
+        kicker="Need the steel of a whole house?"
+        text="This page works one bar. StructurePro works out every bar of the footings, columns, beams and slabs of your house from a few answers, bar by bar, and gives the steel to buy for each size."
+        href="/tools/structopro"
+        label="Open StructurePro"
+      />
 
-      {/* ── SHAPE REFERENCE TABLE ───────────────────────────────────────────────── */}
-      <section className="grid-paper px-6 md:px-16 lg:px-24 py-16" style={{ borderTop: `1px solid ${BSUB}` }}>
-        <Eyebrow>Reference · 13 Shapes</Eyebrow>
-        <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(24px,3vw,32px)', fontWeight: 600, color: INK, marginBottom: 20 }}>
-          Shape library
-        </h2>
-        <div style={{ overflowX: 'auto', border: `1px solid ${BSUB}`, borderRadius: 2, background: SURF }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 12.5, minWidth: 620 }}>
-            <thead>
-              <tr>
-                {['#', 'Shape', 'Straight length', 'Bends', 'Hooks'].map((h) => (
-                  <th key={h} style={{ textAlign: h === 'Straight length' || h === 'Shape' ? 'left' : 'center', fontFamily: MONO, fontSize: 10, color: INK_45, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '12px 14px', borderBottom: `1px solid ${BSUB}`, whiteSpace: 'nowrap' }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {SHAPES.map((s, i) => (
-                <tr key={s.code} style={{ background: i % 2 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
-                  <td style={{ padding: '10px 14px', color: BLUEPRINT }}>{s.code}</td>
-                  <td style={{ padding: '10px 14px', color: INK, fontFamily: SANS }}>{s.name}</td>
-                  <td style={{ padding: '10px 14px', color: INK_65 }}>{straightFormula(s)}</td>
-                  <td style={{ padding: '10px 14px', textAlign: 'center', color: INK_65 }}>{bendSummary(s)}</td>
-                  <td style={{ padding: '10px 14px', textAlign: 'center', color: INK_65 }}>{s.hooks}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* ── WRITTEN CONTENT ─────────────────────────────────────────────────────── */}
-      <article className="px-6 md:px-16 lg:px-24 py-16" style={{ maxWidth: 820 }}>
-
-        <Prose heading="What a bar bending schedule actually is">
-          <p>
-            A bar bending schedule — a BBS — is the reinforcement equivalent of a cutting list. Before a single
-            bar is cut on site, the schedule sets out, for every bar mark on the drawing, the bar diameter, the
-            shape it is bent to, the dimensions of each leg, the cut length, the number of bars, and the total
-            weight. It is the bridge between the structural drawing (which shows where steel goes) and the steel
-            yard (which needs a list of straight lengths to cut and bend).
-          </p>
-          <p>
-            The single most important number the schedule produces is the <strong style={{ color: INK }}>cutting
-            length</strong>: how long each straight bar must be <em>before</em> it is bent, so that after bending
-            it fits the member with the correct cover and anchorage. Get the cutting length wrong and every bar of
-            that mark is either short (scrap, or an unsafe lap) or long (wasted steel that still gets billed).
-            Multiply a small per-bar error across the thousands of bars in a house and the money is real.
-          </p>
-        </Prose>
-
-        <Prose heading="Why the bent length is shorter than the sum of the legs">
-          <p>
-            Steel is not paper. When a bar is bent around a pin, the material on the outside of the bend stretches
-            and the material on the inside compresses. The bar follows a curve at the corner rather than a sharp
-            point, so the true length of steel needed is <em>less</em> than the sum of the leg dimensions you
-            measure to the outside faces of the member.
-          </p>
-          <p>
-            IS 2502 accounts for this with a fixed <strong style={{ color: INK }}>bend deduction</strong> per bend,
-            expressed as a multiple of the bar diameter (d):
-          </p>
-          <ul>
-            <li><span style={{ fontFamily: MONO, color: INK }}>45° bend → deduct 1d</span></li>
-            <li><span style={{ fontFamily: MONO, color: INK }}>90° bend → deduct 2d</span></li>
-            <li><span style={{ fontFamily: MONO, color: INK }}>135° bend → deduct 3d</span></li>
-          </ul>
-          <p>
-            The sharper the bend, the more the bar &ldquo;short-cuts&rdquo; the corner, so the larger the deduction.
-            You add up the leg dimensions, subtract one deduction for every bend in the bar, add back the hook
-            allowances, and that is your cutting length. This tool does exactly that — the breakdown panel shows
-            each term so you can trace where the number comes from.
-          </p>
-        </Prose>
-
-        <Prose heading="Hooks and 135° seismic hooks">
-          <p>
-            Bars that need to be anchored — stirrup ends, the free ends of many main bars — finish in a hook. IS
-            2502 gives a standard hook allowance per hook of the <strong style={{ color: INK }}>greater of 9d or
-            75&nbsp;mm</strong>. For a small bar the 75&nbsp;mm floor governs; for 10&nbsp;mm and above the 9d term
-            takes over. The hook adds length, so it is added to the cutting length (the bend at the hook itself is
-            the 135° deduction that goes the other way).
-          </p>
-          <p>
-            In seismic zones III to V, IS 13920:2016 requires stirrups and ties to close with 135° hooks rather
-            than 90° hooks, because a 90° hook can open up and lose its grip when the concrete cover spalls during
-            an earthquake. That is the only difference between shape 07 and shape 08 in the library above — the
-            geometry is identical; the detailing standard is stricter.
-          </p>
-        </Prose>
-
-        <Prose heading="The common manual-calculation errors this tool removes">
-          <ul>
-            <li>
-              <strong style={{ color: INK }}>Forgetting the bend deduction entirely.</strong> The most frequent
-              mistake — adding the legs and stopping there. On a rectangular stirrup with five bends that alone
-              over-states the length by several diameters, and the error repeats on every stirrup in every column
-              and beam.
-            </li>
-            <li>
-              <strong style={{ color: INK }}>Applying the wrong deduction for the angle.</strong> Treating a 135°
-              seismic hook as if it were a 90° bend (2d instead of 3d), or vice-versa, is easy to do by hand and
-              silently wrong.
-            </li>
-            <li>
-              <strong style={{ color: INK }}>Using 9d for the hook when 75&nbsp;mm governs.</strong> For 6 and
-              8&nbsp;mm stirrup steel, 9d is only 54–72&nbsp;mm, but the code floor is 75&nbsp;mm. Hand
-              calculations that always use 9d under-cut small-diameter hooks.
-            </li>
-            <li>
-              <strong style={{ color: INK }}>Missing the crank addition.</strong> A 45° crank adds 0.42 × the
-              crank depth for the inclined portion. Bars cranked at a support are routinely scheduled as if they
-              were straight, and come up short.
-            </li>
-            <li>
-              <strong style={{ color: INK }}>Wrong unit weight.</strong> The d²/162 rule (kg per metre) is simple,
-              but rounding 8&nbsp;mm to &ldquo;0.4&rdquo; or 12&nbsp;mm to &ldquo;0.9&rdquo; instead of the true
-              0.395 and 0.888 quietly shifts every weight — and steel is billed by weight.
-            </li>
-          </ul>
-        </Prose>
-
-        <Prose heading="How the unit weight is derived">
-          <p>
-            A bar is a cylinder of steel. Its weight per metre is its cross-sectional area times the density of
-            steel (7850&nbsp;kg/m³ per IS 1786:2008). Working the area through in millimetres and simplifying the
-            constants collapses to the well-known site rule:
-          </p>
-          <p style={{ fontFamily: MONO, color: INK, fontSize: 15, background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-            unit weight (kg/m) = d² ÷ 162
-          </p>
-          <p>
-            So an 8&nbsp;mm bar is 64 ÷ 162 = 0.395&nbsp;kg/m and a 12&nbsp;mm bar is 144 ÷ 162 = 0.888&nbsp;kg/m.
-            Multiply the cutting length in metres by this figure and you have the weight of one bar; multiply by
-            the bar count for the mark and you have the schedule weight the yard will invoice.
-          </p>
-        </Prose>
-
-        <Prose heading="Worked example — a rectangular stirrup">
-          <p>
-            Take shape 07, a rectangular stirrup in 8&nbsp;mm steel with legs A = 180&nbsp;mm and B = 400&nbsp;mm
-            (centre-line dimensions). The perimeter is 2 × (180 + 400) = 1160&nbsp;mm. It carries two hooks, each
-            the greater of 9 × 8 = 72&nbsp;mm or 75&nbsp;mm, so 2 × 75 = 150&nbsp;mm. Its bends are three 90°
-            corners (3 × 2d = 48&nbsp;mm) and two 135° hooks (2 × 3d = 48&nbsp;mm), a total deduction of
-            96&nbsp;mm.
-          </p>
-          <p style={{ fontFamily: MONO, color: INK, fontSize: 14.5, background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-            1160 + 150 − 96 = 1214&nbsp;mm  →  1.214&nbsp;m × 0.395&nbsp;kg/m = 0.4796&nbsp;kg
-          </p>
-          <p>
-            That is exactly what the calculator returns when you load shape 07 with those inputs — the default
-            values above. Change the diameter to a seismic 500D bar or the shape to 08 and you can watch each term
-            in the breakdown move.
-          </p>
-        </Prose>
-
-        <CalcFaq items={BBS_CONTENT.faq} />
-
-        <RelatedLinks path="/tools/bar-bending-schedule-calculator" />
-
-
-        {/* Disclaimer note */}
-        <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>
-          Schematic for estimation reference only. Cutting lengths use centre-line dimensions and the standard
-          IS 2502 bend deductions and hook allowances; verify against your structural drawings and add lap /
-          development lengths before ordering steel. Not a substitute for a structural engineer&rsquo;s approved
-          bar bending schedule.
+      <CalcSection title="Weight of a metre of bar" sub="Kilograms a metre for each bar size, the weight d² ÷ 162.2 that gives the IS 1786 table.">
+        <ReportTable
+          head={['Bar size', 'Kilograms a metre', 'Metres in 100 kg', 'A 12 m bar weighs']}
+          num={[1, 2, 3]}
+          rows={BAR_SIZES.map((d) => {
+            const m = calculate('straight', d, { A: 1000, B: 0, C: 0 }, 1).massPerM
+            return [`${d} mm`, num(m, 3), num(100 / m, 0), `${num(m * 12, 1)} kg`]
+          })}
+        />
+        <p className="ns-r-tblnote">
+          The IS 1786:2008 table gives 0.222, 0.395, 0.617, 0.888, 1.58, 2.47, 3.85, 4.83 and 6.31 kg a metre for 6, 8, 10, 12, 16, 20, 25, 28 and 32 mm bar. Bars are sold in lengths of about 12 m, but no standard fixes that length.
         </p>
+      </CalcSection>
+
+      <article className="ns-calc-articles">
+        <Prose title="What a cutting length is">
+          <p>
+            A bar bending schedule lists every bar of a job: its size, its shape, how many there are, the length to cut and the weight. The <strong>cutting length</strong> is the length of straight bar the yard cuts before it bends the bar. A bar that is bent uses more or less bar than the lengths drawn for it, so the cutting length is not simply the lengths added up.
+          </p>
+        </Prose>
+
+        <Prose title="Why a stirrup is not just its perimeter">
+          <p>
+            A stirrup or tie is a closed rectangle of bar with a hook at each end, and the hooks are extra bar. Taking the sides out to out, the length works out at <strong>2 × (A + B) + 12d</strong>, where d is the bar size. The two 135° hook tails add about 20d, and the three corners and two hook bends take back about 8d, because a bar going round a curve is shorter than the sharp corner it replaces.
+          </p>
+          <p>
+            IS 13920 asks for a hook tail of 10d, and not under 75 mm. A 6 mm tie has a 10d tail of only 60 mm, so it gets the extra 15 mm on each hook to reach 75 mm; an 8 mm bar already has 80 mm. The calculator adds that.
+          </p>
+        </Prose>
+
+        <Prose title="Bends take bar off">
+          <p>
+            Lengths drawn out to out meet at a sharp corner, but a bar bends round a curve and so needs less. A right-angle bend round a pin of radius 4d takes <strong>3d</strong> off the sum of its two legs (IS 2502 Table V), so a 12 mm L-bar of 1,000 and 500 mm cuts at 1,500 − 36 = 1,464 mm. A 45° bend takes about 0.6d.
+          </p>
+          <p>
+            A crank at 45° does the opposite with its slope: the sloping part is 1.414 times the rise, so the bar is 0.414 × the rise longer than its run, less the two bends.
+          </p>
+        </Prose>
+
+        <Prose title="Rounded up, and bought with 5% more">
+          <p>
+            IS 2502 cl 5.1.1 rounds each cutting length up to the next whole 25 mm, which is how the yard measures. The weight on this page is that of the rounded bar.
+          </p>
+          <p>
+            Steel is bought with more than the schedule weight, to cover cutting waste and the ends of bars. CPWD buys 1.05 quintals of bar for each quintal placed (Delhi Analysis of Rates 2014, item 5.22.1), and this page shows that figure as the steel to buy. It is CPWD’s allowance, not a rule for a private job.
+          </p>
+        </Prose>
+
+        <Prose title="Worked example: the stirrups of a 230 × 350 mm beam">
+          <p>
+            With 25 mm of cover on each side, the stirrup is 230 − 50 = 180 mm wide and 350 − 50 = 300 mm deep, out to out. In 8 mm bar:
+          </p>
+          <Formula>2 × (180 + 300) + 12 × 8 = 1,056 mm → 1,075 mm · 1.075 m × 0.395 kg = 0.424 kg a stirrup</Formula>
+          <p>
+            A beam with 60 stirrups needs about 25.5 kg placed, and 26.7 kg bought at 5% more. Cut at the perimeter, 960 mm, every stirrup would be 96 mm short of closing.
+          </p>
+        </Prose>
       </article>
-    </main>
-  )
-}
 
-// ── Sub-components / formatters ──────────────────────────────────────────────────
+      <CalcFaq items={BBS_CONTENT.faq} />
+      <RelatedLinks path="/tools/bar-bending-schedule-calculator" />
 
-function BreakRow({
-  label, detail, value, positive, negative, muted,
-}: { label: string; detail: string; value: string; positive?: boolean; negative?: boolean; muted?: boolean }) {
-  const valColor = negative ? '#C8785A' : positive ? '#7BA77B' : muted ? INK_45 : INK_65
-  return (
-    <tr>
-      <td style={{ padding: '7px 0', color: INK_65, whiteSpace: 'nowrap', verticalAlign: 'top' }}>{label}</td>
-      <td style={{ padding: '7px 12px', color: INK_35, fontSize: 11.5 }}>{detail}</td>
-      <td style={{ padding: '7px 0', textAlign: 'right', color: valColor, whiteSpace: 'nowrap' }}>{value}</td>
-    </tr>
-  )
-}
-
-function bendDetail(shape: ShapeDef, d: number): string {
-  const parts: string[] = []
-  if (shape.bends.deg45) parts.push(`${shape.bends.deg45}×45°(1d)`)
-  if (shape.bends.deg90) parts.push(`${shape.bends.deg90}×90°(2d)`)
-  if (shape.bends.deg135) parts.push(`${shape.bends.deg135}×135°(3d)`)
-  return `${parts.join(' + ')}, d=${d}`
-}
-
-function bendSummary(shape: ShapeDef): string {
-  const parts: string[] = []
-  if (shape.bends.deg45) parts.push(`${shape.bends.deg45}×45°`)
-  if (shape.bends.deg90) parts.push(`${shape.bends.deg90}×90°`)
-  if (shape.bends.deg135) parts.push(`${shape.bends.deg135}×135°`)
-  return parts.length ? parts.join(', ') : '—'
-}
-
-function straightFormula(shape: ShapeDef): string {
-  switch (shape.code) {
-    case '00': case '04': return 'A'
-    case '01': case '03': return 'A + B'
-    case '02': return 'A + B + C'
-    case '05': case '06': return 'A + B + C'
-    case '07': case '08': case '10': return '2 × (A + B)'
-    case '09': return '4 × A'
-    case '11': return '2 × A + B'
-    case '12': return 'A (= π × dia)'
-    default: return '—'
-  }
-}
-
-function Prose({ heading, children }: { heading: string; children: React.ReactNode }) {
-  return (
-    <section className="bbs-prose" style={{ marginBottom: 40 }}>
-      <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px,2.6vw,28px)', fontWeight: 600, color: INK, lineHeight: 1.25, marginBottom: 14 }}>
-        {heading}
-      </h2>
-      <div style={{ fontFamily: SANS, fontSize: 16, color: INK_65, lineHeight: 1.8 }}>
-        {children}
-      </div>
-    </section>
+      <Chips codes={['IS 2502:1963', 'IS 1786:2008', 'IS 13920', 'CPWD DAR 2014']} />
+      <CalcFine>
+        For planning and for checking a schedule. The stirrup length is worked out from the geometry of the bar (a 2d pin, 10d hook tails, 135° hooks) and the bend rules are partly read from a poor scan of IS 2502, so a bar detailed to a drawing follows the drawing. Bar shapes not listed here, and bends round a pin other than 4d, give different lengths. The schedule for a building is prepared by the engineer in charge. Not a substitute for that.
+      </CalcFine>
+    </CalcPage>
   )
 }

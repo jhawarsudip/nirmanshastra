@@ -9,8 +9,8 @@ import MixLab from '../lab/MixLab'
 import '@/styles/v2/labs.css'
 
 const L = {
-  en: { eye: 'The site lab', h: 'Touch the numbers', p: 'Three benches, three code lookups. Move a control and the quantities follow — the same locked IS values the calculators use.' },
-  hi: { eye: 'साइट लैब', h: 'संख्याओं को छूकर देखिए', p: 'तीन बेंच, तीन कोड-लुकअप। कोई कंट्रोल हिलाइए, मात्राएँ साथ बदलती हैं — वही IS मान जो कैलकुलेटर इस्तेमाल करते हैं।' },
+  en: { eye: 'Try it yourself', h: 'Play with the numbers', p: 'Three small tools you can use right now. Move a slider, see the answer, and open “Show the calculation” only if you want to see how it was worked out.' },
+  hi: { eye: 'खुद आज़माइए', h: 'संख्याओं से खेलकर देखिए', p: 'तीन छोटे औज़ार जो आप अभी इस्तेमाल कर सकते हैं। स्लाइडर हिलाइए, जवाब देखिए, और अगर जानना हो कि हिसाब कैसे हुआ तो “गणना दिखाइए” खोलिए।' },
 } as const
 
 export default function Lab() {

@@ -1,485 +1,222 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
-import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { ToolHead, Field, Input, Select } from '@/components/v2/inner/kit'
+import { ReportTable } from '@/components/v2/qty/parts'
 import {
-  THICKNESS_SPECS,
-  THICKNESS_ORDER,
-  BRICK_SIZE_MM,
+  CalcPage, CalcGrid, CalcLabel, Big, Figures, Rows, Chips, CalcSection, Prose, Formula, CalcCta, CalcFine,
+} from '@/components/v2/inner/calc'
+import {
+  BRICK_KINDS,
+  BRICK_SPECS,
   MORTAR_JOINT_MM,
+  BREAKAGE_LOW,
+  BREAKAGE_HIGH,
+  MORTAR_ALLOW,
   calculate,
-  type WallThickness,
+  type BrickKind,
+  type WallKind,
 } from './brick-engine'
 import QuickAnswer from '@/components/seo/QuickAnswer'
 import CalcFaq from '@/components/seo/CalcFaq'
 import RelatedLinks from '@/components/seo/RelatedLinks'
 import { BRICK_CONTENT } from '@/lib/seo/calc-content'
 
-// ── Design tokens — matte dark system, matches the tool pages (water-tank / bbs) ──
-const MONO = 'var(--font-plex-mono)'
-const SANS = 'var(--font-plex-sans)'
-const SERIF = 'var(--font-plex-serif)'
-const INK = '#F4F4F0'
-const INK_65 = 'rgba(244,244,240,0.65)'
-const INK_45 = 'rgba(244,244,240,0.45)'
-const INK_35 = 'rgba(244,244,240,0.35)'
-const SURF = '#171717'
-const BSUB = 'rgba(255,255,255,0.08)'
-const BLUEPRINT = '#1F4E79'
-const OXIDE = '#8C3A22'
-
-// ── Small presentational helpers ───────────────────────────────────────────────
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p style={{ fontFamily: MONO, fontSize: 11, color: BLUEPRINT, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 14 }}>
-      {children}
-    </p>
-  )
-}
-
-function ISChip({ code }: { code: string }) {
-  return (
-    <span style={{ fontFamily: MONO, fontSize: 10, color: INK_65, border: `1px solid ${BLUEPRINT}`, borderRadius: 2, padding: '3px 7px', letterSpacing: '0.03em', whiteSpace: 'nowrap' }}>
-      {code}
-    </span>
-  )
-}
-
 function num(n: number, dp: number) {
   return n.toLocaleString('en-IN', { minimumFractionDigits: dp, maximumFractionDigits: dp })
 }
 
-// ── Page ────────────────────────────────────────────────────────────────────────
-
 export default function BrickCalculatorPage() {
-  const [length, setLength] = useState<string>('10')
-  const [height, setHeight] = useState<string>('3')
-  const [thickness, setThickness] = useState<WallThickness>('9in')
-  const [openings, setOpenings] = useState<string>('0')
+  const [length, setLength] = useState('10')
+  const [height, setHeight] = useState('3')
+  const [kind, setKind] = useState<BrickKind>('brick')
+  const [wall, setWall] = useState<WallKind>('one')
+  const [openings, setOpenings] = useState('0')
 
   const lengthM = Math.max(0, parseFloat(length || '0') || 0)
   const heightM = Math.max(0, parseFloat(height || '0') || 0)
   const openingsM2 = Math.max(0, parseFloat(openings || '0') || 0)
 
-  const result = useMemo(
-    () => calculate({ lengthM, heightM, thickness, openingsAreaM2: openingsM2 }),
-    [lengthM, heightM, thickness, openingsM2],
+  const r = useMemo(
+    () => calculate({ lengthM, heightM, kind, wall, openingsAreaM2: openingsM2 }),
+    [lengthM, heightM, kind, wall, openingsM2],
   )
-  const spec = THICKNESS_SPECS[thickness]
-
-  const valid = result.netAreaM2 > 0
-
-  // Field styling
-  const labelStyle: React.CSSProperties = { fontFamily: MONO, fontSize: 10, color: INK_45, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }
-  const fieldStyle: React.CSSProperties = {
-    width: '100%',
-    boxSizing: 'border-box',
-    background: 'rgba(244,244,240,0.06)',
-    border: `1px solid ${BSUB}`,
-    color: INK,
-    padding: '11px 12px',
-    fontSize: 14,
-    fontFamily: MONO,
-    borderRadius: 6,
-    outline: 'none',
-  }
+  const spec = BRICK_SPECS[kind]
+  const valid = r.netAreaM2 > 0
+  const low = Math.round(BREAKAGE_LOW * 100)
+  const high = Math.round(BREAKAGE_HIGH * 100)
 
   return (
-    <main className="sheet-frame" style={{ background: 'var(--bg-base)', minHeight: '100vh' }}>
-      {/* ── HERO ──────────────────────────────────────────────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 pt-16 pb-10">
-        <div style={{ maxWidth: 860 }}>
-          <Eyebrow>Free Calculator · IS 1077:1992 · No Login</Eyebrow>
-          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(34px,5vw,52px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
-            Brick Calculator
-          </h1>
-          <QuickAnswer content={BRICK_CONTENT} />
-          <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
-            Count the bricks in a wall before you order. Enter the wall&rsquo;s length and height, pick the
-            thickness, and deduct any door or window openings — the tool applies the IS 1077:1992 /
-            IS 2212:1991 rate of{' '}
-            <strong style={{ color: INK, fontWeight: 600 }}>100 bricks/m² for a 9-inch wall</strong> (50 for a
-            4.5-inch partition) and adds a{' '}
-            <strong style={{ color: INK, fontWeight: 600 }}>5–10% wastage allowance</strong>. Permanently free —
-            nothing to unlock, no sign-in.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 22 }}>
-            {['IS 1077:1992', 'IS 2212:1991', 'IS 12894:2002'].map((c) => (
-              <ISChip key={c} code={c} />
-            ))}
-          </div>
-        </div>
-      </section>
+    <CalcPage>
+      <ToolHead
+        eyebrow="Free calculator · no sign-in"
+        name="Brick Calculator"
+        blurb="Count the bricks in one wall before you order. Pick the brick you will buy and the thickness of the wall, take out the doors and windows, and the count follows from the size of the brick and the joint."
+      />
+      <QuickAnswer content={BRICK_CONTENT} />
 
-      {/* ── CALCULATOR ────────────────────────────────────────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ alignItems: 'start' }}>
+      <CalcGrid
+        input={
+          <>
+            <CalcLabel>The wall</CalcLabel>
+            <div className="ns-i-fields">
+              <Field id="bk-len" label="Wall length (m)">
+                <Input type="number" inputMode="decimal" min={0} step="0.1" value={length} onChange={(e) => setLength(e.target.value)} placeholder="0" />
+              </Field>
+              <Field id="bk-ht" label="Wall height (m)">
+                <Input type="number" inputMode="decimal" min={0} step="0.1" value={height} onChange={(e) => setHeight(e.target.value)} placeholder="0" />
+              </Field>
+              <Field id="bk-kind" label="Brick" wide hint={`${spec.size}. ${spec.source}`}>
+                <Select value={kind} onChange={(e) => setKind(e.target.value as BrickKind)}>
+                  {BRICK_KINDS.map((k) => (
+                    <option key={k} value={k}>{BRICK_SPECS[k].label} · {BRICK_SPECS[k].size}</option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
 
-          {/* INPUT CARD */}
-          <div style={{ background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '28px' }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 }}>
-              Wall Details
+            <fieldset className="ns-calc-opts">
+              <legend>How thick is the wall?</legend>
+              <label className="ns-calc-opt">
+                <input type="radio" name="bk-wall" value="one" checked={wall === 'one'} onChange={() => setWall('one')} />
+                <span>One brick · {spec.oneMm} mm</span>
+              </label>
+              <label className="ns-calc-opt">
+                <input type="radio" name="bk-wall" value="half" checked={wall === 'half'} onChange={() => setWall('half')} />
+                <span>Half brick · {spec.halfMm} mm</span>
+              </label>
+            </fieldset>
+            <p className="ns-calc-help">
+              A one-brick wall is the usual outer wall. A half-brick wall is an inner partition, laid with the long face of the brick showing.
             </p>
 
-            {/* Length + Height */}
-            <div className="grid grid-cols-2 gap-4" style={{ marginBottom: 18 }}>
-              <div>
-                <label style={labelStyle} htmlFor="bk-len">Wall length (m)</label>
-                <input
-                  id="bk-len"
-                  type="number"
-                  inputMode="decimal"
-                  min={0}
-                  step="0.1"
-                  value={length}
-                  onChange={(e) => setLength(e.target.value)}
-                  placeholder="0"
-                  style={fieldStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle} htmlFor="bk-ht">Wall height (m)</label>
-                <input
-                  id="bk-ht"
-                  type="number"
-                  inputMode="decimal"
-                  min={0}
-                  step="0.1"
-                  value={height}
-                  onChange={(e) => setHeight(e.target.value)}
-                  placeholder="0"
-                  style={fieldStyle}
-                />
-              </div>
+            <div className="ns-i-fields">
+              <Field id="bk-open" label="Doors and windows to take out (m²)" wide hint="Add up the area of every opening in this wall. A 0.9 × 2.1 m door is about 1.9 m². A 1.2 × 1.2 m window is about 1.44 m². Leave at 0 for a solid wall.">
+                <Input type="number" inputMode="decimal" min={0} step="0.1" value={openings} onChange={(e) => setOpenings(e.target.value)} placeholder="0" />
+              </Field>
             </div>
-
-            {/* Thickness */}
-            <div style={{ marginBottom: 18 }}>
-              <label style={labelStyle} htmlFor="bk-thk">Wall thickness</label>
-              <select
-                id="bk-thk"
-                value={thickness}
-                onChange={(e) => setThickness(e.target.value as WallThickness)}
-                style={{ ...fieldStyle, appearance: 'none' }}
-              >
-                {THICKNESS_ORDER.map((t) => (
-                  <option key={t} value={t} style={{ background: '#1a1a1a', color: '#fff' }}>
-                    {t === '9in' ? '9-inch (230mm) — 100 bricks/m²' : '4.5-inch (115mm) — 50 bricks/m²'}
-                  </option>
-                ))}
-              </select>
-              <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_45, lineHeight: 1.6, marginTop: 10 }}>
-                {spec.note}
-              </p>
-            </div>
-
-            {/* Openings */}
-            <div>
-              <label style={labelStyle} htmlFor="bk-open">Openings to deduct (m²)</label>
-              <input
-                id="bk-open"
-                type="number"
-                inputMode="decimal"
-                min={0}
-                step="0.1"
-                value={openings}
-                onChange={(e) => setOpenings(e.target.value)}
-                placeholder="0"
-                style={{ ...fieldStyle, maxWidth: 200 }}
+          </>
+        }
+        result={
+          valid ? (
+            <>
+              <Big k={`Bricks in the wall · ${spec.label.toLowerCase()}, ${wall === 'one' ? 'one brick' : 'half brick'} thick`} v={num(r.bricks, 0)} unit="bricks" sub={`before breakage · ${num(r.netAreaM2, 2)} m² of wall`} />
+              <Figures
+                items={[
+                  { k: 'Bricks in each m²', v: num(r.perM2, 1) },
+                  { k: `Order, +${low}% to +${high}%`, v: `${num(r.orderLow, 0)} to ${num(r.orderHigh, 0)}`, tone: 'ok' },
+                ]}
               />
-              <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_45, lineHeight: 1.6, marginTop: 10 }}>
-                Total area of doors and windows in this wall. A standard 0.9 m × 2.1 m door is about 1.9 m²; a
-                1.2 m × 1.2 m window is about 1.44 m². Leave at 0 for a solid wall.
+              <CalcLabel>The working</CalcLabel>
+              <Rows
+                rows={[
+                  { label: 'Wall area', detail: `${num(lengthM, 2)} m × ${num(heightM, 2)} m`, value: `${num(r.grossAreaM2, 2)} m²` },
+                  { label: 'Take out openings', detail: 'doors and windows', value: `− ${num(r.openingsAreaM2, 2)} m²`, tone: 'dim' },
+                  { label: 'Wall to be laid', value: `${num(r.netAreaM2, 2)} m²` },
+                  { label: 'Bricks', detail: `× ${num(r.perM2, 1)} in each m²`, value: num(r.bricks, 0), tone: 'ok' },
+                  { label: `With ${low}% breakage`, detail: 'a clean, straight wall', value: num(r.orderLow, 0), tone: 'dim' },
+                  { label: `With ${high}% breakage`, detail: 'a wall with a lot of cutting', value: num(r.orderHigh, 0), tone: 'dim' },
+                ]}
+              />
+              <CalcLabel>The mortar between them</CalcLabel>
+              <Figures
+                items={[
+                  { k: 'Joint mortar', v: num(r.mortarM3, 2), unit: 'm³' },
+                  { k: `Cement, 1 : ${r.mix} mix`, v: num(r.cementBags, 1), unit: 'bags' },
+                  { k: 'Sand', v: num(r.sandM3, 2), unit: 'm³' },
+                ]}
+              />
+              <p className="ns-calc-help">
+                The joint mortar is the true volume of the joints plus {Math.round((MORTAR_ALLOW - 1) * 100)}% for uneven bricks and waste. Cement is in 50 kg bags. The mix is the one the MasonryPro report uses: 1 : 6 for a one-brick wall, 1 : 4 for a half-brick wall.
               </p>
-            </div>
-          </div>
+            </>
+          ) : (
+            <p className="ns-calc-empty">Enter the wall length and height to see the brick count, the order with breakage, and the mortar between the bricks.</p>
+          )
+        }
+      />
 
-          {/* RESULT CARD */}
-          <div style={{ background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '28px' }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
-              Bricks Required · {thickness === '9in' ? '9-inch' : '4.5-inch'}
-            </p>
+      <CalcCta
+        kicker="Counting a whole house?"
+        text="This page counts one wall. MasonryPro works from your rooms: it counts the bricks or blocks in every wall, takes out the real openings, and adds the joint mortar, the plaster on every face, the lintels, and the cement and sand under all of it."
+        href="/tools/masonpro"
+        label="Open MasonryPro"
+      />
 
-            {valid ? (
-              <>
-                <div style={{ fontFamily: MONO, fontSize: 'clamp(48px,7vw,72px)', fontWeight: 700, color: INK, lineHeight: 1, marginBottom: 4 }}>
-                  {num(result.bricks, 0)}
-                  <span style={{ fontSize: 22, fontWeight: 500, color: INK_45, marginLeft: 8 }}>bricks</span>
-                </div>
-                <p style={{ fontFamily: MONO, fontSize: 13, color: INK_35, marginBottom: 24 }}>
-                  before wastage · {num(result.netAreaM2, 2)} m² net wall area
-                </p>
-
-                {/* Figure pills — area + order-with-wastage */}
-                <div className="grid grid-cols-2 gap-4" style={{ marginBottom: 24 }}>
-                  <div style={{ border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-                    <p style={{ fontFamily: MONO, fontSize: 9, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Net wall area</p>
-                    <p style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, color: INK }}>{num(result.netAreaM2, 2)} <span style={{ fontSize: 12, color: INK_45 }}>m²</span></p>
-                  </div>
-                  <div style={{ border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-                    <p style={{ fontFamily: MONO, fontSize: 9, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Order (+5–10%)</p>
-                    <p style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, color: '#7BA77B' }}>{num(result.bricksWith5pct, 0)}–{num(result.bricksWith10pct, 0)}</p>
-                  </div>
-                </div>
-
-                {/* Breakdown — BOQ table */}
-                <p style={{ fontFamily: MONO, fontSize: 10, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-                  Calculation breakdown
-                </p>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 12.5 }}>
-                  <tbody>
-                    <BreakRow
-                      label="Gross area"
-                      detail={`${num(lengthM, 2)} m × ${num(heightM, 2)} m`}
-                      value={`${num(result.grossAreaM2, 2)} m²`}
-                    />
-                    <BreakRow
-                      label="Less openings"
-                      detail="doors + windows"
-                      value={`− ${num(result.openingsAreaM2, 2)} m²`}
-                      muted
-                    />
-                    <BreakRow
-                      label="Net area"
-                      detail="area laid in brick"
-                      value={`${num(result.netAreaM2, 2)} m²`}
-                    />
-                    <BreakRow
-                      label="Bricks"
-                      detail={`× ${num(result.bricksPerSqm, 0)} bricks/m²`}
-                      value={`${num(result.bricks, 0)}`}
-                      positive
-                    />
-                    <BreakRow
-                      label="+5% wastage"
-                      detail="minimum order"
-                      value={`${num(result.bricksWith5pct, 0)}`}
-                      muted
-                    />
-                    <BreakRow
-                      label="+10% wastage"
-                      detail="brittle / cut-heavy walls"
-                      value={`${num(result.bricksWith10pct, 0)}`}
-                      muted
-                    />
-                  </tbody>
-                </table>
-
-                <p style={{ fontFamily: SANS, fontSize: 11.5, color: INK_35, lineHeight: 1.6, marginTop: 18 }}>
-                  The base count is the exact number of bricks laid. Always order with a{' '}
-                  <strong style={{ color: INK_65 }}>5–10% wastage allowance</strong> on top for breakage in
-                  transit, cutting at corners and openings, and rejects — 5% for clean rectangular walls, closer to
-                  10% where there is a lot of cutting.
-                </p>
-              </>
-            ) : (
-              <p style={{ fontFamily: SANS, fontSize: 14, color: INK_45, lineHeight: 1.7, paddingTop: 8 }}>
-                Enter the wall length and height to see the wall area, brick count, and the recommended order
-                quantity with wastage.
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* ── CTA — MasonPro ────────────────────────────────────────────────────── */}
-        <div
-          style={{
-            marginTop: 28,
-            background: SURF,
-            border: `1px solid ${OXIDE}`,
-            borderRadius: 2,
-            padding: '28px 32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 20,
-          }}
-        >
-          <div style={{ flex: 1, minWidth: 260 }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, color: 'rgba(200,120,90,0.95)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-              Need the full masonry estimate?
-            </p>
-            <p style={{ fontFamily: SANS, fontSize: 15.5, color: INK_65, lineHeight: 1.6, maxWidth: 620 }}>
-              Need your whole masonry cost, not just brick count? Get cement, sand and mortar quantities across all
-              8 wall types, plastering and waterproofing BOQs, and a contractor-quote comparison — with MasonPro,
-              the complete IS 1077:1992 &amp; IS 2212:1991 masonry estimate.
-            </p>
-          </div>
-          <Link
-            href="/tools/masonpro"
-            className="btn-3d"
-            style={{
-              fontFamily: SANS,
-              fontSize: 14,
-              fontWeight: 600,
-              letterSpacing: '0.02em',
-              padding: '13px 26px',
-              borderRadius: 2,
-              background: OXIDE,
-              color: INK,
-              textDecoration: 'none',
-              border: '1px solid rgba(255,255,255,0.15)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Open MasonPro →
-          </Link>
-        </div>
-      </section>
-
-      {/* ── WALL THICKNESS REFERENCE TABLE ──────────────────────────────────────── */}
-      <section className="grid-paper px-6 md:px-16 lg:px-24 py-16" style={{ borderTop: `1px solid ${BSUB}` }}>
-        <Eyebrow>Reference · Wall Thickness</Eyebrow>
-        <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(24px,3vw,32px)', fontWeight: 600, color: INK, marginBottom: 20 }}>
-          Bricks per square metre of wall
-        </h2>
-        <div style={{ overflowX: 'auto', border: `1px solid ${BSUB}`, borderRadius: 2, background: SURF }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 12.5, minWidth: 560 }}>
-            <thead>
-              <tr>
-                {['Wall', 'Use', 'Mortar', 'Bricks / m²'].map((h, i) => (
-                  <th key={h} style={{ textAlign: i === 3 ? 'center' : 'left', fontFamily: MONO, fontSize: 10, color: INK_45, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '12px 14px', borderBottom: `1px solid ${BSUB}`, whiteSpace: 'nowrap' }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {THICKNESS_ORDER.map((t, i) => {
-                const s = THICKNESS_SPECS[t]
-                return (
-                  <tr key={t} style={{ background: i % 2 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
-                    <td style={{ padding: '10px 14px', color: BLUEPRINT }}>{t === '9in' ? '9" (230mm)' : '4.5" (115mm)'}</td>
-                    <td style={{ padding: '10px 14px', color: INK_65 }}>{t === '9in' ? 'Load-bearing / external' : 'Internal partition'}</td>
-                    <td style={{ padding: '10px 14px', color: INK_65 }}>{s.mortarRatio}</td>
-                    <td style={{ padding: '10px 14px', textAlign: 'center', color: INK_65 }}>{num(s.bricksPerSqm, 0)}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p style={{ fontFamily: SANS, fontSize: 12, color: INK_35, lineHeight: 1.6, marginTop: 14, maxWidth: 720 }}>
-          Rates are the IS 1077:1992 / IS 2212:1991 figures shared with NirmanShastra&rsquo;s paid MasonPro tool,
-          for the standard 190×90×90mm modular clay brick with a 10mm mortar joint. Order with 5–10% wastage on
-          top of the calculated count.
+      <CalcSection title="Bricks in a square metre of wall" sub="The same formula for every brick: the thickness of the wall over the size of one brick with its joint, in all three directions.">
+        <ReportTable
+          head={['Brick', 'Size (mm)', 'One brick thick', 'Half brick thick', 'Where the size comes from']}
+          num={[2, 3]}
+          rows={BRICK_KINDS.map((k) => {
+            const s = BRICK_SPECS[k]
+            const one = calculate({ lengthM: 1, heightM: 1, kind: k, wall: 'one', openingsAreaM2: 0 }).perM2
+            const half = calculate({ lengthM: 1, heightM: 1, kind: k, wall: 'half', openingsAreaM2: 0 }).perM2
+            return [s.label, s.size, `${num(one, 1)} (${s.oneMm} mm)`, `${num(half, 1)} (${s.halfMm} mm)`, s.source]
+          })}
+        />
+        <p className="ns-r-tblnote">
+          Bricks in each square metre of wall, with a {MORTAR_JOINT_MM} mm joint. The red brick of 230 × 115 × 75 mm is the size most kilns make; it is not a BIS size, so measure a few of the bricks you will actually be sent and compare.
         </p>
-      </section>
+      </CalcSection>
 
-      {/* ── WRITTEN CONTENT ─────────────────────────────────────────────────────── */}
-      <article className="px-6 md:px-16 lg:px-24 py-16" style={{ maxWidth: 820 }}>
-
-        <Prose heading="The standard Indian brick — 190 × 90 × 90 mm">
+      <article className="ns-calc-articles">
+        <Prose title="Three bricks, three counts">
           <p>
-            The Bureau of Indian Standards fixes the <strong style={{ color: INK }}>modular brick</strong> at{' '}
-            <strong style={{ color: INK }}>{BRICK_SIZE_MM.length} × {BRICK_SIZE_MM.width} × {BRICK_SIZE_MM.height} mm</strong>{' '}
-            under IS 1077:1992. That is the actual, physical size of the brick before any mortar. It is smaller
-            than the older &ldquo;traditional&rdquo; non-modular brick (230 × 115 × 75 mm) that many yards still
-            supply, which is why this tool asks you which wall you are building rather than guessing.
+            Indian Standard IS 1077:1992 fixes two kinds of clay brick. The <strong>modular</strong> brick is 190 × 90 × 90 mm, and with a 10 mm joint it lays as a neat 200 × 100 × 100 mm unit, so a one-brick wall takes exactly 100 bricks in a square metre. The <strong>non-modular</strong> brick is 230 × 110 × 70 mm; the same standard and IS 12894:2002 (fly-ash bricks) list that size.
           </p>
           <p>
-            The modular size is designed to work in a tidy 100 mm grid once the mortar is added — a brick plus its
-            joint comes to a round <strong style={{ color: INK }}>200 × 100 × 100 mm</strong>. That neat unit is
-            what makes 100 bricks land in a square metre of 9-inch wall.
+            Many kilns still make a red brick of 230 × 115 × 75 mm. It is not a BIS size, and it varies from kiln to kiln. That is why this calculator asks for the brick, not just the wall: the same wall takes about 94 of these, 100 of the modular brick, and about 104 of the 230 × 110 × 70 mm brick.
           </p>
         </Prose>
 
-        <Prose heading="Why the 10 mm mortar joint matters">
+        <Prose title="Why the joint matters">
           <p>
-            A brick is never laid tight against its neighbour. IS 2212:1991 sets a{' '}
-            <strong style={{ color: INK }}>{MORTAR_JOINT_MM} mm mortar joint</strong> — {MORTAR_JOINT_MM} mm on the
-            bed below and {MORTAR_JOINT_MM} mm on the vertical (perpend) face. Adding that joint turns the
-            {' '}190 × 90 × 90 mm brick into a 200 × 100 × 100 mm laying unit, and it is the <em>laying</em> unit,
-            not the bare brick, that decides how many fit in a wall.
+            A brick is never laid tight against its neighbour. IS 2212:1991 says no bed joint is thicker than 12 mm, and its own check — four courses and three joints measuring 39 cm for modular brick — works out to a 10 mm joint, which is the figure used here.
           </p>
-          <p style={{ fontFamily: MONO, color: INK, fontSize: 15, background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-            9&quot; wall: 1 m² ÷ (0.2 m × 0.1 m face) = 50 faces × 2 brick depths = 100 bricks
-          </p>
+          <Formula>Bricks in 1 m² = (wall thickness + 10 mm) ÷ ((L + 10) × (W + 10) × (H + 10)) with every size in metres</Formula>
           <p>
-            This is why joint thickness is not a detail to hand-wave. If a mason lays fat 15–20 mm joints to
-            stretch the brick count, the wall uses fewer bricks than the code figure — you were billed for 100/m²
-            but fewer went in — and the extra mortar is both weaker and more prone to cracking. A thin, consistent
-            10 mm joint is what the IS rate assumes, and what this calculator counts.
+            A mason who lays fat 15 to 20 mm joints to stretch the bricks uses fewer bricks than this count, and the extra mortar is weaker and cracks more. A thin, even joint is what the count assumes.
           </p>
         </Prose>
 
-        <Prose heading="Deducting doors, windows and other openings">
+        <Prose title="Taking out doors and windows">
           <p>
-            Bricks are only laid in the solid part of the wall, so every door and window has to come out of the
-            area first. Multiply each opening&rsquo;s width by its height, add them up, and enter the total in the
-            openings field. The tool subtracts it before counting bricks.
+            Bricks are only laid in the solid part of the wall, so every door and window comes out of the area first. Multiply each opening’s width by its height, add them up, and enter the total. IS 1200 (Part 3), the standard for measuring brickwork, does not take out an opening of 0.1 m² or less, so a small ventilator can stay in. The calculator takes out whatever area you enter, so leave small openings out of the total if you want to follow that rule.
           </p>
           <ul>
-            <li><span style={{ fontFamily: MONO, color: INK }}>Standard door</span> — about 0.9 × 2.1 m ≈ 1.9 m².</li>
-            <li><span style={{ fontFamily: MONO, color: INK }}>Standard window</span> — about 1.2 × 1.2 m ≈ 1.44 m².</li>
-            <li><span style={{ fontFamily: MONO, color: INK }}>Ventilator</span> — about 0.6 × 0.45 m ≈ 0.27 m².</li>
+            <li><strong>A door</strong> of 0.9 × 2.1 m is about 1.9 m².</li>
+            <li><strong>A window</strong> of 1.2 × 1.2 m is about 1.44 m².</li>
+            <li><strong>A bathroom ventilator</strong> of 0.6 × 0.45 m is about 0.27 m².</li>
           </ul>
           <p>
-            Skipping this step is one of the most common ways a brick order is over-quoted. On a wall with a door
-            and two windows you can easily be deducting 5 m² — that is 500 bricks on a 9-inch wall that you would
-            otherwise pay for and never use.
+            On a wall with a door and two windows you can easily take out 5 m², which is about 470 bricks of the red kind that you would otherwise buy and never lay.
           </p>
         </Prose>
 
-        <Prose heading="Worked example — a 10 m × 3 m external wall">
+        <Prose title="Worked example: a 10 m × 3 m outer wall">
           <p>
-            Take the calculator&rsquo;s default: a <strong style={{ color: INK }}>10 m long, 3 m high</strong>,{' '}
-            <strong style={{ color: INK }}>9-inch</strong> wall with no openings. The gross area is 10 × 3 = 30 m².
-            With nothing to deduct, the net area is the same 30 m². At the IS rate of 100 bricks per m²:
+            A wall 10 m long and 3 m high, one red brick thick, with no openings, has an area of 30 m². At about 94.1 bricks to each square metre:
           </p>
-          <p style={{ fontFamily: MONO, color: INK, fontSize: 14.5, background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-            30 m² × 100 bricks/m² = 3000 bricks  →  order 3150–3300 with 5–10% wastage
-          </p>
+          <Formula>30 m² × 94.1 bricks per m² = 2,824 bricks → order 2,965 to 3,106 with 5% to 10% breakage</Formula>
           <p>
-            So 3000 bricks are actually laid, and you would buy roughly{' '}
-            <strong style={{ color: INK }}>3150 to 3300</strong> to cover breakage and cutting. If that same wall
-            had a 0.9 × 2.1 m door, you would deduct 1.9 m², leaving 28.1 m² and 2810 bricks before wastage.
+            Put a 0.9 × 2.1 m door in that wall and take out 1.9 m², and 28.1 m² is left, which is 2,645 bricks before breakage. The same wall of modular brick takes exactly 3,000; of 230 × 110 × 70 mm brick, 3,125.
           </p>
         </Prose>
 
-        <CalcFaq items={BRICK_CONTENT.faq} />
-
-        <RelatedLinks path="/tools/brick-calculator" />
-
-
-        {/* Disclaimer note */}
-        <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>
-          Schematic for estimation reference only. Counts use the IS 1077:1992 / IS 2212:1991 rates for the
-          standard 190×90×90mm modular clay brick with a 10mm joint (100 bricks/m² for a 9-inch wall, 50 for a
-          4.5-inch partition); non-modular bricks, thicker joints, and block masonry differ. Always add 5–10%
-          wastage when ordering. Not a substitute for a site engineer&rsquo;s measurement.
-        </p>
+        <Prose title="How much to order on top">
+          <p>
+            No standard gives a breakage figure. The MasonryPro report allows 5% for a plain, straight wall, and this page shows 10% as the figure for a wall with a lot of cutting, such as many corners and small openings. They are stated assumptions, not rules; if your supplier delivers a lot of cracked bricks, count what arrives.
+          </p>
+        </Prose>
       </article>
-    </main>
-  )
-}
 
-// ── Sub-components / formatters ──────────────────────────────────────────────────
+      <CalcFaq items={BRICK_CONTENT.faq} />
+      <RelatedLinks path="/tools/brick-calculator" />
 
-function BreakRow({
-  label, detail, value, positive, negative, muted,
-}: { label: string; detail: string; value: string; positive?: boolean; negative?: boolean; muted?: boolean }) {
-  const valColor = negative ? '#C8785A' : positive ? '#7BA77B' : muted ? INK_45 : INK_65
-  return (
-    <tr>
-      <td style={{ padding: '7px 0', color: INK_65, whiteSpace: 'nowrap', verticalAlign: 'top' }}>{label}</td>
-      <td style={{ padding: '7px 12px', color: INK_35, fontSize: 11.5 }}>{detail}</td>
-      <td style={{ padding: '7px 0', textAlign: 'right', color: valColor, whiteSpace: 'nowrap' }}>{value}</td>
-    </tr>
-  )
-}
-
-function Prose({ heading, children }: { heading: string; children: React.ReactNode }) {
-  return (
-    <section className="bbs-prose" style={{ marginBottom: 40 }}>
-      <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px,2.6vw,28px)', fontWeight: 600, color: INK, lineHeight: 1.25, marginBottom: 14 }}>
-        {heading}
-      </h2>
-      <div style={{ fontFamily: SANS, fontSize: 16, color: INK_65, lineHeight: 1.8 }}>
-        {children}
-      </div>
-    </section>
+      <Chips codes={['IS 1077:1992', 'IS 12894:2002', 'IS 2212:1991', 'IS 1200 (Part 3):1976']} />
+      <CalcFine>
+        For planning and for checking an order. The count is for one straight wall of the brick and thickness you choose, with a {MORTAR_JOINT_MM} mm joint. Block masonry, other brick sizes and bonds that change the thickness give different counts. Cement and sand are for the joint mortar only; plaster is not included. Not a substitute for measurement on site by the person who will build.
+      </CalcFine>
+    </CalcPage>
   )
 }

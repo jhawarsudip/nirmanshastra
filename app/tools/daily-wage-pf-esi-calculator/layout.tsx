@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
+import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
 import { toolJsonLd } from '@/lib/seo/schema'
 
-const title = 'Daily-Wage PF & ESI Calculator — Construction Site Muster Roll | Net Payable'
+// The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
+const title = 'Daily-Wage PF and ESI Calculator: net pay for a site worker'
 const description =
-  'Free daily-wage PF & ESI calculator built for construction site labour — muster-roll style, not monthly office payroll. Enter the daily wage and payable days (decimals allowed, e.g. 23.5), optional overtime and advance, and get basic earned, gross wages, employee PF (12% capped at ₹1,800), employee ESI (0.75% of gross, only up to the ₹21,000 ceiling) and the final net payable. Net Payable = Gross − PF − ESI − Advance. Ported from NirmanShastra’s Labour & Statutory Compliance Wage Register. Permanently free, no login.'
+  'Free daily-wage PF and ESI calculator for a construction site. Enter the daily rate and the days worked (23.5 is fine), with overtime or an advance if any, to see the worker’s PF, ESI and net pay. Muster-roll style, not monthly payroll. No sign-in.'
 const url = '/tools/daily-wage-pf-esi-calculator'
 
 export const metadata: Metadata = {
@@ -16,32 +18,18 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     siteName: 'NirmanShastra',
     url,
-    title: 'Daily-Wage PF & ESI Calculator — Construction Site Muster Roll',
-    description:
-      'Daily rate × payable days (23.5 allowed) → basic, gross, PF (12% capped ₹1,800), ESI (0.75% up to ₹21,000) and net payable. Built for site labour, not monthly salary. Free, no login.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — Daily-Wage PF & ESI Muster-Roll Calculator',
-      },
-    ],
+    title: `${title} | NirmanShastra`,
+    description,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra Daily-Wage PF and ESI Calculator' }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Daily-Wage PF & ESI Calculator — Site Muster Roll',
-    description:
-      'PF & ESI the way site wages actually work: daily rate, variable days (23.5 fine), 12% PF capped ₹1,800, 0.75% ESI up to ₹21,000, net payable out. Free, no login.',
-    images: ['/og-image.png'],
-  },
+  twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
 export default function DailyWagePfEsiCalculatorLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <InnerShell>
       <JsonLd data={toolJsonLd('/tools/daily-wage-pf-esi-calculator')} />
       {children}
-    </>
+    </InnerShell>
   )
 }

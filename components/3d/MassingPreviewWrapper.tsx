@@ -49,7 +49,7 @@ export function LoadingSlot() {
 const loadingStyle: React.CSSProperties = {
   width: '100%',
   height: '100%',
-  background: '#0c1117',
+  background: '#403E3A',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',

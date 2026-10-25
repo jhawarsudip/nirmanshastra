@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
+import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
 import { toolJsonLd } from '@/lib/seo/schema'
 
-const title = 'Wire Size Calculator — Correct Cable Gauge by Circuit | IS 732:2019'
+// The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
+const title = 'Wire Size Calculator: least copper wire for each circuit'
 const description =
-  'Free wire size calculator. Pick the circuit — lighting & fans, power sockets, AC/geyser, sub-panel feed, or main incomer — and get the minimum copper conductor cross-section required by IS 732:2019 Cl 6.2: 1.5, 2.5, 4.0, 6.0 or 10.0 sqmm. Categorical, code-based sizing (not a guess-the-watts calculation), shared with NirmanShastra’s ElectroPro tool. Permanently free, no login.'
+  'Free wire size calculator for a home. Pick the circuit, or enter the load for the supply from the meter, to get the least copper wire in mm², the breaker, the cable set and the conduit. Sizes from the CPWD specification and the BIS draft IS 4648. No sign-in.'
 const url = '/tools/wire-size-calculator'
 
 export const metadata: Metadata = {
@@ -16,32 +18,18 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     siteName: 'NirmanShastra',
     url,
-    title: 'Wire Size Calculator — Correct Cable Gauge by Circuit Type',
-    description:
-      'Choose a household circuit type and get the IS 732:2019 Cl 6.2 minimum wire size — 1.5 / 2.5 / 4.0 / 6.0 / 10.0 sqmm. Free, no login. Same locked table as ElectroPro.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — Wire Size Calculator (IS 732:2019 Cl 6.2)',
-      },
-    ],
+    title: `${title} | NirmanShastra`,
+    description,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra Wire Size Calculator' }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Wire Size Calculator — Cable Gauge by Circuit | IS 732:2019',
-    description:
-      'Lighting 1.5 · sockets 2.5 · AC/geyser 4.0 · sub-panel 6.0 · main incomer 10.0 sqmm. Code-minimum wire sizes, free and no login.',
-    images: ['/og-image.png'],
-  },
+  twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
 export default function WireSizeCalculatorLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <InnerShell>
       <JsonLd data={toolJsonLd('/tools/wire-size-calculator')} />
       {children}
-    </>
+    </InnerShell>
   )
 }

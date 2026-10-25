@@ -2,18 +2,16 @@
 
 import { useEffect, useRef } from 'react'
 
-const MM_PER_PX = 25.4 / 96
 const HOT = 'a, button, [role="button"], summary, label, select, input[type="range"]'
 const SNAP = '.ns-btn, .ns-plate, [data-snap]'
 
 /**
- * CAD cursor (desktop, fine pointer only): crosshair with live page X/Y in millimetres,
- * AutoCAD-style endpoint snap on plate corners, level-bubble pickbox over controls.
+ * Pointer ring (desktop, fine pointer only): a soft ring that follows the mouse, hugs the corners of cards and
+ * buttons as you pass them, and turns into a little level-bubble over anything you can press.
  * Off for touch, Calm and reduced motion.
  */
 export default function CadCursor() {
   const root = useRef<HTMLDivElement>(null)
-  const tag = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
@@ -52,11 +50,6 @@ export default function CadCursor() {
       el.style.setProperty('--cx', `${px}px`)
       el.style.setProperty('--cy', `${py}px`)
       el.dataset.mode = mode
-      if (tag.current) {
-        const X = ((px + window.scrollX) * MM_PER_PX).toFixed(1).padStart(7, '0')
-        const Y = ((py + window.scrollY) * MM_PER_PX).toFixed(1).padStart(7, '0')
-        tag.current.textContent = `X ${X}\nY ${Y}`
-      }
     }
 
     const move = (e: PointerEvent) => {
@@ -89,7 +82,6 @@ export default function CadCursor() {
       <div className="ns-cad__h" />
       <div className="ns-cad__v" />
       <div className="ns-cad__pick" />
-      <div className="ns-cad__tag" ref={tag}>{'X 0000.0\nY 0000.0'}</div>
     </div>
   )
 }

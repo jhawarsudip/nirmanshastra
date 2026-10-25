@@ -181,7 +181,7 @@ async function checkPages() {
     if (!/property="og:image"/i.test(html)) errs.push('no og:image')
     const imgs = [...html.matchAll(/<img\b[^>]*>/gi)].map((m) => m[0])
     imgs.forEach((i) => { if (!/\balt=/i.test(i)) errs.push('img without alt attribute') })
-    const needsQA = /^\/(tools\/(bar-bending|water-tank|concrete-mix|brick|wire-size|ra-bill|concrete-cube|daily-wage|finish-tier|earned-value)|blog\/.+)/.test(path)
+    const needsQA = /^\/(tools\/(bar-bending|water-tank|concrete-mix|brick|wire-size|ra-bill|concrete-cube|daily-wage|paint-tile|earned-value)|blog\/.+)/.test(path)
     if (needsQA) {
       const qi = html.search(/aria-label="Quick answer"/)
       if (qi < 0) errs.push('no quick-answer box')

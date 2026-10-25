@@ -134,27 +134,27 @@ const COMPLIANCE_TOOLS = [
 ]
 
 const ESTIMATION_TOOLS = [
-  { phase: 'P1', name: 'StructurePro',  descriptor: 'Structural Cost & BOQ Estimator',  href: '/tools/structopro',   free: false, price: '₹999' },
-  { phase: 'P2', name: 'MasonryPro',   descriptor: 'Masonry Cost & BOQ Estimator',      href: '/tools/masonpro',     free: false, price: '₹699' },
-  { phase: 'P3', name: 'ElectricalPro', descriptor: 'Electrical Cost & BOQ Estimator',  href: '/tools/electropro',   free: false, price: '₹499' },
-  { phase: 'P4', name: 'PlumbingPro',  descriptor: 'Plumbing Cost & BOQ Estimator',     href: '/tools/plumbpro',     free: false, price: '₹499' },
-  { phase: 'P5', name: 'InteriorPro', descriptor: 'Interior Cost & BOQ Estimator',     href: '/tools/interiorpro',  free: false, price: '₹899' },
+  { phase: 'P1', name: 'StructurePro',  descriptor: 'RCC frame quantities',  href: '/tools/structopro',   free: false, price: '₹999' },
+  { phase: 'P2', name: 'MasonryPro',   descriptor: 'Brickwork and plaster quantities',      href: '/tools/masonpro',     free: false, price: '₹699' },
+  { phase: 'P3', name: 'ElectricalPro', descriptor: 'Wiring quantities',  href: '/tools/electropro',   free: false, price: '₹499' },
+  { phase: 'P4', name: 'PlumbingPro',  descriptor: 'Pipes, fittings and tank quantities',     href: '/tools/plumbpro',     free: false, price: '₹499' },
+  { phase: 'P5', name: 'InteriorPro', descriptor: 'Finishing quantities',     href: '/tools/interiorpro',  free: false, price: '₹899' },
 ]
 
 const REPORTS_TOOLS = [
-  { phase: 'GT', name: 'Grand Total Report', descriptor: 'Master Project Report — All 5 Phases', href: '/tools/grand-total', price: '₹999' },
+  { phase: 'GT', name: 'Grand Total Report', descriptor: 'One buying list from the reports you have', href: '/tools/grand-total', price: '₹999' },
 ]
 
 const FREE_CALCULATORS = [
-  { phase: 'BBS', name: 'Bar Bending Schedule', descriptor: 'Steel BBS & Cutting Length Calculator', href: '/tools/bar-bending-schedule-calculator', free: true },
+  { phase: 'BBS', name: 'Bar Bending', descriptor: 'Cutting Length & Weight Calculator', href: '/tools/bar-bending-schedule-calculator', free: true },
   { phase: 'WTS', name: 'Water Tank Size', descriptor: 'Water Storage Tank Size Calculator', href: '/tools/water-tank-size-calculator', free: true },
-  { phase: 'CMR', name: 'Concrete Mix Ratio', descriptor: 'Cement, Sand & Aggregate Calculator', href: '/tools/concrete-mix-ratio-calculator', free: true },
+  { phase: 'CMR', name: 'Concrete Mix', descriptor: 'Cement, Sand & Aggregate Calculator', href: '/tools/concrete-mix-ratio-calculator', free: true },
   { phase: 'BRK', name: 'Brick Calculator', descriptor: 'Wall Brick Count & Wastage Calculator', href: '/tools/brick-calculator', free: true },
-  { phase: 'WIRE', name: 'Wire Size', descriptor: 'Cable Gauge by Circuit Type Calculator', href: '/tools/wire-size-calculator', free: true },
+  { phase: 'WIRE', name: 'Wire Size', descriptor: 'Least Copper Wire by Circuit and Load Calculator', href: '/tools/wire-size-calculator', free: true },
   { phase: 'RAB', name: 'RA Bill', descriptor: 'Retention, GST & TDS Net Payable Calculator', href: '/tools/ra-bill-retention-tds-calculator', free: true },
   { phase: 'CUBE', name: 'Concrete Cube Test', descriptor: 'Samples & Cubes Required Calculator', href: '/tools/concrete-cube-test-calculator', free: true },
   { phase: 'WAGE', name: 'Daily-Wage PF & ESI', descriptor: 'Site Labour Muster-Roll Net Pay Calculator', href: '/tools/daily-wage-pf-esi-calculator', free: true },
-  { phase: 'TIER', name: 'Finish-Tier Cost', descriptor: 'Finish Quality Tier Cost Difference Calculator', href: '/tools/finish-tier-cost-calculator', free: true },
+  { phase: 'PAINT', name: 'Paint & Tile', descriptor: 'Paint, Putty & Tile Quantity Calculator', href: '/tools/paint-tile-calculator', free: true },
   { phase: 'EVM', name: 'Earned Value', descriptor: 'SPI, CPI, EAC & TCPI Earned Value Calculator', href: '/tools/earned-value-calculator', free: true },
 ]
 

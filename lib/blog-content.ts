@@ -26,11 +26,11 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     readTime: 5,
     publishedDate: '2026-06-15',
     updatedDate: '2026-10-23',
-    quickAnswer: "Multiply your slab or element volume in cubic metres by 8.07 to get the 50 kg cement bags M20 concrete needs (IS 456:2000). A 20 m³ slab needs about 161 bags, so a quote for 120 bags is a red flag. A variance above 10% needs a written explanation from the contractor.",
+    quickAnswer: "Multiply your slab or element volume in cubic metres by 8 to get the 50 kg cement bags M20 concrete needs (CPWD DAR 2014). A 20 m³ slab needs about 160 bags, so a quote for 120 bags is a red flag. A variance above 10% needs a written explanation from the contractor.",
     faq: [
-      { question: "How many cement bags does M20 concrete need per cubic metre?", answer: "About 8.07 bags of 50 kg cement per cubic metre of M20 concrete. A 20 m³ pour therefore needs roughly 161 bags." },
-      { question: "How do I cross-check a contractor's cement quantity?", answer: "Get the structural drawing with slab thickness marked (a typical residential slab is 125–150 mm), multiply length × width × thickness in metres to get the volume, multiply by 8.07 for M20, and compare with the quoted bags. A variance of more than 10% needs an explanation." },
-      { question: "What is the minimum concrete grade for reinforced concrete?", answer: "M20 is the minimum grade for reinforced concrete work under IS 456:2000 Clause 6.1." },
+      { question: "How many cement bags does M20 concrete need per cubic metre?", answer: "About 8 bags of 50 kg cement (400 kg) per cubic metre of M20 concrete, the CPWD Analysis of Rates 2014 figure. A 20 m³ pour therefore needs roughly 160 bags." },
+      { question: "How do I cross-check a contractor's cement quantity?", answer: "Get the structural drawing with slab thickness marked (a typical residential slab is 125–150 mm), multiply length × width × thickness in metres to get the volume, multiply by 8 for M20, and compare with the quoted bags. A variance of more than 10% needs an explanation." },
+      { question: "What is the minimum concrete grade for reinforced concrete?", answer: "M20, which is the grade IS 456:2000 Table 5 sets for reinforced concrete in mild exposure. Moderate exposure, such as concrete buried in soil, needs M25." },
       { question: "What are the red flags in a concrete quote?", answer: "No concrete grade stated, a cement quantity far below the IS 456 norm, no water-cement ratio stated, and no aggregate size specified. 'Concrete work' with no grade is meaningless." },
     ],
     relatedSlugs: ['m20-vs-m25-concrete-grade', 'per-sqft-pricing-contractor-fraud', 'steel-theft-construction-sites'],
@@ -38,15 +38,15 @@ export const BLOG_ARTICLES: BlogArticle[] = [
 
 When you hire a contractor in India, you receive a quote that lists quantities — bags of cement, tonnes of steel, cubic metres of concrete. These numbers feel technical, so most homeowners sign without questioning them. That is exactly where overcharging begins.
 
-IS 456:2000 — the Indian Standard for Plain and Reinforced Concrete — is a publicly available document that specifies *exactly* how much material goes into each structural element. If your contractor's quantities don't match the IS 456 norms, something is wrong.
+IS 456:2000 — the Indian Standard for Plain and Reinforced Concrete — sets the floor: a minimum grade, a minimum cement content and a maximum water-cement ratio for each exposure. The usual cement quantity for each cubic metre of a nominal mix comes from the CPWD Analysis of Rates. If your contractor's quantities fall below those figures, something needs explaining.
 
-## The Key Numbers in IS 456:2000
+## The Key Numbers
 
-For **M20 concrete** (the minimum grade for reinforced concrete work per IS 456 Clause 6.1), the correct cement consumption is **8.07 bags (50kg each) per cubic metre** of concrete poured. This is derived from the water-cement ratio and mix proportions specified in IS 10262:2019.
+For **M20 concrete** (the lowest grade IS 456 allows for reinforced concrete, in mild exposure), the usual cement consumption is **8 bags (50 kg each, 400 kg) per cubic metre** of concrete poured. This is the CPWD Analysis of Rates 2014 figure for the conventional 1 : 1.5 : 3 nominal mix of cement, sand and aggregate.
 
 For a typical 1,000 sq ft, G+1 residential building:
 - Ground floor slab: approximately 20 m³ of concrete
-- That should consume roughly **161 bags of cement** for the slab alone
+- That should consume roughly **160 bags of cement** for the slab alone
 
 If your contractor quotes 120 bags for the same slab, that is a red flag. Either the slab is thinner than specified, or the concrete mix is weaker than M20.
 
@@ -54,11 +54,11 @@ If your contractor quotes 120 bags for the same slab, that is a red flag. Either
 
 **1. No grade specification.** Any legitimate quote should state M20, M25, or M30. "Concrete work" without a grade is meaningless — it lets the contractor pour M10 (weak roadwork mix) and charge you for M20.
 
-**2. Cement quantity too low.** The IS 456 mix design minimum for M20 requires 320 kg of cement per cubic metre. Anything below this violates the standard and produces under-strength concrete.
+**2. Cement quantity too low.** IS 456 Table 5 sets a minimum cement content for reinforced concrete of 300 kg per cubic metre in mild and moderate exposure and 320 kg in severe exposure. A nominal M20 mix works out near 400 kg. A quote that works out well below 300 kg per cubic metre cannot be right.
 
-**3. No water-cement ratio stated.** IS 456 Clause 6.1.2 caps the w/c ratio at 0.55 for M20 in moderate exposure. Too much water makes concrete weak. A good contractor will state this; a corner-cutting one won't.
+**3. No water-cement ratio stated.** IS 456 Table 5 caps the free water-cement ratio at 0.55 for mild exposure and 0.50 for moderate exposure. Too much water makes concrete weak. A good contractor will state this; a corner-cutting one won't.
 
-**4. Aggregate sizes not specified.** IS 456 requires nominal maximum aggregate size of 20mm for slabs. "Stone chips" without a size spec is a warning.
+**4. Aggregate sizes not specified.** 20 mm nominal maximum size is the usual choice for slabs and beams, and IS 456 limits the size by member thickness and bar spacing. "Stone chips" without a size spec is a warning.
 
 ## How to Cross-Check a Quote
 
@@ -66,15 +66,15 @@ Step 1: Ask for the structural drawing with slab thickness marked. A typical res
 
 Step 2: Calculate the volume: length × width × thickness in metres.
 
-Step 3: Multiply by 8.07 to get the expected cement bags for M20.
+Step 3: Multiply by 8 to get the expected cement bags for M20.
 
 Step 4: Compare with the contractor's quoted bags. A variance of more than 10% needs an explanation.
 
-NirmanShastra's StructurePro tool does this calculation automatically — it applies IS 456:2000 norms to your exact floor area, soil type, and seismic zone, and produces a quantity table you can place beside any contractor's quote.
+NirmanShastra's StructurePro works out the quantities of the RCC frame from your plan, floors, state, city and soil, so you have a quantity table to place beside any contractor's quote. It gives a low and a high figure for each total, and it does not replace a structural engineer's drawings.
 
 ---
 
-*Try StructurePro to generate your IS 456:2000 compliant quantity schedule before accepting any contractor quote.*`,
+*Try StructurePro to work out the quantities of your frame before you accept a contractor quote.*`,
   },
   {
     slug: 'm20-vs-m25-concrete-grade',
@@ -130,13 +130,13 @@ A contractor who quotes M20 for your footing in a coastal city is giving you und
 
 ## Seismic Zones Add One More Layer
 
-IS 1893:2016 (seismic code) combined with IS 13920:2016 (ductile detailing) requires M20 minimum for ductile frame structures in Zones III–V. In practice, for Seismic Zone IV and V cities like Delhi, Srinagar, Guwahati, and Patna, structural engineers will specify M25 or higher even for internal elements, because ductility is governed partly by concrete strength.
+IS 1893 (seismic design) combined with IS 13920:2016 (ductile detailing) sets extra requirements for frames in higher zones, including a minimum concrete grade that your engineer must check against the design. In practice, for Zone IV and V cities like Delhi, Srinagar, Guwahati and Patna, engineers often specify M25 or higher even for internal elements, because ductility depends partly on concrete strength. Ask which grade your design uses and why.
 
-StructurePro auto-selects your seismic zone from your state and flags the concrete grade requirement in its IS compliance panel, so you know exactly what your location mandates — before you speak to a single contractor.
+StructurePro reads your seismic zone from your state and city and lists the concrete grade chosen for your exposure, with the clause, in its IS compliance panel, so you know what your location points to before you speak to a contractor.
 
 ---
 
-*Use StructurePro to see the correct concrete grade for your specific location, soil, and exposure class — backed by IS 456:2000 Table 5.*`,
+*Use StructurePro to see the concrete grade for your location, soil and exposure class, with the IS 456:2000 Table 5 clause behind it.*`,
   },
   {
     slug: 'steel-theft-construction-sites',
@@ -166,7 +166,7 @@ IS 1786:2008 — the Indian Standard for High Strength Deformed Steel Bars — g
 
 ## The IS 1786:2008 Weight Table
 
-Every standard rebar diameter has a **theoretical weight per metre**, derived from the density of steel (7850 kg/m³). IS 1786 Table 3 specifies these values:
+Every standard rebar diameter has a **theoretical weight per metre**, derived from the density of steel (7850 kg/m³). IS 1786 Table 1 gives these values:
 
 | Diameter | Weight per metre |
 |---|---|
@@ -178,7 +178,7 @@ Every standard rebar diameter has a **theoretical weight per metre**, derived fr
 | 25 mm | 3.854 kg/m |
 | 32 mm | 6.313 kg/m |
 
-The standard allows a manufacturing tolerance of ±4% on weight. Anything outside that range is substandard steel.
+The standard allows a tolerance on mass that depends on bar size and is checked per batch: about ±7% up to 10 mm, ±5% from 10 to 16 mm and ±3% above 16 mm (IS 1786:2008 Table 2). A bar far outside its band is substandard steel.
 
 ## How to Catch Under-Delivery on Your Site
 
@@ -188,18 +188,13 @@ The standard allows a manufacturing tolerance of ±4% on weight. Anything outsid
 
 **Step 3 — Weigh the bars.** Use a simple luggage scale or a weighbridge. Take 5 bars, weigh them, and divide by (5 × measured length). Compare to the IS 1786 weight per metre table.
 
-Example: You have 12mm bars. You weigh 5 bars each 6 metres long. Total weight should be 5 × 6 × 0.888 = **26.64 kg**. If you get 22 kg, you have bars that are under-weight by 17% — well outside the ±4% tolerance and cause to reject the delivery.
+Example: You have 12mm bars. You weigh 5 bars each 6 metres long. Total weight should be 5 × 6 × 0.888 = **26.64 kg**. If you get 22 kg, you have bars that are under-weight by 17% — well outside the tolerance band and cause to reject the delivery.
 
 **Step 4 — Check the grade marking.** IS 1786 bars carry ribs on the surface whose pattern indicates the grade. Fe 500D bars have a distinct rib configuration. "TMT steel" without IS 1786 certification is an unregulated product.
 
-## The Numbers That Matter for Your Building
+## A Total to Check the Quote Against
 
-For a typical 1,000 sq ft residential building, StructurePro calculates steel quantities per IS code norms:
-- **Column reinforcement:** 196.25 kg per cubic metre of column concrete
-- **Footing reinforcement:** 39.25 kg per cubic metre of footing concrete
-- **Plinth beam / floor beam:** 117.75 kg per cubic metre of beam concrete
-
-If your contractor's steel quantity is more than 10% below these IS-derived benchmarks, demand an explanation with structural drawings to back it up.
+Weighing checks the delivery. To check the total on the quote, compare it with a published range for your floor area. A 2026 baseline study of 26 multi-family residential buildings in south and west India (GKSPL, as summarised by Conserve Consultants) reports 31 to 62 kg of steel per m² of built-up area for buildings up to four storeys, which is about 2.9 to 5.8 kg per sq ft. The summary does not say how many of the 26 were low-rise, so treat the range as wide. A steel quantity far below it for your floor area deserves a written explanation with structural drawings. [StructurePro](/tools/structopro) works the figure out from your plan instead of from a range.
 
 ## What to Do if You Suspect Short Delivery
 
@@ -209,7 +204,7 @@ If your contractor's steel quantity is more than 10% below these IS-derived benc
 
 ---
 
-*Generate your IS 1786:2008 compliant steel schedule with StructurePro before placing any material order.*`,
+*Work out the steel in your frame with StructurePro before you place a material order.*`,
   },
   {
     slug: 'seismic-zones-india-is-1893',
@@ -225,7 +220,7 @@ If your contractor's steel quantity is more than 10% below these IS-derived benc
       { question: "How many seismic zones does India have?", answer: "Four: Zone II (low hazard), Zone III (moderate), Zone IV (high) and Zone V (very high), under IS 1893:2016." },
       { question: "What are the zone factors?", answer: "Zone II 0.10, Zone III 0.16, Zone IV 0.24 and Zone V 0.36. The zone factor Z multiplies directly into the design base shear." },
       { question: "Which zone are major cities in?", answer: "Bengaluru is in Zone II, Delhi NCR in Zone IV, and Srinagar and Guwahati in Zone V." },
-      { question: "What changes for a house in Zone IV or V?", answer: "IS 1893:2016 with IS 13920:2016 requires ductile detailing: closely spaced stirrups at beam-column joints, 135° hooks and minimum lap lengths. Buildings above G+2 typically need shear walls, and an open ground floor needs an explicit soft-storey check." },
+      { question: "What changes for a house in Zone IV or V?", answer: "IS 1893:2016 with IS 13920:2016 requires ductile detailing: closely spaced stirrups at beam-column joints, 135° hooks and minimum lap lengths. Taller buildings may need shear walls, and an open ground floor needs an explicit soft-storey check." },
       { question: "What should I ask my structural engineer?", answer: "Which zone you are in, whether the design uses the Zone Factor Z for that zone, whether beam-column joints are detailed per IS 13920, and to see the design base shear calculation." },
     ],
     relatedSlugs: ['m20-vs-m25-concrete-grade', 'verify-contractor-quote-is-456-2000', 'per-sqft-pricing-contractor-fraud'],
@@ -233,16 +228,18 @@ If your contractor's steel quantity is more than 10% below these IS-derived benc
 
 India sits on one of the most seismically active landmasses in the world. The Indian tectonic plate is pushing north into the Eurasian plate at roughly 5 cm per year — and that collision energy has to go somewhere.
 
-IS 1893:2016 (Criteria for Earthquake Resistant Design of Structures) classifies India into four seismic zones based on the intensity of ground shaking expected in a 475-year return period earthquake:
+IS 1893:2016 (Criteria for Earthquake Resistant Design of Structures) classifies India into four seismic zones based on the ground shaking expected:
 
 | Zone | Factor Z | Hazard Level | Major Cities |
 |---|---|---|---|
-| Zone II | 0.10 | Low | Bengaluru, Hyderabad, Mumbai (parts), Chennai |
-| Zone III | 0.16 | Moderate | Kolkata, Bhopal, Mumbai (most), Ahmedabad, Pune |
-| Zone IV | 0.24 | High | Delhi NCR, Jammu, Haridwar, Sikkim, much of J&K |
-| Zone V | 0.36 | Very High | Srinagar, Guwahati, North Bihar, Andaman & Nicobar |
+| Zone II | 0.10 | Low | Bengaluru, Hyderabad, Jaipur, Bhopal, Nagpur |
+| Zone III | 0.16 | Moderate | Mumbai, Chennai, Kolkata, Pune, Ahmedabad |
+| Zone IV | 0.24 | High | Delhi, Patna, Chandigarh, Dehradun, Gangtok |
+| Zone V | 0.36 | Very High | Srinagar, Guwahati, Imphal, Bhuj, Darbhanga |
 
 Zone V has the highest seismic hazard. The Zone Factor Z (listed above) directly multiplies into the design base shear — the lateral force your building must resist.
+
+The towns above are placed using the town list in IS 1893 (Part 1):2002 Annex E, which is the list NirmanShastra reads. The 2016 edition redraws the zone map, and some towns move, so confirm your zone with your structural engineer.
 
 ## What Changes in High-Seismic Zones
 
@@ -250,9 +247,9 @@ If your home is in Zone IV or V, IS 1893:2016 combined with IS 13920:2016 (Ducti
 
 **1. Ductile detailing of reinforcement.** Closely spaced stirrups at beam-column joints, 135° hook bends, and minimum lap splice lengths. This is what prevents columns from shattering in a quake — they crush slowly and absorb energy rather than snapping.
 
-**2. Higher concrete grade.** M25 minimum for all structural elements in Zones IV–V. Some structural engineers specify M30 for critical columns.
+**2. A minimum concrete grade.** IS 13920 sets a minimum grade for ductile frames, and engineers in high zones often specify M25 or higher. Some specify M30 for critical columns.
 
-**3. Shear walls or bracing.** Buildings above G+2 in Zone IV–V typically need reinforced concrete shear walls to resist lateral loads.
+**3. Shear walls or bracing where the frame alone is not enough.** In higher zones, taller buildings may need reinforced concrete shear walls. Whether yours does is your engineer's call.
 
 **4. Soft storey check.** If your ground floor is open (common in commercial buildings with parking), IS 1893 requires explicit design for soft-storey failure — one of the most common collapse mechanisms in Indian earthquakes.
 
@@ -272,11 +269,11 @@ Before your foundation is poured, ask:
 
 A legitimate structural engineer will answer these immediately. If they can't, find another engineer.
 
-StructurePro automatically detects your seismic zone from your state, applies the correct IS 1893:2016 parameters, and flags any items in the IS compliance panel that need attention for your zone level.
+StructurePro reads your seismic zone from your state and city, applies it to the frame, and marks the items in its IS compliance panel that need an engineer's attention for your zone. The report also tells you to confirm the zone with a local structural engineer.
 
 ---
 
-*Know your seismic zone and its structural requirements before you build. Try StructurePro for an IS 1893:2016 compliant structural estimate.*`,
+*Know your seismic zone before you build. Try StructurePro to see how the zone changes the quantities of your frame.*`,
   },
   {
     slug: 'per-sqft-pricing-contractor-fraud',
@@ -293,7 +290,7 @@ StructurePro automatically detects your seismic zone from your state, applies th
       { question: "What should I ask for instead of a rate?", answer: "A line-item Bill of Quantities (BOQ) that lists every material, its quantity, its rate and its IS specification. A contractor who refuses to provide one is hiding something." },
       { question: "Which specifications should be in the contract?", answer: "The concrete grade for each pour, the diameter and grade of steel for each element, the brick specification, the mortar mix ratio, and the plaster thickness, all in writing and signed before work starts." },
       { question: "How do I compare two quotes fairly?", answer: "Compare specifications, not rates. A quote for M20 concrete and 16 mm Fe 500D columns at ₹1,800 per sq ft is a different product from M25 and 20 mm columns at ₹2,100." },
-      { question: "Is there a free way to check a quote?", answer: "Yes. The free Compare Contractor Quote tool flags line items above IS-code quantities and typical rates, and a structural engineer or quantity surveyor can verify a BOQ against approved drawings." },
+      { question: "Is there a free way to check a quote?", answer: "Yes. The free Check a contractor's quantities tool compares the quantities in your quote with a code-based range for your house. It does not look at rates. A structural engineer or quantity surveyor can verify a BOQ against approved drawings." },
     ],
     relatedSlugs: ['verify-contractor-quote-is-456-2000', 'steel-theft-construction-sites', 'm20-vs-m25-concrete-grade'],
     content: `## The Appeal of a Single Number
@@ -306,7 +303,7 @@ This is exactly the outcome a corner-cutting contractor wants. The per-sqft rate
 
 Every construction project has a Bill of Quantities (BOQ) — a line-by-line breakdown of every material, its quantity, its rate, and its IS specification. A legitimate builder's BOQ has 80–150 line items. Per-sqft pricing collapses all of this into a single number.
 
-The mathematics of fraud: if a contractor substitutes M15 for M20 concrete (cheaper by about 12%), uses 10mm rebar where the drawing calls for 12mm (saves 30% on steel weight), and uses 4.5" brick walls where you expected 9" (saves 40% on masonry), the savings to the contractor on a 1,000 sq ft house could be **₹3–5 lakh** — while the invoice still says ₹1,800/sqft.
+The mathematics of fraud: if a contractor substitutes M15 for M20 concrete (less cement in every cubic metre), uses 10mm rebar where the drawing calls for 12mm (about 30% less steel by weight, because weight goes with the square of the diameter), and uses 4.5" brick walls where you expected 9" (about half the bricks), the contractor keeps the difference — while the invoice still says ₹1,800/sqft.
 
 You won't know until the plaster starts cracking in year 3, the steel rusts in year 8, or the structure cracks in the first moderate earthquake.
 
@@ -316,7 +313,7 @@ IS 456:2000, IS 1786:2008, IS 1077:1992, and IS 732:2019 don't give you a per-sq
 
 - Grade of concrete (M20/M25/M30) for each pour
 - Diameter and grade of steel (Fe 500D) for each element
-- Brick specification (IS 1077 Class 3 minimum)
+- Brick specification (IS 1077 class)
 - Mortar mix ratio (1:4 or 1:6 depending on element)
 - Plaster thickness (12mm internal, 20mm external)
 
@@ -328,11 +325,11 @@ Before signing any construction contract:
 
 **1. Ask for a BOQ, not a rate.** A contractor who refuses to provide a line-item BOQ is hiding something. This is non-negotiable.
 
-**2. Specify IS codes for every major material.** Concrete grade per IS 456, steel grade per IS 1786, bricks per IS 1077, pipes per IS 4985 (CPVC) or IS 4669 (UPVC).
+**2. Specify IS codes for every major material.** Concrete grade per IS 456, steel grade per IS 1786, bricks per IS 1077, pipes per IS 4985 (uPVC) or IS 15778 (CPVC).
 
-**3. Get independent quantity verification.** A structural engineer or quantity surveyor can verify the BOQ against approved drawings. The fee is typically ₹5,000–15,000 — cheap against the exposure of a ₹50 lakh contract.
+**3. Get independent quantity verification.** A structural engineer or quantity surveyor can verify the BOQ against approved drawings. Agree the fee before they start. It is small next to the cost of a wrong quantity.
 
-**4. Use NirmanShastra to generate your own BOQ baseline.** StructurePro produces an IS 456:2000 compliant structural BOQ for your specific floor area and zone. Place it beside the contractor's quote and look for gaps.
+**4. Use NirmanShastra to work out your own quantity baseline.** StructurePro works out the quantities of your RCC frame for your floor area, state and soil. Place them beside the contractor's quantities and look for gaps.
 
 ## The Comparison You Can Actually Make
 
@@ -344,7 +341,7 @@ Now you are comparing like for like. The second quote might be worth every rupee
 
 ---
 
-*Generate your own IS-code based BOQ with StructurePro — so you can compare contractor quotes on equal terms.*`,
+*Work out the quantities of your frame with StructurePro, so you can compare contractor quotes on equal terms.*`,
   },
   {
     slug: 'rccb-electrical-safety-is-732-2019',
@@ -367,23 +364,23 @@ Now you are comparing like for like. The second quote might be worth every rupee
     relatedSlugs: ['water-requirements-is-1172-1993', 'per-sqft-pricing-contractor-fraud', 'vastu-vedic-architecture-16-zones'],
     content: `## Why Electrical Safety Is Under-Specified in Indian Homes
 
-According to NCRB data, electrical fires and electrocution accidents cause thousands of deaths annually in India. The majority occur in residential buildings — and the common factor is inadequate protection devices that IS 732:2019 explicitly mandates.
+According to NCRB data, electrical fires and electrocution accidents cause thousands of deaths annually in India. Many happen in homes, where missing or wrong protection devices are a common factor.
 
-The reason these devices are absent in many homes is simple: they add ₹8,000–25,000 to an electrical contract, and a contractor operating on per-sqft pricing will omit them without telling you.
+The reason these devices are absent in many homes is simple: they add to the electrical contract, and a contractor working to a per-sqft price may omit them without telling you.
 
 IS 732:2019 — the Indian Standard for Electrical Installations — consolidates requirements from the earlier IS 732:1989 and aligns with IEC 60364. Here is what it actually requires.
 
 ## RCCB — Residual Current Circuit Breaker
 
-A **Residual Current Circuit Breaker (RCCB)** disconnects power within 30–40 milliseconds when it detects a leakage current to earth. At the 30mA sensitivity rating (IS 732:2019 mandated for human protection), it will disconnect before cardiac fibrillation can occur.
+A **Residual Current Circuit Breaker (RCCB)** disconnects power within 30–40 milliseconds when it detects a leakage current to earth. At the 30mA sensitivity rating, the usual rating for protecting people, it is meant to disconnect before cardiac fibrillation can occur.
 
-IS 732:2019 Clause 41 requires RCCB protection for:
+Wiring practice under IS 732 calls for RCCB protection on:
 - All socket outlets accessible to the general public
 - All bathroom and kitchen circuits
 - Any outdoor socket circuit
 - Circuits serving swimming pools, water features, or wet areas
 
-A 4-pole, 63A, 30mA RCCB at the distribution board costs approximately ₹800–2,000. Omitting it to save this amount is false economy against the liability it prevents.
+An RCCB at the distribution board is a small part of an electrical contract. Omitting it to save that amount is false economy against the harm it prevents.
 
 ## MCB vs RCCB — Understanding the Difference
 
@@ -398,9 +395,9 @@ For complete protection, IS 732 recommends **RCBO** (Residual Current Circuit Br
 IS 732 references IS 3043:2018 for earthing requirements. Every residential installation requires:
 - A dedicated earth electrode (typically 2-metre copper-clad steel rod)
 - Earth continuity conductors to every socket, switch, and appliance point
-- Earth resistance below 1 ohm at the electrode
+- An earth resistance test after installation, with the reading written down
 
-Homes built with aluminium wiring (now prohibited under IS 732 for domestic use) or without proper earth continuity to all metal enclosures are at high risk.
+Homes without proper earth continuity to all metal enclosures are at high risk.
 
 ## What to Check in Your Contractor's Quote
 
@@ -410,11 +407,11 @@ Ask your electrical contractor to provide the following in writing:
 3. Earth electrode specification and expected resistance
 4. Wire specification — copper, IS 694:2010 grade, minimum 1.5mm² for lighting and 2.5mm² for power circuits
 
-NirmanShastra's ElectricalPro tool generates an IS 732:2019 compliant electrical schedule with room-by-room point loads, wire specifications, and protection device requirements for your floor plan.
+NirmanShastra's ElectricalPro works out the quantities of wire, conduit, points and protection devices for your plan, so you can check them against a quote.
 
 ---
 
-*Get an IS 732:2019 compliant electrical estimate for your home — try ElectricalPro.*`,
+*Work out the wire, conduit and protection devices for your home with ElectricalPro.*`,
   },
   {
     slug: 'water-requirements-is-1172-1993',
@@ -447,7 +444,6 @@ IS 1172:1993 Table 1 specifies the following design requirements:
 | Type of Building | LPCD Requirement |
 |---|---|
 | Residential (with flush toilets) | 135 LPCD |
-| Residential (with waterborne sewage) | 200 LPCD |
 | Hotel / Guest House | 180 LPCD |
 | School (day) | 45 LPCD |
 | Office / Commercial | 45 LPCD |
@@ -463,10 +459,10 @@ Step 2: Determine your municipal supply frequency. If water comes once every 48 
 - 540 × 2 = 1,080 litres minimum storage
 
 Step 3: Add an overhead tank for gravity distribution.
-- Standard: 60% in underground sump, 40% in overhead tank
+- A common split: 60% in an underground sump, 40% in an overhead tank (your plumber may use a different ratio)
 - Overhead tank minimum: 432 litres (~500L commercial tank)
 
-Step 4: Account for peak demand. IS 1172 uses a peak factor of 1.8 for domestic supply — meaning the peak hour demand is 1.8 times the average hourly demand. Your pump and pipe sizing must accommodate this.
+Step 4: Allow for peak demand. Pump and pipe sizing should be done for the busiest hour, not the average hour.
 
 ## Common Undersizing Errors
 
@@ -476,96 +472,71 @@ Step 4: Account for peak demand. IS 1172 uses a peak factor of 1.8 for domestic 
 
 **3. Not accounting for garden or car-washing.** IS 1172 does not cover landscape irrigation — you need to add this separately based on garden area.
 
-**4. Under-specifying the sump pump.** The pump must refill the overhead tank within 2–3 hours of the municipal supply window. Undersizing the pump makes the full tank capacity useless.
+**4. Under-specifying the sump pump.** The pump must refill the overhead tank in a reasonable time. An undersized pump makes the full tank capacity useless.
 
 ## Pipe Sizing Follows From Tank Size
 
-Once you know daily requirement, IS 1172 helps you size pipe diameters too. The main rising main from sump to overhead tank should carry the full daily refill in 2 hours — which determines the pipe diameter and pump head requirement.
+Once you know the daily requirement and the tank sizes, pipe diameters follow from the flow needed to fill the overhead tank and to feed the fixtures.
 
-NirmanShastra's PlumbingPro tool takes your family size, floor count, and municipal supply schedule, applies IS 1172:1993 norms, and produces a complete plumbing schedule with tank sizes, pipe diameters, and fixture counts.
+NirmanShastra's PlumbingPro works out the quantities of pipe, fittings, fixtures and tank capacity for your plan and family size.
 
 ---
 
-*Size your water storage correctly from day one — try PlumbingPro for an IS 1172:1993 compliant plumbing estimate.*`,
+*Work out the tank and pipe quantities for your home with PlumbingPro.*`,
   },
   {
     slug: 'ghar-banane-ka-sahi-cost-is-code',
-    title: 'Ghar Banane Ka Sahi Cost Kaise Nikale — IS Code Se, Contractor Ke Bharose Nahi',
+    title: 'Ghar Banane Mein Kitna Maal Lagega: Rate Se Pehle Quantity Nikaaliye',
     excerpt:
-      'Aapka contractor ₹1,800/sqft bol raha hai, doosra ₹2,200 — dono ke paas koi breakdown nahi. IS 456:2000 aur IS 1786:2008 mein construction cost ka poora formula likha hai. Ye article step-by-step batata hai kaise cement, steel, brickwork aur foundation ka cost khud calculate karein.',
+      'Aapka contractor ₹1,800/sqft bolta hai, doosra ₹2,200 — dono ke paas koi breakdown nahi. Rate ke peeche ek quantity list hoti hai: cement, steel, bricks, wire, pipe. Ye article batata hai ki wo list kaise maangein aur kya check karein.',
     category: 'Cost & Transparency',
-    readTime: 6,
+    readTime: 5,
     publishedDate: '2026-07-06',
-    updatedDate: '2026-10-23',
-    quickAnswer: "G+1 se G+3 ghar ke liye thumb rule hai 0.4 bag cement aur 4 kg steel per sqft built-up area. 1,500 sqft ke ghar mein roughly 600 bags cement aur 6,000 kg steel lagega. 9-inch wall mein lagbhag 100 bricks per sqm lagti hain (IS 1077:1992). Contractor ke number ko in figures se compare kariye.",
+    updatedDate: '2026-10-25',
+    quickAnswer: "Per sqft rate ek total hota hai, jise check nahi kar sakte. Line-item BOQ maangiye jisme cement, steel, bricks, wire aur pipe ki quantity ho. Thumb rule lagbhag 0.4 bag cement aur 4 kg steel per sqft hai, par ye sirf andaza hai. Modular brick ki ek-brick deewar mein lagbhag 100 bricks per sqm lagti hain.",
     faq: [
-      { question: "1,500 sqft ke ghar mein kitna cement lagega?", answer: "Thumb rule 0.4 bag cement per sqft built-up area hai (G+1 se G+3 ke liye). 1,500 sqft ke ghar mein roughly 600 bags cement lagega, poore structure ke liye, sirf ek floor ke liye nahi." },
-      { question: "1,500 sqft ke ghar mein kitna steel lagega?", answer: "Overall thumb rule 4 kg steel per sqft hai. 1,500 sqft ke ghar mein roughly 6,000 kg TMT steel lagega." },
-      { question: "Ek square metre wall mein kitni bricks lagti hain?", answer: "IS 1077:1992 ke according 9-inch wall mein lagbhag 100 bricks per sqm (190×90×90 mm modular brick), 4.5-inch partition wall mein 50 bricks per sqm. 200 mm AAC block mein 8.33 blocks per sqm lagte hain." },
-      { question: "Per sqft rate pe bharosa kyun nahi karna chahiye?", answer: "Kyunki ek akele number mein koi breakdown nahi hota. IS codes se cement, steel aur bricks ki quantity khud nikaaliye aur contractor ke number se compare kariye." },
+      { question: "Per sqft rate pe bharosa kyun nahi karna chahiye?", answer: "Kyunki ek akele number mein koi breakdown nahi hota: concrete ka grade, steel ka diameter, deewar ki motai, kuch nahi dikhta. Quantity list maangiye aur wahi check kariye." },
+      { question: "1,500 sqft ke ghar mein kitna cement aur steel lagega?", answer: "Thumb rule se roughly 600 bags cement aur 6,000 kg steel, poore ghar ke liye. Ye sirf pehla andaza hai. Floors, soil aur seismic zone se asli quantity badalti hai." },
+      { question: "Ek square metre deewar mein kitni bricks lagti hain?", answer: "Modular brick (190×90×90 mm, 10 mm joint) ki ek brick motai wali deewar mein lagbhag 100 bricks per sqm, aur aadhi motai wali partition mein lagbhag 50 (IS 1077:1992). Bahut jagah lal eent modular nahi hoti, to count badalta hai. Kuch eenten naap kar dekhiye." },
+      { question: "Foundation kaunsa chahiye?", answer: "Ye soil par depend karta hai. Achhi soil mein isolated footing, kamzor soil mein raft ya pile. Faisla soil test (IS 1904:1986) aur structural engineer ke hisaab se hota hai." },
     ],
     language: 'hi-Latn',
     relatedSlugs: ['per-sqft-pricing-contractor-fraud', 'verify-contractor-quote-is-456-2000', 'steel-theft-construction-sites'],
     content: `Aapka contractor bol raha hai ₹1,800 per sqft. Ek doosra bol raha hai ₹2,200. Dono ke paas breakdown nahi hai — bas ek number.
 
-Sach ye hai ki construction cost koi guess nahi hai. Ye ek calculation hai, aur Indian Standards (IS codes) mein iska poora formula likha hua hai. Agar aap ye samajh lete hain, toh koi bhi contractor aapko galat number nahi de sakta — kyunki aap khud verify kar sakte hain.
+Per sqft rate ek total hota hai jise area se divide kiya gaya hai. Usme se aap kuch check nahi kar sakte. Lekin rate ke peeche ek list hoti hai: kitna concrete, kitni steel, kitni eenten, kitna wire. Wo list check ho sakti hai. NirmanShastra sirf wahi list (quantity) nikaalta hai. Hum koi daam nahi batate.
 
-## Step 1: Cement Kitna Lagega?
+## Step 1: Rate ke peeche ki list maangiye
 
-IS 456:2000 ke according, M20 grade concrete (jo residential ghar ke liye standard hai) ka mix ratio hota hai 1:1.5:3 — matlab 1 part cement, 1.5 part sand, 3 part aggregate. Iska dry volume factor 1.54 hota hai (wet concrete sukhne se pehle jo volume lagta hai).
+Contractor se line-item BOQ (Bill of Quantities) maangiye. Har line mein item, unit, quantity aur specification ho: concrete ka grade (M20, M25), steel ka diameter aur grade (Fe 500D), eent ka type, plaster ki motai. Jo contractor BOQ dene se mana kare, wo kuch chhupa raha hai.
 
-Thumb rule jo aap khud check kar sakte hain: **0.4 bags cement per sqft of built-up area**, G+1 se G+3 building ke liye. Agar aapka ghar 1,500 sqft ka hai, toh roughly **600 bags cement** lagenge — poora structure ke liye, sirf ek floor nahi.
+## Step 2: Cement aur steel ka pehla andaza
 
-Agar aapka contractor isse bahut zyada bata raha hai, poochiye kyun — shayad wastage zyada calculate ki hai, ya phir margin chhupa raha hai.
+Ek thumb rule bahut sunne ko milta hai: poore ghar ke liye lagbhag **0.4 bag cement** aur **4 kg steel per sqft built-up area**. 1,500 sqft ke ghar ke liye roughly 600 bags cement aur 6,000 kg steel.
 
-## Step 2: Steel Kitna Lagega?
+Dhyan rakhiye: ye trade ka thumb rule hai, kisi IS code ki value nahi. Isme floors, soil, seismic zone, kuch nahi gina gaya. Steel ke liye ek 2026 ke study (26 multi-family buildings, south aur west India; GKSPL, Conserve Consultants ki summary ke mutabiq) mein 31 se 62 kg per sqm built-up area likha hai, yaani lagbhag 2.9 se 5.8 kg per sqft. Thumb rule is range ke andar hai, lekin range badi hai. Isse bas ye dekhiye ki contractor ka number bahut door to nahi.
 
-Ye woh jagah hai jahan sabse zyada paisa chupta hai, kyunki steel mehenga hai aur log isko samajhte nahi.
+Agar contractor ka number isse bahut alag hai, to poochiye kyun, aur drawing maangiye.
 
-IS 1786:2008 ke according, alag-alag structural members mein steel ka percentage fix hota hai:
+## Step 3: Brickwork kitna lagega?
 
-| Member | Steel % |
-|---|---|
-| Footing | 0.5% |
-| Column | 2.5% |
-| Beam | 1.5% |
-| Slab | 1.0% |
+Modular brick (190×90×90 mm, 10 mm joint, IS 1077:1992) ki ek brick motai wali deewar mein lagbhag **100 bricks per sqm** lagti hain, aur aadhi motai wali partition mein lagbhag **50**. Pehle darwaze aur khidkiyon ka area deewar ke area se ghataiye, phir 5 se 10% wastage jodiye.
 
-Overall thumb rule: **4 kg steel per sqft** for G+1 to G+3 buildings. 1,500 sqft ke ghar mein roughly **6,000 kg TMT steel** lagega.
+Bahut jagah lal eent modular nahi hoti. 230×115×75 mm ek aam size hai, aur uska count alag aata hai. Order dene se pehle kuch eenten naap lijiye.
 
-Grade bhi important hai — agar aap seismic Zone III se V mein hain (jaise North India ka bada hissa), Fe500D ya Fe550D use karna chahiye, sirf standard Fe500 nahi. Ye IS 13920:2016 ka requirement hai, optional nahi.
+## Step 4: Foundation kaunsa chahiye?
 
-## Step 3: Brickwork Kitna Lagega?
+Ye aapki soil par depend karta hai. Achhi soil mein isolated footing chal jaati hai. Kamzor ya paani wali soil mein raft ya pile lagta hai, aur tab concrete aur steel kaafi badh jaate hain. Soil test (IS 1904:1986) karwaiye aur structural engineer se foundation ka type tay kariye. Ye faisla andaze se nahi hona chahiye.
 
-IS 1077:1992 ke according, standard 9-inch wall ke liye modular bricks (190×90×90mm) lagti hain roughly **100 bricks per square metre** wall area. 4.5-inch partition wall mein 50 bricks per sqm.
+## Toh NirmanShastra kya karta hai?
 
-Agar aap AAC blocks use kar rahe hain (jo lightweight aur energy-efficient hain), toh 200mm block mein sirf **8.33 blocks per sqm** lagte hain — bahut kam quantity, lekin per-piece cost zyada hota hai. Dono ka total cost compare karke decide kariye.
+NirmanShastra aapke plot, floors, state, city aur soil ke hisaab se materials ki quantity nikaalta hai: concrete, steel, cement, sand, aggregate, bricks, wire, pipe. Har quantity ke saath IS code ka clause hota hai, aur ek low aur ek high figure bhi, kyunki asli drawing alag hogi. Free mein aap apne frame ka seismic zone, concrete aur steel ke grade, IS code checks aur 3D model dekh sakte hain. Poori quantity report paid hai.
 
-Ek zaroori baat: agar aap Zone IV ya V mein hain (jaise Delhi, Uttarakhand, North-East states), AAC blocks load-bearing wall ke liye allowed nahi hain IS 4326:1993 ke according. Ye safety ka mamla hai, cost ka nahi.
-
-## Step 4: Foundation Kaunsa Chahiye?
-
-Ye depend karta hai aapki soil per:
-
-| Foundation Type | Condition | Cost Range |
-|---|---|---|
-| Isolated footing | Achi soil, G+1 to G+3 | ₹220–350/sqft |
-| Raft foundation | Soft ya waterlogged soil | ₹350–550/sqft |
-| Pile foundation | Bahut soft/marshy | ₹2,500–4,000/running metre |
-
-Geotechnical investigation (soil test) mandatory hai IS 1904:2016 ke according, khaas kar agar aap sure nahi hain apni soil type ke baare mein. Ye ₹15,000–50,000 ka ek-baar expense hai — lekin galat foundation type choose karne se jo nuksaan hota hai, uske saamne kuch nahi hai.
-
-## Toh Actually Karna Kya Hai?
-
-Agar aap in sab formulas ko khud calculate karna chahte hain, IS codes public hain — aap khud verify kar sakte hain. Lekin agar aap chahte hain ki koi platform ye calculation aapke liye kare, exact quantities aur cost ke saath, IS code clause ke reference ke saath — wahi NirmanShastra karta hai.
-
-Free mein aap grand total range dekh sakte hain. Detailed report — exact cement bags, steel kg, brick count, sab kuch — ₹999 mein milta hai StructurePro pe.
-
-Contractor ke number pe trust karne se pehle, apna khud ka number nikaliye.
+Isme koi daam, labour ya contractor rate nahi hota. Daam aap apne suppliers se khud poochiye. Contractor ke number pe trust karne se pehle, apni quantity nikaaliye.
 
 ---
 
-*Apna construction cost khud verify karein — StructoPro pe IS code ke exact formulas se apni quantities nikaaliye.*`,
+*Apne ghar ki quantity khud dekhiye: [StructurePro](/tools/structopro) se frame ki, aur [MasonryPro](/tools/masonpro) se brickwork ki.*`,
   },
   {
     slug: 'vastu-vedic-architecture-16-zones',
@@ -634,104 +605,87 @@ NirmanShastra's **VastuPro** is a free tool that overlays the Vastu Purusha Mand
   },
   {
     slug: "construction-cost-per-sq-ft-india",
-    title: "Construction Cost per Sq Ft in India: How the Number Is Built",
+    title: "Construction Cost per Sq Ft in India: What the Rate Does Not Tell You",
     excerpt:
-      "A single per-sq-ft rate hides what you are paying for. See how structure, flooring, doors, electrical, plumbing, painting and ceilings add up across four quality tiers, and how to test a contractor’s rate against them.",
+      "A per-sq-ft rate is a total divided by an area. Behind it sits a list of quantities: concrete, steel, bricks, tiles, wire, pipe and paint. How to ask for that list, and what to check on it before you compare two rates.",
     category: "Cost & Transparency",
-    readTime: 6,
+    readTime: 5,
     publishedDate: '2026-10-23',
-    quickAnswer: "At the calculator’s indicative Tier-2 city rates, building cost per sq ft is ₹1,197 for Basic, ₹1,490 for Standard, ₹1,983 for Premium and ₹2,935 for Luxury, kitchen excluded. A 1,000 sq ft Standard house therefore comes to ₹14,90,000. Rates differ by city and year, so treat these as a benchmark, not a quote.",
+    updatedDate: '2026-10-25',
+    quickAnswer: "A per-sq-ft rate is a total divided by built-up area, so it cannot be checked. Ask for the quantities behind it: concrete in m³, steel in kg, bricks, tiles in m², wire and pipe in metres. A 2026 study of low-rise homes reports 31 to 62 kg of steel and 0.36 to 0.44 m³ of concrete per m² built.",
     faq: [
-      { question: "What does a 1,000 sq ft house cost at Standard finish?", answer: "At the calculator’s rate of ₹1,490 per sq ft, a 1,000 sq ft Standard build comes to ₹14,90,000. The kitchen is priced separately per running foot, so it is not in that figure." },
-      { question: "How much more is Premium than Standard?", answer: "₹493 per sq ft, which is ₹4,93,000 on 1,000 sq ft (₹1,490 to ₹1,983 per sq ft). On 2,400 sq ft the calculator gives ₹35,76,000 for Standard against ₹47,59,200 for Premium, a difference of ₹11,83,200." },
-      { question: "Which element changes the most between tiers?", answer: "Flooring: ₹90 per sq ft at Basic, ₹160 at Standard, ₹280 at Premium and ₹520 at Luxury. Between Standard and Premium it adds ₹120 per sq ft, ahead of doors and windows at ₹90." },
-      { question: "How is the kitchen priced?", answer: "Per running foot of counter and base run, separately from the per-sq-ft elements: ₹1,200 Basic, ₹2,200 Standard, ₹3,800 Premium and ₹7,500 Luxury per running foot." },
-      { question: "Are these rates right for my city today?", answer: "No. The source sheet labels them indicative Tier-2 city rates. They show the shape of the difference between tiers; re-price against current local rates before relying on any total." },
-      { question: "What is not in the per-sq-ft figure?", answer: "Anything outside the seven elements: land, approvals, a boundary wall, furniture and appliances are not part of the build-up." },
+      { question: "What does a per-sq-ft rate include?", answer: "Whatever the contractor chose to include, which is the problem. It is a total divided by an area, so it can hide the concrete grade, the steel diameter, the wall thickness and the finish quality, and it may leave out land, approvals, a boundary wall, furniture and appliances." },
+      { question: "What should I ask for instead of a rate?", answer: "A line-item Bill of Quantities: each item with its unit, quantity and specification. The quantities are what you can check against drawings and against a code-based baseline. The price on each line is a separate conversation with your own suppliers." },
+      { question: "How much steel and concrete does a low-rise house use per sq ft?", answer: "A 2026 baseline study of 26 multi-family residential buildings in south and west India (GKSPL, summarised by Conserve Consultants) reports 31 to 62 kg of steel and 0.36 to 0.44 m³ of concrete per m² of built-up area for buildings up to four storeys. That is about 2.9 to 5.8 kg of steel and 1.2 to 1.4 cft of concrete per sq ft. The summary does not say how many of the buildings were low-rise, so treat it as a wide range, not a target." },
+      { question: "What changes most between a basic and a premium finish?", answer: "The finishing lines: flooring area and material, doors and windows, fittings, ceilings and joinery. The frame is set by loads, spans, soil and earthquake zone, so its quantities stay roughly the same. Ask for the structure quantities and the finish specification separately, so you can see which side a difference between two quotes sits on." },
+      { question: "Does NirmanShastra give a cost per sq ft?", answer: "No. It works out quantities only and states no prices, so there is no rate to go stale. Take the quantities to your own suppliers for quotes." },
+      { question: "How do I check a rate that arrives as one number?", answer: "Ask which specification it assumes and for the quantity list behind it. Then compare the structure quantities with a code-based baseline worked out from your plan, and read why a per-sq-ft price hides fraud before you sign." },
     ],
     relatedSlugs: ["per-sqft-pricing-contractor-fraud", "how-to-check-contractor-quote", "verify-contractor-quote-is-456-2000"],
-    content: `## Why a single rate is not enough
+    content: `## A rate is a total divided by an area
 
-A quote of "₹ per sq ft" is a total divided by an area. It tells you nothing about what is inside it. To judge it you need the pieces: structure and masonry, flooring, doors and windows, electrical, plumbing, painting, and ceilings. The free [Finish-Tier Cost Calculator](/tools/finish-tier-cost-calculator) breaks the number into exactly those pieces for four quality tiers.
+A quote of "₹ per sq ft" tells you nothing about what is inside it. Two builders can quote the same rate for different houses, and different rates for the same house, and you cannot tell why from the number. What can be checked is the list of quantities behind the rate. NirmanShastra works out those quantities and stops there: it puts no prices on them.
 
-## Reference rates per sq ft by quality tier
+## The seven lines behind a rate
 
-These are the per-sq-ft rates built into the calculator. Their source sheet labels them indicative Tier-2 city rates. Their value is in showing the shape of the difference between tiers, not an exact price for your city or year.
+Ask for the quantity of each line, with its unit and its specification:
 
-| Element | Basic | Standard | Premium | Luxury |
-|---|---|---|---|---|
-| Structure & masonry | ₹900 | ₹950 | ₹1,020 | ₹1,120 |
-| Flooring | ₹90 | ₹160 | ₹280 | ₹520 |
-| Doors & windows | ₹70 | ₹120 | ₹210 | ₹400 |
-| Electrical | ₹55 | ₹85 | ₹140 | ₹240 |
-| Plumbing | ₹60 | ₹95 | ₹165 | ₹320 |
-| Painting | ₹22 | ₹35 | ₹58 | ₹95 |
-| False ceiling & joinery | ₹0 | ₹45 | ₹110 | ₹240 |
-| Total per sq ft | ₹1,197 | ₹1,490 | ₹1,983 | ₹2,935 |
-
-The kitchen is priced separately, per running foot of counter and base run: ₹1,200 (Basic), ₹2,200 (Standard), ₹3,800 (Premium) and ₹7,500 (Luxury).
-
-## Worked example: a 1,000 sq ft house
-
-Multiply the total per sq ft by the built-up area:
-
-| Tier | Rate per sq ft | Cost for 1,000 sq ft |
+| Line | What to ask for | Unit |
 |---|---|---|
-| Basic | ₹1,197 | ₹11,97,000 |
-| Standard | ₹1,490 | ₹14,90,000 |
-| Premium | ₹1,983 | ₹19,83,000 |
-| Luxury | ₹2,935 | ₹29,35,000 |
+| Structure (RCC frame) | Concrete by grade, reinforcement steel by diameter, shuttering | m³, kg, m² |
+| Masonry and plaster | Bricks or blocks, mortar, plaster area and thickness | number, m³, m² |
+| Flooring | Tile or stone area with wastage, adhesive, grout | m², kg |
+| Doors and windows | Count by size and material, frames, shutters, glass | number, m² |
+| Electrical | Points, wire by size, conduit, MCBs and an RCCB | number, m |
+| Plumbing | Pipe by size and material, fixtures, tank capacity | m, number, litres |
+| Painting, ceilings and joinery | Paint area and coats, ceiling area, joinery by running metre | m², m |
 
-Moving from Standard to Premium adds ₹4,93,000. Here is where it goes:
+## What changes between a basic and a premium finish
 
-- Flooring: ₹1,20,000
-- Doors and windows: ₹90,000
-- Structure and masonry: ₹70,000
-- Plumbing: ₹70,000
-- False ceiling and joinery: ₹65,000
-- Electrical: ₹55,000
-- Painting: ₹23,000
+The frame is set by loads, spans, soil and earthquake zone, not by how fine the finish is. The finish moves the finishing lines: the area and material of the flooring, the doors and windows, the fittings, the ceilings. So ask for the structure quantities and the finish specification separately. When two quotes differ, you can then see which side the difference is on.
 
-Flooring and doors and windows alone account for ₹2,10,000 of the ₹4,93,000. That is the useful insight: the finish you choose moves the total far more than the structure does.
+## A sanity range for the frame
 
-## What the figure does not cover
+Published figures for what built houses use are scarce. A 2026 baseline study of 26 multi-family residential buildings completed since 2020 in south and west India (GKSPL, as summarised by Conserve Consultants) reports, for buildings up to four storeys, 31 to 62 kg of steel and 0.36 to 0.44 m³ of concrete per m² of built-up area. In the units used on site that is about 2.9 to 5.8 kg of steel and 1.2 to 1.4 cft of concrete per sq ft.
 
-The build-up has seven per-sq-ft elements plus the kitchen. Land, approvals, a boundary wall, furniture and appliances are not among them, so a contractor quote that includes those is not comparable to these rates.
+Two cautions. The summary does not say how many of the 26 buildings were low-rise, and it is a secondary report, not the study itself. The thumb rules we found online run from about 3.5 to 5.5 kg of steel per sq ft, and none of the pages cited data. Use the range to spot a quote that is far outside it, not to set a target.
 
-## Why you should not budget from these rates alone
+## What is not in a per-sq-ft figure
 
-They are indicative Tier-2 city rates. Steel, cement and labour prices move by city and by month. Use the table to compare tiers and to see which elements drive the difference, then re-price each line against current local quotes.
+Land, approvals, a boundary wall, furniture and appliances are usually outside a per-sq-ft rate. Ask whether yours includes them, because a quote that does is not comparable to one that does not.
 
-## How to test a contractor's per-sq-ft rate
+## How to test a contractor's rate
 
-1. Ask which tier the rate assumes and for a line-item BOQ.
-2. Put the BOQ lines against the seven elements above and find the one that looks out of line.
-3. Check the structure quantities against IS-code norms with the [concrete mix calculator](/tools/concrete-mix-ratio-calculator) and the [steel thumb rules](/blog/steel-required-per-sq-ft).
+1. Ask which specification the rate assumes and for a line-item BOQ with quantities.
+2. Put the structure quantities beside a baseline worked out from your own plan. [StructurePro](/tools/structopro) works out your frame, and [Check a contractor's quantities](/compare-quote) compares a quote's quantities with a code-based range.
+3. Check the steel that arrives by weight, as in [how to catch under-delivery](/blog/steel-theft-construction-sites).
 4. Read [why a per-sq-ft price hides fraud](/blog/per-sqft-pricing-contractor-fraud) before you sign.
 
 See the [glossary](/glossary) for BOQ, built-up area and other terms used here.`,
   },
   {
     slug: "cement-sand-aggregate-for-1000-sq-ft-house",
-    title: "Cement, Sand and Aggregate for a 1,000 Sq Ft House: Thumb-Rule Quantities",
+    title: "Cement, Sand and Aggregate for a 1,000 Sq Ft House: A Rule of Thumb and Where It Fails",
     excerpt:
-      "How many bags of cement, how much sand and how much coarse aggregate does a 1,000 sq ft house need? The planning thumb rules, how they change with the number of floors, and where they stop being reliable.",
+      "The thumb rule people quote for a 1,000 sq ft house, how to turn it into the cement for a single pour, and why it stops being reliable. Treat it as a first guess, not a calculation.",
     category: "Structural",
     readTime: 5,
     publishedDate: '2026-10-23',
-    quickAnswer: "For a 1,000 sq ft built-up house of G+1 to G+3 in M20 concrete, the thumb rules give about 400 bags of cement (0.4 per sq ft), 1,800 cft of sand (1.8 per sq ft) and 1,350 cft of coarse aggregate (1.35 per sq ft), plus 4,000 kg of steel. Treat them as planning figures, not a design.",
+    updatedDate: '2026-10-25',
+    quickAnswer: "A widely quoted rule of thumb for a whole 1,000 sq ft house is about 400 bags of cement (0.4 per sq ft), 1,800 cft of sand and 1,350 cft of coarse aggregate. It ignores floors, soil, earthquake zone and design, so use it as a first guess only. For one pour, M20 concrete needs about 8 bags per m³.",
     faq: [
-      { question: "How many bags of cement does a 1,000 sq ft house need?", answer: "About 400 bags of 50 kg cement, from the thumb rule of 0.4 bag per sq ft of built-up area for G+1 to G+3 buildings in M20 concrete." },
-      { question: "How much sand does a 1,000 sq ft house need?", answer: "About 1,800 cft, which is roughly 51 m³, at 1.8 cft per sq ft of built-up area." },
-      { question: "How much coarse aggregate does a 1,000 sq ft house need?", answer: "About 1,350 cft, which is roughly 38.2 m³, at 1.35 cft per sq ft of built-up area." },
-      { question: "Does the quantity change with the number of floors?", answer: "Yes. Per 1,000 sq ft of built-up area, a ground-floor-only house uses about 340 bags of cement, G+1 to G+3 uses 400, G+4 uses 432 and G+5 uses 448." },
+      { question: "How many bags of cement does a 1,000 sq ft house need?", answer: "A widely quoted rule of thumb says about 400 bags of 50 kg cement for the whole house, at 0.4 bag per sq ft of built-up area. It is a first guess: it ignores your floors, soil, earthquake zone and design." },
+      { question: "How much sand does a 1,000 sq ft house need?", answer: "The same rule of thumb gives about 1,800 cft, roughly 51 m³, at 1.8 cft per sq ft of built-up area." },
+      { question: "How much coarse aggregate does a 1,000 sq ft house need?", answer: "The rule of thumb gives about 1,350 cft, roughly 38.2 m³, at 1.35 cft per sq ft of built-up area." },
+      { question: "Does the quantity change with the number of floors?", answer: "Yes, and the rule of thumb does not allow for it. A code-based tool such as StructurePro works the frame out from your floors, soil and earthquake zone, so a G+1 house in Zone II and a G+3 house in Zone IV come out differently." },
       { question: "What does built-up area mean here?", answer: "The total built-up area across all floors, not the plot size or one floor. A G+1 house with 500 sq ft on each floor has 1,000 sq ft of built-up area." },
-      { question: "How do I get cement for one slab or beam instead?", answer: "Use the per-cubic-metre figure: M20 concrete needs about 8.07 bags of 50 kg cement per m³, so a 20 m³ pour needs roughly 161 bags." },
+      { question: "How do I get cement for one slab or beam instead?", answer: "Use the per-cubic-metre figure: M20 concrete needs about 8 bags of 50 kg cement per m³, so a 20 m³ pour needs roughly 160 bags." },
+      { question: "Can I order material from the rule of thumb?", answer: "No. An order should come from the drawings and the bar bending schedule. The rule of thumb can tell you that a quote is far off. It cannot tell you what to buy." },
     ],
     relatedSlugs: ["verify-contractor-quote-is-456-2000", "steel-required-per-sq-ft", "m20-vs-m25-concrete-grade"],
-    content: `## The thumb rules
+    content: `## The rule of thumb
 
-For G+1 to G+3 houses in M20 concrete, NirmanShastra's StructurePro starts from these planning values. They are per sq ft of **built-up area**, meaning the total across all floors.
+These are the values people quote for a whole house, per sq ft of **built-up area**, meaning the total across all floors. The cement and sand include masonry and plaster, not only the concrete frame.
 
 | Material | Per sq ft of built-up area | For 1,000 sq ft |
 |---|---|---|
@@ -739,34 +693,29 @@ For G+1 to G+3 houses in M20 concrete, NirmanShastra's StructurePro starts from 
 | Sand | 1.8 cft | 1,800 cft (about 51 m³) |
 | Coarse aggregate | 1.35 cft | 1,350 cft (about 38.2 m³) |
 | Steel | 4 kg | 4,000 kg |
-| Binding wire | 12 kg per tonne of steel | 48 kg |
 
-## How the quantities change with the number of floors
-
-The thumb rule is set for G+1 to G+3. The estimator applies a factor outside that range. Per 1,000 sq ft of built-up area in M20 concrete:
-
-| Floors | Factor | Cement (bags) | Steel (kg) | Sand (cft) | Aggregate (cft) |
-|---|---|---|---|---|---|
-| Ground floor only | 0.85 | 340 | 3,400 | 1,530 | 1,148 |
-| G+1 to G+3 | 1.00 | 400 | 4,000 | 1,800 | 1,350 |
-| G+4 | 1.08 | 432 | 4,320 | 1,944 | 1,458 |
-| G+5 | 1.12 | 448 | 4,480 | 2,016 | 1,512 |
+They are a rule of thumb. They do not come from a design, and no IS code gives a quantity per sq ft of floor. NirmanShastra's tools no longer use them: they work the quantities out from your plan instead.
 
 ## Scaling to your house
 
-The values scale in proportion to built-up area. A 1,500 sq ft G+1 house needs about 600 bags of cement, 6,000 kg of steel, 2,700 cft of sand and 2,025 cft of coarse aggregate.
+The rule scales with built-up area. A 1,500 sq ft house comes to about 600 bags of cement, 2,700 cft of sand, 2,025 cft of aggregate and 6,000 kg of steel, if the rule fits your house at all.
 
 ## From a thumb rule to a single pour
 
-For one slab, beam or column, work from concrete volume instead. M20 concrete needs about 8.07 bags of 50 kg cement per cubic metre (IS 456:2000), so a 20 m³ slab needs roughly 161 bags. The free [Concrete Mix Ratio Calculator](/tools/concrete-mix-ratio-calculator) does this for any volume, and [how to verify a contractor's quote against IS 456](/blog/verify-contractor-quote-is-456-2000) shows the cross-check step by step.
+For one slab, beam or column, work from concrete volume instead. M20 concrete needs about 8 bags of 50 kg cement per cubic metre: the CPWD Analysis of Rates figure for the conventional 1 : 1.5 : 3 mix. A 20 m³ slab needs roughly 160 bags. The free [Concrete Mix Ratio Calculator](/tools/concrete-mix-ratio-calculator) does this for any volume, and [how to verify a contractor's quote against IS 456](/blog/verify-contractor-quote-is-456-2000) shows the cross-check step by step.
 
-## Where the thumb rules stop being reliable
+## Where the rule of thumb stops being reliable
 
-- They assume M20 concrete and a regular residential frame. A different grade, an unusual span or a deep foundation changes the quantities.
-- They are whole-building planning values, not a mix-design derivation. In a 1 : 1.5 : 3 mix the aggregate is twice the sand by volume, so do not back-calculate a mix from the sand and aggregate figures above.
-- They are not a structural design. A structural engineer must design and approve the building.
+- It ignores the number of floors. More floors mean larger columns and more steel in every member below.
+- It ignores the soil. A raft foundation on weak ground uses much more concrete and steel than isolated footings on firm ground.
+- It ignores the earthquake zone. Higher zones need more steel and closer stirrups.
+- It assumes a regular residential frame. An unusual span, a different concrete grade or a stilt floor changes the quantities.
+- It mixes the frame with masonry and plaster, so you cannot check one against the other.
+- It is not a structural design. A structural engineer must design and approve the building.
 
-For a quantity schedule built on your own area, floors, state and site condition, use [StructurePro](/tools/structopro). The [glossary](/glossary) explains terms such as built-up area, G+1 and M20.`,
+## A figure worked out from your plan
+
+[StructurePro](/tools/structopro) works out the RCC frame from your built-up area, floors, state, city and soil, and shows a low and a high figure for each total. [MasonryPro](/tools/masonpro) works out the cement and sand that go into brickwork and plaster. The [glossary](/glossary) explains terms such as built-up area, G+1 and M20.`,
   },
   {
     slug: "how-to-check-contractor-quote",
@@ -776,14 +725,14 @@ For a quantity schedule built on your own area, floors, state and site condition
     category: "Cost & Transparency",
     readTime: 6,
     publishedDate: '2026-10-23',
-    quickAnswer: "Ask for a line-item BOQ, then run seven checks: M20 concrete takes about 8.07 bags of cement per m³; rebar weighs d² ÷ 162 kg per metre; a 9-inch wall takes 100 bricks per m²; wire is 1.5 mm² for lights, 2.5 mm² for sockets; water is 135 litres per person daily; cubes follow IS 456 Cl 15.2.2.",
+    quickAnswer: "Ask for a line-item BOQ, then run seven checks: M20 concrete takes about 8 bags of cement per m³; rebar weighs d² ÷ 162 kg per metre; a one-brick modular wall takes 100 bricks per m²; wire is 1.5 mm² for lights, 2.5 mm² for sockets; water is 135 litres per person daily; cubes follow IS 456 Cl 15.2.2.",
     faq: [
       { question: "What is the first thing to ask a contractor for?", answer: "A line-item Bill of Quantities (BOQ) listing each material, quantity, rate and IS specification. A single per-sq-ft rate gives you nothing to check." },
-      { question: "How do I check the cement quantity in a quote?", answer: "Multiply the concrete volume in cubic metres by 8.07 for M20 (50 kg bags). A 20 m³ pour needs about 161 bags, and a variance above 10% needs an explanation." },
-      { question: "How do I check the brick quantity?", answer: "A 9-inch modular brick wall takes about 100 bricks per m² and a 4.5-inch wall about 50. Deduct door and window openings first, then allow 5–10% for wastage." },
-      { question: "What wire sizes should the quote show?", answer: "Minimum copper sizes of 1.5 mm² for lighting and fans, 2.5 mm² for power sockets, 4 mm² for an AC or geyser, 6 mm² for a sub-panel feed and 10 mm² for the main incomer (IS 732:2019 Cl 6.2)." },
+      { question: "How do I check the cement quantity in a quote?", answer: "Multiply the concrete volume in cubic metres by 8 for M20 (50 kg bags). A 20 m³ pour needs about 160 bags, and a variance above 10% needs an explanation." },
+      { question: "How do I check the brick quantity?", answer: "A one-brick wall of 190 × 90 × 90 mm modular brick takes about 100 bricks per m² and a half-brick wall about 50. The common 230 × 115 × 75 mm red brick takes about 94 and 49. Deduct door and window openings first, then allow 5–10% for wastage." },
+      { question: "What wire sizes should the quote show?", answer: "Minimum copper sizes of 1.5 mm² for lighting and fans, 2.5 mm² for power sockets, 4 mm² for an AC or geyser, 6 mm² for a sub-panel feed and 10 mm² for the main incomer (common practice under IS 732; your electrician's load calculation decides)." },
       { question: "How many concrete cube samples should be taken?", answer: "IS 456:2000 Cl 15.2.2: 1 sample for 1–5 m³, 2 for 6–15 m³, 3 for 16–30 m³ and 4 for 31–50 m³, with at least one sample from each shift of concreting." },
-      { question: "Is there a free tool to compare a quote with IS-code quantities?", answer: "Yes. The free Compare Contractor Quote tool shows which line items are above IS-code quantities and typical rates." },
+      { question: "Is there a free tool to compare a quote with IS-code quantities?", answer: "Yes. The free Check a contractor's quantities tool shows which quantities in your quote sit outside a code-based range for your house. It does not look at rates." },
     ],
     relatedSlugs: ["verify-contractor-quote-is-456-2000", "per-sqft-pricing-contractor-fraud", "steel-theft-construction-sites"],
     content: `## Start with the BOQ, not the rate
@@ -792,7 +741,7 @@ Ask for a line-item Bill of Quantities. It lists every material, its quantity, i
 
 ## 1. Concrete grade and cement quantity
 
-The quote must state the grade for each pour. For M20 concrete, plan on about **8.07 bags of 50 kg cement per cubic metre** (IS 456:2000). A 20 m³ slab needs roughly 161 bags, so a quote for 120 bags is a red flag. A variance above 10% needs a written explanation. The [Concrete Mix Ratio Calculator](/tools/concrete-mix-ratio-calculator) scales this to your volume, and [this guide](/blog/verify-contractor-quote-is-456-2000) walks through the cross-check.
+The quote must state the grade for each pour. For M20 concrete, plan on about **8 bags of 50 kg cement per cubic metre** (CPWD Analysis of Rates 2014). A 20 m³ slab needs roughly 160 bags, so a quote for 120 bags is a red flag. A variance above 10% needs a written explanation. The [Concrete Mix Ratio Calculator](/tools/concrete-mix-ratio-calculator) scales this to your volume, and [this guide](/blog/verify-contractor-quote-is-456-2000) walks through the cross-check.
 
 ## 2. Steel by weight
 
@@ -800,19 +749,19 @@ Rebar is billed by weight, so verify it by weight. The weight per metre of a bar
 
 ## 3. Bricks per square metre
 
-A 9-inch (230 mm) wall of standard 190 × 90 × 90 mm modular brick takes about **100 bricks per m²**, and a 4.5-inch (115 mm) partition about **50** (IS 1077:1992, IS 2212:1991). Deduct door and window openings from the wall area first, then allow 5–10% for wastage. The [Brick Calculator](/tools/brick-calculator) does the arithmetic.
+A one-brick wall of standard 190 × 90 × 90 mm modular brick (190 mm thick) takes about **100 bricks per m²**, and a half-brick (90 mm) partition about **50** (IS 1077:1992, IS 2212:1991). The common 230 × 115 × 75 mm red brick makes the 9-inch wall, at about **94 per m²**. Deduct door and window openings from the wall area first, then allow 5–10% for wastage. The [Brick Calculator](/tools/brick-calculator) does the arithmetic.
 
 ## 4. Wiring
 
-Minimum copper sizes are **1.5 mm²** for lighting and fans, **2.5 mm²** for power sockets, **4 mm²** for an AC or geyser, **6 mm²** for a sub-panel feed and **10 mm²** for the main incomer (IS 732:2019 Cl 6.2). The quote should also name the RCCB and MCB ratings. The [Wire Size Calculator](/tools/wire-size-calculator) lists the typical MCB for each.
+Minimum copper sizes are **1.5 mm²** for lighting and fans, **2.5 mm²** for power sockets, **4 mm²** for an AC or geyser, **6 mm²** for a sub-panel feed and **10 mm²** for the main incomer (common practice under IS 732; your electrician's load calculation decides). The quote should also name the RCCB and MCB ratings. The [Wire Size Calculator](/tools/wire-size-calculator) lists the typical MCB for each.
 
 ## 5. Water storage
 
-Allow **135 litres per person per day** on municipal supply and 150 on borewell (IS 1172:1993). A family of five on municipal water needs 675 litres a day; storing two-thirds of a day's demand gives 452 litres, so a 500 L tank. Use the [Water Tank Size Calculator](/tools/water-tank-size-calculator) for your family.
+Allow **135 litres per person per day** (IS 1172:1993). A family of five on municipal water needs 675 litres a day; storing two-thirds of a day's demand gives 452 litres, so a 500 L tank. Use the [Water Tank Size Calculator](/tools/water-tank-size-calculator) for your family.
 
 ## 6. Concrete testing
 
-IS 456:2000 Cl 15.2.2 sets the minimum number of samples by volume: 1 for 1–5 m³, 2 for 6–15 m³, 3 for 16–30 m³ and 4 for 31–50 m³, and at least one sample from each shift. A 10 m³ pour needs 2 samples, which is 12 cubes at 6 cubes a sample. The [Concrete Cube Test Calculator](/tools/concrete-cube-test-calculator) gives the count for any volume.
+IS 456:2000 Cl 15.2.2 sets the minimum number of samples by volume: 1 for 1–5 m³, 2 for 6–15 m³, 3 for 16–30 m³ and 4 for 31–50 m³, and at least one sample from each shift. A 10 m³ pour needs 2 samples, which is 6 cubes at 3 cubes a sample. The [Concrete Cube Test Calculator](/tools/concrete-cube-test-calculator) gives the count for any volume.
 
 ## 7. The payment bills
 
@@ -820,89 +769,84 @@ Running Account (RA) bills decide what you actually pay. Net payable is gross bi
 
 ## Put it side by side
 
-Run the numbers, then use the free [Compare Contractor Quote tool](/compare-quote) to see which line items sit above IS-code quantities and typical rates. For unfamiliar words, see the [glossary](/glossary).`,
+Run the numbers, then use the free [Check a contractor's quantities](/compare-quote) tool to see which quantities sit outside a code-based range for your house. For unfamiliar words, see the [glossary](/glossary).`,
   },
   {
     slug: "steel-required-per-sq-ft",
-    title: "How Much Steel per Sq Ft? Rebar Thumb Rules for Indian Houses",
+    title: "How Much Steel per Sq Ft? The Rule of Thumb, the Published Range and How to Check a Delivery",
     excerpt:
-      "The planning rule is about 4 kg of reinforcement per sq ft of built-up area. See how it changes with floors, how it splits between footings, columns, beams and slabs, and how to check a delivery by weight.",
+      "The rule of thumb is about 4 kg of reinforcement per sq ft. See how it compares with a published range for built houses, what moves the real figure, and how to check a delivery by weight.",
     category: "Structural",
     readTime: 5,
     publishedDate: '2026-10-23',
-    quickAnswer: "Plan on about 4 kg of reinforcement steel per sq ft of built-up area for G+1 to G+3 houses, so 1,000 sq ft needs about 4,000 kg. A ground-floor-only house uses about 3.4 kg per sq ft, G+4 about 4.32 and G+5 about 4.48. Check delivered bars by weight: kg per metre is d² ÷ 162.",
+    updatedDate: '2026-10-25',
+    quickAnswer: "The rule of thumb is about 4 kg of reinforcement per sq ft of built-up area, so about 4,000 kg for 1,000 sq ft. A 2026 study of built low-rise homes reports 2.9 to 5.8 kg per sq ft (31 to 62 kg per m²). Check a delivery by weight: kg per metre is d² ÷ 162.",
     faq: [
-      { question: "How much steel does a 1,000 sq ft house need?", answer: "About 4,000 kg for a G+1 to G+3 house, from the thumb rule of 4 kg per sq ft of built-up area. A ground-floor-only house needs about 3,400 kg, G+4 about 4,320 kg and G+5 about 4,480 kg." },
-      { question: "How much steel per sq ft for a 1,500 sq ft house?", answer: "About 6,000 kg of TMT steel at 4 kg per sq ft for G+1 to G+3." },
-      { question: "What does a bar weigh per metre?", answer: "Weight in kg per metre is d² ÷ 162, with d in mm: 8 mm is 0.395, 10 mm 0.617, 12 mm 0.889, 16 mm 1.580 and 20 mm 2.469. Published tables round these to two or three decimals." },
-      { question: "How much binding wire does the steel need?", answer: "About 12 kg of binding wire per tonne of steel, so roughly 48 kg for 4,000 kg of reinforcement." },
-      { question: "How is steel split between footings, columns, beams and slabs?", answer: "As planning percentages of the concrete volume: footings 0.5%, columns 2.5%, beams 1.5% and slabs 1.0%. At 7,850 kg/m³ that is 39.25, 196.25, 117.75 and 78.5 kg of steel per cubic metre of concrete." },
-      { question: "How do I check a steel delivery?", answer: "Weigh a sample of bars, divide by the number of bars and their measured length, and compare with the weight per metre. A 6 m, 12 mm bar should weigh about 5.3 kg." },
+      { question: "How much steel does a 1,000 sq ft house need?", answer: "The common rule of thumb says about 4,000 kg, at 4 kg per sq ft of built-up area. A 2026 baseline study of built low-rise homes reports 31 to 62 kg per m², which is 2.9 to 5.8 kg per sq ft, so the rule sits inside the published range. Your floors, soil and earthquake zone move the real figure." },
+      { question: "Where does the 4 kg per sq ft rule come from?", answer: "It is a trade rule of thumb. The pages we found that quote it give figures from about 3.5 to 5.5 kg per sq ft, and none cites data. It is not from an IS code." },
+      { question: "What does a bar weigh per metre?", answer: "IS 1786:2008 Table 1 gives 8 mm 0.395 kg, 10 mm 0.617, 12 mm 0.888, 16 mm 1.58 and 20 mm 2.47. The formula d² ÷ 162 (d in mm) reproduces them to about three decimals." },
+      { question: "How much more steel do I buy than is placed?", answer: "More. Cutting waste and laps mean the steel you buy exceeds the steel in the drawing. The CPWD Analysis of Rates (Delhi, 2014, item 5.22.1) allows 5%." },
+      { question: "How much weight tolerance does IS 1786 allow?", answer: "A tolerance on mass that depends on bar size and is checked per batch: about ±7% up to 10 mm, ±5% from 10 to 16 mm and ±3% above 16 mm (IS 1786:2008 Table 2). A bar far outside its band is a reason to reject." },
+      { question: "How do I check a steel delivery?", answer: "Weigh a sample of bars, divide by the number of bars and their measured length, and compare with the weight per metre. Five 12 mm bars of 6 m should weigh about 26.6 kg." },
     ],
     relatedSlugs: ["steel-theft-construction-sites", "cement-sand-aggregate-for-1000-sq-ft-house", "how-to-check-contractor-quote"],
-    content: `## The thumb rule
+    content: `## The rule of thumb and the published range
 
-For G+1 to G+3 houses, NirmanShastra's StructurePro starts from **4 kg of reinforcement steel per sq ft of built-up area**. Built-up area is the total across all floors. A 1,000 sq ft house needs about 4,000 kg, and a 1,500 sq ft house about 6,000 kg.
+The figure people quote for a house is about **4 kg of reinforcement steel per sq ft of built-up area**, the total across all floors. A 1,000 sq ft house comes to about 4,000 kg and a 1,500 sq ft house to about 6,000 kg. It is a trade rule of thumb, not an IS code value. The pages we found that quote it give anything from about 3.5 to 5.5 kg per sq ft, and none cites data.
 
-## How it changes with floors
+Published figures for built houses are few. A 2026 baseline study of 26 multi-family residential buildings completed since 2020 in south and west India (GKSPL, as summarised by Conserve Consultants) reports 31 to 62 kg of steel per m² of built-up area for buildings up to four storeys. That is about 2.9 to 5.8 kg per sq ft, so the rule of thumb sits inside it. The summary does not say how many of the buildings were low-rise, so read the range as wide.
 
-The thumb rule is set for G+1 to G+3. Outside that range a factor applies. Per 1,000 sq ft of built-up area:
+## What moves the real figure
 
-| Floors | Factor | Steel per sq ft | Steel for 1,000 sq ft |
-|---|---|---|---|
-| Ground floor only | 0.85 | 3.4 kg | 3,400 kg |
-| G+1 to G+3 | 1.00 | 4 kg | 4,000 kg |
-| G+4 | 1.08 | 4.32 kg | 4,320 kg |
-| G+5 | 1.12 | 4.48 kg | 4,480 kg |
+- **Floors.** More storeys carry more load down the columns and footings.
+- **Earthquake zone.** Higher zones need more steel in beams and columns and closer stirrups (IS 13920:2016).
+- **Soil.** Weak ground pushes the design to a raft foundation, which uses far more steel than isolated footings.
+- **Spans and use.** Longer spans, balconies and an open stilt floor all add steel.
 
-Binding wire is estimated at 12 kg per tonne of steel, so about 48 kg for 4,000 kg of reinforcement.
-
-## How it splits across members
-
-Reinforcement is also planned as a percentage of each member's concrete volume. Multiply the percentage by the density of steel, 7,850 kg/m³, to get kilograms per cubic metre of concrete.
-
-| Member | Steel as % of concrete | Steel per m³ of concrete |
-|---|---|---|
-| Footing | 0.5% | 39.25 kg |
-| Column | 2.5% | 196.25 kg |
-| Beam | 1.5% | 117.75 kg |
-| Slab | 1.0% | 78.5 kg |
+A rule per sq ft ignores every one of these. [StructurePro](/tools/structopro) works the steel out from your own plan, floors, state, city and soil.
 
 ## Weight of a bar per metre
 
-Steel bars are billed by weight, and the weight per metre of a round bar is **d² ÷ 162 kg**, with d in millimetres.
+Steel bars are bought by weight. IS 1786:2008 Table 1 gives the mass per metre, and the formula **d² ÷ 162** (d in mm) reproduces it.
 
 | Diameter | Weight per metre | Weight of a 6 m bar |
 |---|---|---|
 | 8 mm | 0.395 kg | 2.37 kg |
 | 10 mm | 0.617 kg | 3.70 kg |
-| 12 mm | 0.889 kg | 5.33 kg |
-| 16 mm | 1.580 kg | 9.48 kg |
-| 20 mm | 2.469 kg | 14.81 kg |
+| 12 mm | 0.888 kg | 5.33 kg |
+| 16 mm | 1.58 kg | 9.48 kg |
+| 20 mm | 2.47 kg | 14.82 kg |
 
-Published weight tables round these to two or three decimals, so a difference in the third decimal place is not a red flag. A large gap is. Weigh before you accept.
+## Weight tolerance
+
+IS 1786 does not require every bar to hit the table weight. It allows a tolerance on mass that depends on bar size and is checked per batch: about ±7% up to 10 mm, ±5% from 10 to 16 mm and ±3% above 16 mm (IS 1786:2008 Table 2). A difference in the third decimal place is not a red flag. A gap far outside the band is.
 
 ## Checking what was delivered
 
-Weigh a handful of bars and divide the weight by the number of bars and their measured length. If five 12 mm bars of 6 m should weigh about 26.7 kg and weigh 22 kg, the delivery is about 17% light. The full site procedure is in [how to catch steel theft on construction sites](/blog/steel-theft-construction-sites).
+Weigh a handful of bars and divide the weight by the number of bars and their measured length. Five 12 mm bars of 6 m should weigh about 26.6 kg. If they weigh 22 kg, the delivery is about 17% light, well outside the tolerance. The full site procedure is in [how to catch steel theft on construction sites](/blog/steel-theft-construction-sites).
+
+## Buy more than you place
+
+The steel in a drawing is the steel placed. What you buy is more, because of cutting waste and laps. The CPWD Analysis of Rates (Delhi, 2014, item 5.22.1) allows 5%. So a quote with no allowance at all deserves a question, and so does one with a very large allowance.
 
 ## From weight to a cutting list
 
-For a bar bending schedule, the [Bar Bending Schedule Calculator](/tools/bar-bending-schedule-calculator) gives cutting length and weight for 13 bar shapes using the IS 2502 bend and hook rules. For the rest of the structure, see [cement, sand and aggregate for a 1,000 sq ft house](/blog/cement-sand-aggregate-for-1000-sq-ft-house). Terms such as TMT, Fe 500D and cover are in the [glossary](/glossary).`,
+For a bar bending schedule, the [Bar Bending Schedule Calculator](/tools/bar-bending-schedule-calculator) gives the cutting length and weight for six common bar shapes (straight, L, U, crank, stirrup and square tie) with the bend and hook rules. For the cement, sand and aggregate side, see [the rule of thumb for a 1,000 sq ft house](/blog/cement-sand-aggregate-for-1000-sq-ft-house). Terms such as TMT, Fe 500D and cover are in the [glossary](/glossary).`,
   },
   {
     slug: "bricks-per-sq-ft",
-    title: "Bricks per Sq Ft of Wall: 9-inch and 4.5-inch Brick Walls",
+    title: "Bricks per Sq Ft of Wall: Red Brick and Modular Brick, Full and Half Thickness",
     excerpt:
-      "A 9-inch brick wall takes about 9.29 bricks per sq ft of wall and a 4.5-inch wall about 4.65. How the numbers come from IS 1077:1992, how to deduct openings, and how much to add for wastage.",
+      "A 9-inch wall of the common red brick takes about 8.7 bricks per sq ft of wall, and a 4.5-inch wall about 4.6. How the numbers come from the brick size and the joint, how to deduct openings, and how much to add for wastage.",
     category: "Structural",
     readTime: 4,
     publishedDate: '2026-10-23',
-    quickAnswer: "A 9-inch brick wall needs about 9.29 bricks per sq ft of wall area (100 per m²) and a 4.5-inch wall about 4.65 (50 per m²), using the 190 × 90 × 90 mm modular brick with 10 mm joints (IS 1077:1992). So 1,000 sq ft of 9-inch wall needs about 9,290 bricks before 5–10% wastage.",
+    updatedDate: '2026-10-25',
+    quickAnswer: "A 9-inch (230 mm) wall of 230 × 115 × 75 mm red brick takes about 94 bricks per m², or 8.7 per sq ft. The 190 × 90 × 90 mm modular brick takes 100 per m² (9.3 per sq ft) in its one-brick wall. A half-brick wall takes about half. Add 5–10% for wastage.",
     faq: [
-      { question: "How many bricks are needed per sq ft of 9-inch wall?", answer: "About 9.29 bricks per sq ft of wall area, which is 100 bricks per m², for standard 190 × 90 × 90 mm modular brick with 10 mm joints (IS 1077:1992, IS 2212:1991)." },
-      { question: "How many bricks per sq ft of 4.5-inch wall?", answer: "About 4.65 bricks per sq ft of wall area, which is 50 bricks per m²." },
-      { question: "How many bricks are in 1,000 sq ft of 9-inch wall?", answer: "About 9,290 bricks before wastage, and roughly 9,755 to 10,220 once 5–10% is added. A 4.5-inch wall of the same area needs about 4,645 bricks before wastage." },
+      { question: "How many bricks are needed per sq ft of 9-inch wall?", answer: "A 9-inch (230 mm) wall of the common 230 × 115 × 75 mm red brick takes about 94 bricks per m² of wall, which is about 8.74 per sq ft, with 10 mm joints. A one-brick wall of the 190 × 90 × 90 mm modular brick is 190 mm thick, not 230, and takes 100 per m², or 9.29 per sq ft (IS 1077:1992)." },
+      { question: "How many bricks per sq ft of 4.5-inch wall?", answer: "About 4.55 per sq ft (49 per m²) of red brick. A half-brick wall of modular brick takes 4.65 per sq ft (50 per m²)." },
+      { question: "How many bricks are in 1,000 sq ft of 9-inch wall?", answer: "About 8,740 red bricks before wastage, and roughly 9,180 to 9,620 once 5–10% is added. The same area of 4.5-inch red brick wall needs about 4,550 before wastage." },
       { question: "How do I convert between m² and sq ft?", answer: "1 m² is about 10.764 sq ft. Divide bricks per m² by 10.764 to get bricks per sq ft." },
       { question: "Do doors and windows reduce the brick count?", answer: "Yes. Bricks are laid only in the solid wall, so deduct each opening's area first. A standard door is about 1.9 m² and a window about 1.44 m²." },
       { question: "How many AAC blocks per m²?", answer: "A 200 mm AAC block takes about 8.33 blocks per m², which is about 0.77 per sq ft of wall." },
@@ -910,37 +854,42 @@ For a bar bending schedule, the [Bar Bending Schedule Calculator](/tools/bar-ben
     relatedSlugs: ["how-to-check-contractor-quote", "verify-contractor-quote-is-456-2000", "per-sqft-pricing-contractor-fraud"],
     content: `## Bricks per sq ft of wall
 
-The standard counts are per square metre of wall, using the modular clay brick of 190 × 90 × 90 mm laid with a 10 mm mortar joint, a nominal 200 × 100 × 100 mm unit (IS 1077:1992, IS 2212:1991):
+The count per square metre of wall depends on the size of the brick and on the thickness of the wall. With a 10 mm mortar joint, each brick takes up its size plus 10 mm in each direction, so the bricks in one square metre of wall face are (wall thickness + 10 mm) divided by the volume of one brick with its joints.
 
-- **9-inch (230 mm) wall:** 100 bricks per m²
-- **4.5-inch (115 mm) wall:** 50 bricks per m²
+Two sizes are common. The modular clay brick of 190 × 90 × 90 mm is a nominal 200 × 100 × 100 mm unit (IS 1077:1992, IS 2212:1991). The common field brick in much of India is 230 × 115 × 75 mm. They give different counts, and different wall thicknesses:
 
-Since 1 m² is about 10.764 sq ft, divide by 10.764 to get bricks per sq ft of wall area:
+| Brick | Wall | Thickness | Bricks per m² | Bricks per sq ft | For 1,000 sq ft of wall |
+|---|---|---|---|---|---|
+| Red, 230 × 115 × 75 mm | one brick (9-inch) | 230 mm | 94 | 8.74 | about 8,740 |
+| Red, 230 × 115 × 75 mm | half brick (4.5-inch) | 115 mm | 49 | 4.55 | about 4,550 |
+| Modular, 190 × 90 × 90 mm | one brick | 190 mm | 100 | 9.29 | about 9,290 |
+| Modular, 190 × 90 × 90 mm | half brick | 90 mm | 50 | 4.65 | about 4,645 |
 
-| Wall | Bricks per m² | Bricks per sq ft | For 1,000 sq ft of wall |
-|---|---|---|---|
-| 9-inch (230 mm) | 100 | 9.29 | about 9,290 |
-| 4.5-inch (115 mm) | 50 | 4.65 | about 4,645 |
+Since 1 m² is about 10.764 sq ft, divide the count per m² by 10.764 to get the count per sq ft of wall.
+
+## Check your brick size
+
+A one-brick wall of modular brick is 190 mm thick, not 230 mm, so the 100 per m² figure belongs to a thinner wall than a 9-inch one. If your drawings say 9 inches or 230 mm, the wall is built of the 230 mm brick. Measure a few bricks before you order, and check the wall thickness on the drawing.
 
 ## Add wastage
 
-Allow 5–10% for breakage, cutting and site loss. On 1,000 sq ft of 9-inch wall, 9,290 bricks becomes roughly **9,755 to 10,220** to order. On the same area of 4.5-inch wall, 4,645 becomes roughly 4,878 to 5,110.
+Allow 5–10% for breakage, cutting and site loss. On 1,000 sq ft of 9-inch red brick wall, 8,740 bricks becomes roughly **9,180 to 9,620** to order. On the same area of 4.5-inch wall, 4,550 becomes roughly 4,780 to 5,010.
 
 ## Wall area, not floor area
 
-These counts are per sq ft of **wall**, which is length times height, not the floor area of the house. For a wall of 10 m by 3 m (30 m²) the count is 30 × 100 = 3,000 bricks for a 9-inch wall and 1,500 for a 4.5-inch wall.
+These counts are per sq ft of **wall**, which is length times height, not the floor area of the house. For a wall of 10 m by 3 m (30 m²) of red brick the count is 30 × 94 = 2,824 bricks for a 9-inch wall and about 1,470 for a 4.5-inch wall.
 
 ## Deduct the openings
 
-Bricks are laid only in the solid part of the wall. Subtract each door and window from the wall area first: a standard door is about 1.9 m², a window about 1.44 m². Deducting a 1.9 m² door from the 30 m² wall leaves 28.1 m² and 2,810 bricks before wastage.
+Bricks are laid only in the solid part of the wall. Subtract each door and window from the wall area first: a standard door is about 1.9 m², a window about 1.44 m². Deducting a 1.9 m² door from the 30 m² wall leaves 28.1 m² and about 2,645 red bricks before wastage.
 
 ## Blocks instead of bricks
 
-A 200 mm AAC block takes about 8.33 blocks per m², roughly 0.77 per sq ft of wall. The block count is lower, but the unit price and the adhesive or mortar differ, so compare total cost rather than count.
+A 200 mm AAC block takes about 8.33 blocks per m², roughly 0.77 per sq ft of wall. The block count is lower, but the blocks are bigger and the mortar or adhesive differs, so compare the whole wall rather than the block count alone.
 
 ## Do the calculation yourself
 
-The free [Brick Calculator](/tools/brick-calculator) takes the wall length and height, the thickness and the openings, and returns the count with 5% and 10% wastage. To cross-check a mason's or contractor's number, follow [how to check a contractor's quote](/blog/how-to-check-contractor-quote). For the whole house, including mortar and plastering for 8 wall types, see [MasonryPro](/tools/masonpro). The [glossary](/glossary) explains modular brick and wastage.`,
+The free [Brick Calculator](/tools/brick-calculator) takes the wall length and height, the brick size, the thickness and the openings, and returns the count with 5% and 10% wastage. To cross-check a mason's or contractor's number, follow [how to check a contractor's quote](/blog/how-to-check-contractor-quote). For the whole house, including mortar and plaster worked out from your rooms, see [MasonryPro](/tools/masonpro). The [glossary](/glossary) explains modular brick and wastage.`,
   },
 ]
 

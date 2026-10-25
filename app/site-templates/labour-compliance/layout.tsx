@@ -3,7 +3,7 @@ import JsonLd from '@/components/seo/JsonLd'
 import { templateJsonLd } from '@/lib/seo/schema'
 
 const title =
-  'Construction Labour Payroll Excel Template — India Contractor Compliance Tracker | Four Labour Codes'
+  'Site Labour Payroll & Compliance Excel'
 const description =
   'A 16-sheet Excel labour payroll and compliance workbook for Indian construction — muster roll, wage register, PF/ESI and minimum-wage checks, wage slips and subcontractor compliance holds under India’s four Labour Codes (in force since Nov 2025). ₹1,999, instant download.'
 const url = '/site-templates/labour-compliance'

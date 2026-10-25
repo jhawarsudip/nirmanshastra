@@ -1,20 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import RegistrationForm, { type StructoRegData } from './components/RegistrationForm'
-import MethodSelection from './components/MethodSelection'
 import BuildDetails from './components/BuildDetails'
-import ResultsPage from './components/ResultsPage'
-import VerticalExtensionDetails from './components/VerticalExtensionDetails'
-import VEResultsPage from './components/VEResultsPage'
-import { runCalculation, type StructoInput, type StructoResult } from './structopro-engine'
-import { runVECalculation, type VEInput, type VEResult } from './structopro-ve-engine'
-import StructureBackground from '@/components/backgrounds/StructureBackground'
-import WizardStepBar from '@/components/ui/WizardStepBar'
-import LiveSummaryPanel, { type LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
-import ProjectPicker, { type SelectedProject } from '@/components/ui/ProjectPicker'
+import ResultsV2 from './components/ResultsV2'
+import type { QtyInput } from '@/lib/structopro-qty/types'
+import type { FreePayload } from '@/lib/structopro-qty/payload'
+import type { LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
+import ProjectPicker, { type SelectedProject } from '@/components/v2/inner/ProjectPicker'
+import { ToolHead, StepBar, RailAside, RailFold, Note } from '@/components/v2/inner/kit'
+import { useCalm } from '@/lib/v2/store'
+import { TOOLS } from '@/lib/v2/content'
 import { saveProjectToSession } from '@/lib/project-session'
+import '@/styles/v2/results.css'
 
 const stepVariants = {
   initial: { opacity: 0, x: 18 },
@@ -22,32 +21,46 @@ const stepVariants = {
   exit:    { opacity: 0, x: -18, transition: { duration: 0.18, ease: 'easeIn' as const } },
 }
 
-type Step = 'register' | 'project_pick' | 'method' | 'details' | 'results' | 've_details' | 've_results'
+const calmVariants = {
+  initial: { opacity: 1, x: 0 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0 } },
+  exit:    { opacity: 1, x: 0, transition: { duration: 0 } },
+}
+
+// Name, price and artwork come from the same list the homepage uses, so they cannot drift apart.
+const TOOL = TOOLS.find(t => t.key === 'struct')!
+
+// The four steps the visitor sees. Adding floors to a standing house (vertical extension) is not estimated here:
+// it needs an engineer's survey of the old foundation and columns first, so the form says so instead.
+const STEPS = ['About you', 'Your project', 'Your building', 'Your report']
+
+type Step = 'register' | 'project_pick' | 'details' | 'results'
+
+const STEP_IX: Record<Step, number> = { register: 0, project_pick: 1, details: 2, results: 3 }
 
 interface SessionState {
   regData:         StructoRegData
   contactId:       string
   estimateId:      string | null
-  input:           StructoInput | null
-  result:          StructoResult | null
-  veInput:         VEInput | null
-  veResult:        VEResult | null
+  free:            FreePayload | null
   selectedProject: SelectedProject | null
+}
+
+const EMPTY_SESSION: SessionState = {
+  regData:         {} as StructoRegData,
+  contactId:       '',
+  estimateId:      null,
+  free:            null,
+  selectedProject: null,
 }
 
 export default function StructoProPage() {
   const [step, setStep]         = useState<Step>('register')
   const [liveData, setLiveData] = useState<LiveSummaryData>({})
-  const [session, setSession]   = useState<SessionState>({
-    regData:         {} as StructoRegData,
-    contactId:       '',
-    estimateId:      null,
-    input:           null,
-    result:          null,
-    veInput:         null,
-    veResult:        null,
-    selectedProject: null,
-  })
+  const [session, setSession]   = useState<SessionState>(EMPTY_SESSION)
+  const [calcBusy, setCalcBusy] = useState(false)
+  const [calcError, setCalcError] = useState('')
+  const inFlight = useRef(false)
 
   function handleRegistration(data: StructoRegData, contactId: string) {
     setSession(prev => ({ ...prev, regData: data, contactId }))
@@ -56,50 +69,43 @@ export default function StructoProPage() {
 
   function handleProjectSelect(project: SelectedProject | null) {
     setSession(prev => ({ ...prev, selectedProject: project }))
-    setStep('method')
+    setCalcError('')
+    setStep('details')
   }
 
-  function handleMethod(method: 'design_myself' | 'vertical_extension') {
-    if (method === 'design_myself') setStep('details')
-    else if (method === 'vertical_extension') setStep('ve_details')
-  }
+  // The structure is worked out on the server. The browser only ever receives the free part
+  // (zone, grades, checks, the frame at a glance, preview model); the quantities come after payment.
+  async function handleDetails(input: QtyInput) {
+    if (inFlight.current) return
+    inFlight.current = true
+    setCalcBusy(true)
+    setCalcError('')
 
-  async function handleDetails(input: StructoInput) {
-    const result = runCalculation(input)
-    setSession(prev => ({ ...prev, input, result }))
-    setStep('results')
+    const sp = session.selectedProject
+    const projectName = (sp?.projectName || session.regData.projectName || '').trim() || 'My project'
+    const city = input.city ?? ''
+    const dbNumFloors = input.floorAreasSqft.length
+    const dbPerFloorAreas = input.floorAreasSqft
 
-    // Normalize floors: StructoPro numFloors is G+ count, total = numFloors+1
-    const dbNumFloors = input.numFloors + 1
-    const dbPerFloorAreas = input.perFloorAreas
-      ? input.perFloorAreas
-      : (input.groundFloorAreaSqft > 0 ? [input.groundFloorAreaSqft] : null)
-
-    // Persist project to localStorage immediately — works for both auth and non-auth users,
-    // and survives the case where the projects DB table doesn't yet exist.
+    // Remember the project in this browser straight away. It works for signed-in and anonymous visitors alike.
     saveProjectToSession({
-      projectId:     session.selectedProject?.projectId ?? '',
-      projectName:   input.projectName || session.regData.projectName || '',
-      city:          input.city,
+      projectId:     sp?.projectId ?? '',
+      projectName,
+      city,
       state:         input.state,
       numFloors:     dbNumFloors,
       perFloorAreas: dbPerFloorAreas,
     })
 
     try {
-      let projectId = session.selectedProject?.projectId ?? null
-
-      if (session.selectedProject && projectId) {
-        // Write back only changed shared fields
-        const sp = session.selectedProject
+      // 1. The project row. A failure here never blocks the estimate.
+      let projectId: string | null = sp?.projectId ?? null
+      if (sp && projectId) {
         const patch: Record<string, unknown> = {}
-        if (input.state !== sp.state)          patch.state        = input.state
-        if (input.city  !== sp.city)           patch.city         = input.city
-        if (dbNumFloors !== sp.numFloors)      patch.num_floors   = dbNumFloors
-        // compare perFloorAreas arrays
-        const spAreas = sp.perFloorAreas
-        const areasChanged = JSON.stringify(dbPerFloorAreas) !== JSON.stringify(spAreas)
-        if (areasChanged) patch.per_floor_areas = dbPerFloorAreas
+        if (input.state !== sp.state)                                         patch.state           = input.state
+        if (city && city !== sp.city)                                         patch.city            = city
+        if (dbNumFloors !== sp.numFloors)                                     patch.num_floors      = dbNumFloors
+        if (JSON.stringify(dbPerFloorAreas) !== JSON.stringify(sp.perFloorAreas)) patch.per_floor_areas = dbPerFloorAreas
         if (Object.keys(patch).length > 0) {
           fetch(`/api/projects/${projectId}`, {
             method:  'PATCH',
@@ -108,137 +114,116 @@ export default function StructoProPage() {
           }).catch(console.error)
         }
       } else {
-        // Create new project
-        const projRes = await fetch('/api/projects', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            projectName:    input.projectName,
-            city:           input.city,
-            state:          input.state,
-            numFloors:      dbNumFloors,
-            perFloorAreas:  dbPerFloorAreas,
-          }),
-        })
-        const projJson = await projRes.json()
-        projectId = projJson.projectId ?? null
+        try {
+          const projRes = await fetch('/api/projects', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              projectName,
+              city,
+              state:          input.state,
+              numFloors:      dbNumFloors,
+              perFloorAreas:  dbPerFloorAreas,
+            }),
+          })
+          const projJson = await projRes.json()
+          projectId = projJson.projectId ?? null
+        } catch (err) {
+          console.error('Failed to save project:', err)
+        }
       }
 
-      const res = await fetch('/api/structopro/save-estimate', {
+      // 2. The structure
+      const res = await fetch('/api/structopro/calculate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contactId:   session.contactId,
-          projectName: input.projectName,
-          state:       input.state,
-          city:        input.city,
-          inputData:   input,
-          resultData:  result,
-          projectId,
-        }),
+        body: JSON.stringify({ contactId: session.contactId, projectName, projectId, input }),
       })
-      const json = await res.json()
-      if (json.estimateId) {
-        setSession(prev => ({ ...prev, estimateId: json.estimateId }))
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok || !json.free) {
+        throw new Error(json.error || 'We could not work out your structure. Please try again.')
       }
+      setSession(prev => ({ ...prev, estimateId: json.estimateId ?? null, free: json.free as FreePayload }))
+      setStep('results')
     } catch (err) {
-      console.error('Failed to save estimate:', err)
-    }
-  }
-
-  async function handleVEDetails(veInput: VEInput) {
-    const veResult = runVECalculation(veInput)
-    setSession(prev => ({ ...prev, veInput, veResult }))
-    setStep('ve_results')
-
-    try {
-      const res = await fetch('/api/structopro/save-estimate', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contactId:   session.contactId,
-          projectName: veInput.projectName || session.regData.projectName,
-          state:       veInput.state,
-          city:        veInput.city,
-          inputData:   { ...veInput, estimateType: 'vertical_extension' },
-          resultData:  veResult,
-        }),
-      })
-      const json = await res.json()
-      if (json.estimateId) {
-        setSession(prev => ({ ...prev, estimateId: json.estimateId }))
-      }
-    } catch (err) {
-      console.error('Failed to save VE estimate:', err)
+      setCalcError(err instanceof Error ? err.message : 'We could not work out your structure. Please try again.')
+    } finally {
+      inFlight.current = false
+      setCalcBusy(false)
     }
   }
 
   function handleStartOver() {
     setStep('register')
     setLiveData({})
-    setSession({
-      regData:         {} as StructoRegData,
-      contactId:       '',
-      estimateId:      null,
-      input:           null,
-      result:          null,
-      veInput:         null,
-      veResult:        null,
-      selectedProject: null,
-    })
+    setCalcError('')
+    setSession(EMPTY_SESSION)
   }
 
+  const calm = useCalm()
+  const v = calm ? calmVariants : stepVariants
+  const isReport = step === 'results'
+
+  // a fresh screen always starts at the top
+  useEffect(() => { window.scrollTo(0, 0) }, [step])
+
+  // A saved project the person picked wins over what they typed at sign-up, so the side summary matches it.
+  const picked = session.selectedProject
+  const railReg = picked
+    ? {
+        ...session.regData,
+        projectName: picked.projectName || session.regData.projectName,
+        state: picked.state || session.regData.state,
+        city: picked.city || session.regData.city,
+      }
+    : session.regData
+  const rail = { toolName: TOOL.name, price: TOOL.price, regData: railReg, liveData }
+  const withRail = (node: React.ReactNode) => (
+    <div className="ns-i-grid ns-i-grid--rail">
+      <div style={{ minWidth: 0 }}>
+        <RailFold {...rail} />
+        {node}
+      </div>
+      <RailAside {...rail} />
+    </div>
+  )
+
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-base)', position: 'relative' }}>
-      <StructureBackground />
-      <div style={{ position: 'relative', zIndex: 1 }}>
-      {/* Step bar — always visible */}
-      <WizardStepBar currentStep={step === 've_details' || step === 've_results' ? 'details' : step} toolName="StructurePro" toolPhase="P1" />
+    <div className="ns-i-wrap ns-i-page" style={{ ['--tc' as string]: `var(${TOOL.accent})` }}>
+      {!isReport && (
+        <ToolHead
+          eyebrow="Phase 1 · Structure"
+          name={TOOL.name}
+          price={`Full report ${TOOL.price}`}
+          blurb="How much concrete and steel your frame needs, item by item: foundation, columns, beams and slabs, worked out to the Indian Standards."
+          art={TOOL.plate}
+          artAlt={TOOL.plateAlt}
+        />
+      )}
+      <StepBar steps={STEPS} current={STEP_IX[step]} />
 
       <AnimatePresence mode="wait">
         {step === 'register' && (
-          <motion.div key="register" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
-              <div className="w-full lg:w-[58%] min-w-0">
-                <RegistrationForm onSubmit={handleRegistration} />
-              </div>
-              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" price="₹999" regData={session.regData} liveData={liveData} />
-              </div>
-            </div>
+          <motion.div key="register" variants={v} initial="initial" animate="animate" exit="exit">
+            {withRail(<RegistrationForm onSubmit={handleRegistration} />)}
           </motion.div>
         )}
 
         {step === 'project_pick' && (
-          <motion.div key="project_pick" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
-              <div className="w-full lg:w-[58%] min-w-0">
-                <ProjectPicker onSelect={handleProjectSelect} toolName="StructurePro" />
-              </div>
-              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" price="₹999" regData={session.regData} liveData={liveData} />
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {step === 'method' && (
-          <motion.div key="method" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
-              <div className="w-full lg:w-[58%] min-w-0">
-                <MethodSelection onSelect={handleMethod} />
-              </div>
-              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel toolName="StructurePro" toolPhase="P1" price="₹999" regData={session.regData} liveData={liveData} />
-              </div>
-            </div>
+          <motion.div key="project_pick" variants={v} initial="initial" animate="animate" exit="exit">
+            {withRail(<ProjectPicker onSelect={handleProjectSelect} toolName={TOOL.name} />)}
           </motion.div>
         )}
 
         {step === 'details' && (
-          <motion.div key="details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
-              <div className="w-full lg:w-[58%] min-w-0">
+          <motion.div key="details" variants={v} initial="initial" animate="animate" exit="exit">
+            {withRail(
+              <>
+                {calcError && (
+                  <div style={{ marginBottom: 16 }}>
+                    <Note kind="err" title="We could not finish">{calcError}</Note>
+                  </div>
+                )}
                 <BuildDetails
                   state={session.selectedProject?.state ?? session.regData.state}
                   city={session.selectedProject?.city ?? session.regData.city}
@@ -246,70 +231,36 @@ export default function StructoProPage() {
                   initialProject={session.selectedProject ?? undefined}
                   onSubmit={handleDetails}
                   onFormChange={setLiveData}
-                  onBack={() => setStep('method')}
+                  onBack={() => setStep('project_pick')}
                 />
-              </div>
-              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel
-                  toolName="StructurePro"
-                  toolPhase="P1"
-                  price="₹999"
-                  regData={session.regData}
-                  liveData={liveData}
-                />
-              </div>
-            </div>
+              </>
+            )}
           </motion.div>
         )}
 
-        {step === 've_details' && (
-          <motion.div key="ve_details" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <div className="flex flex-col lg:flex-row min-h-screen lg:items-start">
-              <div className="w-full lg:w-[58%] min-w-0">
-                <VerticalExtensionDetails
-                  state={session.regData.state}
-                  city={session.regData.city}
-                  onSubmit={handleVEDetails}
-                />
-              </div>
-              <div className="hidden lg:block lg:w-[42%] min-w-0" style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', maxHeight: '100vh', overflowY: 'auto' }}>
-                <LiveSummaryPanel
-                  toolName="StructurePro"
-                  toolPhase="P1"
-                  price="₹999"
-                  regData={session.regData}
-                  liveData={liveData}
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {step === 'results' && session.result && session.input && (
-          <motion.div key="results" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <ResultsPage
-              result={session.result}
-              input={session.input}
+        {step === 'results' && session.free && (
+          <motion.div key="results" variants={v} initial="initial" animate="animate" exit="exit">
+            <ResultsV2
+              free={session.free}
               estimateId={session.estimateId}
               contactName={session.regData.name}
+              projectName={session.selectedProject?.projectName ?? session.regData.projectName ?? ''}
               onStartOver={handleStartOver}
             />
           </motion.div>
         )}
 
-        {step === 've_results' && session.veResult && session.veInput && (
-          <motion.div key="ve_results" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <VEResultsPage
-              result={session.veResult}
-              input={session.veInput}
-              estimateId={session.estimateId}
-              contactName={session.regData.name}
-              onStartOver={handleStartOver}
-            />
-          </motion.div>
-        )}
       </AnimatePresence>
-      </div>
+
+      {calcBusy && (
+        <div className="ns-r-busy" role="status" aria-live="polite">
+          <div className="ns-r-busy__card">
+            <span className="ns-r-busy__spin" aria-hidden="true" />
+            <p>Working out your structure…</p>
+            <small>Sizing the footings, columns, beams and slabs to the IS codes. This takes a few seconds.</small>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

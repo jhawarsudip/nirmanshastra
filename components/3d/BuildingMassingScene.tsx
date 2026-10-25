@@ -1,12 +1,13 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { useMemo, type ReactNode } from 'react'
+import { useLayoutEffect, useMemo, type ReactNode } from 'react'
+import type { PerspectiveCamera } from 'three'
 import { SQFT_TO_M2, ASPECT_RATIO, SLAB_THICKNESS_M, type FloorDatum, type FloorGeometry } from './types'
 
-// Blueprint tones for slab plates — slightly lighter than the old massing boxes
-const SLAB_COLORS = ['#1F4E79', '#1b4470', '#173a62', '#133055', '#102748']
+// Warm chalk slabs on the charcoal "wet concrete" stage, the same family as the structure model. Never blue.
+const SLAB_COLORS = ['#EDE6D4', '#E2D9C3', '#D8CFBD', '#CDC3AC', '#C2B79F']
 
 export function computeFloorGeometry(floors: FloorDatum[]): {
   geoms: FloorGeometry[]
@@ -53,12 +54,42 @@ interface Props {
   renderExtras?: (geoms: FloorGeometry[]) => ReactNode
 }
 
+// Puts the camera far enough back that the whole block fits in the frame, whatever the shape of
+// the frame is. On a phone the frame is taller than wide, so the width, not the height, sets the
+// distance. Runs again only when the shape of the frame changes, so it never undoes a drag.
+function FitCamera({ radius, centerY }: { radius: number; centerY: number }) {
+  const camera = useThree(s => s.camera) as PerspectiveCamera
+  const width = useThree(s => s.size.width)
+  const height = useThree(s => s.size.height)
+
+  useLayoutEffect(() => {
+    const vfov = (camera.fov * Math.PI) / 180
+    const aspect = width / Math.max(height, 1)
+    const hfov = 2 * Math.atan(Math.tan(vfov / 2) * aspect)
+    const dist = (radius * 1.18) / Math.sin(Math.min(vfov, hfov) / 2)
+    // Looking down from the south-east at about 28 degrees, so the slabs read as slabs
+    const dx = 0.8, dy = 0.6, dz = 0.8
+    const len = Math.hypot(dx, dy, dz)
+    camera.position.set((dx / len) * dist, centerY + (dy / len) * dist, (dz / len) * dist)
+    camera.lookAt(0, centerY, 0)
+    camera.updateProjectionMatrix()
+  }, [camera, radius, centerY, width, height])
+
+  return null
+}
+
 export default function BuildingMassingScene({ floors, renderExtras }: Props) {
   const { geoms, totalH, groundW, groundD } = useMemo(
     () => computeFloorGeometry(floors),
     [floors]
   )
   const camDist = Math.max(totalH * 2, 10)
+  // Smallest sphere around the block, centred half-way up, that holds every slab
+  const fitRadius = useMemo(() => {
+    const halfW = Math.max(...geoms.map(g => g.w), 6) / 2
+    const halfD = Math.max(...geoms.map(g => g.d), 5) / 2
+    return Math.hypot(halfW, halfD, totalH / 2)
+  }, [geoms, totalH])
 
   return (
     <Canvas
@@ -71,18 +102,26 @@ export default function BuildingMassingScene({ floors, renderExtras }: Props) {
       }}
       style={{ width: '100%', height: '100%' }}
     >
-      <color attach="background" args={['#0c1117']} />
-      <ambientLight intensity={0.55} />
+      <color attach="background" args={['#403E3A']} />
+      <FitCamera radius={fitRadius} centerY={totalH / 2} />
+      <ambientLight intensity={1.0} />
       <directionalLight
         position={[camDist * 0.6, camDist * 1.2, camDist * 0.4]}
-        intensity={1.1}
+        intensity={0.55}
         castShadow
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={[2048, 2048]}
+        shadow-bias={-0.0004}
+        shadow-camera-left={-camDist}
+        shadow-camera-right={camDist}
+        shadow-camera-top={camDist}
+        shadow-camera-bottom={-camDist}
+        shadow-camera-near={1}
+        shadow-camera-far={camDist * 4}
       />
       <directionalLight
         position={[-camDist * 0.4, camDist * 0.3, -camDist * 0.3]}
         intensity={0.25}
-        color="#aac8e8"
+        color="#ffe9c9"
       />
 
       {/* Floor slabs — one per floor, at the bottom of each floor's height span */}
@@ -112,13 +151,13 @@ export default function BuildingMassingScene({ floors, renderExtras }: Props) {
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <planeGeometry args={[groundW, groundD]} />
-        <meshLambertMaterial color="#141a22" />
+        <meshLambertMaterial color="#55524B" />
       </mesh>
 
       <OrbitControls
         enablePan={false}
         minDistance={3}
-        maxDistance={camDist * 3}
+        maxDistance={Math.max(camDist * 3, fitRadius * 5)}
         target={[0, totalH / 2, 0]}
         makeDefault
       />

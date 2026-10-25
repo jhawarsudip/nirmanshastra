@@ -3,274 +3,149 @@ import { NextRequest, NextResponse } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
-import GrandTotalPDF from '@/lib/pdf/grand-total-pdf'
-import type { ContactInfo, PhaseEstimate, GrandTotalData } from '@/lib/pdf/grand-total-pdf'
+import GrandTotalQtyPDF from '@/lib/pdf/grand-total-qty-pdf'
+import type { ContactInfo } from '@/lib/pdf/qty-kit'
+import { GRAND_META, buildGrand, type GrandFree, type GrandPaid, type PhaseSource } from '@/lib/qty/grand'
+import { loadPhase } from '@/lib/qty/grand-server'
+import { buildTradeEmail } from '@/lib/qty/email'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
+export const runtime = 'nodejs'
+
 const resend = new Resend(process.env.RESEND_API_KEY)
+const bad = (error: string, status = 400) => NextResponse.json({ error }, { status })
 
-function fmtLakhs(n: number): string {
-  if (n >= 10_000_000) return `Rs.${(n / 10_000_000).toFixed(1)} Cr`
-  if (n >= 100_000)    return `Rs.${(n / 100_000).toFixed(1)} L`
-  return `Rs.${n.toLocaleString('en-IN')}`
-}
-
-const PHASE_ORDER = ['structopro', 'masonpro', 'electropro', 'plumbpro', 'interiorpro']
-
-// POST /api/grand-total/generate-pdf
+// POST /api/grand-total/generate-pdf { estimateId }: called by the page once the payment is confirmed.
+// The Grand Total must be paid on the server (or the server must be in payment bypass) before anything is built.
 export async function POST(req: NextRequest) {
   try {
-    const { estimateId } = await req.json()
-    if (!estimateId) {
-      return NextResponse.json({ error: 'estimateId required' }, { status: 400 })
-    }
+    const body = await req.json().catch(() => ({}))
+    const estimateId = body?.estimateId
+    if (typeof estimateId !== 'string' || !estimateId) return bad('estimateId required')
 
     const supabase = createServiceClient()
-
-    // 1. Verify grand total estimate is paid
-    const { data: gtEstimate, error: gtErr } = await supabase
+    const { data: estimate, error: estErr } = await supabase
       .from('estimates')
-      .select('id, project_name, input_data, result_data, status, contact_id')
+      .select('id, app_type, project_name, state, city, user_id, input_data, result_data, status, contact_id')
       .eq('id', estimateId)
-      .eq('app_type', 'grandtotal')
       .single()
+    if (estErr || !estimate || estimate.app_type !== 'grandtotal') return bad('Estimate not found', 404)
+    if (!PAYMENT_BYPASS && estimate.status !== 'paid') return bad('Payment not verified', 403)
 
-    if (gtErr || !gtEstimate) {
-      return NextResponse.json({ error: 'Grand total estimate not found' }, { status: 404 })
-    }
-    if (!PAYMENT_BYPASS && gtEstimate.status !== 'paid') {
-      return NextResponse.json({ error: 'Payment not verified' }, { status: 403 })
-    }
+    const input = estimate.input_data as { engine?: string; selectedEstimateIds?: string[] } | null
+    if (!input || input.engine !== 'grand-v1' || !Array.isArray(input.selectedEstimateIds)) return bad('This Grand Total was made with an earlier version of the tool. Please make a new one.', 409)
 
-    // 2. Fetch contact info
     const { data: contact, error: contErr } = await supabase
       .from('contacts')
-      .select('name, email, mobile, city, state')
-      .eq('id', gtEstimate.contact_id)
+      .select('name, email, mobile, address, city, state')
+      .eq('id', estimate.contact_id)
       .single()
-
-    if (contErr || !contact) {
-      return NextResponse.json({ error: 'Contact not found' }, { status: 404 })
-    }
+    if (contErr || !contact) return bad('Contact not found', 404)
 
     const contactInfo: ContactInfo = {
-      name:   contact.name   ?? '',
-      email:  contact.email  ?? '',
+      name: contact.name ?? '',
+      email: contact.email ?? '',
       mobile: contact.mobile ?? '',
-      city:   contact.city   ?? '',
-      state:  contact.state  ?? '',
+      address: contact.address ?? '',
+      city: contact.city ?? '',
+      state: contact.state ?? '',
     }
 
-    // 3. Fetch all selected phase estimates
-    const inputData = gtEstimate.input_data as { selectedEstimateIds?: string[] } | null
-    const selectedIds = inputData?.selectedEstimateIds ?? []
-
-    const { data: phaseEstimates, error: phErr } = await supabase
-      .from('estimates')
-      .select('id, app_type, project_name, result_data')
-      .in('id', selectedIds)
-      .eq('status', 'paid')
-
-    if (phErr || !phaseEstimates) {
-      return NextResponse.json({ error: 'Failed to fetch phase estimates' }, { status: 500 })
+    // The list frozen when the customer first opened the report; otherwise add the phases again (deterministic).
+    const prior = estimate.result_data as { paid?: GrandPaid; free?: GrandFree } | null
+    let paid = prior?.paid
+    let free = prior?.free
+    if (!paid || !free) {
+      const { data: rows, error: rowsErr } = await supabase
+        .from('estimates')
+        .select('id, app_type, project_name, state, city, input_data, result_data')
+        .in('id', input.selectedEstimateIds)
+        .eq('user_id', estimate.user_id)
+      if (rowsErr || !rows || rows.length !== input.selectedEstimateIds.length) return bad('One of the reports in this Grand Total could not be found.', 409)
+      const srcs: PhaseSource[] = []
+      for (const r of rows) {
+        const loaded = loadPhase(r)
+        if (!loaded.ok) return bad(loaded.error, 422)
+        srcs.push(loaded.src)
+      }
+      const built = buildGrand(srcs)
+      paid = built.paid
+      free = built.free
     }
 
-    // Sort phases in canonical order
-    const phases: PhaseEstimate[] = PHASE_ORDER
-      .map(key => phaseEstimates.find(e => e.app_type === key))
-      .filter(Boolean)
-      .map(e => ({
-        appType:     e!.app_type,
-        projectName: e!.project_name,
-        resultData:  e!.result_data as Record<string, unknown>,
-      }))
+    const reportId = `NS-${GRAND_META.code}-${estimateId.slice(0, 8).toUpperCase()}`
+    const projectName = (estimate.project_name ?? 'My project').replace(/^Grand Total:\s*/i, '') || 'My project'
+    const where = [estimate.city, estimate.state].filter(Boolean).join(', ')
 
-    const resultData = gtEstimate.result_data as GrandTotalData | null
-    if (!resultData) {
-      return NextResponse.json({ error: 'Result data missing' }, { status: 500 })
+    let pdfBuffer: Buffer
+    try {
+      const el = React.createElement(GrandTotalQtyPDF, { free, paid, contact: contactInfo, reportId, projectName, date: new Date(), where })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pdfBuffer = await renderToBuffer(el as any)
+    } catch (pdfErr) {
+      console.error('Grand Total PDF render error:', pdfErr instanceof Error ? pdfErr.message : pdfErr)
+      return bad('The PDF could not be built.', 500)
     }
 
-    const reportId    = `NS-GT-${estimateId.slice(0, 8).toUpperCase()}`
-    const projectName = gtEstimate.project_name ?? 'Master Project Report'
-
-    // 4. Generate PDF
-    const pdfElement = React.createElement(GrandTotalPDF, {
-      contact:     contactInfo,
-      reportId,
-      projectName,
-      date:        new Date(),
-      phases,
-      grandTotal:  resultData,
-    })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfBuffer = await renderToBuffer(pdfElement as any)
-
-    // 5. Upload to Supabase storage
+    // Public bucket, reports are named by their UUID.
     const { error: bucketErr } = await supabase.storage.createBucket('reports', { public: true, fileSizeLimit: 10485760 })
-    if (bucketErr && !bucketErr.message.includes('already exist')) {
-      console.error('Bucket error:', bucketErr.message)
-    }
+    if (bucketErr && !bucketErr.message.includes('already exist')) console.error('Bucket creation error:', bucketErr.message)
 
     const storagePath = `grandtotal/${estimateId}.pdf`
-    const { error: uploadErr } = await supabase.storage
-      .from('reports')
-      .upload(storagePath, pdfBuffer, { contentType: 'application/pdf', upsert: true })
-
+    const { error: uploadErr } = await supabase.storage.from('reports').upload(storagePath, pdfBuffer, { contentType: 'application/pdf', upsert: true })
     if (uploadErr) {
       console.error('Storage upload error:', uploadErr)
-      return NextResponse.json({ error: 'Failed to upload PDF' }, { status: 500 })
+      return bad('The PDF could not be saved.', 500)
     }
+    const pdfUrl = supabase.storage.from('reports').getPublicUrl(storagePath).data.publicUrl
 
-    const { data: urlData } = supabase.storage.from('reports').getPublicUrl(storagePath)
-    const pdfUrl = urlData.publicUrl
+    // The reports table has no unique key on estimate_id, so look first, then update or insert.
+    const { data: existing, error: lookErr } = await supabase.from('reports').select('id').eq('estimate_id', estimateId).limit(1)
+    if (lookErr) console.error('Report lookup error:', lookErr)
+    const { error: reportErr } = existing && existing.length > 0
+      ? await supabase.from('reports').update({ pdf_url: pdfUrl, email_sent: false }).eq('estimate_id', estimateId)
+      : await supabase.from('reports').insert({ estimate_id: estimateId, pdf_url: pdfUrl, email_sent: false, download_count: 0 })
+    if (reportErr) console.error('Report table write error:', reportErr)
 
-    // 6. Upsert reports table
-    await supabase
-      .from('reports')
-      .upsert({ estimate_id: estimateId, pdf_url: pdfUrl, email_sent: false, download_count: 0 }, { onConflict: 'estimate_id' })
-
-    // 7. Send email
     let emailSent = false
     if (contactInfo.email) {
       try {
-        const { error: emailErr } = await resend.emails.send({
-          from:    process.env.RESEND_FROM_EMAIL!,
-          to:      contactInfo.email,
-          subject: `Your Master Project Report is Ready — ${reportId}`,
-          html:    buildEmailHtml(contactInfo.name, reportId, pdfUrl, resultData),
+        const sent = await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL!,
+          to: contactInfo.email,
+          subject: `Your Grand Total report is ready — ${reportId}`,
+          html: buildTradeEmail(GRAND_META, contactInfo.name, reportId, pdfUrl),
         })
-        if (!emailErr) {
+        if (sent.error) {
+          console.error(`[CRITICAL][NS-PDF-EMAIL] Grand Total delivery email FAILED for ${contactInfo.email}. A guest has no login to recover the report later. Resend error:`, sent.error)
+        } else {
           emailSent = true
           await supabase.from('reports').update({ email_sent: true }).eq('estimate_id', estimateId)
         }
       } catch (emailEx) {
-        console.error('Email error:', emailEx)
+        console.error(`[CRITICAL][NS-PDF-EMAIL] Grand Total delivery email THREW for ${contactInfo.email}:`, emailEx)
       }
     }
 
-    // 8. Update contact status
-    if (gtEstimate.contact_id) {
-      await supabase.from('contacts').update({ status: 'downloaded' }).eq('id', gtEstimate.contact_id)
-    }
-
+    await supabase.from('contacts').update({ status: 'downloaded' }).eq('id', estimate.contact_id)
     return NextResponse.json({ pdfUrl, reportId, emailSent, success: true })
   } catch (err) {
-    console.error('grand-total generate-pdf error:', err)
-    return NextResponse.json({ error: 'PDF generation failed' }, { status: 500 })
+    console.error('Grand Total generate-pdf error:', err instanceof Error ? err.message : err)
+    return bad('PDF generation failed', 500)
   }
 }
 
-// GET — return existing PDF if already generated
+// GET /api/grand-total/generate-pdf?estimateId=...: the PDF if it was already built, so a page refresh does not build it again.
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const estimateId = searchParams.get('estimateId')
-  if (!estimateId) return NextResponse.json({ error: 'estimateId required' }, { status: 400 })
+  const estimateId = req.nextUrl.searchParams.get('estimateId')
+  if (!estimateId) return bad('estimateId required')
 
   const supabase = createServiceClient()
+  const { data: estimate } = await supabase.from('estimates').select('status, app_type').eq('id', estimateId).single()
+  if (!estimate || estimate.app_type !== 'grandtotal') return bad('Estimate not found', 404)
+  if (!PAYMENT_BYPASS && estimate.status !== 'paid') return bad('Not authorised', 403)
 
-  const { data: estimate } = await supabase
-    .from('estimates')
-    .select('status')
-    .eq('id', estimateId)
-    .eq('app_type', 'grandtotal')
-    .single()
-
-  if (!PAYMENT_BYPASS && (!estimate || estimate.status !== 'paid')) {
-    return NextResponse.json({ error: 'Not authorised' }, { status: 403 })
-  }
-
-  const { data: report } = await supabase
-    .from('reports')
-    .select('pdf_url')
-    .eq('estimate_id', estimateId)
-    .single()
-
-  if (report?.pdf_url) {
-    return NextResponse.json({ pdfUrl: report.pdf_url, success: true })
-  }
-  return NextResponse.json({ pdfUrl: null, success: false })
-}
-
-function buildEmailHtml(name: string, reportId: string, pdfUrl: string, gtData: GrandTotalData): string {
-  const std = fmtLakhs(gtData.combinedTotal.standard)
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Your Master Project Report</title>
-</head>
-<body style="margin:0;padding:0;background:#F4F4F0;font-family:'IBM Plex Sans',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F4F0;padding:32px 0;">
-    <tr>
-      <td align="center">
-        <table width="580" cellpadding="0" cellspacing="0" style="background:#F4F4F0;border:1px solid #1E2227;max-width:580px;">
-          <tr>
-            <td style="padding:20px 28px;border-bottom:1px solid #1E2227;">
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td>
-                    <p style="margin:0;font-family:'IBM Plex Mono',Courier,monospace;font-size:13px;font-weight:700;color:#1F4E79;letter-spacing:2px;">NIRMANSHASTRA</p>
-                    <p style="margin:2px 0 0;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;">Build With Certainty</p>
-                  </td>
-                  <td align="right">
-                    <span style="display:inline-block;border:1px solid #8C3A22;padding:4px 10px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#8C3A22;">MASTER PROJECT REPORT</span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:28px 28px 20px;">
-              <p style="margin:0 0 6px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">REPORT READY</p>
-              <h1 style="margin:0 0 16px;font-family:'IBM Plex Serif',Georgia,serif;font-size:22px;color:#1E2227;font-weight:700;">Your Master Project Report is Ready</h1>
-              <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#1E2227;line-height:1.6;">Dear ${name},</p>
-              <p style="margin:0 0 14px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;color:#1E2227;line-height:1.6;">
-                Your Grand Total Master Project Report (<strong style="font-family:'IBM Plex Mono',Courier,monospace;">${reportId}</strong>) is ready.
-                Combined Standard estimate: <strong style="font-family:'IBM Plex Mono',Courier,monospace;">${std}</strong>.
-              </p>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
-                <tr>
-                  <td style="background:#EBF0F7;border:1px solid #1F4E79;padding:14px 20px;">
-                    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#1F4E79;letter-spacing:1px;">12-PAGE REPORT INCLUDES:</p>
-                    <ul style="margin:8px 0 0;padding:0 0 0 18px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#1E2227;line-height:1.8;">
-                      <li>Phase-wise cost breakdown (Basic / Standard / Premium)</li>
-                      <li>Construction Timeline Gantt chart</li>
-                      <li>One summary page per included phase</li>
-                      <li>Master Material Summary across all phases</li>
-                      <li>Combined IS Code Compliance (all phases)</li>
-                      <li>Complete Engineering Picture — phase interdependencies</li>
-                    </ul>
-                  </td>
-                </tr>
-              </table>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
-                <tr>
-                  <td align="center">
-                    <a href="${pdfUrl}" target="_blank" style="display:inline-block;background:#8C3A22;color:#ffffff;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;font-weight:600;text-decoration:none;padding:14px 32px;border-radius:4px;">
-                      Download Master Project Report
-                    </a>
-                  </td>
-                </tr>
-              </table>
-              <p style="margin:0 0 6px;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:12px;color:#888;line-height:1.6;">
-                If the button above does not work, copy this link into your browser:
-              </p>
-              <p style="margin:0 0 20px;font-family:'IBM Plex Mono',Courier,monospace;font-size:11px;color:#1F4E79;word-break:break-all;">${pdfUrl}</p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:16px 28px;border-top:1px solid #D0D2D4;background:#F4F4F0;">
-              <p style="margin:0;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;line-height:1.6;">
-                NirmanShastra &middot; India&apos;s IS-Code Construction Cost Platform<br/>
-                This report is for estimation purposes only. Not a substitute for licensed structural engineer drawings.
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`
+  const { data: rows } = await supabase.from('reports').select('pdf_url').eq('estimate_id', estimateId).limit(1)
+  const found = rows?.[0]?.pdf_url
+  return NextResponse.json(found ? { pdfUrl: found, success: true } : { pdfUrl: null, success: false })
 }

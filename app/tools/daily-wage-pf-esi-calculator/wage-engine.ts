@@ -1,69 +1,86 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // DAILY-WAGE PF & ESI CALCULATOR — ENGINE
 //
-// Permanently-free, standalone calculator. It reproduces the per-worker net-wage
-// computation of a construction-site MUSTER ROLL exactly as laid out in the paid
-// "Labour & Statutory Compliance" Wage Register (a standalone Excel product).
+// A muster-roll model: a daily rate across the days worked (which can be a part
+// day, 23.5), with the worker's own PF and ESI taken out of what was earned.
+// It is not a monthly-CTC payroll tool. It shows the WORKER'S deductions only;
+// the employer's own PF and ESI share is a separate cost and is not computed.
 //
-// This is DELIBERATELY a daily-wage / muster-roll model, not a monthly-CTC one.
-// A site labourer is paid on the days actually worked (which vary bill to bill and
-// can be fractional — e.g. 23.5 days), on a daily rate, with statutory PF and ESI
-// deducted from what was earned. That is a different calculation from the fixed
-// monthly-salary PF/ESI tools built for office payroll.
+// WHAT THE RULES ARE, AND HOW SURE EACH ONE IS
+//   Read from secondary sources (payroll-guide pages), not from the statutes or
+//   the EPFO and ESIC sites, which were not reachable from this workspace. Check
+//   the ceilings against the current notifications before relying on them.
 //
-// AUTHORITATIVE SOURCE — do not overwrite from any other source:
+//   • Basic earned = daily wage × payable days.
+//   • PF (employee) = 12% of basic earned, capped at ₹1,800, which is 12% of the
+//     ₹15,000 EPF wage ceiling. Contributions on wages above the ceiling are by
+//     agreement, not mandatory. The EPF Scheme 2026 (notified 29 June 2026 under
+//     the Code on Social Security 2020, replacing the EPF Scheme 1952) leaves the
+//     ceiling at ₹15,000.
+//   • ESI (employee) = 0.75% of wages, in force at the time of writing.
+//       - Coverage is tested on wages EXCLUDING overtime, against ₹21,000 a month.
+//       - Once covered, the contribution is taken on all wages, overtime included.
+//       - An employee whose average daily wage is ₹176 or less pays no employee
+//         share (the employer still pays its own).
+//       - Coverage is fixed for each six-month contribution period (April to
+//         September, October to March): a worker covered at the start of a period
+//         stays covered to its end even if wages cross ₹21,000. This calculator
+//         tests the wages you enter, one period at a time, and says so.
+//   • Overtime = twice the ordinary hourly rate (Code on Wages 2019 s.14, in
+//     force from 21 November 2025). The ordinary hourly rate is the daily wage
+//     over an 8-hour day (ASSUMPTION: the Code leaves normal hours to the
+//     employer's terms; 8 is the usual working day).
+//   • Overtime adds to GROSS wages and to the ESI base, but not to the PF base,
+//     which stays on basic earned (the Code's definition of wages leaves out
+//     overtime allowance).
+//   • Net payable = gross wages − PF − ESI − advance.
 //
-//   These formulas were EXTRACTED DIRECTLY from the Labour & Statutory Compliance
-//   product's Wage Register sheet. They are PORTED, never invented:
+// CHANGED FROM THE FIRST VERSION: the ESI coverage test used gross wages with
+// overtime. The sources read for this rewrite say overtime is left out of that
+// test, and that the ₹176 daily-wage exemption exists; both are now modelled.
 //
-//     • Basic earned = daily wage × payable days
-//     • PF (employee) = 12% of basic earned, CAPPED at ₹1,800
-//                       (i.e. capped as if basic earned were ₹15,000 — the EPF
-//                       statutory wage ceiling; 12% × ₹15,000 = ₹1,800)
-//     • ESI (employee) = 0.75% of gross wages, but ONLY if gross wages ≤ ₹21,000;
-//                        above the ESI coverage ceiling it is ₹0
-//     • Net payable = Gross wages − PF − ESI − Advance   (advance default ₹0)
-//
-//   Overtime, when entered, is paid at TWICE the ordinary hourly rate — the
-//   long-standing statutory overtime rate (Minimum Wages Act 1948 s.14 /
-//   Factories Act 1948 s.59 / Code on Wages 2019 s.14) — where the ordinary hourly
-//   rate is the daily wage spread over a standard 8-hour working day
-//   (Factories Act normal working day). Overtime adds to GROSS wages (and hence to
-//   the ESI base) but NOT to the PF base, which stays on basic earned only.
-//
-// VERIFIED TEST CASES (must hold exactly):
-//   1. ₹900/day × 23 days   → basic ₹20,700 · PF ₹1,800 (capped) · ESI ₹155.25 · net ₹18,744.75
-//   2. ₹650/day × 20.5 days → basic ₹13,325 · PF ₹1,599 · ESI ₹99.94 · net ₹11,626.06
+// CHECK CASES (scripts/qty/calc-check.cjs):
+//   1. ₹900/day × 23 days   → basic 20,700 · PF 1,800 (capped) · ESI 155.25 · net 18,744.75
+//   2. ₹650/day × 20.5 days → basic 13,325 · PF 1,599 · ESI 99.9375 · net 11,626.0625
+//   3. ₹800/day × 26 days + 8 h overtime → basic 20,800 (covered), gross 22,400,
+//      PF 1,800, ESI 168 (on gross), net 20,432
+//   4. ₹900/day × 24 days   → basic 21,600 > 21,000 → ESI 0
+//   5. ₹170/day × 26 days   → average daily wage ≤ 176 → ESI 0
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Statutory constants ──────────────────────────────────────────────────────
-/** Employee PF contribution rate — EPF Scheme 1952. */
+// ── Constants ────────────────────────────────────────────────────────────────
+/** Employee PF contribution rate. */
 export const PF_EMPLOYEE_RATE = 0.12
-/** EPF statutory wage ceiling (₹). PF is capped as if wages were this figure. */
+/** EPF statutory wage ceiling (₹ a month). Mandatory PF is on wages up to this. */
 export const PF_WAGE_CEILING = 15000
 /** Employee PF is capped at 12% × ₹15,000 = ₹1,800. */
 export const PF_EMPLOYEE_CAP = PF_WAGE_CEILING * PF_EMPLOYEE_RATE // 1800
 
-/** Employee ESI contribution rate — ESI (Central) Rules. */
+/** Employee ESI contribution rate. */
 export const ESI_EMPLOYEE_RATE = 0.0075
-/** ESI coverage ceiling (₹). At or below this gross, ESI applies; above it, ₹0. */
+/** ESI coverage ceiling (₹ a month), tested on wages without overtime. */
 export const ESI_WAGE_CEILING = 21000
+/** Average daily wage (₹) up to which the employee's ESI share is not taken. */
+export const ESI_DAILY_EXEMPT = 176
 
-/** Standard working day for spreading the daily wage into an hourly rate. */
+/** Standard working day for turning the daily wage into an hourly rate. */
 export const STANDARD_HOURS_PER_DAY = 8
-/** Statutory overtime multiplier — twice the ordinary rate of wages. */
+/** Overtime multiplier: twice the ordinary rate. */
 export const OVERTIME_MULTIPLIER = 2
 
 export interface WageInputs {
   /** Daily wage rate agreed on the muster roll, ₹. */
   dailyWage: number
-  /** Days payable this period — may be fractional, e.g. 23.5. */
+  /** Days payable this period, may be a part day such as 23.5. */
   payableDays: number
-  /** Overtime hours worked this period (optional; default 0). */
+  /** Overtime hours worked this period (default 0). */
   overtimeHours: number
-  /** Advance already taken by the worker, recovered this period, ₹ (default 0). */
+  /** Advance already taken, recovered this period, ₹ (default 0). */
   advance: number
 }
+
+/** Why ESI is or is not taken. */
+export type EsiStatus = 'applies' | 'above-ceiling' | 'daily-exempt'
 
 export interface WageResult {
   /** dailyWage × payableDays */
@@ -74,29 +91,28 @@ export interface WageResult {
   grossWages: number
   /** min(12% × basicEarned, ₹1,800) */
   pf: number
-  /** 0.75% × grossWages, or ₹0 when grossWages > ₹21,000 */
+  /** true when 12% of basic would have exceeded the cap */
+  pfCapped: boolean
+  /** 0.75% of gross wages when covered; otherwise 0 */
   esi: number
-  /** true when grossWages ≤ ₹21,000 (ESI applies) */
-  esiApplies: boolean
+  /** applies, or why not */
+  esiStatus: EsiStatus
+  /** gross ÷ payable days; 0 when no days */
+  averageDailyWage: number
   /** advance recovered this period */
   advance: number
-  /** grossWages − pf − esi − advance */
+  /** grossWages − pf − esi − advance (can be negative if the advance is large) */
   netPayable: number
 }
 
-/** Sanitise a possibly-NaN / negative input to a finite, non-negative number. */
+/** A possibly-NaN or negative input as a finite, non-negative number. */
 function clean(n: number): number {
   return Number.isFinite(n) ? Math.max(0, n) : 0
 }
 
 /**
- * Compute one worker's net wage for a muster-roll period.
- *
- * All amounts derive from the RAW (unrounded) inputs; callers round only for
- * display. PF is on basic earned and hard-capped at ₹1,800. ESI is on the full
- * gross (basic + overtime) and switches off entirely above the ₹21,000 ceiling.
- *
- *   Net Payable = Gross wages − PF − ESI − Advance
+ * One worker's net wage for a muster-roll period. Everything derives from the raw
+ * inputs; callers round only for display.
  */
 export function calculate(inputs: WageInputs): WageResult {
   const dailyWage = clean(inputs.dailyWage)
@@ -105,29 +121,20 @@ export function calculate(inputs: WageInputs): WageResult {
   const advance = clean(inputs.advance)
 
   const basicEarned = dailyWage * payableDays
-
-  const hourlyRate = dailyWage / STANDARD_HOURS_PER_DAY
-  const overtimePay = overtimeHours * hourlyRate * OVERTIME_MULTIPLIER
-
+  const overtimePay = overtimeHours * (dailyWage / STANDARD_HOURS_PER_DAY) * OVERTIME_MULTIPLIER
   const grossWages = basicEarned + overtimePay
 
-  // PF: 12% of basic earned, capped at ₹1,800 (as if basic were ₹15,000).
-  const pf = Math.min(PF_EMPLOYEE_RATE * basicEarned, PF_EMPLOYEE_CAP)
+  const pfFlat = PF_EMPLOYEE_RATE * basicEarned
+  const pf = Math.min(pfFlat, PF_EMPLOYEE_CAP)
+  const pfCapped = pfFlat > PF_EMPLOYEE_CAP
 
-  // ESI: 0.75% of gross wages, only while gross ≤ the ₹21,000 coverage ceiling.
-  const esiApplies = grossWages <= ESI_WAGE_CEILING
-  const esi = esiApplies ? ESI_EMPLOYEE_RATE * grossWages : 0
+  const averageDailyWage = payableDays > 0 ? grossWages / payableDays : 0
+  let esiStatus: EsiStatus = 'applies'
+  if (basicEarned > ESI_WAGE_CEILING) esiStatus = 'above-ceiling'
+  else if (grossWages > 0 && averageDailyWage <= ESI_DAILY_EXEMPT) esiStatus = 'daily-exempt'
+  const esi = esiStatus === 'applies' ? ESI_EMPLOYEE_RATE * grossWages : 0
 
   const netPayable = grossWages - pf - esi - advance
 
-  return {
-    basicEarned,
-    overtimePay,
-    grossWages,
-    pf,
-    esi,
-    esiApplies,
-    advance,
-    netPayable,
-  }
+  return { basicEarned, overtimePay, grossWages, pf, pfCapped, esi, esiStatus, averageDailyWage, advance, netPayable }
 }

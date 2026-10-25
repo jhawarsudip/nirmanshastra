@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
-import PaidToolInfo from '@/components/seo/PaidToolInfo'
+import InnerShell from '@/components/v2/inner/InnerShell'
+import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
 
-const title = "InteriorPro — Home Interior Cost Estimator | Flooring, Kitchen & Paint"
-const description = "Calculate flooring, kitchen, false ceiling, and paint costs across 4 quality grades — Basic to Luxury. Get exact interior BOQ for your home construction. ₹899/report."
+const title = 'InteriorPro: Finishing Quantity Calculator for Homes | Paint, Tiles, Doors, False Ceiling | IS 1200, IS 15622'
+const description = 'Count the paint, putty and primer, floor and wall tiles, doors and windows, false ceiling and plywood for your home, area by area. Quantities only. ₹899 per report.'
 const url = '/tools/interiorpro'
 
 export const metadata: Metadata = {
@@ -18,28 +19,17 @@ export const metadata: Metadata = {
     url,
     title,
     description,
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — India\u2019s IS-Code Construction Cost Estimator',
-      },
-    ],
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra: India’s IS-code construction quantities' }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title,
-    description,
-  },
+  twitter: { card: 'summary_large_image', title, description },
 }
 
 export default function InteriorProLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <InnerShell>
       <JsonLd data={toolJsonLd('/tools/interiorpro')} />
       {children}
-      <PaidToolInfo path="/tools/interiorpro" />
-    </>
+      <ToolInfo path="/tools/interiorpro" />
+    </InnerShell>
   )
 }

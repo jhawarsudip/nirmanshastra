@@ -1,188 +1,109 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
+import '@/styles/v2/results.css'
+import { ToolHead, Note } from '@/components/v2/inner/kit'
+import { TOOL_PRICE_PAISE } from '@/lib/tool-pricing'
+import { inr } from '@/lib/seo/site'
 
-const title = 'Terms of Use'
-const description = 'NirmanShastra terms of use — service description, payment terms, accuracy disclaimer, and governing law.'
-const url = '/terms-of-use'
+// Last changed when the site became quantity-only. A fixed date, so the page does not say "today" every time it is built.
+const UPDATED = '25 October 2026'
 
-export const metadata: Metadata = {
-  title,
-  description,
-  alternates: { canonical: url },
-  openGraph: {
-    type: 'website',
-    locale: 'en_IN',
-    siteName: 'NirmanShastra',
-    url,
-    title,
-    description,
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — India’s IS-Code Construction Cost Estimator',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title,
-    description,
-  },
-}
-
-const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
-
-function Section({ clause, title, children }: { clause: string; title: string; children: React.ReactNode }) {
-  return (
-    <div style={{ paddingBottom: 40, marginBottom: 40, borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
-      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
-        {clause}
-      </p>
-      <h2 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 600, color: '#1E2227', marginBottom: 18, lineHeight: 1.3 }}>
-        {title}
-      </h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {children}
-      </div>
-    </div>
-  )
-}
-
-function P({ children }: { children: React.ReactNode }) {
-  return (
-    <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.8)', lineHeight: 1.85 }}>
-      {children}
-    </p>
-  )
-}
-
-function UL({ items }: { items: string[] }) {
-  return (
-    <ul style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingLeft: 0 }}>
-      {items.map((item, i) => (
-        <li key={i} style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.8)', lineHeight: 1.75, display: 'flex', gap: 12 }}>
-          <span style={{ color: '#1F4E79', flexShrink: 0, fontWeight: 700 }}>—</span>
-          {item}
-        </li>
-      ))}
-    </ul>
-  )
-}
+const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
 export default function TermsOfUsePage() {
   return (
-    <main className="sheet-frame min-h-screen" style={{ background: '#F4F4F0' }}>
+    <div className="ns-i-page">
+      <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
+        <ToolHead
+          eyebrow="Legal"
+          name="Terms of Use"
+          blurb={`By using NirmanShastra you agree to these terms. If you do not agree, please do not use the service. These terms are governed by Indian law. Last updated ${UPDATED}.`}
+        />
 
-      {/* Header band */}
-      <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.1)' }}>
-        <div className="px-6 md:px-16 lg:px-24 py-16">
-          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 12 }}>
-            LEGAL · TERMS OF USE
-          </p>
-          <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(36px,5vw,56px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.1 }}>
-            Terms of Use
-          </h1>
-          <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 12, color: 'rgba(244,244,240,0.45)', marginTop: 16, letterSpacing: '0.04em' }}>
-            Effective date: {today}
-          </p>
-        </div>
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-1">
+          <h2 id="tu-1" style={H2}>1. What NirmanShastra provides</h2>
+          <p>NirmanShastra provides tools that work out material quantities for residential projects in India, using the Indian Standards (IS codes) published by the Bureau of Indian Standards (BIS). The quantities are worked out from the answers you give.</p>
+          <p>NirmanShastra is a quantity estimation tool. It is not:</p>
+          <ul>
+            <li>a licensed structural engineering service;</li>
+            <li>a substitute for site-specific structural design by a qualified engineer;</li>
+            <li>a quotation, or a statement of what anything costs;</li>
+            <li>a substitute for a soil investigation; or</li>
+            <li>a replacement for local municipal approvals and building plan sanction.</li>
+          </ul>
+          <p>Estimates are for planning, and for checking the quantities in a contractor&rsquo;s quote. Construction must be designed, supervised and certified by a licensed structural engineer registered with the relevant state or central authority.</p>
+        </section>
+
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-2">
+          <h2 id="tu-2" style={H2}>2. Payment and refunds</h2>
+          <p>Current prices:</p>
+          <ul>
+            <li>VastuPro and the free calculators: free, no payment needed</li>
+            <li>ElectricalPro and PlumbingPro: {inr(TOOL_PRICE_PAISE.electropro)} a report</li>
+            <li>MasonryPro: {inr(TOOL_PRICE_PAISE.masonpro)} a report</li>
+            <li>InteriorPro: {inr(TOOL_PRICE_PAISE.interiorpro)} a report</li>
+            <li>StructurePro: {inr(TOOL_PRICE_PAISE.structopro)} a report</li>
+            <li>Grand Total Report, which puts the phase reports you have already bought into one buying list: {inr(TOOL_PRICE_PAISE.grandtotal)}, on top of those reports</li>
+          </ul>
+          <p>Payments are processed by Razorpay and are subject to its terms. NirmanShastra does not store your payment card details.</p>
+          <p><b>Refunds.</b> Once a PDF report has been generated and delivered to your registered email, the payment is not refundable. The quantities are worked out and the PDF is generated at the time of payment, so there is nothing to return. If a PDF fails to generate because of a technical fault on our side and cannot be delivered within 48 hours of payment, we will refund you in full. To ask for a refund for a failed delivery, email <a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a> within 7 days of payment.</p>
+          <p><b>Excel Site Templates.</b> The Excel files sold at <Link href="/site-templates">/site-templates</Link> have their own licence, delivery and refund terms: see the <Link href="/site-templates/terms">Site Templates Terms and Licence</Link>.</p>
+        </section>
+
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-3">
+          <h2 id="tu-3" style={H2}>3. Accuracy of estimates</h2>
+          <p>NirmanShastra quantities are worked out from the Indian Standards and the answers you provide. How close a quantity is to what your building needs depends on:</p>
+          <ul>
+            <li>how accurate the dimensions and choices you enter are;</li>
+            <li>site conditions, such as soil and access, that no software can assess from a distance;</li>
+            <li>whether the editions of the standards used are still current (BIS revises them from time to time); and</li>
+            <li>how your engineer and builder choose to design and build, which can differ from a code minimum.</li>
+          </ul>
+          <p>Every quantity is shown with a low and a high figure, and the true quantity can fall outside them. NirmanShastra does not certify, approve or guarantee the structural adequacy of any building. The structural design for your site, soil and earthquake zone must be completed by a licensed structural engineer. See the <Link href="/disclaimer">Disclaimer</Link>.</p>
+        </section>
+
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-4">
+          <h2 id="tu-4" style={H2}>4. Your account and data</h2>
+          <p>You are responsible for keeping your account credentials confidential, and for all activity under your account.</p>
+          <p>You agree to give accurate information when you register. Giving false information, including a false email address or phone number, may lead to your account being suspended.</p>
+          <p>You may not create more than one account to avoid paying for the same project.</p>
+        </section>
+
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-5">
+          <h2 id="tu-5" style={H2}>5. What you may not do</h2>
+          <ul>
+            <li>Generate estimates for projects you do not own or have no real interest in, in order to gather competitive intelligence or market research at scale.</li>
+            <li>Reverse-engineer, copy or redistribute our calculation logic or templates.</li>
+            <li>Use automated scripts or bots to access or scrape the tools.</li>
+            <li>Present a NirmanShastra estimate as a certified structural engineering document or a building plan submission.</li>
+            <li>Resell access to the tools without our written permission.</li>
+          </ul>
+        </section>
+
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-6">
+          <h2 id="tu-6" style={H2}>6. Limitation of liability</h2>
+          <p>To the maximum extent the law allows, NirmanShastra and its operator are not liable for:</p>
+          <ul>
+            <li>any construction outcome, structural failure, over-ordering, shortfall or defect that arises from relying on our estimates without an independent structural engineer&rsquo;s review;</li>
+            <li>any loss of data, revenue or profit from using, or being unable to use, the service;</li>
+            <li>any damage that arises from third-party services we use to deliver the service (Razorpay, Resend, Supabase, Vercel); or</li>
+            <li>indirect, incidental, consequential or punitive damages of any kind.</li>
+          </ul>
+          <p>Our total liability to you for any claim arising from your use of NirmanShastra will not exceed the amount you paid for the report the claim is about.</p>
+        </section>
+
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-7">
+          <h2 id="tu-7" style={H2}>7. Governing law and disputes</h2>
+          <p>These terms are governed by the laws of India. Any dispute that arises from your use of NirmanShastra is subject to the exclusive jurisdiction of the courts of Uttar Pradesh, India.</p>
+          <p>Please write to <a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a> before any formal legal step. Most issues can be settled directly.</p>
+        </section>
+
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-8">
+          <h2 id="tu-8" style={H2}>8. Changes to these terms</h2>
+          <p>We may update these terms as the service changes. We will tell registered users of material changes by email. Using NirmanShastra after that notice means you accept the updated terms.</p>
+        </section>
+
+        <Note>See also the <Link href="/privacy-policy" style={{ textDecoration: 'underline' }}>Privacy Policy</Link> and the <Link href="/disclaimer" style={{ textDecoration: 'underline' }}>Disclaimer</Link>.</Note>
       </div>
-
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-6 md:px-12">
-
-          <div className="grid-paper" style={{ border: '1px solid rgba(30,34,39,0.15)', padding: '20px 24px', marginBottom: 48 }}>
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.75)', lineHeight: 1.75 }}>
-              By using NirmanShastra, you agree to these terms. If you do not agree, please do not use the service. These terms are governed by Indian law.
-            </p>
-          </div>
-
-          <Section clause="§ 1.0 — SERVICE DESCRIPTION" title="What NirmanShastra provides">
-            <P>NirmanShastra provides construction cost estimation tools for residential projects in India. Our tools calculate material quantities and costs using Indian Standards (IS codes) published by the Bureau of Indian Standards (BIS).</P>
-            <P>NirmanShastra is a cost estimation and budgeting tool. It is NOT:</P>
-            <UL items={[
-              'A licensed structural engineering service',
-              'A substitute for site-specific structural design by a qualified engineer',
-              'A guarantee of actual construction costs',
-              'A substitute for geotechnical investigation',
-              'A replacement for local municipal approvals and building plan sanction',
-            ]} />
-            <P>All estimates produced by NirmanShastra are for budgeting and contractor comparison purposes only. Construction must be designed, supervised, and certified by a licensed structural engineer registered with the relevant state or central authority.</P>
-          </Section>
-
-          <Section clause="§ 2.0 — PAYMENT TERMS" title="Payment and refund policy">
-            <P>Our current pricing (as of June 2026):</P>
-            <UL items={[
-              'VastuPro — Free forever, no payment required',
-              'ElectricalPro and PlumbingPro — ₹499 per report',
-              'MasonryPro — ₹699 per report',
-              'InteriorPro — ₹899 per report',
-              'StructurePro — ₹999 per report',
-              'Grand Total Report (combines all 5 phases) — ₹999, or free if all 5 tools purchased individually',
-            ]} />
-            <P>Payments are processed by Razorpay and are subject to their terms and conditions. NirmanShastra does not store your payment card details.</P>
-            <P><strong>Refund policy:</strong> Once a PDF report is successfully generated and delivered to your registered email, the payment is non-refundable. This is because the estimate is calculated and the PDF is generated at the time of payment — there is no physical inventory to return. If a PDF fails to generate due to a technical fault on our end and cannot be delivered within 48 hours of payment, we will issue a full refund. To request a refund for a failed delivery, email <a href="mailto:reports@nirmanshastra.in" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>reports@nirmanshastra.in</a> within 7 days of payment.</P>
-          </Section>
-
-          <Section clause="§ 3.0 — ACCURACY DISCLAIMER" title="Accuracy of estimates">
-            <P>NirmanShastra estimates are calculated using IS code formulas applied to the inputs you provide. The accuracy of any estimate depends on:</P>
-            <UL items={[
-              'The accuracy of the dimensions and specifications you enter',
-              'The current local market prices for materials and labour (we pre-fill India averages; you are responsible for entering your actual local rates)',
-              'The specific soil conditions, site access, and other local factors that no software can assess remotely',
-              'Whether the IS code values in effect at the time of your report remain current (IS codes are periodically revised by BIS)',
-            ]} />
-            <P>Material rates pre-filled in the tool are India city averages as of the last quarterly update. Actual local pricing may differ by 15–40% depending on location, season, and market conditions. You are strongly advised to verify rates with local dealers before finalising your budget.</P>
-            <P>NirmanShastra does not certify, approve, or guarantee the structural adequacy of any building based on our estimates. Structural design for your specific site, soil conditions, and seismic zone must be completed by a licensed structural engineer.</P>
-          </Section>
-
-          <Section clause="§ 4.0 — ACCOUNT TERMS" title="Your account and data">
-            <P>You are responsible for maintaining the confidentiality of your account credentials. You are responsible for all activity that occurs under your account.</P>
-            <P>You agree to provide accurate information during registration. Providing false information, including a false email or phone number, may result in your account being suspended.</P>
-            <P>You may not create multiple accounts to circumvent payment requirements for the same project.</P>
-          </Section>
-
-          <Section clause="§ 5.0 — PROHIBITED USES" title="What you may not do">
-            <UL items={[
-              'Use NirmanShastra to generate estimates for projects you do not own or have no legitimate interest in, for the purpose of competitive intelligence or market research at scale',
-              'Reverse-engineer, copy, or redistribute our IS code calculation logic, BOQ templates, or rate databases',
-              'Use automated scripts or bots to access or scrape our tools',
-              'Represent NirmanShastra estimates as certified structural engineering documents or building plan submissions',
-              'Resell access to our tools without express written permission',
-            ]} />
-          </Section>
-
-          <Section clause="§ 6.0 — LIMITATION OF LIABILITY" title="Limitation of liability">
-            <P>To the maximum extent permitted by applicable law, NirmanShastra and its operator shall not be liable for:</P>
-            <UL items={[
-              'Any construction outcome, structural failure, cost overrun, or defect that arises from reliance on our estimates without independent structural engineering review',
-              'Any loss of data, revenue, or profit arising from use of or inability to use the service',
-              'Any damages arising from third-party services (Razorpay, Resend, Supabase, Vercel) that we use to deliver the service',
-              'Indirect, incidental, consequential, or punitive damages of any kind',
-            ]} />
-            <P>Our total liability to you for any claim arising from your use of NirmanShastra shall not exceed the amount you paid for the specific report that is the subject of the claim.</P>
-          </Section>
-
-          <Section clause="§ 7.0 — GOVERNING LAW" title="Governing law and disputes">
-            <P>These terms are governed by the laws of India. Any dispute arising from your use of NirmanShastra shall be subject to the exclusive jurisdiction of the courts of Uttar Pradesh, India.</P>
-            <P>We encourage you to contact us at <a href="mailto:reports@nirmanshastra.in" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>reports@nirmanshastra.in</a> before pursuing any formal legal action. Most issues can be resolved directly.</P>
-          </Section>
-
-          <Section clause="§ 8.0 — CHANGES TO TERMS" title="Changes to these terms">
-            <P>We may update these terms as the service evolves. Material changes will be communicated by email to registered users. Continued use of NirmanShastra after such notification constitutes acceptance of the updated terms.</P>
-          </Section>
-
-          <div style={{ paddingTop: 20 }}>
-            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.45)', letterSpacing: '0.04em', lineHeight: 1.7 }}>
-              See also:{' '}
-              <Link href="/privacy-policy" style={{ color: '#1F4E79' }}>Privacy Policy</Link>{' '}·{' '}
-              <Link href="/disclaimer" style={{ color: '#1F4E79' }}>Disclaimer</Link>
-            </p>
-          </div>
-        </div>
-      </section>
-    </main>
+    </div>
   )
 }

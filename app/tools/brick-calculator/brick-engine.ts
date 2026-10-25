@@ -1,123 +1,137 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// BRICK CALCULATOR — ENGINE (IS 1077:1992 + IS 2212:1991)
+// BRICK CALCULATOR — ENGINE
 //
-// Permanently-free, standalone calculator. It converts a wall's dimensions into
-// a brick count for the two common wall thicknesses.
+// Free, standalone calculator. It turns one wall's length, height, brick and thickness into a brick count, the
+// joint mortar, and the cement and sand in that mortar.
 //
-// AUTHORITATIVE SOURCE — do not overwrite from any other source:
+// ONE SOURCE OF TRUTH: the brick sizes, the 10 mm joint, the units-per-m² formula, the exact joint volume, the
+// mortar allowance and the cement-per-m³ figures are all imported from the MasonryPro model
+// (lib/qty/masonry/model.ts). A single wall counted here therefore agrees with the paid report; the paid report
+// only adds the room plan, the openings schedule and the plaster.
 //
-//   The bricks-per-m² figures are IMPORTED from the paid MasonPro engine
-//   (app/tools/masonpro/masonpro-engine.ts), which carries the Section 8 LOCKED
-//   values, so the two tools can never disagree:
+//   units per m² = (t + 10 mm) / ((L + 10) × (W + 10) × (H + 10))      t = wall thickness, brick sizes in metres
 //
-//     • 9" standard wall (modular clay brick) — clay_modular_9.unitsPerSqm = 100
-//     • 4.5" partition wall (modular clay brick) — clay_4_5.unitsPerSqm     = 50
+// Sizes (research-masonry-2026-10-25): modular 190 × 90 × 90 mm (IS 1077:1992 cl 6.1.1), non-modular
+// 230 × 110 × 70 mm (IS 1077 cl 6.1.2, IS 12894:2002 cl 5.1.2), and the 230 × 115 × 75 mm red brick that many kilns
+// still make, which is not a BIS size. A 10 mm joint is implied by IS 2212:1991 (no bed joint above 12 mm; four
+// courses and three joints measure 39 cm for modular brick).
 //
-//   Both rest on the standard modular brick 190×90×90mm laid with a 10mm mortar
-//   joint (nominal 200×100×100mm unit), IS 1077:1992 + IS 2212:1991. The 4.5"
-//   figure was checked in the engine (INTERNAL_WALL_SPECS.clay_4_5), not assumed.
-//
-// Everything else here (area, opening deductions, wastage) is transparent
-// geometry and a standard site allowance — no IS clause is invented.
+// Not from any standard: the breakage allowance (5%, with 10% shown for a wall with a lot of cutting) and the extra
+// 25% of joint mortar over the exact joint volume. Both are stated on the page as assumptions.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Bricks per m² — single-source-of-truth import from the paid MasonPro engine.
-import { EXTERNAL_WALL_SPECS, INTERNAL_WALL_SPECS } from '../masonpro/masonpro-engine'
+import {
+  SYSTEMS,
+  unitsPerM2,
+  jointMortarPerM2,
+  MORTAR_ALLOW,
+  CEMENT_KG_PER_M3,
+  SAND_M3_PER_M3,
+  CEMENT_BAG_KG,
+} from '@/lib/qty/masonry/model'
 
-// 9" standard wall = 100 bricks/m² · 4.5" partition = 50 bricks/m² (LOCKED).
-export const BRICKS_PER_SQM_9IN = EXTERNAL_WALL_SPECS.clay_modular_9.unitsPerSqm
-export const BRICKS_PER_SQM_4_5IN = INTERNAL_WALL_SPECS.clay_4_5.unitsPerSqm
+export type BrickKind = 'brick' | 'modular' | 'flyash'
+export type WallKind = 'one' | 'half'
 
-// Standard modular brick, IS 1077:1992 (millimetres).
-export const BRICK_SIZE_MM = { length: 190, width: 90, height: 90 } as const
-export const MORTAR_JOINT_MM = 10 // nominal bed + perpend joint (IS 2212:1991)
+export const BRICK_KINDS: BrickKind[] = ['brick', 'modular', 'flyash']
+export const WALL_KINDS: WallKind[] = ['one', 'half']
 
-// Recommended wastage band for ordering (breakage, cutting, site loss).
-export const WASTAGE_LOW = 0.05 // +5%
-export const WASTAGE_HIGH = 0.1 // +10%
+/** Joint thickness, mm. Shown on the page; the model itself holds 0.01 m. */
+export const MORTAR_JOINT_MM = 10
 
-export type WallThickness = '9in' | '4.5in'
+/** Breakage and cutting allowance when ordering: the MasonryPro figure, and a higher one for a wall with a lot of cutting. */
+export const BREAKAGE_LOW = SYSTEMS.brick.loss
+export const BREAKAGE_HIGH = 0.1
 
-export interface WallThicknessSpec {
-  key: WallThickness
+export { MORTAR_ALLOW }
+
+export interface BrickSpec {
+  kind: BrickKind
   label: string
-  bricksPerSqm: number
-  isCode: string
-  mortarRatio: string
-  note: string
+  size: string
+  source: string
+  /** actual thickness of a one-brick wall and a half-brick wall, mm */
+  oneMm: number
+  halfMm: number
 }
 
-// Presentation specs — figures pulled from the imported LOCKED specs above.
-export const THICKNESS_SPECS: Record<WallThickness, WallThicknessSpec> = {
-  '9in': {
-    key: '9in',
-    label: '9-inch (230mm) — standard load-bearing / external wall',
-    bricksPerSqm: BRICKS_PER_SQM_9IN,
-    isCode: EXTERNAL_WALL_SPECS.clay_modular_9.isCode,
-    mortarRatio: EXTERNAL_WALL_SPECS.clay_modular_9.mortarRatio,
-    note: 'A full-brick-thick wall — the usual external and load-bearing wall in Indian homes.',
-  },
-  '4.5in': {
-    key: '4.5in',
-    label: '4.5-inch (115mm) — internal partition wall',
-    bricksPerSqm: BRICKS_PER_SQM_4_5IN,
-    isCode: INTERNAL_WALL_SPECS.clay_4_5.isCode,
-    mortarRatio: INTERNAL_WALL_SPECS.clay_4_5.mortarRatio,
-    note: 'A half-brick-thick wall — used for non-load-bearing internal partitions.',
-  },
+export const BRICK_SPECS: Record<BrickKind, BrickSpec> = {
+  brick: { kind: 'brick', label: SYSTEMS.brick.label, size: SYSTEMS.brick.size, source: SYSTEMS.brick.source, oneMm: Math.round(SYSTEMS.brick.ext * 1000), halfMm: Math.round(SYSTEMS.brick.int * 1000) },
+  modular: { kind: 'modular', label: SYSTEMS.modular.label, size: SYSTEMS.modular.size, source: SYSTEMS.modular.source, oneMm: Math.round(SYSTEMS.modular.ext * 1000), halfMm: Math.round(SYSTEMS.modular.int * 1000) },
+  flyash: { kind: 'flyash', label: SYSTEMS.flyash.label, size: SYSTEMS.flyash.size, source: SYSTEMS.flyash.source, oneMm: Math.round(SYSTEMS.flyash.ext * 1000), halfMm: Math.round(SYSTEMS.flyash.int * 1000) },
 }
 
-export const THICKNESS_ORDER: WallThickness[] = ['9in', '4.5in']
+/** Mortar mix by wall (cement : sand): the MasonryPro model uses 1:6 for an outer wall and 1:4 for a half-brick wall. Assumed. */
+export const MORTAR_MIX: Record<WallKind, number> = { one: 6, half: 4 }
 
 export interface BrickInput {
   lengthM: number // wall length (m)
   heightM: number // wall height (m)
-  thickness: WallThickness
-  openingsAreaM2: number // total area of doors/windows to deduct (m²)
+  kind: BrickKind
+  wall: WallKind
+  openingsAreaM2: number // total area of doors and windows to take out (m²)
 }
 
 export interface BrickResult {
-  thickness: WallThickness
-  bricksPerSqm: number
+  kind: BrickKind
+  wall: WallKind
+  thicknessMm: number
+  perM2: number // bricks in one m² of this wall
 
   grossAreaM2: number // length × height
-  openingsAreaM2: number // deducted area (clamped so net never goes negative)
-  netAreaM2: number // grossArea − openings
+  openingsAreaM2: number // taken out (never more than the whole wall)
+  netAreaM2: number
 
-  bricks: number // net area × bricks/m² (before wastage), rounded to whole
-  bricksWith5pct: number // +5% wastage, rounded UP
-  bricksWith10pct: number // +10% wastage, rounded UP
+  bricks: number // net area × bricks per m², rounded to a whole brick, before breakage
+  orderLow: number // + 5%, rounded up
+  orderHigh: number // + 10%, rounded up
+
+  mortarM3: number // joint mortar with the allowance
+  mix: number // 1 : mix
+  cementKg: number
+  cementBags: number
+  sandM3: number
 }
 
 /**
- * Convert wall dimensions into a brick count.
+ * Count the bricks in one wall.
  *
- * Verified test case (10 m × 3 m, 9-inch, no openings):
- *   gross area = 30 m² · net area = 30 m² · bricks = 30 × 100 = 3000 (before wastage)
+ * Checked by hand: red brick, one brick thick, 10 m × 3 m, no openings →
+ *   (0.23 + 0.01) / (0.24 × 0.125 × 0.085) = 94.12 bricks per m², × 30 m² = 2,824 bricks.
  */
 export function calculate(input: BrickInput): BrickResult {
-  const spec = THICKNESS_SPECS[input.thickness]
+  const S = SYSTEMS[input.kind]
+  const t = input.wall === 'one' ? S.ext : S.int
   const lengthM = Math.max(0, input.lengthM || 0)
   const heightM = Math.max(0, input.heightM || 0)
 
   const grossAreaM2 = lengthM * heightM
-  // Openings can never remove more than the whole wall.
   const openingsAreaM2 = Math.min(grossAreaM2, Math.max(0, input.openingsAreaM2 || 0))
   const netAreaM2 = grossAreaM2 - openingsAreaM2
 
-  const rawBricks = netAreaM2 * spec.bricksPerSqm
-  const bricks = Math.round(rawBricks)
-  const bricksWith5pct = Math.ceil(rawBricks * (1 + WASTAGE_LOW))
-  const bricksWith10pct = Math.ceil(rawBricks * (1 + WASTAGE_HIGH))
+  const perM2 = unitsPerM2(S, t, false)
+  const raw = netAreaM2 * perM2
+
+  const mix = MORTAR_MIX[input.wall]
+  const mortarM3 = netAreaM2 * jointMortarPerM2(S, t, false) * MORTAR_ALLOW
+  const cementKg = mortarM3 * CEMENT_KG_PER_M3(mix)
 
   return {
-    thickness: spec.key,
-    bricksPerSqm: spec.bricksPerSqm,
+    kind: input.kind,
+    wall: input.wall,
+    thicknessMm: Math.round(t * 1000),
+    perM2,
     grossAreaM2,
     openingsAreaM2,
     netAreaM2,
-    bricks,
-    bricksWith5pct,
-    bricksWith10pct,
+    bricks: Math.round(raw),
+    // the small subtraction stops 3,000 × 1.1 (which floats to 3300.0000000000005) from rounding up to 3,301
+    orderLow: Math.ceil(raw * (1 + BREAKAGE_LOW) - 1e-9),
+    orderHigh: Math.ceil(raw * (1 + BREAKAGE_HIGH) - 1e-9),
+    mortarM3,
+    mix,
+    cementKg,
+    cementBags: cementKg / CEMENT_BAG_KG,
+    sandM3: mortarM3 * SAND_M3_PER_M3,
   }
 }

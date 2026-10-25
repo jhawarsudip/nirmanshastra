@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
+import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
 import { toolJsonLd } from '@/lib/seo/schema'
 
-const title = 'RA Bill Calculator — Retention, GST & TDS Net Payable | Works Contract'
+// The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
+const title = 'RA Bill Calculator: retention, GST and TDS net payable'
 const description =
-  'Free RA bill calculator for Indian works contracts. Enter the gross running-account bill value and get retention held back, GST added, TDS deducted, mobilisation-advance recovery and the final net payable. Net Payable = Gross − Retention − Advance Recovery + GST − TDS. Defaults: 5% retention, 18% GST, 1% TDS (editable) — TDS on the value excluding GST per Section 393(1), Table Sl. No. 6(i) of the Income-tax Act 2025. Ported from NirmanShastra’s Billing & Measurement product. Permanently free, no login.'
+  'Free RA bill calculator for a works contract. Enter the gross running bill to see the retention held back, the GST added, the TDS deducted, any advance recovered and the net payable. TDS is worked on the value without GST. No sign-in.'
 const url = '/tools/ra-bill-retention-tds-calculator'
 
 export const metadata: Metadata = {
@@ -16,32 +18,18 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     siteName: 'NirmanShastra',
     url,
-    title: 'RA Bill Calculator — Retention, GST & TDS Net Payable',
-    description:
-      'Enter a running-account bill value and see retention, GST, TDS, advance recovery and the final net payable. Net Payable = Gross − Retention − Advance Recovery + GST − TDS. Free, no login.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — RA Bill Retention, GST & TDS Calculator',
-      },
-    ],
+    title: `${title} | NirmanShastra`,
+    description,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra RA Bill Calculator' }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'RA Bill Calculator — Retention, GST & TDS Net Payable',
-    description:
-      'Gross bill in, net payable out: 5% retention, 18% GST, 1% TDS by default (all editable), plus mobilisation-advance recovery. Works-contract billing, free and no login.',
-    images: ['/og-image.png'],
-  },
+  twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
 export default function RABillCalculatorLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <InnerShell>
       <JsonLd data={toolJsonLd('/tools/ra-bill-retention-tds-calculator')} />
       {children}
-    </>
+    </InnerShell>
   )
 }

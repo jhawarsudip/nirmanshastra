@@ -1,491 +1,230 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
-import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { ToolHead, Field, Input, Select, Note } from '@/components/v2/inner/kit'
+import { ReportTable } from '@/components/v2/qty/parts'
 import {
+  CalcPage, CalcGrid, CalcLabel, Big, Figures, Rows, Chips, CalcSection, Prose, Formula, CalcCta, CalcFine,
+} from '@/components/v2/inner/calc'
+import {
+  SOURCE_ORDER,
+  SOURCE_LABEL,
+  SHARES,
   WATER_DEMAND_LPCD,
-  TANK_RATIO,
   STANDARD_TANK_SIZES,
   calculate,
   type WaterSource,
+  type TankChoice,
 } from './water-tank-engine'
 import QuickAnswer from '@/components/seo/QuickAnswer'
 import CalcFaq from '@/components/seo/CalcFaq'
 import RelatedLinks from '@/components/seo/RelatedLinks'
 import { TANK_CONTENT } from '@/lib/seo/calc-content'
 
-// ── Design tokens — matte dark system, matches the tool pages (plumbpro / bbs) ──
-const MONO = 'var(--font-plex-mono)'
-const SANS = 'var(--font-plex-sans)'
-const SERIF = 'var(--font-plex-serif)'
-const INK = '#F4F4F0'
-const INK_65 = 'rgba(244,244,240,0.65)'
-const INK_45 = 'rgba(244,244,240,0.45)'
-const INK_35 = 'rgba(244,244,240,0.35)'
-const SURF = '#171717'
-const BSUB = 'rgba(255,255,255,0.08)'
-const BLUEPRINT = '#1F4E79'
-const OXIDE = '#8C3A22'
-
-// ── Small presentational helpers ───────────────────────────────────────────────
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p style={{ fontFamily: MONO, fontSize: 11, color: BLUEPRINT, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 14 }}>
-      {children}
-    </p>
-  )
-}
-
-function ISChip({ code }: { code: string }) {
-  return (
-    <span style={{ fontFamily: MONO, fontSize: 10, color: INK_65, border: `1px solid ${BLUEPRINT}`, borderRadius: 2, padding: '3px 7px', letterSpacing: '0.03em', whiteSpace: 'nowrap' }}>
-      {code}
-    </span>
-  )
-}
-
 function num(n: number, dp: number) {
   return n.toLocaleString('en-IN', { minimumFractionDigits: dp, maximumFractionDigits: dp })
 }
 
-const SOURCES: { value: WaterSource; label: string; lpcd: number }[] = [
-  { value: 'municipal', label: 'Municipal supply', lpcd: WATER_DEMAND_LPCD.municipal },
-  { value: 'borewell', label: 'Borewell / own source', lpcd: WATER_DEMAND_LPCD.borewell },
-]
+/** "500", or "2 × 5,000" when the overhead need is met by equal ready tanks. */
+function show(c: TankChoice) {
+  return c.count > 1 ? `${c.count} × ${num(c.each, 0)}` : num(c.each, 0)
+}
 
-// ── Page ────────────────────────────────────────────────────────────────────────
+const SHARE_TEXT: Record<WaterSource, { ugt: string; oht: string }> = {
+  municipal: { ugt: 'two-thirds of a day', oht: 'one-third of a day' },
+  borewell: { ugt: '', oht: 'half a day' },
+  tanker: { ugt: 'a day and a half', oht: 'one-third of a day' },
+}
+
+const HELP: Record<WaterSource, string> = {
+  municipal:
+    'The town supply fills an underground tank, and a pump lifts the water to a tank on the roof. If the supply does not run every day, choose Tanker, which holds more underground, and ask for an overhead tank of at least half a day’s water (IS 2065 cl 11.11).',
+  borewell:
+    'A borewell pump can fill the roof tank whenever it is needed, so there is no underground tank: one overhead tank holds half a day’s water.',
+  tanker:
+    'A tanker comes in lots, so the underground tank holds a day and a half of water and the roof tank a third of a day.',
+}
 
 export default function WaterTankSizeCalculatorPage() {
-  const [occupants, setOccupants] = useState<string>('8')
-  const [waterSource, setWaterSource] = useState<WaterSource>('municipal')
-  const [storageDays, setStorageDays] = useState<string>('1')
+  const [people, setPeople] = useState('5')
+  const [water, setWater] = useState<WaterSource>('municipal')
 
-  const occ = Math.max(0, Math.floor(parseFloat(occupants || '0') || 0))
-  const days = Math.max(1, Math.floor(parseFloat(storageDays || '1') || 1))
-
-  const result = useMemo(
-    () => calculate({ occupants: occ, waterSource, storageDays: days }),
-    [occ, waterSource, days],
-  )
-
-  const valid = occ > 0
-
-  // Field styling
-  const labelStyle: React.CSSProperties = { fontFamily: MONO, fontSize: 10, color: INK_45, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }
-  const fieldStyle: React.CSSProperties = {
-    width: '100%',
-    boxSizing: 'border-box',
-    background: 'rgba(244,244,240,0.06)',
-    border: `1px solid ${BSUB}`,
-    color: INK,
-    padding: '11px 12px',
-    fontSize: 14,
-    fontFamily: MONO,
-    borderRadius: 6,
-    outline: 'none',
-  }
+  const n = Math.max(0, Math.floor(parseFloat(people || '0') || 0))
+  const r = useMemo(() => calculate({ people: n, water }), [n, water])
+  const valid = n > 0
+  const share = SHARES[water]
+  const text = SHARE_TEXT[water]
+  const built = r.ugt !== null && r.ugt.kind.startsWith('built')
 
   return (
-    <main className="sheet-frame" style={{ background: 'var(--bg-base)', minHeight: '100vh' }}>
-      {/* ── HERO ──────────────────────────────────────────────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 pt-16 pb-10">
-        <div style={{ maxWidth: 860 }}>
-          <Eyebrow>Free Calculator · IS 1172:1993 · No Login</Eyebrow>
-          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(34px,5vw,52px)', fontWeight: 700, color: INK, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 20 }}>
-            Water Tank Size Calculator
-          </h1>
-          <QuickAnswer content={TANK_CONTENT} />
-          <p style={{ fontFamily: SANS, fontSize: 17, color: INK_65, lineHeight: 1.7, maxWidth: 720 }}>
-            Size a home water tank the way the code does. Enter how many people live in the house, the water
-            source, and how many days of storage you need — the tool applies the IS 1172:1993 per-capita demand
-            and the <strong style={{ color: INK, fontWeight: 600 }}>two-thirds-of-a-day storage rule</strong>, then
-            rounds up to the nearest <strong style={{ color: INK, fontWeight: 600 }}>standard tank size</strong> you
-            can actually buy. Permanently free — nothing to unlock, no sign-in.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 22 }}>
-            {['IS 1172:1993', 'IS 12701', 'NBC 2016 Part 9'].map((c) => (
-              <ISChip key={c} code={c} />
-            ))}
-          </div>
-        </div>
-      </section>
+    <CalcPage>
+      <ToolHead
+        eyebrow="Free calculator · no sign-in"
+        name="Water Tank Size Calculator"
+        blurb="Find the size of the underground and overhead tanks for a house. Say how many people live there and where the water comes from; the day’s water use, the share each tank holds and the ready-made size to buy follow."
+      />
+      <QuickAnswer content={TANK_CONTENT} />
 
-      {/* ── CALCULATOR ────────────────────────────────────────────────────────── */}
-      <section className="px-6 md:px-16 lg:px-24 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ alignItems: 'start' }}>
-
-          {/* INPUT CARD */}
-          <div style={{ background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '28px' }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 }}>
-              Household Details
-            </p>
-
-            {/* Occupants */}
-            <div style={{ marginBottom: 18 }}>
-              <label style={labelStyle} htmlFor="wt-occ">Number of occupants</label>
-              <input
-                id="wt-occ"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                value={occupants}
-                onChange={(e) => setOccupants(e.target.value)}
-                placeholder="0"
-                style={fieldStyle}
+      <CalcGrid
+        input={
+          <>
+            <CalcLabel>The household</CalcLabel>
+            <div className="ns-i-fields">
+              <Field id="wt-people" label="How many people live in the house?" wide hint="Count everyone who lives there. If you are not sure, take the number of bedrooms plus three. For a block of flats, add up all the homes.">
+                <Input type="number" inputMode="numeric" min={1} step="1" value={people} onChange={(e) => setPeople(e.target.value)} placeholder="0" />
+              </Field>
+              <Field id="wt-src" label="Where does the water come from?" wide hint={HELP[water]}>
+                <Select value={water} onChange={(e) => setWater(e.target.value as WaterSource)}>
+                  {SOURCE_ORDER.map((s) => (
+                    <option key={s} value={s}>{SOURCE_LABEL[s]}</option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+          </>
+        }
+        result={
+          valid ? (
+            <>
+              <Big
+                k="Water the house uses in a day"
+                v={num(r.dailyDemandL, 0)}
+                unit="litres"
+                sub={`${num(r.people, 0)} ${r.people === 1 ? 'person' : 'people'} × ${r.lpcd} litres`}
               />
-              <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_45, lineHeight: 1.6, marginTop: 10 }}>
-                Everyone who lives in the house full-time. Enter the real head-count — do not derive it from the
-                number of bathrooms.
-              </p>
-            </div>
-
-            {/* Water source */}
-            <div style={{ marginBottom: 18 }}>
-              <label style={labelStyle} htmlFor="wt-src">Water source</label>
-              <select
-                id="wt-src"
-                value={waterSource}
-                onChange={(e) => setWaterSource(e.target.value as WaterSource)}
-                style={{ ...fieldStyle, appearance: 'none' }}
-              >
-                {SOURCES.map((s) => (
-                  <option key={s.value} value={s.value} style={{ background: '#1a1a1a', color: '#fff' }}>
-                    {s.label} — {s.lpcd} LPCD
-                  </option>
-                ))}
-              </select>
-              <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_45, lineHeight: 1.6, marginTop: 10 }}>
-                IS 1172:1993 sets 135 litres/person/day for municipal supply and 150 for a private borewell.
-              </p>
-            </div>
-
-            {/* Storage days */}
-            <div>
-              <label style={labelStyle} htmlFor="wt-days">Days of storage needed</label>
-              <input
-                id="wt-days"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                value={storageDays}
-                onChange={(e) => setStorageDays(e.target.value)}
-                placeholder="1"
-                style={{ ...fieldStyle, maxWidth: 160 }}
+              <Figures
+                items={[
+                  ...(r.ugt ? [{ k: `Underground tank · ${num(r.ugt.neededL, 0)} L needed`, v: show(r.ugt), unit: 'L', tone: 'ok' as const }] : []),
+                  { k: `Overhead tank · ${num(r.oht.neededL, 0)} L needed`, v: show(r.oht), unit: 'L', tone: 'ok' as const },
+                ]}
               />
-              <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_45, lineHeight: 1.6, marginTop: 10 }}>
-                Leave at 1 for a daily, reliable supply. Increase it in areas where water arrives only every
-                second or third day so the tank carries you through the gap.
+              {!r.ugt ? (
+                <Note kind="info" title="No underground tank">
+                  With a borewell the pump fills the overhead tank when it is needed, so one tank on the roof is enough.
+                </Note>
+              ) : null}
+              {built ? (
+                <Note kind="info" title="Too big for a ready-made tank" foot="Ready-made tanks stop at 5,000 litres">
+                  An underground tank of this size is usually built in concrete or masonry. The {num(r.ugt!.each, 0)} litres is its inside volume, measured to the working water level.
+                </Note>
+              ) : null}
+              {r.oht.count > 1 ? (
+                <Note kind="info" title="Overhead water in several tanks">
+                  The roof holds {r.oht.count} ready-made tanks of {num(r.oht.each, 0)} litres each, because no single ready-made tank is large enough.
+                </Note>
+              ) : null}
+
+              <CalcLabel>The working</CalcLabel>
+              <Rows
+                rows={[
+                  { label: 'Water used in a day', detail: `${num(r.people, 0)} × ${r.lpcd} litres`, value: `${num(r.dailyDemandL, 0)} L` },
+                  ...(r.ugt
+                    ? [
+                        { label: 'Underground tank, need', detail: text.ugt, value: `${num(r.ugt.neededL, 0)} L`, tone: 'dim' as const },
+                        { label: 'Underground tank, to buy', detail: r.ugt.kind, value: `${num(r.ugt.totalL, 0)} L`, tone: 'ok' as const },
+                      ]
+                    : []),
+                  { label: 'Overhead tank, need', detail: text.oht, value: `${num(r.oht.neededL, 0)} L`, tone: 'dim' },
+                  { label: 'Overhead tank, to buy', detail: r.oht.count > 1 ? `${r.oht.count} × ${num(r.oht.each, 0)} L, ${r.oht.kind}` : r.oht.kind, value: `${num(r.oht.totalL, 0)} L`, tone: 'ok' },
+                  { label: 'Tanks to buy, together', detail: 'both tanks, rounded up', value: `${num(r.totalL, 0)} L` },
+                ]}
+              />
+              <p className="ns-calc-help">
+                Each tank is rounded up to the next size that is sold ({STANDARD_TANK_SIZES.map((s) => num(s, 0)).join(', ')} litres), never down. These are the common ready-made sizes; no standard lists them, so check what your supplier stocks.
               </p>
-            </div>
-          </div>
+            </>
+          ) : (
+            <p className="ns-calc-empty">Enter the number of people to see the water the house uses in a day and the size of each tank.</p>
+          )
+        }
+      />
 
-          {/* RESULT CARD */}
-          <div style={{ background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '28px' }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
-              Recommended Tank Size
-            </p>
+      <CalcCta
+        kicker="Planning the whole plumbing?"
+        text="This page sizes the tanks. PlumbingPro counts the rest from your plan: the supply pipe floor by floor, the drain and soil pipes, every fitting, the pump, and the septic tank and soak pit when there is no sewer."
+        href="/tools/plumbpro"
+        label="Open PlumbingPro"
+      />
 
-            {valid ? (
-              <>
-                {result.nearestTankL !== null ? (
-                  <div style={{ fontFamily: MONO, fontSize: 'clamp(48px,7vw,72px)', fontWeight: 700, color: INK, lineHeight: 1, marginBottom: 4 }}>
-                    {num(result.nearestTankL, 0)}
-                    <span style={{ fontSize: 22, fontWeight: 500, color: INK_45, marginLeft: 8 }}>L</span>
-                  </div>
-                ) : (
-                  <div style={{ fontFamily: MONO, fontSize: 'clamp(28px,4vw,40px)', fontWeight: 700, color: INK, lineHeight: 1.1, marginBottom: 4 }}>
-                    Multiple tanks
-                  </div>
-                )}
-                <p style={{ fontFamily: MONO, fontSize: 13, color: INK_35, marginBottom: 24 }}>
-                  {result.nearestTankL !== null
-                    ? `nearest standard size ≥ ${num(result.totalStorageL, 0)} L required`
-                    : `requirement ${num(result.totalStorageL, 0)} L exceeds the largest single ${num(STANDARD_TANK_SIZES[STANDARD_TANK_SIZES.length - 1], 0)} L tank — split across tanks`}
-                </p>
-
-                {/* Figure pills */}
-                <div className="grid grid-cols-2 gap-4" style={{ marginBottom: 24 }}>
-                  <div style={{ border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-                    <p style={{ fontFamily: MONO, fontSize: 9, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Daily demand</p>
-                    <p style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, color: INK }}>{num(result.dailyDemandL, 0)} <span style={{ fontSize: 12, color: INK_45 }}>L/day</span></p>
-                  </div>
-                  <div style={{ border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-                    <p style={{ fontFamily: MONO, fontSize: 9, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Required storage</p>
-                    <p style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, color: INK }}>{num(result.totalStorageL, 0)} <span style={{ fontSize: 12, color: INK_45 }}>L</span></p>
-                  </div>
-                </div>
-
-                {/* Breakdown — BOQ table */}
-                <p style={{ fontFamily: MONO, fontSize: 10, color: INK_35, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-                  Calculation breakdown
-                </p>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 12.5 }}>
-                  <tbody>
-                    <BreakRow
-                      label="Daily demand"
-                      detail={`${num(result.occupants, 0)} occupants × ${result.lpcd} LPCD`}
-                      value={`${num(result.dailyDemandL, 0)} L`}
-                    />
-                    <BreakRow
-                      label="Storage ratio"
-                      detail={`× ${TANK_RATIO} (2/3 daily demand)`}
-                      value={`${num(result.dailyDemandL * TANK_RATIO, 1)} L`}
-                      muted
-                    />
-                    <BreakRow
-                      label="Storage days"
-                      detail={`× ${num(result.storageDays, 0)} day${result.storageDays > 1 ? 's' : ''}`}
-                      value={`${num(result.totalStorageL, 0)} L`}
-                    />
-                    <BreakRow
-                      label="Round up to standard"
-                      detail={`next of ${STANDARD_TANK_SIZES.join(', ')} L`}
-                      value={result.nearestTankL !== null ? `${num(result.nearestTankL, 0)} L` : '—'}
-                      positive
-                    />
-                    <tr>
-                      <td colSpan={2} style={{ padding: '11px 0 0', borderTop: `1px solid ${BSUB}`, color: INK, fontWeight: 500 }}>Tank to buy</td>
-                      <td style={{ padding: '11px 0 0', borderTop: `1px solid ${BSUB}`, textAlign: 'right', color: INK, fontWeight: 600 }}>
-                        {result.nearestTankL !== null ? `${num(result.nearestTankL, 0)} L` : 'Split tanks'}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <p style={{ fontFamily: SANS, fontSize: 11.5, color: INK_35, lineHeight: 1.6, marginTop: 18 }}>
-                  Storage rounds UP to the next standard size — never down. Undersizing a tank causes dry taps and
-                  pump burnout (IS 1172:1993 Cl 6). Where a sump plus overhead tank is used, this figure is the
-                  total stored volume to divide between them.
-                </p>
-              </>
-            ) : (
-              <p style={{ fontFamily: SANS, fontSize: 14, color: INK_45, lineHeight: 1.7, paddingTop: 8 }}>
-                Enter the number of occupants to see the daily demand, required storage, and the nearest standard
-                tank size.
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* ── CTA — PlumbingPro ────────────────────────────────────────────────── */}
-        <div
-          style={{
-            marginTop: 28,
-            background: SURF,
-            border: `1px solid ${OXIDE}`,
-            borderRadius: 2,
-            padding: '28px 32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 20,
-          }}
-        >
-          <div style={{ flex: 1, minWidth: 260 }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, color: 'rgba(200,120,90,0.95)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-              Need the full plumbing estimate?
-            </p>
-            <p style={{ fontFamily: SANS, fontSize: 15.5, color: INK_65, lineHeight: 1.6, maxWidth: 620 }}>
-              Need your full plumbing cost, not just tank size? Get pipe sizing, fixture costs, and pump specs
-              with PlumbingPro — the complete IS 1172:1993 &amp; IS 1742:1983 water supply and drainage estimate,
-              contractor-quote comparison included.
-            </p>
-          </div>
-          <Link
-            href="/tools/plumbpro"
-            className="btn-3d"
-            style={{
-              fontFamily: SANS,
-              fontSize: 14,
-              fontWeight: 600,
-              letterSpacing: '0.02em',
-              padding: '13px 26px',
-              borderRadius: 2,
-              background: OXIDE,
-              color: INK,
-              textDecoration: 'none',
-              border: '1px solid rgba(255,255,255,0.15)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Open PlumbingPro →
-          </Link>
-        </div>
-      </section>
-
-      {/* ── STANDARD SIZE REFERENCE TABLE ───────────────────────────────────────── */}
-      <section className="grid-paper px-6 md:px-16 lg:px-24 py-16" style={{ borderTop: `1px solid ${BSUB}` }}>
-        <Eyebrow>Reference · Standard Tank Sizes</Eyebrow>
-        <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(24px,3vw,32px)', fontWeight: 600, color: INK, marginBottom: 20 }}>
-          What each standard tank covers
-        </h2>
-        <div style={{ overflowX: 'auto', border: `1px solid ${BSUB}`, borderRadius: 2, background: SURF }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 12.5, minWidth: 560 }}>
-            <thead>
-              <tr>
-                {['Tank size', 'Municipal · 1 day', 'Borewell · 1 day'].map((h) => (
-                  <th key={h} style={{ textAlign: h === 'Tank size' ? 'left' : 'center', fontFamily: MONO, fontSize: 10, color: INK_45, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '12px 14px', borderBottom: `1px solid ${BSUB}`, whiteSpace: 'nowrap' }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {STANDARD_TANK_SIZES.map((size, i) => {
-                // Occupants a single-day tank of this size supports:
-                // size = occupants × lpcd × 0.67  ⇒  occupants = size / (lpcd × 0.67)
-                const muniOcc = Math.floor(size / (WATER_DEMAND_LPCD.municipal * TANK_RATIO))
-                const boreOcc = Math.floor(size / (WATER_DEMAND_LPCD.borewell * TANK_RATIO))
-                return (
-                  <tr key={size} style={{ background: i % 2 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
-                    <td style={{ padding: '10px 14px', color: BLUEPRINT }}>{num(size, 0)} L</td>
-                    <td style={{ padding: '10px 14px', textAlign: 'center', color: INK_65 }}>up to {muniOcc} people</td>
-                    <td style={{ padding: '10px 14px', textAlign: 'center', color: INK_65 }}>up to {boreOcc} people</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p style={{ fontFamily: SANS, fontSize: 12, color: INK_35, lineHeight: 1.6, marginTop: 14, maxWidth: 720 }}>
-          Occupant figures are for a single day of storage at the IS 1172:1993 rates. Multiply the required
-          storage by your number of storage days before reading this table for intermittent-supply areas.
+      <CalcSection title="Tanks for a household" sub="The tanks this calculator gives for each household size, by where the water comes from. Litres.">
+        <ReportTable
+          head={['People', 'Water a day', 'Piped: underground', 'Piped: overhead', 'Borewell: overhead', 'Tanker: underground', 'Tanker: overhead']}
+          sticky
+          num={[0, 1, 2, 3, 4, 5, 6]}
+          rows={[2, 4, 5, 6, 8, 10, 12, 20].map((p) => {
+            const m = calculate({ people: p, water: 'municipal' })
+            const b = calculate({ people: p, water: 'borewell' })
+            const t = calculate({ people: p, water: 'tanker' })
+            return [
+              String(p),
+              `${num(m.dailyDemandL, 0)} / ${num(b.dailyDemandL, 0)}`,
+              show(m.ugt!),
+              show(m.oht),
+              show(b.oht),
+              show(t.ugt!),
+              show(t.oht),
+            ]
+          })}
+        />
+        <p className="ns-r-tblnote">
+          Water a day is shown for piped or tanker water ({WATER_DEMAND_LPCD.municipal} litres a person) and then for a borewell ({WATER_DEMAND_LPCD.borewell} litres). The sizes are the smallest ready-made tank that holds the need; a built tank or several tanks appear in the larger rows where one ready-made tank is not enough.
         </p>
-      </section>
+      </CalcSection>
 
-      {/* ── WRITTEN CONTENT ─────────────────────────────────────────────────────── */}
-      <article className="px-6 md:px-16 lg:px-24 py-16" style={{ maxWidth: 820 }}>
-
-        <Prose heading="What the 135 LPCD standard actually covers">
+      <article className="ns-calc-articles">
+        <Prose title="How much water a house uses">
           <p>
-            LPCD stands for <strong style={{ color: INK }}>litres per capita per day</strong> — the water one
-            person is expected to use in a day. IS 1172:1993, the Indian standard for water supply in buildings,
-            fixes the residential figure at <strong style={{ color: INK }}>135 litres per person per day</strong>{' '}
-            where the house is on a municipal (piped town) supply, and a higher{' '}
-            <strong style={{ color: INK }}>150 LPCD</strong> where the house draws on its own borewell, because
-            an owned source tends to be used more freely.
+            IS 1172:1993, the Indian standard for water supply in buildings, puts the water a person uses at <strong>135 litres a day</strong> in a house with flushing toilets: about 45 litres for flushing, and 90 for everything else. That 90 is roughly 5 for drinking, 5 for cooking, 30 for bathing, 25 for washing clothes and 25 for washing utensils and floors.
           </p>
           <p>
-            That 135 litres is not just drinking water. The standard breaks the daily household demand down
-            roughly like this:
+            Towns of over a lakh people are given 150 to 200 litres. This calculator uses <strong>150 litres</strong> for a house on its own borewell, the lowest figure of that range. The standard sets demand by the size of the town, not by the kind of source, so the borewell figure is a choice the calculator makes. If your household uses more, enter more people.
+          </p>
+        </Prose>
+
+        <Prose title="Two tanks, and what each holds">
+          <p>
+            A house on piped supply usually has two tanks: an <strong>underground tank</strong> that fills when the town water comes, and an <strong>overhead tank</strong> on the roof that a pump keeps filled and that feeds the taps by gravity. The NBC Part 9 Section 1 draft (the BIS preliminary draft of November 2024, which carries the older IS 12183 and IS 2065 rules) splits the day’s water between them:
           </p>
           <ul>
-            <li><span style={{ fontFamily: MONO, color: INK }}>Drinking &amp; cooking</span> — about 5 litres. The only water that must be potable-clean, but the smallest slice.</li>
-            <li><span style={{ fontFamily: MONO, color: INK }}>Bathing</span> — about 55 litres. The single largest use in most Indian homes — a bucket bath is ~20 L, a shower far more.</li>
-            <li><span style={{ fontFamily: MONO, color: INK }}>Flushing</span> — about 30 litres. Every WC flush is 6–10 L; this adds up fast across a family.</li>
-            <li><span style={{ fontFamily: MONO, color: INK }}>Washing &amp; cleaning</span> — about 45 litres. Clothes, utensils, floors, and the general housekeeping load.</li>
+            {SOURCE_ORDER.map((s) => (
+              <li key={s}>
+                <strong>{s === 'municipal' ? 'Piped supply' : s === 'borewell' ? 'Borewell' : 'Tanker'}</strong>:{' '}
+                {SHARES[s].ugt > 0 ? `underground ${SHARE_TEXT[s].ugt}, overhead ${SHARE_TEXT[s].oht}.` : `overhead only, ${SHARE_TEXT[s].oht}.`}
+              </li>
+            ))}
           </ul>
           <p>
-            Add those up and you land near 135 litres for a person on municipal supply. The figure is a design
-            minimum, not a luxury allowance — it is what a plumbing system must be able to deliver and store so
-            the house never runs dry under normal use.
+            The draft allows an overhead tank alone to hold one-third to one-half of a day; the calculator takes the half. For a tanker the draft’s apartment clause does not say plainly which tank holds which part, so the split above is a reading, not a quotation. The printed NBC 2016 may differ from the draft. Water kept back for fire fighting is not counted; IS 12183 sends that to NBC Part 4.
           </p>
         </Prose>
 
-        <Prose heading="Why storage is two-thirds of a day, not a full day">
+        <Prose title="Rounding up to a tank you can buy">
           <p>
-            A common instinct is to size the tank to a full day of demand. IS 1172:1993 is more economical than
-            that: it sets the total stored capacity at <strong style={{ color: INK }}>two-thirds of the daily
-            demand</strong> — the 0.67 factor this calculator uses. The reasoning is that a house on a working
-            supply is refilled during the day, so it does not need to hold a whole day&rsquo;s water at once; it
-            only needs enough buffer to ride through the hours between fills and the peak-use mornings and
-            evenings.
-          </p>
-          <p style={{ fontFamily: MONO, color: INK, fontSize: 15, background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-            storage (litres) = occupants × LPCD × 0.67 × storage days
+            Ready-made tanks come in set sizes, commonly {STANDARD_TANK_SIZES.map((s) => num(s, 0)).join(', ')} litres. No Indian Standard lists those sizes, so the list is an assumption. The calculator always rounds up: a tank that is a little too big costs a little more, and one that is too small runs dry.
           </p>
           <p>
-            The 0.67 factor and the per-capita rates are the exact locked IS 1172:1993 values used inside
-            NirmanShastra&rsquo;s paid PlumbingPro tool — this free calculator shares the same engine for the
-            single-day case, so the two never disagree.
+            Above 5,000 litres underground, the tank is usually built, so the calculator gives the inside volume rounded up to the next 500 litres. Above 5,000 litres overhead, it gives equal ready-made tanks.
           </p>
         </Prose>
 
-        <Prose heading="Why intermittent-supply areas need a bigger buffer">
+        <Prose title="Worked example: five people on piped supply">
           <p>
-            The two-thirds rule assumes water comes every day. Large parts of India do not have that. In many
-            towns and peri-urban areas the municipal line runs only on alternate days, or for a couple of hours
-            every second or third day, or a tanker arrives on a schedule. In those places a tank sized for a
-            single day empties before the next supply arrives, and the household is dry — exactly the failure the
-            standard warns against.
+            Five people use 5 × 135 = 675 litres a day. The underground tank takes two-thirds of that and the overhead tank a third:
           </p>
+          <Formula>675 × ⅔ = 450 L → buy 500 L underground · 675 × ⅓ = 225 L → buy 500 L overhead</Formula>
           <p>
-            The fix is the <strong style={{ color: INK }}>storage-days multiplier</strong> in this tool. This is a
-            genuinely new addition, not an IS clause: it simply scales the standard two-thirds-of-a-day storage by
-            the number of days you must survive between supplies. Set it to 2 for an alternate-day supply, 3 for a
-            twice-a-week line, and the required storage grows in proportion. A continuous, reliable supply stays at
-            1 day and collapses back to the plain IS 1172:1993 figure.
-          </p>
-          <p>
-            Because the difference between &ldquo;enough&rdquo; and &ldquo;dry taps&rdquo; is one-sided — running
-            out is far worse than a slightly larger tank — the tool always rounds the requirement <strong style={{ color: INK }}>up</strong> to the
-            next size actually sold off the shelf (500, 1000, 1500, 2000, 3000, 5000 litres). It never rounds
-            down.
+            On a borewell the same five people use 5 × 150 = 750 litres, and the single overhead tank holds half: 375 litres, so a 500 litre tank. If the water comes by tanker, the underground tank has to hold a day and a half, 5 × 135 × 1.5 = 1,013 litres, which rounds up to a 1,500 litre tank, with a 500 litre tank on the roof.
           </p>
         </Prose>
-
-        <Prose heading="Worked example — a family of eight on municipal supply">
-          <p>
-            Take the calculator&rsquo;s default inputs: <strong style={{ color: INK }}>8 occupants</strong>, a{' '}
-            <strong style={{ color: INK }}>municipal</strong> supply, and <strong style={{ color: INK }}>1 day</strong>{' '}
-            of storage. The daily demand is 8 × 135 = 1080 litres. Applying the two-thirds storage rule gives
-            1080 × 0.67 = 723.6, which rounds to <strong style={{ color: INK }}>724 litres</strong> of required
-            storage.
-          </p>
-          <p style={{ fontFamily: MONO, color: INK, fontSize: 14.5, background: SURF, border: `1px solid ${BSUB}`, borderRadius: 2, padding: '14px 16px' }}>
-            8 × 135 = 1080 L/day  →  1080 × 0.67 × 1 = 724 L  →  buy 1000 L
-          </p>
-          <p>
-            724 litres falls between the 500 L and 1000 L standard sizes, so the tool rounds up to a{' '}
-            <strong style={{ color: INK }}>1000 litre</strong> tank — the smallest off-the-shelf tank that will
-            not leave this family short. If the same house sat on an alternate-day supply, setting storage days to
-            2 would raise the requirement to 1448 litres and push the recommendation to a 1500 litre tank.
-          </p>
-        </Prose>
-
-        <CalcFaq items={TANK_CONTENT.faq} />
-
-        <RelatedLinks path="/tools/water-tank-size-calculator" />
-
-
-        {/* Disclaimer note */}
-        <p style={{ fontFamily: SANS, fontSize: 12.5, color: INK_35, lineHeight: 1.7, marginTop: 8, borderTop: `1px solid ${BSUB}`, paddingTop: 18 }}>
-          Schematic for estimation reference only. Sizing uses the IS 1172:1993 per-capita demand and two-thirds
-          storage rule with a storage-days buffer; actual requirements vary with occupancy patterns, fittings,
-          gardens, and local supply reliability. All storage tanks must be food-grade HDPE, covered, and
-          insect-proof per IS 12701. Not a substitute for a licensed plumber&rsquo;s design.
-        </p>
       </article>
-    </main>
-  )
-}
 
-// ── Sub-components / formatters ──────────────────────────────────────────────────
+      <CalcFaq items={TANK_CONTENT.faq} />
+      <RelatedLinks path="/tools/water-tank-size-calculator" />
 
-function BreakRow({
-  label, detail, value, positive, negative, muted,
-}: { label: string; detail: string; value: string; positive?: boolean; negative?: boolean; muted?: boolean }) {
-  const valColor = negative ? '#C8785A' : positive ? '#7BA77B' : muted ? INK_45 : INK_65
-  return (
-    <tr>
-      <td style={{ padding: '7px 0', color: INK_65, whiteSpace: 'nowrap', verticalAlign: 'top' }}>{label}</td>
-      <td style={{ padding: '7px 12px', color: INK_35, fontSize: 11.5 }}>{detail}</td>
-      <td style={{ padding: '7px 0', textAlign: 'right', color: valColor, whiteSpace: 'nowrap' }}>{value}</td>
-    </tr>
-  )
-}
-
-function Prose({ heading, children }: { heading: string; children: React.ReactNode }) {
-  return (
-    <section className="bbs-prose" style={{ marginBottom: 40 }}>
-      <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px,2.6vw,28px)', fontWeight: 600, color: INK, lineHeight: 1.25, marginBottom: 14 }}>
-        {heading}
-      </h2>
-      <div style={{ fontFamily: SANS, fontSize: 16, color: INK_65, lineHeight: 1.8 }}>
-        {children}
-      </div>
-    </section>
+      <Chips codes={['IS 1172:1993', 'IS 2065:1983', 'IS 12183 (Part 1):1987', 'NBC Part 9 (draft)']} />
+      <CalcFine>
+        For planning. Tank sizes follow the NBC Part 9 Section 1 preliminary draft and common ready-made sizes, and the real need depends on how the household lives, on gardens and on how reliable the supply is. The tanks for a building are sized by the plumbing designer. Not a substitute for that.
+      </CalcFine>
+    </CalcPage>
   )
 }

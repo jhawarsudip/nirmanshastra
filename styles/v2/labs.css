@@ -8,7 +8,7 @@
 .ns-lab__plate { padding: clamp(20px, 3vw, 40px); }
 
 .ns-bench__head { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
-.ns-bench__head > .ns-mono { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ns-link); }
+.ns-bench__head > .ns-mono { font-size: 12px; letter-spacing: .01em;  color: var(--ns-link); }
 .ns-bench .ns-h3 { margin: 0; }
 .ns-bench__lede { margin: 14px 0 0; max-width: 62ch; color: var(--ns-ink-2); line-height: 1.55; font-size: 16.5px; }
 .ns-bench__grid { display: grid; gap: 26px; margin-top: 24px; }
@@ -17,7 +17,7 @@
 .ns-bench__fig .ns-bench__svg { max-width: none; }
 .ns-bench__ctl { display: flex; flex-direction: column; gap: 20px; }
 .ns-bench__tg { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
-.ns-bench__t { font-family: var(--ns-mono); font-size: 10.5px; fill: var(--ns-ink); letter-spacing: .02em; }
+.ns-bench__t { font-family: var(--ns-sans); font-size: 10.5px; fill: var(--ns-ink); letter-spacing: .02em; }
 .ns-bench__t--lat { fill: var(--ns-laterite); }
 .ns2:lang(hi) .ns-bench__t, .ns2 :lang(hi) .ns-bench__t { font-family: var(--ns-sans); }
 
@@ -25,6 +25,10 @@
   .ns-bench__grid {
     grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
     grid-template-areas: "fig boq" "ctl boq";
+    /* The answer column spans both left rows. With two auto rows, CSS Grid splits any extra height between them,
+       which pushed the controls down and left a hole under the figure when "Show the calculation" opened.
+       A flexible second row takes all of that slack instead, so the figure and controls stay stacked at the top. */
+    grid-template-rows: auto 1fr;
     column-gap: clamp(28px, 4vw, 56px); align-items: start;
   }
   .ns-bench__svg, .ns-bench__fig { grid-area: fig; }
@@ -35,11 +39,11 @@
 /* toggle buttons */
 .ns-toggle {
   display: flex; align-items: center; gap: 12px; width: 100%; min-height: 46px; padding: 8px 12px; text-align: left;
-  background: var(--ns-paper); color: var(--ns-ink); border: 1.5px solid var(--ns-ink); font-size: 14.5px; cursor: pointer;
+  background: var(--ns-paper); color: var(--ns-ink); border: 1.5px solid var(--ns-line-2); font-size: 14.5px; cursor: pointer;
   transition: background-color 120ms;
 }
 .ns-toggle:hover { background: var(--ns-bg-2); }
-.ns-toggle i { flex: none; position: relative; width: 20px; height: 20px; border: 1.5px solid var(--ns-ink); background: var(--ns-bg); transition: background-color 120ms; }
+.ns-toggle i { flex: none; position: relative; width: 20px; height: 20px; border: 1.5px solid var(--ns-line-2); background: var(--ns-bg); transition: background-color 120ms; }
 .ns-toggle[aria-pressed="true"] i { background: var(--ns-laterite); }
 .ns-toggle[aria-pressed="true"] i::after {
   content: ""; position: absolute; left: 5px; top: 0; width: 6px; height: 11px;
@@ -48,13 +52,13 @@
 
 /* wrapped segmented control: hairline grid */
 .ns-seg.ns-seg--wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); border: 0; background: none; padding: 0 1.5px 1.5px 0; }
-.ns-seg.ns-seg--wrap button { border: 1.5px solid var(--ns-ink); margin: 0 -1.5px -1.5px 0; background: var(--ns-paper); }
+.ns-seg.ns-seg--wrap button { border: 1.5px solid var(--ns-line-2); margin: 0 -1.5px -1.5px 0; background: var(--ns-paper); }
 .ns-seg.ns-seg--wrap button:hover { background: var(--ns-bg-2); }
 .ns-seg.ns-seg--wrap button[aria-checked="true"] { background: var(--ns-ink); color: var(--ns-bg); }
 
 .ns-btn--sm { min-height: 40px; padding: 10px 16px 12px; font-size: 12.5px; }
 .ns-bk-lab__laid { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding-top: 14px; max-width: 560px; }
-.ns-bk-lab__laid > .ns-mono { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ns-ink-2); }
+.ns-bk-lab__laid > .ns-mono { font-size: 12px; letter-spacing: .01em;  color: var(--ns-ink-2); }
 .ns-bk-lab__laid b { font-weight: 600; font-size: 18px; margin-right: auto; margin-left: 4px; }
 .ns-bk-lab__rate .ns-label i { font-style: normal; text-transform: none; letter-spacing: .02em; opacity: .8; margin-left: 6px; }
 

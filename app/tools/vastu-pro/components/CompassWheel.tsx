@@ -7,11 +7,22 @@ interface Props {
   onChange: (deg: number) => void
 }
 
-const SIZE = 160
+// Logical size in CSS pixels. The canvas itself is drawn at device resolution so it stays sharp on a phone.
+const SIZE = 200
 const CX = SIZE / 2
 const CY = SIZE / 2
-const R = SIZE / 2 - 8
+const R = SIZE / 2 - 6
 
+const FACE = '#F2ECDD'
+const INK = '#2A2622'
+const NORTH = '#B5502D'
+const GREEN = '#2F7A4F'
+
+/*
+  The dial turns with the North angle: the red N sits where North lies on your drawing,
+  and the green arrow (fixed, pointing up) is the top of your drawing.
+  Drag the dial, use the arrow keys, or type the angle beside it.
+*/
 export default function CompassWheel({ northDeg, onChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const dragging = useRef(false)
@@ -21,141 +32,142 @@ export default function CompassWheel({ northDeg, onChange }: Props) {
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+    const dpr = canvas.width / SIZE
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    let sans = 'system-ui, sans-serif'
+    try { sans = getComputedStyle(canvas).fontFamily || sans } catch { /* keep the default */ }
 
     ctx.clearRect(0, 0, SIZE, SIZE)
 
-    // Dark brown gradient background
-    const grad = ctx.createRadialGradient(CX, CY, 0, CX, CY, R)
-    grad.addColorStop(0, '#2A1F14')
-    grad.addColorStop(1, '#1A1008')
+    // Face
     ctx.beginPath()
     ctx.arc(CX, CY, R, 0, Math.PI * 2)
-    ctx.fillStyle = grad
+    ctx.fillStyle = FACE
     ctx.fill()
-
-    // Outer ring
-    ctx.beginPath()
-    ctx.arc(CX, CY, R, 0, Math.PI * 2)
-    ctx.strokeStyle = 'rgba(201,168,76,0.5)'
-    ctx.lineWidth = 1.5
+    ctx.strokeStyle = INK
+    ctx.lineWidth = 2
     ctx.stroke()
 
-    // 16 tick marks (rotated by northDeg so compass face rotates with northDeg)
+    // 16 tick marks, turned with the North angle
     const faceRot = (northDeg * Math.PI) / 180
     for (let i = 0; i < 16; i++) {
       const angle = faceRot + (i * Math.PI * 2) / 16
       const isCardinal = i % 4 === 0
-      const inner = R - (isCardinal ? 14 : 8)
+      const inner = R - (isCardinal ? 16 : 9)
       const outer = R - 3
       ctx.beginPath()
       ctx.moveTo(CX + inner * Math.sin(angle), CY - inner * Math.cos(angle))
       ctx.lineTo(CX + outer * Math.sin(angle), CY - outer * Math.cos(angle))
-      ctx.strokeStyle = isCardinal ? 'rgba(201,168,76,0.9)' : 'rgba(201,168,76,0.4)'
-      ctx.lineWidth = isCardinal ? 1.5 : 0.8
+      ctx.strokeStyle = isCardinal ? INK : 'rgba(42,38,34,0.45)'
+      ctx.lineWidth = isCardinal ? 2 : 1
       ctx.stroke()
     }
 
-    // Cardinal labels (N/E/S/W) — rotate with face
+    // N, E, S, W turn with the face but stay upright
     const cardinals = ['N', 'E', 'S', 'W']
-    const labelR = R - 22
+    const labelR = R - 31
     cardinals.forEach((label, i) => {
       const angle = faceRot + (i * Math.PI) / 2
-      const x = CX + labelR * Math.sin(angle)
-      const y = CY - labelR * Math.cos(angle)
-      ctx.font = `700 11px "IBM Plex Mono", monospace`
+      ctx.font = `800 ${label === 'N' ? 19 : 15}px ${sans}`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.fillStyle = label === 'N' ? '#E8C85A' : 'rgba(201,168,76,0.7)'
-      ctx.fillText(label, x, y)
+      ctx.fillStyle = label === 'N' ? NORTH : INK
+      ctx.fillText(label, CX + labelR * Math.sin(angle), CY - labelR * Math.cos(angle))
     })
 
-    // North gold arrow (fixed, pointing up — the face rotates around it)
-    const arrowLen = R * 0.55
+    // The top of the drawing: fixed, pointing up
+    const arrowLen = R * 0.5
     ctx.save()
-    ctx.strokeStyle = '#C9A84C'
-    ctx.fillStyle = '#C9A84C'
-    ctx.lineWidth = 2
+    ctx.strokeStyle = GREEN
+    ctx.fillStyle = GREEN
+    ctx.lineWidth = 3
+    ctx.lineCap = 'round'
     ctx.beginPath()
-    ctx.moveTo(CX, CY + arrowLen * 0.3)
+    ctx.moveTo(CX, CY + arrowLen * 0.28)
     ctx.lineTo(CX, CY - arrowLen)
     ctx.stroke()
-    // Arrowhead
     ctx.beginPath()
-    ctx.moveTo(CX, CY - arrowLen)
-    ctx.lineTo(CX - 5, CY - arrowLen + 10)
-    ctx.lineTo(CX + 5, CY - arrowLen + 10)
+    ctx.moveTo(CX, CY - arrowLen - 3)
+    ctx.lineTo(CX - 7, CY - arrowLen + 11)
+    ctx.lineTo(CX + 7, CY - arrowLen + 11)
     ctx.closePath()
     ctx.fill()
-    // South grey tail
-    ctx.strokeStyle = 'rgba(201,168,76,0.25)'
-    ctx.beginPath()
-    ctx.moveTo(CX, CY)
-    ctx.lineTo(CX, CY + arrowLen * 0.3)
-    ctx.stroke()
     ctx.restore()
 
     // Centre dot
     ctx.beginPath()
-    ctx.arc(CX, CY, 4, 0, Math.PI * 2)
-    ctx.fillStyle = '#C9A84C'
+    ctx.arc(CX, CY, 4.5, 0, Math.PI * 2)
+    ctx.fillStyle = GREEN
     ctx.fill()
 
-    // Degree readout
-    ctx.font = `500 10px "IBM Plex Mono", monospace`
-    ctx.fillStyle = 'rgba(201,168,76,0.6)'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(`${Math.round(northDeg)}°`, CX, CY + R - 11)
   }, [northDeg])
 
-  useEffect(() => { draw() }, [draw])
+  // Size the canvas for the screen's pixel density, then draw.
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const dpr = Math.min(window.devicePixelRatio || 1, 3)
+    const px = Math.round(SIZE * dpr)
+    if (canvas.width !== px) {
+      canvas.width = px
+      canvas.height = px
+    }
+    draw()
+  }, [draw])
 
-  function getAngle(clientX: number, clientY: number): number {
+  function angleAt(clientX: number, clientY: number): number {
     const canvas = canvasRef.current
     if (!canvas) return 0
     const rect = canvas.getBoundingClientRect()
-    const x = clientX - rect.left - CX
-    const y = clientY - rect.top - CY
-    return ((Math.atan2(x, -y) * 180) / Math.PI + 360) % 360
+    const x = clientX - (rect.left + rect.width / 2)
+    const y = clientY - (rect.top + rect.height / 2)
+    return Math.round(((Math.atan2(x, -y) * 180) / Math.PI + 360) % 360) % 360
   }
 
-  function onMouseDown(e: React.MouseEvent) {
+  function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
     dragging.current = true
-    onChange(getAngle(e.clientX, e.clientY))
+    e.currentTarget.setPointerCapture(e.pointerId)
+    onChange(angleAt(e.clientX, e.clientY))
   }
-  function onMouseMove(e: React.MouseEvent) {
+  function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
     if (!dragging.current) return
-    onChange(getAngle(e.clientX, e.clientY))
+    onChange(angleAt(e.clientX, e.clientY))
   }
-  function onMouseUp() { dragging.current = false }
+  function onPointerEnd(e: React.PointerEvent<HTMLCanvasElement>) {
+    dragging.current = false
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
+  }
 
-  function onTouchStart(e: React.TouchEvent) {
-    dragging.current = true
-    const t = e.touches[0]
-    onChange(getAngle(t.clientX, t.clientY))
-  }
-  function onTouchMove(e: React.TouchEvent) {
-    if (!dragging.current) return
+  function onKeyDown(e: React.KeyboardEvent<HTMLCanvasElement>) {
+    const step = e.shiftKey ? 10 : 1
+    let next: number | null = null
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = northDeg + step
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = northDeg - step
+    else if (e.key === 'PageUp') next = northDeg + 15
+    else if (e.key === 'PageDown') next = northDeg - 15
+    else if (e.key === 'Home') next = 0
+    if (next === null) return
     e.preventDefault()
-    const t = e.touches[0]
-    onChange(getAngle(t.clientX, t.clientY))
+    onChange(((Math.round(next) % 360) + 360) % 360)
   }
-  function onTouchEnd() { dragging.current = false }
 
   return (
     <canvas
       ref={canvasRef}
       width={SIZE}
       height={SIZE}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-      style={{ cursor: 'grab', touchAction: 'none', userSelect: 'none' }}
-      aria-label={`Compass. North is at ${Math.round(northDeg)} degrees. Drag to rotate.`}
+      tabIndex={0}
+      role="slider"
+      aria-valuemin={0}
+      aria-valuemax={359}
+      aria-valuenow={Math.round(northDeg)}
+      aria-valuetext={`North is ${Math.round(northDeg)} degrees clockwise from the top of the drawing`}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerEnd}
+      onPointerCancel={onPointerEnd}
+      onKeyDown={onKeyDown}
+      aria-label="North direction dial. Drag the dial or use the arrow keys."
     />
   )
 }

@@ -50,11 +50,11 @@ const content: ProductContent = {
   },
 
   example: {
-    heading: 'A 9-inch wall with two windows, and the ₹18,000 that hangs on the method.',
+    heading: 'A 9-inch wall with two windows, and the 2.88 sq m that hangs on the method.',
     label: 'Scenario',
     paras: [
       'A ground-floor brick wall measures 8 m long and 3 m high — 24 sqm gross. It carries two windows of 1.2 m × 1.2 m. The contractor’s first cut bills the full 24 sqm; the site engineer says deduct the openings. Who is right depends entirely on the method of measurement, not on either person’s confidence.',
-      'The IS 1200 Deductions sheet settles it: the two openings are 2 × 1.44 = 2.88 sqm, so the net measured area is 21.12 sqm. At a brickwork rate of, say, ₹850/sqm that is the difference between billing ₹20,400 and ₹17,952 on this one wall — about ₹2,450 here, and multiples of that across a whole floor of walls and plaster.',
+      'The IS 1200 Deductions sheet settles it: the two openings are 2 × 1.44 = 2.88 sqm, so the net measured area is 21.12 sqm. Billing the gross 24 sqm would pay for 2.88 sqm of brickwork that holds no brick — 12% of this wall, at whatever rate the contract sets — and the same question comes up on every wall of every floor.',
       'The RA Bill sheet then takes that net value into the running account: it adds this period’s work, subtracts the previous bill and the retention, deducts TDS under Section 393 and adds GST — and the Payment Tracker carries the certified figure through to paid. The contractor gets paid for exactly what was built, measured the way the contract already agreed to measure it.',
     ],
   },

@@ -1,136 +1,85 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
+import '@/styles/v2/results.css'
+import { ToolHead, Note, IcArrow } from '@/components/v2/inner/kit'
+import { ReportTable } from '@/components/v2/qty/parts'
+import { TOOLS } from '@/lib/v2/content'
+import { TOOL_PRICE_PAISE } from '@/lib/tool-pricing'
+import { inr } from '@/lib/seo/site'
 
-const title = 'About Us — Built by a Civil Engineer'
-const description = 'The founder story: a NITian civil engineer building IS-code-verified construction cost transparency for every Indian homeowner.'
-const url = '/about'
+/*
+  About. Written to say only what is true:
+   - the product gives quantities and no prices;
+   - the founder has a B.Tech in Civil Engineering and about a year on site, and is not a practising structural engineer;
+   - no report is reviewed by a practising engineer.
+  Prices come from lib/tool-pricing.ts, never typed here.
+*/
 
-export const metadata: Metadata = {
-  title,
-  description,
-  alternates: { canonical: url },
-  openGraph: {
-    type: 'website',
-    locale: 'en_IN',
-    siteName: 'NirmanShastra',
-    url,
-    title,
-    description,
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — India’s IS-Code Construction Cost Estimator',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title,
-    description,
-  },
+const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
+
+const counts: Record<string, string> = {
+  struct: 'Concrete, steel, cement, sand, aggregate and shuttering for the reinforced-concrete frame: footings, columns, beams, slabs, stairs, balconies and an open parking floor.',
+  mason: 'Bricks or blocks, mortar, plaster and lintels for the walls.',
+  elec: 'Points, wire by size, conduit, switches, boards and circuits.',
+  plumb: 'Water and drain pipe, fittings, tanks, pump, septic tank and soak pit.',
+  int: 'Paint, putty, tiles, false ceiling, doors, windows and plywood.',
 }
 
 export default function AboutPage() {
+  const paid = TOOLS.filter(t => !t.free)
+  const priceOf: Record<string, number> = {
+    struct: TOOL_PRICE_PAISE.structopro, mason: TOOL_PRICE_PAISE.masonpro, elec: TOOL_PRICE_PAISE.electropro,
+    plumb: TOOL_PRICE_PAISE.plumbpro, int: TOOL_PRICE_PAISE.interiorpro,
+  }
   return (
-    <main className="sheet-frame min-h-screen" style={{ background: '#F4F4F0' }}>
+    <div className="ns-i-page">
+      <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
+        <ToolHead
+          eyebrow="About"
+          name="Quantities, worked out in the open"
+          blurb="NirmanShastra tells you how much of each material a house needs, before you order or sign. It does not tell you what anything costs, and that is on purpose."
+        />
 
-      {/* Header band */}
-      <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.1)' }}>
-        <div className="px-6 md:px-16 lg:px-24 py-16">
-          <h1 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(36px,5vw,64px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
-            About NirmanShastra
-          </h1>
-        </div>
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="ab-why">
+          <h2 id="ab-why" style={H2}>Why it exists</h2>
+          <p>A homeowner in India is usually handed a rate per square foot and little else. Behind any rate sits a list of quantities: cubic metres of concrete, kilograms of steel, bags of cement, bricks, metres of wire and pipe. The quantities are what can be checked against the Indian Standards. A rate cannot.</p>
+          <p>So NirmanShastra works out the quantities and stops there. Prices are left out because they change by town, by month and by who you buy from, and because a price laid over a wrong quantity is worse than no number at all.</p>
+        </section>
+
+        <section className="ns-plate ns-r-sec" aria-labelledby="ab-what">
+          <h2 id="ab-what" style={H2}>What you get</h2>
+          <p className="ns-r-sec__sub">You answer a few plain questions about the plot and the plan. The quantities are worked out on our server, to the Indian Standards, and shown with a range around each one. Free calculators cover single questions such as the bricks in a wall or the size of a water tank.</p>
+          <ReportTable
+            head={['Report', 'What it counts', 'Price']}
+            rows={[
+              ...paid.map(t => [t.name, counts[t.key], inr(priceOf[t.key])]),
+              ['Grand Total', 'The five reports together, with the overlaps counted once.', `${inr(TOOL_PRICE_PAISE.grandtotal)} add-on`],
+            ]}
+          />
+        </section>
+
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="ab-sure">
+          <h2 id="ab-sure" style={H2}>How sure it is, and what it cannot tell you</h2>
+          <p>Every quantity comes with a low and a high figure, because a few answers cannot fix every dimension of a building. Real buildings also use more steel and concrete than a code minimum, so the StructurePro report sets its figures beside what 26 published bills of quantities show.</p>
+          <p>Every standard a report relies on is named on the <Link href="/is-codes-used" style={{ textDecoration: 'underline' }}>IS Codes Used</Link> page, with what we take from it. Where we could not read a standard in full, or a figure is our assumption, that page says so.</p>
+        </section>
+
+        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="ab-who">
+          <h2 id="ab-who" style={H2}>Who builds it</h2>
+          <p>NirmanShastra is built and run by one person, with no outside funding. The founder has a B.Tech in Civil Engineering and spent a little over a year as a site engineer before moving to other work.</p>
+          <p>That is the whole credential. The founder is not a practising structural engineer, and no practising engineer reviews your report. Your project details are not sold to contractors, builders or material suppliers; the <Link href="/privacy-policy" style={{ textDecoration: 'underline' }}>privacy policy</Link> has the exact terms.</p>
+        </section>
+
+        <Note kind="warn" title="Not a structural design">
+          A NirmanShastra report is for planning and for asking better questions. It is not a drawing, an approval or a quotation. Have the engineer who signs your drawings give the final bar bending schedule and confirm the earthquake zone for your town.
+        </Note>
+
+        <section className="ns-plate ns-r-next" aria-labelledby="ab-go">
+          <p className="ns-r-hook__k">Start</p>
+          <h2 id="ab-go" style={{ margin: 0, fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(21px, 2.2vw, 28px)' }}>See the frame of your house first</h2>
+          <p>The StructurePro form takes a few minutes, and you see your house in 3D before you pay. Already have a quote? <Link href="/compare-quote" style={{ textDecoration: 'underline' }}>Check what it counts</Link>.</p>
+          <Link href="/tools/structopro" className="ns-btn">Start with StructurePro<IcArrow width={22} height={11} /></Link>
+        </section>
       </div>
-
-      {/* Main content */}
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-6 md:px-12">
-
-          {/* Founder bio block */}
-          <div style={{ borderLeft: '3px solid #1F4E79', paddingLeft: 28, marginBottom: 48 }}>
-            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#1F4E79', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>
-              THE FOUNDER
-            </p>
-            <p style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 22, fontWeight: 600, color: '#1E2227', lineHeight: 1.4, margin: 0 }}>
-              The Founder — a NITian civil engineer, formerly at a leading real estate construction company, based in India.
-            </p>
-          </div>
-
-          {/* Founder story */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(30,34,39,0.8)', lineHeight: 1.85 }}>
-              I built NirmanShastra because I&rsquo;ve been on both sides of a construction quote — and I know how much money disappears in the gap between what a contractor says and what the Indian Standards actually require.
-            </p>
-
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(30,34,39,0.8)', lineHeight: 1.85 }}>
-              I am a NITian civil engineer who then worked at a leading real estate construction company — one of India&rsquo;s most respected — where I learned what rigorous quantity estimation actually looks like. There, a BOQ is not a vague per-sqft guess. It is a precise document: so many bags of OPC 53, so many kilograms of Fe500D steel, so many cubic metres of M20 concrete poured to IS 456:2000 specifications. Every number traces back to a code clause. Every clause is verifiable.
-            </p>
-
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(30,34,39,0.8)', lineHeight: 1.85 }}>
-              Then I watched what happens when a regular homeowner tries to build. A contractor arrives and quotes ₹1,800 per sqft. No breakdown. No quantities. No way to know if the steel tonnage is right, whether the mortar ratio is correct, or whether the cement bags match what IS 1077 and IS 456 actually prescribe for that wall thickness and concrete grade. The homeowner has no choice but to trust. And trust, in Indian residential construction, is expensive.
-            </p>
-
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(30,34,39,0.8)', lineHeight: 1.85 }}>
-              NirmanShastra exists to close that gap. I wanted every homeowner in India — not just the ones who can afford a professional estimator — to have access to IS-code-verified quantity calculations. Not per-sqft thumb rules. Not city averages dressed up as analysis. Exact numbers: how many bricks for your specific wall type, how many cement bags for your mix ratio, how many metres of CPVC pipe for your floor plan. Numbers a contractor cannot argue with because they come from the Bureau of Indian Standards itself.
-            </p>
-
-            {/* What makes it different */}
-            <div className="grid-paper" style={{ border: '1px solid rgba(30,34,39,0.15)', padding: '32px', marginTop: 8 }}>
-              <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 20 }}>
-                WHAT MAKES NIRMANSHASTRA DIFFERENT
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {[
-                  ['IS-code locked values', 'Every mix ratio, cover depth, steel percentage, and material factor is sourced from BIS publications — IS 456:2000, IS 1786:2008, IS 1893:2016, and 22 more — and locked at source. No one can change them.'],
-                  ['Exact quantities, not averages', 'You enter your actual floor dimensions, wall types, and local material rates. The output is a line-item BOQ your contractor can price against — not a round number with a 30% error band.'],
-                  ['Contractor comparison built in', 'Enter your contractor&rsquo;s quote. We show you the discrepancy, line by line, with the IS-code reason for each difference. Inflation, substitution, and missing items become visible.'],
-                  ['Your data stays yours', 'NirmanShastra is not a lead generation platform. We do not sell your project details to contractors. Your estimate is your property.'],
-                ].map(([title, body]) => (
-                  <div key={title} style={{ display: 'flex', gap: 16 }}>
-                    <span style={{ color: '#1F4E79', fontWeight: 700, flexShrink: 0, marginTop: 2 }}>✓</span>
-                    <div>
-                      <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, fontWeight: 600, color: '#1E2227', marginBottom: 4 }}>{title}</p>
-                      <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.7)', lineHeight: 1.7 }}>{body}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(30,34,39,0.8)', lineHeight: 1.85 }}>
-              This is a bootstrapped product. I built it myself, verified every IS code value against BIS publications, and continue to update material rates quarterly. It is not a funded startup. It is an engineer&rsquo;s answer to a real problem — one I saw up close for years.
-            </p>
-
-            <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 16, color: 'rgba(30,34,39,0.8)', lineHeight: 1.85 }}>
-              If you are building your house in India, you deserve to know exactly what it should cost, down to the cement bag. That is what NirmanShastra gives you.
-            </p>
-
-            <p style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 16, fontWeight: 600, color: '#1E2227', fontStyle: 'italic' }}>
-              — The Founder, India
-            </p>
-          </div>
-
-          {/* CTA block */}
-          <div style={{ marginTop: 56, paddingTop: 40, borderTop: '1px solid rgba(30,34,39,0.12)', display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-            <Link
-              href="/tools/vastu-pro"
-              style={{ background: '#8C3A22', color: '#F4F4F0', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '14px 28px', borderRadius: 6, textDecoration: 'none', letterSpacing: '0.02em' }}
-            >
-              Start Free — VastuPro →
-            </Link>
-            <Link
-              href="/contact"
-              style={{ border: '1px solid #1E2227', color: '#1E2227', fontFamily: 'var(--font-plex-mono)', fontSize: 14, padding: '14px 28px', borderRadius: 6, textDecoration: 'none', background: 'transparent', letterSpacing: '0.02em' }}
-            >
-              Contact →
-            </Link>
-          </div>
-        </div>
-      </section>
-    </main>
+    </div>
   )
 }

@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
-import PaidToolInfo from '@/components/seo/PaidToolInfo'
+import InnerShell from '@/components/v2/inner/InnerShell'
+import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
 
-const title = "MasonryPro — Brickwork & Masonry Cost Calculator | IS 1077:1992"
-const description = "Calculate exact brick counts, mortar quantities, and plastering costs for 8 wall types. IS 1077:1992 verified. Get itemised masonry BOQ for your home."
+const title = 'MasonryPro: Brick, Block, Mortar and Plaster Quantity Calculator | IS 1200, IS 1077, IS 6041'
+const description = 'Work out the bricks or blocks, mortar, cement, sand, plaster and lintels for the walls of your home, measured from your rooms the IS 1200 way. Quantities only. ₹699 per report.'
 const url = '/tools/masonpro'
 
 export const metadata: Metadata = {
@@ -18,28 +19,17 @@ export const metadata: Metadata = {
     url,
     title,
     description,
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — India\u2019s IS-Code Construction Cost Estimator',
-      },
-    ],
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra: India’s IS-code construction quantities' }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title,
-    description,
-  },
+  twitter: { card: 'summary_large_image', title, description },
 }
 
 export default function MasonryProLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <InnerShell>
       <JsonLd data={toolJsonLd('/tools/masonpro')} />
       {children}
-      <PaidToolInfo path="/tools/masonpro" />
-    </>
+      <ToolInfo path="/tools/masonpro" />
+    </InnerShell>
   )
 }

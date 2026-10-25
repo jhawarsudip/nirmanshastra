@@ -1,25 +1,40 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// BAR BENDING SCHEDULE — CUTTING LENGTH ENGINE (IS 2502:1963)
+// BAR BENDING — CUTTING LENGTH ENGINE
 //
-// Permanently-free, standalone calculator. This engine is NOT related to the
-// paid "Bar Bending Schedule" Excel toolkit sold on /site-templates — that is a
-// separate spreadsheet product. Every constant below is the verified IS 2502
-// ground truth used by the real product.
+// Free, standalone calculator: the length to cut and the weight of one bar shape. It uses the SAME rules as the
+// StructurePro model (lib/structopro-qty/codes.ts and steel.ts), so the bars you work out here agree with the bar
+// bending schedule behind a paid report.
 //
-//   Unit weight            = d² / 162           (kg per metre, d in mm)
-//   Bend deduction         45° = 1d · 90° = 2d · 135° = 3d   (per bend, subtracted)
-//   Hook allowance / hook  = max(9d, 75mm)
-//   Crank addition (45°)   = 0.42 × crank depth
-//   Closed link perimeter  rectangular = 2(A+B) · square = 4A
+//   Weight             d² / 162.2 kg a metre (d in mm): 0.00785 kg per mm² per metre, IS 1786:2008 cl 3.6.
+//                      It reproduces the IS 1786 Table 1 masses: 8 mm 0.395, 12 mm 0.888, 16 mm 1.58, 20 mm 2.47.
+//   Rounding           A cut length is rounded UP to the next 25 mm (IS 2502 cl 5.1.1).
+//   Right-angle bend   Dimensions are taken out-to-out of the bar. A 90° bend bent round a pin of radius 4d (the radius the
+//                      model uses for main bars) takes 3d off the sum of the two legs (IS 2502 Table V:
+//                      A + E − R/2 − d, RECONSTRUCTED). The same geometry gives 2(R+d)·tan(θ/2) − (R+d/2)·θ,
+//                      which is 2.93d at 90° and 0.61d at 45°.
+//   Crank at 45°       The slope is 1.414 × the rise instead of 1 × the rise: the bar is 0.414 × the rise longer than its
+//                      end-to-end length, less the two 45° bend deductions.
+//   Closed stirrup     2(A + B) + 12d with 135° hooks, A and B out-to-out. DERIVED from the bar's own geometry (see
+//                      stirrupCutLength in codes.ts): centre-line rectangle, less the three 90° corners and two 135° bends at a
+//                      2d pin radius, plus two 10d hook tails (never under 75 mm, IS 13920 cl 6.3.1), so a small bar gets the
+//                      extra to reach 75 mm. It agrees with the Bar Bending Schedule workbook at its 12d seismic-hook setting.
+//   Steel to buy       the weight placed × 1.05: the 5% procurement allowance of CPWD DAR 2014, item 5.22.1.
 //
-//   Cutting length = Σ straight segments (or closed-link perimeter)
-//                    + hook allowance total
-//                    − bend deduction total
-//                    + crank addition
-//   Weight (kg)    = cutting length (m) × unit weight (kg/m)
+// History: an earlier version used 2(A + B) + 24d, which the project labelled "IS 2502 Table VIII, RECONSTRUCTED". That rule
+// puts a 300 × 200 mm stirrup of 8 mm bar at 1,192 mm; the geometry of the bar gives 1,078 to 1,100 mm (a 4d to a 2d pin
+// radius), so the 24d rule was 8 to 10% long and was retired. The still older constants (hook 9d, 135° bend 3d)
+// gave 1,054 mm, about 4% short because a 9d hook allowance is less than the 10d tail IS 13920 asks for.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type DimKey = 'A' | 'B' | 'C' | 'crankDepth'
+import { barMass, roundUp25, stirrupCutLength } from '@/lib/structopro-qty/codes'
+
+export const BAR_SIZES = [6, 8, 10, 12, 16, 20, 25, 28, 32] as const
+/** CPWD DAR 2014 item 5.22.1 buys 1.05 q of bar for each 1.00 q placed. */
+export const PROCURE = 1.05
+/** Radius of the pin a main bar is bent round, in bar diameters (the StructurePro model's value). */
+export const BEND_RADIUS_D = 4
+
+export type DimKey = 'A' | 'B' | 'C'
 
 export interface DimSpec {
   key: DimKey
@@ -27,244 +42,132 @@ export interface DimSpec {
   hint: string
 }
 
+export type ShapeKey = 'straight' | 'L' | 'U' | 'crank' | 'stirrup' | 'square'
+
 export interface ShapeDef {
-  code: string
+  key: ShapeKey
   name: string
-  /** Dimension inputs this shape needs, in display order. */
   dims: DimSpec[]
-  /** Straight length (or closed-link perimeter) in mm from the dimensions. */
-  straight: (d: Record<DimKey, number>) => number
-  /** How the straight length is described, for the breakdown row. */
-  straightLabel: (d: Record<DimKey, number>) => string
-  bends: { deg45: number; deg90: number; deg135: number }
-  hooks: number
-  hasCrank: boolean
-  closedLink: boolean
   note: string
 }
 
-const A: DimSpec = { key: 'A', label: 'A', hint: 'First leg / dimension (mm)' }
-const B: DimSpec = { key: 'B', label: 'B', hint: 'Second leg / dimension (mm)' }
-const C: DimSpec = { key: 'C', label: 'C', hint: 'Third leg / dimension (mm)' }
-const CRANK: DimSpec = { key: 'crankDepth', label: 'Crank depth', hint: 'Vertical offset of the crank (mm)' }
-
 export const SHAPES: ShapeDef[] = [
   {
-    code: '00',
+    key: 'straight',
     name: 'Straight bar',
-    dims: [A],
-    straight: (d) => d.A,
-    straightLabel: (d) => `A = ${d.A}`,
-    bends: { deg45: 0, deg90: 0, deg135: 0 },
-    hooks: 0,
-    hasCrank: false,
-    closedLink: false,
-    note: 'A plain bar. Cutting length equals its length — no bends, no hooks.',
+    dims: [{ key: 'A', label: 'Length (mm)', hint: 'The whole length of the bar.' }],
+    note: 'A plain bar. It is cut to its length.',
   },
   {
-    code: '01',
-    name: 'L-bar, one 90° bend',
-    dims: [A, B],
-    straight: (d) => d.A + d.B,
-    straightLabel: (d) => `A + B = ${d.A} + ${d.B}`,
-    bends: { deg45: 0, deg90: 1, deg135: 0 },
-    hooks: 0,
-    hasCrank: false,
-    closedLink: false,
-    note: 'Two legs meeting at one 90° bend.',
+    key: 'L',
+    name: 'L-bar: one right-angle bend',
+    dims: [
+      { key: 'A', label: 'First leg (mm)', hint: 'Out to out, to the outside of the bend.' },
+      { key: 'B', label: 'Second leg (mm)', hint: 'Out to out, to the outside of the bend.' },
+    ],
+    note: 'Two legs at a right angle, such as the starter bar of a column in a footing or the edge bar of a slab.',
   },
   {
-    code: '02',
-    name: 'U-bar, two 90° bends',
-    dims: [A, B, C],
-    straight: (d) => d.A + d.B + d.C,
-    straightLabel: (d) => `A + B + C = ${d.A} + ${d.B} + ${d.C}`,
-    bends: { deg45: 0, deg90: 2, deg135: 0 },
-    hooks: 0,
-    hasCrank: false,
-    closedLink: false,
-    note: 'Three legs, two 90° bends — a U or channel profile.',
+    key: 'U',
+    name: 'U-bar: two right-angle bends',
+    dims: [
+      { key: 'A', label: 'First leg (mm)', hint: 'Out to out.' },
+      { key: 'B', label: 'Base (mm)', hint: 'Out to out, the length between the two bends.' },
+      { key: 'C', label: 'Second leg (mm)', hint: 'Out to out.' },
+    ],
+    note: 'Three lengths with a right-angle bend between each, a channel or U shape.',
   },
   {
-    code: '03',
-    name: 'L-bar with hook',
-    dims: [A, B],
-    straight: (d) => d.A + d.B,
-    straightLabel: (d) => `A + B = ${d.A} + ${d.B}`,
-    bends: { deg45: 0, deg90: 1, deg135: 0 },
-    hooks: 1,
-    hasCrank: false,
-    closedLink: false,
-    note: 'An L-bar with a single anchorage hook at the free end.',
+    key: 'crank',
+    name: 'Cranked bar: two 45° bends',
+    dims: [
+      { key: 'A', label: 'Overall length (mm)', hint: 'End to end, measured along the bar’s run.' },
+      { key: 'B', label: 'Crank rise (mm)', hint: 'How far the bar steps up or down.' },
+    ],
+    note: 'A bar that steps up or down at 45°, such as a bar lifted over a support. The slope makes it longer than its run.',
   },
   {
-    code: '04',
-    name: 'Straight bar, both ends hooked',
-    dims: [A],
-    straight: (d) => d.A,
-    straightLabel: (d) => `A = ${d.A}`,
-    bends: { deg45: 0, deg90: 0, deg135: 0 },
-    hooks: 2,
-    hasCrank: false,
-    closedLink: false,
-    note: 'A straight bar carrying a standard hook at each end.',
+    key: 'stirrup',
+    name: 'Rectangular stirrup or tie: 135° hooks',
+    dims: [
+      { key: 'A', label: 'Width (mm)', hint: 'Out to out of the stirrup, which is the member’s width less the cover on both sides.' },
+      { key: 'B', label: 'Depth (mm)', hint: 'Out to out of the stirrup, which is the member’s depth less the cover on both sides.' },
+    ],
+    note: 'A closed rectangle with a 135° hook at each end of the bar, as IS 13920 asks for a stirrup or tie.',
   },
   {
-    code: '05',
-    name: 'Cranked bar, 45° crank',
-    dims: [A, B, C, CRANK],
-    straight: (d) => d.A + d.B + d.C,
-    straightLabel: (d) => `A + B + C = ${d.A} + ${d.B} + ${d.C}`,
-    bends: { deg45: 2, deg90: 0, deg135: 0 },
-    hooks: 0,
-    hasCrank: true,
-    closedLink: false,
-    note: 'A bar cranked at 45° to shift level (typical top bar at a support). Adds 0.42 × crank depth for the inclined portion.',
-  },
-  {
-    code: '06',
-    name: 'Cranked bar with hooks',
-    dims: [A, B, C, CRANK],
-    straight: (d) => d.A + d.B + d.C,
-    straightLabel: (d) => `A + B + C = ${d.A} + ${d.B} + ${d.C}`,
-    bends: { deg45: 2, deg90: 0, deg135: 0 },
-    hooks: 2,
-    hasCrank: true,
-    closedLink: false,
-    note: 'As the 45° cranked bar, plus an anchorage hook at each end.',
-  },
-  {
-    code: '07',
-    name: 'Rectangular stirrup, 90° hook',
-    dims: [A, B],
-    straight: (d) => 2 * (d.A + d.B),
-    straightLabel: (d) => `2 × (A + B) = 2 × (${d.A} + ${d.B})`,
-    bends: { deg45: 0, deg90: 3, deg135: 2 },
-    hooks: 2,
-    hasCrank: false,
-    closedLink: true,
-    note: 'A closed rectangular tie. Perimeter 2(A+B), three 90° corner bends plus two 135° hook bends.',
-  },
-  {
-    code: '08',
-    name: 'Rectangular stirrup, 135° seismic hook',
-    dims: [A, B],
-    straight: (d) => 2 * (d.A + d.B),
-    straightLabel: (d) => `2 × (A + B) = 2 × (${d.A} + ${d.B})`,
-    bends: { deg45: 0, deg90: 3, deg135: 2 },
-    hooks: 2,
-    hasCrank: false,
-    closedLink: true,
-    note: 'Same geometry as the rectangular stirrup, detailed with 135° seismic hooks per IS 13920:2016 for Zone III–V.',
-  },
-  {
-    code: '09',
-    name: 'Square stirrup',
-    dims: [A],
-    straight: (d) => 4 * d.A,
-    straightLabel: (d) => `4 × A = 4 × ${d.A}`,
-    bends: { deg45: 0, deg90: 3, deg135: 2 },
-    hooks: 2,
-    hasCrank: false,
-    closedLink: true,
-    note: 'A closed square tie. Perimeter 4A, three 90° corners plus two 135° hooks.',
-  },
-  {
-    code: '10',
-    name: 'Diamond / rhombus stirrup',
-    dims: [A, B],
-    straight: (d) => 2 * (d.A + d.B),
-    straightLabel: (d) => `2 × (A + B) = 2 × (${d.A} + ${d.B})`,
-    bends: { deg45: 0, deg90: 3, deg135: 2 },
-    hooks: 2,
-    hasCrank: false,
-    closedLink: true,
-    note: 'A closed diamond tie, often an inner link in a column cage. Perimeter 2(A+B).',
-  },
-  {
-    code: '11',
-    name: 'Triangular stirrup',
-    dims: [A, B],
-    straight: (d) => 2 * d.A + d.B,
-    straightLabel: (d) => `2 × A + B = 2 × ${d.A} + ${d.B}`,
-    bends: { deg45: 0, deg90: 1, deg135: 2 },
-    hooks: 2,
-    hasCrank: false,
-    closedLink: true,
-    note: 'A closed triangular link. Two equal sides A and a base B, with 135° hooks.',
-  },
-  {
-    code: '12',
-    name: 'Circular ring',
-    dims: [{ key: 'A', label: 'A', hint: 'Enter 3.1416 × ring diameter (mm)' }],
-    straight: (d) => d.A,
-    straightLabel: (d) => `A (= π × ring dia) = ${d.A}`,
-    bends: { deg45: 0, deg90: 0, deg135: 2 },
-    hooks: 2,
-    hasCrank: false,
-    closedLink: true,
-    note: 'A helical / circular ring. Enter A as 3.1416 × ring diameter; two 135° hooks close the ring.',
+    key: 'square',
+    name: 'Square tie: 135° hooks',
+    dims: [{ key: 'A', label: 'Side (mm)', hint: 'Out to out of the tie, which is the column’s side less the cover on both sides.' }],
+    note: 'A closed square with a 135° hook at each end, the usual tie of a square column.',
   },
 ]
 
-export const STANDARD_DIAMETERS = [6, 8, 10, 12, 16, 20, 25, 32] as const
-
 export interface BbsResult {
-  unitWeight: number       // kg/m
-  straight: number         // mm
-  hookTotal: number        // mm
-  bendDeduction: number    // mm
-  crankAddition: number    // mm
-  cuttingLength: number    // mm, per bar (exact)
-  weightPerBar: number     // kg, per bar (exact)
-  totalWeight: number      // kg, all bars (exact)
+  massPerM: number // kg a metre
+  runMm: number // the sum of the lengths as entered (perimeter for a stirrup)
+  bendMm: number // taken off for the bends (0 for a stirrup, whose rule has it built in)
+  slopeMm: number // added for the crank slope
+  hookMm: number // added for hooks and bends of a stirrup, beyond its perimeter
+  exactMm: number // the cut length before rounding
+  cutMm: number // rounded up to the next 25 mm
+  weightPerBar: number // kg
+  totalKg: number // all bars
+  buyKg: number // all bars, with the procurement allowance
 }
 
-export function hookAllowancePerHook(diameter: number): number {
-  return Math.max(9 * diameter, 75)
+/** Deduction for one bend of `deg` degrees round a pin of radius R = 4d, bar dimensions measured out to out. */
+export function bendDeduction(deg: number, d: number): number {
+  if (deg === 90) return 3 * d // IS 2502 Table V reading: matches the model
+  const R = BEND_RADIUS_D * d
+  const th = (deg * Math.PI) / 180
+  return 2 * (R + d) * Math.tan(th / 2) - (R + d / 2) * th
 }
 
-export function calculate(
-  shape: ShapeDef,
-  diameter: number,
-  dims: Record<DimKey, number>,
-  quantity: number,
-): BbsResult {
-  const unitWeight = (diameter * diameter) / 162
+/**
+ * Cut length and weight of one bar shape.
+ * Checked by hand: stirrup 300 × 200, 8 mm: 2 × 500 + 12 × 8 = 1,096 mm → 1,100 mm; 1.1 m × 8²/162.2 = 0.434 kg.
+ * L-bar 1,000 + 500, 12 mm: 1,500 − 36 = 1,464 → 1,475 mm. Crank 3,000 overall, rise 150, 16 mm:
+ * 3,000 + 0.414 × 150 − 2 × 0.61 × 16 = 3,042.6 → 3,050 mm.
+ */
+export function calculate(shape: ShapeKey, d: number, dims: Record<DimKey, number>, count: number): BbsResult {
+  const A = dims.A || 0
+  const B = dims.B || 0
+  const C = dims.C || 0
+  let runMm = 0
+  let bendMm = 0
+  let slopeMm = 0
+  let hookMm = 0
+  let exactMm = 0
 
-  const straight = shape.straight(dims)
-
-  const hookTotal = shape.hooks * hookAllowancePerHook(diameter)
-
-  const bendDeduction =
-    shape.bends.deg45 * (1 * diameter) +
-    shape.bends.deg90 * (2 * diameter) +
-    shape.bends.deg135 * (3 * diameter)
-
-  const crankAddition = shape.hasCrank ? 0.42 * (dims.crankDepth || 0) : 0
-
-  const cuttingLength = straight + hookTotal - bendDeduction + crankAddition
-
-  const weightPerBar = (cuttingLength / 1000) * unitWeight
-  const totalWeight = weightPerBar * quantity
-
-  return {
-    unitWeight,
-    straight,
-    hookTotal,
-    bendDeduction,
-    crankAddition,
-    cuttingLength,
-    weightPerBar,
-    totalWeight,
+  if (shape === 'straight') {
+    runMm = A
+    exactMm = A
+  } else if (shape === 'L') {
+    runMm = A + B
+    bendMm = bendDeduction(90, d)
+    exactMm = runMm - bendMm
+  } else if (shape === 'U') {
+    runMm = A + B + C
+    bendMm = 2 * bendDeduction(90, d)
+    exactMm = runMm - bendMm
+  } else if (shape === 'crank') {
+    runMm = A
+    slopeMm = (Math.SQRT2 - 1) * B
+    bendMm = 2 * bendDeduction(45, d)
+    exactMm = runMm + slopeMm - bendMm
+  } else {
+    const a = A
+    const b = shape === 'square' ? A : B
+    runMm = 2 * (a + b)
+    exactMm = stirrupCutLength(a, b, d)
+    hookMm = exactMm - runMm
   }
-}
 
-/** Round to `figs` significant figures (used for kg weights on the drawing). */
-export function toSigFigs(n: number, figs: number): number {
-  if (n === 0) return 0
-  const d = Math.ceil(Math.log10(Math.abs(n)))
-  const power = figs - d
-  const mag = Math.pow(10, power)
-  return Math.round(n * mag) / mag
+  const cutMm = roundUp25(exactMm)
+  const massPerM = barMass(d)
+  const weightPerBar = (cutMm / 1000) * massPerM
+  const n = Math.max(1, Math.floor(count) || 1)
+  const totalKg = weightPerBar * n
+  return { massPerM, runMm, bendMm, slopeMm, hookMm, exactMm, cutMm, weightPerBar, totalKg, buyKg: totalKg * PROCURE }
 }

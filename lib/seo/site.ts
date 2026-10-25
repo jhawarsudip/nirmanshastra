@@ -11,18 +11,18 @@ import { SITE_TEMPLATES, BUNDLE_PRICE_PAISE } from '@/lib/site-templates'
 
 export const SITE_URL = 'https://www.nirmanshastra.in'
 export const SITE_NAME = 'NirmanShastra'
-export const SUPPORT_EMAIL = 'reports@nirmanshastra.in'
+export const SUPPORT_EMAIL = 'nirmanshastraindia@gmail.com'
 export const OG_IMAGE_URL = `${SITE_URL}/og-image.png`
 export const LOGO_URL = `${SITE_URL}/icon-512.png`
 
 export const SITE_SUMMARY =
-  "NirmanShastra is an Indian construction cost estimator. It gives IS-code-based material quantities and cost estimates (BOQ) for houses and buildings, so homeowners can check a contractor's quote before they pay. It has 10 free calculators, paid BOQ reports (StructurePro, MasonryPro, ElectricalPro, PlumbingPro, InteriorPro, Grand Total), Excel site templates and a free contractor-quote comparison tool, in English and Hindi."
+  "NirmanShastra is an Indian construction quantity estimator. From a few plain answers about a plot and plan it works out, to the Indian Standards, how much concrete, steel, cement, sand, aggregate, bricks, wire and pipe a house needs, so homeowners know the quantities before they order or sign. It gives quantities only: no labour, dealer or contractor rates. It has 10 free calculators, paid quantity reports (StructurePro, MasonryPro, ElectricalPro, PlumbingPro, InteriorPro, Grand Total), Excel site templates and a free tool to compare a contractor's quantities with ours, in English and Hindi."
 
 // Authorship decision: no personal name, institute or employer anywhere
 // (pages, schema, metadata). Reviewer line is deliberately generic.
-export const REVIEW_NOTE = 'Written and checked by a civil engineer (B.Tech Civil).'
+export const REVIEW_NOTE = 'Written by the NirmanShastra founder, who holds a B.Tech in Civil Engineering. Not a structural design and not reviewed by a practising engineer.'
 export const ORG_REVIEW_DESCRIPTION =
-  'Content is written and reviewed by a civil engineer (B.Tech Civil). Quantities follow the Indian Standards listed on the IS Codes Used page.'
+  'Content is written by the founder, who holds a B.Tech in Civil Engineering. It is not reviewed by a practising engineer. Quantities follow the Indian Standards listed on the IS Codes Used page, and each report says what it could not check.'
 
 export const abs = (path: string) => (path === '/' ? SITE_URL : `${SITE_URL}${path}`)
 
@@ -47,43 +47,43 @@ export const TOOLS: ToolEntry[] = [
   // ── 10 free calculators ──
   {
     path: '/tools/bar-bending-schedule-calculator',
-    name: 'Bar Bending Schedule Calculator',
+    name: 'Bar Bending Calculator',
     kind: 'free-calculator',
     summary:
-      'Rebar cutting length and unit weight for 13 standard shapes (stirrups, cranked bars, hooks), with bend deductions and hook allowances.',
-    isCodes: ['IS 2502'],
+      'Cutting length and weight of one bar: straight, L, U, 45° crank, stirrup and square tie. Bends taken off, 135° hooks added, length rounded up to 25 mm, weight d² ÷ 162.2 kg a metre; the same rules as the StructurePro model.',
+    isCodes: ['IS 2502:1963', 'IS 1786:2008', 'IS 13920'],
   },
   {
     path: '/tools/water-tank-size-calculator',
     name: 'Water Tank Size Calculator',
     kind: 'free-calculator',
     summary:
-      'Daily demand, required storage and the nearest standard tank size from occupants, water source and days of storage, using the IS 1172:1993 per-capita demand (135 / 150 LPCD) and the 2/3-day storage rule.',
-    isCodes: ['IS 1172:1993'],
+      'The day’s water use and the underground and overhead tank sizes for a house, from the number of people and the water source (piped, borewell or tanker): 135 / 150 litres a person (IS 1172:1993) split between the tanks as in the NBC Part 9 draft, rounded up to ready-made sizes.',
+    isCodes: ['IS 1172:1993', 'IS 2065:1983'],
   },
   {
     path: '/tools/concrete-mix-ratio-calculator',
-    name: 'Concrete Mix Ratio Calculator',
+    name: 'Concrete Mix Calculator',
     kind: 'free-calculator',
     summary:
-      'Cement bags, sand and aggregate for a given concrete volume and grade (M20 = 1:1.5:3, M25 = 1:1:2), using IS 456:2000 per-cubic-metre quantities. M30 and above are flagged as design mixes.',
-    isCodes: ['IS 456:2000'],
+      'Cement bags, sand and aggregate for a volume of concrete, by grade (M10 to M40) and site exposure. M20 and below are the CPWD nominal mixes (M20 = 1:1.5:3 = 400 kg of cement a cubic metre); M25 and above are an IS 10262 working within the IS 456 Table 5 limits.',
+    isCodes: ['IS 456:2000', 'IS 10262:2009'],
   },
   {
     path: '/tools/brick-calculator',
     name: 'Brick Calculator',
     kind: 'free-calculator',
     summary:
-      'Brick count for 9-inch and 4.5-inch walls with openings and a 5–10% wastage allowance: 100 and 50 bricks per m² for the standard 190×90×90 mm modular brick.',
-    isCodes: ['IS 1077:1992', 'IS 2212:1991'],
+      'Brick count, order with breakage and joint mortar for a wall, for the red (230×115×75 mm), modular (190×90×90 mm) or 230×110×70 mm brick, one or half a brick thick, with openings taken out.',
+    isCodes: ['IS 1077:1992', 'IS 12894:2002', 'IS 2212:1991'],
   },
   {
     path: '/tools/wire-size-calculator',
     name: 'Wire Size Calculator',
     kind: 'free-calculator',
     summary:
-      'Minimum copper conductor cross-section (1.5, 2.5, 4.0, 6.0 or 10.0 sqmm) by circuit type: lighting and fans, power sockets, AC/geyser, sub-panel feed, main incomer.',
-    isCodes: ['IS 732:2019'],
+      'Least copper wire for a circuit in a home (1.5, 2.5 or 4 mm²), or for the supply from the meter by load (4, 6 or 10 mm² up to 10 kW), with the breaker and conduit.',
+    isCodes: ['IS 4648 (draft revision, 2024)'],
   },
   {
     path: '/tools/ra-bill-retention-tds-calculator',
@@ -98,7 +98,7 @@ export const TOOLS: ToolEntry[] = [
     name: 'Concrete Cube Test Calculator',
     kind: 'free-calculator',
     summary:
-      'Minimum number of acceptance samples and total cubes to cast for a concrete pour, per IS 456:2000 Cl 15.2.2.',
+      'The least number of samples for a pour of one grade of concrete (IS 456:2000 clause 15.2.2, counting “or part thereof” above 50 m³) and the cubes to cast: three a sample, tested at 28 days.',
     isCodes: ['IS 456:2000'],
   },
   {
@@ -106,16 +106,16 @@ export const TOOLS: ToolEntry[] = [
     name: 'Daily-Wage PF & ESI Calculator',
     kind: 'free-calculator',
     summary:
-      'Muster-roll style net payable for construction site labour: gross wages less employee PF (12%, capped at ₹1,800), employee ESI (0.75% of gross up to the ₹21,000 ceiling) and advances.',
+      'Muster-roll style net payable for construction site labour: gross wages less employee PF (12%, capped at ₹1,800), employee ESI (0.75% of wages for a covered worker: basic of ₹21,000 or less, average day above ₹176) and advances.',
     isCodes: [],
   },
   {
-    path: '/tools/finish-tier-cost-calculator',
-    name: 'Finish-Tier Cost Calculator',
+    path: '/tools/paint-tile-calculator',
+    name: 'Paint and Tile Calculator',
     kind: 'free-calculator',
     summary:
-      'Per-element and total cost difference between any two finish tiers (Basic, Standard, Premium, Luxury) for an Indian home, at indicative Tier-2 city rates.',
-    isCodes: [],
+      'Paint, putty and primer for a wall or ceiling, or tiles, boxes, grout and fixing for a floor or wall, from the area and the finish chosen, with wastage allowances.',
+    isCodes: ['IS 1200 (Part 11, 13)', 'IS 15622:2006'],
   },
   {
     path: '/tools/earned-value-calculator',
@@ -132,27 +132,27 @@ export const TOOLS: ToolEntry[] = [
     name: 'VastuPro',
     kind: 'free-tool',
     summary:
-      'Free Vastu analysis of a home: mark 33 rooms on the floor plan and get a zone-by-zone compliance score and a free PDF report.',
+      'Free Vastu check of a home plan: set where North is, mark your rooms, and get each one read by its zone among the 16, an overall score and a PDF of your findings. A traditional system, not an IS code.',
     isCodes: [],
   },
   {
     path: '/compare-quote',
-    name: 'Compare Contractor Quote',
+    name: "Check a Contractor's Quantities",
     kind: 'free-tool',
     summary:
-      "Upload a contractor's quote and see which line items are above IS-code quantities and typical rates. Free.",
+      "A free guide to the four quantities to ask a contractor for (concrete, steel, cement, shuttering) and how to read them. The line-by-line check against your own frame is inside the StructurePro report.",
     isCodes: [],
   },
 
-  // ── Paid BOQ reports (prices come from lib/tool-pricing.ts) ──
+  // ── Paid quantity reports (prices come from lib/tool-pricing.ts) ──
   {
     path: '/tools/structopro',
     name: 'StructurePro',
     kind: 'paid-report',
     appType: 'structopro',
     summary:
-      'Itemised RCC structure BOQ: concrete, steel and structural cost for a building, using IS 456:2000.',
-    isCodes: ['IS 456:2000', 'IS 1786:2008', 'IS 1893:2016'],
+      'RCC frame quantity report: concrete, steel (by bar diameter), cement, sand, aggregate and shuttering for footings, columns, beams, slabs and stairs, worked out to IS 456, IS 875, IS 1893 and IS 13920 from a few plain answers.',
+    isCodes: ['IS 456:2000', 'IS 875', 'IS 1893:2016', 'IS 13920:2016', 'IS 1786:2008'],
   },
   {
     path: '/tools/masonpro',
@@ -160,7 +160,7 @@ export const TOOLS: ToolEntry[] = [
     kind: 'paid-report',
     appType: 'masonpro',
     summary:
-      'Itemised masonry BOQ: brick counts, mortar quantities and plastering costs for 8 wall types, per IS 1077:1992.',
+      'Masonry quantity report: brick or block counts, mortar and plaster quantities (cement and sand) for external and internal walls, per IS 1077 and IS 2212.',
     isCodes: ['IS 1077:1992'],
   },
   {
@@ -168,15 +168,15 @@ export const TOOLS: ToolEntry[] = [
     name: 'ElectricalPro',
     kind: 'paid-report',
     appType: 'electropro',
-    summary: 'Wire lengths, DB panel circuits and MCB costs for a house, per IS 732:2019.',
-    isCodes: ['IS 732:2019'],
+    summary: 'Points, circuits, boards, wire by size and colour, conduit and fittings for the wiring of a house, from the CPWD specification and the BIS draft of IS 4648.',
+    isCodes: ['IS 4648 (draft revision, 2024)', 'IS 4648:1968', 'IS 732:1989'],
   },
   {
     path: '/tools/plumbpro',
     name: 'PlumbingPro',
     kind: 'paid-report',
     appType: 'plumbpro',
-    summary: 'Pipe lengths, tank sizes, pump HP and fixture costs as an itemised plumbing BOQ, per IS 1172:1993.',
+    summary: 'Pipe lengths by size, fittings, tank sizes, pump size and fixture counts as a plumbing quantity report, per IS 1172:1993.',
     isCodes: ['IS 1172:1993'],
   },
   {
@@ -184,7 +184,7 @@ export const TOOLS: ToolEntry[] = [
     name: 'InteriorPro',
     kind: 'paid-report',
     appType: 'interiorpro',
-    summary: 'Flooring, kitchen, false ceiling and paint costs across 4 quality grades, Basic to Luxury, as an interior BOQ.',
+    summary: 'Flooring, paint, false ceiling and kitchen quantities room by room, with wastage, as an interior quantity report.',
     isCodes: [],
   },
   {
@@ -193,7 +193,7 @@ export const TOOLS: ToolEntry[] = [
     kind: 'paid-report',
     appType: 'grandtotal',
     summary:
-      'All 5 phases (structure, masonry, electrical, plumbing, interior) merged into one complete BOQ report.',
+      'Your paid frame, walls, wiring, plumbing and finishing reports added into one list of what to buy, with shared materials added up and nothing counted twice.',
     isCodes: [],
   },
 ]
@@ -209,7 +209,7 @@ const TEMPLATE_META: Record<string, { path: string; summary: string }> = {
   'cost-estimator': {
     path: '/site-templates/cost-estimator',
     summary:
-      'A 16-sheet Excel construction cost estimator for Indian homes: build a BOQ from IS-code rate analysis, generate a client quotation, compare up to 3 contractor quotes line by line, and track budget vs actual.',
+      'A 17-sheet Excel construction cost estimator for Indian homes: build a BOQ from IS-code rate analysis, generate a client quotation, compare up to 3 contractor quotes line by line, and track budget vs actual.',
   },
   'documentation-pack': {
     path: '/site-templates/site-documentation',

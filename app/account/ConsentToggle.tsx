@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
+import { IcAlert, IcCheck } from '@/components/v2/inner/kit'
 
 interface Props {
   initialCity: boolean
@@ -16,8 +17,9 @@ function SingleToggle({
   label: string
   description: string
   checked: boolean
-  onToggle: () => void
+  onToggle: () => Promise<void>
 }) {
+  const id = useId()
   const [saving, setSaving] = useState(false)
   const [status, setStatus] = useState<'idle' | 'saved' | 'error'>('idle')
 
@@ -36,39 +38,17 @@ function SingleToggle({
   }
 
   return (
-    <div>
-      <label style={{ display: 'flex', gap: 12, cursor: saving ? 'not-allowed' : 'pointer', alignItems: 'flex-start' }}>
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={toggle}
-          disabled={saving}
-          style={{ marginTop: 3, accentColor: '#1F4E79', flexShrink: 0, width: 16, height: 16 }}
-        />
-        <div>
-          <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 14, color: '#1E2227', lineHeight: 1.55, marginBottom: 6 }}>
-            {label}
-          </p>
-          <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 12, color: 'rgba(30,34,39,0.55)', lineHeight: 1.7 }}>
-            {description}
-          </p>
-        </div>
+    <div className="ns-ac-opt">
+      <label className="ns-i-chk" htmlFor={id}>
+        <input id={id} type="checkbox" checked={checked} onChange={toggle} disabled={saving} aria-describedby={`${id}-d`} />
+        <span>{label}</span>
       </label>
-      {saving && (
-        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.4)', marginTop: 8, marginLeft: 28 }}>
-          Saving…
-        </p>
-      )}
-      {status === 'saved' && (
-        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#14532D', marginTop: 8, marginLeft: 28 }}>
-          ✓ Preference saved
-        </p>
-      )}
-      {status === 'error' && (
-        <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#8C3A22', marginTop: 8, marginLeft: 28 }}>
-          ⚠ Failed to save — please try again
-        </p>
-      )}
+      <p className="ns-i-hint" id={`${id}-d`}>{description}</p>
+      <p className="ns-ac-status" role="status" aria-live="polite">
+        {saving ? 'Saving…' : null}
+        {status === 'saved' ? <span className="ns-ac-status--ok"><IcCheck width={16} height={16} aria-hidden="true" /> Preference saved</span> : null}
+        {status === 'error' ? <span className="ns-ac-status--err"><IcAlert width={16} height={16} aria-hidden="true" /> Could not save. Please try again.</span> : null}
+      </p>
     </div>
   )
 }
@@ -99,10 +79,10 @@ export default function ConsentToggle({ initialCity, initialContact }: Props) {
   }
 
   return (
-    <div style={{ border: '1px solid rgba(30,34,39,0.18)', borderRadius: 2, padding: '20px 24px', background: 'rgba(31,78,121,0.04)', display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: '#1F4E79', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-        SHARE WITH MATERIAL PARTNERS (OPTIONAL)
-      </p>
+    <section className="ns-plate ns-r-sec" aria-labelledby="ac-share">
+      <h2 id="ac-share" style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 }}>
+        Share with material partners (optional)
+      </h2>
 
       <SingleToggle
         label="Share my city with construction material partners for relevant offers"
@@ -111,7 +91,7 @@ export default function ConsentToggle({ initialCity, initialContact }: Props) {
         onToggle={toggleCity}
       />
 
-      <div style={{ height: 1, background: 'rgba(30,34,39,0.1)' }} />
+      <hr className="ns-ac-rule" />
 
       <SingleToggle
         label="Also share my name, phone number, and email with construction material partners for offers"
@@ -119,6 +99,6 @@ export default function ConsentToggle({ initialCity, initialContact }: Props) {
         checked={contactChecked}
         onToggle={toggleContact}
       />
-    </div>
+    </section>
   )
 }

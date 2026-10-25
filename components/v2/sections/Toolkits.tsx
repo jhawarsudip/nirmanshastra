@@ -9,18 +9,25 @@ import { Arrow } from '../Icons'
 import '@/styles/v2/closing.css'
 
 const L = {
-  en: { eye: 'Beyond the estimate', h: 'Site toolkits', p: 'Six spreadsheet toolkits for the work that happens after the quote is signed.', sheets: 'sheets', bundle: 'All six toolkits, bundled', open: 'Open',
-        calc: 'Free calculators', calcP: 'No sign-up. One job each, IS-code values inside.' },
-  hi: { eye: 'अनुमान के आगे', h: 'साइट टूलकिट', p: 'कोटेशन पर दस्तख़त के बाद के काम के लिए छह स्प्रेडशीट टूलकिट।', sheets: 'शीट', bundle: 'सभी छह टूलकिट, बंडल में', open: 'खोलें',
-        calc: 'निःशुल्क कैलकुलेटर', calcP: 'बिना साइन-अप। हर एक का एक काम, भीतर IS-कोड के मान।' },
+  en: { eye: 'For builders, contractors and engineers', h: 'Working on site every day?', p: 'Six ready-made spreadsheet toolkits for the work that starts once the quote is signed: billing, bar bending schedules, labour and compliance, site records and progress.', sheets: 'sheets', bundle: 'All six toolkits, bundled', open: 'Open',
+        calc: 'Calculators for the site office', calcP: 'Free, no sign-up. Bills, steel cutting lengths, cube tests, wages and progress.' },
+  hi: { eye: 'बिल्डर, ठेकेदार और इंजीनियरों के लिए', h: 'रोज़ साइट पर काम करते हैं?', p: 'कोटेशन पर दस्तख़त के बाद शुरू होने वाले काम के लिए छह तैयार स्प्रेडशीट टूलकिट: बिलिंग, बार बेंडिंग शेड्यूल, मज़दूरी और अनुपालन, साइट रिकॉर्ड और प्रगति।', sheets: 'शीट', bundle: 'सभी छह टूलकिट, बंडल में', open: 'खोलें',
+        calc: 'साइट ऑफ़िस के कैलकुलेटर', calcP: 'मुफ़्त, बिना साइन-अप। बिल, स्टील की कटिंग लंबाई, क्यूब टेस्ट, मज़दूरी और प्रगति।' },
 } as const
+
+// the five calculators homeowners get in their own section are not repeated here
+const HOME_CALCS = new Set([
+  '/tools/brick-calculator', '/tools/concrete-mix-ratio-calculator', '/tools/water-tank-size-calculator',
+  '/tools/wire-size-calculator', '/tools/paint-tile-calculator',
+])
 
 export default function Toolkits() {
   const loc = useLocale() === 'hi' ? 'hi' : 'en'
   const c = L[loc]
   const { ref } = useReveal<HTMLDivElement>()
   return (
-    <section className="ns-section ns-section--alt ns-tk" id="toolkits" aria-labelledby="ns-tk-h">
+    <section className="ns-section ns-section--alt ns-tk" id="builders" aria-labelledby="ns-tk-h">
+      <span id="toolkits" aria-hidden="true" />
       <div className="ns-wrap" ref={ref}>
         <p className="ns-eyebrow ns-rise">{c.eye}</p>
         <h2 className="ns-h2 ns-rise" id="ns-tk-h" style={{ ['--d' as string]: '.05s' }}>{c.h}</h2>
@@ -45,10 +52,9 @@ export default function Toolkits() {
           <h3 className="ns-h3 ns-rise">{c.calc}</h3>
           <p className="ns-muted ns-rise">{c.calcP}</p>
           <ul className="ns-tk__calcs">
-            {CALCULATORS.map((k, i) => (
+            {CALCULATORS.filter(k => !HOME_CALCS.has(k.href)).map((k, i) => (
               <li key={k.href} className="ns-rise" style={{ ['--d' as string]: `${(i % 5) * 0.05}s` }}>
                 <Link href={k.href} className="ns-tk__calcl" data-snap>
-                  <span className="ns-mono">{String(i + 1).padStart(2, '0')}</span>
                   <span><b>{k.title[loc]}</b><i>{k.desc[loc]}</i></span>
                   <Arrow />
                 </Link>

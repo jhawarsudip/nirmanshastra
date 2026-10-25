@@ -1,4 +1,12 @@
+import { TOOL_PRICE_PAISE, type PaidAppType } from '@/lib/tool-pricing'
+
+// Follow-up emails sent on days 0, 7, 45, 75 and 120 after a person registers for a tool.
+// NirmanShastra works out QUANTITIES only. No email here states a price for materials, labour or a house, and none
+// quotes a share of project cost. The only rupee figures are the report prices from lib/tool-pricing, so they cannot drift.
+
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.nirmanshastra.in'
+
+const rupees = (k: PaidAppType) => `₹${(TOOL_PRICE_PAISE[k] / 100).toLocaleString('en-IN')}`
 
 function wrap(body: string): string {
   return `<!DOCTYPE html>
@@ -24,7 +32,7 @@ function wrap(body: string): string {
       <!-- Footer -->
       <tr>
         <td style="border-top:1px solid #e0dfd8;padding:20px 32px;background:#F4F4F0;">
-          <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7280;margin:0 0 4px;">NirmanShastra · India's IS-code construction cost platform</p>
+          <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7280;margin:0 0 4px;">NirmanShastra · Material quantities for Indian homes, worked out to the Indian Standards</p>
           <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7280;margin:0;">You received this because you registered on NirmanShastra.</p>
         </td>
       </tr>
@@ -58,115 +66,83 @@ function mono(text: string): string {
   return `<span style="font-family:'IBM Plex Mono',monospace;">${text}</span>`
 }
 
-// ---------------------------------------------------------------------------
-// Sequence type → sequence_type values match what is stored in DB (lowercase)
-// ---------------------------------------------------------------------------
+const STRUCT = `${BASE_URL}/tools/structopro`
+const MASON = `${BASE_URL}/tools/masonpro`
+const ELEC = `${BASE_URL}/tools/electropro`
+const PLUMB = `${BASE_URL}/tools/plumbpro`
+const INTERIOR = `${BASE_URL}/tools/interiorpro`
+const GRAND = `${BASE_URL}/tools/grand-total`
+const COMPARE = `${BASE_URL}/compare-quote`
+
+const GRAND_LINE = `The Grand Total report (${rupees('grandtotal')}, an add-on) puts the phase reports you have already bought for one house into a single buying list, with the order in which each phase needs its material.`
 
 type EmailContent = { subject: string; html: string }
 
-export function getEmailContent(
-  sequenceType: string,
-  dayNumber: number,
-  contactName: string
-): EmailContent | null {
+const mail = (subject: string, heading: string, body: string): EmailContent => ({
+  subject: `${subject} | NirmanShastra`,
+  html: wrap(`${h2(heading)}${body}`),
+})
+
+// ---------------------------------------------------------------------------
+// sequence_type values match what is stored in the DB (lowercase)
+// ---------------------------------------------------------------------------
+
+export function getEmailContent(sequenceType: string, dayNumber: number, contactName: string): EmailContent | null {
   const firstName = contactName.split(' ')[0] ?? contactName
 
   switch (sequenceType) {
     // -----------------------------------------------------------------------
     case 'vastupro': {
       if (dayNumber === 0) {
-        return {
-          subject: 'Your VastuPro Report + What to Do Next | NirmanShastra',
-          html: wrap(`
-            ${h2(`Your VastuPro Report is Ready, ${firstName}`)}
-            ${p('Thank you for using NirmanShastra VastuPro. Your free Vastu compliance report has been generated and is available for download.')}
-            ${p('Your report includes:')}
-            ${ul(['16-zone Vastu Mandala analysis', 'Room-by-room compliance scores', 'Technical and actionable remedies', 'General Vastu guidelines for your home'])}
-            ${p(`<b>Now that your Vastu layout is mapped</b>, the next critical step is understanding exactly what your RCC structure will cost — before your contractor gives you a quote.`)}
-            ${p(`${mono('Phase 1 → RCC Structure')}: StructurePro gives you IS-code-verified material quantities and a contractor comparison report for <b>₹999</b>.`)}
-            ${ctaButton('Estimate My Structure Cost → StructurePro ₹999', `${BASE_URL}/tools/structopro`)}
-          `),
-        }
+        return mail('Your VastuPro check, and what to look at next', `Your Vastu check, ${firstName}`, `
+            ${p('Thank you for trying VastuPro. When you have marked your rooms and read your plan, you can download a free PDF of your findings. It has:')}
+            ${ul(['Your plan with the 16 zones turned to your North', 'Every room you marked, rated by the zone it sits in', 'An overall score out of 100', 'What the Vastu tradition says about each placement'])}
+            ${p('Vastu is a traditional system. It is not part of any BIS code and says nothing about the strength of the structure.')}
+            ${p('Once the layout is settled, the next question is how much material the frame of the house will need. StructurePro answers that from a few plain questions about your plot and plan.')}
+            ${p('The first look is free: your earthquake zone, the concrete and steel grades that apply, the IS-code checks and a 3D model of your frame. The full quantity report is paid.')}
+            ${ctaButton('See your frame, free', STRUCT)}
+          `)
       }
       if (dayNumber === 7) {
-        return {
-          subject: '7 Things Your Contractor May Not Tell You | NirmanShastra',
-          html: wrap(`
-            ${h2(`Contractor Tips for ${firstName}`)}
-            ${p('You registered on NirmanShastra a week ago. Here are 7 things contractors frequently omit or misrepresent in residential construction quotes:')}
+        return mail('Seven questions to ask before you sign a quote', `Questions to ask a contractor, ${firstName}`, `
+            ${p('A quote that arrives as one number cannot be checked. These are the questions that make it checkable:')}
             ${ul([
-              `${mono('Concrete grade:')} Contractors often use M15 where IS 456:2000 mandates M20 minimum for mild exposure. Ask for grade confirmation in writing.`,
-              `${mono('Steel grade:')} Fe415 is cheaper but Fe500 is the standard for G+1 to G+3. Seismic Zones III–V require Fe500D.`,
-              `${mono('Cover blocks:')} 20mm for slabs, 40mm for columns. Skipped often. Leads to corrosion within 10 years.`,
-              `${mono('Curing:')} IS 456:2000 requires 14-day wet curing for OPC concrete. Many contractors stop at 3–5 days.`,
-              `${mono('Binding wire:')} 10kg per tonne of steel. Missing from most quotes.`,
-              `${mono('Formwork:')} Labour for shuttering and de-shuttering often not itemised — check if included.`,
-              `${mono('Vibration:')} Mechanical vibrator use is mandatory per IS 456. Hand-rodding is not acceptable for structural concrete.`,
+              `${mono('Quantities:')} Can I have a line-item list with the unit, quantity and specification of every material?`,
+              `${mono('Concrete grade:')} Which grade is each pour? IS 456 sets a minimum by exposure: M20 for mild and M25 for moderate.`,
+              `${mono('Steel:')} Which grade and which bar diameters? Fe 500D (ductile) is the grade StructurePro assumes.`,
+              `${mono('Cover:')} What cover is specified for columns, beams, slabs and footings, and how is it held in place?`,
+              `${mono('Curing:')} How long, and who is responsible for it?`,
+              `${mono('Drawings:')} Will the work follow a structural engineer's drawings and a bar bending schedule?`,
+              `${mono('Exclusions:')} What is not in the quote?`,
             ])}
-            ${p('StructurePro gives you exact IS-code quantities so you can verify every line of your contractor\'s quote.')}
-            ${ctaButton('Get My Structure Estimate → ₹999', `${BASE_URL}/tools/structopro`)}
-          `),
-        }
+            ${p('StructurePro works out the quantities of your frame from your own plan, so you have something to put beside the answers.')}
+            ${ctaButton('Work out my frame', STRUCT)}
+          `)
       }
       if (dayNumber === 45) {
-        return {
-          subject: 'Phase Timing: When Masonry Work Should Begin | NirmanShastra',
-          html: wrap(`
-            ${h2(`Phase 1 → Phase 2 Timing for ${firstName}`)}
-            ${p('If your RCC structure is underway or complete, here is an important IS-code timing note many homeowners miss:')}
-            ${p(`<b>Masonry work (brickwork) should begin 60–90 days after the RCC pour</b> — not 21 days. This is because:`)}
-            ${ul([
-              `IS 456:2000 mandates 14-day minimum wet curing after pour`,
-              `Formwork (shuttering) removal adds another 7–14 days depending on member type`,
-              `Structural drying and stabilisation before brick-laying: 4–6 weeks`,
-              `Starting masonry too early causes cracks at RCC-brick junctions`,
-            ])}
-            ${p(`If your contractor is proposing to start masonry in 3 weeks, ask for the IS code basis. The correct window is ${mono('60–90 days')}.`)}
-            ${p('When Phase 2 begins, use MasonryPro to verify brick counts, mortar ratios, and plastering quantities before your contractor starts.')}
-            ${ctaButton('Estimate Masonry Cost → MasonryPro ₹699', `${BASE_URL}/tools/masonpro`)}
-          `),
-        }
+        return mail('Next phase: what the masonry will need', `Brickwork and plaster, ${firstName}`, `
+            ${p('If your frame is done or underway, the walls are next. Bricks, mortar and plaster are the quantities people most often guess.')}
+            ${p('MasonryPro works from your rooms: the wall lengths and heights, the openings, the wall material you choose and the plaster on each face. The report lists every assumption it made and what it leaves out.')}
+            ${ctaButton(`Work out masonry, ${rupees('masonpro')}`, MASON)}
+          `)
       }
       if (dayNumber === 75) {
-        return {
-          subject: 'Phases 3 & 4 Coming Up: Electrical + Plumbing | NirmanShastra',
-          html: wrap(`
-            ${h2(`Electrical & Plumbing Phases for ${firstName}`)}
-            ${p('Your construction project is progressing. Electrical and plumbing rough-in work typically begins during or just after masonry completion.')}
-            ${p('<b>Phase 3 — Electrical</b> (8–12% of total project cost):')}
+        return mail('Next phases: wiring and pipes', `Wiring and plumbing, ${firstName}`, `
+            ${p('Wiring and pipes are counted before they are buried in the walls and floors, which is the cheapest moment to catch a missing item.')}
             ${ul([
-              'IS 732:2019 mandates circuit-wise load calculations before wiring',
-              '1.5 sqmm minimum for lighting; 2.5 sqmm for power sockets; 4.0 sqmm for AC/Geyser',
-              'RCCB 30mA mandatory for all bathroom circuits',
-              'ElectricalPro gives you a DB panel schedule and wire schedule to verify against contractor quote',
+              `ElectricalPro counts points, wire by size, conduit and the protection devices for your plan (${rupees('electropro')}).`,
+              `PlumbingPro counts pipe by size, fittings, fixtures and tank capacity for your plan and family size (${rupees('plumbpro')}).`,
             ])}
-            ${p('<b>Phase 4 — Plumbing</b> (6–10% of total project cost):')}
-            ${ul([
-              'IS 1172:1993: 135 LPCD for municipal supply; tank size = daily demand × 0.67',
-              '110mm SWR for soil stacks; 75mm for waste pipes',
-              'PlumbingPro generates a pipe schedule and fixture count — verify against your plumber\'s quote',
-            ])}
-            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/tools/electropro`)}
-            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/tools/plumbpro`)}
-          `),
-        }
+            ${ctaButton('ElectricalPro', ELEC)}
+            ${ctaButton('PlumbingPro', PLUMB)}
+          `)
       }
       if (dayNumber === 120) {
-        return {
-          subject: 'Complete Your Home with an Interior Estimate | NirmanShastra',
-          html: wrap(`
-            ${h2(`Interior Phase, ${firstName}`)}
-            ${p('Four months into your project journey — Phase 5 Interior is typically where the biggest surprises in contractor quotes appear.')}
-            ${p('<b>Phase 5 — Interior</b> (12–18% of total project cost):')}
-            ${ul([
-              'Grade multipliers: Basic 1.0× | Standard 1.6× | Premium 2.4× | Luxury 3.5×',
-              'Kitchen running-foot rates vary ₹1,200–₹7,500 per rft across grades',
-              'Flooring: ₹65–₹650 per sqft depending on grade',
-              'InteriorPro gives you a complete BOQ with grade comparison across all interior items',
-            ])}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+        return mail('Finishes: tiles, paint and ceilings', `The finishing phase, ${firstName}`, `
+            ${p('Finishing quantities depend on room areas and on the specification you choose. InteriorPro counts flooring, wall tiles, paint, ceilings and the like from your rooms, so you can check a finishing quote line by line.')}
+            ${p(GRAND_LINE)}
+            ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
+          `)
       }
       return null
     }
@@ -174,78 +150,57 @@ export function getEmailContent(
     // -----------------------------------------------------------------------
     case 'structopro': {
       if (dayNumber === 0) {
-        return {
-          subject: 'Your StructurePro Report + MasonryPro Is Next | NirmanShastra',
-          html: wrap(`
-            ${h2(`Your StructurePro Report is Ready, ${firstName}`)}
-            ${p('Your Phase 1 RCC Structure estimate has been generated. It includes IS-code-verified material quantities, a contractor comparison, and full BOQ across foundation and superstructure.')}
-            ${p('Your report covers:')}
-            ${ul(['Foundation BOQ (excavation, PCC, steel, concrete, formwork)', 'Superstructure BOQ per floor per member', 'Material purchase schedule (cement bags, steel by diameter, aggregate, sand)', 'Cost summary in Basic / Standard / Premium bands'])}
-            ${p(`<b>Next: Phase 2 — Masonry</b>. Brickwork begins 60–90 days after your RCC pour per IS 456:2000. MasonryPro gives you IS-code-verified brick counts, mortar ratios, and plastering quantities so you can verify your mason's quote line by line.`)}
-            ${ctaButton('Estimate Masonry → MasonryPro ₹699', `${BASE_URL}/tools/masonpro`)}
-          `),
-        }
+        return mail('Your StructurePro report, and masonry next', `Your StructurePro report is ready, ${firstName}`, `
+            ${p('Your report counts the RCC frame: footings, plinth beams, columns, beams, slabs, balconies, the staircase and the small RCC items such as lintels and sunshades. It has:')}
+            ${ul([
+              'Every quantity with its unit, as a low figure, a central figure and a high figure',
+              'The IS clause behind each rule it applied',
+              'The assumptions made on your behalf, and what the report does not count',
+              'A PDF you can hand to your contractor or structural engineer',
+            ])}
+            ${p('The report is a planning baseline, not a structural design. An engineer\'s drawings and bar bending schedule always override it.')}
+            ${p('Brick walls and plaster are not in this report. MasonryPro counts them from your rooms.')}
+            ${ctaButton(`Work out masonry, ${rupees('masonpro')}`, MASON)}
+          `)
       }
       if (dayNumber === 7) {
-        return {
-          subject: 'Contractor Tips: 6 Things to Check on Your Structure Quote | NirmanShastra',
-          html: wrap(`
-            ${h2(`6 Structure Quote Checks, ${firstName}`)}
-            ${p('Your StructurePro report has the IS-code quantities. Here are the 6 most common ways contractors inflate or omit in RCC structure quotes:')}
+        return mail('Checking a structure quote against your report', `Using your report on a quote, ${firstName}`, `
+            ${p('Put your contractor\'s quantities beside the report, line by line:')}
             ${ul([
-              `${mono('Concrete grade substitution:')} M15 quoted instead of IS 456:2000 minimum M20. Each grade step saves contractor ~15% on cement.`,
-              `${mono('Steel weight manipulation:')} Short-weight bars (actual 9.8kg where 10kg claimed) are common in unorganised supply chains. Ask for mill test certificates.`,
-              `${mono('Binding wire exclusion:')} 10kg binding wire per tonne of steel is a real cost. Often excluded from quotes.`,
-              `${mono('Cover block omission:')} Plastic/cement cover blocks are small cost items but critical for durability. Confirm they are included.`,
-              `${mono('Curing cost exclusion:')} 14-day curing requires a dedicated water person. Often not included in labour quotes.`,
-              `${mono('Formwork type:')} Wooden formwork vs steel shuttering has different costs and reuse counts. Confirm which is quoted.`,
+              `${mono('Concrete:')} Compare volume by grade. A gap inside the low and high figures is normal. A gap outside them needs an explanation.`,
+              `${mono('Steel:')} Compare kilograms in total and by bar diameter. Real buildings can carry more steel than a code-based model gives, so ask what the extra is for.`,
+              `${mono('Formwork:')} Compare the contact area. It is the line most often left out.`,
+              `${mono('Not counted:')} Read the report's list of what it does not count, then check whether the quote includes those items.`,
+              `${mono('Drawings:')} Ask for the structural drawings and the bar bending schedule. They decide what is built.`,
             ])}
-            ${p('Your StructurePro report has the exact IS-code quantities. Use it as your verification checklist when reviewing contractor quotes.')}
-            ${ctaButton('Estimate Masonry → MasonryPro ₹699', `${BASE_URL}/tools/masonpro`)}
-          `),
-        }
+            ${p(`You can also paste a quote's quantities into the free <a href="${COMPARE}">contractor quantity check</a>.`)}
+            ${ctaButton('Check a quote', COMPARE)}
+          `)
       }
       if (dayNumber === 45) {
-        return {
-          subject: 'Masonry Phase Timing: IS 456 says 60–90 Days | NirmanShastra',
-          html: wrap(`
-            ${h2(`Masonry Can Begin Soon, ${firstName}`)}
-            ${p('Your RCC structure is likely curing now. As per IS 456:2000 + IS 2212:1991 sequencing, masonry (brickwork) should begin <b>60–90 days after the RCC pour</b>:')}
-            ${ul([
-              '14-day minimum wet curing (IS 456:2000)',
-              '7–28 days for formwork removal depending on member (slabs last)',
-              '4–6 weeks structural stabilisation before brick-laying begins',
-            ])}
-            ${p(`<b>If your contractor is proposing to start in 2–4 weeks, this is within range if your pour completed 30–60 days ago.</b> The critical check is that all slab formwork has been struck.`)}
-            ${p('Before your mason gives you a quote, use MasonryPro to generate your IS-code brick count, mortar schedule, and plaster BOQ.')}
-            ${ctaButton('Estimate Masonry → MasonryPro ₹699', `${BASE_URL}/tools/masonpro`)}
-          `),
-        }
+        return mail('Brickwork and plaster quantities', `Next phase: masonry, ${firstName}`, `
+            ${p('Your report covers the frame. The walls are the next quantity a quote can get wrong, because brick sizes differ from kiln to kiln and openings must be deducted.')}
+            ${p('MasonryPro works from your rooms and states the brick size it assumed, so you can measure a few bricks and see how the count changes.')}
+            ${ctaButton(`Work out masonry, ${rupees('masonpro')}`, MASON)}
+          `)
       }
       if (dayNumber === 75) {
-        return {
-          subject: 'Phases 3 & 4 Are Coming: Electrical + Plumbing Estimates | NirmanShastra',
-          html: wrap(`
-            ${h2(`Electrical & Plumbing Are Next, ${firstName}`)}
-            ${p('As masonry wraps up, electrical rough-in and plumbing rough-in typically run in parallel. Both phases involve concealed work — mistakes are expensive to fix after plastering.')}
-            ${p('<b>Electrical rough-in (Phase 3):</b> Conduit laying, DB box mounting, wire pulling — done before plastering. ElectricalPro generates your IS 732:2019-based wire schedule and DB panel configuration.')}
-            ${p('<b>Plumbing rough-in (Phase 4):</b> Supply piping, drainage slopes, soil stack installation — done before screed. PlumbingPro generates your IS 1172:1993-based pipe schedule and fixture count.')}
-            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/tools/electropro`)}
-            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/tools/plumbpro`)}
-          `),
-        }
+        return mail('Wiring and pipes before they are buried', `Wiring and plumbing, ${firstName}`, `
+            ${p('Conduit and pipes go into walls and floors before plaster and screed. A missing point or a short run is cheapest to fix at that stage.')}
+            ${ul([
+              `ElectricalPro: points, wire by size, conduit and protection devices (${rupees('electropro')})`,
+              `PlumbingPro: pipe by size, fittings, fixtures and tank capacity (${rupees('plumbpro')})`,
+            ])}
+            ${ctaButton('ElectricalPro', ELEC)}
+            ${ctaButton('PlumbingPro', PLUMB)}
+          `)
       }
       if (dayNumber === 120) {
-        return {
-          subject: 'Phase 5 Interior Estimate | NirmanShastra',
-          html: wrap(`
-            ${h2(`Interior Estimate, ${firstName}`)}
-            ${p('Your structure, masonry, electrical, and plumbing phases are likely complete or nearing completion. Phase 5 Interior is where final costs land.')}
-            ${p(`<b>InteriorPro</b> covers kitchen, flooring, false ceiling, paint, doors, and tiles — with a complete BOQ at your selected grade (Basic to Luxury).`)}
-            ${p(`Once you have all 5 phase reports, the Grand Total Report (₹999 standalone) is <b>free</b> — it merges every phase into one 15-page master BOQ.`)}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+        return mail('Finishing quantities', `Finishes, ${firstName}`, `
+            ${p('If you have not yet counted the finishing, InteriorPro does it from your room areas: flooring, wall tiles, paint, ceilings and the like, with wastage stated.')}
+            ${p(GRAND_LINE)}
+            ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
+          `)
       }
       return null
     }
@@ -253,87 +208,43 @@ export function getEmailContent(
     // -----------------------------------------------------------------------
     case 'masonpro': {
       if (dayNumber === 0) {
-        return {
-          subject: 'Your MasonryPro Report + Electrical Phase Next | NirmanShastra',
-          html: wrap(`
-            ${h2(`Your MasonryPro Report is Ready, ${firstName}`)}
-            ${p('Your Phase 2 Masonry estimate is ready with IS-code-verified quantities for brickwork, plastering, and waterproofing.')}
-            ${p('Your report includes:')}
-            ${ul(['Wall BOQ with brick counts, mortar bags, and cement', 'Plastering BOQ per room (internal 12mm 1:4, external 15mm 1:4, ceiling 6mm 1:3)', 'Waterproofing BOQ for terrace and bathrooms', '8 wall type cost comparison at your city rates'])}
-            ${p('<b>Next: Phase 3 — Electrical rough-in</b>. This runs parallel to or just after plastering. ElectricalPro gives you a DB panel schedule and IS 732:2019-compliant wire schedule to verify your electrician\'s quote.')}
-            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/tools/electropro`)}
-          `),
-        }
+        return mail('Your MasonryPro report, and wiring next', `Your MasonryPro report is ready, ${firstName}`, `
+            ${p('Your report counts the brickwork or blockwork, the mortar, and the plaster on every face, from your rooms and openings. It states the brick size it assumed and what it does not count.')}
+            ${p('Wiring is next. ElectricalPro counts points, wire by size, conduit and protection devices from your plan.')}
+            ${ctaButton(`Work out wiring, ${rupees('electropro')}`, ELEC)}
+          `)
       }
       if (dayNumber === 7) {
-        return {
-          subject: 'IS 2212 Masonry Curing Checklist | NirmanShastra',
-          html: wrap(`
-            ${h2(`Masonry Curing Checklist, ${firstName}`)}
-            ${p('Your masonry work is likely underway. Here is the IS 2212:1991 site practice checklist — these are the points most commonly skipped by masons:')}
+        return mail('Reading a brick count', `Checking a brick count, ${firstName}`, `
+            ${p('Four things decide a brick count:')}
             ${ul([
-              `${mono('Brick soaking:')} Bricks must be soaked minimum 2 hours before laying. Dry bricks absorb water from mortar, weakening the joint.`,
-              `${mono('Frog face up:')} The frog (indent) in the brick must always face upward so mortar fills it completely.`,
-              `${mono('Mortar joint:')} 10mm bed joint + 10mm perpendicular joint. Excess mortar does not add strength.`,
-              `${mono('Bond pattern:')} English bond for 9" (230mm) walls; stretcher bond for 4.5" (115mm) walls. Mixed bonds weaken the wall.`,
-              `${mono('Curing:')} Minimum 7 days with wet gunny bags. Dry-brick walls crack at joints. Budget a dedicated curing person.`,
-              `${mono('Plaster timing:')} Minimum 14 days after brickwork before external plaster. 21 days preferred.`,
-              `${mono('Chicken mesh:')} Mandatory at every RCC-brick junction before plastering. Prevents cracking at interface.`,
+              `${mono('Brick size:')} bricks from different kilns differ in size. Measure a few and compare with the size in your report.`,
+              `${mono('Joint:')} the mortar joint adds to the size of each course.`,
+              `${mono('Openings:')} doors and windows are deducted from the wall area.`,
+              `${mono('Wastage:')} breakage and cutting add to what you order. Your report states the allowance it used.`,
             ])}
-            ${p('Your MasonryPro report includes the IS 2212:1991 masonry practice checklist for your contractor.')}
-            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/tools/electropro`)}
-          `),
-        }
+            ${p('If your mason\'s count is outside the low and high figures in the report, ask which of these four differs.')}
+          `)
       }
       if (dayNumber === 45) {
-        return {
-          subject: 'Electrical Rough-In Timing: Before or During Plastering | NirmanShastra',
-          html: wrap(`
-            ${h2(`Electrical Timing Note, ${firstName}`)}
-            ${p('A common mistake in residential construction: starting electrical work after plastering is complete. This forces wall chasing (cutting channels in plaster) — expensive and messy.')}
-            ${p('<b>Correct sequence:</b>')}
-            ${ul([
-              'Masonry + waterproofing: complete',
-              'Electrical conduit laying + DB box mounting: BEFORE plastering',
-              'Plastering: after conduits are set',
-              'Wire pulling: after plastering is dry (7–14 days)',
-              'DB panel installation + testing: after wire pulling',
-            ])}
-            ${p('If your masonry is now nearing completion, this is exactly the right time to plan electrical rough-in. ElectricalPro generates a circuit-wise load calculation, DB schedule, and wire schedule per IS 732:2019.')}
-            ${ctaButton('Estimate Electrical → ElectricalPro ₹499', `${BASE_URL}/tools/electropro`)}
-          `),
-        }
+        return mail('Wiring before plaster', `Next phase: electrical, ${firstName}`, `
+            ${p('Conduit and boxes are fixed before plaster goes on. That is the moment to count points and wire runs.')}
+            ${p('ElectricalPro counts them from your plan and lists what it leaves out, such as fittings, fans, lights and the meter.')}
+            ${ctaButton(`Work out wiring, ${rupees('electropro')}`, ELEC)}
+          `)
       }
       if (dayNumber === 75) {
-        return {
-          subject: 'Phase 4 — Plumbing Estimate Before Screed | NirmanShastra',
-          html: wrap(`
-            ${h2(`Plumbing Phase Coming Up, ${firstName}`)}
-            ${p('Plumbing rough-in (supply piping + drainage) must be complete before floor screed is laid. This is a common sequencing error that causes expensive rework.')}
-            ${p('<b>IS 1172:1993 requirements to verify with your plumber:</b>')}
-            ${ul([
-              `Daily water demand: ${mono('135 LPCD')} municipal supply per person`,
-              `Tank size = daily demand × 0.67 (IS 1172 formula)`,
-              `Soil stack minimum: ${mono('110mm SWR')} for WC`,
-              `Waste pipe minimum: ${mono('75mm SWR')} for bath + kitchen`,
-              `Minimum slope: 1:48 (2%) for 75mm pipes; 1:80 (1.25%) for 110mm`,
-            ])}
-            ${p('PlumbingPro generates your pipe schedule, fixture count, tank sizing, and pump HP — so you can verify against your plumber\'s quote line by line.')}
-            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/tools/plumbpro`)}
-          `),
-        }
+        return mail('Pipes before the floor is laid', `Next phase: plumbing, ${firstName}`, `
+            ${p('Supply and drainage pipes go in before the floor finish. PlumbingPro counts pipe by size, fittings, fixtures and tank capacity for your plan and family size, so you can check your plumber\'s list line by line.')}
+            ${ctaButton(`Work out plumbing, ${rupees('plumbpro')}`, PLUMB)}
+          `)
       }
       if (dayNumber === 120) {
-        return {
-          subject: 'Interior Phase Estimate | NirmanShastra',
-          html: wrap(`
-            ${h2(`Interior Estimate, ${firstName}`)}
-            ${p(`Your project is in the final stretch — interior work is typically the most visible phase and where grade decisions have the largest cost impact.`)}
-            ${p(`${mono('Grade multipliers:')} Basic 1.0× | Standard 1.6× | Premium 2.4× | Luxury 3.5×`)}
-            ${p('InteriorPro generates a complete BOQ across flooring, kitchen, false ceiling, paint, doors, and tiles at your selected grade — with a contractor comparison after unlock.')}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+        return mail('Finishing quantities', `Finishes, ${firstName}`, `
+            ${p('InteriorPro counts flooring, wall tiles, paint, ceilings and the like from your room areas, with wastage stated.')}
+            ${p(GRAND_LINE)}
+            ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
+          `)
       }
       return null
     }
@@ -341,85 +252,43 @@ export function getEmailContent(
     // -----------------------------------------------------------------------
     case 'electropro': {
       if (dayNumber === 0) {
-        return {
-          subject: 'Your ElectricalPro Report + Plumbing Phase Next | NirmanShastra',
-          html: wrap(`
-            ${h2(`Your ElectricalPro Report is Ready, ${firstName}`)}
-            ${p('Your Phase 3 Electrical estimate is ready with IS 732:2019-compliant circuit load calculations, DB panel schedule, and wire schedule.')}
-            ${p('Your report includes:')}
-            ${ul(['Circuit-wise load analysis (lighting, power, AC, geyser circuits)', 'DB panel schedule with MCB ratings and number of ways', 'Wire schedule per room per circuit (sizes per IS 732:2019)', 'Testing and commissioning checklist'])}
-            ${p('<b>Next: Phase 4 — Plumbing</b>. Plumbing rough-in runs parallel with or just after electrical. PlumbingPro gives you IS 1172:1993-based pipe schedule, tank sizing, and fixture count — so you can verify your plumber\'s quote.')}
-            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/tools/plumbpro`)}
-          `),
-        }
+        return mail('Your ElectricalPro report, and plumbing next', `Your ElectricalPro report is ready, ${firstName}`, `
+            ${p('Your report counts points, wire by size, conduit, boxes, and the protection devices for your plan. What it does not count, such as fittings, fans, lights and the meter, is listed in the report.')}
+            ${p('Pipes are next. PlumbingPro counts pipe by size, fittings, fixtures and tank capacity.')}
+            ${ctaButton(`Work out plumbing, ${rupees('plumbpro')}`, PLUMB)}
+          `)
       }
       if (dayNumber === 7) {
-        return {
-          subject: 'IS 732 Electrical Safety: 5 Things to Verify on Site | NirmanShastra',
-          html: wrap(`
-            ${h2(`IS 732 Safety Checklist, ${firstName}`)}
-            ${p('Your electrical work is underway. Here are 5 IS 732:2019 safety requirements most homeowners don\'t know to check:')}
+        return mail('Five things to ask your electrician to put in writing', `Electrical checks, ${firstName}`, `
             ${ul([
-              `${mono('Licence verification:')} Your electrician must hold a valid Class B licence issued by the state electrical licensing board. Unlicensed electrical work voids home insurance and is illegal.`,
-              `${mono('RCCB mandatory:')} IS 732:2019 requires a 30mA RCCB on all bathroom and kitchen circuits. This is non-negotiable.`,
-              `${mono('Wire sizes:')} Confirm the actual gauge being pulled matches your ElectricalPro report. Undersized wires for power circuits are the #1 cause of residential fires.`,
-              `${mono('Earth continuity:')} IS 3043:2018 requires earthing resistance <1 ohm. Ask for a test certificate after installation.`,
-              `${mono('Circuit labelling:')} Every MCB in the DB panel must be labelled. This is required for maintenance and emergency response.`,
+              'Which MCB or RCBO rating protects each circuit.',
+              'Which RCCB protects which circuits, and its rating.',
+              'The wire size on each circuit, and that it is copper.',
+              'The earth electrode, and an earth resistance reading after installation.',
+              'The list of what the quote does not include.',
             ])}
-            ${p('Your ElectricalPro report includes the DB panel schedule with circuit-wise MCB ratings. Use it to verify the panel as installed.')}
-            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/tools/plumbpro`)}
-          `),
-        }
+            ${p('Put the answers beside the counts in your report. A difference is not always an error, but it should have a reason.')}
+          `)
       }
       if (dayNumber === 45) {
-        return {
-          subject: 'Electrical + Plumbing Coordination: What Must Happen Together | NirmanShastra',
-          html: wrap(`
-            ${h2(`Phase 3 + Phase 4 Coordination, ${firstName}`)}
-            ${p('Electrical and plumbing phases have several coordination points that are easy to miss — and expensive to fix after walls are plastered:')}
-            ${ul([
-              `${mono('Geyser circuits + plumbing hot water:')} The geyser location must be agreed between electrician and plumber before conduit routing — the 4sqmm circuit and hot water pipe must converge at the same point.`,
-              `${mono('Bathroom wet areas:')} RCCB protection zones must match plumbing wet areas. Coordinate with plumber on exact wet-zone boundaries.`,
-              `${mono('Kitchen:')} Water purifier, dishwasher (if applicable), and chimney points — all need 2.5sqmm power points within specific distances from the plumbing outlet.`,
-              `${mono('Pump + motor wiring:')} The submersible pump or pressure pump wiring (typically 4–6sqmm) must be routed before plumbing pump installation.`,
-            ])}
-            ${p('If your plumbing rough-in has not yet been estimated, do it now before finalising electrical point locations.')}
-            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/tools/plumbpro`)}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+        return mail('Wiring and pipes: what has to be settled together', `Coordinating wiring and plumbing, ${firstName}`, `
+            ${p('Both run inside the walls and floors, and both need their positions fixed before plaster and screed. Settle switch, socket, tap and drain positions on one plan before either trade starts.')}
+            ${p('If you have not yet counted the pipes, PlumbingPro does it from your plan and family size.')}
+            ${ctaButton(`Work out plumbing, ${rupees('plumbpro')}`, PLUMB)}
+          `)
       }
       if (dayNumber === 75) {
-        return {
-          subject: 'Phase 5 Interior — Estimate Before Contractors Quote | NirmanShastra',
-          html: wrap(`
-            ${h2(`Interior Phase Starting Soon, ${firstName}`)}
-            ${p('With electrical and plumbing complete, interior work is next. This is where grade selection has the biggest impact on final cost.')}
-            ${p('<b>What InteriorPro estimates:</b>')}
-            ${ul([
-              'Kitchen cabinetry (running-foot rate × grade)',
-              'Flooring (sqft × grade rate + 10% wastage)',
-              'False ceiling (sqft × grade rate)',
-              'Paint (0.18L/sqft BUA, 40-50sqft coverage per litre)',
-              'Doors and tiles with itemised BOQ',
-            ])}
-            ${p(`${mono('Grade multipliers:')} Basic 1.0× | Standard 1.6× | Premium 2.4× | Luxury 3.5×. The full comparison table is free — quantities unlock at ₹899.`)}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+        return mail('Finishing quantities', `Finishes, ${firstName}`, `
+            ${p('With wiring and plumbing counted, finishing is next. InteriorPro counts flooring, wall tiles, paint, ceilings and the like from your room areas, so you can check a finishing quote before it is signed.')}
+            ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
+          `)
       }
       if (dayNumber === 120) {
-        return {
-          subject: 'Estimate the Phases You Haven\'t Costed Yet | NirmanShastra',
-          html: wrap(`
-            ${h2(`Remaining Phases for ${firstName}`)}
-            ${p('Your project is in the final phases. If you haven\'t already estimated masonry, plumbing, or interior costs, each IS-code report lets you verify that phase against your contractor\'s quote before you sign.')}
-            ${p('Each report includes: IS-code material quantities, contractor comparison, phase-specific BOQ, and IS compliance panel.')}
-            ${p(`Estimate all 5 phases and the Grand Total Report (₹999 standalone) is <b>free</b> — a 15-page master BOQ across every phase.`)}
-            ${ctaButton('Estimate Plumbing → PlumbingPro ₹499', `${BASE_URL}/tools/plumbpro`)}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+        return mail('Phases you have not counted yet', `Remaining phases, ${firstName}`, `
+            ${p('If masonry, plumbing or finishes are still uncounted, each report gives you the quantities for that phase to put beside a quote.')}
+            ${p(GRAND_LINE)}
+            ${ctaButton('See all the tools', `${BASE_URL}/#pricing`)}
+          `)
       }
       return null
     }
@@ -427,80 +296,41 @@ export function getEmailContent(
     // -----------------------------------------------------------------------
     case 'plumbpro': {
       if (dayNumber === 0) {
-        return {
-          subject: 'Your PlumbingPro Report + Interior Phase Next | NirmanShastra',
-          html: wrap(`
-            ${h2(`Your PlumbingPro Report is Ready, ${firstName}`)}
-            ${p('Your Phase 4 Plumbing estimate is ready with IS 1172:1993-verified pipe schedule, tank sizing, pump HP, and fixture count.')}
-            ${p('Your report includes:')}
-            ${ul(['Water demand calculation (LPCD × occupants = daily demand)', 'Tank size and pump HP as per IS 1172', 'Cold water supply riser diagram', 'Drainage layout with IS slope requirements', 'Complete pipe + fixture schedule'])}
-            ${p('<b>Next: Phase 5 — Interior</b>. This is the final phase and often the one with the widest variance in contractor quotes. InteriorPro gives you a complete BOQ with grade comparison (Basic to Luxury) so you approach your interior contractor with verified quantities.')}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+        return mail('Your PlumbingPro report, and finishes next', `Your PlumbingPro report is ready, ${firstName}`, `
+            ${p('Your report counts pipe by size and material, fittings, fixtures and tank capacity for your plan and family size, and lists what it does not count.')}
+            ${p('Finishes are next. InteriorPro counts flooring, wall tiles, paint and ceilings from your room areas.')}
+            ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
+          `)
       }
       if (dayNumber === 7) {
-        return {
-          subject: 'IS 1172 Tank & Pump Maintenance Checklist | NirmanShastra',
-          html: wrap(`
-            ${h2(`Plumbing Maintenance Checklist, ${firstName}`)}
-            ${p('Your plumbing is being installed. Here are the IS 1172:1993 requirements for tank and pump maintenance that most homeowners are not told about at handover:')}
+        return mail('What to ask your plumber to put in writing', `Plumbing checks, ${firstName}`, `
             ${ul([
-              `${mono('Tank cleaning:')} Underground sump and overhead tanks must be cleaned every 6 months. The tank access port must be large enough for a person to enter — minimum 600mm × 600mm per IS 1172.`,
-              `${mono('Overflow pipe:')} Tank overflow must discharge visibly (not into the drain inside the wall). This is how you detect a float valve failure before a flood.`,
-              `${mono('Tank material:')} RCC sump requires bituminous waterproofing inside. HDPE/Sintex overhead tanks do not require this.`,
-              `${mono('Pump motor:')} If a submersible pump is used, a dry-run protection float switch is mandatory. Without it, the pump burns out when the sump runs dry.`,
-              `${mono('Water meter:')} Install a water meter on the supply line from OHT to building. This lets you detect pipe leaks early (sudden meter reading without usage).`,
+              'The tank capacity, and how many people it was sized for.',
+              'The pipe material and sizes for supply and for drainage.',
+              'The fixture list, bathroom by bathroom.',
+              'Whether the pump and the standby pump are included.',
+              'What the quote does not include.',
             ])}
-            ${p('Your PlumbingPro report includes tank sizing calculations per IS 1172 and pump HP recommendations for your daily demand.')}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+            ${p('Put the answers beside the counts in your report. Ask for a reason wherever they differ.')}
+          `)
       }
       if (dayNumber === 45) {
-        return {
-          subject: 'Fit-Out Timing: When Interior Work Can Begin | NirmanShastra',
-          html: wrap(`
-            ${h2(`Interior Fit-Out Timing, ${firstName}`)}
-            ${p('With plumbing rough-in complete and plastering done, interior fit-out (Phase 5) can begin. Here is the correct sequence to share with your interior contractor:')}
-            ${ul([
-              `${mono('Step 1:')} Floor screed / IPS / waterproofing for wet areas — complete before tiling`,
-              `${mono('Step 2:')} Tile fixing (wall first, then floor) — allow 3 days curing before grouting`,
-              `${mono('Step 3:')} False ceiling frame fixing (before wall paint)`,
-              `${mono('Step 4:')} Electrical fixture rough-in (fan point, light points, AC bracket) — coordinate with electrician`,
-              `${mono('Step 5:')} Paint — primer + 2 coats wall, ceiling paint separate`,
-              `${mono('Step 6:')} Kitchen cabinet installation + countertop`,
-              `${mono('Step 7:')} Plumbing fixtures (taps, showers, WCs) — last, after tiles and paint`,
-              `${mono('Step 8:')} Electrical fixtures (switches, fans, lights) — very last, after paint`,
-            ])}
-            ${p('InteriorPro estimates the cost for all of the above with IS-code quantities and grade comparison.')}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+        return mail('Before the finishing work starts', `Finishes next, ${firstName}`, `
+            ${p('Once pipes and wiring are in and tested, finishes can go on. InteriorPro counts the finishing from your room areas and states the wastage it allowed.')}
+            ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
+          `)
       }
       if (dayNumber === 75) {
-        return {
-          subject: 'Estimate Your Remaining Construction Phases | NirmanShastra',
-          html: wrap(`
-            ${h2(`Remaining Phases, ${firstName}`)}
-            ${p('All structural and MEP phases are complete or winding down. If you need estimates for any remaining phases, each IS-code report gives you verified quantities for that phase.')}
-            ${p('Every report covers StructurePro, MasonryPro, ElectricalPro, PlumbingPro, or InteriorPro — IS-code material quantities, contractor comparison, and a phase-specific BOQ.')}
-            ${p(`Estimate all 5 phases and the Grand Total Report (₹999 standalone) is <b>free</b> — one master BOQ across every phase.`)}
-            ${ctaButton('Estimate Interiors → InteriorPro ₹899', `${BASE_URL}/tools/interiorpro`)}
-          `),
-        }
+        return mail('Phases you have not counted yet', `Remaining phases, ${firstName}`, `
+            ${p('If any phase of your house is still uncounted, its report gives you the quantities to put beside a quote.')}
+            ${ctaButton('See all the tools', `${BASE_URL}/#pricing`)}
+          `)
       }
       if (dayNumber === 120) {
-        return {
-          subject: 'Combine Your Phases into One Grand Total Report | NirmanShastra',
-          html: wrap(`
-            ${h2(`Grand Total Report for ${firstName}`)}
-            ${p('You have been on NirmanShastra for four months. If your project spans multiple phases and you need reports for phases you haven\'t estimated yet, this is the right time.')}
-            ${p('The Grand Total Report (₹999 standalone, FREE once all 5 tools are purchased individually) is a 15-page integrated cost report across all phases — with a phase timeline and grand total breakdown.')}
-            ${p('Estimate any phase you have not yet costed, then generate your combined report.')}
-            ${ctaButton('See All NirmanShastra Tools', `${BASE_URL}/#pricing`)}
-          `),
-        }
+        return mail('One buying list for the whole house', `Grand Total, ${firstName}`, `
+            ${p(GRAND_LINE)}
+            ${ctaButton('See the Grand Total report', GRAND)}
+          `)
       }
       return null
     }
@@ -508,77 +338,40 @@ export function getEmailContent(
     // -----------------------------------------------------------------------
     case 'interiorpro': {
       if (dayNumber === 0) {
-        return {
-          subject: 'Your InteriorPro Report + Grand Total Report | NirmanShastra',
-          html: wrap(`
-            ${h2(`Your InteriorPro Report is Ready, ${firstName}`)}
-            ${p('Your Phase 5 Interior estimate is ready with grade-wise BOQ across all interior items.')}
-            ${p('Your report includes:')}
-            ${ul(['Complete interior BOQ (flooring, kitchen, false ceiling, paint, doors, tiles)', 'Grade comparison table across Basic / Standard / Premium / Luxury', 'Room-wise flooring and wall tile schedule', 'Kitchen elevation with running-foot calculation', 'IS code references for tile installation and gypsum plaster'])}
-            ${p('<b>You have completed the final phase.</b> The Grand Total Report merges all 5 phases into one 15-page report — it is FREE if you purchase all 5 paid apps, or ₹999 standalone.')}
-            ${ctaButton('Generate Grand Total Report', `${BASE_URL}/#pricing`)}
-          `),
-        }
+        return mail('Your InteriorPro report, and the Grand Total', `Your InteriorPro report is ready, ${firstName}`, `
+            ${p('Your report counts flooring, wall tiles, paint, ceilings and the like from your rooms, with wastage stated. What it does not count, such as plaster, stairs, sanitary fittings and loose furniture, is listed in the report.')}
+            ${p(GRAND_LINE)}
+            ${ctaButton('See the Grand Total report', GRAND)}
+          `)
       }
       if (dayNumber === 7) {
-        return {
-          subject: 'Interior Tips: 5 Things Contractors Overcharge On | NirmanShastra',
-          html: wrap(`
-            ${h2(`Interior Contractor Tips, ${firstName}`)}
-            ${p('Interior is the phase with the widest variance in contractor quotes. Here are 5 items where overcharging is most common:')}
+        return mail('Five things to check on a finishing quote', `Finishing checks, ${firstName}`, `
             ${ul([
-              `${mono('Kitchen running feet:')} Measure the actual running footage yourself (total length of all cabinets at counter height). Contractors sometimes count both upper and lower as separate items — confirm what is included.`,
-              `${mono('Tile wastage:')} IS standard wastage is 10%. Contractors sometimes quote 15–20%. With your InteriorPro report, you have the correct tile count.`,
-              `${mono('Paint coverage:')} 40–50 sqft per litre (2 coats + primer). Standard coverage. If contractor quotes higher litres, check the wall area calculation.`,
-              `${mono('False ceiling area:')} Measure net ceiling area (length × width of each room). Contractors sometimes include wall area in the sqft count.`,
-              `${mono('Gypsum vs cement plaster:')} Gypsum plaster (IS 2547:1976) does not need water curing, is faster, and gives a better finish. If a contractor quotes cement plaster for internal walls and a higher rate, question it.`,
+              `${mono('Areas:')} measure a room or two yourself and compare with the areas in the quote.`,
+              `${mono('Wastage:')} ask what allowance was added for tiles and boards. It is larger for diagonal lays and small rooms.`,
+              `${mono('Kitchen:')} measure the running length of the counter yourself. Check that upper and lower runs are not counted twice.`,
+              `${mono('Specification:')} ask for the tile size, board thickness and paint system in writing.`,
+              `${mono('Exclusions:')} ask what is not in the quote.`,
             ])}
-            ${p('Your InteriorPro report has the correct quantities for all items above. Use it to verify before signing any interior contract.')}
-            ${ctaButton('See All NirmanShastra Tools', `${BASE_URL}/#pricing`)}
-          `),
-        }
+          `)
       }
       if (dayNumber === 45) {
-        return {
-          subject: 'Interior Maintenance Schedule for Your New Home | NirmanShastra',
-          html: wrap(`
-            ${h2(`Home Maintenance Schedule, ${firstName}`)}
-            ${p('Congratulations on reaching the final phase. Here is a practical maintenance schedule to protect your investment:')}
-            ${ul([
-              `${mono('Monthly:')} Check all tap washers, WC flush valves, and RCCB test buttons`,
-              `${mono('Every 6 months:')} Clean overhead water tank, check plumbing pipe joints for seepage, test earthing continuity`,
-              `${mono('Annually:')} Repaint exterior (or reapply waterproofing if membrane type), clean AC filters and service units, check roof waterproofing at outlets`,
-              `${mono('Every 2 years:')} Professional electrical inspection, check for plaster cracks at RCC-brick junctions, verify terrace waterproofing`,
-              `${mono('Every 5 years:')} External wall repaint, re-grout tile joints in bathrooms and kitchen, check structural member cracks`,
-              `${mono('At first monsoon:')} Critical — check all terrace drains, parapet wall joints, and external window sills for water ingress`,
-            ])}
-            ${p('NirmanShastra is building a maintenance reminder tool. We will notify you when it is live.')}
-            ${ctaButton('See All NirmanShastra Tools', `${BASE_URL}`)}
-          `),
-        }
+        return mail('Keep your reports', `Keep your reports, ${firstName}`, `
+            ${p('Your reports are a record of what each phase was counted to need. Keep the PDFs with the drawings and the bills. If a repair or an extension comes later, they show what was assumed.')}
+            ${p(GRAND_LINE)}
+          `)
       }
       if (dayNumber === 75) {
-        return {
-          subject: 'Complete Your Project Documentation | NirmanShastra',
-          html: wrap(`
-            ${h2(`Complete Your Project Documentation, ${firstName}`)}
-            ${p('If you are planning to build additional rooms, a new floor, or renovate other parts of your property, each phase has its own IS-code report.')}
-            ${p('StructurePro, MasonryPro, ElectricalPro, PlumbingPro, and InteriorPro each give you verified quantities and a contractor comparison for that phase.')}
-            ${p('Purchase all 5 individually and the Grand Total Report (₹999 standalone) is <b>free</b> — one master BOQ across every phase.')}
-            ${ctaButton('See All NirmanShastra Tools', `${BASE_URL}/#pricing`)}
-          `),
-        }
+        return mail('If you are counting another phase', `Other phases, ${firstName}`, `
+            ${p('Each phase has its own report: StructurePro, MasonryPro, ElectricalPro, PlumbingPro and InteriorPro. Each states its assumptions and what it leaves out.')}
+            ${ctaButton('See all the tools', `${BASE_URL}/#pricing`)}
+          `)
       }
       if (dayNumber === 120) {
-        return {
-          subject: 'Planning Anything New? | NirmanShastra',
-          html: wrap(`
-            ${h2(`Planning Anything New, ${firstName}`)}
-            ${p('Four months since your InteriorPro report. If you are planning any new construction — additional floor, extension, renovation — NirmanShastra has an IS-code estimator for every phase.')}
-            ${p('Estimate each phase you need, then combine them into a single Grand Total Report — free once all 5 tools are purchased individually.')}
-            ${ctaButton('See All NirmanShastra Tools', `${BASE_URL}/#pricing`)}
-          `),
-        }
+        return mail('Planning anything new?', `Planning anything new, ${firstName}`, `
+            ${p('If you are planning a new house, an extension or a renovation, each phase can be counted before you ask for a quote. Start with the free first look at the frame.')}
+            ${ctaButton('See all the tools', `${BASE_URL}/#pricing`)}
+          `)
       }
       return null
     }

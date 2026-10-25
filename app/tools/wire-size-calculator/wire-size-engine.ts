@@ -1,151 +1,143 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// WIRE SIZE CALCULATOR — ENGINE (IS 732:2019 Cl 6.2)
+// WIRE SIZE — CALCULATOR ENGINE
 //
-// Permanently-free, standalone calculator. It maps a household circuit type to
-// the minimum copper conductor cross-section required by the wiring code.
+// Free, standalone calculator: which circuit is being wired, or how big the home's load is, gives the least copper wire
+// size, the breaker that goes with it, the cable set and the conduit.
 //
-// AUTHORITATIVE SOURCE — do not overwrite from any other source:
+// ONE SOURCE: every size comes from lib/qty/electrical/wire.ts, the same code the ElectricalPro model runs, so this page
+// and the paid report give the same wire for the same circuit.
 //
-//   The wire sizes are IMPORTED verbatim from the paid ElectroPro engine
-//   (app/tools/electropro/electropro-engine.ts), which carries the Section 8
-//   LOCKED values, so the two tools can never disagree:
+//   Circuits   CPWD General Specifications for Electrical Works Part I (Internal) 2013 cl 3.12 and 3.10, and the BIS draft
+//              IS 4648 (first revision, September 2024) Table 4 and cl 6.2.8.
+//   Supply     draft IS 4648 Table 4: up to 5 kW 4 mm², to 7 kW 6, to 10 kW 10. Above 10 kW, and every three-phase size,
+//              is ASSUMED: the draft stops at 10 kW and only hints at three phase.
+//   Earth      equal to the line conductor up to 16 mm², half above (draft cl 8).
+//   Conduit    CPWD Delhi Analysis of Rates 2016, items 1.7.1 to 1.7.11.
 //
-//     • Lighting & fans        — WIRE_SIZES.lighting.sqmm    = 1.5 sqmm
-//     • Power sockets          — WIRE_SIZES.power.sqmm       = 2.5 sqmm
-//     • AC / Geyser (2kW+)     — WIRE_SIZES.acGeyser.sqmm    = 4.0 sqmm
-//     • Sub-panel feed         — WIRE_SIZES.subPanel.sqmm    = 6.0 sqmm
-//     • Main incomer           — WIRE_SIZES.mainIncomer.sqmm = 10.0 sqmm
+// The old version of this page said all five sizes came from "IS 732:2019 Cl 6.2". That clause was never read. The
+// 4 mm² air conditioner and the 6 and 10 mm² "sub-panel" and "main incomer" sizes were rules of thumb with no load behind
+// them: the real mains size depends on the load, from 4 mm² at 5 kW to 10 mm² at 10 kW. Both were retired.
 //
-//   These are minimum cross-sections per IS 732:2019 Cl 6.2. This mirrors
-//   ElectroPro's real categorical model: correct wire size is chosen by the
-//   ROLE of the circuit, not by a generic watts-to-gauge calculation — because
-//   the code minimum for each category already accounts for its typical load,
-//   grouping, and protective-device rating.
-//
-// No IS clause is invented here; the categorical table IS the source of truth.
+// NOT worked here, because no document read gives the figures: cable current ratings, derating, voltage drop. IS 732 sizes
+// a cable by those, so a long run needs more than the minimum below, and the page says so.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Single-source-of-truth import from the paid ElectroPro engine.
-import { WIRE_SIZES } from '../electropro/electropro-engine'
+import {
+  CIRCUIT_ORDER,
+  CIRCUIT_RULES,
+  DRAFT_MAINS_LIMIT_KW,
+  conduitFor,
+  earthMm2,
+  incomerA,
+  mainsMm2,
+  mainsStatus,
+  type CircuitKey,
+  type WireStatus,
+} from '@/lib/qty/electrical/wire'
 
-export type CircuitType = 'lighting' | 'power' | 'acGeyser' | 'subPanel' | 'mainIncomer'
+export { CIRCUIT_RULES, DRAFT_MAINS_LIMIT_KW }
+export type { CircuitKey, WireStatus }
 
-export interface CircuitSpec {
-  key: CircuitType
-  /** Plain-English circuit type shown in the picker (from the LOCKED WIRE_SIZES.use). */
-  use: string
-  /** Minimum conductor cross-section, mm² (from the LOCKED WIRE_SIZES.sqmm). */
-  sqmm: number
-  /** Formatted label, e.g. "2.5 sqmm" (from the LOCKED WIRE_SIZES.label). */
+export type WireChoice = CircuitKey | 'mains'
+export type Phase = 'single' | 'three'
+
+export const CHOICE_ORDER: WireChoice[] = [...CIRCUIT_ORDER, 'mains']
+
+export const MAINS_LABEL = 'The supply into the house or a flat, from the meter'
+
+export const choiceLabel = (c: WireChoice) => (c === 'mains' ? MAINS_LABEL : CIRCUIT_RULES[c].label)
+
+export interface WireInput {
+  choice: WireChoice
+  /** Design load in kW, for the supply. */
+  kw: number
+  phase: Phase
+}
+
+export interface WireResult {
+  choice: WireChoice
   label: string
-  /** IS clause (from the LOCKED WIRE_SIZES.isCode). */
-  isCode: string
-  /** What typically sits on this circuit — context for the picker. */
-  examples: string
-  /** Typical protective device on this circuit — context only, not a calculation. */
-  typicalMCB: string
-  /** What goes wrong if this circuit is wired below its code-minimum size. */
-  undersizedRisk: string
+  /** Least copper size, mm². */
+  mm2: number
+  /** Earth conductor, mm². */
+  earthMm2: number
+  /** "2 × 2.5 mm² + 2.5 mm² earth" */
+  cable: string
+  conduitMm: number
+  /** Breaker: a circuit's own, or the main breaker for the supply. */
+  mcb: string
+  status: WireStatus
+  source: string
+  limit: string
+  risk: string
+  /** Live, neutral and earth colours (CPWD GS 3.5(v)). */
+  colours: string
+  /** The supply is above the load the draft gives a size for. */
+  beyondDraft: boolean
 }
 
-// Display order — light circuits first, feeders last (as on a DB schedule).
-export const CIRCUIT_ORDER: CircuitType[] = [
-  'lighting',
-  'power',
-  'acGeyser',
-  'subPanel',
-  'mainIncomer',
-]
-
-// Presentation specs. sqmm / label / use / isCode are pulled straight from the
-// imported LOCKED WIRE_SIZES so the free tool can never drift from ElectroPro.
-export const CIRCUIT_SPECS: Record<CircuitType, CircuitSpec> = {
-  lighting: {
-    key: 'lighting',
-    use: WIRE_SIZES.lighting.use, // 'Lighting & fans'
-    sqmm: WIRE_SIZES.lighting.sqmm, // 1.5
-    label: WIRE_SIZES.lighting.label, // '1.5 sqmm'
-    isCode: WIRE_SIZES.lighting.isCode,
-    examples: 'Ceiling lights, tube lights, LED panels, ceiling fans, exhaust fans.',
-    typicalMCB: '6A MCB',
-    undersizedRisk:
-      'Lighting circuits are already at the code minimum — going below 1.5 sqmm risks conductor heating even at light loads and is not permitted.',
-  },
-  power: {
-    key: 'power',
-    use: WIRE_SIZES.power.use, // 'Power sockets'
-    sqmm: WIRE_SIZES.power.sqmm, // 2.5
-    label: WIRE_SIZES.power.label, // '2.5 sqmm'
-    isCode: WIRE_SIZES.power.isCode,
-    examples: '5A / 15A wall sockets, TV, fridge, mixer, chargers, general 3-pin points.',
-    typicalMCB: '16A MCB',
-    undersizedRisk:
-      'A general socket ring wired in 1.5 sqmm can overheat when a heater or iron is plugged in, and the insulation degrades over time — a hidden fire risk in the wall.',
-  },
-  acGeyser: {
-    key: 'acGeyser',
-    use: WIRE_SIZES.acGeyser.use, // 'AC / Geyser (2kW+)'
-    sqmm: WIRE_SIZES.acGeyser.sqmm, // 4.0
-    label: WIRE_SIZES.acGeyser.label, // '4.0 sqmm'
-    isCode: WIRE_SIZES.acGeyser.isCode,
-    examples: 'Split / window AC, storage water heater (geyser), and other 2 kW+ dedicated appliances.',
-    typicalMCB: '20A MCB (dedicated circuit)',
-    undersizedRisk:
-      'A 2 kW+ appliance on 2.5 sqmm draws more current than the wire is rated for. The conductor runs hot continuously, the MCB nuisance-trips or — worse — does not trip, and the point can char and burn.',
-  },
-  subPanel: {
-    key: 'subPanel',
-    use: WIRE_SIZES.subPanel.use, // 'Sub-panel feeds'
-    sqmm: WIRE_SIZES.subPanel.sqmm, // 6.0
-    label: WIRE_SIZES.subPanel.label, // '6.0 sqmm'
-    isCode: WIRE_SIZES.subPanel.isCode,
-    examples: 'The feeder cable running from the main DB to a floor DB or an outbuilding sub-panel.',
-    typicalMCB: '32A MCB / isolator at the sub-panel',
-    undersizedRisk:
-      'A feeder carries the summed load of every circuit downstream of it. Undersize it and the whole floor or wing is throttled — voltage drops, the feeder overheats, and it becomes the weakest link for the entire sub-panel.',
-  },
-  mainIncomer: {
-    key: 'mainIncomer',
-    use: WIRE_SIZES.mainIncomer.use, // 'Main incomer'
-    sqmm: WIRE_SIZES.mainIncomer.sqmm, // 10.0
-    label: WIRE_SIZES.mainIncomer.label, // '10.0 sqmm'
-    isCode: WIRE_SIZES.mainIncomer.isCode,
-    examples: 'The service cable from the meter / main switch into the main distribution board.',
-    typicalMCB: 'Main MCB / MCCB (32A–63A per demand)',
-    undersizedRisk:
-      'The incomer carries the entire connected load of the house. An undersized main is the single most dangerous shortcut in a wiring job — it heats under the combined demand of every circuit at once and can fail at the one point protecting the whole installation.',
-  },
-}
-
-export interface WireSizeResult {
-  circuit: CircuitType
-  use: string
-  sqmm: number
-  label: string
-  isCode: string
-  typicalMCB: string
-  examples: string
-  undersizedRisk: string
-}
-
-/**
- * Return the code-minimum wire size for a household circuit type.
- *
- * This is a categorical lookup, exactly like ElectroPro's WIRE_SIZES table —
- * NOT a watts-based derivation. The five categories return exactly:
- *   lighting → 1.5 · power → 2.5 · acGeyser → 4.0 · subPanel → 6.0 · mainIncomer → 10.0
- * (IS 732:2019 Cl 6.2, minimum cross-sections).
- */
-export function calculate(circuit: CircuitType): WireSizeResult {
-  const spec = CIRCUIT_SPECS[circuit]
-  return {
-    circuit: spec.key,
-    use: spec.use,
-    sqmm: spec.sqmm,
-    label: spec.label,
-    isCode: spec.isCode,
-    typicalMCB: spec.typicalMCB,
-    examples: spec.examples,
-    undersizedRisk: spec.undersizedRisk,
+export function calculate({ choice, kw, phase }: WireInput): WireResult {
+  if (choice === 'mains') {
+    const three = phase === 'three'
+    const load = Math.max(0, kw)
+    const mm2 = mainsMm2(load, three)
+    const earth = earthMm2(mm2)
+    const status = mainsStatus(load, three)
+    return {
+      choice,
+      label: MAINS_LABEL,
+      mm2,
+      earthMm2: earth,
+      cable: `${three ? 4 : 2} × ${mm2} mm² + ${earth} mm² earth`,
+      conduitMm: conduitFor(mm2, three),
+      mcb: `${incomerA(load, three)} A, ${three ? 4 : 2}-pole`,
+      status,
+      source: three
+        ? 'The draft IS 4648 Table 4 only hints at three phase (4 or 6 mm² with the load balanced to within 10%), so these sizes are an assumption. Your electricity board fixes the supply and the cable.'
+        : load <= DRAFT_MAINS_LIMIT_KW
+          ? 'Draft IS 4648 Table 4: up to 5 kW 4 mm², over 5 up to 7 kW 6 mm², over 7 up to 10 kW 10 mm². The table leaves exactly 7 kW out of its two bands; it is put with 6 mm² here.'
+          : 'The draft IS 4648 Table 4 stops at 10 kW. Above that it asks for diversity, a size worked from the IS 732 current ratings, a derating factor and one size up, so this size is an assumption.',
+      limit: 'The main breaker is never larger than the cable can carry. 32 A is the usual home incomer in tender board items, a secondary source; 40 and 63 A are assumptions.',
+      risk: 'The supply cable carries the load of every circuit in the home at once, so an undersized one is the weakest point of the whole installation.',
+      colours: three ? 'Red, yellow and blue lines, black neutral, green earth' : 'Red live, black neutral, green earth',
+      beyondDraft: !three && load > DRAFT_MAINS_LIMIT_KW,
+    }
   }
+  const r = CIRCUIT_RULES[choice]
+  return {
+    choice,
+    label: r.label,
+    mm2: r.mm2,
+    earthMm2: earthMm2(r.mm2),
+    cable: `2 × ${r.mm2} mm² + ${earthMm2(r.mm2)} mm² earth`,
+    conduitMm: conduitFor(r.mm2, false),
+    mcb: r.mcb,
+    status: r.status,
+    source: r.source,
+    limit: r.limit,
+    risk: r.risk,
+    colours: 'Red live, black neutral, green earth',
+    beyondDraft: false,
+  }
+}
+
+export interface Band {
+  /** "Up to 5 kW", "Over 5 up to 7 kW" */
+  range: string
+  mm2: number
+  status: WireStatus
+}
+
+/** The supply size at each load band, worked from the same function the calculator uses. */
+export function bands(phase: Phase): Band[] {
+  const three = phase === 'three'
+  const edges = three ? [7, 12, 20] : [5, 7, 10, 14]
+  const out: Band[] = []
+  edges.forEach((hi, i) => {
+    const lo = i === 0 ? 0 : edges[i - 1]
+    out.push({ range: i === 0 ? `Up to ${hi} kW` : `Over ${lo} up to ${hi} kW`, mm2: mainsMm2(hi, three), status: mainsStatus(hi, three) })
+  })
+  const last = edges[edges.length - 1]
+  out.push({ range: `Over ${last} kW`, mm2: mainsMm2(last + 1, three), status: 'assumed' })
+  return out
 }

@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { ensureSession } from '@/lib/supabase/ensure-session'
-import { INDIAN_STATES } from '../structopro-engine'
+import { INDIAN_STATES } from '@/lib/structopro-qty/states'
 import type { User } from '@supabase/supabase-js'
+import { Field, Input, Select, Note, IcArrow } from '@/components/v2/inner/kit'
 
 export interface StructoRegData {
   name: string
@@ -33,7 +33,8 @@ export default function RegistrationForm({ onSubmit }: Props) {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) return
+      // An anonymous session (created silently at the first registration) has no name or email, so it must not hide those fields.
+      if (!data.user || data.user.is_anonymous) return
       setLoggedInUser(data.user)
       const meta = data.user.user_metadata ?? {}
       setForm(prev => ({
@@ -53,11 +54,10 @@ export default function RegistrationForm({ onSubmit }: Props) {
 
   function validate(): boolean {
     const e: Partial<StructoRegData> = {}
-    if (!loggedInUser && !form.name.trim()) e.name = 'Name is required'
-    if (!loggedInUser && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address'
-    if (!form.projectName.trim()) e.projectName = 'Project name is required'
-    if (!form.state)       e.state = 'State is required'
-    if (!form.city.trim()) e.city  = 'City is required'
+    if (!loggedInUser && !form.name.trim()) e.name = 'Please enter your name'
+    if (!loggedInUser && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Please enter a valid email address'
+    if (!form.state)       e.state = 'Please choose your state'
+    if (!form.city.trim()) e.city  = 'Please enter your city'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -94,220 +94,63 @@ export default function RegistrationForm({ onSubmit }: Props) {
     }
   }
 
-  function field(
-    id: keyof StructoRegData,
-    label: string,
-    opts: { type?: string; placeholder?: string; required?: boolean } = {}
-  ) {
-    const { type = 'text', placeholder = '', required = false } = opts
-    return (
-      <div className="flex flex-col gap-1">
-        <label
-          htmlFor={id}
-          className="text-[11px] uppercase tracking-widest"
-          style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-mono)' }}
-        >
-          {label}{required && <span style={{ color: '#8C3A22' }} className="ml-1">*</span>}
-        </label>
-        <input
-          id={id}
-          type={type}
-          value={form[id]}
-          onChange={e => set(id, e.target.value)}
-          placeholder={placeholder}
-          className="border rounded-[6px] px-3 text-[16px] text-white bg-transparent outline-none focus:border-blueprint focus:ring-1 focus:ring-blueprint/30"
-          style={{
-            fontFamily: 'var(--font-plex-sans)',
-            borderColor: errors[id] ? '#8C3A22' : 'rgba(255,255,255,0.35)',
-            height: '52px',
-          }}
-        />
-        {errors[id] && (
-          <span className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
-            {errors[id]}
-          </span>
-        )}
-      </div>
-    )
-  }
-
   return (
-    <div className="w-full px-8 py-10" style={{ background: "var(--bg-base)" }}>
-      {/* StructoPro header */}
-      <div className="w-full mb-8">
-        <div
-          className="rounded-[2px] mb-6"
-          style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'var(--bg-surface)', position: 'relative', overflow: 'hidden', padding: '28px 24px' }}
-        >
-          {/* Large concrete hatch watermark */}
-          <div style={{ position: 'absolute', bottom: -12, right: -12, opacity: 0.12, pointerEvents: 'none', lineHeight: 0 }}>
-            <svg width="160" height="160" viewBox="0 0 160 160" fill="none" aria-hidden="true">
-              {([
-                [18,18],[48,12],[80,22],[112,15],[138,28],
-                [28,48],[62,44],[95,50],[130,42],
-                [14,78],[44,72],[75,80],[108,75],[140,82],
-                [24,108],[56,103],[90,110],[125,105],
-                [18,138],[52,133],[88,140],[122,135],
-              ] as [number,number][]).map(([x,y],i) => (
-                <circle key={i} cx={x} cy={y} r="5" fill="#F4F4F0" />
-              ))}
-              <line x1="80" y1="0" x2="80" y2="160" stroke="#F4F4F0" strokeWidth="1.2" />
-              <line x1="0" y1="80" x2="160" y2="80" stroke="#F4F4F0" strokeWidth="1.2" />
-              <text x="84" y="34" fontSize="14" fill="#F4F4F0" fontFamily="monospace">C1</text>
-            </svg>
-          </div>
-          <Image src="/structopro-icon.png" alt="StructurePro" width={64} height={64} className="mb-4" style={{ objectFit: 'contain' }} />
-          <h1
-            className="font-bold leading-tight mb-2"
-            style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(28px,4vw,36px)' }}
-          >
-            StructurePro
-          </h1>
-          <p
-            className="text-[14px]"
-            style={{ color: 'rgba(244,244,240,0.55)', fontFamily: 'var(--font-plex-sans)', lineHeight: 1.6 }}
-          >
-            IS 456:2000 based RCC structure cost estimate. Exact quantities, itemised costs, contractor comparison.
-          </p>
-        </div>
+    <form onSubmit={handleSubmit} noValidate>
+      <div className="ns-plate ns-i-card">
+        <p className="ns-i-card__eyebrow">Step 1 of 4</p>
+        <h2>Tell us about your project</h2>
+        <p className="ns-i-card__sub">Your city sets the earthquake zone the structure is designed for. It takes under a minute.</p>
 
-        {/* Step bar: 4 steps */}
-        <div className="flex items-center">
-          {(['REG', 'METHOD', 'DETAILS', 'RESULTS'] as const).map((step, i) => (
-            <div key={step} className="flex items-center">
-              <div className="flex items-center gap-1.5">
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] border"
-                  style={{
-                    background:  i === 0 ? '#1F4E79' : 'transparent',
-                    borderColor: i === 0 ? '#1F4E79' : 'rgba(255,255,255,0.18)',
-                    color:       i === 0 ? '#fff'    : 'rgba(255,255,255,0.30)',
-                    fontFamily:  'var(--font-plex-mono)',
-                  }}
-                >
-                  {i + 1}
-                </div>
-                <span
-                  className="text-[10px] uppercase tracking-widest whitespace-nowrap hidden sm:inline"
-                  style={{
-                    fontFamily: 'var(--font-plex-mono)',
-                    color: i === 0 ? '#1F4E79' : 'rgba(255,255,255,0.25)',
-                  }}
-                >
-                  {step}
-                </span>
-              </div>
-              {i < 3 && (
-                <div className="w-6 h-px mx-2" style={{ background: 'rgba(255,255,255,0.08)' }} />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Form card */}
-      <form onSubmit={handleSubmit} className="w-full">
-        <div className="rounded-[2px]" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "var(--bg-surface)" }}>
-          <div className="border-b px-5 py-3">
-            <p
-              className="text-[11px] uppercase tracking-widest"
-              style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}
-            >
-              STEP 01 · YOUR DETAILS
-            </p>
-          </div>
-
-          {/* Logged-in banner */}
+        <div className="ns-i-card__body">
           {loggedInUser && (
-            <div
-              className="mx-5 mt-4 px-4 py-3 rounded-[2px] flex items-center gap-3"
-              style={{ background: 'rgba(20,83,45,0.06)', border: '1px solid rgba(20,83,45,0.2)' }}
-            >
-              <span style={{ color: '#14532D', fontSize: 14 }}>✓</span>
-              <div>
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: '#14532D', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Signed in as {loggedInUser.user_metadata?.full_name || loggedInUser.email}
-                </p>
-                <p style={{ fontFamily: 'var(--font-plex-sans)', fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>
-                  Your name &amp; email are pre-filled from your account
-                </p>
-              </div>
-            </div>
+            <Note kind="ok" title={`Signed in as ${loggedInUser.user_metadata?.full_name || loggedInUser.email}`}>
+              Your name and email are filled in from your account.
+            </Note>
           )}
 
-          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Name + Email hidden when logged in (auto-filled) */}
-            {!loggedInUser && field('name', 'Full Name', { placeholder: 'Ramesh Sharma', required: true })}
+          <div className="ns-i-fields">
+            {/* Name and email are hidden when signed in (filled from the account) */}
             {!loggedInUser && (
-              <div className="sm:col-span-2">
-                {field('email', 'Email', { type: 'email', placeholder: 'ramesh@example.com', required: true })}
-              </div>
+              <Field id="name" label="Your name" required error={errors.name} wide>
+                <Input type="text" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ramesh Sharma" autoComplete="name" />
+              </Field>
+            )}
+            {!loggedInUser && (
+              <Field id="email" label="Email" required error={errors.email} hint="Your report is sent here." wide>
+                <Input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="ramesh@example.com" autoComplete="email" inputMode="email" />
+              </Field>
             )}
 
-            {/* Project Name — unique to StructoPro */}
-            <div className="sm:col-span-2">
-              {field('projectName', 'Project Name', {
-                placeholder: 'e.g. Sharma Residence, Kothrud',
-                required: true,
-              })}
-            </div>
+            <Field id="projectName" label="Project name (optional)" hint="To find this report again. You can skip it." error={errors.projectName} wide>
+              <Input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)} placeholder="e.g. Sharma Residence, Kothrud" />
+            </Field>
 
-            {/* State */}
-            <div className="sm:col-span-2 flex flex-col gap-1">
-              <label
-                htmlFor="state"
-                className="text-[11px] uppercase tracking-widest"
-                style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-mono)' }}
-              >
-                State <span style={{ color: '#8C3A22' }}>*</span>
-              </label>
-              <select
-                id="state"
-                value={form.state}
-                onChange={e => set('state', e.target.value)}
-                className="border rounded-[6px] px-3 text-[16px] text-white bg-transparent outline-none focus:border-blueprint"
-                style={{
-                  fontFamily: 'var(--font-plex-sans)',
-                  borderColor: errors.state ? '#8C3A22' : 'rgba(255,255,255,0.35)',
-                  height: '52px',
-                }}
-              >
+            <Field id="state" label="State" required error={errors.state}>
+              <Select value={form.state} onChange={e => set('state', e.target.value)}>
                 <option value="">Select your state</option>
                 {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-              {errors.state && (
-                <span className="text-[11px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
-                  {errors.state}
-                </span>
-              )}
-            </div>
+              </Select>
+            </Field>
 
-            {form.state && field('city', 'City', { placeholder: 'e.g. Pune', required: true })}
-          </div>
-
-          <div className="border-t px-5 py-4">
-            {apiError && (
-              <p className="text-[13px] mb-3" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
-                ⚠ {apiError}
-              </p>
+            {form.state && (
+              <Field id="city" label="City" required error={errors.city}>
+                <Input type="text" value={form.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Pune" autoComplete="address-level2" />
+              </Field>
             )}
-            <p
-              className="text-[11px] mb-3"
-              style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'var(--font-plex-sans)' }}
-            >
-              Your details are saved securely. We send only your estimate report and IS-code construction tips.
-            </p>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-[6px] text-[14px] font-semibold text-white transition-opacity disabled:opacity-60"
-              style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}
-            >
-              {loading ? 'Saving…' : 'Continue to Method Selection →'}
-            </button>
           </div>
         </div>
-      </form>
-    </div>
+
+        <div className="ns-i-card__foot">
+          {apiError && <div style={{ flexBasis: '100%' }}><Note kind="err" title="That did not go through">{apiError}</Note></div>}
+          <button type="submit" disabled={loading} className="ns-btn">
+            {loading ? 'Saving…' : 'Continue'}
+            {!loading && <IcArrow width={22} height={11} />}
+          </button>
+          <p className="ns-i-fine" style={{ flex: '1 1 260px' }}>
+            We save your details securely and email you only your report and a few IS-code construction tips.
+          </p>
+        </div>
+      </div>
+    </form>
   )
 }

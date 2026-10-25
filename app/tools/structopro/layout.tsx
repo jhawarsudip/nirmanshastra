@@ -1,10 +1,12 @@
+
 import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
-import PaidToolInfo from '@/components/seo/PaidToolInfo'
+import InnerShell from '@/components/v2/inner/InnerShell'
+import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
 
-const title = "StructurePro — RCC Structure Cost Calculator | IS 456:2000"
-const description = "Calculate exact concrete, steel, and structural costs for your building using IS 456:2000. Get itemised BOQ with material quantities."
+const title = 'StructurePro: Concrete, Steel and Cement Quantity Calculator for RCC Houses | IS 456, IS 1893'
+const description = 'Work out the concrete, steel, cement, sand, aggregate and shuttering for your RCC frame from a few plain answers, to IS 456, IS 875 and IS 1893. Quantities only. ₹999 per report.'
 const url = '/tools/structopro'
 
 export const metadata: Metadata = {
@@ -18,28 +20,18 @@ export const metadata: Metadata = {
     url,
     title,
     description,
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — India\u2019s IS-Code Construction Cost Estimator',
-      },
-    ],
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra: India’s IS-code construction quantities' }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title,
-    description,
-  },
+  twitter: { card: 'summary_large_image', title, description },
 }
 
 export default function StructoProLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <InnerShell>
       <JsonLd data={toolJsonLd('/tools/structopro')} />
       {children}
-      <PaidToolInfo path="/tools/structopro" />
-    </>
+      {/* The explainer sits full-width under the wizard, so it is placed after <main>'s content by the shell's own wrapper */}
+      <ToolInfo path="/tools/structopro" />
+    </InnerShell>
   )
 }

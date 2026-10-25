@@ -60,7 +60,7 @@ const content: ProductContent = {
     heading: 'A petty contractor’s bill, held until the PF challan lands.',
     label: 'Scenario',
     paras: [
-      'A masonry subcontractor supplies twelve workers for the month and submits a bill for ₹3.6 lakh. The temptation is to pay it — the work is done and the crew wants their money. Paying it blind is exactly how the principal employer inherits the subcontractor’s unpaid PF and ESI.',
+      'A masonry subcontractor supplies twelve workers for the month and submits its bill for the month. The temptation is to pay it — the work is done and the crew wants their money. Paying it blind is exactly how the principal employer inherits the subcontractor’s unpaid PF and ESI.',
       'In the workbook, those twelve workers sit on the Subcontractor Register with the muster behind them. The Trade Rates check confirms the mason rate is above the Code on Wages floor for the state. But the Contractor Compliance sheet shows the PF challan and ESI for the month are not yet uploaded — so the subcontractor’s bill is flagged on hold.',
       'The bill releases the moment the challan is logged. The workers get paid, the statutory dues are provably deposited, and the Statutory Summary rolls the PF and ESI into the period totals for the returns — so if an inspector ever asks, the principal employer’s exposure was closed before the money moved, not defended after a notice arrived.',
     ],

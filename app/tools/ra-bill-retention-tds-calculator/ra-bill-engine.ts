@@ -1,31 +1,33 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // RA BILL — RETENTION, GST & TDS CALCULATOR — ENGINE
 //
-// Permanently-free, standalone calculator. It reproduces the net-payable
-// computation of a Running Account (RA) bill exactly as laid out in the paid
-// "Billing & Measurement" Excel product's RA Bill sheet.
+// The net payable on a Running Account (RA) bill:
 //
-// AUTHORITATIVE SOURCE — do not overwrite from any other source:
+//   Net Payable = Gross Bill Value − Retention − Advance Recovery + GST − TDS
 //
-//   These values and the formula were EXTRACTED DIRECTLY from the Billing &
-//   Measurement product's RA Bill spreadsheet (a standalone Excel file, not a
-//   web-app module). The formula is PORTED, never invented:
+//   • Retention = retention% × gross bill value          (starts at 5%; the contract fixes it)
+//   • GST       = GST% × gross bill value                (starts at 18%)
+//   • TDS       = TDS% × gross bill value, on the value WITHOUT GST
+//   • Advance recovery = a rupee amount entered, not a percentage (starts at ₹0)
 //
-//     Net Payable = Gross Bill Value − Retention − Advance Recovery + GST − TDS
+// WHERE THE RATES COME FROM, AND HOW SURE EACH ONE IS
+//   Read from guides, not from the Act or the notifications, which were not
+//   reachable from this workspace. Confirm them before relying on them.
+//   • TDS: section 393(1) of the Income-tax Act 2025, applying from 1 April 2026
+//     and replacing section 194C of the 1961 Act for contractor payments.
+//     1% for an individual or HUF contractor, 2% for any other, 20% with no PAN.
+//     No TDS on a single payment of ₹30,000 or less unless payments to the
+//     contractor in the year pass ₹1,00,000 (this calculator does not test that).
+//     When GST is shown separately on the bill, TDS is on the amount without it.
+//     The table row of section 393(1) for these payments is not cited, because it
+//     was found in one source only.
+//   • GST: 18% is the general rate for works contract services. The 12% entries
+//     that remained were moved to 18% on 22 September 2025. The default never
+//     implies a reduced "residential" rate; the user may edit it.
+//   • Retention and the advance: contract terms, not law. The calculator takes
+//     retention on the gross bill value before GST.
 //
-//     • Retention  = retention% × Gross Bill Value            (default 5%)
-//     • GST        = GST%       × Gross Bill Value            (default 18%)
-//     • TDS        = TDS%       × Gross Bill Value            (default 1%, range 1–2%)
-//                    — computed on the value EXCLUDING GST, i.e. the gross bill
-//                      value, per Section 393(1) of the Income-tax Act 2025,
-//                      Table Sl. No. 6(i) (the contractor / works-payment row).
-//     • Advance Recovery = a rupee amount entered directly (default ₹0), not a %.
-//
-//   The default GST rate is 18%. The source product carries NO evidence of a
-//   reduced residential-composite rate, so none is implied here — the user may
-//   edit the rate, but the tool never suggests a lower "residential" GST exists.
-//
-// WORKED REFERENCE (from the real product's own RA Bill sheet):
+// WORKED REFERENCE (from the Billing & Measurement RA Bill sheet this was first built from):
 //   Gross ₹178,824.5608 · retention 5% · TDS 1% · GST 18% · advance ₹26,823.68412
 //     → retention ₹8,941.23 · GST ₹32,188.42 · TDS ₹1,788.25 · net ₹173,459.82
 // ─────────────────────────────────────────────────────────────────────────────
@@ -33,13 +35,13 @@
 export interface RABillInputs {
   /** Gross RA bill value (value of work done this bill, before deductions), ₹. */
   grossBillValue: number
-  /** Retention percentage withheld against defect liability (default 5). */
+  /** Retention percentage withheld against defects (starts at 5). */
   retentionPct: number
-  /** TDS percentage on works contract, range 1–2 (default 1). */
+  /** TDS percentage on the contractor payment (1 or 2 usually; starts at 1). */
   tdsPct: number
-  /** GST percentage added on the gross bill value (default 18). */
+  /** GST percentage added on the gross bill value (starts at 18). */
   gstPct: number
-  /** Mobilisation / material advance recovered in this bill, ₹ (default 0). */
+  /** Advance recovered in this bill, ₹ (starts at 0). */
   advanceRecovery: number
 }
 
@@ -49,7 +51,7 @@ export interface RABillResult {
   retention: number
   /** gstPct × grossBillValue (added) */
   gst: number
-  /** tdsPct × grossBillValue — on the value EXCLUDING GST (deducted) */
+  /** tdsPct × grossBillValue, on the value without GST (deducted) */
   tds: number
   /** advance recovered this bill (deducted) */
   advanceRecovery: number
@@ -57,7 +59,6 @@ export interface RABillResult {
   netPayable: number
 }
 
-// Defaults — exactly as pre-filled on the Excel RA Bill sheet.
 export const RA_BILL_DEFAULTS = {
   retentionPct: 5,
   tdsPct: 1,
@@ -65,41 +66,24 @@ export const RA_BILL_DEFAULTS = {
   advanceRecovery: 0,
 } as const
 
-// TDS on works contracts is bounded to 1–2% (Income-tax Act 2025 s.393(1),
-// Table Sl. No. 6(i) — the contractor/works-payment row).
-export const TDS_MIN_PCT = 1
-export const TDS_MAX_PCT = 2
+/** TDS on a contractor payment: 1% for an individual or HUF, 2% for any other. */
+export const TDS_INDIVIDUAL_PCT = 1
+export const TDS_OTHER_PCT = 2
 
-/**
- * Compute the net payable on a Running Account bill.
- *
- * All component amounts are derived from the RAW (unrounded) inputs; callers
- * round only for display. Retention, GST and TDS are each a straight percentage
- * of the gross bill value. TDS is deliberately computed on the value EXCLUDING
- * GST (i.e. the gross bill value), never on gross+GST.
- *
- *   Net Payable = Gross − Retention − Advance Recovery + GST − TDS
- */
+/** Net payable on a Running Account bill. Callers round only for display. */
 export function calculate(inputs: RABillInputs): RABillResult {
-  const gross = Number.isFinite(inputs.grossBillValue) ? Math.max(0, inputs.grossBillValue) : 0
-  const retentionPct = Number.isFinite(inputs.retentionPct) ? Math.max(0, inputs.retentionPct) : 0
-  const gstPct = Number.isFinite(inputs.gstPct) ? Math.max(0, inputs.gstPct) : 0
-  const tdsPct = Number.isFinite(inputs.tdsPct) ? Math.max(0, inputs.tdsPct) : 0
-  const advanceRecovery = Number.isFinite(inputs.advanceRecovery) ? Math.max(0, inputs.advanceRecovery) : 0
+  const clean = (n: number) => (Number.isFinite(n) ? Math.max(0, n) : 0)
+  const gross = clean(inputs.grossBillValue)
+  const retentionPct = clean(inputs.retentionPct)
+  const gstPct = clean(inputs.gstPct)
+  const tdsPct = clean(inputs.tdsPct)
+  const advanceRecovery = clean(inputs.advanceRecovery)
 
   const retention = (retentionPct / 100) * gross
   const gst = (gstPct / 100) * gross
-  // TDS base = gross bill value (EXCLUDING GST), per s.393(1) Table Sl. No. 6(i).
   const tds = (tdsPct / 100) * gross
 
   const netPayable = gross - retention - advanceRecovery + gst - tds
 
-  return {
-    grossBillValue: gross,
-    retention,
-    gst,
-    tds,
-    advanceRecovery,
-    netPayable,
-  }
+  return { grossBillValue: gross, retention, gst, tds, advanceRecovery, netPayable }
 }

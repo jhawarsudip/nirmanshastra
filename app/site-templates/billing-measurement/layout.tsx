@@ -3,7 +3,7 @@ import JsonLd from '@/components/seo/JsonLd'
 import { templateJsonLd } from '@/lib/seo/schema'
 
 const title =
-  'Construction Billing & Measurement Excel Template — IS 1200, CPWD, Section 393 | India Edition'
+  'Billing & Measurement Excel (IS 1200)'
 const description =
   'A 9-sheet Excel billing and measurement workbook for Indian construction — measurement book, IS 1200 deductions, abstract against BOQ, and RA bills with retention, TDS (Section 393) and GST, tracked to close. ₹2,299, instant download.'
 const url = '/site-templates/billing-measurement'

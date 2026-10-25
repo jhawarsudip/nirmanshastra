@@ -1,40 +1,38 @@
-import Link from 'next/link'
-import { BLOG_ARTICLES } from '@/lib/blog-content'
-import BlogCard from './BlogCard'
 import type { Metadata } from 'next'
+import '@/styles/v2/results.css'
+import '@/styles/v2/content.css'
+import { BLOG_ARTICLES } from '@/lib/blog-content'
 import JsonLd from '@/components/seo/JsonLd'
+import { ToolHead } from '@/components/v2/inner/kit'
+import ArticleCard from './ArticleCard'
+import { CalcCta } from '@/components/v2/inner/calc'
 import { blogIndexSchema, breadcrumbSchema } from '@/lib/seo/schema'
+import { REVIEW_NOTE } from '@/lib/seo/site'
+
+// The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
+const title = 'IS Code Guides: What the Indian Standards Say, in Plain English'
+const description =
+  'Plain-English guides to IS 456:2000, IS 1786:2008, IS 1893:2016 and more: what each standard fixes, which numbers it uses, and how to check a contractor’s quantities against them.'
 
 export const metadata: Metadata = {
-  title: 'Construction Knowledge — IS Code Guides',
-  description:
-    'Expert guides on IS 456:2000, IS 1786:2008, IS 1893:2016 and more — written in plain English for Indian homeowners and builders.',
+  title,
+  description,
   alternates: { canonical: '/blog' },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
     siteName: 'NirmanShastra',
     url: '/blog',
-    title: 'Construction Knowledge — IS Code Guides | NirmanShastra',
-    description:
-      'Expert guides on IS 456:2000, IS 1786:2008, IS 1893:2016 and more — written in plain English for Indian homeowners and builders.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra — IS Code Guides' }],
+    title: `${title} | NirmanShastra`,
+    description,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra: IS code guides' }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Construction Knowledge — IS Code Guides | NirmanShastra',
-    description:
-      'Expert guides on IS 456:2000, IS 1786:2008, IS 1893:2016 and more — written in plain English for Indian homeowners and builders.',
-  },
+  twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
 export default function BlogPage() {
-  const mono = { fontFamily: 'var(--font-plex-mono)' } as React.CSSProperties
-  const serif = { fontFamily: 'var(--font-plex-serif)' } as React.CSSProperties
-  const sans = { fontFamily: 'var(--font-plex-sans)' } as React.CSSProperties
-
   return (
-    <div className="sheet-frame" style={{ minHeight: '100vh', background: '#F4F4F0' }}>
+    <div className="ns-i-page">
       <JsonLd
         data={[
           breadcrumbSchema([
@@ -44,80 +42,26 @@ export default function BlogPage() {
           blogIndexSchema(BLOG_ARTICLES),
         ]}
       />
+      <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
+        <ToolHead
+          eyebrow="Guides"
+          name="IS code guides"
+          blurb={`${BLOG_ARTICLES.length} plain-English articles on what the Indian Standards say about concrete, steel, earthquakes, wiring and water, and what that means for the quantities in your house.`}
+        />
+        <p className="ns-r-tblnote">{REVIEW_NOTE}</p>
 
-      {/* Dark header band */}
-      <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.1)', padding: '48px 24px 40px' }}>
-        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-          <h1 style={{ ...serif, fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.15, margin: 0, marginBottom: 14 }}>
-            Construction Knowledge<br />
-            <span style={{ color: '#1F4E79' }}>IS Code Guides</span>
-          </h1>
-          <p style={{ ...sans, fontSize: 16, color: 'rgba(244,244,240,0.6)', maxWidth: 540, margin: 0, lineHeight: 1.65 }}>
-            Plain-English explanations of Indian Standards — what they say, what they mean for your home, and how to use them to protect yourself from contractor fraud.
-          </p>
-
-          {/* Stats strip */}
-          <div style={{ display: 'flex', gap: 32, marginTop: 28, flexWrap: 'wrap' }}>
-            {[
-              { label: 'ARTICLES', value: String(BLOG_ARTICLES.length) },
-              { label: 'IS CODES COVERED', value: '8+' },
-              { label: 'AVG READ TIME', value: '5 min' },
-            ].map(s => (
-              <div key={s.label}>
-                <div style={{ ...mono, fontSize: 22, fontWeight: 500, color: '#F4F4F0' }}>{s.value}</div>
-                <div style={{ ...mono, fontSize: 9, color: 'rgba(244,244,240,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 2 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Articles grid */}
-      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-12 pb-20">
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: 1,
-          border: '1px solid rgba(30,34,39,0.12)',
-        }}>
-          {BLOG_ARTICLES.map((article) => (
-            <BlogCard key={article.slug} article={article} />
+        <div className="ns-bl-grid">
+          {BLOG_ARTICLES.map((a) => (
+            <ArticleCard key={a.slug} article={a} />
           ))}
         </div>
-      </div>
 
-      {/* Bottom CTA band */}
-      <div style={{ background: '#1E2227', borderTop: '1px solid rgba(244,244,240,0.1)', padding: '40px 24px' }}>
-        <div style={{ maxWidth: 1080, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-          <div>
-            <div style={{ ...mono, fontSize: 10, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
-              APPLY WHAT YOU LEARNED
-            </div>
-            <div style={{ ...serif, fontSize: 20, fontWeight: 600, color: '#F4F4F0' }}>
-              Calculate your exact construction costs
-            </div>
-            <div style={{ ...sans, fontSize: 14, color: 'rgba(244,244,240,0.5)', marginTop: 6 }}>
-              IS 456:2000 compliant BOQ — no guesswork, no contractor dependency.
-            </div>
-          </div>
-          <Link
-            href="/tools/structopro"
-            style={{
-              ...mono,
-              background: '#8C3A22',
-              color: '#F4F4F0',
-              padding: '14px 28px',
-              textDecoration: 'none',
-              fontSize: 13,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              display: 'inline-block',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Try StructurePro Free →
-          </Link>
-        </div>
+        <CalcCta
+          kicker="Apply what you read"
+          text="StructurePro works out the concrete, steel and cement for the frame of your house from a few answers, with the IS clause behind each rule. The first look at your zone, grades and frame is free."
+          href="/tools/structopro"
+          label="Open StructurePro"
+        />
       </div>
     </div>
   )

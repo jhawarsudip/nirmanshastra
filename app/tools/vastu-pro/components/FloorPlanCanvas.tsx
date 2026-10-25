@@ -1,9 +1,10 @@
 'use client'
 
 import { useRef, useEffect, useCallback, useState } from 'react'
-import { drawVastuCanvas, hitTestMarker, type PlacedMarker } from '../vastu-engine'
+import { drawVastuCanvas, hitTestMarker, ROOMS, type PlacedMarker } from '../vastu-engine'
 
-const CANVAS_SIZE = 480
+// Logical size of the sheet. Zones and clicks are worked out in this space whatever size the screen shows it at.
+export const CANVAS_SIZE = 480
 
 interface Props {
   northDeg: number
@@ -24,27 +25,44 @@ export default function FloorPlanCanvas({
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const pressRef = useRef<{ x: number; y: number; id: number } | null>(null)
   const [floorPlanImage, setFloorPlanImage] = useState<HTMLImageElement | null>(null)
+
+  const selectedRoom = selectedRoomKey ? ROOMS.find(r => r.key === selectedRoomKey) : null
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    drawVastuCanvas({ canvas, northDeg, markers, selectedMarkerKey, floorPlanImage })
+    // Device pixels, so the sheet stays sharp on a phone. Everything is still drawn in the 480-unit space.
+    const dpr = Math.min(window.devicePixelRatio || 1, 3)
+    const px = Math.round(CANVAS_SIZE * dpr)
+    if (canvas.width !== px) {
+      canvas.width = px
+      canvas.height = px
+    }
+    drawVastuCanvas({ canvas, size: CANVAS_SIZE, northDeg, markers, selectedMarkerKey, floorPlanImage })
   }, [northDeg, markers, selectedMarkerKey, floorPlanImage])
 
   useEffect(() => { redraw() }, [redraw])
 
+  // Draw again once the page fonts are ready, so the labels use them from the first look.
+  useEffect(() => {
+    if (typeof document !== 'undefined' && document.fonts?.ready) document.fonts.ready.then(redraw).catch(() => {})
+  }, [redraw])
+
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    // The picture is shown from this browser only; it is never uploaded.
     const objectUrl = URL.createObjectURL(file)
     const img = new Image()
     img.onload = () => {
       setFloorPlanImage(img)
       URL.revokeObjectURL(objectUrl)
     }
+    img.onerror = () => URL.revokeObjectURL(objectUrl)
     img.src = objectUrl
-    // reset so same file can be re-selected
+    // reset so the same file can be chosen again
     e.target.value = ''
   }
 
@@ -70,122 +88,74 @@ export default function FloorPlanCanvas({
     }
   }
 
-  function handleClick(e: React.MouseEvent) {
+  // A tap or click places or selects. A swipe that scrolls the page does not: the browser cancels the pointer then.
+  function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
+    pressRef.current = { x: e.clientX, y: e.clientY, id: e.pointerId }
+  }
+  function onPointerUp(e: React.PointerEvent<HTMLCanvasElement>) {
+    const p = pressRef.current
+    pressRef.current = null
+    if (!p || p.id !== e.pointerId) return
+    if (Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10) return
     handleInteraction(e.clientX, e.clientY)
   }
+  function onPointerCancel() { pressRef.current = null }
 
-  function handleTouchEnd(e: React.TouchEvent) {
-    e.preventDefault()
-    const t = e.changedTouches[0]
-    handleInteraction(t.clientX, t.clientY)
-  }
-
-  const statusText = selectedRoomKey
-    ? '✦ Click anywhere on the plan to place this room'
-    : markers.length === 0
-    ? 'Select a room from the panel, then click on the plan to place it'
-    : `${markers.length} room${markers.length !== 1 ? 's' : ''} placed · Click a marker to select it`
+  const status = selectedRoom ? (
+    <>Tap the plan where the <b>{selectedRoom.label}</b> is.</>
+  ) : markers.length === 0 ? (
+    <>Pick a room from the list, then tap the plan where it sits.</>
+  ) : (
+    <><b>{markers.length}</b> room{markers.length !== 1 ? 's' : ''} placed. Tap a marker to select it.</>
+  )
 
   return (
-    <div className="flex flex-col gap-2">
-      {/* Upload floor plan button */}
-      <div className="flex items-center gap-2">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-          aria-label="Upload floor plan image"
-        />
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="px-3 py-1.5 rounded-[6px] text-[12px] border transition-opacity hover:opacity-80"
-          style={{
-            borderColor: floorPlanImage ? '#1F4E79' : 'rgba(244,244,240,0.25)',
-            color: floorPlanImage ? '#1F4E79' : 'rgba(244,244,240,0.7)',
-            fontFamily: 'var(--font-plex-mono)',
-            background: floorPlanImage ? 'rgba(31,78,121,0.06)' : 'transparent',
-          }}
-        >
-          {floorPlanImage ? '↑ Change Floor Plan' : '↑ Upload Floor Plan'}
-        </button>
-        {floorPlanImage && (
-          <button
-            type="button"
-            onClick={() => setFloorPlanImage(null)}
-            className="px-3 py-1.5 rounded-[6px] text-[12px] border transition-opacity hover:opacity-80"
-            style={{
-              borderColor: 'rgba(140,58,34,0.35)',
-              color: '#8C3A22',
-              fontFamily: 'var(--font-plex-mono)',
-            }}
-          >
-            Remove
-          </button>
-        )}
-        {floorPlanImage && (
-          <span
-            className="text-[11px]"
-            style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}
-          >
-            Shown at 35% opacity behind the grid
-          </span>
+    <div className="ns-plate ns-v-sheet">
+      <div className="ns-v-sheet__head">
+        <h2>Your plan</h2>
+        {selectedRoom ? (
+          <span className="ns-v-placing">Placing: {selectedRoom.label}</span>
+        ) : (
+          <span className="ns-i-fine">The circle in the middle is the Brahmasthan, the centre of the house.</span>
         )}
       </div>
 
-      {/* Canvas */}
-      <div
-        className="rounded-[2px] overflow-hidden w-full"
-        style={{ background: '#1E2227', border: '1px solid rgba(201,168,76,0.3)' }}
-      >
-        <div
-          className="px-3 py-2 flex items-center justify-between"
-          style={{ borderBottom: '1px solid rgba(201,168,76,0.2)' }}
-        >
-          <p
-            className="text-[10px] uppercase tracking-widest"
-            style={{ color: 'rgba(201,168,76,0.6)', fontFamily: 'var(--font-plex-mono)' }}
-          >
-            FLOOR PLAN · BRAHMASTHAN AT CENTRE
-          </p>
-          {selectedRoomKey && (
-            <span
-              className="text-[10px] px-2 py-0.5 rounded-[2px]"
-              style={{ background: 'rgba(201,168,76,0.15)', color: '#C9A84C', fontFamily: 'var(--font-plex-mono)' }}
-            >
-              ✦ PLACING
-            </span>
-          )}
-        </div>
-
+      <div className="ns-v-canvaswrap">
         <canvas
           ref={canvasRef}
           width={CANVAS_SIZE}
           height={CANVAS_SIZE}
-          onClick={handleClick}
-          onTouchEnd={handleTouchEnd}
-          style={{
-            display: 'block',
-            width: '100%',
-            aspectRatio: '1 / 1',
-            cursor: selectedRoomKey ? 'crosshair' : 'pointer',
-            touchAction: 'none',
-          }}
-          aria-label={`Vastu floor plan canvas. ${markers.length} rooms placed. ${selectedRoomKey ? 'Click to place selected room.' : 'Select a room to place.'}`}
+          className="ns-v-canvas"
+          data-placing={selectedRoomKey ? '1' : '0'}
+          onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
+          role="img"
+          aria-label={`Vastu plan sheet with the 16 zones. ${markers.length} rooms placed. ${selectedRoom ? `Tap to place the ${selectedRoom.label}.` : 'Select a room to place.'}`}
         />
+      </div>
 
-        <div
-          className="px-3 py-2 text-center"
-          style={{ borderTop: '1px solid rgba(201,168,76,0.12)' }}
-        >
-          <p
-            className="text-[11px]"
-            style={{ color: 'rgba(201,168,76,0.45)', fontFamily: 'var(--font-plex-sans)' }}
-          >
-            {statusText}
-          </p>
+      <div className="ns-v-sheet__foot">
+        <p className="ns-v-sheet__status" aria-live="polite">{status}</p>
+        <div className="ns-v-sheet__up">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="ns-v-file"
+            tabIndex={-1}
+            aria-label="Upload a picture of your floor plan"
+          />
+          <button type="button" className="ns-v-sbtn ns-v-sbtn--tc" onClick={() => fileInputRef.current?.click()}>
+            {floorPlanImage ? 'Change plan picture' : 'Add a picture of your plan'}
+          </button>
+          {floorPlanImage && (
+            <button type="button" className="ns-v-sbtn ns-v-sbtn--danger" onClick={() => setFloorPlanImage(null)}>
+              Remove
+            </button>
+          )}
+          <small>{floorPlanImage ? 'Shown faintly behind the grid. It stays in your browser.' : 'Optional. It stays in your browser.'}</small>
         </div>
       </div>
     </div>

@@ -10,7 +10,6 @@ import {
   Inter,
 } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar"
 import AIChatbox from "@/app/components/AIChatbox";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import InstallPrompt from "@/components/InstallPrompt";
@@ -82,10 +81,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.nirmanshastra.in'),
   title: {
-    default: "NirmanShastra — IS-Code Construction Cost Estimator | Stop Contractor Overcharging",
+    default: "NirmanShastra — IS-Code Material Quantity Estimator for Indian Homes",
     template: "%s | NirmanShastra",
   },
-  description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. BOQ reports from ₹499, for homeowners across India.",
+  description: "Work out how much concrete, steel, cement, bricks, sand, wire and pipe your house needs, to the Indian Standards, before you order. Quantity reports from ₹499 and free calculators, in Hindi and English.",
   alternates: {
     canonical: './',
   },
@@ -96,7 +95,10 @@ export const metadata: Metadata = {
     title: 'NirmanShastra',
   },
   icons: {
-    icon: [{ url: '/brand/nirmanshastra-favicon.svg', type: 'image/svg+xml' }],
+    icon: [
+      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+    ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
@@ -104,26 +106,29 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://www.nirmanshastra.in',
     siteName: 'NirmanShastra',
-    title: "NirmanShastra — IS-Code Construction Cost Estimator | Stop Contractor Overcharging",
-    description: "Get exact material quantities and IS-code verified construction cost estimates for your home. StructurePro, MasonryPro, ElectricalPro tools. BOQ reports from ₹499, for homeowners across India.",
+    title: "NirmanShastra — IS-Code Material Quantity Estimator for Indian Homes",
+    description: "Work out how much concrete, steel, cement, bricks, sand, wire and pipe your house needs, to the Indian Standards, before you order. Quantity reports from ₹499 and free calculators, in Hindi and English.",
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'NirmanShastra — India’s IS-Code Construction Cost Estimator',
+        alt: 'NirmanShastra — IS-Code Material Quantity Estimator for Indian Homes',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "NirmanShastra — IS-Code Construction Cost Estimator",
-    description: "Exact material quantities and IS-code verified construction cost estimates for Indian homeowners. BOQ reports from ₹499.",
+    title: "NirmanShastra — IS-Code Material Quantity Estimator",
+    description: "Exact material quantities for Indian homes, worked out to the IS codes. Quantity reports from ₹499.",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#1E2227',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F3EEE2' },
+    { media: '(prefers-color-scheme: dark)', color: '#262523' },
+  ],
   width: 'device-width',
   initialScale: 1,
   minimumScale: 1,
@@ -141,34 +146,6 @@ export default function RootLayout({
       >
         {/* Site-wide structured data: Organization + WebSite */}
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
-        {/* Announcement bar */}
-        <div
-          className="announcement-bar"
-          style={{ background: '#111111', borderBottom: '1px solid rgba(255,255,255,0.06)', outline: 'none', boxShadow: 'none' }}
-          aria-label="NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior"
-        >
-          <div className="marquee-inner">
-            <span style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
-            </span>
-            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
-            </span>
-            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
-            </span>
-            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
-            </span>
-            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
-            </span>
-            <span className="marquee-text-dupe" aria-hidden="true" style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 500, paddingRight: '6rem' }}>
-              NirmanShastra — IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior
-            </span>
-          </div>
-        </div>
-        <Navbar />
         {children}
         <AIChatbox />
         <InstallPrompt />

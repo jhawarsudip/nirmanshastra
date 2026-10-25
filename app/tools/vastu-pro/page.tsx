@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import RegistrationForm from './components/RegistrationForm'
-import FloorPlanCanvas from './components/FloorPlanCanvas'
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import RegistrationForm, { type RegistrationData } from './components/RegistrationForm'
+import FloorPlanCanvas, { CANVAS_SIZE } from './components/FloorPlanCanvas'
 import RoomPanel from './components/RoomPanel'
 import AnalysisResults from './components/AnalysisResults'
-import CompassWheel from './components/CompassWheel'
+import NorthCard from './components/NorthCard'
 import {
   getZoneIndex,
   getSeverity,
@@ -15,70 +16,33 @@ import {
   type PlacedMarker,
   type VastuAnalysis,
 } from './vastu-engine'
-import VastuBackground from '@/components/backgrounds/VastuBackground'
+import { ToolHead, StepBar, Note, IcArrow } from '@/components/v2/inner/kit'
+import { TOOLS } from '@/lib/v2/content'
+import { useCalm } from '@/lib/v2/store'
+import '@/styles/v2/vastu.css'
 
 type Step = 'register' | 'plan' | 'results'
+type ContactData = RegistrationData & { contactId: string }
 
-type RegData = {
-  name: string
-  email: string
-  city: string
-  state: string
-  propertyType: string
-  plotSize: string
+const STEPS = ['About you', 'Your plan', 'Your reading']
+const STEP_IX: Record<Step, number> = { register: 0, plan: 1, results: 2 }
+
+const stepVariants = {
+  initial: { opacity: 0, x: 18 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.28, ease: 'easeOut' as const } },
+  exit:    { opacity: 0, x: -18, transition: { duration: 0.18, ease: 'easeIn' as const } },
 }
-
-type ContactData = RegData & { contactId: string }
-
-const CANVAS_SIZE = 480
-
-function StepBar({ current }: { current: Step }) {
-  const steps: { key: Step; label: string }[] = [
-    { key: 'register', label: 'REGISTER' },
-    { key: 'plan',     label: 'PLAN' },
-    { key: 'results',  label: 'RESULTS' },
-  ]
-  const idx = { register: 0, plan: 1, results: 2 }[current]
-  return (
-    <div className="flex items-center gap-0">
-      {steps.map((s, i) => {
-        const done   = i < idx
-        const active = i === idx
-        return (
-          <div key={s.key} className="flex items-center">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] border"
-                style={{
-                  background:   active ? '#1F4E79' : done ? '#14532D' : 'transparent',
-                  borderColor:  active ? '#1F4E79' : done ? '#14532D' : 'rgba(30,34,39,0.22)',
-                  color:        active || done ? '#fff' : 'rgba(30,34,39,0.35)',
-                  fontFamily:   'var(--font-plex-mono)',
-                }}
-              >
-                {done ? '✓' : i + 1}
-              </div>
-              <span
-                className="text-[11px] uppercase tracking-widest whitespace-nowrap"
-                style={{
-                  fontFamily: 'var(--font-plex-mono)',
-                  color: active ? '#1F4E79' : done ? '#14532D' : 'rgba(30,34,39,0.32)',
-                }}
-              >
-                {s.label}
-              </span>
-            </div>
-            {i < 2 && (
-              <div className="w-6 h-px mx-2" style={{ background: 'rgba(30,34,39,0.14)' }} />
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
+const calmVariants = {
+  initial: { opacity: 1, x: 0 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0 } },
+  exit:    { opacity: 1, x: 0, transition: { duration: 0 } },
 }
 
 export default function VastuProPage() {
+  const tool = TOOLS.find(t => t.key === 'vastu')!
+  const calm = useCalm()
+  const v = calm ? calmVariants : stepVariants
+
   const [step,               setStep]               = useState<Step>('register')
   const [contact,            setContact]            = useState<ContactData | null>(null)
   const [northDeg,           setNorthDeg]           = useState(0)
@@ -88,10 +52,23 @@ export default function VastuProPage() {
   const [selectedMarkerKey,  setSelectedMarkerKey]  = useState<string | null>(null)
   const [analysis,           setAnalysis]           = useState<VastuAnalysis | null>(null)
   const [analyseError,       setAnalyseError]       = useState('')
+  const sheetRef = useRef<HTMLDivElement>(null)
 
-  function handleRegistration(data: RegData, contactId: string) {
+  // a fresh screen always starts at the top
+  useEffect(() => { window.scrollTo(0, 0) }, [step])
+
+  function handleRegistration(data: RegistrationData, contactId: string) {
     setContact({ ...data, contactId })
     setStep('plan')
+  }
+
+  function handleSelectRoom(key: string | null) {
+    setSelectedRoomKey(key)
+    setSelectedMarkerKey(null)
+    // On a phone the plan sits below the list: bring it into view so the next tap lands on it.
+    if (key && typeof window !== 'undefined' && window.matchMedia('(max-width: 1099px)').matches) {
+      sheetRef.current?.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'center' })
+    }
   }
 
   function handlePlace(x: number, y: number) {
@@ -108,6 +85,7 @@ export default function VastuProPage() {
     setMarkers(prev => [...prev, { key, roomKey: selectedRoomKey, x, y, zoneIndex, severity }])
     setRoomCounts(prev => ({ ...prev, [selectedRoomKey]: count + 1 }))
     if (!room.multiInstance) setSelectedRoomKey(null)
+    setAnalyseError('')
   }
 
   function handleRemoveMarker(key: string) {
@@ -121,9 +99,18 @@ export default function VastuProPage() {
     if (selectedMarkerKey === key) setSelectedMarkerKey(null)
   }
 
+  // Turning the dial changes which zone each placed room falls in, so every marker is worked out again from where it was tapped.
+  function handleNorthChange(deg: number) {
+    setNorthDeg(deg)
+    setMarkers(prev => prev.map(m => {
+      const zoneIndex = getZoneIndex(m.x, m.y, CANVAS_SIZE / 2, CANVAS_SIZE / 2, deg)
+      return { ...m, zoneIndex, severity: getSeverity(m.roomKey, zoneIndex) }
+    }))
+  }
+
   function handleAnalyse() {
     if (markers.length === 0) {
-      setAnalyseError('Place at least one room marker before analysing.')
+      setAnalyseError('Place at least one room on the plan first.')
       return
     }
     setAnalyseError('')
@@ -139,203 +126,103 @@ export default function VastuProPage() {
     }
   }
 
-  function handleStartOver() {
+  // Back to the plan with everything still on it, so a room can be moved and the plan read again.
+  function handleBackToPlan() {
     setStep('plan')
-    setMarkers([])
-    setRoomCounts({})
     setSelectedRoomKey(null)
     setSelectedMarkerKey(null)
     setAnalysis(null)
-    setNorthDeg(0)
   }
 
-  // ── Step: Register ───────────────────────────────────────────────────────────
-  if (step === 'register') {
-    return <RegistrationForm onSubmit={handleRegistration} />
-  }
-
-  // ── Step: Results ────────────────────────────────────────────────────────────
-  if (step === 'results' && analysis) {
-    return (
-      <AnalysisResults
-        analysis={analysis}
-        contactName={contact?.name ?? ''}
-        northDeg={northDeg}
-        markerCount={markers.length}
-        onStartOver={handleStartOver}
-      />
-    )
-  }
-
-  // ── Step: Plan ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen" style={{ background: '#1E2227', position: 'relative' }}>
-      <VastuBackground />
-      <div style={{ position: 'relative', zIndex: 1 }}>
-      {/* Page header */}
-      <div
-        className="px-4 py-4"
-        style={{ borderBottom: '1px solid rgba(201,168,76,0.15)' }}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <p
-              className="text-[10px] uppercase tracking-widest mb-0.5"
-              style={{ color: 'rgba(201,168,76,0.45)', fontFamily: 'var(--font-plex-mono)' }}
-            >
-              NIRMANSHASTRA · VASTUPRO
-            </p>
-            <h1
-              className="font-bold"
-              style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(22px,3vw,28px)' }}
-            >
-              Mark Your Rooms
-            </h1>
-          </div>
-          <StepBar current="plan" />
-        </div>
-      </div>
+    <div className="ns-i-wrap ns-i-page ns-v" style={{ ['--tc' as string]: 'var(--ns-t-vastu)' }}>
+      {step !== 'results' && (
+        <ToolHead
+          eyebrow="Before you build · Layout"
+          name={tool.name}
+          price="Free"
+          blurb="Set where North is, mark each room on your plan, and see how the Vastu tradition rates its place among the 16 zones. Free, with a PDF of your findings."
+          art={tool.plate}
+          artAlt={tool.plateAlt}
+        />
+      )}
+      <StepBar steps={STEPS} current={STEP_IX[step]} />
 
-      {/* Instructions */}
-      <div className="max-w-6xl mx-auto px-4 pt-4 pb-2">
-        <p
-          className="text-[13px]"
-          style={{ color: 'rgba(244,244,240,0.45)', fontFamily: 'var(--font-plex-sans)' }}
-        >
-          Select a room from the panel → click on the floor plan to place it. Set North direction with the compass wheel before placing rooms.
-        </p>
-      </div>
+      <AnimatePresence mode="wait">
+        {step === 'register' && (
+          <motion.div key="register" variants={v} initial="initial" animate="animate" exit="exit" className="ns-v-narrow">
+            <RegistrationForm onSubmit={handleRegistration} />
+          </motion.div>
+        )}
 
-      {/* Main layout: room panel | canvas | compass + analyse */}
-      <div className="max-w-6xl mx-auto px-4 pb-8">
-        {/* Desktop: 3-column grid. Mobile: stacked. */}
-        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_220px] gap-4 items-start">
+        {step === 'plan' && (
+          <motion.div key="plan" variants={v} initial="initial" animate="animate" exit="exit">
+            <ol className="ns-v-how">
+              <li><span><b>Set North.</b> Tell us which way North lies on your drawing.</span></li>
+              <li><span><b>Pick a room</b> from the list.</span></li>
+              <li><span><b>Tap the plan</b> where that room is. Do this for every room.</span></li>
+            </ol>
 
-          {/* ── Room panel ─────────────────────────────────────────────────── */}
-          <div className="lg:h-[560px] order-3 lg:order-1">
-            <RoomPanel
-              selectedRoomKey={selectedRoomKey}
-              onSelectRoom={key => {
-                setSelectedRoomKey(key)
-                setSelectedMarkerKey(null)
-              }}
-              roomCounts={roomCounts}
-              selectedMarkerKey={selectedMarkerKey}
-              markers={markers}
-              onRemoveMarker={handleRemoveMarker}
-            />
-          </div>
+            <div className="ns-v-plan">
+              <div className="ns-v-area-compass">
+                <NorthCard northDeg={northDeg} onChange={handleNorthChange} />
+              </div>
 
-          {/* ── Canvas ─────────────────────────────────────────────────────── */}
-          <div className="order-1 lg:order-2">
-            <FloorPlanCanvas
+              <div className="ns-v-area-rooms">
+                <RoomPanel
+                  selectedRoomKey={selectedRoomKey}
+                  onSelectRoom={handleSelectRoom}
+                  roomCounts={roomCounts}
+                  selectedMarkerKey={selectedMarkerKey}
+                  markers={markers}
+                  onRemoveMarker={handleRemoveMarker}
+                  onCloseMarker={() => setSelectedMarkerKey(null)}
+                />
+              </div>
+
+              <div className="ns-v-area-sheet" ref={sheetRef}>
+                <FloorPlanCanvas
+                  northDeg={northDeg}
+                  markers={markers}
+                  selectedMarkerKey={selectedMarkerKey}
+                  selectedRoomKey={selectedRoomKey}
+                  onPlace={handlePlace}
+                  onSelectMarker={key => {
+                    setSelectedMarkerKey(key)
+                    if (key) setSelectedRoomKey(null)
+                  }}
+                />
+              </div>
+
+              <div className="ns-v-area-go">
+                <div className="ns-plate ns-v-go">
+                  <p className="ns-v-go__count"><b>{markers.length}</b> room{markers.length !== 1 ? 's' : ''} placed</p>
+                  {analyseError && <Note kind="err">{analyseError}</Note>}
+                  <div className="ns-i-btn--block">
+                    <button type="button" className="ns-btn" onClick={handleAnalyse} disabled={markers.length === 0}>
+                      Read my plan
+                      <IcArrow width={22} height={11} />
+                    </button>
+                  </div>
+                  <p className="ns-i-fine">Place at least one room. The more rooms you mark, the fuller the reading.</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {step === 'results' && analysis && (
+          <motion.div key="results" variants={v} initial="initial" animate="animate" exit="exit">
+            <AnalysisResults
+              analysis={analysis}
+              contactName={contact?.name ?? ''}
               northDeg={northDeg}
               markers={markers}
-              selectedMarkerKey={selectedMarkerKey}
-              selectedRoomKey={selectedRoomKey}
-              onPlace={handlePlace}
-              onSelectMarker={key => {
-                setSelectedMarkerKey(key)
-                if (key) setSelectedRoomKey(null)
-              }}
+              onBackToPlan={handleBackToPlan}
             />
-          </div>
-
-          {/* ── Compass + Analyse ───────────────────────────────────────────── */}
-          <div className="flex flex-col gap-4 order-2 lg:order-3">
-            {/* Compass card */}
-            <div
-              className="rounded-[2px] p-4"
-              style={{ background: '#1E2227', border: '1px solid rgba(201,168,76,0.3)' }}
-            >
-              <p
-                className="text-[10px] uppercase tracking-widest mb-3"
-                style={{ color: 'rgba(201,168,76,0.6)', fontFamily: 'var(--font-plex-mono)' }}
-              >
-                NORTH DIRECTION
-              </p>
-              <div className="flex justify-center mb-3">
-                <CompassWheel northDeg={northDeg} onChange={setNorthDeg} />
-              </div>
-              <div className="text-center mb-3">
-                <span
-                  style={{ color: '#C9A84C', fontFamily: 'var(--font-plex-mono)', fontSize: 20, fontWeight: 500 }}
-                >
-                  {Math.round(northDeg)}°
-                </span>
-              </div>
-              <p
-                className="text-[11px] leading-relaxed"
-                style={{ color: 'rgba(244,244,240,0.5)', fontFamily: 'var(--font-plex-sans)' }}
-              >
-                Stand at the exact centre of your house (the Brahmasthan — marked in gold).
-                Open your phone compass app while standing there and note the direction.
-                Rotate this wheel to match that reading.
-              </p>
-              <p
-                className="text-[10px] mt-2"
-                style={{ color: 'rgba(201,168,76,0.35)', fontFamily: 'var(--font-plex-mono)' }}
-              >
-                ✦ Degree measured from the Brahmasthan (centre).
-              </p>
-            </div>
-
-            {/* Rooms placed count */}
-            {markers.length > 0 && (
-              <div
-                className="rounded-[2px] px-4 py-3"
-                style={{ background: '#1E2227', border: '1px solid rgba(201,168,76,0.2)' }}
-              >
-                <p
-                  className="text-[9px] uppercase tracking-widest mb-1"
-                  style={{ color: 'rgba(201,168,76,0.45)', fontFamily: 'var(--font-plex-mono)' }}
-                >
-                  PLACED
-                </p>
-                <p
-                  style={{ color: '#C9A84C', fontFamily: 'var(--font-plex-mono)', fontSize: 22, fontWeight: 500 }}
-                >
-                  {markers.length}
-                </p>
-                <p
-                  className="text-[11px]"
-                  style={{ color: 'rgba(244,244,240,0.45)', fontFamily: 'var(--font-plex-sans)' }}
-                >
-                  room{markers.length !== 1 ? 's' : ''} marked
-                </p>
-              </div>
-            )}
-
-            {/* Analyse button */}
-            <div>
-              {analyseError && (
-                <p
-                  className="text-[11px] mb-2"
-                  style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}
-                >
-                  ⚠ {analyseError}
-                </p>
-              )}
-              <button
-                onClick={handleAnalyse}
-                disabled={markers.length === 0}
-                className="w-full py-3 rounded-[6px] text-[14px] font-semibold text-white transition-opacity disabled:opacity-40"
-                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}
-              >
-                Analyse My Floor Plan →
-              </button>
-              <p
-                className="text-[11px] mt-2 text-center"
-                style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-sans)' }}
-              >
-                Place at least 1 room · More rooms = better accuracy
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

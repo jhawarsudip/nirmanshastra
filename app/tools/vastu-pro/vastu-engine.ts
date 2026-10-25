@@ -109,25 +109,79 @@ export interface CanvasDrawParams {
   markers: PlacedMarker[]
   selectedMarkerKey: string | null
   floorPlanImage?: HTMLImageElement | null
+  /** Logical size of the square sheet. The canvas itself can be bigger (device pixels, for a sharp picture). Default: the canvas width. */
+  size?: number
 }
 
-const GOLD = '#C9A84C'
-const INK  = '#1E2227'
+// The drawing sheet is light paper in both site themes, like a sheet pinned to a drawing board.
+export const SHEET = {
+  paper: '#FAF6EC',
+  grid: 'rgba(42,38,34,0.12)',
+  zone: 'rgba(42,38,34,0.24)',
+  axis: 'rgba(47,122,79,0.45)',
+  green: '#2F7A4F',
+  greenFill: 'rgba(47,122,79,0.12)',
+  north: '#B5502D',
+  ink: '#2A2622',
+  ink2: '#5B544B',
+}
+
+export const SEVERITY_COLOURS: Record<Severity, string> = {
+  POSITIVE: '#2F7D5B',
+  NEUTRAL:  '#7A7266',
+  MODERATE: '#9A6A12',
+  CRITICAL: '#A3322A',
+}
+
+// The canvas has no CSS variables, so it reads the page's own font stack once per draw.
+function fontOf(canvas: HTMLCanvasElement): string {
+  try {
+    const f = getComputedStyle(canvas).fontFamily
+    return f || 'system-ui, sans-serif'
+  } catch {
+    return 'system-ui, sans-serif'
+  }
+}
+
+// Distance from the centre to the edge of the square, along a direction (dx, dy).
+function reach(dx: number, dy: number, half: number): number {
+  const tx = Math.abs(dx) < 1e-9 ? Infinity : half / Math.abs(dx)
+  const ty = Math.abs(dy) < 1e-9 ? Infinity : half / Math.abs(dy)
+  return Math.min(tx, ty)
+}
+
+// Text with a paper-coloured halo, so it stays readable over grid lines and the plan image.
+function haloText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number) {
+  ctx.save()
+  ctx.lineJoin = 'round'
+  ctx.lineWidth = 4
+  ctx.strokeStyle = SHEET.paper
+  ctx.strokeText(text, x, y)
+  ctx.restore()
+  ctx.fillText(text, x, y)
+}
 
 export function drawVastuCanvas(params: CanvasDrawParams) {
   const { canvas, northDeg, markers, selectedMarkerKey, floorPlanImage } = params
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
-  const W = canvas.width
-  const H = canvas.height
+  const size = params.size ?? canvas.width
+  const dpr = canvas.width / size
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+  const W = size
+  const H = size
   const cx = W / 2
   const cy = H / 2
+  const sans = fontOf(canvas)
+  const brahmaR = Math.min(W, H) * 0.11
+  const northRad = (northDeg * Math.PI) / 180
 
   ctx.clearRect(0, 0, W, H)
 
   // Background
-  ctx.fillStyle = '#F4F4F0'
+  ctx.fillStyle = SHEET.paper
   ctx.fillRect(0, 0, W, H)
 
   // ── Floor plan image at 35% opacity (drawn behind the grid) ────────────
@@ -142,9 +196,9 @@ export function drawVastuCanvas(params: CanvasDrawParams) {
     ctx.restore()
   }
 
-  // ── 8×8 gold dashed grid ────────────────────────────────────────────────
+  // ── 8×8 dashed grid: a guide for sketching the plan, not the zones ────────
   ctx.save()
-  ctx.strokeStyle = 'rgba(201,168,76,0.25)'
+  ctx.strokeStyle = SHEET.grid
   ctx.lineWidth = 1
   ctx.setLineDash([5, 5])
   const cellW = W / 8
@@ -163,7 +217,7 @@ export function drawVastuCanvas(params: CanvasDrawParams) {
 
   // ── Centre crosshair ─────────────────────────────────────────────────────
   ctx.save()
-  ctx.strokeStyle = 'rgba(201,168,76,0.5)'
+  ctx.strokeStyle = SHEET.axis
   ctx.lineWidth = 1.5
   ctx.setLineDash([])
   ctx.beginPath()
@@ -174,37 +228,65 @@ export function drawVastuCanvas(params: CanvasDrawParams) {
   ctx.stroke()
   ctx.restore()
 
+  // ── The 16 zones: a ray at every zone edge, turned by the North angle, with its name at the rim ──
+  ctx.save()
+  ctx.strokeStyle = SHEET.zone
+  ctx.lineWidth = 1
+  ctx.setLineDash([2, 4])
+  for (let i = 0; i < 16; i++) {
+    const a = northRad + ((i * 22.5 - 11.25) * Math.PI) / 180
+    const dx = Math.sin(a)
+    const dy = -Math.cos(a)
+    const t = reach(dx, dy, W / 2)
+    ctx.beginPath()
+    ctx.moveTo(cx + dx * brahmaR, cy + dy * brahmaR)
+    ctx.lineTo(cx + dx * t, cy + dy * t)
+    ctx.stroke()
+  }
+  ctx.restore()
+  ctx.save()
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  for (let i = 0; i < 16; i++) {
+    const a = northRad + (i * 22.5 * Math.PI) / 180
+    const dx = Math.sin(a)
+    const dy = -Math.cos(a)
+    const t = reach(dx, dy, W / 2) - 17
+    ctx.font = `700 ${i % 2 === 0 ? 14 : 12}px ${sans}`
+    ctx.fillStyle = i === 0 ? SHEET.north : SHEET.ink2
+    haloText(ctx, ZONES[i].name, cx + dx * t, cy + dy * t)
+  }
+  ctx.restore()
+
   // ── Brahmasthan circle ───────────────────────────────────────────────────
-  const brahmaR = Math.min(W, H) * 0.11
   ctx.save()
   ctx.beginPath()
   ctx.arc(cx, cy, brahmaR, 0, Math.PI * 2)
-  ctx.fillStyle = 'rgba(201,168,76,0.12)'
+  ctx.fillStyle = SHEET.greenFill
   ctx.fill()
-  ctx.strokeStyle = 'rgba(201,168,76,0.85)'
+  ctx.strokeStyle = SHEET.green
   ctx.lineWidth = 2
   ctx.setLineDash([])
   ctx.stroke()
 
   // "ब" symbol at centre
-  ctx.font = `bold ${Math.round(brahmaR * 0.85)}px "IBM Plex Sans Devanagari", serif`
-  ctx.fillStyle = GOLD
+  ctx.font = `700 ${Math.round(brahmaR * 0.9)}px ${sans}`
+  ctx.fillStyle = SHEET.green
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.fillText('ब', cx, cy - brahmaR * 0.05)
 
   // "Brahmasthan" label below circle
-  ctx.font = `500 11px "IBM Plex Mono", monospace`
-  ctx.fillStyle = 'rgba(201,168,76,0.75)'
+  ctx.font = `700 12px ${sans}`
   ctx.textBaseline = 'top'
-  ctx.fillText('BRAHMASTHAN', cx, cy + brahmaR + 6)
+  haloText(ctx, 'Brahmasthan', cx, cy + brahmaR + 6)
   ctx.restore()
 
   // ── North arrow ──────────────────────────────────────────────────────────
-  drawNorthArrow(ctx, cx, cy, northDeg, Math.min(W, H) * 0.22)
+  drawNorthArrow(ctx, cx, cy, northDeg, Math.min(W, H) * 0.22, sans)
 
   // ── Placed markers ────────────────────────────────────────────────────────
-  markers.forEach(m => drawMarker(ctx, m, m.key === selectedMarkerKey, brahmaR))
+  markers.forEach(m => drawMarker(ctx, m, m.key === selectedMarkerKey, sans))
 }
 
 function drawNorthArrow(
@@ -212,16 +294,17 @@ function drawNorthArrow(
   cx: number,
   cy: number,
   northDeg: number,
-  arrowLen: number
+  arrowLen: number,
+  sans: string
 ) {
   const rad = (northDeg * Math.PI) / 180
   const nx = cx + arrowLen * Math.sin(rad)
   const ny = cy - arrowLen * Math.cos(rad)
 
   ctx.save()
-  ctx.strokeStyle = GOLD
-  ctx.fillStyle = GOLD
-  ctx.lineWidth = 2
+  ctx.strokeStyle = SHEET.north
+  ctx.fillStyle = SHEET.north
+  ctx.lineWidth = 2.5
   ctx.setLineDash([])
 
   // Shaft
@@ -231,7 +314,7 @@ function drawNorthArrow(
   ctx.stroke()
 
   // Arrowhead
-  const headLen = arrowLen * 0.15
+  const headLen = arrowLen * 0.17
   const angle = Math.atan2(ny - cy, nx - cx)
   ctx.beginPath()
   ctx.moveTo(nx, ny)
@@ -247,11 +330,12 @@ function drawNorthArrow(
   ctx.fill()
 
   // "N" label
-  ctx.font = `700 13px "IBM Plex Mono", monospace`
+  ctx.font = `700 15px ${sans}`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  const labelDist = arrowLen + 14
-  ctx.fillText(
+  const labelDist = arrowLen + 15
+  haloText(
+    ctx,
     'N',
     cx + labelDist * Math.sin(rad),
     cy - labelDist * Math.cos(rad)
@@ -259,18 +343,11 @@ function drawNorthArrow(
   ctx.restore()
 }
 
-const SEVERITY_COLOURS: Record<Severity, string> = {
-  POSITIVE: '#14532D',
-  NEUTRAL:  'rgba(30,34,39,0.6)',
-  MODERATE: '#D99A06',
-  CRITICAL: '#8C3A22',
-}
-
 function drawMarker(
   ctx: CanvasRenderingContext2D,
   marker: PlacedMarker,
   isSelected: boolean,
-  _brahmaR: number
+  sans: string
 ) {
   const room = getRoomByKey(marker.roomKey)
   if (!room) return
@@ -282,10 +359,10 @@ function drawMarker(
   // Outer ring (selection highlight)
   if (isSelected) {
     ctx.beginPath()
-    ctx.arc(marker.x, marker.y, r + 4, 0, Math.PI * 2)
-    ctx.strokeStyle = GOLD
+    ctx.arc(marker.x, marker.y, r + 5, 0, Math.PI * 2)
+    ctx.strokeStyle = SHEET.ink
     ctx.lineWidth = 2
-    ctx.setLineDash([3, 3])
+    ctx.setLineDash([4, 3])
     ctx.stroke()
     ctx.setLineDash([])
   }
@@ -294,30 +371,30 @@ function drawMarker(
   ctx.beginPath()
   ctx.arc(marker.x, marker.y, r, 0, Math.PI * 2)
   ctx.fillStyle = colour
-  ctx.globalAlpha = isSelected ? 1 : 0.88
+  ctx.globalAlpha = isSelected ? 1 : 0.92
   ctx.fill()
   ctx.globalAlpha = 1
 
   // Stroke
   ctx.beginPath()
   ctx.arc(marker.x, marker.y, r, 0, Math.PI * 2)
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)'
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)'
   ctx.lineWidth = 1.5
   ctx.stroke()
 
   // Room abbreviation
-  ctx.font = `600 10px "IBM Plex Mono", monospace`
+  ctx.font = `700 12px ${sans}`
   ctx.fillStyle = '#fff'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(room.abbrev, marker.x, marker.y)
+  ctx.fillText(room.abbrev, marker.x, marker.y + 0.5)
 
   // Label below
-  ctx.font = `400 9px "IBM Plex Sans", sans-serif`
-  ctx.fillStyle = INK
+  ctx.font = `600 12px ${sans}`
+  ctx.fillStyle = SHEET.ink
   ctx.textBaseline = 'top'
-  const shortLabel = room.label.length > 12 ? room.label.slice(0, 11) + '…' : room.label
-  ctx.fillText(shortLabel, marker.x, marker.y + r + 3)
+  const shortLabel = room.label.length > 14 ? room.label.slice(0, 13) + '…' : room.label
+  haloText(ctx, shortLabel, marker.x, marker.y + r + 3)
 
   ctx.restore()
 }

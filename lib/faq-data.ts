@@ -1,5 +1,8 @@
 // FAQ content — single source for app/faq/page.tsx, FAQPage JSON-LD and /llms-full.txt.
-// Text is unchanged from the original inline array in app/faq/page.tsx.
+// NirmanShastra works out QUANTITIES only. No labour, dealer, contractor or rupee-rate figures appear here.
+
+import { TOOL_PRICE_PAISE } from '@/lib/tool-pricing'
+import { inr } from '@/lib/seo/site'
 
 export interface FaqItem {
   question: string
@@ -20,48 +23,57 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'What is NirmanShastra?',
         answer:
-          'NirmanShastra is an IS-code backed construction cost estimation platform for Indian homeowners and builders. It calculates material quantities and costs using the exact values specified in Indian Standards (IS 456:2000, IS 1786:2008, IS 1893:2016, IS 1077:1992, IS 732:2019, IS 1172:1993) — so your estimates are defensible, not guesses.',
+          'NirmanShastra works out how much material your house needs: concrete, steel, cement, sand, aggregate, bricks, wire and pipe. You answer a few plain questions about your plot and plan. The quantities are then worked out to the Indian Standards (IS 456:2000, IS 875, IS 1893:2016, IS 13920:2016, IS 1786:2008 and others) on our server. It gives quantities and nothing else: no labour figures, no dealer prices and no contractor rates.',
       },
       {
         question: 'Who is NirmanShastra for?',
         answer:
-          'Primarily for homeowners who are planning to build or renovate and want to verify contractor quotes. Also useful for civil engineers who need a quick BOQ baseline, project managers cross-checking material orders, and anyone who wants to understand what their building actually costs at an IS-code level.',
+          'Mainly for homeowners who are about to build or renovate and want to know what a house like theirs needs before they sign with a contractor or place an order. It is also useful for site supervisors and small builders who want a quick baseline to check material orders against.',
       },
       {
         question: 'Do I need to know construction to use these tools?',
         answer:
-          'No. Each tool asks questions in plain English — floor area, number of floors, city, soil type. You do not need to know what M20 concrete is or how to read a structural drawing. The tool applies the IS-code norms and explains what they mean for your specific situation.',
+          'No. Each tool asks in plain words: plot size, number of floors, city, soil, how you want the house to look. You do not need to know what M20 concrete is or how to read a structural drawing. The engineering is done for you, and the report explains what each quantity is for.',
       },
       {
-        question: 'How is NirmanShastra different from asking a contractor for a quote?',
+        question: 'How is this different from asking a contractor for a quote?',
         answer:
-          'A contractor\'s quote is their number. NirmanShastra\'s estimate is derived from Indian Standards — public, verifiable, and independent of any contractor relationship. When you have both, you can compare quantities line by line and ask for an explanation of any variance.',
+          'A contractor\'s quote mixes quantities, labour, profit and their own habits into one number, so it is hard to check. NirmanShastra gives only the quantities, worked out from public Indian Standards. Put your contractor\'s quantities next to ours, line by line, and ask for an explanation wherever they differ. Price is a separate conversation that you have with your own suppliers.',
+      },
+      {
+        question: 'What is not included?',
+        answer:
+          'Labour, supervision, contractor margin, material or transport rates, taxes, permits and design fees are not included and are never estimated. NirmanShastra does not tell you what the house will cost. It tells you what the house will need. Each paid report also lists what that particular tool leaves out.',
       },
     ],
   },
   {
-    label: 'Pricing',
+    label: 'Reports and pricing',
     code: 'PRC',
     items: [
       {
         question: 'How much does it cost?',
-        answer:
-          'VastuPro (Vastu compliance analysis) is completely free — no payment, no signup required. The five paid estimation tools are priced individually: ElectricalPro and PlumbingPro at ₹499 each, MasonryPro at ₹699, InteriorPro at ₹899, and StructurePro at ₹999.',
+        answer: `The free calculators and the free first look at your frame cost nothing. The paid quantity reports are priced per tool: ElectricalPro and PlumbingPro at ${inr(TOOL_PRICE_PAISE.electropro)} each, MasonryPro at ${inr(TOOL_PRICE_PAISE.masonpro)}, InteriorPro at ${inr(TOOL_PRICE_PAISE.interiorpro)}, StructurePro at ${inr(TOOL_PRICE_PAISE.structopro)} and the combined Grand Total quantity report at ${inr(TOOL_PRICE_PAISE.grandtotal)}, added on top of the phase reports it combines. These are the prices of the reports, not estimates of building cost.`,
       },
       {
-        question: 'What do I get when I pay for a tool?',
+        question: 'What do I get when I pay for a report?',
         answer:
-          'A detailed IS-code compliant Bill of Quantities (BOQ) for your specific project — with material quantities, applicable IS clause references, IS compliance panel, Grand Total at three quality tiers (Basic/Standard/Premium), and a downloadable PDF report you can share with contractors or your structural engineer.',
+          'A full quantity report for your project: every material quantity with its unit, the IS clause it comes from, an IS compliance panel, the assumptions we made on your behalf, what is not included, and a downloadable PDF you can hand to your contractor or structural engineer. StructurePro also opens a 3D model of your frame.',
       },
       {
-        question: 'Can I see a sample before paying?',
+        question: 'What can I see before paying?',
         answer:
-          'Yes. Each tool shows you blurred previews of the quantity table before payment — you can see the structure and IS clause references. The actual numbers unlock after payment verification.',
+          'For StructurePro you can see your seismic zone, the grades of concrete and steel that apply, the IS-code checks and a "frame at a glance" plan with a 3D view. That includes the grid of columns and beams, the number of footings and the slab panels. Material quantities stay hidden until payment is verified on our server.',
       },
       {
-        question: 'Are the prices inclusive of taxes?',
+        question: 'Do I need an account?',
         answer:
-          'All prices shown are inclusive of GST. The price displayed on each tool is the final amount — there are no additional charges at checkout.',
+          'The free calculators need no account. A paid tool starts with your name, email, state and city, so the report can be delivered to you and the earthquake zone and wind speed can be read from where you build. Naming the project is optional.',
+      },
+      {
+        question: 'What exactly do I pay at checkout?',
+        answer:
+          'The amount charged is the price shown on the tool, and Razorpay shows that amount before you confirm. The price is set on our server, not in your browser.',
       },
     ],
   },
@@ -72,22 +84,22 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'What IS codes does NirmanShastra use?',
         answer:
-          'Each tool is built on the relevant Indian Standards: StructurePro uses IS 456:2000 (concrete) and IS 1893:2016 (seismic); MasonryPro uses IS 1077:1992 (bricks) and IS 2250:1981 (mortar); ElectricalPro uses IS 732:2019 (wiring); PlumbingPro uses IS 1172:1993 (water requirements) and IS 4985:2000 (CPVC pipes); VastuPro uses the Vastu Purusha Mandala framework.',
+          'StructurePro uses IS 456:2000 (concrete), IS 1786:2008 (steel bars), IS 875 Parts 1 to 3 (dead, live and wind loads), IS 1893 (Part 1) (earthquake) and IS 13920:2016 (ductile detailing), with SP 34 for detailing practice. MasonryPro, ElectricalPro, PlumbingPro and InteriorPro each draw on their own set of standards and public material-consumption norms. The IS Codes Used page lists every source with its edition, what it governs and where its limits are.',
       },
       {
         question: 'Are the IS code values accurate and up to date?',
         answer:
-          'Yes. The core IS values — cement consumption, steel quantities, brick counts, mortar ratios — are locked from the published IS documents and are never altered. The StructurePro engine uses M20 = 8.07 bags/m³, column steel = 196.25 kg/m³, and other values exactly as specified in the standards.',
+          'We work from the published documents and cite the clause behind each rule on the report. Where a code allows a choice, we state the choice we made. Where we could not read a clause in full, or had to rebuild a table from a poor scan, the IS Codes Used page says so beside that source.',
       },
       {
-        question: 'Why does my seismic zone matter for the structural estimate?',
+        question: 'Why does my seismic zone matter for the structural quantities?',
         answer:
-          'IS 1893:2016 assigns different design lateral forces to each seismic zone. Higher zones (IV and V, covering Delhi, Guwahati, Srinagar) require more steel detailing and potentially higher concrete grades per IS 13920:2016. StructurePro auto-detects your seismic zone from your state and applies the correct parameters.',
+          'IS 1893 gives different earthquake forces for each zone. In higher zones the columns and beams get bigger and carry more steel, and IS 13920:2016 requires closer stirrups at the joints. StructurePro reads the zone from your state and city and applies it. Wind load under IS 875 Part 3 is also checked, and the larger of the two governs. In most low-rise houses the earthquake case governs.',
       },
       {
         question: 'What does the IS compliance panel check?',
         answer:
-          'StructurePro checks six IS compliance items: concrete grade vs IS 456 exposure class, minimum steel ratio, cover requirements per IS 456 Clause 26.4, seismic zone adequacy per IS 1893, foundation depth vs soil type, and minimum slab thickness. Each check returns a PASS / ADVISORY / FAIL stamp with the relevant IS clause cited.',
+          'For StructurePro the panel lists the concrete grade chosen for the exposure (IS 456 Table 5), the steel grade, the earthquake and wind checks, the foundation type for your soil and the nominal cover (IS 456 Table 16), each with its clause. A check is marked pass or advisory. An advisory means something has to be confirmed on site or by an engineer, for example a soil test.',
       },
     ],
   },
@@ -96,29 +108,29 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
     code: 'TECH',
     items: [
       {
-        question: 'How accurate are the estimates?',
+        question: 'How accurate are the quantities?',
         answer:
-          'The quantity calculations are IS-code accurate — the cement bags, steel weight, brick count, and pipe lengths are derived from the same formulas a structural engineer uses. Material rates are updated periodically based on CPWD Delhi Schedule of Rates and regional averages. Expect ±10% on material quantities vs a detailed BOQ from your engineer, and ±15% on total cost due to regional rate variation.',
+          'They are an estimate worked out from a few answers, not a structural design. For the frame, the model lays out a column grid for your plan, takes loads from IS 875, checks earthquake and wind forces and sizes the footings, columns, beams and slabs. The report shows a low and a high figure beside each total, because your real drawings will differ, and the true figure can still fall outside them. Real buildings can carry more steel than a code-based model gives, so treat the figures as a baseline to question a quote with. A structural engineer\'s drawings and bar bending schedule always override these figures.',
       },
       {
         question: 'Why does the tool ask for my city and soil type?',
         answer:
-          'City determines your seismic zone (IS 1893) and the applicable exposure class (IS 456 — coastal cities have more aggressive exposure, requiring higher-grade concrete). Soil type determines foundation depth and bearing capacity, which affects concrete volume in footings.',
+          'State and city decide your seismic zone, the design wind speed and how severe the weather exposure is (IS 1893, IS 875 Part 3, IS 456). Soil decides the footing type and depth, which changes how much concrete and steel go below ground.',
       },
       {
-        question: 'Does the estimate include labour costs?',
+        question: 'Does StructurePro cover the whole building?',
         answer:
-          'Material costs are calculated from IS-derived quantities × current market rates. Labour is shown as a percentage of material cost, based on CPWD norms. The two are shown separately so you can substitute local labour rates if you have them.',
+          'StructurePro covers the RCC frame: footings, plinth beams, columns, beams, slabs, balconies, an open stilt floor if you have one, the staircase and the small RCC items such as lintels and sunshades. Brickwork and plaster belong to MasonryPro, wiring to ElectricalPro, pipes to PlumbingPro and finishes to InteriorPro. Grand Total joins them into one list.',
       },
       {
-        question: 'Can I use NirmanShastra for commercial buildings?',
+        question: 'Can I use NirmanShastra for commercial buildings or for adding a floor to an old house?',
         answer:
-          'The tools are designed for residential construction up to G+3 (ground plus three floors). For larger commercial projects, the IS codes still apply but structural design requires a licensed structural engineer and detailed drawings — the tool estimates can serve as a cross-check baseline, not a substitute for professional design.',
+          'The tools are for new residential houses. StructurePro accepts one to ten floors, but its model is built for low-rise houses, and anything over 30 m tall, or tall and narrow, is flagged for an engineer to review. Adding a floor to an existing building needs an engineer to survey what is already there, so we do not estimate it. Commercial buildings are outside what the tools model.',
       },
       {
-        question: 'Why are local rates important and how do I use them?',
+        question: 'Why do you not show prices for materials?',
         answer:
-          'Construction material rates vary significantly by region — steel in Chennai vs Delhi can differ by ₹2–4/kg; sand and aggregate prices depend on local quarry availability. Each tool shows a "Using [City] Avg 2026" baseline with a note that you can substitute local rates from your area for a more precise total.',
+          'Rates change by city, by month and by supplier, and any rate we printed would be out of date or wrong for you. Quantities do not change with the market. Take the quantities to your own suppliers and get your own quotes.',
       },
     ],
   },
@@ -129,17 +141,17 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'Is payment secure?',
         answer:
-          'Yes. Payments are processed by Razorpay — India\'s leading payment gateway, PCI-DSS compliant. NirmanShastra never stores your card details. Payment verification uses HMAC SHA256 server-side signature verification before any paid content is revealed.',
+          'Yes. Payments are processed by Razorpay, a PCI-DSS compliant gateway. NirmanShastra never stores your card details. Each payment is verified on our server with an HMAC SHA256 signature before any paid content is revealed.',
       },
       {
         question: 'Can I get a refund?',
         answer:
-          'If the tool fails to generate your report due to a technical error on our side, you are entitled to a full refund. Please email support within 24 hours with your order ID. Refunds are not provided for completed, successfully generated reports — since the IS-code calculations are instantaneous and the report is delivered digitally.',
+          'If a report fails to generate because of a fault on our side and cannot be delivered within 48 hours of payment, we refund you in full. Email nirmanshastraindia@gmail.com within 7 days of payment with your order ID. A report that has been generated and delivered is not refundable, since the quantities are worked out and the PDF is made at the time of payment. The Terms of Use say the same.',
       },
       {
         question: 'What payment methods are accepted?',
         answer:
-          'All methods available through Razorpay: UPI (PhonePe, Google Pay, Paytm), debit cards, credit cards, net banking, and Razorpay wallets.',
+          'Everything Razorpay offers: UPI (PhonePe, Google Pay, Paytm), debit and credit cards, net banking and wallets.',
       },
     ],
   },

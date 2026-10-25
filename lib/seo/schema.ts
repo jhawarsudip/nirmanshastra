@@ -144,8 +144,8 @@ function paidApplication(t: ToolEntry): Json {
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Any',
     inLanguage: 'en-IN',
-    // Site FAQ: "All prices shown are inclusive of GST."
-    offers: paise !== null ? priceBlock(paise, url, true) : undefined,
+    // Price is the amount charged at checkout (TOOL_PRICE_PAISE).
+    offers: paise !== null ? priceBlock(paise, url, false) : undefined,
     provider: orgRef,
     publisher: orgRef,
   }
@@ -232,14 +232,14 @@ export function articleSchema(a: BlogArticle): Json {
 }
 
 export function isCodesItemList(groups: CodeGroup[]): Json {
-  const seen = new Map<string, { title: string; governs: string; tools: string[] }>()
+  const seen = new Map<string, { title: string; governs: string; caveat?: string; tools: string[] }>()
   for (const g of groups) {
     for (const c of g.codes) {
       const hit = seen.get(c.code)
       if (hit) {
         if (!hit.tools.includes(g.tool)) hit.tools.push(g.tool)
       } else {
-        seen.set(c.code, { title: c.title, governs: c.governs, tools: [g.tool] })
+        seen.set(c.code, { title: c.title, governs: c.governs, caveat: c.caveat, tools: [g.tool] })
       }
     }
   }
@@ -255,7 +255,7 @@ export function isCodesItemList(groups: CodeGroup[]): Json {
         '@type': 'CreativeWork',
         name: code,
         alternateName: v.title,
-        description: `${v.governs} Used by: ${v.tools.join(', ')}.`,
+        description: `${v.governs}${v.caveat ? ` Limit: ${v.caveat}` : ''} Used by: ${v.tools.join(', ')}.`,
         publisher: { '@type': 'Organization', name: 'Bureau of Indian Standards' },
       },
     })),

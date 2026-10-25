@@ -1,54 +1,73 @@
 /* ============================================================================
-   NIRMANSHASTRA v2 — "Limewash & Laterite" — base tokens + primitives
-   Scoped to .ns2 so the legacy dark pages are untouched. See docs/NirmanShastra_Design_Spec.md
+   NIRMANSHASTRA homepage — "Warm Laterite" — base tokens + primitives.
+   Same bones as v2 (scroll reveals, level-bubble buttons, plates, stage bands),
+   with the friendly palette and plain-language type from the storybook pass.
+   Scoped to .ns2 so the legacy dark pages are untouched.
    ========================================================================== */
 
 .ns2 {
-  /* light "Limewash" */
-  --ns-bg: #EFE7D8;
-  --ns-bg-2: #E6DCC8;
-  --ns-paper: #F7F2E7;
-  --ns-ink: #1C1B19;
-  --ns-ink-2: #4A453D;
-  --ns-laterite: #A5462B;
-  --ns-laterite-deep: #8F3A22;
-  --ns-verdigris: #1F4B47;
+  /* light: cream paper, brown-black ink */
+  --ns-bg: #F3EEE2;
+  --ns-bg-2: #E8E1D1;
+  --ns-paper: #FBF8F0;
+  --ns-ink: #2A1E16;
+  --ns-ink-2: #5E4B3C;
+  --ns-laterite: #B5472B;
+  --ns-laterite-deep: #963A21;
+  --ns-marigold: #F2A516;
+  --ns-marigold-deep: #D98E06;
+  --ns-tint: #FCE4A8;
+  --ns-indigo: #2E3F94;
+  --ns-indigo-deep: #232F73;
+  --ns-indigo-soft: #DFE4F8;
+  --ns-verdigris: #2F7A4F; /* "all good" green; the name is kept so older rules still resolve */
+  --ns-sky: #CFE5F2;
   --ns-concrete: #BDB8AE;
-  --ns-hair: rgba(28, 27, 25, .14);
-  --ns-hair-strong: rgba(28, 27, 25, .38);
-  --ns-btn-text: #F7F2E7;
-  --ns-shadow-c: #1C1B19;
-  --ns-link: #8F3A22;
-  --ns-focus: #1F4B47;
-  --ns-grain-opacity: .5;
+  --ns-hair: rgba(42, 30, 22, .12);
+  --ns-hair-strong: rgba(42, 30, 22, .32);
+  --ns-line: rgba(42, 30, 22, .2);
+  --ns-line-2: rgba(42, 30, 22, .5);
+  --ns-btn-text: #FFFCF3;
+  --ns-btn-indigo: #2E3F94;
+  --ns-btn-indigo-fg: #FFFCF3;
+  --ns-shadow-c: rgba(58, 54, 49, .22);
+  --ns-lift: 0 1px 0 rgba(42, 30, 22, .05), 0 16px 34px -16px rgba(42, 30, 22, .28);
+  --ns-link: #2E3F94;
+  --ns-focus: #2E3F94;
+  --ns-grain-opacity: .13;
 
-  /* stage (dark feature bands, both themes) */
-  --ns-stage: #14322F;
-  --ns-chalk: #EFE7D8;
+  /* stage: wet-concrete feature bands, both themes (warm charcoal, never blue) */
+  --ns-stage: #4A4843;
+  --ns-chalk: #F3EEE2;
 
   /* tool accents (wayfinding) */
-  --ns-t-struct: #1F4B47;
-  --ns-t-mason: #A5462B;
-  --ns-t-elec: #C98A0B;
-  --ns-t-plumb: #2F5D8C;
-  --ns-t-int: #7B3F5A;
-  --ns-t-vastu: #C9A84C;
+  --ns-t-struct: #2E3F94;
+  --ns-t-mason: #B5472B;
+  --ns-t-elec: #D98E06;
+  --ns-t-plumb: #2F7FB5;
+  --ns-t-int: #8A4A78;
+  --ns-t-vastu: #2F7A4F;
 
-  /* type */
-  --ns-display: var(--font-bsd), "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
-  --ns-sans: var(--font-isans), "Instrument Sans", "Segoe UI", sans-serif;
+  /* shape */
+  --ns-r: 16px;
+  --ns-r-sm: 10px;
+  --ns-r-lg: 26px;
+
+  /* type: Rozha One for headlines, Mukta for everything else (both carry Devanagari); mono only inside calculation drawers */
+  --ns-display: var(--font-rozha), "Rozha One", Georgia, "Noto Serif Devanagari", serif;
+  --ns-sans: var(--font-mukta), "Mukta", system-ui, "Noto Sans Devanagari", sans-serif;
   --ns-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
-  --ns-hind: var(--font-hind), "Hind", "Noto Sans Devanagari", sans-serif;
+  --ns-hind: var(--font-mukta), "Mukta", "Noto Sans Devanagari", sans-serif;
 
   --ns-gutter: clamp(20px, 4.4vw, 72px);
-  --ns-max: 1480px;
+  --ns-max: 1400px;
 
   position: relative;
   min-height: 100vh;
   background-color: var(--ns-bg);
   color: var(--ns-ink);
   font-family: var(--ns-sans);
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -56,30 +75,41 @@
 }
 
 html[data-ns-theme="dark"] .ns2 {
-  --ns-bg: #171512;
-  --ns-bg-2: #1F1C18;
-  --ns-paper: #26221D;
-  --ns-ink: #EFE7D8;
-  --ns-ink-2: #B9B0A0;
-  --ns-laterite: #D2694A;
-  --ns-laterite-deep: #D2694A;
-  --ns-verdigris: #4F9A92;
+  --ns-bg: #262523;
+  --ns-bg-2: #2E2C29;
+  --ns-paper: #373531;
+  --ns-ink: #F3EEE2;
+  --ns-ink-2: #C7C0B2;
+  --ns-laterite: #F08A66;
+  --ns-laterite-deep: #F5A184;
+  --ns-tint: rgba(242, 165, 22, .2);
+  --ns-indigo: #E3D6B6;
+  --ns-indigo-deep: #F2E8CE;
+  --ns-indigo-soft: #3E3B36;
+  --ns-verdigris: #6FCB94;
   --ns-concrete: #8A857B;
-  --ns-hair: rgba(239, 231, 216, .14);
-  --ns-hair-strong: rgba(239, 231, 216, .4);
-  --ns-btn-text: #171512;
-  --ns-shadow-c: #0A0907;
-  --ns-link: #E58A6E;
-  --ns-focus: #4F9A92;
-  --ns-grain-opacity: .22;
-  --ns-t-struct: #4F9A92;
-  --ns-t-mason: #D2694A;
-  --ns-t-elec: #E0A524;
-  --ns-t-plumb: #6F9AD0;
-  --ns-t-int: #C27A98;
+  --ns-hair: rgba(243, 238, 226, .12);
+  --ns-hair-strong: rgba(243, 238, 226, .34);
+  --ns-line: rgba(243, 238, 226, .2);
+  --ns-line-2: rgba(243, 238, 226, .5);
+  --ns-btn-text: #262523;
+  --ns-btn-indigo: #E9E0CB;
+  --ns-btn-indigo-fg: #262523;
+  --ns-shadow-c: rgba(0, 0, 0, .5);
+  --ns-lift: 0 1px 0 rgba(0, 0, 0, .2), 0 18px 36px -16px rgba(0, 0, 0, .6);
+  --ns-link: #F0C98A;
+  --ns-focus: #F0C98A;
+  --ns-grain-opacity: .55;
+  --ns-stage: #3C3A36;
+  --ns-t-struct: #B9C6CE;
+  --ns-t-mason: #F08A66;
+  --ns-t-elec: #F2A516;
+  --ns-t-plumb: #7DBBE4;
+  --ns-t-int: #D69AC6;
+  --ns-t-vastu: #6FCB94;
 }
 
-/* paper grain — static, tiled, no animation */
+/* dry concrete surface: static, tiled, no animation. Light mode multiplies it in lightly; night mode overlays it. */
 .ns2::before {
   content: "";
   position: fixed;
@@ -88,169 +118,197 @@ html[data-ns-theme="dark"] .ns2 {
   pointer-events: none;
   opacity: var(--ns-grain-opacity);
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .28  0 0 0 0 .2  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background: url("/v2/texture/concrete-dry.webp") 0 0 / 1024px 1024px repeat;
 }
-html[data-ns-theme="dark"] .ns2::before { mix-blend-mode: screen; }
+html[data-ns-theme="dark"] .ns2::before { mix-blend-mode: overlay; }
 .ns2 > * { position: relative; z-index: 1; }
 
-html:has(.ns2) { background: #EFE7D8; scroll-behavior: auto; }
-html[data-ns-theme="dark"]:has(.ns2) { background: #171512; }
-/* hide the legacy global chrome only while the v2 homepage is mounted */
+html:has(.ns2) { background: #F3EEE2; scroll-behavior: auto; }
+html[data-ns-theme="dark"]:has(.ns2) { background: #262523; }
+/* hide the legacy global chrome only while the homepage is mounted */
 body:has(.ns2) > .announcement-bar,
 body:has(.ns2) > nav { display: none !important; }
 
 .ns2 *, .ns2 *::before, .ns2 *::after { box-sizing: border-box; }
 .ns2 a { color: inherit; text-decoration: none; }
 .ns2 img { max-width: 100%; height: auto; }
-.ns2 ::selection { background: var(--ns-laterite); color: var(--ns-btn-text); }
+.ns2 ::selection { background: var(--ns-marigold); color: #2A1E16; }
 
 .ns2 :focus-visible {
   outline: 3px solid var(--ns-focus);
   outline-offset: 3px;
+  border-radius: 6px;
 }
 
 /* ---------- type ---------- */
-.ns2 h1, .ns2 h2, .ns2 h3, .ns2 h4 { margin: 0; font-weight: 800; }
+.ns2 h1, .ns2 h2, .ns2 h3, .ns2 h4 { margin: 0; font-weight: 700; }
 .ns-h1, .ns-h2, .ns-h3 {
   font-family: var(--ns-display);
-  text-transform: uppercase;
-  letter-spacing: .02em;
-  line-height: .9;
-  font-weight: 900;
+  letter-spacing: -.004em;
+  line-height: 1.04;
+  font-weight: 400;
   margin: 0;
+  text-wrap: balance;
 }
-.ns-h1 { font-size: clamp(56px, 11vw, 190px); }
-.ns-h2 { font-size: clamp(42px, 6.4vw, 104px); }
-.ns-h3 { font-size: clamp(28px, 3vw, 44px); font-weight: 800; line-height: .95; }
+.ns-h1 { font-size: clamp(42px, 6.4vw, 100px); line-height: 1.02; }
+.ns-h2 { font-size: clamp(34px, 4.4vw, 70px); }
+.ns-h3 { font-size: clamp(26px, 2.5vw, 38px); line-height: 1.1; }
 .ns2:lang(hi) .ns-h1, .ns2 :lang(hi) .ns-h1,
 .ns2:lang(hi) .ns-h2, .ns2 :lang(hi) .ns-h2,
 .ns2:lang(hi) .ns-h3, .ns2 :lang(hi) .ns-h3 {
-  font-family: var(--ns-hind);
-  font-weight: 700;
-  text-transform: none;
+  font-family: var(--ns-display);
+  font-weight: 400;
   letter-spacing: 0;
-  line-height: 1.12;
+  line-height: 1.18;
 }
-.ns2 :lang(hi) .ns-h1 { font-size: clamp(44px, 8vw, 132px); }
-.ns2 :lang(hi) .ns-h2 { font-size: clamp(34px, 5vw, 80px); }
+.ns2 :lang(hi) .ns-h1 { font-size: clamp(36px, 5.4vw, 84px); }
+.ns2 :lang(hi) .ns-h2 { font-size: clamp(30px, 3.8vw, 58px); }
 .ns2:lang(hi) { --ns-sans: var(--ns-hind); }
 .ns2 :lang(hi) { --ns-sans: var(--ns-hind); }
 
-.ns-mono, .ns2 code {
-  font-family: var(--ns-mono);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "zero" 1;
-}
+/* numerals stay tidy; actual monospace lives only in calculation drawers */
+.ns-mono { font-family: var(--ns-sans); font-variant-numeric: tabular-nums; }
+.ns-code, .ns2 code { font-family: var(--ns-mono); font-variant-numeric: tabular-nums; font-feature-settings: "zero" 1; }
+
 .ns-eyebrow {
-  font-family: var(--ns-mono);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ns-link);
-  margin: 0 0 18px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 6px 15px 6px 11px;
+  border-radius: 999px;
+  background: var(--ns-tint);
+  color: var(--ns-ink);
+  font-family: var(--ns-sans);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .005em;
 }
-.ns-eyebrow::before { content: ""; width: 28px; height: 1.5px; background: currentColor; flex: none; }
-.ns-lede { font-size: clamp(17px, 1.5vw, 21px); line-height: 1.55; color: var(--ns-ink-2); max-width: 58ch; margin: 0; }
+.ns-eyebrow::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--ns-marigold-deep); flex: none; box-shadow: 0 0 0 3px rgba(217, 142, 6, .22); }
+.ns-lede { font-size: clamp(18px, 1.5vw, 21px); line-height: 1.6; color: var(--ns-ink-2); max-width: 58ch; margin: 0; }
 .ns-muted { color: var(--ns-ink-2); }
 .ns-accent { color: var(--ns-laterite); }
+/* a hand-highlighted phrase inside a headline */
+.ns-mark { background: linear-gradient(transparent 64%, var(--ns-tint) 64%); padding-inline: .06em; margin-inline: -.06em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 
 .ns-wrap { width: 100%; max-width: var(--ns-max); margin-inline: auto; padding-inline: var(--ns-gutter); }
-.ns-section { padding-block: clamp(72px, 11vw, 168px); position: relative; }
+.ns-section { padding-block: clamp(72px, 10vw, 150px); position: relative; }
 .ns-section--alt { background: var(--ns-bg-2); }
 
-/* ---------- stage band ---------- */
+/* ---------- stage band: wet concrete ---------- */
 .ns-stage {
-  --ns-ink: #EFE7D8;
-  --ns-ink-2: rgba(239, 231, 216, .8);
-  --ns-hair: rgba(239, 231, 216, .18);
-  --ns-hair-strong: rgba(239, 231, 216, .45);
-  --ns-link: #EFE7D8;
-  --ns-laterite: #D2694A;
-  --ns-verdigris: #4F9A92;
-  background: var(--ns-stage);
+  --ns-ink: #F3EEE2;
+  --ns-ink-2: rgba(243, 238, 226, .84);
+  --ns-hair: rgba(243, 238, 226, .16);
+  --ns-hair-strong: rgba(243, 238, 226, .42);
+  --ns-line: rgba(243, 238, 226, .26);
+  --ns-line-2: rgba(243, 238, 226, .55);
+  --ns-link: #FCE4A8;
+  --ns-laterite: #F7B733;
+  --ns-verdigris: #7BD3A0;
+  --ns-tint: rgba(243, 238, 226, .12);
+  --ns-shadow-c: rgba(8, 7, 6, .5);
+  background-color: var(--ns-stage);
+  background-image:
+    url("/v2/texture/concrete-wet.webp"),
+    radial-gradient(900px 520px at 88% -8%, rgba(247, 183, 51, .12), transparent 62%),
+    radial-gradient(760px 520px at -6% 108%, rgba(226, 214, 190, .09), transparent 60%);
+  background-size: 1024px 1024px, auto, auto;
+  background-blend-mode: overlay, normal, normal;
   color: var(--ns-chalk);
 }
-.ns-stage .ns-eyebrow { color: #EFE7D8; opacity: .8; }
+.ns-stage .ns-eyebrow { color: #F3EEE2; }
+.ns-stage .ns-eyebrow::before { background: #F7B733; box-shadow: 0 0 0 3px rgba(247, 183, 51, .25); }
 
-/* ---------- plate buttons ---------- */
+/* ---------- buttons: a chunky key with a spirit-level bubble ---------- */
 .ns-btn {
-  --btn-bg: var(--ns-laterite);
-  --btn-fg: var(--ns-btn-text);
+  --btn-bg: var(--ns-marigold);
+  --btn-bg-h: #F8B93A;
+  --btn-fg: #2A1E16;
+  --btn-edge: #B97800;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: .7em;
-  padding: 15px 24px 17px;
-  min-height: 48px;
+  gap: .6em;
+  padding: 14px 26px 18px;
+  min-height: 52px;
   font-family: var(--ns-sans);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  line-height: 1;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .005em;
+  line-height: 1.1;
   color: var(--btn-fg);
   background: var(--btn-bg);
-  border: 2px solid var(--ns-shadow-c);
-  border-radius: 0;
-  box-shadow: 3px 3px 0 var(--ns-shadow-c);
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 4px 0 var(--btn-edge), 0 14px 22px -10px rgba(42, 30, 22, .35);
   cursor: pointer;
-  transition: transform 90ms ease-out, box-shadow 90ms ease-out, background-color 150ms;
+  transition: transform 110ms ease-out, box-shadow 110ms ease-out, background-color 150ms;
   overflow: hidden;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
-.ns2:lang(hi) .ns-btn, .ns2 :lang(hi) .ns-btn { letter-spacing: 0; text-transform: none; font-weight: 600; }
 /* level-bubble track */
 .ns-btn::before {
   content: "";
   position: absolute;
-  left: 12px; right: 12px; bottom: 5px;
+  left: 14px; right: 14px; bottom: 5px;
   height: 5px;
   border: 1px solid currentColor;
   border-radius: 3px;
-  opacity: .45;
+  opacity: .4;
   pointer-events: none;
 }
 .ns-btn::after {
   content: "";
   position: absolute;
-  bottom: 6px; left: 14px;
-  width: 7px; height: 3px;
+  bottom: 6px; left: 16px;
+  width: 8px; height: 3px;
   border-radius: 3px;
   background: currentColor;
-  opacity: .9;
+  opacity: .85;
   transition: left 420ms cubic-bezier(.2, .9, .3, 1.15);
   pointer-events: none;
 }
-.ns-btn:hover::after, .ns-btn:focus-visible::after { left: calc(50% - 3px); }
-/* `.ns2 a { color: inherit }` (0,1,1) outranks `.ns-btn` (0,1,0): without this, <a class="ns-btn"> showed ink text on laterite (2.87:1). */
+.ns-btn:hover::after, .ns-btn:focus-visible::after { left: calc(50% - 4px); }
+/* `.ns2 a { color: inherit }` (0,1,1) outranks `.ns-btn` (0,1,0): without this, <a class="ns-btn"> picks up the surrounding ink colour. */
 .ns2 .ns-btn { color: var(--btn-fg); }
-.ns-btn:hover { background: var(--ns-laterite-deep); }
-html[data-ns-theme="dark"] .ns-btn:hover { background: #E27B5C; }
-.ns-btn:active {
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 var(--ns-shadow-c);
-}
-.ns-btn--paper { --btn-bg: var(--ns-paper); --btn-fg: var(--ns-ink); }
-.ns-btn--paper:hover { background: var(--ns-bg-2); }
-.ns-btn--ink { --btn-bg: var(--ns-ink); --btn-fg: var(--ns-bg); }
-.ns-btn--ink:hover { background: var(--ns-ink-2); }
-.ns-btn--verd { --btn-bg: var(--ns-verdigris); --btn-fg: #F7F2E7; }
-.ns-btn--verd:hover { background: #163836; }
-.ns-btn--sm { padding: 11px 16px 13px; min-height: 40px; font-size: 13px; }
+.ns-btn:hover { background: var(--btn-bg-h); transform: translateY(-2px); box-shadow: 0 6px 0 var(--btn-edge), 0 18px 26px -12px rgba(42, 30, 22, .38); }
+.ns-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--btn-edge); }
+.ns-btn--paper { --btn-bg: var(--ns-paper); --btn-bg-h: var(--ns-bg-2); --btn-fg: var(--ns-ink); --btn-edge: var(--ns-line-2); box-shadow: inset 0 0 0 1.5px var(--ns-line-2), 0 4px 0 var(--btn-edge), 0 14px 22px -10px rgba(42, 30, 22, .25); }
+.ns-btn--paper:hover { box-shadow: inset 0 0 0 1.5px var(--ns-line-2), 0 6px 0 var(--btn-edge), 0 18px 26px -12px rgba(42, 30, 22, .3); }
+.ns-btn--paper:active { box-shadow: inset 0 0 0 1.5px var(--ns-line-2), 0 0 0 var(--btn-edge); }
+.ns-btn--ink { --btn-bg: var(--ns-ink); --btn-bg-h: var(--ns-ink-2); --btn-fg: var(--ns-bg); --btn-edge: #000; }
+.ns-btn--verd { --btn-bg: var(--ns-btn-indigo); --btn-bg-h: #3B4EB0; --btn-fg: var(--ns-btn-indigo-fg); --btn-edge: #151D52; }
+html[data-ns-theme="dark"] .ns-btn--verd { --btn-bg-h: #F5EEDD; --btn-edge: #8E8571; }
+.ns-btn--sm { padding: 10px 18px 14px; min-height: 42px; font-size: 15px; }
+.ns-btn--sm::before { left: 10px; right: 10px; bottom: 4px; }
+.ns-btn--sm::after { left: 12px; bottom: 5px; }
 .ns-btn[disabled], .ns-btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; box-shadow: none; transform: none; }
-.ns-stage .ns-btn--paper { --btn-bg: #EFE7D8; --btn-fg: #14322F; border-color: #0A1E1C; box-shadow: 3px 3px 0 #0A1E1C; }
-.ns-stage .ns-btn:not(.ns-btn--paper) { border-color: #0A1E1C; box-shadow: 3px 3px 0 #0A1E1C; }
+.ns-stage .ns-btn--paper { --btn-bg: #F3EEE2; --btn-bg-h: #FFFCF3; --btn-fg: #2A2723; --btn-edge: #12100E; box-shadow: 0 4px 0 var(--btn-edge), 0 14px 22px -10px rgba(8, 7, 6, .6); }
+.ns-stage .ns-btn--paper:hover { box-shadow: 0 6px 0 var(--btn-edge), 0 18px 26px -12px rgba(8, 7, 6, .6); }
+.ns-stage .ns-btn--paper:active { box-shadow: 0 0 0 var(--btn-edge); }
 
-/* text link with drafted underline */
+/* poured edges: the lower (or upper) strip of the band is masked into slumped concrete lobes.
+   The band overlaps its neighbour by --pour so the lobes hang over (or rise from) the next section. */
+.ns-stage--drip, .ns-stage--crest { --pour: clamp(48px, 5.4vw, 80px); position: relative; z-index: 2; }
+.ns-stage--drip {
+  padding-bottom: calc(var(--pour) + clamp(72px, 10vw, 150px)); margin-bottom: calc(var(--pour) * -1);
+  -webkit-mask: linear-gradient(#000 0 0) 0 0 / 100% calc(100% - var(--pour)) no-repeat, url("/v2/texture/edge-drip.svg") 0 100% / auto var(--pour) repeat-x;
+  mask: linear-gradient(#000 0 0) 0 0 / 100% calc(100% - var(--pour)) no-repeat, url("/v2/texture/edge-drip.svg") 0 100% / auto var(--pour) repeat-x;
+}
+.ns-stage--crest {
+  padding-top: calc(var(--pour) + clamp(72px, 10vw, 150px)); margin-top: calc(var(--pour) * -1);
+  -webkit-mask: linear-gradient(#000 0 0) 0 100% / 100% calc(100% - var(--pour)) no-repeat, url("/v2/texture/edge-crest.svg") 0 0 / auto var(--pour) repeat-x;
+  mask: linear-gradient(#000 0 0) 0 100% / 100% calc(100% - var(--pour)) no-repeat, url("/v2/texture/edge-crest.svg") 0 0 / auto var(--pour) repeat-x;
+}
+
+/* text link with a hand-drawn underline */
 .ns-link {
   color: var(--ns-link);
-  font-weight: 600;
+  font-weight: 700;
   background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1.5px no-repeat;
   padding-bottom: 2px;
   transition: background-size 180ms;
@@ -262,23 +320,24 @@ html[data-ns-theme="dark"] .ns-btn:hover { background: #E27B5C; }
   position: relative;
   background: var(--ns-paper);
   color: var(--ns-ink);
-  border: 1.5px solid var(--ns-shadow-c);
-  box-shadow: 3px 3px 0 var(--ns-shadow-c);
-  border-radius: 0;
+  border: 1.5px solid var(--ns-line);
+  box-shadow: 4px 5px 0 var(--ns-shadow-c);
+  border-radius: var(--ns-r);
 }
-.ns-plate--flat { box-shadow: none; border-color: var(--ns-hair-strong); }
+.ns-plate--flat { box-shadow: none; }
 .ns-plate--paper { /* a light sheet inside a stage band */
-  --ns-ink: #1C1B19; --ns-ink-2: #4A453D; --ns-hair: rgba(28,27,25,.14); --ns-hair-strong: rgba(28,27,25,.38);
-  --ns-link: #8F3A22; --ns-laterite: #A5462B; --ns-verdigris: #1F4B47; --ns-shadow-c: #0A1E1C;
-  background: #F7F2E7; color: #1C1B19;
+  --ns-ink: #2A1E16; --ns-ink-2: #5E4B3C; --ns-hair: rgba(42,30,22,.12); --ns-hair-strong: rgba(42,30,22,.32);
+  --ns-line: rgba(42,30,22,.2); --ns-line-2: rgba(42,30,22,.5); --ns-tint: #FCE4A8;
+  --ns-link: #2E3F94; --ns-laterite: #B5472B; --ns-verdigris: #2F7A4F; --ns-shadow-c: rgba(58, 54, 49, .4);
+  background: #FFFCF3; color: #2A1E16;
 }
 /* masking-tape corners for photographic plates */
 .ns-tape-corner::before, .ns-tape-corner::after {
   content: "";
   position: absolute;
   width: 84px; height: 24px;
-  background: rgba(232, 222, 196, .82);
-  border: 1px solid rgba(28, 27, 25, .12);
+  background: rgba(252, 228, 168, .86);
+  border: 1px solid rgba(42, 30, 22, .1);
   z-index: 3;
   pointer-events: none;
 }
@@ -289,16 +348,14 @@ html[data-ns-theme="dark"] .ns-btn:hover { background: #E27B5C; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 9px;
-  font-family: var(--ns-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  padding: 4px 11px;
+  font-family: var(--ns-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .01em;
   color: var(--ns-verdigris);
-  border: 1px solid currentColor;
-  outline: 1px solid currentColor;
-  outline-offset: 2px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
   transform: rotate(-1.6deg);
 }
 .ns-stamp--lat { color: var(--ns-laterite); }
@@ -306,11 +363,13 @@ html[data-ns-theme="dark"] .ns-btn:hover { background: #E27B5C; }
 .ns-chip {
   display: inline-flex;
   align-items: center;
-  font-family: var(--ns-mono);
-  font-size: 12px;
-  letter-spacing: .04em;
-  padding: 4px 9px;
-  border: 1px solid var(--ns-hair-strong);
+  font-family: var(--ns-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: .005em;
+  padding: 4px 12px;
+  border: 1.5px solid var(--ns-hair-strong);
+  border-radius: 999px;
   color: var(--ns-ink);
   background: transparent;
   white-space: nowrap;
@@ -339,7 +398,7 @@ html[data-ns-theme="dark"] .ns-btn:hover { background: #E27B5C; }
 /* mask wipe — headline "painted on" like a hoarding */
 .ns-wipe { display: inline-block; clip-path: inset(0 100% 0 0); }
 .ns-wipe.is-in { animation: ns-wipe .9s cubic-bezier(.7, 0, .2, 1) forwards; animation-delay: var(--d, 0s); }
-@keyframes ns-wipe { to { clip-path: inset(0 0 0 0); } }
+@keyframes ns-wipe { to { clip-path: inset(-10% 0 -10% 0); } }
 
 /* ---------- calm / reduced motion ---------- */
 html[data-calm="1"] .ns2 *, html[data-calm="1"] .ns2 *::before, html[data-calm="1"] .ns2 *::after {
@@ -367,15 +426,8 @@ html[data-calm="1"] .ns-wipe { clip-path: none; }
 
 /* ---------- misc ---------- */
 .ns-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.ns-dim { /* dimension line divider */
+.ns-dim { /* soft divider with a label */
   display: flex; align-items: center; gap: 14px; color: var(--ns-ink-2);
-  font-family: var(--ns-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  font-family: var(--ns-sans); font-size: 14px; font-weight: 600;
 }
-.ns-dim::before, .ns-dim::after {
-  content: ""; flex: 1; height: 9px;
-  background:
-    linear-gradient(currentColor, currentColor) 0 50% / 100% 1px no-repeat,
-    linear-gradient(currentColor, currentColor) 0 0 / 1px 100% no-repeat;
-  opacity: .55;
-}
-.ns-dim::after { background-position: 0 50%, 100% 0; }
+.ns-dim::before, .ns-dim::after { content: ""; flex: 1; height: 1.5px; background: var(--ns-hair-strong); border-radius: 2px; }

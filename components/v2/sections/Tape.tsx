@@ -1,10 +1,10 @@
-import { TAPE_CODES } from '@/lib/v2/content'
+import { TAPE, pick, type Loc } from '@/lib/v2/copy'
 
-/** Surveyor's-tape ticker: every IS code is a reading on the tape. Decorative; the codes are listed in full in the IS-codes section. */
-export default function Tape() {
+/** Ticker under the hero: the questions every homeowner has. Decorative; everything it says is answered further down. */
+export default function Tape({ loc }: { loc: Loc }) {
   const seg = (k: string) => (
     <div className="ns-tape__seg" key={k}>
-      {TAPE_CODES.map(c => <span key={c} className="ns-mono">{c}</span>)}
+      {TAPE.map((c, i) => <span key={i}>{pick(c, loc)}</span>)}
     </div>
   )
   return (

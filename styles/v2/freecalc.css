@@ -1,0 +1,89 @@
+/* The free calculators (v2 look). Layout and the few pieces that are specific to a calculator. Fields, notes, tables and
+   pills come from inner.css; sections and prose from results.css. */
+
+.ns-calc-page { display: grid; gap: clamp(18px, 2.4vw, 30px); }
+
+/* quick answer: the first thing under the title */
+.ns-calc-qa { padding: clamp(16px, 2vw, 22px) clamp(18px, 2.4vw, 26px); border-left: 6px solid var(--tc); }
+.ns-calc-qa__k { margin: 0 0 6px; font-size: 14px; font-weight: 700; letter-spacing: .02em; color: var(--tc); }
+.ns-calc-qa__t { margin: 0; font-size: clamp(17px, 1.4vw, 19px); line-height: 1.6; max-width: 78ch; }
+
+/* two cards: questions, then the answer */
+.ns-calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(16px, 2vw, 26px); align-items: start; }
+.ns-calc__in, .ns-calc__out { padding: clamp(18px, 2.4vw, 30px); min-width: 0; display: grid; gap: 18px; align-content: start; }
+@media (min-width: 861px) { .ns-calc__out { position: sticky; top: 96px; } }
+@media (max-width: 860px) { .ns-calc { grid-template-columns: minmax(0, 1fr); } }
+.ns-calc-lab { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: .02em; color: var(--tc); }
+.ns-calc__in .ns-i-fields { gap: 16px; }
+.ns-calc__in .ns-i-hint, .ns-calc__in .ns-calc-help { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--ns-ink-2); }
+.ns-calc-help { margin: 0; }
+.ns-calc-empty { margin: 0; color: var(--ns-ink-2); font-size: 17px; line-height: 1.6; }
+
+/* the big number */
+.ns-calc-big { display: grid; gap: 2px; min-width: 0; }
+.ns-calc-big__k { font-size: 15px; font-weight: 700; color: var(--ns-ink-2); }
+.ns-calc-big__v { font-family: var(--ns-mono); font-feature-settings: "zero" 1; font-variant-numeric: tabular-nums; font-weight: 600; font-size: clamp(40px, 5.4vw, 64px); line-height: 1.05; overflow-wrap: anywhere; }
+.ns-calc__out { container-type: inline-size; }
+.ns-calc-big__v[data-fit="a"] { font-size: min(64px, max(26px, 15cqi)); }
+.ns-calc-big__v[data-fit="b"] { font-size: min(64px, max(24px, 13.2cqi)); }
+.ns-calc-big__v[data-fit="c"] { font-size: min(64px, max(22px, 11.6cqi)); }
+.ns-calc-big__v[data-fit="d"] { font-size: min(64px, max(20px, 10.2cqi)); }
+.ns-calc-big__v[data-fit="e"] { font-size: min(64px, max(18px, 9cqi)); }
+.ns-calc-big__v small { font-size: clamp(16px, 1.6vw, 21px); font-weight: 400; color: var(--ns-ink-2); margin-left: 8px; }
+.ns-calc-big__s { font-family: var(--ns-mono); font-size: 14.5px; color: var(--ns-ink-2); }
+
+/* small figures */
+.ns-calc-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0; }
+.ns-calc-fig { padding: 13px 15px; border-radius: 14px; border: 1.5px solid var(--ns-line); background: var(--ns-bg); min-width: 0; }
+.ns-calc-fig dt { font-size: 14px; color: var(--ns-ink-2); }
+.ns-calc-fig dd { margin: 3px 0 0; font-family: var(--ns-mono); font-variant-numeric: tabular-nums; font-feature-settings: "zero" 1; font-weight: 700; font-size: 21px; overflow-wrap: anywhere; }
+.ns-calc-fig dd small { font-family: var(--ns-sans); font-size: 14px; font-weight: 400; color: var(--ns-ink-2); margin-left: 4px; }
+.ns-calc-fig[data-tone="ok"] { border-color: color-mix(in srgb, var(--ns-verdigris) 60%, transparent); background: color-mix(in srgb, var(--ns-verdigris) 8%, var(--ns-paper)); }
+.ns-calc-fig[data-tone="warn"] { border-color: color-mix(in srgb, var(--ns-laterite) 60%, transparent); background: color-mix(in srgb, var(--ns-laterite) 8%, var(--ns-paper)); }
+
+/* working rows */
+/* Each row is label and figure on one line, the explanation under them: it fits a phone and the narrow result card alike. */
+.ns-calc-rows, .ns-calc-rows tbody { display: block; width: 100%; }
+.ns-calc-rows tr { display: grid; grid-template-columns: minmax(0, 1fr) fit-content(58%); column-gap: 14px; padding: 11px 16px; border-bottom: 1.5px solid var(--ns-hair); }
+.ns-calc-rows tbody tr:last-child { border-bottom: 0; }
+.ns-calc-rows th, .ns-calc-rows td { border: 0; padding: 0; }
+.ns-calc-rows tbody th { grid-column: 1; grid-row: 1; white-space: normal; font-weight: 700; }
+.ns-calc-rows td.ns-i-num { grid-column: 2; grid-row: 1; text-align: right; font-weight: 600; white-space: normal; overflow-wrap: anywhere; }
+.ns-calc-rows td.ns-i-tbl__note { grid-column: 1 / -1; grid-row: 2; margin-top: 3px; font-size: 14.5px; line-height: 1.4; color: var(--ns-ink-2); }
+.ns-calc-rows td.ns-i-tbl__note:empty { display: none; }
+.ns-calc-rows tr[data-tone="dim"] > * { color: var(--ns-ink-2); }
+.ns-calc-rows tr[data-tone="ok"] td.ns-i-num { color: var(--ns-verdigris); }
+html[data-ns-theme="dark"] .ns-calc-rows tr[data-tone="ok"] td.ns-i-num { color: #8FD1A8; }
+.ns-calc-rows .ns-i-tbl__note { white-space: normal; }
+
+.ns-calc-chips { list-style: none; margin: 0; padding: 0; }
+
+/* sections and long text under the calculator */
+.ns-calc-sec h2 { font-family: var(--ns-display); font-weight: 400; font-size: clamp(24px, 2.4vw, 32px); line-height: 1.15; margin: 0; }
+.ns-calc-prose { display: grid; gap: 12px; max-width: 76ch; }
+.ns-calc-prose h2 { font-family: var(--ns-display); font-weight: 400; font-size: clamp(24px, 2.4vw, 32px); line-height: 1.15; margin: 0; }
+.ns-calc-prose .ns-prose { display: grid; gap: 12px; }
+.ns-calc-prose .ns-prose strong { color: var(--ns-ink); }
+.ns-calc-formula { margin: 0; padding: 13px 16px; border-radius: 12px; border: 1.5px solid var(--ns-line); background: var(--ns-bg-2); font-family: var(--ns-mono); font-size: 15.5px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-line; }
+.ns-calc-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.ns-calc-articles { display: grid; gap: clamp(22px, 3vw, 36px); }
+.ns-calc-block { display: grid; gap: 12px; }
+.ns-calc-block > h2 { font-family: var(--ns-display); font-weight: 400; font-size: clamp(24px, 2.4vw, 32px); line-height: 1.15; margin: 0; }
+
+/* pointer to a paid tool */
+.ns-calc-cta { padding: clamp(18px, 2.4vw, 28px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; }
+.ns-calc-cta > div { flex: 1 1 320px; min-width: 0; }
+.ns-calc-cta__k { margin: 0 0 6px; font-size: 14px; font-weight: 700; letter-spacing: .02em; color: var(--tc); }
+.ns-calc-cta__t { margin: 0; font-size: 17px; line-height: 1.55; max-width: 66ch; }
+
+.ns-calc-fine { max-width: 86ch; }
+
+/* a segmented choice that holds two to four short options */
+.ns-calc-opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; }
+.ns-calc-opts legend { padding: 0; margin-bottom: 7px; font-size: 15.5px; font-weight: 700; color: var(--ns-ink); }
+.ns-calc-opt { position: relative; }
+.ns-calc-opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.ns-calc-opt span { display: inline-flex; align-items: center; min-height: 46px; padding: 8px 16px; border-radius: 12px; border: 1.5px solid var(--ns-line); background: var(--ns-paper); font-weight: 700; font-size: 16px; line-height: 1.2; }
+.ns-calc-opt input:checked + span { border-color: var(--tc); background: color-mix(in srgb, var(--tc) 12%, var(--ns-paper)); box-shadow: inset 0 0 0 1px var(--tc); }
+.ns-calc-opt input:focus-visible + span { outline: 3px solid var(--ns-focus); outline-offset: 2px; }
+.ns-calc-opt:hover span { border-color: var(--ns-ink); }

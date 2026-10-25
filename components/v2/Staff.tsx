@@ -19,7 +19,7 @@ export default function Staff() {
       const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0
       const h = rod.current?.clientHeight ?? 0
       bob.current?.style.setProperty('--staff-y', `${(p * h).toFixed(1)}px`)
-      if (read.current) read.current.textContent = `${(p * 4).toFixed(3)} m`
+      if (read.current) read.current.textContent = `${Math.round(p * 100)}%`
       top.current?.style.setProperty('--p', p.toFixed(4))
     }
     let idle = 0
@@ -46,7 +46,7 @@ export default function Staff() {
       <div className="ns-staff" aria-hidden="true">
         <div className="ns-staff__rod" ref={rod} />
         <div className="ns-staff__bob" ref={bob}>
-          <span className="ns-staff__read" ref={read}>0.000 m</span>
+          <span className="ns-staff__read" ref={read}>0%</span>
         </div>
       </div>
     </>

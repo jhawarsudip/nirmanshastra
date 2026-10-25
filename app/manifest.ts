@@ -4,11 +4,11 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'NirmanShastra — Build With Certainty',
     short_name: 'NirmanShastra',
-    description: "IS-code-traceable construction cost estimation and professional BOQ generation for Indian homes — every quantity tied to a BIS/IS clause, across structure, masonry, electrical, plumbing, and interior",
+    description: "Material quantities for Indian homes, worked out to the Indian Standards: structure, masonry, electrical, plumbing and interior, each with the clause behind it",
     start_url: '/',
     display: 'standalone',
-    background_color: '#EFE7D8',
-    theme_color: '#EFE7D8',
+    background_color: '#F3EEE2',
+    theme_color: '#F3EEE2',
     icons: [
       {
         src: '/icon-192.png',

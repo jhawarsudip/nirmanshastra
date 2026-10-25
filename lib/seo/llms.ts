@@ -7,7 +7,7 @@
 
 import { BLOG_ARTICLES } from '@/lib/blog-content'
 import { FAQ_CATEGORIES } from '@/lib/faq-data'
-import { CODES_BY_TOOL } from '@/lib/is-codes-data'
+import { uniqueSources } from '@/lib/is-codes-data'
 import { CALC_CONTENT } from '@/lib/seo/calc-content'
 import { PAID_CONTENT } from '@/lib/seo/paid-content'
 import {
@@ -30,18 +30,7 @@ const BUILD_DATE = new Date().toISOString().slice(0, 10)
 const link = (name: string, path: string, desc: string) => `- [${name}](${abs(path)}): ${desc}`
 
 function uniqueCodes() {
-  const map = new Map<string, { title: string; governs: string; tools: string[] }>()
-  for (const g of CODES_BY_TOOL) {
-    for (const c of g.codes) {
-      const hit = map.get(c.code)
-      if (hit) {
-        if (!hit.tools.includes(g.tool)) hit.tools.push(g.tool)
-      } else {
-        map.set(c.code, { title: c.title, governs: c.governs, tools: [g.tool] })
-      }
-    }
-  }
-  return [...map.entries()]
+  return uniqueSources().map((v) => [v.code, v] as const)
 }
 
 export function buildLlmsTxt(): string {
@@ -57,7 +46,7 @@ export function buildLlmsTxt(): string {
     ''
   )
   lines.push(
-    `Quantities follow the Indian Standards (IS codes) listed at ${abs('/is-codes-used')}. Cost figures are indicative estimates that vary by city and date; see ${abs('/disclaimer')}. ${REVIEW_NOTE}`,
+    `Quantities follow the Indian Standards (IS codes) listed at ${abs('/is-codes-used')}. Quantities are estimates worked out from a few answers and are not a structural design; see ${abs('/disclaimer')}. No rates, labour or contractor prices are given. ${REVIEW_NOTE}`,
     ''
   )
   lines.push(
@@ -73,7 +62,7 @@ export function buildLlmsTxt(): string {
   for (const t of freeTools) lines.push(link(t.name, t.path, t.summary))
   lines.push('')
 
-  lines.push('## BOQ reports (paid, one-time price per report)', '')
+  lines.push('## Quantity reports (paid, one-time price per report)', '')
   for (const t of paid) {
     const p = priceOfTool(t)
     lines.push(link(t.name, t.path, `${t.summary}${p !== null ? ` Price: ${inr(p)}.` : ''}`))
@@ -94,7 +83,7 @@ export function buildLlmsTxt(): string {
   lines.push('## Reference', '')
   lines.push(link('IS Codes Used', '/is-codes-used', `The Indian Standards behind every quantity and rate, with what each governs.`))
   lines.push(link('FAQ', '/faq', 'Questions about pricing, IS codes, accuracy and how reports work.'))
-  lines.push(link('Glossary', '/glossary', 'BOQ, RA bill, retention, bar bending schedule, cube test, M20/M25, curing and more.'))
+  lines.push(link('Glossary', '/glossary', 'Bill of quantities, bar bending schedule, cube test, M20/M25, curing and more.'))
   lines.push(link('About', '/about', 'Who builds NirmanShastra and why.'))
   lines.push(link('Contact', '/contact', 'Support, IS-code clarification and billing queries.'))
   lines.push('')
@@ -119,7 +108,7 @@ export function buildLlmsFullTxt(): string {
     out.push(`## ${t.name}`, '')
     out.push(`URL: ${abs(t.path)}`)
     out.push(
-      `Type: ${t.kind === 'paid-report' ? `paid BOQ report${p !== null ? `, ${inr(p)}` : ''}` : 'free'}`
+      `Type: ${t.kind === 'paid-report' ? `paid quantity report${p !== null ? `, ${inr(p)}` : ''}` : 'free'}`
     )
     if (t.isCodes.length) out.push(`IS codes: ${t.isCodes.join(', ')}`)
     out.push('', t.summary, '')
@@ -160,7 +149,7 @@ export function buildLlmsFullTxt(): string {
   // ── IS codes ──
   out.push('# IS codes used', '', `URL: ${abs('/is-codes-used')}`, '')
   for (const [code, v] of uniqueCodes()) {
-    out.push(`## ${code} — ${v.title}`, `Used by: ${v.tools.join(', ')}`, v.governs, '')
+    out.push(`## ${code} — ${v.title}`, `Used by: ${v.tools.join(', ')}`, v.governs, ...(v.caveat ? [`Limit: ${v.caveat}`] : []), '')
   }
 
   // ── Guides ──

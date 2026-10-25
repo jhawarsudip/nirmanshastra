@@ -7,6 +7,7 @@ import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { Field, Input, Note, IcArrow } from '@/components/v2/inner/kit'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -56,137 +57,49 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-sheet-white flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm mb-8 text-center">
-        <p
-          className="text-[10px] uppercase tracking-widest mb-2"
-          style={{ color: 'rgba(30,34,39,0.4)', fontFamily: 'var(--font-plex-mono)' }}
-        >
-          NIRMANSHASTRA · BUILD WITH CERTAINTY
-        </p>
-        <h1
-          className="text-[26px] font-bold mb-1"
-          style={{ color: '#1E2227', fontFamily: 'var(--font-plex-serif)' }}
-        >
-          Set New Password
-        </h1>
-      </div>
+    <div className="ns-i-page">
+      <div className="ns-i-wrap">
+        <div className="ns-au">
+          <header className="ns-au-head">
+            <p className="ns-au-eyebrow">Your account</p>
+            <h1>Set a new password</h1>
+          </header>
 
-      <div
-        className="w-full max-w-sm rounded-[2px] bg-sheet-white"
-        style={{ border: '1px solid #1E2227' }}
-      >
-        <div
-          className="px-5 py-3 text-[11px] uppercase tracking-widest"
-          style={{
-            borderBottom: '1px solid #1E2227',
-            fontFamily: 'var(--font-plex-mono)',
-            background: '#1E2227',
-            color: '#F4F4F0',
-          }}
-        >
-          Reset Password
-        </div>
+          <div className="ns-plate ns-au-card">
+            {success ? (
+              <div className="ns-au-form" role="status">
+                <Note kind="ok" title="Password updated">Taking you to the log-in page…</Note>
+              </div>
+            ) : !sessionReady ? (
+              <div className="ns-au-form">
+                <Note kind="err" title="This reset link has expired or is invalid">Please request a new one from the log-in page.</Note>
+                <Link href="/auth" className="ns-btn ns-au-submit">Back to log in<IcArrow width={22} height={11} /></Link>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="ns-au-form">
+                <div className="ns-i-fields">
+                  <Field id="rp-password" label="New password" required wide hint="At least 8 characters">
+                    <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} placeholder="Choose a new password" autoComplete="new-password" />
+                  </Field>
+                  <Field id="rp-confirm" label="Confirm new password" required wide>
+                    <Input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required minLength={8} placeholder="Repeat your new password" autoComplete="new-password" />
+                  </Field>
+                </div>
 
-        {success ? (
-          <div className="p-5 flex flex-col gap-4 text-center">
-            <p
-              className="text-[13px]"
-              style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}
-            >
-              ✓ Password updated successfully.
-            </p>
-            <p
-              className="text-[12px]"
-              style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}
-            >
-              Redirecting you to login…
-            </p>
-          </div>
-        ) : !sessionReady ? (
-          <div className="p-5 flex flex-col gap-4">
-            <p
-              className="text-[13px]"
-              style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}
-            >
-              ⚠ This reset link has expired or is invalid. Please request a new one.
-            </p>
-            <Link
-              href="/auth"
-              className="text-[12px] underline text-center"
-              style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-sans)' }}
-            >
-              ← Back to login
-            </Link>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <label
-                className="text-[11px] uppercase tracking-widest"
-                style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
-              >
-                New Password <span style={{ color: '#8C3A22' }}>*</span>
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                minLength={8}
-                placeholder="Min. 8 characters"
-                autoComplete="new-password"
-                className="border border-iron-ink rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
-                style={{ fontFamily: 'var(--font-plex-sans)' }}
-              />
-            </div>
+                {error ? <Note kind="err">{error}</Note> : null}
 
-            <div className="flex flex-col gap-1">
-              <label
-                className="text-[11px] uppercase tracking-widest"
-                style={{ color: 'rgba(30,34,39,0.6)', fontFamily: 'var(--font-plex-mono)' }}
-              >
-                Confirm New Password <span style={{ color: '#8C3A22' }}>*</span>
-              </label>
-              <input
-                type="password"
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
-                required
-                minLength={8}
-                placeholder="Repeat your new password"
-                autoComplete="new-password"
-                className="border border-iron-ink rounded-[6px] px-3 py-2 text-[14px] bg-sheet-white text-iron-ink outline-none focus:border-blueprint"
-                style={{ fontFamily: 'var(--font-plex-sans)' }}
-              />
-            </div>
-
-            {error && (
-              <p className="text-[12px]" style={{ color: '#8C3A22', fontFamily: 'var(--font-plex-mono)' }}>
-                ⚠ {error}
-              </p>
+                <button type="submit" disabled={loading} className="ns-btn ns-au-submit">
+                  {loading ? 'Please wait…' : 'Update password'}
+                  {!loading ? <IcArrow width={22} height={11} /> : null}
+                </button>
+              </form>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-[6px] text-[14px] font-semibold text-white transition-opacity disabled:opacity-60"
-              style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}
-            >
-              {loading ? 'Please wait…' : 'Update Password →'}
-            </button>
-          </form>
-        )}
-
-        {!success && (
-          <div className="px-5 pb-4 text-center" style={{ borderTop: '1px solid rgba(30,34,39,0.1)' }}>
-            <p className="text-[12px] pt-4" style={{ color: 'rgba(30,34,39,0.5)', fontFamily: 'var(--font-plex-sans)' }}>
-              <Link href="/auth" className="underline" style={{ color: '#1F4E79' }}>
-                ← Back to login
-              </Link>
-            </p>
+            {!success && sessionReady ? (
+              <p className="ns-au-foot"><Link href="/auth" className="ns-au-link">Back to log in</Link></p>
+            ) : null}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

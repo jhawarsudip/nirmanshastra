@@ -1,9 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { type VastuAnalysis, type VastuFinding } from '../vastu-engine'
-import { type Severity } from '../vastu-data'
+import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import { type VastuAnalysis, type VastuFinding, type PlacedMarker } from '../vastu-engine'
+import { ZONE_SCORE, type Severity } from '../vastu-data'
+import { Note, IcArrow } from '@/components/v2/inner/kit'
+import { TOOLS } from '@/lib/v2/content'
 
 const VastuMassingPreview3DWrapper = dynamic(
   () => import('./MassingPreview3DWrapper'),
@@ -14,379 +17,182 @@ interface Props {
   analysis: VastuAnalysis
   contactName: string
   northDeg: number
-  markerCount: number
-  onStartOver: () => void
+  markers: PlacedMarker[]
+  onBackToPlan: () => void
 }
 
-const SEVERITY_COLOUR: Record<Severity, string> = {
-  CRITICAL: '#8C3A22',
-  MODERATE: '#D99A06',
-  POSITIVE: '#14532D',
-  NEUTRAL: 'rgba(255,255,255,0.40)',
-}
+const SEVERITY_LABEL: Record<Severity, string> = { CRITICAL: 'Critical', MODERATE: 'Moderate', NEUTRAL: 'Neutral', POSITIVE: 'Positive' }
 
-const SEVERITY_BG: Record<Severity, string> = {
-  CRITICAL: 'rgba(140,58,34,0.06)',
-  MODERATE: 'rgba(217,154,6,0.06)',
-  POSITIVE: 'rgba(20,83,45,0.06)',
-  NEUTRAL: 'rgba(255,255,255,0.02)',
-}
-
-function SeverityStamp({ severity }: { severity: Severity }) {
-  const colour = SEVERITY_COLOUR[severity]
-  const isYellow = severity === 'MODERATE'
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        border: `1px solid ${colour}`,
-        outline: `1px solid ${colour}`,
-        outlineOffset: 2,
-        padding: '1px 6px',
-        transform: 'rotate(-2deg)',
-        color: isYellow ? '#1E2227' : colour,
-        background: isYellow ? 'rgba(217,154,6,0.15)' : 'transparent',
-        fontFamily: 'var(--font-plex-mono)',
-        fontSize: 9,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase' as const,
-        borderRadius: 1,
-        fontWeight: 500,
-        whiteSpace: 'nowrap' as const,
-      }}
-    >
-      {severity}
-    </span>
-  )
-}
+const RING_R = 70
+const RING_C = 2 * Math.PI * RING_R
 
 function FindingCard({ finding }: { finding: VastuFinding }) {
-  const borderColour = SEVERITY_COLOUR[finding.severity]
   return (
-    <div
-      className="rounded-[2px] p-4"
-      style={{
-        background: SEVERITY_BG[finding.severity],
-        border: `1px solid rgba(255,255,255,0.08)`,
-        borderLeft: `3px solid ${borderColour}`,
-      }}
-    >
-      <div className="mb-2">
-        <SeverityStamp severity={finding.severity} />
+    <article className="ns-plate ns-v-find" data-sev={finding.severity}>
+      <div className="ns-v-find__top">
+        <h3>{finding.roomLabel}</h3>
+        <span className="ns-v-badge" data-sev={finding.severity}>{SEVERITY_LABEL[finding.severity]}</span>
       </div>
-      <p
-        className="text-[15px] font-semibold"
-        style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}
-      >
-        {finding.roomLabel}
-      </p>
-      <p
-        className="text-[12px] mb-2"
-        style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-plex-mono)' }}
-      >
-        {finding.zoneFull} Zone · {finding.zoneName}
-      </p>
-      <p
-        className="text-[13px] leading-relaxed mb-3"
-        style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-plex-sans)' }}
-      >
-        {finding.impact}
-      </p>
-      <div
-        className="rounded-[2px] px-3 py-2.5"
-        style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.10)' }}
-      >
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.28)' }}>🔒</span>
-          <p
-            className="text-[10px] uppercase tracking-widest"
-            style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}
-          >
-            In Your Free PDF Report
-          </p>
-        </div>
-        <p
-          className="text-[11px]"
-          style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-sans)' }}
-        >
-          Technical remedy · Actionable remedy · Do&apos;s · Don&apos;ts
-        </p>
-      </div>
-    </div>
+      <p className="ns-v-find__z">{finding.zoneFull} zone ({finding.zoneName})</p>
+      <p className="ns-v-find__t">{finding.impact}</p>
+    </article>
   )
 }
 
-export default function AnalysisResults({
-  analysis,
-  contactName,
-  northDeg,
-  markerCount,
-  onStartOver,
-}: Props) {
+export default function AnalysisResults({ analysis, contactName, northDeg, markers, onBackToPlan }: Props) {
   const { findings, score, criticalCount, moderateCount, positiveCount, neutralCount } = analysis
   const [show3D, setShow3D] = useState(false)
+  const [pdfBusy, setPdfBusy] = useState(false)
+  const [pdfError, setPdfError] = useState('')
+  const struct = TOOLS.find(t => t.key === 'struct')!
 
-  const scoreColour =
-    score >= 70 ? '#14532D' : score >= 40 ? '#D99A06' : '#8C3A22'
+  const scoreSev: Severity = score >= 70 ? 'POSITIVE' : score >= 40 ? 'MODERATE' : 'CRITICAL'
+
+  async function downloadPdf() {
+    setPdfBusy(true)
+    setPdfError('')
+    try {
+      const res = await fetch('/api/vastu-pro/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: contactName,
+          northDeg,
+          markers: markers.map(m => ({ roomKey: m.roomKey, x: m.x, y: m.y })),
+        }),
+      })
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}))
+        throw new Error(j.error || 'We could not make the PDF. Please try again.')
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'VastuPro-findings.pdf'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 5000)
+    } catch (err) {
+      setPdfError(err instanceof Error ? err.message : 'We could not make the PDF. Please try again.')
+    } finally {
+      setPdfBusy(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
-      {/* Header */}
-      <div
-        className="px-4 py-4"
-        style={{ background: 'var(--bg-surface)', borderBottom: '1px solid rgba(201,168,76,0.2)' }}
-      >
-        <div className="flex items-center justify-between gap-4 px-6 md:px-16 lg:px-24">
-          <div>
-            <p
-              className="text-[10px] uppercase tracking-widest"
-              style={{ color: 'rgba(201,168,76,0.5)', fontFamily: 'var(--font-plex-mono)' }}
-            >
-              NIRMANSHASTRA · VASTUPRO
-            </p>
-            <h1
-              className="text-[20px] font-bold"
-              style={{ color: '#C9A84C', fontFamily: 'var(--font-plex-serif)' }}
-            >
-              Vastu Analysis Results
-            </h1>
+    <div>
+      <div className="ns-v-reshead">
+        <div>
+          <span className="ns-i-pill ns-i-pill--tc">VastuPro · Your reading</span>
+          <h1>Your Vastu reading</h1>
+          <p>Every room you marked is rated by the zone it sits in, the way the Vastu tradition reads it.</p>
+        </div>
+        <button type="button" className="ns-v-sbtn" onClick={onBackToPlan}>← Back to my plan</button>
+      </div>
+
+      <div className="ns-plate ns-v-score">
+        <div className="ns-v-ring" data-sev={scoreSev}>
+          <svg viewBox="0 0 164 164" aria-hidden="true">
+            <circle className="ns-v-ring__track" cx="82" cy="82" r={RING_R} />
+            <circle
+              className="ns-v-ring__arc"
+              cx="82"
+              cy="82"
+              r={RING_R}
+              strokeDasharray={RING_C}
+              strokeDashoffset={RING_C * (1 - Math.max(0, Math.min(100, score)) / 100)}
+            />
+          </svg>
+          <div className="ns-v-ring__v" role="img" aria-label={`Vastu score ${score} out of 100`}>
+            <b>{score}</b>
+            <span>out of 100</span>
           </div>
-          <button
-            onClick={onStartOver}
-            className="shrink-0 text-[11px] px-3 py-1.5 rounded-[4px]"
-            style={{
-              background: 'rgba(201,168,76,0.1)',
-              color: 'rgba(201,168,76,0.7)',
-              border: '1px solid rgba(201,168,76,0.2)',
-              fontFamily: 'var(--font-plex-mono)',
-            }}
-          >
-            ← Mark Again
-          </button>
+        </div>
+
+        <div>
+          <h2>{contactName ? `Prepared for ${contactName}` : 'Vastu score'}</h2>
+          <p className="ns-v-score__meta">
+            North at {Math.round(northDeg)}° · {markers.length} room{markers.length !== 1 ? 's' : ''} read
+          </p>
+          <div className="ns-v-counts">
+            {([
+              ['CRITICAL', criticalCount],
+              ['MODERATE', moderateCount],
+              ['NEUTRAL', neutralCount],
+              ['POSITIVE', positiveCount],
+            ] as [Severity, number][]).map(([sev, n]) => (
+              <div key={sev} className="ns-v-count" data-sev={sev}>
+                <b>{n}</b>
+                <span>{SEVERITY_LABEL[sev]}</span>
+              </div>
+            ))}
+          </div>
+          <p className="ns-v-score__how">
+            The score is the average of the room ratings: Positive counts {ZONE_SCORE.POSITIVE}, Neutral {ZONE_SCORE.NEUTRAL}, Moderate {ZONE_SCORE.MODERATE} and Critical {ZONE_SCORE.CRITICAL}.
+          </p>
         </div>
       </div>
 
-      <div className="px-6 md:px-16 lg:px-24 py-8">
-        {/* Score card */}
-        <div
-          className="rounded-[2px] p-5 mb-6"
-          style={{ background: 'var(--bg-surface)', border: '1px solid rgba(201,168,76,0.3)' }}
-        >
-          <div className="flex items-center gap-6">
-            {/* Score circle */}
-            <div className="flex flex-col items-center shrink-0">
-              <div
-                className="w-24 h-24 rounded-full flex flex-col items-center justify-center"
-                style={{ border: `3px solid ${scoreColour}`, background: 'rgba(0,0,0,0.2)' }}
-              >
-                <span
-                  className="leading-none"
-                  style={{
-                    color: scoreColour,
-                    fontFamily: 'var(--font-plex-mono)',
-                    fontWeight: 500,
-                    fontSize: 36,
-                  }}
-                >
-                  {score}
-                </span>
-                <span
-                  className="text-[11px]"
-                  style={{ color: 'rgba(201,168,76,0.45)', fontFamily: 'var(--font-plex-mono)' }}
-                >
-                  /100
-                </span>
-              </div>
-              <p
-                className="text-[9px] mt-2 uppercase tracking-widest"
-                style={{ color: 'rgba(201,168,76,0.45)', fontFamily: 'var(--font-plex-mono)' }}
-              >
-                VASTU SCORE
-              </p>
-            </div>
+      <div className="ns-v-block">
+        <Note kind="info" title="How to read this">
+          Vastu Shastra is a traditional system of layout and orientation. It is not part of any BIS code, and it has no bearing on the strength or safety of the structure. Each finding below is what the tradition says about that room in that zone.
+        </Note>
+      </div>
 
-            {/* Counts */}
-            <div className="flex-1">
-              {contactName && (
-                <p
-                  className="text-[14px] font-medium mb-3"
-                  style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-sans)' }}
-                >
-                  {contactName}&apos;s Home
-                </p>
-              )}
-              <div className="grid grid-cols-2 gap-y-2 gap-x-4">
-                {[
-                  { label: 'CRITICAL', count: criticalCount, colour: '#8C3A22' },
-                  { label: 'MODERATE', count: moderateCount, colour: '#D99A06' },
-                  { label: 'POSITIVE', count: positiveCount, colour: '#14532D' },
-                  { label: 'NEUTRAL',  count: neutralCount,  colour: 'rgba(201,168,76,0.4)' },
-                ].map(({ label, count, colour }) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <span
-                      style={{ color: colour, fontFamily: 'var(--font-plex-mono)', fontSize: 18, fontWeight: 500 }}
-                    >
-                      {count}
-                    </span>
-                    <span
-                      className="text-[9px] uppercase tracking-widest"
-                      style={{ color: 'rgba(201,168,76,0.4)', fontFamily: 'var(--font-plex-mono)' }}
-                    >
-                      {label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <p
-                className="text-[10px] mt-3"
-                style={{ color: 'rgba(201,168,76,0.35)', fontFamily: 'var(--font-plex-mono)' }}
-              >
-                North {Math.round(northDeg)}° · {markerCount} room{markerCount !== 1 ? 's' : ''} analysed
-              </p>
-            </div>
-          </div>
+      <div className="ns-v-block ns-plate ns-v-next">
+        <h2>Keep a copy</h2>
+        <p>A PDF with your plan, the score and every finding below. It is made when you ask, from the marks on this page, and it is not stored.</p>
+        {pdfError && <Note kind="err" title="That did not work">{pdfError}</Note>}
+        <div className="ns-v-next__row">
+          <button type="button" className="ns-btn" onClick={downloadPdf} disabled={pdfBusy}>
+            {pdfBusy ? 'Making your PDF…' : 'Download the PDF'}
+            {!pdfBusy && <IcArrow width={22} height={11} />}
+          </button>
+          <span className="ns-i-fine">Free. No payment.</span>
         </div>
+      </div>
 
-        {/* ── 3D MASSING PREVIEW — FREE, OPT-IN ── */}
-        <div className="mb-6 rounded-[2px]" style={{ border: '1px solid rgba(201,168,76,0.18)' }}>
-          <div
-            className="px-4 py-3 flex items-center justify-between flex-wrap gap-2"
-            style={{ borderBottom: show3D ? '1px solid rgba(201,168,76,0.12)' : 'none' }}
-          >
-            <div>
-              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#C9A84C', fontFamily: 'var(--font-plex-mono)' }}>
-                3D ORIENTATION PREVIEW
-                <span style={{ color: 'rgba(201,168,76,0.4)', marginLeft: 8 }}>(BETA)</span>
-              </p>
-              {!show3D && (
-                <p className="text-[11px] mt-0.5" style={{ color: 'rgba(201,168,76,0.45)', fontFamily: 'var(--font-plex-sans)' }}>
-                  Building massing with North direction indicator — drag to rotate, scroll to zoom
-                </p>
-              )}
-            </div>
-            <button
-              onClick={() => setShow3D(v => !v)}
-              style={{
-                background: show3D ? 'rgba(201,168,76,0.08)' : 'rgba(201,168,76,0.15)',
-                color: '#C9A84C',
-                fontFamily: 'var(--font-plex-mono)',
-                fontSize: 11,
-                padding: '6px 14px',
-                borderRadius: 6,
-                border: '1px solid rgba(201,168,76,0.3)',
-                cursor: 'pointer',
-                letterSpacing: '0.04em',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {show3D ? 'CLOSE 3D VIEW' : 'VIEW 3D PREVIEW (BETA)'}
-            </button>
-          </div>
-          {show3D && (
-            <div>
-              <VastuMassingPreview3DWrapper northDeg={northDeg} />
-              <div
-                className="px-4 py-2"
-                style={{ borderTop: '1px solid rgba(201,168,76,0.08)', background: 'rgba(201,168,76,0.02)' }}
-              >
-                <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'rgba(201,168,76,0.35)', letterSpacing: '0.04em' }}>
-                  SCHEMATIC ONLY — gold arrow points True North ({Math.round(northDeg)}°) · massing is fixed G+1 placeholder (VastuPro does not capture floor count or building area)
-                </p>
-              </div>
-            </div>
-          )}
+      <div className="ns-v-block">
+        <h2>Room by room</h2>
+        <div className="ns-v-finds">
+          {findings.map(finding => (
+            <FindingCard key={finding.markerKey} finding={finding} />
+          ))}
         </div>
+      </div>
 
-        {/* Findings */}
-        <div className="mb-6">
-          <p
-            className="text-[10px] uppercase tracking-widest mb-3"
-            style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}
-          >
-            ROOM-BY-ROOM FINDINGS
-          </p>
-          <div className="flex flex-col gap-3">
-            {findings.map(finding => (
-              <FindingCard key={finding.markerKey} finding={finding} />
-            ))}
+      <div className="ns-v-block ns-plate ns-v-3d-wrap">
+        <div className="ns-v-3d">
+          <div>
+            <h2>See North on a 3D block of the house</h2>
+            <p>A simple block with an arrow pointing North. Drag to turn it, scroll or pinch to zoom.</p>
           </div>
+          <button type="button" className="ns-v-sbtn ns-v-sbtn--tc" aria-expanded={show3D} onClick={() => setShow3D(v => !v)}>
+            {show3D ? 'Hide the 3D view' : 'Show the 3D view'}
+          </button>
         </div>
-
-        {/* PDF CTA */}
-        <div
-          className="rounded-[2px] p-5 mb-6"
-          style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.28)' }}
-        >
-          <div className="flex items-start gap-3">
-            <span className="text-[22px] shrink-0" style={{ color: '#C9A84C' }}>✦</span>
-            <div>
-              <p
-                className="text-[14px] font-semibold mb-1"
-                style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)' }}
-              >
-                Your Free VastuPro PDF Report
-              </p>
-              <p
-                className="text-[12px] mb-3 leading-relaxed"
-                style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}
-              >
-                6 pages: full Vastu Mandala diagram, technical remedies, actionable remedies,
-                Do&apos;s &amp; Don&apos;ts for every room, general Vastu guidelines, and a priority action table.
-              </p>
-              <button
-                className="px-5 py-2.5 rounded-[6px] text-[13px] font-semibold text-white"
-                style={{ background: '#8C3A22', fontFamily: 'var(--font-plex-sans)' }}
-              >
-                Download Free PDF Report →
-              </button>
-              <p
-                className="text-[10px] mt-2"
-                style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-plex-mono)' }}
-              >
-                Free forever · No payment required
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* StructoPro cross-sell */}
-        <div
-          className="rounded-[2px] p-5"
-          style={{ background: 'rgba(20,83,45,0.05)', border: '1px solid rgba(20,83,45,0.22)' }}
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <span
-              className="text-[9px] px-2 py-0.5 rounded-[2px]"
-              style={{ background: '#14532D', color: '#fff', fontFamily: 'var(--font-plex-mono)' }}
-            >
-              PHASE 1
-            </span>
-            <p
-              className="text-[10px] uppercase tracking-widest"
-              style={{ color: '#14532D', fontFamily: 'var(--font-plex-mono)' }}
-            >
-              RCC Structure
+        {show3D && (
+          <div className="ns-v-stagebox">
+            <VastuMassingPreview3DWrapper northDeg={northDeg} />
+            <p className="ns-v-stage__cap">
+              Schematic only. The arrow points to North, {Math.round(northDeg)}° clockwise from the top of your drawing. The block is a fixed two-floor shape; VastuPro does not ask for floors or area.
             </p>
           </div>
-          <p
-            className="text-[17px] font-semibold mb-1"
-            style={{ color: '#F4F4F0', fontFamily: 'var(--font-plex-serif)' }}
-          >
-            Your Vastu layout is complete.
-          </p>
-          <p
-            className="text-[13px] leading-relaxed mb-4"
-            style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-plex-sans)' }}
-          >
-            The next step: know exactly what your RCC structure will cost before your contractor
-            quotes you. Your plot dimensions are noted. The form takes 8 minutes.
-          </p>
-          <button
-            className="px-5 py-2.5 rounded-[6px] text-[13px] font-semibold text-white"
-            style={{ background: '#1F4E79', fontFamily: 'var(--font-plex-sans)' }}
-          >
-            Estimate My Structure Cost — StructurePro ₹999 →
-          </button>
+        )}
+      </div>
+
+      <div className="ns-v-block ns-plate ns-v-next">
+        <h2>Layout settled? Next, the frame.</h2>
+        <p>
+          Once the rooms are where you want them, the next question is how much cement, steel and concrete the frame of the house will need. StructurePro works that out from a few plain questions about your plot and plan. The first look is free: your earthquake zone, the concrete and steel grades that apply, the IS-code checks and a 3D model of your frame. The full quantity report is {struct.price}.
+        </p>
+        <div className="ns-v-next__row">
+          <Link href="/tools/structopro" className="ns-btn">
+            See my frame, free
+            <IcArrow width={22} height={11} />
+          </Link>
         </div>
       </div>
     </div>

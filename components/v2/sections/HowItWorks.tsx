@@ -1,6 +1,6 @@
 'use client'
 
-import { useLocale, useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 import { useReveal } from '@/lib/v2/store'
 import Sticker from '../Sticker'
 import '@/styles/v2/closing.css'
@@ -18,16 +18,14 @@ function Mark({ i }: { i: number }) {
   if (i === 1) return (
     <svg {...p}>
       <path d="M60 6 L104 22 V46 C104 62 84 74 60 80 C36 74 16 62 16 46 V22 Z" fill="var(--ns-paper)" stroke="var(--ns-ink)" strokeWidth="2" />
-      <text x="60" y="38" textAnchor="middle" className="ns-how__t">IS 456</text>
-      <path className="ns-how__tick" d="M44 52 l10 10 l22 -22" fill="none" stroke="var(--ns-verdigris)" strokeWidth="4" />
+      <path className="ns-how__tick" d="M40 44 l14 14 l28 -28" fill="none" stroke="var(--ns-verdigris)" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
   if (i === 2) return (
     <svg {...p}>
-      <path d="M10 42 L34 14 H100 V70 H34 Z" fill="var(--ns-paper)" stroke="var(--ns-ink)" strokeWidth="2" />
-      <circle cx="30" cy="42" r="4" fill="none" stroke="var(--ns-ink)" strokeWidth="1.8" />
-      <text x="66" y="50" textAnchor="middle" className="ns-how__big">₹</text>
-      <g className="ns-how__slide"><rect x="44" y="60" width="44" height="3" fill="var(--ns-ink)" /><rect x="56" y="55" width="8" height="13" fill="var(--ns-laterite)" stroke="var(--ns-ink)" strokeWidth="1.4" /></g>
+      <path d="M60 6 L102 26 V58 L60 78 L18 58 V26 Z" fill="var(--ns-paper)" stroke="var(--ns-ink)" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M18 26 L60 46 L102 26 M60 46 V78" fill="none" stroke="var(--ns-ink)" strokeWidth="1.6" strokeLinejoin="round" />
+      <g className="ns-how__slide"><rect x="50" y="52" width="20" height="14" rx="3" fill="var(--ns-laterite)" stroke="var(--ns-ink)" strokeWidth="1.4" /><path d="M54 52 v-4 a6 6 0 0 1 12 0 v4" fill="none" stroke="var(--ns-ink)" strokeWidth="1.6" /></g>
     </svg>
   )
   return (
@@ -39,22 +37,43 @@ function Mark({ i }: { i: number }) {
   )
 }
 
+const COPY = {
+  en: {
+    eye: 'How it works', h: 'Four steps to a quantity you can trust',
+    steps: [
+      ['Answer simple questions', 'Tell us about your house in plain words: its size, the floors, where it is. No engineering degree needed.'],
+      ['We design it on our side', 'We lay out the frame the way an engineer would, then check it against Indian building standards. You never see a formula unless you ask for it.'],
+      ['See the shape, then unlock the numbers', 'Before you pay, you see the frame we worked out: grid, columns and footings, in 3D. The quantities come with the full report.'],
+      ['Get quantities you can rely on', 'A clear list of exactly what to order and how much, based on the Bureau of Indian Standards, with an honest range and a list of what is not counted.'],
+    ],
+  },
+  hi: {
+    eye: 'यह कैसे काम करता है', h: 'चार क़दम, एक भरोसेमंद मात्रा तक',
+    steps: [
+      ['सरल सवालों के जवाब दीजिए', 'अपने घर के बारे में सीधे शब्दों में बताइए: आकार, मंज़िलें, और वह कहाँ है। इंजीनियरिंग की डिग्री की ज़रूरत नहीं।'],
+      ['डिज़ाइन हम अपनी तरफ़ से करते हैं', 'हम ढाँचे को वैसे ही बिछाते हैं जैसे इंजीनियर बिछाता है, फिर उसे भारतीय निर्माण मानकों से मिलाते हैं। आपको कोई फ़ॉर्मूला तब तक नहीं दिखता जब तक आप न माँगें।'],
+      ['पहले आकार देखिए, फिर संख्याएँ खोलिए', 'भुगतान से पहले आप वह ढाँचा देखते हैं जो हमने निकाला: ग्रिड, कॉलम और फुटिंग, 3D में। मात्राएँ पूरी रिपोर्ट के साथ मिलती हैं।'],
+      ['भरोसे लायक मात्रा पाइए', 'ब्यूरो ऑफ़ इंडियन स्टैंडर्ड्स पर आधारित, क्या मँगवाना है और कितना, इसकी साफ़ सूची, एक ईमानदार दायरे और इस सूची के साथ कि क्या नहीं गिना गया।'],
+    ],
+  },
+} as const
+
 export default function HowItWorks() {
-  const t = useTranslations('howItWorks')
-  const hi = useLocale() === 'hi'
+  const loc = useLocale() === 'hi' ? 'hi' : 'en'
+  const c = COPY[loc]
   const { ref } = useReveal<HTMLDivElement>()
   return (
     <section className="ns-section ns-how" id="how-it-works" aria-labelledby="ns-how-h">
       <div className="ns-wrap" ref={ref}>
-        <p className="ns-eyebrow ns-rise">{hi ? 'तरीका' : 'The method'}</p>
-        <h2 className="ns-h2 ns-rise" id="ns-how-h" style={{ ['--d' as string]: '.05s' }}>{t('sectionTitle')}</h2>
+        <p className="ns-eyebrow ns-rise">{c.eye}</p>
+        <h2 className="ns-h2 ns-rise" id="ns-how-h" style={{ ['--d' as string]: '.05s' }}>{c.h}</h2>
         <ol className="ns-how__list">
-          {[0, 1, 2, 3].map(i => (
+          {c.steps.map((st, i) => (
             <li key={i} className="ns-plate ns-how__step ns-rise" tabIndex={0} data-snap style={{ ['--d' as string]: `${0.1 * i + 0.12}s` }}>
-              <span className="ns-how__no ns-mono" aria-hidden="true">0{i + 1}</span>
+              <span className="ns-how__no" aria-hidden="true">0{i + 1}</span>
               <Mark i={i} />
-              <h3 className="ns-how__h">{t(`${i}heading` as '0heading')}</h3>
-              <p>{t(`${i}body` as '0body')}</p>
+              <h3 className="ns-how__h">{st[0]}</h3>
+              <p>{st[1]}</p>
             </li>
           ))}
         </ol>

@@ -1,11 +1,16 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getArticleBySlug, getRelatedArticles, BLOG_ARTICLES } from '@/lib/blog-content'
-import RelatedCard from './RelatedCard'
+import ArticleCard from '../ArticleCard'
 import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
 import { articleSchema, breadcrumbSchema, faqPageSchema } from '@/lib/seo/schema'
 import { REVIEW_NOTE } from '@/lib/seo/site'
+import '@/styles/v2/results.css'
+import '@/styles/v2/content.css'
+import { ToolHead, IcArrow } from '@/components/v2/inner/kit'
+import QuickAnswer from '@/components/seo/QuickAnswer'
+import { CalcCta } from '@/components/v2/inner/calc'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -46,6 +51,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 // ── Minimal markdown-to-JSX renderer ──────────────────────────────────────────
+// Articles are plain text in lib/blog-content.ts: ## and ### headings, - and 1. lists, | tables |, ---, **bold**
+// and internal [links](/path). Everything is styled by the .ns-bl-art rules in styles/v2/content.css.
 
 function renderInline(text: string): React.ReactNode[] {
   const parts: React.ReactNode[] = []
@@ -62,13 +69,9 @@ function renderInline(text: string): React.ReactNode[] {
         parts.push(<span key={key++}>{remaining.slice(0, m.index)}</span>)
       }
       if (m[1] !== undefined) {
-        parts.push(<strong key={key++} style={{ fontWeight: 600, fontFamily: 'var(--font-plex-sans)' }}>{m[1]}</strong>)
+        parts.push(<strong key={key++}>{m[1]}</strong>)
       } else {
-        parts.push(
-          <Link key={key++} href={m[3]} style={{ color: '#1F4E79', textDecoration: 'underline', textUnderlineOffset: 3 }}>
-            {m[2]}
-          </Link>
-        )
+        parts.push(<Link key={key++} href={m[3]}>{m[2]}</Link>)
       }
       remaining = remaining.slice(m.index + m[0].length)
     } else {
@@ -83,62 +86,36 @@ function isTableLine(line: string) {
   return line.startsWith('|') && line.endsWith('|')
 }
 
+/** A table of up to five columns stacks into rows on a phone (column name above each figure); wider ones swipe. */
 function parseTable(lines: string[]): React.ReactNode {
-  const rows = lines.map(l =>
-    l.split('|').slice(1, -1).map(c => c.trim())
-  )
+  const rows = lines.map(l => l.split('|').slice(1, -1).map(c => c.trim()))
   const header = rows[0]
   // skip separator row (rows[1])
   const body = rows.slice(2)
+  const stacked = header.length <= 5
 
   return (
-    <div style={{ overflowX: 'auto', margin: '20px 0' }}>
-      <table style={{
-        borderCollapse: 'collapse',
-        width: '100%',
-        fontFamily: 'var(--font-plex-sans)',
-        fontSize: 14,
-        border: '1px solid rgba(30,34,39,0.2)',
-      }}>
-        <thead>
-          <tr style={{ background: 'rgba(30,34,39,0.06)' }}>
-            {header.map((h, i) => (
-              <th key={i} style={{
-                fontFamily: 'var(--font-plex-mono)',
-                fontSize: 10,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                color: '#1E2227',
-                padding: '10px 14px',
-                textAlign: 'left',
-                borderBottom: '1px solid rgba(30,34,39,0.2)',
-                borderRight: i < header.length - 1 ? '1px solid rgba(30,34,39,0.1)' : 'none',
-              }}>
-                {h}
-              </th>
+    <>
+      {!stacked ? <p className="ns-i-swipe" aria-hidden="true">Swipe sideways to see every column &rarr;</p> : null}
+      <div className="ns-i-tblw">
+        <table className={`ns-i-tbl ns-r-tbl${stacked ? ' ns-r-tbl--stack' : ''}`}>
+          <thead>
+            <tr>{header.map((h, i) => <th key={i} scope="col">{h}</th>)}</tr>
+          </thead>
+          <tbody>
+            {body.map((row, ri) => (
+              <tr key={ri}>
+                {row.map((cell, ci) =>
+                  ci === 0
+                    ? <th key={ci} scope="row">{renderInline(cell)}</th>
+                    : <td key={ci} data-label={header[ci]}>{renderInline(cell)}</td>
+                )}
+              </tr>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {body.map((row, ri) => (
-            <tr key={ri} style={{ background: ri % 2 === 1 ? 'rgba(30,34,39,0.03)' : 'transparent' }}>
-              {row.map((cell, ci) => (
-                <td key={ci} style={{
-                  fontFamily: ci > 0 ? 'var(--font-plex-mono)' : 'var(--font-plex-sans)',
-                  fontSize: ci > 0 ? 12 : 14,
-                  color: '#1E2227',
-                  padding: '9px 14px',
-                  borderBottom: '1px solid rgba(30,34,39,0.07)',
-                  borderRight: ci < row.length - 1 ? '1px solid rgba(30,34,39,0.07)' : 'none',
-                }}>
-                  {renderInline(cell)}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }
 
@@ -151,42 +128,14 @@ function renderMarkdown(content: string): React.ReactNode[] {
   while (i < lines.length) {
     const line = lines[i]
 
-    // H2
     if (line.startsWith('## ')) {
-      nodes.push(
-        <h2 key={key++} style={{
-          fontFamily: 'var(--font-plex-serif)',
-          fontSize: 'clamp(18px, 3vw, 22px)',
-          fontWeight: 600,
-          color: '#1E2227',
-          marginTop: 40,
-          marginBottom: 12,
-          lineHeight: 1.3,
-          paddingBottom: 8,
-          borderBottom: '1px solid rgba(30,34,39,0.1)',
-        }}>
-          {line.slice(3)}
-        </h2>
-      )
+      nodes.push(<h2 key={key++}>{line.slice(3)}</h2>)
       i++
       continue
     }
 
-    // H3
     if (line.startsWith('### ')) {
-      nodes.push(
-        <h3 key={key++} style={{
-          fontFamily: 'var(--font-plex-serif)',
-          fontSize: 18,
-          fontWeight: 600,
-          color: '#1E2227',
-          marginTop: 28,
-          marginBottom: 8,
-          lineHeight: 1.35,
-        }}>
-          {line.slice(4)}
-        </h3>
-      )
+      nodes.push(<h3 key={key++}>{line.slice(4)}</h3>)
       i++
       continue
     }
@@ -198,7 +147,7 @@ function renderMarkdown(content: string): React.ReactNode[] {
         tableLines.push(lines[i])
         i++
       }
-      nodes.push(<div key={key++}>{parseTable(tableLines)}</div>)
+      nodes.push(<div key={key++} className="ns-bl-art__tbl">{parseTable(tableLines)}</div>)
       continue
     }
 
@@ -210,10 +159,8 @@ function renderMarkdown(content: string): React.ReactNode[] {
         i++
       }
       nodes.push(
-        <ul key={key++} style={{ margin: '12px 0 20px', paddingLeft: 20, fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.85)', lineHeight: 1.7 }}>
-          {items.map((item, idx) => (
-            <li key={idx} style={{ marginBottom: 6 }}>{renderInline(item)}</li>
-          ))}
+        <ul key={key++}>
+          {items.map((item, idx) => <li key={idx}>{renderInline(item)}</li>)}
         </ul>
       )
       continue
@@ -227,23 +174,19 @@ function renderMarkdown(content: string): React.ReactNode[] {
         i++
       }
       nodes.push(
-        <ol key={key++} style={{ margin: '12px 0 20px', paddingLeft: 20, fontFamily: 'var(--font-plex-sans)', fontSize: 15, color: 'rgba(30,34,39,0.85)', lineHeight: 1.7 }}>
-          {items.map((item, idx) => (
-            <li key={idx} style={{ marginBottom: 6 }}>{renderInline(item)}</li>
-          ))}
+        <ol key={key++}>
+          {items.map((item, idx) => <li key={idx}>{renderInline(item)}</li>)}
         </ol>
       )
       continue
     }
 
-    // Horizontal rule
     if (line === '---') {
-      nodes.push(<hr key={key++} style={{ border: 'none', borderTop: '1px solid rgba(30,34,39,0.15)', margin: '32px 0' }} />)
+      nodes.push(<hr key={key++} />)
       i++
       continue
     }
 
-    // Empty line
     if (line.trim() === '') {
       i++
       continue
@@ -256,17 +199,7 @@ function renderMarkdown(content: string): React.ReactNode[] {
       i++
     }
     if (paraLines.length > 0) {
-      nodes.push(
-        <p key={key++} style={{
-          fontFamily: 'var(--font-plex-sans)',
-          fontSize: 15,
-          color: 'rgba(30,34,39,0.85)',
-          lineHeight: 1.75,
-          margin: '0 0 18px',
-        }}>
-          {renderInline(paraLines.join(' '))}
-        </p>
-      )
+      nodes.push(<p key={key++}>{renderInline(paraLines.join(' '))}</p>)
     }
   }
 
@@ -275,27 +208,19 @@ function renderMarkdown(content: string): React.ReactNode[] {
 
 // ── Page component ─────────────────────────────────────────────────────────────
 
+const longDate = (d: string) =>
+  new Date(`${d}T00:00:00Z`).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+
 export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params
   const article = getArticleBySlug(slug)
   if (!article) notFound()
 
   const related = getRelatedArticles(article)
-  const mono = { fontFamily: 'var(--font-plex-mono)' } as React.CSSProperties
-  const serif = { fontFamily: 'var(--font-plex-serif)' } as React.CSSProperties
-  const sans = { fontFamily: 'var(--font-plex-sans)' } as React.CSSProperties
-
-  const CATEGORY_COLORS: Record<string, string> = {
-    Structural: '#1F4E79',
-    'Cost & Transparency': '#8C3A22',
-    Electrical: '#D99A06',
-    Plumbing: '#14532D',
-    Vastu: '#C9A84C',
-  }
-  const catColor = CATEGORY_COLORS[article.category] ?? '#1F4E79'
+  const updated = article.updatedDate ?? article.publishedDate
 
   return (
-    <div className="sheet-frame" style={{ minHeight: '100vh', background: '#F4F4F0' }}>
+    <div className="ns-i-page">
       <JsonLd
         data={[
           breadcrumbSchema([
@@ -307,171 +232,63 @@ export default async function ArticlePage({ params }: PageProps) {
           ...(article.faq?.length ? [faqPageSchema(article.faq)] : []),
         ]}
       />
+      <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
+        <Link href="/blog" className="ns-i-back"><IcArrow aria-hidden="true" /> All guides</Link>
 
-      {/* Article header */}
-      <div style={{ background: '#1E2227', borderBottom: '1px solid rgba(244,244,240,0.1)', padding: '40px 24px 36px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
-          {/* Breadcrumb */}
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 20 }}>
-            <Link href="/blog" style={{ ...mono, fontSize: 10, color: 'rgba(244,244,240,0.35)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Knowledge Base
-            </Link>
-            <span style={{ ...mono, fontSize: 10, color: 'rgba(244,244,240,0.2)' }}>›</span>
-            <span style={{ ...mono, fontSize: 10, color: 'rgba(244,244,240,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              {article.category}
-            </span>
-          </div>
+        <ToolHead eyebrow={article.category} name={article.title} blurb={article.excerpt} />
 
-          {/* Category chip */}
-          <div style={{ marginBottom: 14 }}>
-            <span style={{
-              ...mono,
-              fontSize: 9,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: catColor,
-              border: `1px solid ${catColor}`,
-              padding: '3px 8px',
-            }}>
-              {article.category}
-            </span>
-          </div>
-
-          <h1 style={{ ...serif, fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: 700, color: '#F4F4F0', lineHeight: 1.25, margin: '0 0 20px' }}>
-            {article.title}
-          </h1>
-
-          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-            <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.45)' }}>
-              Published{' '}
-              <time dateTime={article.publishedDate}>
-                {new Date(article.publishedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </time>
-            </span>
-            <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.35)' }}>·</span>
-            <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.45)' }}>
-              Last updated{' '}
-              <time dateTime={article.updatedDate ?? article.publishedDate}>
-                {new Date(article.updatedDate ?? article.publishedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </time>
-            </span>
-            <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.35)' }}>·</span>
-            <span style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.35)' }}>
-              {article.readTime} min read
-            </span>
-          </div>
-          <div style={{ ...mono, fontSize: 11, color: 'rgba(244,244,240,0.45)', marginTop: 12 }}>
-            {REVIEW_NOTE}
-          </div>
-        </div>
-      </div>
-
-      {/* Article body */}
-      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-12 pb-16">
-        {/* Quick answer — the 40–60 word direct answer AI assistants quote */}
-        {article.quickAnswer && (
-          <div
-            role="note"
-            aria-label="Quick answer"
-            style={{ border: '1px solid #1F4E79', background: 'rgba(31,78,121,0.05)', padding: '18px 20px', margin: '0 0 28px' }}
-          >
-            <div style={{ ...mono, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#1F4E79', marginBottom: 8 }}>
-              QUICK ANSWER
-            </div>
-            <p style={{ ...sans, fontSize: 16, fontWeight: 500, color: '#1E2227', lineHeight: 1.65, margin: 0 }}>
-              {article.quickAnswer}
-            </p>
-          </div>
-        )}
-
-        {/* Excerpt lead */}
-        <p style={{ ...sans, fontSize: 17, color: 'rgba(30,34,39,0.7)', lineHeight: 1.7, margin: '0 0 36px', borderLeft: '3px solid #1F4E79', paddingLeft: 16 }}>
-          {article.excerpt}
+        <p className="ns-r-tblnote">
+          Published <time dateTime={article.publishedDate}>{longDate(article.publishedDate)}</time>
+          {' · '}Last updated <time dateTime={updated}>{longDate(updated)}</time>
+          {' · '}{article.readTime} min read
+          <br />
+          {REVIEW_NOTE}
         </p>
 
-        {/* Content */}
-        <div lang={article.language === 'hi-Latn' ? 'hi-Latn' : undefined}>{renderMarkdown(article.content)}</div>
-
-        {/* FAQ — each question is its own heading; same data feeds FAQPage JSON-LD */}
-        {article.faq && article.faq.length > 0 && (
-          <section aria-labelledby="article-faq" style={{ marginTop: 40 }}>
-            <h2 id="article-faq" style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 'clamp(18px, 3vw, 22px)', fontWeight: 600, color: '#1E2227', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid rgba(30,34,39,0.1)' }}>
-              Frequently asked questions
-            </h2>
-            {article.faq.map((q) => (
-              <div key={q.question} style={{ marginTop: 20 }}>
-                <h3 style={{ fontFamily: 'var(--font-plex-serif)', fontSize: 17, fontWeight: 600, color: '#1E2227', marginBottom: 6, lineHeight: 1.35 }}>{q.question}</h3>
-                <p style={{ ...sans, fontSize: 15, color: 'rgba(30,34,39,0.85)', lineHeight: 1.75, margin: 0 }}>{q.answer}</p>
-              </div>
-            ))}
-          </section>
-        )}
-      </div>
-
-      {/* CTA card */}
-      <div className="max-w-5xl mx-auto px-6 md:px-12 pb-16">
-        <div style={{
-          border: '1px solid rgba(30,34,39,0.15)',
-          padding: '28px 28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 20,
-          background: 'rgba(30,34,39,0.03)',
-        }}>
-          <div>
-            <div style={{ ...mono, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8C3A22', marginBottom: 8 }}>
-              APPLY THIS KNOWLEDGE
-            </div>
-            <div style={{ ...serif, fontSize: 18, fontWeight: 600, color: '#1E2227', marginBottom: 6 }}>
-              Calculate your exact costs — Try StructurePro Free
-            </div>
-            <div style={{ ...sans, fontSize: 13, color: 'rgba(30,34,39,0.55)', lineHeight: 1.5 }}>
-              IS 456:2000 compliant structural BOQ. Know your quantities before you speak to any contractor.
-            </div>
+        {/* Quick answer: the 40–60 word direct answer that search and AI assistants quote */}
+        {article.quickAnswer ? (
+          <div style={{ '--tc': 'var(--ns-laterite)' } as React.CSSProperties}>
+            <QuickAnswer content={{ question: article.title, quickAnswer: article.quickAnswer }} />
           </div>
-          <Link
-            href="/tools/structopro"
-            style={{
-              ...mono,
-              background: '#8C3A22',
-              color: '#F4F4F0',
-              padding: '13px 24px',
-              textDecoration: 'none',
-              fontSize: 12,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              display: 'inline-block',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Try StructurePro →
-          </Link>
-        </div>
-      </div>
+        ) : null}
 
-      {/* Related articles */}
-      {related.length > 0 && (
-        <div style={{ borderTop: '1px solid rgba(30,34,39,0.1)', padding: '48px 24px 64px' }}>
-          <div className="max-w-5xl mx-auto px-6 md:px-12">
-            <div style={{ ...mono, fontSize: 10, color: 'rgba(30,34,39,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 }}>
-              RELATED ARTICLES
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 1 }}>
-              {related.map(rel => (
-                <RelatedCard key={rel.slug} article={rel} />
+        <article className="ns-plate ns-bl-art" lang={article.language === 'hi-Latn' ? 'hi-Latn' : undefined}>
+          {renderMarkdown(article.content)}
+
+          {/* FAQ — each question is its own heading; the same data feeds the FAQPage JSON-LD */}
+          {article.faq && article.faq.length > 0 ? (
+            <section aria-labelledby="article-faq" className="ns-bl-art__faq">
+              <h2 id="article-faq">Frequently asked questions</h2>
+              {article.faq.map((q) => (
+                <div key={q.question}>
+                  <h3>{q.question}</h3>
+                  <p>{q.answer}</p>
+                </div>
+              ))}
+            </section>
+          ) : null}
+        </article>
+
+        <CalcCta
+          kicker="Apply this to your house"
+          text="StructurePro works out the concrete, steel and cement for the frame of your house from a few answers, with the IS clause behind each rule. The first look at your zone, grades and frame is free."
+          href="/tools/structopro"
+          label="Open StructurePro"
+        />
+
+        {related.length > 0 ? (
+          <section aria-labelledby="related-h" style={{ display: 'grid', gap: 16 }}>
+            <h2 id="related-h" style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 }}>
+              Related guides
+            </h2>
+            <div className="ns-bl-grid">
+              {related.map((rel) => (
+                <ArticleCard key={rel.slug} article={rel} />
               ))}
             </div>
-
-            <div style={{ marginTop: 32, textAlign: 'center' }}>
-              <Link href="/blog" style={{ ...mono, fontSize: 12, color: '#1F4E79', textDecoration: 'none', letterSpacing: '0.05em', border: '1px solid #1F4E79', padding: '10px 20px', display: 'inline-block' }}>
-                ← All Articles
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+          </section>
+        ) : null}
+      </div>
     </div>
   )
 }

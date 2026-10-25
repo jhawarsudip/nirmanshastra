@@ -11,12 +11,12 @@ export const CALCULATORS: CalcDef[] = [
       "hi": "स्टील BBS और कटिंग लेंथ कैलकुलेटर"
     },
     "title": {
-      "en": "Bar Bending Schedule Calculator",
-      "hi": "बार बेंडिंग शेड्यूल कैलकुलेटर"
+      "en": "Bar Bending Calculator",
+      "hi": "बार बेंडिंग कैलकुलेटर"
     },
     "desc": {
-      "en": "Cutting lengths, hooks, bends and steel weight per IS 2502:1963 — completely free, no sign-up required.",
-      "hi": "IS 2502:1963 के अनुसार कटिंग लेंथ, हुक, बेंड और स्टील वज़न निकालें — पूरी तरह निःशुल्क, बिना साइन-अप।"
+      "en": "Cutting length and weight of a bar: bends taken off, hooks added, rounded up to 25 mm (IS 2502, IS 1786) — free, no sign-up.",
+      "hi": "बार की कटिंग लेंथ और वज़न: बेंड घटाकर, हुक जोड़कर, 25 mm तक ऊपर गोल (IS 2502, IS 1786) — निःशुल्क, बिना साइन-अप।"
     }
   },
   {
@@ -43,12 +43,12 @@ export const CALCULATORS: CalcDef[] = [
       "hi": "सीमेंट, रेत और एग्रीगेट कैलकुलेटर"
     },
     "title": {
-      "en": "Concrete Mix Ratio Calculator",
-      "hi": "कंक्रीट मिक्स रेशियो कैलकुलेटर"
+      "en": "Concrete Mix Calculator",
+      "hi": "कंक्रीट मिक्स कैलकुलेटर"
     },
     "desc": {
-      "en": "Cement bags, sand and aggregate per grade (M20 = 1:1.5:3, M25 = 1:1:2) using the locked IS 456:2000 quantities — completely free, no sign-up required.",
-      "hi": "IS 456:2000 के अनुसार ग्रेड के हिसाब से सीमेंट बैग, रेत और एग्रीगेट (M20 = 1:1.5:3, M25 = 1:1:2) निकालें — पूरी तरह निःशुल्क, बिना साइन-अप।"
+      "en": "Cement bags, sand and aggregate for a pour, by grade and site exposure. M20 = 1:1.5:3 = 400 kg of cement a cubic metre; M25 and above by the IS 10262 method — free, no sign-up.",
+      "hi": "ग्रेड और साइट के एक्सपोज़र के हिसाब से सीमेंट बैग, रेत और एग्रीगेट निकालें। M20 = 1:1.5:3 = 400 किग्रा सीमेंट प्रति घन मीटर; M25 और ऊपर IS 10262 विधि से — निःशुल्क, बिना साइन-अप।"
     }
   },
   {
@@ -63,24 +63,24 @@ export const CALCULATORS: CalcDef[] = [
       "hi": "ईंट कैलकुलेटर"
     },
     "desc": {
-      "en": "Wall area, brick count and a +5–10% wastage allowance for 9\" and 4.5\" walls per IS 1077:1992 — completely free, no sign-up required.",
-      "hi": "IS 1077:1992 के अनुसार 9\" और 4.5\" दीवारों के लिए दीवार क्षेत्रफल, ईंट गिनती और +5–10% वेस्टेज निकालें — पूरी तरह निःशुल्क, बिना साइन-अप।"
+      "en": "Brick count and joint mortar for a wall, for the red, modular or fly-ash brick, with a breakage allowance (IS 1077:1992, IS 2212:1991). Completely free, no sign-up required.",
+      "hi": "दीवार के लिए ईंटों की गिनती और जोड़ का मसाला निकालें, लाल, मॉड्यूलर या फ्लाई-ऐश ईंट के हिसाब से, टूट-फूट की छूट के साथ (IS 1077:1992, IS 2212:1991) — पूरी तरह निःशुल्क, बिना साइन-अप।"
     }
   },
   {
     "href": "/tools/wire-size-calculator",
     "icon": "ElectricalIcon",
     "label": {
-      "en": "Cable Gauge by Circuit Type Calculator",
-      "hi": "सर्किट अनुसार केबल गेज कैलकुलेटर"
+      "en": "Least Copper Wire by Circuit and Load Calculator",
+      "hi": "सर्किट और लोड के अनुसार न्यूनतम तांबे का तार"
     },
     "title": {
       "en": "Wire Size Calculator",
       "hi": "वायर साइज़ कैलकुलेटर"
     },
     "desc": {
-      "en": "Minimum copper wire size per circuit — lighting, sockets, AC/geyser, sub-panel feed and main incomer — per IS 732:2019 Cl 6.2 — completely free, no sign-up required.",
-      "hi": "IS 732:2019 Cl 6.2 के अनुसार हर सर्किट के लिए न्यूनतम तांबे का वायर साइज़ — लाइटिंग, सॉकेट, AC/गीजर, सब-पैनल, मेन इनकमर — पूरी तरह निःशुल्क, बिना साइन-अप।"
+      "en": "Least copper wire for a circuit in a home — lights, sockets, a geyser, an air conditioner, or the supply from the meter — with the breaker and conduit (CPWD specification, draft IS 4648). Completely free, no sign-up required.",
+      "hi": "घर के हर सर्किट के लिए न्यूनतम तांबे का तार — लाइट, सॉकेट, गीजर, AC और मीटर से आने वाली सप्लाई — ब्रेकर और कंड्यूट के साथ (CPWD विनिर्देश, IS 4648 का मसौदा) — पूरी तरह निःशुल्क, बिना साइन-अप।"
     }
   },
   {
@@ -111,8 +111,8 @@ export const CALCULATORS: CalcDef[] = [
       "hi": "कंक्रीट क्यूब टेस्ट कैलकुलेटर"
     },
     "desc": {
-      "en": "Samples and total cubes required by concrete volume per IS 456:2000 Cl 15.2.2 — 6 cubes per sample, broken at 7 and 28 days — completely free, no sign-up required.",
-      "hi": "IS 456:2000 Cl 15.2.2 के अनुसार कंक्रीट की मात्रा से आवश्यक सैंपल और कुल क्यूब की गिनती (हर सैंपल = 6 क्यूब, 7 और 28 दिन) — पूरी तरह निःशुल्क, बिना साइन-अप।"
+      "en": "Samples and cubes required for a pour by IS 456:2000 clause 15.2.2 — three cubes a sample, tested at 28 days — free, no sign-up.",
+      "hi": "IS 456:2000 के अनुसार पोर के लिए आवश्यक सैंपल और क्यूब की गिनती (हर सैंपल = 3 क्यूब, 28 दिन पर टेस्ट) — निःशुल्क, बिना साइन-अप।"
     }
   },
   {
@@ -127,24 +127,24 @@ export const CALCULATORS: CalcDef[] = [
       "hi": "दैनिक मज़दूरी PF और ESI कैलकुलेटर"
     },
     "desc": {
-      "en": "Built for daily-wage construction labour — muster-roll style, not monthly salary. Daily rate × payable days (decimals like 23.5 too) → basic, gross, PF (12% up to ₹1,800), ESI (0.75% up to ₹21,000) and net payable — completely free, no sign-up required.",
-      "hi": "निर्माण साइट के दैनिक-मज़दूरी मज़दूर के लिए — मस्टर-रोल के अनुसार, मासिक वेतन नहीं। दैनिक दर × देय दिन (23.5 जैसे दशमलव भी) → बेसिक, ग्रॉस, PF (12% ₹1,800 तक), ESI (0.75% ₹21,000 तक) और नेट पेयबल — पूरी तरह निःशुल्क, बिना साइन-अप।"
+      "en": "Built for daily-wage construction labour — muster-roll style, not monthly salary. Daily rate × payable days (decimals like 23.5 too) → basic, gross, PF (12% of basic, up to ₹1,800), ESI (0.75% for a worker covered at ₹21,000 or less) and net payable — completely free, no sign-up required.",
+      "hi": "निर्माण साइट के दैनिक-मज़दूरी मज़दूर के लिए — मस्टर-रोल के अनुसार, मासिक वेतन नहीं। दैनिक दर × देय दिन (23.5 जैसे दशमलव भी) → बेसिक, ग्रॉस, PF (बेसिक का 12%, ₹1,800 तक), ESI (0.75%, ₹21,000 या कम पर कवर्ड मज़दूर के लिए) और नेट पेयबल — पूरी तरह निःशुल्क, बिना साइन-अप।"
     }
   },
   {
-    "href": "/tools/finish-tier-cost-calculator",
+    "href": "/tools/paint-tile-calculator",
     "icon": "TierIcon",
     "label": {
-      "en": "Finish Quality Tier Cost Difference Calculator",
-      "hi": "फिनिश क्वालिटी टियर कॉस्ट अंतर कैलकुलेटर"
+      "en": "Paint, Putty & Tile Quantity Calculator",
+      "hi": "पेंट, पुट्टी और टाइल मात्रा कैलकुलेटर"
     },
     "title": {
-      "en": "Finish-Tier Cost Difference Calculator",
-      "hi": "फिनिश-टियर कॉस्ट डिफरेंस कैलकुलेटर"
+      "en": "Paint and Tile Calculator",
+      "hi": "पेंट और टाइल कैलकुलेटर"
     },
     "desc": {
-      "en": "Pick a built-up area and any two tiers (Basic/Standard/Premium/Luxury) to see the per-element and total cost difference across structure, flooring, doors & windows, electrical, plumbing, painting and joinery — showing why structure barely moves while finishes multiply. Completely free, no sign-up required.",
-      "hi": "बिल्ट-अप एरिया और कोई भी दो टियर (बेसिक/स्टैंडर्ड/प्रीमियम/लक्ज़री) चुनें — स्ट्रक्चर, फ़्लोरिंग, दरवाज़े-खिड़की, इलेक्ट्रिकल, प्लंबिंग, पेंटिंग, फ़ॉल्स सीलिंग व जॉइनरी में एलिमेंट-वार और कुल कॉस्ट का अंतर। दिखाता है कि स्ट्रक्चर लगभग स्थिर रहता है जबकि फ़िनिश कई गुना बढ़ते हैं — पूरी तरह निःशुल्क, बिना साइन-अप।"
+      "en": "Enter the area of a wall, ceiling, floor or wall tiling and the finish you choose, and get the paint, putty and primer, or the tiles, grout and fixing to buy, with a wastage allowance. Completely free, no sign-up required.",
+      "hi": "दीवार, छत या फ़र्श का क्षेत्रफल और फ़िनिश चुनिए — पेंट, पुट्टी और प्राइमर, या टाइलें, ग्राउट और फ़िक्सिंग की मात्रा पाइए, बर्बादी की छूट के साथ — पूरी तरह निःशुल्क, बिना साइन-अप।"
     }
   },
   {

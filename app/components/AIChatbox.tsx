@@ -8,22 +8,22 @@ interface Message {
 }
 
 const SUGGESTED_QUESTIONS = [
-  'How much does G+1 construction cost in Pune?',
-  'Is my contractor\'s quote fair?',
+  'What should I ask my contractor for, besides a price?',
   'What is M20 concrete?',
-  'How many bricks do I need for 1000 sqft?',
+  'How many bricks are in a wall of 100 sq ft?',
+  'What does StructurePro count?',
   'What is IS 456:2000?',
-  'How to check if steel is being stolen on site?',
+  'How do I check the steel delivered to my site?',
 ]
 
-// Iron Ink at various opacities over Sheet White
+// Warm ink at various opacities over cream paper (the same palette as the rest of the site)
 const COLORS = {
-  sheetWhite: '#F4F4F0',
-  ironInk: '#1E2227',
-  blueprint: '#1F4E79',
-  ink10: 'rgba(30,34,39,0.10)',
-  ink20: 'rgba(30,34,39,0.20)',
-  ink40: 'rgba(30,34,39,0.40)',
+  sheetWhite: '#F3EEE2',
+  ironInk: '#2A1E16',
+  blueprint: '#2E3F94',
+  ink10: 'rgba(42,30,22,0.10)',
+  ink20: 'rgba(42,30,22,0.20)',
+  ink40: 'rgba(42,30,22,0.40)',
 }
 
 function TypingDots() {
@@ -62,7 +62,7 @@ function ChatMessage({ msg }: { msg: Message }) {
           maxWidth: '82%',
           padding: '9px 13px',
           borderRadius: isUser ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
-          background: isUser ? COLORS.blueprint : '#fff',
+          background: isUser ? COLORS.blueprint : '#FBF8F0',
           border: isUser ? 'none' : `1px solid ${COLORS.ink10}`,
           color: isUser ? '#fff' : COLORS.ironInk,
           fontFamily: 'var(--font-plex-sans), sans-serif',
@@ -206,11 +206,11 @@ export default function AIChatbox() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(31,78,121,0.35)',
+            boxShadow: '0 4px 14px rgba(46,63,148,0.35)',
             flexShrink: 0,
             transition: 'background 0.15s',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = '#163d61')}
+          onMouseEnter={(e) => (e.currentTarget.style.background = '#232F73')}
           onMouseLeave={(e) => (e.currentTarget.style.background = COLORS.blueprint)}
         >
           {open ? (
@@ -249,7 +249,7 @@ export default function AIChatbox() {
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            boxShadow: '0 8px 32px rgba(30,34,39,0.16)',
+            boxShadow: '0 8px 32px rgba(42,30,22,0.16)',
             animation: 'ns-panel-in 0.18s ease-out',
           }}
         >
@@ -353,7 +353,7 @@ export default function AIChatbox() {
                     lineHeight: 1.5,
                   }}
                 >
-                  Your IS-code construction advisor.<br />Ask me anything about building costs or materials.
+                  Your guide to construction quantities and the IS codes.<br />Ask what to order, or how to check what you are told.
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {SUGGESTED_QUESTIONS.map((q) => (
@@ -364,8 +364,8 @@ export default function AIChatbox() {
                         fontFamily: 'var(--font-plex-sans), sans-serif',
                         fontSize: 12,
                         color: COLORS.blueprint,
-                        background: 'rgba(31,78,121,0.07)',
-                        border: `1px solid rgba(31,78,121,0.2)`,
+                        background: 'rgba(46,63,148,0.07)',
+                        border: `1px solid rgba(46,63,148,0.2)`,
                         borderRadius: 6,
                         padding: '5px 10px',
                         cursor: 'pointer',
@@ -373,8 +373,8 @@ export default function AIChatbox() {
                         lineHeight: 1.4,
                         transition: 'background 0.12s',
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(31,78,121,0.13)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(31,78,121,0.07)')}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(46,63,148,0.13)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(46,63,148,0.07)')}
                     >
                       {q}
                     </button>
@@ -425,7 +425,7 @@ export default function AIChatbox() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about construction costs, IS codes…"
+              placeholder="Ask about quantities, materials, IS codes…"
               rows={1}
               disabled={loading}
               style={{

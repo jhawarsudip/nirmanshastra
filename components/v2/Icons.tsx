@@ -1,24 +1,25 @@
-// Drafted icons for v2: 1.5px stroke, square caps, no stock icon pack.
+// Hand-drawn icons for the homepage: 1.7px stroke, round caps, no stock icon pack.
 import type { SVGProps } from 'react'
 
 type P = SVGProps<SVGSVGElement>
-const base = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'square', strokeLinejoin: 'miter' } as const
+const base = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
 
-// Compact NirmanShastra mark (compass ring + RCC column + north arrow), drawn for <=48px.
-// Same geometry as public/brand/nirmanshastra-mark-*.svg. Ink follows currentColor,
-// accent follows --ns-laterite so it flips with the light/dark theme.
-export function BrandMark(props: P) {
+// NirmanShastra's own mark (compass ring + RCC column + north arrow), as supplied: transparent, no background.
+// Two colourways: dark ink on light pages, cream on dark pages. The outline flips, the gold accents stay.
+// `on="auto"` follows the day/night switch; `on="dark"` is for bands that are always dark (the footer stage).
+export function BrandMark({ className, on = 'auto', size = 160 }: { className?: string; on?: 'auto' | 'dark' | 'light'; size?: 160 | 320 | 640 }) {
+  const w = size
+  const h = Math.round((size * 900) / 873)
+  const light = size === 640 ? '/brand/real/mark-light-fine-640.webp' : `/brand/real/mark-light-${size}.webp`
+  const dark = size === 640 ? '/brand/real/mark-dark-fine-640.webp' : `/brand/real/mark-dark-${size}.webp`
+  /* eslint-disable @next/next/no-img-element */
   return (
-    <svg viewBox="0 0 64 64" fill="none" aria-hidden="true" {...props}>
-      <path d="M37.3 7.06A25.5 25.5 0 1 1 26.7 7.06" stroke="currentColor" strokeWidth="3.2" />
-      <path d="M3.5 32H10.5M53.5 32H60.5M32 53.5V60.5" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />
-      <path d="M32 1.5L36.8 13 32 10.2 27.2 13Z" fill="var(--ns-laterite)" />
-      <rect x="17.5" y="17" width="29" height="5.5" fill="currentColor" />
-      <rect x="24.5" y="22.5" width="15" height="25" stroke="currentColor" strokeWidth="2.4" />
-      <path d="M29.3 24V47M34.7 24V47" stroke="var(--ns-laterite)" strokeWidth="1.7" />
-      <rect x="20.5" y="47.5" width="23" height="4.5" fill="currentColor" />
-    </svg>
+    <span className={`ns-bm${className ? ` ${className}` : ''}`} data-on={on} aria-hidden="true">
+      {on !== 'dark' && <img className="ns-bm__img ns-bm__img--light" src={light} width={w} height={h} alt="" decoding="async" />}
+      {on !== 'light' && <img className="ns-bm__img ns-bm__img--dark" src={dark} width={w} height={h} alt="" decoding="async" />}
+    </span>
   )
+  /* eslint-enable @next/next/no-img-element */
 }
 
 export function LampIcon({ on, ...props }: P & { on?: boolean }) {

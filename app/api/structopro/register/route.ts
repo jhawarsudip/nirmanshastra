@@ -5,9 +5,9 @@ import { scheduleEmailSequences } from '@/lib/email-sequences'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, email, projectName, state, city } = body
+    const { name, email, state, city } = body
 
-    if (!name || !email || !projectName || !state || !city) {
+    if (!name || !email || !state || !city) {
       return NextResponse.json({ error: 'Required fields missing' }, { status: 400 })
     }
 

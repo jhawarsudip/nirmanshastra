@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
-import PaidToolInfo from '@/components/seo/PaidToolInfo'
+import InnerShell from '@/components/v2/inner/InnerShell'
+import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
 
-const title = "ElectricalPro — House Wiring Cost Estimator | IS 732:2019"
-const description = "Calculate wire lengths, DB panel circuits, and MCB costs using IS 732:2019. Know exact electrical quantities before your contractor quotes. ₹499/report."
+const title = 'ElectricalPro: Wiring Quantity Calculator for Homes | Points, Wire, Conduit, DB | IS 4648, IS 732'
+const description = 'Count the light, fan and socket points, wire by size and colour, conduit, distribution boards, MCBs and earthing for your home, room by room. Quantities only. ₹499 per report.'
 const url = '/tools/electropro'
 
 export const metadata: Metadata = {
@@ -18,28 +19,17 @@ export const metadata: Metadata = {
     url,
     title,
     description,
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'NirmanShastra — India\u2019s IS-Code Construction Cost Estimator',
-      },
-    ],
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NirmanShastra: India’s IS-code construction quantities' }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title,
-    description,
-  },
+  twitter: { card: 'summary_large_image', title, description },
 }
 
 export default function ElectroProLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <InnerShell>
       <JsonLd data={toolJsonLd('/tools/electropro')} />
       {children}
-      <PaidToolInfo path="/tools/electropro" />
-    </>
+      <ToolInfo path="/tools/electropro" />
+    </InnerShell>
   )
 }

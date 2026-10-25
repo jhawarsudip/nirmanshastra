@@ -84,8 +84,10 @@ export async function POST(req: NextRequest) {
       })
 
     if (payError) {
+      // Fatal: /api/payments/verify matches the paid order to this estimate through this row.
+      // Nothing has been charged yet, so stopping here is safe.
       console.error('Payment insert error:', payError)
-      // Non-fatal — continue
+      return NextResponse.json({ error: 'Could not start the payment. Please try again.' }, { status: 500 })
     }
 
     return NextResponse.json({

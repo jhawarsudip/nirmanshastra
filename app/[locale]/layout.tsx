@@ -3,21 +3,14 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
-import { Rozha_One, Mukta, Kalam } from 'next/font/google'
-import '@/styles/v3/base.css'
-import '@/styles/v3/chrome.css'
-import '@/styles/v3/scene.css'
-import '@/styles/v3/sections.css'
-
-// v3 "Storybook" fonts load only for the homepage routes (this layout wraps / and /hi only).
-// All three carry Devanagari + Latin so Hindi gets the same warm voice as English.
-// preload is off so the browser fetches only the script a visitor actually needs (via unicode-range).
-const rozha = Rozha_One({ subsets: ['latin', 'devanagari'], weight: '400', variable: '--font-rozha', display: 'swap', preload: false })
-const mukta = Mukta({ subsets: ['latin', 'devanagari'], weight: ['400', '500', '600', '700', '800'], variable: '--font-mukta', display: 'swap', preload: false })
-const kalam = Kalam({ subsets: ['latin', 'devanagari'], weight: ['400', '700'], variable: '--font-kalam', display: 'swap', preload: false })
-
-// Runs before first paint: day/night theme, Calm (also on by prefers-reduced-motion), and a data-js flag so scroll-reveals only hide content when JS is running.
-const NS2_INIT = `(function(){try{var d=document.documentElement;d.setAttribute('data-js','1');var t=localStorage.getItem('ns2-theme');if(!t){t='light'}d.setAttribute('data-ns-theme',t);var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;var c=localStorage.getItem('ns2-calm');if(c==='1'||(c===null&&rm)){d.setAttribute('data-calm','1')}}catch(e){}})();`
+import { rozha, mukta } from '@/lib/v2/fonts'
+import { NS2_INIT } from '@/lib/v2/init'
+import '@/styles/v2/base.css'
+import '@/styles/v2/chrome.css'
+import '@/styles/v2/sections.css'
+import '@/styles/v2/labs.css'
+import '@/styles/v2/calc.css'
+import '@/styles/v2/plain.css'
 
 type Props = {
   children: React.ReactNode
@@ -31,9 +24,9 @@ export function generateStaticParams() {
 // Home page metadata per locale. English inherits the root layout's title and
 // description; Hindi gets its own. Both declare the hreflang pair (en-IN <-> hi-IN
 // plus x-default) so search and AI engines can match the two versions.
-const HI_TITLE = 'NirmanShastra — IS कोड से घर की निर्माण लागत और सामग्री का अनुमान'
+const HI_TITLE = 'NirmanShastra — IS कोड से घर की सामग्री की मात्रा का हिसाब'
 const HI_DESCRIPTION =
-  'अपने घर के लिए IS कोड के अनुसार सामग्री की मात्रा और निर्माण लागत (BOQ) निकालें, और पैसे देने से पहले ठेकेदार का कोटेशन जाँचें। 10 मुफ़्त कैलकुलेटर और ₹499 से शुरू होने वाली BOQ रिपोर्ट, हिंदी और अंग्रेज़ी में।'
+  'अपने घर के लिए कंक्रीट, स्टील, सीमेंट, ईंट, रेत, तार और पाइप की मात्रा IS कोड के अनुसार निकालें, ऑर्डर देने से पहले। ₹499 से शुरू होने वाली मात्रा रिपोर्ट और मुफ़्त कैलकुलेटर, हिंदी और अंग्रेज़ी में।'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
@@ -61,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: '/og-image.png',
           width: 1200,
           height: 630,
-          alt: 'NirmanShastra — IS कोड पर आधारित निर्माण लागत का अनुमान',
+          alt: 'NirmanShastra — IS कोड पर आधारित सामग्री की मात्रा का हिसाब',
         },
       ],
     },
@@ -90,7 +83,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           segment), so the Hindi page declares its language on this wrapper. */}
       <div
         lang={locale === 'hi' ? 'hi' : undefined}
-        className={`${rozha.variable} ${mukta.variable} ${kalam.variable}`}
+        className={`${rozha.variable} ${mukta.variable}`}
       >
         {children}
       </div>
