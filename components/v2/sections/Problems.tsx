@@ -104,7 +104,7 @@ export default function Problems({ loc }: { loc: Loc }) {
   const { ref } = useReveal<HTMLDivElement>()
   const motion = useMotionOK()
   // Each card has its own "peek" state. On a computer, hover and keyboard focus show it (CSS). On a phone there is no hover,
-  // so a card plays by itself when it scrolls into view and plays again if you scroll back to it; a tap still toggles it.
+  // so the card at the middle of the screen uncovers by itself and covers again as it scrolls away; a tap still toggles it.
   const [on, setOn] = useState<boolean[]>([false, false, false])
   const cards = useRef<(HTMLElement | null)[]>([])
   const toggle = (i: number) => setOn(o => o.map((v, k) => (k === i ? !v : v)))
@@ -120,21 +120,17 @@ export default function Problems({ loc }: { loc: Loc }) {
     if (!window.matchMedia('(max-width: 899px), (hover: none)').matches) return
     const timers: number[] = []
     const set = (i: number, v: boolean) => setOn(o => (o[i] === v ? o : o.map((x, k) => (k === i ? v : x))))
+    // The card that is crossing the middle of the screen is uncovered; the moment it moves off the middle (either way)
+    // the cover slides back. The "middle" is a thin band (8% of the screen height) around the centre line, so the cover
+    // returns while you keep scrolling, and two neighbouring cards are only uncovered together for a moment.
     const io = new IntersectionObserver(entries => {
       for (const e of entries) {
         const i = Number((e.target as HTMLElement).dataset.i)
-        const tallEnough = e.rootBounds ? e.intersectionRect.height >= e.rootBounds.height * 0.5 : false
-        if (e.intersectionRatio >= 0.55 || tallEnough) {
-          // a short beat after the card settles on screen, so the movement is noticed
-          window.clearTimeout(timers[i])
-          timers[i] = window.setTimeout(() => set(i, true), 350)
-        } else if (!e.isIntersecting) {
-          // fully out of view: reset, so it plays again next time it comes back
-          window.clearTimeout(timers[i])
-          set(i, false)
-        }
+        window.clearTimeout(timers[i])
+        if (e.isIntersecting) timers[i] = window.setTimeout(() => set(i, true), 120) // short beat, so a fast fling does not flicker
+        else set(i, false)
       }
-    }, { threshold: Array.from({ length: 21 }, (_, k) => k / 20) })
+    }, { rootMargin: '-46% 0px -46% 0px', threshold: 0 })
     cards.current.forEach(el => { if (el) io.observe(el) })
     return () => { io.disconnect(); timers.forEach(t => window.clearTimeout(t)) }
   }, [motion])
