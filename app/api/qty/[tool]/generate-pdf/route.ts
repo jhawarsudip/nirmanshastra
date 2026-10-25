@@ -9,6 +9,7 @@ import { modelFor } from '@/lib/qty/registry'
 import { TRADE_META, isTradeSlug } from '@/lib/qty/meta'
 import { buildTradeEmail } from '@/lib/qty/email'
 import type { TradeFree, TradePaid } from '@/lib/qty/types'
+import type { CalcSheet } from '@/lib/calcsheet'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 
 export const runtime = 'nodejs'
@@ -71,13 +72,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ too
       free = ran.result.free
     }
 
+    // The calculation sheet is rebuilt from the saved answers and checked against the report as it will be printed.
+    // If it cannot be made to agree, the report goes out without it rather than with working that does not match.
+    let calc: CalcSheet | null = null
+    if (model.calc) {
+      try {
+        const parsedAgain = model.parse(input)
+        if (parsedAgain.ok) calc = model.calc(parsedAgain.input, { free, paid })
+      } catch (calcErr) {
+        console.error(`[NS-CALC] ${meta.label} calculation sheet threw for ${estimateId}:`, calcErr instanceof Error ? calcErr.message : calcErr)
+      }
+      if (!calc) console.error(`[CRITICAL][NS-CALC] ${meta.label} calculation sheet was left out of report ${estimateId}: it did not reconcile with the report.`)
+    }
+
     const reportId = `NS-${meta.code}-${estimateId.slice(0, 8).toUpperCase()}`
     const projectName = estimate.project_name ?? 'My project'
     const where = [input.city, input.state].filter(Boolean).join(', ')
 
     let pdfBuffer: Buffer
     try {
-      const el = React.createElement(QtyReportPDF, { meta, free, paid, contact: contactInfo, reportId, projectName, date: new Date(), where })
+      const el = React.createElement(QtyReportPDF, { meta, free, paid, contact: contactInfo, reportId, projectName, date: new Date(), where, calc })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       pdfBuffer = await renderToBuffer(el as any)
     } catch (pdfErr) {

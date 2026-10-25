@@ -11,6 +11,7 @@
 */
 
 import type { PaidAppType } from '../tool-pricing'
+import type { CalcSheet } from '../calcsheet'
 
 export type TradeKey = 'plumbing' | 'electrical' | 'masonry' | 'interior'
 
@@ -131,6 +132,13 @@ export interface TradeModel<I> {
   code: string
   parse(raw: unknown): Parsed<I>
   run(input: I): Ran
+  /**
+   * The calculation sheet for the last pages of the report: the working behind every figure.
+   * Built from the same input and the report exactly as it will be printed (which may be a frozen copy), by re-deriving each
+   * figure with the Ledger and checking it against the report. Returns null when the sheet cannot be made to agree with the
+   * report, in which case the report is printed without it.
+   */
+  calc?(input: I, report: TradeResult): CalcSheet | null
 }
 
 /** The answers every trade tool starts from. They come from the project the visitor already described. */

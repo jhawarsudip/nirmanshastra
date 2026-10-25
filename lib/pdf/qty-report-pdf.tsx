@@ -6,6 +6,8 @@ import React from 'react'
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import type { TradeFree, TradePaid } from '@/lib/qty/types'
 import type { TradeMeta } from '@/lib/qty/meta'
+import type { CalcSheet } from '@/lib/calcsheet'
+import CalcAppendix from './calc-appendix'
 import { Bullets, C, Chrome, S, Table, Tot, statusColor, type Cell, type ContactInfo } from './qty-kit'
 
 export interface QtyReportPDFProps {
@@ -17,6 +19,8 @@ export interface QtyReportPDFProps {
   projectName: string
   date: Date
   where: string // "Pune, Maharashtra"
+  /** the working behind every figure, printed after the report; null when it could not be made to agree with the report */
+  calc?: CalcSheet | null
 }
 
 /** Column weights from the longest word in the heading and the longest cell, so text columns get room and number columns stay narrow. */
@@ -30,7 +34,7 @@ function weights(head: string[], rows: Cell[][], foot?: Cell[]): number[] {
 
 const pct = (low: number, high: number) => ({ below: Math.round((1 - low) * 100), above: Math.round((high - 1) * 100) })
 
-export default function QtyReportPDF({ meta, free, paid, contact, reportId, projectName, date, where }: QtyReportPDFProps) {
+export default function QtyReportPDF({ meta, free, paid, contact, reportId, projectName, date, where, calc }: QtyReportPDFProps) {
   const dateText = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
   const tiles = paid.tiles.slice(0, 4)
 
@@ -135,6 +139,8 @@ export default function QtyReportPDF({ meta, free, paid, contact, reportId, proj
         <Text style={S.small}>
           NirmanShastra · India&apos;s IS-code construction quantities platform. This report is for estimation and planning only. It is not a substitute for drawings and calculations signed by a licensed professional. Where a figure is an assumption, change it and the quantities change.
         </Text>
+
+        {calc ? <CalcAppendix sheet={calc} /> : null}
       </Page>
     </Document>
   )
