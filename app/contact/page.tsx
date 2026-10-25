@@ -172,8 +172,8 @@ export default function ContactPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                   <div>
                     <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'rgba(30,34,39,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 5 }}>EMAIL</p>
-                    <a href="mailto:reports@nirmanshastra.in" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#1F4E79', textDecoration: 'none' }}>
-                      reports@nirmanshastra.in
+                    <a href="mailto:nirmanshastraindia@gmail.com" style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: '#1F4E79', textDecoration: 'none' }}>
+                      nirmanshastraindia@gmail.com
                     </a>
                   </div>
                   <div>

@@ -147,7 +147,7 @@ export default function DisclaimerPage() {
 
           <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid rgba(30,34,39,0.1)' }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.45)', letterSpacing: '0.04em', lineHeight: 1.7 }}>
-              Questions: <a href="mailto:reports@nirmanshastra.in" style={{ color: '#1F4E79' }}>reports@nirmanshastra.in</a>
+              Questions: <a href="mailto:nirmanshastraindia@gmail.com" style={{ color: '#1F4E79' }}>nirmanshastraindia@gmail.com</a>
             </p>
           </div>
         </div>

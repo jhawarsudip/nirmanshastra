@@ -10,6 +10,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import { SUPPORT_EMAIL } from '@/lib/seo/site'
 
 declare global {
   interface Window {
@@ -193,6 +194,10 @@ function PurchaseOverlay({
             {error && (
               <p style={{ fontFamily: FI, fontSize: 12, color: '#E0704E', marginBottom: 8 }}>{error}</p>
             )}
+            <p style={{ fontFamily: FI, fontSize: 11.5, color: TS, lineHeight: 1.6, marginTop: 4 }}>
+              By paying you accept the <a href="/site-templates/terms" target="_blank" rel="noopener noreferrer" style={{ color: GOLD }}>Site Templates Terms</a>.
+              A downloaded file cannot be returned; a faulty one is fixed or refunded.
+            </p>
             <button
               type="button"
               onClick={onSubmitEmail}
@@ -276,6 +281,10 @@ function PurchaseOverlay({
                 </a>
               ))}
             </div>
+            <p style={{ fontFamily: FI, fontSize: 11.5, color: TS, lineHeight: 1.6, marginTop: 10 }}>
+              Lost the link? Write to <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: GOLD }}>{SUPPORT_EMAIL}</a> from the email you bought with.{' '}
+              <a href="/site-templates/terms" target="_blank" rel="noopener noreferrer" style={{ color: GOLD }}>Terms and refunds</a>.
+            </p>
             <button
               type="button"
               onClick={onClose}

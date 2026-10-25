@@ -4,7 +4,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'reports@nirmanshastra.in'
-const FOUNDER_EMAIL = 'reports@nirmanshastra.in'
+const FOUNDER_EMAIL = 'nirmanshastraindia@gmail.com'
 
 export async function POST(req: NextRequest) {
   try {

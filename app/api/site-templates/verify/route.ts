@@ -3,6 +3,7 @@ import { createHmac } from 'crypto'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import { SITE_URL, SUPPORT_EMAIL } from '@/lib/seo/site'
 import {
   SITE_TEMPLATES_BUCKET,
   SIGNED_URL_TTL_SECONDS,
@@ -149,6 +150,7 @@ export async function POST(req: NextRequest) {
       try {
         const result = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL!,
+          replyTo: SUPPORT_EMAIL,
           to: email,
           subject:
             productId === BUNDLE_ID
@@ -226,7 +228,8 @@ function buildEmailHtml(productId: string, downloads: Download[]): string {
             <table width="100%" cellpadding="0" cellspacing="0" style="margin:12px 0;">${rows}</table>
             <p style="margin:16px 0 0;font-family:'IBM Plex Sans',Arial,sans-serif;font-size:12px;color:#888;line-height:1.6;">
               These download links are secure and expire in 48 hours. Save the files to your device after downloading.
-              If a link has expired, reply to this email and we will re-issue it.
+              If a link has expired, write to ${SUPPORT_EMAIL} from the email address you bought with and we will send a fresh one.
+              Licence, delivery and refund terms: <a href="${SITE_URL}/site-templates/terms" style="color:#8C3A22;">${SITE_URL.replace('https://', '')}/site-templates/terms</a>
             </p>
           </td>
         </tr>

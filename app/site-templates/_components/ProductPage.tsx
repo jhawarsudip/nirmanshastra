@@ -304,7 +304,8 @@ export default function ProductPage({ content }: { content: ProductContent }) {
         </div>
 
         <p style={{ fontFamily: FI, fontSize: 12, color: 'rgba(255,255,255,0.32)', marginTop: 24, lineHeight: 1.7, maxWidth: 860 }}>
-          Secure payment by Razorpay. This toolkit is delivered as an Excel (.xlsx) file, packaged as a .zip, via a secure download link shown here and emailed to you after checkout.
+          Secure payment by Razorpay. This toolkit is delivered as an Excel (.xlsx) file, packaged as a .zip, via a secure download link shown here and emailed to you after checkout.{' '}
+          <Link href="/site-templates/terms" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'underline' }}>Terms and refunds</Link>.
         </p>
       </section>
 

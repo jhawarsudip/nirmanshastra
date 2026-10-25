@@ -103,7 +103,7 @@ export default function PrivacyPolicyPage() {
 
           <Section clause="§ 1.0 — DATA CONTROLLER" title="Who we are">
             <P>NirmanShastra is operated by The Founder, an individual civil engineer based in Uttar Pradesh, India. When you use NirmanShastra tools, you are sharing your data with us as the data controller.</P>
-            <P>Contact for privacy concerns: <a href="mailto:reports@nirmanshastra.in" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>reports@nirmanshastra.in</a></P>
+            <P>Contact for privacy concerns: <a href="mailto:nirmanshastraindia@gmail.com" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>nirmanshastraindia@gmail.com</a></P>
           </Section>
 
           <Section clause="§ 2.0 — DATA WE COLLECT" title="What data we collect">
@@ -171,7 +171,7 @@ export default function PrivacyPolicyPage() {
               'Withdraw consent to marketing emails at any time via the unsubscribe link in any email we send',
               'Lodge a complaint with the Data Protection Board of India once the Board is constituted under the Act',
             ]} />
-            <P>To exercise any of these rights, email <a href="mailto:reports@nirmanshastra.in" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>reports@nirmanshastra.in</a> with the subject line &quot;Privacy Request — [your name]&quot;. We will respond within 30 days.</P>
+            <P>To exercise any of these rights, email <a href="mailto:nirmanshastraindia@gmail.com" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>nirmanshastraindia@gmail.com</a> with the subject line &quot;Privacy Request — [your name]&quot;. We will respond within 30 days.</P>
           </Section>
 
           <Section clause="§ 8.0 — DATA RETENTION" title="How long we keep your data">
@@ -185,7 +185,7 @@ export default function PrivacyPolicyPage() {
 
           <div style={{ paddingTop: 20 }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.45)', letterSpacing: '0.04em', lineHeight: 1.7 }}>
-              Questions? Write to reports@nirmanshastra.in · See also{' '}
+              Questions? Write to nirmanshastraindia@gmail.com · See also{' '}
               <Link href="/terms-of-use" style={{ color: '#1F4E79' }}>Terms of Use</Link>{' '}and{' '}
               <Link href="/disclaimer" style={{ color: '#1F4E79' }}>Disclaimer</Link>
             </p>

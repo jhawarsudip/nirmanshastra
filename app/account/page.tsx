@@ -80,8 +80,8 @@ export default async function AccountPage() {
           <div style={{ marginTop: 32 }}>
             <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'rgba(30,34,39,0.38)', letterSpacing: '0.04em', lineHeight: 1.75 }}>
               To delete your account or request a full data export, email{' '}
-              <a href="mailto:reports@nirmanshastra.in" style={{ color: '#1F4E79' }}>
-                reports@nirmanshastra.in
+              <a href="mailto:nirmanshastraindia@gmail.com" style={{ color: '#1F4E79' }}>
+                nirmanshastraindia@gmail.com
               </a>{' '}
               with subject &quot;Privacy Request — [your name]&quot;.
             </p>

@@ -23,6 +23,7 @@ const STATIC_ROUTES: Array<{
   { path: '/site-templates/bar-bending-schedule', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/site-templates/labour-compliance', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/site-templates/planning-progress', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/site-templates/terms', priority: 0.3, changeFrequency: 'yearly' },
   { path: '/compare-quote', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/faq', priority: 0.8, changeFrequency: 'monthly' },

@@ -123,7 +123,8 @@ export default function TermsOfUsePage() {
               'Grand Total Report (combines all 5 phases) — ₹999, or free if all 5 tools purchased individually',
             ]} />
             <P>Payments are processed by Razorpay and are subject to their terms and conditions. NirmanShastra does not store your payment card details.</P>
-            <P><strong>Refund policy:</strong> Once a PDF report is successfully generated and delivered to your registered email, the payment is non-refundable. This is because the estimate is calculated and the PDF is generated at the time of payment — there is no physical inventory to return. If a PDF fails to generate due to a technical fault on our end and cannot be delivered within 48 hours of payment, we will issue a full refund. To request a refund for a failed delivery, email <a href="mailto:reports@nirmanshastra.in" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>reports@nirmanshastra.in</a> within 7 days of payment.</P>
+            <P><strong>Refund policy:</strong> Once a PDF report is successfully generated and delivered to your registered email, the payment is non-refundable. This is because the estimate is calculated and the PDF is generated at the time of payment — there is no physical inventory to return. If a PDF fails to generate due to a technical fault on our end and cannot be delivered within 48 hours of payment, we will issue a full refund. To request a refund for a failed delivery, email <a href="mailto:nirmanshastraindia@gmail.com" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>nirmanshastraindia@gmail.com</a> within 7 days of payment.</P>
+            <P><strong>Excel Site Templates:</strong> the Excel files sold at <Link href="/site-templates" style={{ color: '#1F4E79' }}>/site-templates</Link> have their own licence, delivery and refund terms. See the <Link href="/site-templates/terms" style={{ color: '#1F4E79' }}>Site Templates Terms and Licence</Link>.</P>
           </Section>
 
           <Section clause="§ 3.0 — ACCURACY DISCLAIMER" title="Accuracy of estimates">
@@ -167,7 +168,7 @@ export default function TermsOfUsePage() {
 
           <Section clause="§ 7.0 — GOVERNING LAW" title="Governing law and disputes">
             <P>These terms are governed by the laws of India. Any dispute arising from your use of NirmanShastra shall be subject to the exclusive jurisdiction of the courts of Uttar Pradesh, India.</P>
-            <P>We encourage you to contact us at <a href="mailto:reports@nirmanshastra.in" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>reports@nirmanshastra.in</a> before pursuing any formal legal action. Most issues can be resolved directly.</P>
+            <P>We encourage you to contact us at <a href="mailto:nirmanshastraindia@gmail.com" style={{ color: '#1F4E79', fontFamily: 'var(--font-plex-mono)', fontSize: 13 }}>nirmanshastraindia@gmail.com</a> before pursuing any formal legal action. Most issues can be resolved directly.</P>
           </Section>
 
           <Section clause="§ 8.0 — CHANGES TO TERMS" title="Changes to these terms">

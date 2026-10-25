@@ -11,7 +11,7 @@ import { SITE_TEMPLATES, BUNDLE_PRICE_PAISE } from '@/lib/site-templates'
 
 export const SITE_URL = 'https://www.nirmanshastra.in'
 export const SITE_NAME = 'NirmanShastra'
-export const SUPPORT_EMAIL = 'reports@nirmanshastra.in'
+export const SUPPORT_EMAIL = 'nirmanshastraindia@gmail.com'
 export const OG_IMAGE_URL = `${SITE_URL}/og-image.png`
 export const LOGO_URL = `${SITE_URL}/icon-512.png`
 
