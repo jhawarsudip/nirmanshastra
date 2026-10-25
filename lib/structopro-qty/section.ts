@@ -2,10 +2,11 @@
 // uniaxial capacity at a given axial load, biaxial check (IS 456 cl 39.6), bar layouts and tie support rules.
 // Steel is elastic-plastic to 0.87 fy (the IS 456 Fe500 curve has a short inelastic branch; the difference is under 3 %: ASSUMPTION).
 
-import { ES, FY, barArea } from './codes'
+import { COVER_COLUMN, ES, FY, barArea } from './codes'
 
 const FYD = 0.87 * FY
-const STRIPS = 48
+/** Number of strips the compression zone is divided into for the stress integral. */
+export const STRIPS = 48
 
 export interface BarPos {
   x: number // mm from the left face
@@ -27,12 +28,15 @@ function sigmaS(e: number): number {
   return Math.max(-FYD, Math.min(FYD, s))
 }
 
+/** Strain at distance y from the compression face for a neutral-axis depth xu (IS 456 cl 38.1 and Fig. 21: 0.0035 at the extreme fibre, 0.002 at 3/7 of the depth when the whole section is in compression). */
+export function strainAt(depth: number, xu: number, y: number): number {
+  if (xu <= depth) return (0.0035 * (xu - y)) / xu
+  return (0.002 * (xu - y)) / (xu - (3 * depth) / 7)
+}
+
 /** Axial force (N) and moment about the section centroid (N.mm) for a neutral-axis depth xu measured from the compression face. */
 function section(depth: number, width: number, bars: { y: number; area: number }[], xu: number, fck: number): { P: number; M: number } {
-  const strain = (y: number): number => {
-    if (xu <= depth) return (0.0035 * (xu - y)) / xu
-    return (0.002 * (xu - y)) / (xu - (3 * depth) / 7)
-  }
+  const strain = (y: number): number => strainAt(depth, xu, y)
   let P = 0
   let M = 0
   const yMax = Math.min(xu, depth)
@@ -55,22 +59,74 @@ function section(depth: number, width: number, bars: { y: number; area: number }
   return { P, M }
 }
 
-/** Moment capacity (N.mm) about the axis parallel to `width`, at axial load Pu (N, compression positive). 0 if Pu is beyond the section. */
-export function uniaxialCapacity(depth: number, width: number, bars: { y: number; area: number }[], Pu: number, fck: number): number {
+/** One bar of a section at a given neutral axis: strain, stress (N/mm2, compression positive) and force (N). */
+export interface BarForce {
+  y: number
+  area: number
+  strain: number
+  stress: number
+  force: number
+}
+
+/** The same sum as `section`, term by term, so that a calculation sheet can show the concrete force and each bar's force. The totals equal `section`'s. */
+export function sectionBreakdown(depth: number, width: number, bars: { y: number; area: number }[], xu: number, fck: number): { concreteP: number; concreteM: number; bars: BarForce[]; P: number; M: number } {
+  let P = 0
+  let M = 0
+  const yMax = Math.min(xu, depth)
+  const dy = yMax / STRIPS
+  for (let i = 0; i < STRIPS; i++) {
+    const y = (i + 0.5) * dy
+    const s = sigmaC(strainAt(depth, xu, y), fck)
+    const f = s * width * dy
+    P += f
+    M += f * (depth / 2 - y)
+  }
+  const concreteP = P
+  const concreteM = M
+  const out: BarForce[] = []
+  for (const bar of bars) {
+    const e = strainAt(depth, xu, bar.y)
+    let s = sigmaS(e)
+    if (e > 0) s -= sigmaC(e, fck)
+    const f = s * bar.area
+    P += f
+    M += f * (depth / 2 - bar.y)
+    out.push({ y: bar.y, area: bar.area, strain: e, stress: s, force: f })
+  }
+  return { concreteP, concreteM, bars: out, P, M }
+}
+
+/** Where the uniaxial search ended: the neutral-axis depth xu (null if the axial load is beyond the section) and the moment. */
+export interface UniaxialSolution {
+  M: number
+  xu: number | null
+  status: 'beyond' | 'low' | 'solved'
+}
+
+export function uniaxialSolve(depth: number, width: number, bars: { y: number; area: number }[], Pu: number, fck: number): UniaxialSolution {
   let lo = 0.02 * depth
   let hi = 60 * depth
-  if (section(depth, width, bars, hi, fck).P < Pu) return 0
+  if (section(depth, width, bars, hi, fck).P < Pu) return { M: 0, xu: null, status: 'beyond' }
   if (section(depth, width, bars, lo, fck).P > Pu) {
-    return section(depth, width, bars, lo, fck).M
+    return { M: section(depth, width, bars, lo, fck).M, xu: lo, status: 'low' }
   }
   for (let i = 0; i < 40; i++) {
     const mid = 0.5 * (lo + hi)
     if (section(depth, width, bars, mid, fck).P < Pu) lo = mid
     else hi = mid
   }
-  const r = section(depth, width, bars, 0.5 * (lo + hi), fck)
-  return Math.max(0, r.M)
+  const xu = 0.5 * (lo + hi)
+  const r = section(depth, width, bars, xu, fck)
+  return { M: Math.max(0, r.M), xu, status: 'solved' }
 }
+
+/** Moment capacity (N.mm) about the axis parallel to `width`, at axial load Pu (N, compression positive). 0 if Pu is beyond the section. */
+export function uniaxialCapacity(depth: number, width: number, bars: { y: number; area: number }[], Pu: number, fck: number): number {
+  return uniaxialSolve(depth, width, bars, Pu, fck).M
+}
+
+/** IS 456 cl 39.6: the exponent of the biaxial interaction, 1.0 for Pu/Puz up to 0.2 and 2.0 from 0.8, straight line between. */
+export const alphaN = (r: number): number => (r <= 0.2 ? 1 : r >= 0.8 ? 2 : 1 + (r - 0.2) / 0.6)
 
 /** IS 456 cl 39.6: (Mux/Mux1)^a + (Muy/Muy1)^a <= 1, a from 1.0 (Pu/Puz <= 0.2) to 2.0 (>= 0.8). Returns the left-hand side. */
 export function biaxialRatio(
@@ -87,7 +143,7 @@ export function biaxialRatio(
   const Puz = 0.45 * fck * Ac + 0.75 * FY * Asc
   if (Pu >= Puz) return 9
   const r = Pu / Puz
-  const alpha = r <= 0.2 ? 1 : r >= 0.8 ? 2 : 1 + (r - 0.2) / 0.6
+  const alpha = alphaN(r)
   const mx1 = uniaxialCapacity(D, b, bars.map((x) => ({ y: x.y, area: x.area })), Pu, fck)
   const my1 = uniaxialCapacity(b, D, bars.map((x) => ({ y: x.x, area: x.area })), Pu, fck)
   const ax = Mux <= 0 ? 0 : mx1 <= 0 ? 9 : Math.pow(Mux / mx1, alpha)
@@ -142,14 +198,16 @@ export function crossTiesForFace(n: number, s: number, phi: number): number {
   return ties
 }
 
-const PHIS = [12, 16, 20, 25]
-const COUNTS = [4, 6, 8, 10, 12, 14, 16, 18, 20, 24]
+export const PHIS = [12, 16, 20, 25]
+export const COUNTS = [4, 6, 8, 10, 12, 14, 16, 18, 20, 24]
+/** IS 456 cl 26.5.3.1: longitudinal steel in a column not under 0.8 % of the gross section; the model's 4 % ceiling is the practical limit where bars are lapped (the code allows up to 6 %); bars not more than 300 mm apart (cl 26.5.3.1(h)). */
+export const COLUMN_STEEL_PCT = { min: 0.8, max: 4.0, maxSpacing: 300 } as const
 
 /** Candidate bar arrangements for a b x D column, ascending in steel area, between 0.8 % and 4 % (IS 456 cl 26.5.3.1). */
 export function barConfigs(b: number, D: number, tiePhi: number): BarConfig[] {
   const res: BarConfig[] = []
   for (const phi of PHIS) {
-    const c = 40 + tiePhi + phi / 2
+    const c = COVER_COLUMN + tiePhi + phi / 2
     for (const n of COUNTS) {
       // choose (nb, nd) with 2nb + 2nd - 4 = n and the most even spacing
       let best: { nb: number; nd: number; score: number } | null = null
@@ -165,11 +223,11 @@ export function barConfigs(b: number, D: number, tiePhi: number): BarConfig[] {
       const { nb, nd } = best
       const sb = (b - 2 * c) / (nb - 1)
       const sd = (D - 2 * c) / (nd - 1)
-      if (sb > 300 || sd > 300) continue // IS 456 cl 26.5.3.1(h): spacing not more than 300 mm
+      if (sb > COLUMN_STEEL_PCT.maxSpacing || sd > COLUMN_STEEL_PCT.maxSpacing) continue // IS 456 cl 26.5.3.1(h): spacing not more than 300 mm
       if (sb - phi < Math.max(phi, 25) || sd - phi < Math.max(phi, 25)) continue // clear spacing, cl 26.3.3
       const ast = n * barArea(phi)
       const pct = (100 * ast) / (b * D)
-      if (pct < 0.8 || pct > 4.0) continue
+      if (pct < COLUMN_STEEL_PCT.min || pct > COLUMN_STEEL_PCT.max) continue
       res.push({
         phi,
         n,

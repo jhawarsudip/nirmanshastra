@@ -4,7 +4,7 @@
 
 import { COVER_COLUMN, FY, GAMMA_RC, Zone } from './codes'
 import { beamCoeffs, designBeam } from './beam'
-import { ColumnCase, ColumnDesign, addColumnSteel, chooseColumn, columnLap } from './column'
+import { ColumnCase, ColumnDesign, TieLayout, addColumnSteel, chooseColumn, columnLap, tieLayout } from './column'
 import { designIsolatedFooting, designRaft, FootingResult, RaftResult } from './footing'
 import {
   BeamRec,
@@ -18,16 +18,16 @@ import {
   lateralAnalysis,
   seismicWeights,
 } from './frame'
-import { Grade, Exposure, T5_RCC, gradeNumber, mixFor } from './materials'
-import { SQFT_TO_M2, balconySlots, balconyThicknessMm, buildPlan, llReduction, nodeExists, reactionShare } from './plan'
+import { CFT_PER_M3, Grade, Exposure, T5_RCC, gradeNumber, mixFor } from './materials'
+import { SQFT_TO_M2, balconySlots, balconyThicknessMm, buildPlan, llReduction, nodeExists, reactionShare, type BalconySlot, type Plan } from './plan'
 import { designBalconies, type BalconyOut } from './balcony'
 import { basicWindSpeed, type WindSpeed } from './wind'
-import { designPanel, slabThickness } from './slab'
+import { designPanel, slabThickness, type PanelInput, type PanelResult } from './slab'
 import { designStair } from './stair'
 import { secondaryItems } from './secondary'
 import { SteelBook } from './steel'
 import { stirrupCutLength } from './codes'
-import { seismicZoneFor } from './zones'
+import { seismicZoneFor, type ZoneResult } from './zones'
 import { SITE, type SiteParams } from './sites'
 import type {
   BeamSchedule,
@@ -43,23 +43,50 @@ import type {
   QtyResult,
   SiteCondition,
   StiltResult,
+  WallType,
   WindResult,
 } from './types'
 
-const HS = 3.0 // m, floor to floor. ASSUMPTION: usual residential storey height
-const PLINTH = 0.45 // m above ground. ASSUMPTION
-const STEEL_BUY = 1.05 // CPWD DAR 5.22.1: 5 % wastage on reinforcement
-const BINDING_WIRE_PER_TONNE = 9 // kg per tonne of steel: derived upper bound from the CPWD cost lines (about 0.9 kg per 100 kg)
-const SITE_WASTAGE = 1.03 // concrete materials: spillage and over-break. ASSUMPTION
+export const HS = 3.0 // m, floor to floor. ASSUMPTION: usual residential storey height
+export const PLINTH = 0.45 // m above ground. ASSUMPTION
+export const STEEL_BUY = 1.05 // CPWD DAR 5.22.1: 5 % wastage on reinforcement
+export const BINDING_WIRE_PER_TONNE = 9 // kg per tonne of steel: derived upper bound from the CPWD cost lines (about 0.9 kg per 100 kg)
+export const SITE_WASTAGE = 1.03 // concrete materials: spillage and over-break. ASSUMPTION
+export const M2_TO_SQFT = 10.7639
+export const M3_TO_CFT = CFT_PER_M3
 
-const EXPOSURE_ORDER: Exposure[] = ['mild', 'moderate', 'severe', 'very_severe', 'extreme']
-const maxExposure = (a: Exposure, b: Exposure): Exposure => (EXPOSURE_ORDER.indexOf(a) >= EXPOSURE_ORDER.indexOf(b) ? a : b)
-const maxGrade = (a: Grade, b: Grade): Grade => (gradeNumber(a) >= gradeNumber(b) ? a : b)
+/** The ranges printed under the four totals: the figure shown is multiplied by the low and the high factor. See the comment at the use in `assemble` for where they come from. */
+export function bandsFor(stilt: boolean, hasBalcony: boolean): QtyResult['band'] {
+  return { concrete: [0.92, 1.4], steel: [0.9, stilt || hasBalcony ? 1.65 : 1.6], cement: [0.92, 1.4], formwork: [0.85, 1.25] }
+}
+
+/** Plinth beam rules (site practice, ASSUMPTION): a span over 4.2 m gets a 375 mm deep beam, else 300 mm; 4 bars and links at 150 mm; Zones IV and V get a second set as footing ties. */
+export const PLINTH_RULES = { deepSpanM: 4.2, deepD: 375, shallowD: 300, barsPerSet: 4, linkPitchMm: 150, phiLow: 12, phiHigh: 16, linkPhiSeismic: 8, linkPhiZoneII: 6 } as const
+
+/** One plinth beam line between two columns of the ground grid. */
+export interface PlinthLine {
+  dir: 'x' | 'y'
+  ix: number
+  iy: number
+  L: number
+  /** column dimension along the line at the start column, mm */
+  along: number
+  D: number
+  clear: number
+}
+/** Dead share of the gravity moment on a column when the dead load is the only one acting with the earthquake (load cases 4 to 7). ASSUMPTION */
+export const COLUMN_DEAD_MOMENT_SHARE = 0.75
+/** Strong-column weak-beam check used by the model: each column (above and below a joint) must resist 0.55 = 1.1 x one half of the beam moments of resistance at the joint. The 1.1 is the model's own factor. */
+export const SCWB_COLUMN_SHARE = 0.55
+
+export const EXPOSURE_ORDER: Exposure[] = ['mild', 'moderate', 'severe', 'very_severe', 'extreme']
+export const maxExposure = (a: Exposure, b: Exposure): Exposure => (EXPOSURE_ORDER.indexOf(a) >= EXPOSURE_ORDER.indexOf(b) ? a : b)
+export const maxGrade = (a: Grade, b: Grade): Grade => (gradeNumber(a) >= gradeNumber(b) ? a : b)
 
 /** Smallest column side by floors carried: the Build Reference lower bounds (230 / 300 / 350 / 400). */
-const minSideFor = (floorsCarried: number): number => (floorsCarried <= 1 ? 230 : floorsCarried === 2 ? 300 : floorsCarried === 3 ? 350 : 400)
+export const minSideFor = (floorsCarried: number): number => (floorsCarried <= 1 ? 230 : floorsCarried === 2 ? 300 : floorsCarried === 3 ? 350 : 400)
 
-interface ColRec {
+export interface ColRec {
   k: number
   ix: number
   iy: number
@@ -71,19 +98,65 @@ interface ColRec {
   zBottom: number
   barLenMm: number
   ties: string
+  /** the tie layout behind `ties` (spacing rules, counts), and the clear height it was worked for */
+  tie: TieLayout
+  /** smallest side allowed for this column (mm) and the unsupported length used for the minimum eccentricity (mm) */
+  minSide: number
+  unsupported: number
 }
 
 const mk = (c = 0, s = 0, f = 0, n = 0): MemberTotals => ({ concreteM3: c, steelKg: s, formworkM2: f, count: n })
 
 export function runQuantityModel(input: QtyInput): QtyResult | QtyError {
+  return runQuantityModelDetailed(input).result
+}
+
+/**
+ * Everything the model worked out on the way to the result: the records the calculation sheet reads. Nothing here is serialised or sent to the browser.
+ * `analysis` is the final (second) pass; `pass1` is the first pass, whose actual weights the second pass used for the earthquake forces.
+ */
+export interface ModelWork {
+  input: QtyInput
+  /** floor areas as entered, sq ft, and the areas of the frame's storeys in m2 (an open parking level repeats the first floor) */
+  areasSqft: number[]
+  planAreasM2: number[]
+  /** plot sides given -> long side / short side, clamped to 1..2; `ratioRaw` is the unclamped ratio (absent when no plot was given) */
+  aspect: { ratio: number; ratioRaw?: number; fromPlot: boolean }
+  nBal: number
+  lcAsked: number
+  siteKey: SiteCondition
+  site: SiteParams
+  zr: ZoneResult
+  wallType: WallType
+  exposure: Exposure
+  exposureBelow: Exposure
+  gradeAbove: Grade
+  gradeBelow: Grade
+  fck: number
+  fckBelow: number
+  plan: Plan
+  tSlab: number
+  slots: BalconySlot[]
+  vb: WindSpeed
+  ctx: Ctx
+  pass1: Analysis
+  analysis: Analysis
+  /** the weights the final earthquake analysis used (= the first pass's actual weights) */
+  weightsUsed: Weights
+  parts: AssembleParts
+}
+
+/** The same run as `runQuantityModel`, with the working kept. `work` is null when the model could not complete the input. */
+export function runQuantityModelDetailed(input: QtyInput): { result: QtyResult | QtyError; work: ModelWork | null } {
   try {
-    return run(input)
+    const r = run(input)
+    return { result: r.result, work: r.work }
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : 'The quantity model could not complete this input.' }
+    return { result: { ok: false, error: e instanceof Error ? e.message : 'The quantity model could not complete this input.' }, work: null }
   }
 }
 
-function run(input: QtyInput): QtyResult {
+function run(input: QtyInput): { result: QtyResult; work: ModelWork } {
   const areasSqft = (input.floorAreasSqft ?? []).map(Number)
   if (areasSqft.length < 1 || areasSqft.length > 10) throw new Error('Floors must be between 1 and 10.')
   if (areasSqft.some((a) => !Number.isFinite(a) || a < 100 || a > 30000)) throw new Error('Each floor area must be between 100 and 30,000 sq ft.')
@@ -99,7 +172,7 @@ function run(input: QtyInput): QtyResult {
 
   const siteKey: SiteCondition = input.site ?? 'flat'
   const site = SITE[siteKey] ?? SITE.flat
-  const zr = input.zoneOverride
+  const zr: ZoneResult = input.zoneOverride
     ? { zone: input.zoneOverride as Zone, basis: 'town' as const, note: `Zone ${input.zoneOverride} set by the user.` }
     : seismicZoneFor(input.state, input.city)
   const seismic = zr.zone !== 'II'
@@ -112,8 +185,10 @@ function run(input: QtyInput): QtyResult {
   const fckBelow = gradeNumber(gradeBelow)
 
   let aspect = 1.3
+  let aspectRaw: number | undefined
   if (input.plotLengthFt && input.plotWidthFt && input.plotLengthFt > 0 && input.plotWidthFt > 0) {
-    aspect = Math.min(2, Math.max(1, Math.max(input.plotLengthFt, input.plotWidthFt) / Math.min(input.plotLengthFt, input.plotWidthFt)))
+    aspectRaw = Math.max(input.plotLengthFt, input.plotWidthFt) / Math.min(input.plotLengthFt, input.plotWidthFt)
+    aspect = Math.min(2, Math.max(1, aspectRaw))
   }
   const plan = buildPlan(planAreas, aspect, HS, PLINTH)
   const tSlab = slabThickness(Math.min(plan.sx, plan.sy), plan.nx > 1 || plan.ny > 1)
@@ -136,16 +211,107 @@ function run(input: QtyInput): QtyResult {
   }
 
   let hint: Weights | null = null
-  let out = analyse(ctx, siteKey, site, fck, fckBelow, hint)
-  hint = out.weightsActual
-  out = analyse(ctx, siteKey, site, fck, fckBelow, hint)
+  const pass1 = analyse(ctx, siteKey, site, fck, fckBelow, hint)
+  hint = pass1.weightsActual
+  const out = analyse(ctx, siteKey, site, fck, fckBelow, hint)
 
-  return assemble(input, ctx, site, siteKey, zr, exposure, exposureBelow, gradeAbove, gradeBelow, out, areasSqft, wallType, { vb, nBal })
+  const asm = assemble(input, ctx, site, siteKey, zr, exposure, exposureBelow, gradeAbove, gradeBelow, out, areasSqft, wallType, { vb, nBal })
+  const work: ModelWork = {
+    input,
+    areasSqft,
+    planAreasM2: planAreas,
+    aspect: { ratio: aspect, ratioRaw: aspectRaw, fromPlot: aspectRaw !== undefined },
+    nBal,
+    lcAsked,
+    siteKey,
+    site,
+    zr,
+    wallType,
+    exposure,
+    exposureBelow,
+    gradeAbove,
+    gradeBelow,
+    fck,
+    fckBelow,
+    plan,
+    tSlab,
+    slots,
+    vb,
+    ctx,
+    pass1,
+    analysis: out,
+    weightsUsed: out.weightsUsed,
+    parts: asm.parts,
+  }
+  return { result: asm.result, work }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------
 
-interface Analysis {
+/** What happens at one column position of one storey in the load take-down (top storey first): the numbers behind `Pdl`, `Pll` and the load cases. */
+export interface NodeLoad {
+  k: number
+  ix: number
+  iy: number
+  Pdl: number
+  Pll: number
+  cases: ColumnCase[]
+  type: 'corner' | 'edge' | 'interior'
+  detail: {
+    /** dead and imposed load the beams of this storey put on the column (kN), before the column's own weight */
+    reDL: number
+    reLL: number
+    /** own weight of this storey's column at the estimated size (kN) */
+    wc: number
+    /** running totals down to and including this storey, before the imposed-load reduction (kN), and the number of floors carried */
+    runDL: number
+    runLL: number
+    n: number
+    /** IS 875 Part 2 cl 3.2.1 reduction of imposed load (fraction) */
+    red: number
+    /** service unbalanced beam moments (kN.m) at the joint of this storey's top and (halved) at the joint below */
+    top: { mx: number; my: number }
+    bot: { mx: number; my: number }
+    topShare: number
+    Mgx: number
+    Mgy: number
+    /** lateral column moment (kN.m): bending about x from the load along y, and about y from the load along x */
+    MEx: number
+    MEy: number
+    rD: number
+    /** strong-column weak-beam: sums of the beam moments of resistance at the joints above and below (kN.m), and the column moment required (kN.m); null in Zone II */
+    scwb: { topCap: { aboutX: number; aboutY: number }; botCap: { aboutX: number; aboutY: number }; reqX: number; reqY: number } | null
+  }
+}
+
+/** The beam-line index and the load take-down helpers of one analysis, as the model used them (read-only use by the calculation sheet). */
+export interface AnalysisFns {
+  colEst: (k: number) => number
+  dEst: (r: BeamRec) => number
+  selfEst: (r: BeamRec) => number
+  /** x beams: xb[k][iy][i]; y beams: yb[k][ix][i] */
+  xb: BeamRec[][][]
+  yb: BeamRec[][][]
+  reactions: (k: number, ix: number, iy: number) => { dl: number; ll: number }
+  unbalanced: (k: number, ix: number, iy: number) => { mx: number; my: number }
+  capSum: (k: number, ix: number, iy: number) => { aboutY: number; aboutX: number }
+  groupStart: (k: number) => number
+}
+
+/** The stair opening in each floor slab below the roof: it is at most this share of the floor plate, and the slab steel is trimmed by this share of the opening's share of the plate. */
+export const STAIRWELL_RULES = { maxShareOfPlate: 0.12, steelTrimShare: 0.85 } as const
+
+/** One slab panel as it was designed: where it is, the load put on it and the full result. */
+export interface PanelRec {
+  k: number
+  ix: number
+  iy: number
+  input: PanelInput
+  load: { dl: number; ll: number; terrace: boolean }
+  res: PanelResult
+}
+
+export interface Analysis {
   beams: BeamRec[][]
   book: SteelBook
   cols: ColRec[]
@@ -154,12 +320,24 @@ interface Analysis {
   lat: Lateral
   weightsActual: Weights
   warnings: string[]
-  plinth: { concrete: number; formwork: number; count: number }
+  plinth: { concrete: number; formwork: number; count: number; lines: PlinthLine[]; sets: number; barPhi: number; linkPhi: number; widthMm: number }
   stair: ReturnType<typeof designStair>
   panelNotes: string[]
+  /** every slab panel of every storey, in the order they were designed */
+  panels: PanelRec[]
   slabVol: number[]
   slabForm: number[]
   balcony: BalconyOut | null
+  /** the weights this pass used for its earthquake forces (an estimate in the first pass, the first pass's actual weights in the second) */
+  weightsUsed: Weights
+  loads: Map<string, NodeLoad>
+  /** column design at each `k:ix:iy` */
+  desByKey: Map<string, ColumnDesign>
+  /** ground-storey column positions with their loads and designs, as sent to the foundation design */
+  fcDesigns: { ix: number; iy: number; ld: NodeLoad; d: ColumnDesign }[]
+  /** how the foundation type was decided */
+  foundation: { siteRaft: boolean; trial: FootingResult[]; coverM2: number; coverLimitM2: number; oversize: boolean; coverExceeded: boolean; raft: boolean }
+  fns: AnalysisFns
 }
 
 function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number, fckBelow: number, hint: Weights | null): Analysis {
@@ -302,12 +480,6 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
   }
 
   // ---- column load take-down (top storey first) ----
-  interface NodeLoad {
-    Pdl: number
-    Pll: number
-    cases: ColumnCase[]
-    type: 'corner' | 'edge' | 'interior'
-  }
   const loads = new Map<string, NodeLoad>()
   const run = new Map<string, { dl: number; ll: number; n: number }>()
   const unsupported = plan.hs * 1000 - 400
@@ -325,7 +497,8 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
         const n = prev.n + 1
         run.set(nk, { dl, ll, n })
         const Pdl = dl
-        const Pll = ll * (1 - llReduction(n))
+        const red = llReduction(n)
+        const Pll = ll * (1 - red)
         // gravity moments at the joints above and below (service), kN.m
         const top = unbalanced(k, ix, iy)
         const topShare = k < F - 1 && nodeExists(plan.floors[k + 1], ix, iy) ? 0.5 : 1
@@ -334,7 +507,7 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
         const Mgy = Math.max(topShare * top.my, 0.5 * bot.my)
         const MEx = lat.colM('y', k, ix, iy) // lateral load along y bends the column about the x axis
         const MEy = lat.colM('x', k, ix, iy)
-        const rD = 0.75 // dead share of the gravity moment
+        const rD = COLUMN_DEAD_MOMENT_SHARE // dead share of the gravity moment
         const kN = 1e3
         const kNm = 1e6
         const D = Pdl
@@ -348,18 +521,29 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
           { Pu: 0.9 * D * kN, Mx: (1.5 * MEx + 0.9 * rD * Mgx) * kNm, My: (1.5 * 0.3 * MEy + 0.9 * rD * Mgy) * kNm },
           { Pu: 0.9 * D * kN, Mx: (1.5 * 0.3 * MEx + 0.9 * rD * Mgx) * kNm, My: (1.5 * MEy + 0.9 * rD * Mgy) * kNm },
         ]
+        let scwb: NodeLoad['detail']['scwb'] = null
         if (ctx.seismic) {
           // IS 13920 strong-column weak-beam: sum of column moments of resistance >= 1.1 x sum of beam moments of resistance (joints below the roof)
           const topCap = k < F - 1 && nodeExists(plan.floors[k + 1], ix, iy) ? capSum(k, ix, iy) : { aboutX: 0, aboutY: 0 }
           const botCap = k >= 1 ? capSum(k - 1, ix, iy) : { aboutX: 0, aboutY: 0 }
-          const reqX = 0.55 * Math.max(topCap.aboutX, botCap.aboutX)
-          const reqY = 0.55 * Math.max(topCap.aboutY, botCap.aboutY)
+          const reqX = SCWB_COLUMN_SHARE * Math.max(topCap.aboutX, botCap.aboutX)
+          const reqY = SCWB_COLUMN_SHARE * Math.max(topCap.aboutY, botCap.aboutY)
           if (reqX > 0) cases.push({ Pu: 1.2 * (D + L) * kN, Mx: reqX * kNm, My: 0 })
           if (reqY > 0) cases.push({ Pu: 1.2 * (D + L) * kN, Mx: 0, My: reqY * kNm })
+          scwb = { topCap, botCap, reqX, reqY }
         }
         const onX = ix === 0 || ix === f.nx
         const onY = iy === 0 || iy === f.ny
-        loads.set(key, { Pdl, Pll, cases, type: onX && onY ? 'corner' : onX || onY ? 'edge' : 'interior' })
+        loads.set(key, {
+          k,
+          ix,
+          iy,
+          Pdl,
+          Pll,
+          cases,
+          type: onX && onY ? 'corner' : onX || onY ? 'edge' : 'interior',
+          detail: { reDL: re.dl, reLL: re.ll, wc, runDL: dl, runLL: ll, n, red, top, bot, topShare, Mgx, Mgy, MEx, MEy, rD, scwb },
+        })
       }
     }
   }
@@ -410,6 +594,10 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
   }
   let useRaft = site.raft
   const trialBook = new SteelBook()
+  const trialResults: FootingResult[] = []
+  let trialCover = 0
+  let trialOversize = false
+  let trialCoverExceeded = false
   if (!useRaft) {
     let cover = 0
     for (const c of fcDesigns) {
@@ -418,10 +606,18 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
         trialBook,
         'trial'
       )
+      trialResults.push(fr)
       cover += fr.Lf * fr.Bf
-      if (fr.Lf > plan.sx - 0.3 || fr.Bf > plan.sy - 0.3) useRaft = true
+      if (fr.Lf > plan.sx - 0.3 || fr.Bf > plan.sy - 0.3) {
+        useRaft = true
+        trialOversize = true
+      }
     }
-    if (cover > 0.5 * plan.L * plan.W) useRaft = true
+    trialCover = cover
+    if (cover > 0.5 * plan.L * plan.W) {
+      useRaft = true
+      trialCoverExceeded = true
+    }
   }
   if (useRaft) {
     const totalPu = fcDesigns.reduce((s, c) => s + 1.5 * (c.ld.Pdl + c.ld.Pll), 0)
@@ -470,8 +666,10 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
         const straight = (topSlab - zBottom) * 1000
         const tail = k < F - 1 ? lap : 9 * d.cfg.phi - COVER_COLUMN
         const barLenMm = straight + (k === 0 ? embed : 0) + tail
-        const ties = addColumnSteel(book, `col:${k}`, d, ctx.fck, { seismic: ctx.seismic, clearHeight: lenM * 1000, beamDepth: 400, fullHeight: ctx.stilt && ctx.seismic && k === 0 }, barLenMm, 1)
-        cols.push({ k, ix, iy, type: ld.type, des: d, Pser: ld.Pdl + ld.Pll, Pu: 1.5 * (ld.Pdl + ld.Pll), lenM, zBottom, barLenMm, ties })
+        const tieRules = { seismic: ctx.seismic, clearHeight: lenM * 1000, beamDepth: 400, fullHeight: ctx.stilt && ctx.seismic && k === 0 }
+        const ties = addColumnSteel(book, `col:${k}`, d, ctx.fck, tieRules, barLenMm, 1)
+        const minSideK = Math.max(minSideFor(F - k), 230, ctx.stilt && k === 0 ? 300 : 0)
+        cols.push({ k, ix, iy, type: ld.type, des: d, Pser: ld.Pdl + ld.Pll, Pu: 1.5 * (ld.Pdl + ld.Pll), lenM, zBottom, barLenMm, ties, tie: tieLayout(d, tieRules), minSide: minSideK, unsupported })
         if (d.asPercent > 3.9) {
           const msg = 'A heavily loaded column reached the 4 % steel limit: a larger section or higher grade of concrete would normally be chosen by the engineer.'
           if (!warnings.includes(msg)) warnings.push(msg)
@@ -485,25 +683,33 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
   let plinthConcrete = 0
   let plinthForm = 0
   let plinthCount = 0
+  const plinthLines: PlinthLine[] = []
+  let plinthSets = 1
+  let plinthPhi: number = PLINTH_RULES.phiLow
+  let plinthLinkPhi: number = PLINTH_RULES.linkPhiZoneII
   {
     const f = plan.floors[0]
     const ties = ctx.zone === 'IV' || ctx.zone === 'V' ? 2 : 1 // second set = footing ties, IS 1893
-    const phi = ctx.zone === 'IV' || ctx.zone === 'V' ? 16 : 12
-    const linkPhi = ctx.seismic ? 8 : 6 // Zone II: 6 mm links (a coil), IS 456
-    const addLine = (L: number, colAlong: number) => {
-      const D = L > 4.2 ? 375 : 300
+    const phi = ctx.zone === 'IV' || ctx.zone === 'V' ? PLINTH_RULES.phiHigh : PLINTH_RULES.phiLow
+    const linkPhi = ctx.seismic ? PLINTH_RULES.linkPhiSeismic : PLINTH_RULES.linkPhiZoneII // Zone II: 6 mm links (a coil), IS 456
+    plinthSets = ties
+    plinthPhi = phi
+    plinthLinkPhi = linkPhi
+    const addLine = (L: number, colAlong: number, dir: 'x' | 'y', ix: number, iy: number) => {
+      const D = L > PLINTH_RULES.deepSpanM ? PLINTH_RULES.deepD : PLINTH_RULES.shallowD
       const clear = L - colAlong / 1000
+      plinthLines.push({ dir, ix, iy, L, along: colAlong, D, clear })
       for (let t = 0; t < ties; t++) {
-        book.add('plinth', phi, L * 1000, 4)
-        const n = Math.ceil((clear * 1000) / 150) + 1
-        book.add('plinth', linkPhi, stirrupCutLength(plinthB - 50, D - 50, linkPhi), n)
+        book.add('plinth', phi, L * 1000, PLINTH_RULES.barsPerSet, `plinth beam bars (set ${t + 1})`)
+        const n = Math.ceil((clear * 1000) / PLINTH_RULES.linkPitchMm) + 1
+        book.add('plinth', linkPhi, stirrupCutLength(plinthB - 50, D - 50, linkPhi), n, `plinth beam links (set ${t + 1})`)
         plinthConcrete += (plinthB / 1000) * (D / 1000) * clear
         plinthForm += (plinthB / 1000 + (2 * D) / 1000) * clear
         plinthCount++
       }
     }
-    for (let iy = 0; iy <= f.ny; iy++) for (let ix = 0; ix < f.nx; ix++) addLine(plan.sx, desByKey.get(`0:${ix}:${iy}`)!.b)
-    for (let ix = 0; ix <= f.nx; ix++) for (let iy = 0; iy < f.ny; iy++) addLine(plan.sy, desByKey.get(`0:${ix}:${iy}`)!.D)
+    for (let iy = 0; iy <= f.ny; iy++) for (let ix = 0; ix < f.nx; ix++) addLine(plan.sx, desByKey.get(`0:${ix}:${iy}`)!.b, 'x', ix, iy)
+    for (let ix = 0; ix <= f.nx; ix++) for (let iy = 0; iy < f.ny; iy++) addLine(plan.sy, desByKey.get(`0:${ix}:${iy}`)!.D, 'y', ix, iy)
   }
 
   // ---- slabs ----
@@ -511,30 +717,29 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
   const slabVol: number[] = []
   const slabForm: number[] = []
   const panelNotes: string[] = []
+  const panels: PanelRec[] = []
   for (const f of plan.floors) {
     for (let ix = 0; ix < f.nx; ix++) {
       for (let iy = 0; iy < f.ny; iy++) {
         const bl = bayLoad(ctx, f.k, ix, iy)
-        const res = designPanel(
-          {
-            sx: plan.sx,
-            sy: plan.sy,
-            edge: { W: ix > 0, E: ix < f.nx - 1, S: iy > 0, N: iy < f.ny - 1 },
-            t: ctx.tSlab,
-            wu: 1.5 * (bl.dl + bl.ll),
-            fck: ctx.fck,
-            beamB: ctx.bBeam,
-          },
-          book,
-          `slab:${f.k}`
-        )
+        const input: PanelInput = {
+          sx: plan.sx,
+          sy: plan.sy,
+          edge: { W: ix > 0, E: ix < f.nx - 1, S: iy > 0, N: iy < f.ny - 1 },
+          t: ctx.tSlab,
+          wu: 1.5 * (bl.dl + bl.ll),
+          fck: ctx.fck,
+          beamB: ctx.bBeam,
+        }
+        const res = designPanel(input, book, `slab:${f.k}`)
+        panels.push({ k: f.k, ix, iy, input, load: bl, res })
         if (f.k === 0 && ix === 0 && iy === 0) panelNotes.push(res.note)
       }
     }
-    const well = f.k < F - 1 ? Math.min(stair.wellAreaM2, 0.12 * f.nx * f.ny * plan.sx * plan.sy) : 0
+    const well = f.k < F - 1 ? Math.min(stair.wellAreaM2, STAIRWELL_RULES.maxShareOfPlate * f.nx * f.ny * plan.sx * plan.sy) : 0
     slabVol[f.k] = (f.nx * plan.sx * f.ny * plan.sy - well) * (ctx.tSlab / 1000)
     // steel around the stairwell is trimmed by the same share
-    if (well > 0) book.scale(`slab:${f.k}`, 1 - (0.85 * well) / (f.nx * plan.sx * f.ny * plan.sy))
+    if (well > 0) book.scale(`slab:${f.k}`, 1 - (STAIRWELL_RULES.steelTrimShare * well) / (f.nx * plan.sx * f.ny * plan.sy))
     slabForm[f.k] = f.nx * plan.sx * f.ny * plan.sy - well + (well > 0 ? 2 * (stair.wellLengthM + stair.wellWidthM) * (ctx.tSlab / 1000) : 0)
   }
 
@@ -548,10 +753,73 @@ function analyse(ctx: Ctx, siteKey: SiteCondition, site: SiteParams, fck: number
   }
   const weightsActual = seismicWeights(ctx, beams, (r) => r.des?.selfWeight ?? selfEst(r), colWActual)
 
-  return { beams, book, cols, footings, raft, lat, weightsActual, warnings, plinth: { concrete: plinthConcrete, formwork: plinthForm, count: plinthCount }, stair, panelNotes, slabVol, slabForm, balcony }
+  return {
+    beams,
+    book,
+    cols,
+    footings,
+    raft,
+    lat,
+    weightsActual,
+    warnings,
+    plinth: { concrete: plinthConcrete, formwork: plinthForm, count: plinthCount, lines: plinthLines, sets: plinthSets, barPhi: plinthPhi, linkPhi: plinthLinkPhi, widthMm: plinthB },
+    stair,
+    panelNotes,
+    panels,
+    slabVol,
+    slabForm,
+    balcony,
+    weightsUsed: w,
+    loads,
+    desByKey,
+    fcDesigns,
+    foundation: { siteRaft: site.raft, trial: trialResults, coverM2: trialCover, coverLimitM2: 0.5 * plan.L * plan.W, oversize: trialOversize, coverExceeded: trialCoverExceeded, raft: useRaft },
+    fns: { colEst, dEst, selfEst, xb, yb, reactions, unbalanced, capSum, groupStart },
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------
+
+/** The totals and volumes `assemble` worked out on the way to the result (before rounding for the payload). Read-only record for the calculation sheet. */
+export interface AssembleParts {
+  /** beam concrete (m3), formwork (m2) and count, per floor, with the floor-area correction applied */
+  beamVol: number[]
+  beamForm: number[]
+  beamCount: number[]
+  colVolAbove: number
+  colVolBelow: number
+  colForm: number
+  footVol: number
+  footForm: number
+  pcc: number
+  pits: number
+  slabV: number
+  slabF: number
+  secondary: ReturnType<typeof secondaryItems>
+  balConc: number
+  balForm: number
+  stairVol: number
+  stairForm: number
+  /** steel (kg, net) by member family after the floor-area corrections */
+  steel: { footing: number; plinth: number; cols: number; beams: number; slabs: number; stair: number; total: number }
+  volBelow: number
+  volAbove: number
+  totalConcrete: number
+  formwork: number
+  steelNet: number
+  steelBuy: number
+  binding: number
+  mixA: ReturnType<typeof mixFor>
+  mixB: ReturnType<typeof mixFor>
+  mixP: ReturnType<typeof mixFor>
+  /** before the site-wastage factor */
+  cementBags: number
+  sandM3: number
+  aggM3: number
+  byPhi: Record<number, number>
+  totalBuiltUpM2: number
+  roofedM2: number
+}
 
 function assemble(
   input: QtyInput,
@@ -567,7 +835,7 @@ function assemble(
   areasSqft: number[],
   wallType: string,
   meta: { vb: WindSpeed; nBal: number }
-): QtyResult {
+): { result: QtyResult; parts: AssembleParts } {
   const { plan } = ctx
   const F = plan.F
   const { book } = a
@@ -710,7 +978,6 @@ function assemble(
   const aggM3 = volAbove * mixA.aggregateM3 + volBelow * mixB.aggregateM3 + pcc * mixP.aggregateM3
   void kgToBags
   const W = SITE_WASTAGE
-  const M3_TO_CFT = 35.3147
 
   const byPhiOut: Record<number, number> = { ...book.byPhi() }
   const steelByDiameter = Object.entries(byPhiOut)
@@ -906,7 +1173,7 @@ function assemble(
   ]
 
   void siteKey
-  return {
+  const result: QtyResult = {
     ok: true,
     inputEcho: {
       floors: areasSqft.length,
@@ -955,7 +1222,7 @@ function assemble(
       aggregateCft: aggM3 * W * M3_TO_CFT,
       steelBuyKg: steelBuy,
       bindingWireKg: binding,
-      formworkSqft: formwork * 10.7639,
+      formworkSqft: formwork * M2_TO_SQFT,
       excavationCft: pits * M3_TO_CFT,
     },
     steelByDiameter,
@@ -965,7 +1232,7 @@ function assemble(
     // the one real Bengaluru G+3 Bill of Quantities in the open record sits at about 1.7 times this model for steel and 1.5 times for concrete, the 26-building GKSPL range
     // (31-62 kg/m2 steel, 0.36-0.44 m3/m2 concrete) at 1.1 to 2 times and 1.1 to 1.4 times, so the upper edges reach 1.6 and 1.4.
     // Real houses add heavier standard sections, extra bars at junctions, chairs and spacers, tanks, porches and other items the model does not count.
-    band: { concrete: [0.92, 1.4], steel: [0.9, ctx.stilt || bal ? 1.65 : 1.6], cement: [0.92, 1.4], formwork: [0.85, 1.25] },
+    band: bandsFor(ctx.stilt, !!bal),
     wind: windRes,
     ...(stiltRes ? { stilt: stiltRes } : {}),
     ...(bal ? { balcony: bal.result } : {}),
@@ -983,6 +1250,43 @@ function assemble(
     notIncluded,
     warnings,
   }
+  const parts: AssembleParts = {
+    beamVol,
+    beamForm,
+    beamCount,
+    colVolAbove,
+    colVolBelow,
+    colForm,
+    footVol,
+    footForm,
+    pcc,
+    pits,
+    slabV,
+    slabF,
+    secondary: sec,
+    balConc,
+    balForm,
+    stairVol,
+    stairForm,
+    steel: { footing: sFooting, plinth: sPlinth, cols: sCols, beams: sBeams, slabs: sSlabs, stair: sStair, total: steelNet },
+    volBelow,
+    volAbove,
+    totalConcrete,
+    formwork,
+    steelNet,
+    steelBuy,
+    binding,
+    mixA,
+    mixB,
+    mixP,
+    cementBags,
+    sandM3,
+    aggM3,
+    byPhi: byPhiOut,
+    totalBuiltUpM2: totalBuiltUp,
+    roofedM2,
+  }
+  return { result, parts }
 }
 
 export { FY }

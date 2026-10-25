@@ -55,6 +55,15 @@ export interface Ctx {
 
 /** IS 1893 (Part 1):2002 cl 7.10.3(a): columns and beams of an open first storey are designed for 2.5 times the earthquake storey shear and moment. */
 export const STILT_FACTOR = 2.5
+/** Share of the imposed load that goes into the seismic weight of a floor (IS 1893:2002 Table 8, imposed load up to 3 kN/m2); none on the roof (cl 7.3.2). */
+export const SEISMIC_LL_SHARE = 0.25
+/** Response reduction factor R: special moment-resisting frame (Zone III and above) and ordinary moment-resisting frame (Zone II). IS 1893:2002 Table 7. */
+export const R_SMRF = 5
+export const R_OMRF = 3
+/** Approximate period of a moment-resisting frame with brick infill: T = 0.09 h / sqrt(d). IS 1893:2002 cl 7.6.2. */
+export const PERIOD_COEFF = 0.09
+/** Height of the parapet added to the roof level when the wind force is worked out, m. ASSUMPTION */
+export const WIND_PARAPET_M = 1.0
 
 export const FLOOR_FINISH = 1.5 // kN/m2 ASSUMPTION (IS 875 Part 1 finish values unreadable in the open scan)
 export const ROOF_FINISH = 2.0 // brick-bat coba waterproofing, ASSUMPTION
@@ -79,14 +88,21 @@ export function balconyLoads(ctx: Ctx, b: BalconyCtx, lenM: number): { dl: numbe
   const par = wallUDL(ctx, 'parapet')
   const dl = gk * b.lc + par * (1 + (2 * b.lc) / lenM)
   const ll = BALCONY_LL * b.lc
-  return { dl, ll, weight: (dl + 0.25 * ll) * lenM }
+  return { dl, ll, weight: (dl + SEISMIC_LL_SHARE * ll) * lenM }
 }
+
+/** Plaster on the outer walls (total thickness of both faces, m), and on the inner partitions; the thickness of the partition and parapet (m). ASSUMPTIONS (site practice). */
+export const PLASTER_EXT = 0.032
+export const PLASTER_INT = 0.024
+export const PARTITION_T = 0.115
+export const PARAPET_T = 0.115
+export const PARAPET_PLASTER = 0.032
 
 export function wallUDL(ctx: Ctx, kind: WallKind): number {
   const h = ctx.plan.hs - BEAM_D_EST
-  if (kind === 'ext') return (ctx.wallT * ctx.wallGamma + 0.032 * GAMMA_PLASTER) * h * WINDOW_FACTOR
-  if (kind === 'int') return PARTITION_PRESENCE * (0.115 * GAMMA_BRICK + 0.024 * GAMMA_PLASTER) * h * WINDOW_FACTOR
-  if (kind === 'parapet') return 0.115 * GAMMA_BRICK + 0.032 * GAMMA_PLASTER
+  if (kind === 'ext') return (ctx.wallT * ctx.wallGamma + PLASTER_EXT * GAMMA_PLASTER) * h * WINDOW_FACTOR
+  if (kind === 'int') return PARTITION_PRESENCE * (PARTITION_T * GAMMA_BRICK + PLASTER_INT * GAMMA_PLASTER) * h * WINDOW_FACTOR
+  if (kind === 'parapet') return PARAPET_T * GAMMA_BRICK + PARAPET_PLASTER * GAMMA_PLASTER
   return 0
 }
 
@@ -177,6 +193,8 @@ function mkBeam(ctx: Ctx, f: Floor, dir: 'x' | 'y', ix: number, iy: number, peri
 export interface Weights {
   W: number[] // seismic weight at each level, kN
   total: number
+  /** what each level's weight is made of, kN: the slabs (balconies included), the beams' own weight, the parapet, the walls of storey k and k+1 (full, before the half is taken), the columns of storey k, and the balconies alone */
+  parts?: { slab: number[]; beam: number[]; parapet: number[]; wallStorey: number[]; col: number[]; balcony: number[] }
 }
 
 /** Seismic weight at each floor level (IS 1893 cl 7.3): dead load + 25 % of imposed load on floors, none on the roof.
@@ -192,7 +210,7 @@ export function seismicWeights(ctx: Ctx, beams: BeamRec[][], beamSelf: (r: BeamR
     for (let ix = 0; ix < f.nx; ix++) {
       for (let iy = 0; iy < f.ny; iy++) {
         const bl = bayLoad(ctx, f.k, ix, iy)
-        slab[f.k] += plan.sx * plan.sy * (bl.dl + (bl.terrace || f.k === F - 1 ? 0 : 0.25 * bl.ll))
+        slab[f.k] += plan.sx * plan.sy * (bl.dl + (bl.terrace || f.k === F - 1 ? 0 : SEISMIC_LL_SHARE * bl.ll))
       }
     }
     for (const r of beams[f.k]) {
@@ -208,12 +226,20 @@ export function seismicWeights(ctx: Ctx, beams: BeamRec[][], beamSelf: (r: BeamR
       wallStorey[0] += wallUDL(ctx, kind) * r.L
     }
   }
-  if (ctx.balcony) for (const sl of ctx.balcony.slots) slab[sl.k] += balconyLoads(ctx, ctx.balcony, sl.lenM).weight
+  const balcony = new Array(F).fill(0)
+  if (ctx.balcony) {
+    for (const sl of ctx.balcony.slots) {
+      const wt = balconyLoads(ctx, ctx.balcony, sl.lenM).weight
+      slab[sl.k] += wt
+      balcony[sl.k] += wt
+    }
+  }
+  const colW: number[] = Array.from({ length: F }, (_, k) => colWeight(k))
   const W = new Array(F).fill(0)
   for (let k = 0; k < F; k++) {
-    W[k] = slab[k] + beam[k] + parapet[k] + 0.5 * wallStorey[k] + (k < F - 1 ? 0.5 * wallStorey[k + 1] : 0) + 0.5 * colWeight(k) + (k < F - 1 ? 0.5 * colWeight(k + 1) : 0)
+    W[k] = slab[k] + beam[k] + parapet[k] + 0.5 * wallStorey[k] + (k < F - 1 ? 0.5 * wallStorey[k + 1] : 0) + 0.5 * colW[k] + (k < F - 1 ? 0.5 * colW[k + 1] : 0)
   }
-  return { W, total: W.reduce((s, v) => s + v, 0) }
+  return { W, total: W.reduce((s, v) => s + v, 0), parts: { slab, beam, parapet, wallStorey, col: colW, balcony } }
 }
 
 export interface Lateral {
@@ -238,10 +264,10 @@ export function lateralAnalysis(ctx: Ctx, w: Weights): Lateral {
   const { plan } = ctx
   const F = plan.F
   const H = plan.floors[F - 1].zTop
-  const R = ctx.seismic ? 5 : 3
+  const R = ctx.seismic ? R_SMRF : R_OMRF
   const Z = Z_FACTOR[ctx.zone]
   const mk = (d: number) => {
-    const T = (0.09 * H) / Math.sqrt(d)
+    const T = (PERIOD_COEFF * H) / Math.sqrt(d)
     return { T, Ah: (Z / 2) * (1 / R) * saOverG(T) }
   }
   const tx = mk(plan.L)
@@ -263,7 +289,7 @@ export function lateralAnalysis(ctx: Ctx, w: Weights): Lateral {
     qx[0] *= STILT_FACTOR
     qy[0] *= STILT_FACTOR
   }
-  const wd = windShears(plan, ctx.windVb, ctx.terrain, 1.0, ctx.stilt)
+  const wd = windShears(plan, ctx.windVb, ctx.terrain, WIND_PARAPET_M, ctx.stilt)
   const ex = qx.map((v, k) => Math.max(v, wd.x[k]))
   const ey = qy.map((v, k) => Math.max(v, wd.y[k]))
   const colM = (dir: 'x' | 'y', k: number, ix: number, iy: number): number => {

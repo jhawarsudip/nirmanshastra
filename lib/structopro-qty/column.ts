@@ -31,7 +31,8 @@ export interface ColumnDesign {
   tiePhi: number
 }
 
-const SIZES: [number, number][] = (() => {
+/** The catalogue of column sections the search goes through, ascending in area (mm x mm). */
+export const SIZES: [number, number][] = (() => {
   const sq = [230, 250, 275, 300, 325, 350, 375, 400, 450, 500, 550, 600, 650, 700]
   const rc: [number, number][] = [
     [230, 300],
@@ -60,25 +61,36 @@ const SIZES: [number, number][] = (() => {
   return out
 })()
 
+/** The tie diameter assumed when the bars are placed in the section (mm), whatever tie is finally used. */
+export const COLUMN_COVER_TIE_PHI = 8
+
 const cfgCache = new Map<string, BarConfig[]>()
 function configsFor(b: number, D: number): BarConfig[] {
   const key = `${b}x${D}`
   let c = cfgCache.get(key)
   if (!c) {
-    c = barConfigs(b, D, 8)
+    c = barConfigs(b, D, COLUMN_COVER_TIE_PHI)
     cfgCache.set(key, c)
   }
   return c
 }
 
+/** Minimum eccentricity about one axis, IS 456 cl 25.4: the larger of unsupported length / 500 + side / 30 and 20 mm (all in mm). */
+export const eMin = (unsupported: number, side: number): number => Math.max(unsupported / 500 + side / 30, 20)
+
+/** The IS 456 cl 39.6 interaction ratio of one load case, with the minimum eccentricity applied about each axis. A section passes when it is 1 or less. */
+export function caseRatio(b: number, D: number, cfg: BarConfig, fck: number, k: ColumnCase, unsupported: number): number {
+  const exY = eMin(unsupported, D)
+  const exX = eMin(unsupported, b)
+  const Mx = Math.max(Math.abs(k.Mx), k.Pu * exY)
+  const My = Math.max(Math.abs(k.My), k.Pu * exX)
+  return biaxialRatio(b, D, cfg.positions, fck, k.Pu, Mx, My)
+}
+
 function passes(b: number, D: number, cfg: BarConfig, fck: number, cases: ColumnCase[], unsupported: number): boolean {
   for (const k of cases) {
     // minimum eccentricity, IS 456 cl 25.4: max(l/500 + D/30, 20 mm), applied about each axis
-    const exY = Math.max(unsupported / 500 + D / 30, 20)
-    const exX = Math.max(unsupported / 500 + b / 30, 20)
-    const Mx = Math.max(Math.abs(k.Mx), k.Pu * exY)
-    const My = Math.max(Math.abs(k.My), k.Pu * exX)
-    if (biaxialRatio(b, D, cfg.positions, fck, k.Pu, Mx, My) > 1) return false
+    if (caseRatio(b, D, cfg, fck, k, unsupported) > 1) return false
   }
   return true
 }
@@ -89,7 +101,7 @@ const C_FORM = 600
 const C_STEEL = 70
 
 /** Practical limits on the number of bars of each diameter in a column (site practice: few, larger bars; clear spacing for compaction). */
-const MAX_BARS: Record<number, number> = { 12: 8, 16: 12, 20: 16, 25: 20 }
+export const MAX_BARS: Record<number, number> = { 12: 8, 16: 12, 20: 16, 25: 20 }
 
 function tryColumn(inp: ColumnInput, accept: (b: number, D: number) => boolean): ColumnDesign | null {
   const worst = inp.cases.reduce((m, c) => Math.max(m, c.Pu), 0)
@@ -147,6 +159,52 @@ export interface TieRules {
  */
 export const tieDiameter = (mainPhi: number, seismic: boolean, designed: number): number => (seismic ? designed : mainPhi <= 24 ? 6 : designed)
 
+/** The tie layout of one storey of a column: spacing rules and counts. `addColumnSteel` uses exactly these numbers. */
+export interface TieLayout {
+  tiePhi: number
+  minDim: number
+  maxDim: number
+  /** IS 456 cl 26.5.3.2 pitch: least of the smaller side, 16 x main bar, 48 x tie, 300 mm */
+  s456: number
+  Lc: number
+  seismic: boolean
+  fullHeight: boolean
+  /** ductile detailing only: confinement length at each end, close spacing, spacing outside, counts */
+  lo?: number
+  sConf?: number
+  sOut?: number
+  nConf?: number
+  nOut?: number
+  /** ordinary detailing: the pitch, rounded down to 25 mm */
+  sOrd?: number
+  nTies: number
+  spacing: string
+}
+
+export function tieLayout(des: ColumnDesign, rules: TieRules): TieLayout {
+  const { b, D, cfg } = des
+  const tiePhi = tieDiameter(cfg.phi, rules.seismic, des.tiePhi)
+  const minDim = Math.min(b, D)
+  const maxDim = Math.max(b, D)
+  const s456 = Math.min(minDim, 16 * cfg.phi, 48 * tiePhi, 300) // IS 456 cl 26.5.3.2
+  const floor25 = (v: number) => Math.max(75, Math.floor(v / 25) * 25)
+  const Lc = rules.clearHeight
+  if (rules.seismic) {
+    const lo = Math.max(maxDim, Lc / 6, 450) // IS 13920 cl 7.4.1
+    const sConf = Math.min(100, Math.max(75, Math.floor(minDim / 4 / 5) * 5))
+    const sOut = floor25(Math.min(minDim / 2, s456))
+    const nConf = 2 * Math.ceil(lo / sConf)
+    const nOut = Math.max(0, Math.ceil((Lc - 2 * lo) / sOut) - 1)
+    if (rules.fullHeight) {
+      const nTies = Math.ceil(Lc / sConf) + 1
+      return { tiePhi, minDim, maxDim, s456, Lc, seismic: true, fullHeight: true, lo, sConf, sOut, nConf, nOut, nTies, spacing: `${tiePhi} @ ${sConf} full height` }
+    }
+    return { tiePhi, minDim, maxDim, s456, Lc, seismic: true, fullHeight: false, lo, sConf, sOut, nConf, nOut, nTies: nConf + nOut, spacing: `${tiePhi} @ ${sConf}/${sOut}` }
+  }
+  const s = floor25(s456)
+  return { tiePhi, minDim, maxDim, s456, Lc, seismic: false, fullHeight: false, sOrd: s, nTies: Math.ceil(Lc / s) + 1, spacing: `${tiePhi} @ ${s}` }
+}
+
 /** Spacing and count of ties in one storey of a column; adds the steel to `book`. Returns the tie description. */
 export function addColumnSteel(
   book: SteelBook,
@@ -158,41 +216,20 @@ export function addColumnSteel(
   count = 1
 ): string {
   const { b, D, cfg } = des
-  const tiePhi = tieDiameter(cfg.phi, rules.seismic, des.tiePhi)
-  book.add(group, cfg.phi, longBarLength, cfg.n * count)
-  const minDim = Math.min(b, D)
-  const maxDim = Math.max(b, D)
-  const s456 = Math.min(minDim, 16 * cfg.phi, 48 * tiePhi, 300) // IS 456 cl 26.5.3.2
-  const floor25 = (v: number) => Math.max(75, Math.floor(v / 25) * 25)
-  const Lc = rules.clearHeight
-  let nTies: number
-  let spacing: string
-  if (rules.seismic) {
-    const lo = Math.max(maxDim, Lc / 6, 450) // IS 13920 cl 7.4.1
-    const sConf = Math.min(100, Math.max(75, Math.floor(minDim / 4 / 5) * 5))
-    const sOut = floor25(Math.min(minDim / 2, s456))
-    const nConf = 2 * Math.ceil(lo / sConf)
-    const nOut = Math.max(0, Math.ceil((Lc - 2 * lo) / sOut) - 1)
-    if (rules.fullHeight) {
-      nTies = Math.ceil(Lc / sConf) + 1
-      spacing = `${tiePhi} @ ${sConf} full height`
-    } else {
-      nTies = nConf + nOut
-      spacing = `${tiePhi} @ ${sConf}/${sOut}`
-    }
-  } else {
-    const s = floor25(s456)
-    nTies = Math.ceil(Lc / s) + 1
-    spacing = `${tiePhi} @ ${s}`
-  }
+  const t = tieLayout(des, rules)
+  const tiePhi = t.tiePhi
+  book.add(group, cfg.phi, longBarLength, cfg.n * count, 'column main bars')
+  const nTies = t.nTies
+  const spacing = t.spacing
   const A = b - 80
   const E = D - 80
-  book.add(group, tiePhi, stirrupCutLength(A, E, tiePhi), nTies * count)
+  book.add(group, tiePhi, stirrupCutLength(A, E, tiePhi), nTies * count, 'column ties')
   // cross ties (IS 456 cl 26.5.3.2(c)): across the depth for the b-faces, across the width for the D-faces
   const crossLenD = D - 80 + 24 * tiePhi // spans the depth
   const crossLenB = b - 80 + 24 * tiePhi
-  if (cfg.crossB > 0) book.add(group, tiePhi, crossLenD, cfg.crossB * nTies * count)
-  if (cfg.crossD > 0) book.add(group, tiePhi, crossLenB, cfg.crossD * nTies * count)
+  if (cfg.crossB > 0) book.add(group, tiePhi, crossLenD, cfg.crossB * nTies * count, 'column cross ties')
+  if (cfg.crossD > 0) book.add(group, tiePhi, crossLenB, cfg.crossD * nTies * count, 'column cross ties')
+  void fck
   return spacing
 }
 

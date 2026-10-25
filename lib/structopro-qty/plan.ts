@@ -100,9 +100,11 @@ export const BALCONY_BASIC_LD = 7
 export const BALCONY_MF = 1.2
 
 /** Overall thickness of a cantilever slab of projection `lc` (m): effective depth from span/depth, plus 20 mm cover and half a bar, rounded up to 25 mm. */
+/** The thickness rule of a cantilever slab: not under `tMinMm`, in steps of `stepMm`, with `allowMm` (cover 20 mm and half of a 10 mm bar) added to the effective depth. */
+export const BALCONY_SLAB = { tMinMm: 125, stepMm: 25, allowMm: 25 } as const
 export function balconyThicknessMm(lc: number): number {
   const dReq = (lc * 1000) / (BALCONY_BASIC_LD * BALCONY_MF)
-  return Math.max(125, Math.ceil((dReq + 25) / 25) * 25)
+  return Math.max(BALCONY_SLAB.tMinMm, Math.ceil((dReq + BALCONY_SLAB.allowMm) / BALCONY_SLAB.stepMm) * BALCONY_SLAB.stepMm)
 }
 
 export interface BalconySlot {

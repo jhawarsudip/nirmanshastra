@@ -16,10 +16,10 @@ export interface MixPerM3 {
   waterL?: number
 }
 
-const CFT_PER_M3 = 35.3147
+export const CFT_PER_M3 = 35.3147
 
 /** CPWD DAR 2014 Vol 1: items 4.1.2 (1:1.5:3), 4.1.3 (1:2:4), 4.1.5 (1:3:6), 4.1.8 (1:4:8, 40 mm). Aggregate = sum of single sizes. */
-const CPWD_NOMINAL: Partial<Record<Grade, MixPerM3>> = {
+export const CPWD_NOMINAL: Partial<Record<Grade, MixPerM3>> = {
   M20: { grade: 'M20', basis: 'CPWD DAR 2014 item 4.1.2, nominal mix 1:1.5:3', cementKg: 400, cementBags: 8.0, sandM3: 0.425, aggregateM3: 0.85 },
   M15: { grade: 'M15', basis: 'CPWD DAR 2014 item 4.1.3, nominal mix 1:2:4', cementKg: 320, cementBags: 6.4, sandM3: 0.445, aggregateM3: 0.89 },
   M10: { grade: 'M10', basis: 'CPWD DAR 2014 item 4.1.5, nominal mix 1:3:6', cementKg: 220, cementBags: 4.4, sandM3: 0.47, aggregateM3: 0.94 },
@@ -44,16 +44,61 @@ const SG_COARSE = 2.7 // ASSUMPTION
 const BULK_SAND = 1600 // kg/m3 loose dry, ASSUMPTION
 const BULK_COARSE = 1500 // kg/m3 loose, ASSUMPTION
 
-/** IS 10262:2009 steps 4.2 to 4.6 for 20 mm angular aggregate, Zone II sand, 100 mm slump. */
-export function designMix(grade: Grade, exposure: Exposure): MixPerM3 {
+/** The constants of the design mix, kept in one place so the calculation sheet reads the same values the mix uses. */
+export const MIX_RULES = {
+  specificGravityCement: SG_CEMENT,
+  specificGravityFine: SG_FINE,
+  specificGravityCoarse: SG_COARSE,
+  bulkDensitySand: BULK_SAND,
+  bulkDensityCoarse: BULK_COARSE,
+  /** water for 20 mm aggregate at 50 mm slump (kg per m3); rises by 3 % for each further 25 mm of slump */
+  waterBase: 186,
+  baseSlumpMm: 50,
+  slumpMm: 100,
+  slumpRisePerStep: 0.03,
+  slumpStepMm: 25,
+  maxCementKg: 450,
+  /** coarse-aggregate fraction at w/c 0.5 for 20 mm aggregate and Zone II sand, raised by 0.01 for every 0.05 the w/c is below 0.5 */
+  coarseBase: 0.62,
+  coarseBaseWc: 0.5,
+  coarseWcStep: 0.05,
+  coarseStepRise: 0.01,
+} as const
+
+/** The steps of the design mix, unrounded: what a calculation sheet shows. Nothing here feeds back into the mix. */
+export interface MixTrace {
+  grade: Grade
+  exposure: Exposure
+  maxWc: number
+  gradeWc: number | undefined
+  wc: number
+  water: number
+  cementByWc: number
+  minCement: number
+  cement: number
+  aggVol: number
+  coarseFrac: number
+  coarseKg: number
+  fineKg: number
+}
+
+export function designMixTrace(grade: Grade, exposure: Exposure): MixTrace {
   const t5 = T5_RCC[exposure]
-  const wc = Math.min(t5.maxWc, WC_FOR_GRADE[grade] ?? t5.maxWc)
-  const water = 186 * (1 + 0.03 * ((100 - 50) / 25)) // Table 2 (186 kg for 20 mm) + 3% per 25 mm slump: 197 kg
-  const cement = Math.min(450, Math.max(water / wc, t5.minCement)) // cl 4.3 and IS 456 cl 8.2.4.2
+  const gradeWc = WC_FOR_GRADE[grade]
+  const wc = Math.min(t5.maxWc, gradeWc ?? t5.maxWc)
+  const water = MIX_RULES.waterBase * (1 + MIX_RULES.slumpRisePerStep * ((MIX_RULES.slumpMm - MIX_RULES.baseSlumpMm) / MIX_RULES.slumpStepMm)) // Table 2 (186 kg for 20 mm) + 3% per 25 mm slump: 197 kg
+  const cementByWc = water / wc
+  const cement = Math.min(MIX_RULES.maxCementKg, Math.max(cementByWc, t5.minCement)) // cl 4.3 and IS 456 cl 8.2.4.2
   const aggVol = 1 - (cement / (SG_CEMENT * 1000) + water / 1000) // absolute volume of all aggregate, cl 4.6
-  const coarseFrac = 0.62 + 0.01 * ((0.5 - wc) / 0.05) // Table 3 (20 mm, Zone II = 0.62 at w/c 0.5) and cl 4.4
+  const coarseFrac = MIX_RULES.coarseBase + MIX_RULES.coarseStepRise * ((MIX_RULES.coarseBaseWc - wc) / MIX_RULES.coarseWcStep) // Table 3 (20 mm, Zone II = 0.62 at w/c 0.5) and cl 4.4
   const coarseKg = aggVol * coarseFrac * SG_COARSE * 1000
   const fineKg = aggVol * (1 - coarseFrac) * SG_FINE * 1000
+  return { grade, exposure, maxWc: t5.maxWc, gradeWc, wc, water, cementByWc, minCement: t5.minCement, cement, aggVol, coarseFrac, coarseKg, fineKg }
+}
+
+/** IS 10262:2009 steps 4.2 to 4.6 for 20 mm angular aggregate, Zone II sand, 100 mm slump. */
+export function designMix(grade: Grade, exposure: Exposure): MixPerM3 {
+  const { wc, water, cement, coarseKg, fineKg } = designMixTrace(grade, exposure)
   return {
     grade,
     basis: `IS 10262:2009 design mix, w/c ${wc.toFixed(2)}, water ${water.toFixed(0)} L, 20 mm aggregate`,

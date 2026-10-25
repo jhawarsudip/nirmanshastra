@@ -8,7 +8,7 @@
 import { COVER_SLAB, astSingly, devLength } from './codes'
 import { BALCONY_LL } from './plan'
 import { CEILING_PLASTER, Ctx, FLOOR_FINISH, wallUDL } from './frame'
-import { chooseSpacing } from './slab'
+import { spacingTrace, type SpacingTrace } from './slab'
 import { SteelBook } from './steel'
 import { GAMMA_RC } from './codes'
 import type { BalconyResult, GeoSlab } from './types'
@@ -17,7 +17,66 @@ import type { BalconyResult, GeoSlab } from './types'
 const RAIL_H = 0.35
 const RAIL_HEIGHT = 1.0
 
+/** The rules of the balcony design, kept in one place so the calculation sheet reads the same values the design uses. */
+export const BALCONY_RULES = {
+  railKNperM: RAIL_H,
+  railHeightM: RAIL_HEIGHT,
+  loadFactor: 1.5,
+  minSteelRatio: 0.0012,
+  /** half of a 10 mm bar, mm: the effective depth is the thickness less the cover and this */
+  halfBarMm: 5,
+  /** lever-arm factor of the fallback formula used when the section is over its limit */
+  fallbackFactor: 0.8,
+  /** the main bars stop 25 mm short of the tip, bend down at the tip (slab depth less 40 mm), and run over the beam and back into the room slab */
+  tipCoverMm: 25,
+  tipBendLessMm: 40,
+  endAllowMm: 100,
+  distEndMm: 50,
+  distPhis: [6, 8, 10],
+  distSpacingStep: 25,
+  distAcceptMm: 100,
+  distSpacingFloorMm: 75,
+  distSpacingCapMm: 200,
+} as const
+
+/** One balcony slab's bars and volumes. */
+export interface BalconySlabDetail {
+  k: number
+  lenM: number
+  nMain: number
+  nDist: number
+  kgMain: number
+  kgDist: number
+  concreteM3: number
+  formworkM2: number
+}
+
+/** Intermediate values of the balcony design, kept so that a calculation sheet can show the working. Nothing here feeds back into the design. */
+export interface BalconyDetail {
+  lc: number
+  D: number
+  d: number
+  gk: number
+  pTip: number
+  MuK: number
+  Mu: number
+  minAst: number
+  astFlex: number | null
+  ast: number
+  main: SpacingTrace
+  devLengthMm: number
+  backSpanMm: number
+  bw: number
+  mainLen: number
+  astDist: number
+  distTried: { phi: number; s: number }[]
+  dPhi: number
+  dS: number
+  perSlab: BalconySlabDetail[]
+}
+
 export interface BalconyOut {
+  detail: BalconyDetail
   result: BalconyResult
   slabs: GeoSlab[]
   concreteM3: number
@@ -32,34 +91,39 @@ export function designBalconies(ctx: Ctx, book: SteelBook): BalconyOut | null {
   const { plan } = ctx
   const lc = bc.lc
   const D = bc.tMm
-  const d = D - COVER_SLAB - 5
+  const d = D - COVER_SLAB - BALCONY_RULES.halfBarMm
   const gk = GAMMA_RC * (D / 1000) + FLOOR_FINISH + CEILING_PLASTER
   const pTip = wallUDL(ctx, 'parapet') // brick parapet on the free edge, kN/m
   // design moment per metre width at the root (IS 456 cl 18.2): 1.5 x (slab dead + imposed + the parapet at the tip + the railing push)
-  const MuK = (gk + BALCONY_LL) * lc * lc / 2 + pTip * lc + RAIL_H * RAIL_HEIGHT
-  const Mu = 1.5 * MuK
-  const minAst = 0.0012 * 1000 * D
+  const MuK = (gk + BALCONY_LL) * lc * lc / 2 + pTip * lc + BALCONY_RULES.railKNperM * BALCONY_RULES.railHeightM
+  const Mu = BALCONY_RULES.loadFactor * MuK
+  const minAst = BALCONY_RULES.minSteelRatio * 1000 * D
   let warning: string | undefined
-  let ast = astSingly(Mu * 1e6, 1000, d, ctx.fck)
+  const astFlex = astSingly(Mu * 1e6, 1000, d, ctx.fck)
+  let ast = astFlex
   if (ast === null) {
-    ast = (Mu * 1e6) / (0.87 * 500 * 0.8 * d)
+    ast = (Mu * 1e6) / (0.87 * 500 * BALCONY_RULES.fallbackFactor * d)
     warning = 'A balcony reached the limit of a singly reinforced slab: a thicker slab or a higher grade of concrete would normally be chosen by the engineer.'
   }
-  const main = chooseSpacing(Math.max(ast, minAst), d)
+  const mainT = spacingTrace(Math.max(ast, minAst), d)
+  const main = mainT.pick
   // back-span: the top bars must be anchored in the room slab for at least the development length and never less than the projection
-  const backSpanMm = Math.max(devLength(main.phi, ctx.fck), lc * 1000)
+  const devLengthMm = devLength(main.phi, ctx.fck)
+  const backSpanMm = Math.max(devLengthMm, lc * 1000)
   const bw = ctx.bBeam
-  const mainLen = lc * 1000 - 25 + bw + backSpanMm + (D - 40) // tip cover, over the beam, back-span, bend down at the tip
+  const mainLen = lc * 1000 - BALCONY_RULES.tipCoverMm + bw + backSpanMm + (D - BALCONY_RULES.tipBendLessMm) // tip cover, over the beam, back-span, bend down at the tip
   // distribution (cross) bars at 0.12 % of the section: 6 mm where the spacing stays at 100 mm or more, else 8 mm
-  const astDist = 0.0012 * 1000 * D
+  const astDist = BALCONY_RULES.minSteelRatio * 1000 * D
   let dPhi = 8
   let dS = 150
-  for (const phi of [6, 8, 10]) {
+  const distTried: { phi: number; s: number }[] = []
+  for (const phi of BALCONY_RULES.distPhis) {
     const a = (Math.PI * phi * phi) / 4
-    const s = Math.floor((a * 1000) / astDist / 25) * 25
-    if (s >= 100 || phi === 10) {
+    const s = Math.floor((a * 1000) / astDist / BALCONY_RULES.distSpacingStep) * BALCONY_RULES.distSpacingStep
+    distTried.push({ phi, s })
+    if (s >= BALCONY_RULES.distAcceptMm || phi === 10) {
       dPhi = phi
-      dS = Math.max(75, Math.min(s, 200)) // 200 mm: site practice, inside the IS 456 limit of 5d / 450 mm
+      dS = Math.max(BALCONY_RULES.distSpacingFloorMm, Math.min(s, BALCONY_RULES.distSpacingCapMm)) // 200 mm: site practice, inside the IS 456 limit of 5d / 450 mm
       break
     }
   }
@@ -71,16 +135,22 @@ export function designBalconies(ctx: Ctx, book: SteelBook): BalconyOut | null {
   const floors = new Set<number>()
   const perFloorCount = new Map<number, number>()
   let lenEach = 0
+  const perSlab: BalconySlabDetail[] = []
   for (const sl of bc.slots) {
     lenEach = sl.lenM
     floors.add(sl.k)
     perFloorCount.set(sl.k, (perFloorCount.get(sl.k) ?? 0) + 1)
-    const nMain = Math.floor((sl.lenM * 1000 - 100) / main.s) + 1
-    kg += book.add('balcony', main.phi, mainLen, nMain)
-    const nDist = Math.floor((lc * 1000 + bw + backSpanMm - 100) / dS) + 1
-    kg += book.add('balcony', dPhi, sl.lenM * 1000 - 50, nDist)
-    conc += sl.lenM * lc * (D / 1000)
-    form += sl.lenM * lc + (sl.lenM + 2 * lc) * (D / 1000)
+    const nMain = Math.floor((sl.lenM * 1000 - BALCONY_RULES.endAllowMm) / main.s) + 1
+    const kgMain = book.add('balcony', main.phi, mainLen, nMain, 'balcony main bars, top')
+    kg += kgMain
+    const nDist = Math.floor((lc * 1000 + bw + backSpanMm - BALCONY_RULES.endAllowMm) / dS) + 1
+    const kgDist = book.add('balcony', dPhi, sl.lenM * 1000 - BALCONY_RULES.distEndMm, nDist, 'balcony distribution bars')
+    kg += kgDist
+    const cSlab = sl.lenM * lc * (D / 1000)
+    const fSlab = sl.lenM * lc + (sl.lenM + 2 * lc) * (D / 1000)
+    conc += cSlab
+    form += fSlab
+    perSlab.push({ k: sl.k, lenM: sl.lenM, nMain, nDist, kgMain, kgDist, concreteM3: cSlab, formworkM2: fSlab })
     const fl = plan.floors[sl.k]
     const x0 = sl.ix * plan.sx + (plan.sx - sl.lenM) / 2
     const y0 = sl.side === 'front' ? -lc : sl.iy * plan.sy
@@ -105,5 +175,6 @@ export function designBalconies(ctx: Ctx, book: SteelBook): BalconyOut | null {
       `The top bars run ${(backSpanMm / 1000).toFixed(2)} m back into the floor slab. The slab is taken as continuous with the floor, so the supporting beam is designed for the balcony as a load. ` +
       'A balcony that does not continue into the floor slab needs its supporting beam designed for torsion by an engineer.',
   }
-  return { result, slabs, concreteM3: conc, formworkM2: form, steelKg: kg, warning }
+  const detail: BalconyDetail = { lc, D, d, gk, pTip, MuK, Mu, minAst, astFlex, ast, main: mainT, devLengthMm, backSpanMm, bw, mainLen, astDist, distTried, dPhi, dS, perSlab }
+  return { detail, result, slabs, concreteM3: conc, formworkM2: form, steelKg: kg, warning }
 }

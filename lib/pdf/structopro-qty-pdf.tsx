@@ -4,6 +4,8 @@
 import React from 'react'
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import type { PaidPayload } from '@/lib/structopro-qty/payload'
+import type { CalcSheet } from '@/lib/calcsheet'
+import CalcAppendix from './calc-appendix'
 import type { MemberTotals } from '@/lib/structopro-qty/types'
 import { bandAbovePct, bandBelowPct, bars12m, beamLevelLabel, buildingLabelStilt, fmtIN as f, isCoil, storeyLabel } from '@/lib/structopro-qty/labels'
 import { Bullets, C, Chrome, S, Table, Tot, statusColor, type ContactInfo } from './qty-kit'
@@ -19,9 +21,11 @@ export interface StructoProQtyPDFProps {
   where: string // "Pune, Maharashtra"
   siteLabel: string
   wallLabel: string
+  /** the calculation sheet, rebuilt from the saved answers and tied to this report; null leaves it out */
+  calc?: CalcSheet | null
 }
 
-export default function StructoProQtyPDF({ report: r, contact, reportId, projectName, date, where, siteLabel, wallLabel }: StructoProQtyPDFProps) {
+export default function StructoProQtyPDF({ report: r, contact, reportId, projectName, date, where, siteLabel, wallLabel, calc }: StructoProQtyPDFProps) {
   const t = r.totals
   const m = r.materials
   const b = r.band
@@ -233,6 +237,8 @@ export default function StructoProQtyPDF({ report: r, contact, reportId, project
           NirmanShastra · India&apos;s IS-code construction quantities platform. This report is for estimation and planning only. It is not a substitute for drawings and calculations signed by a licensed structural engineer, and it does not replace a soil test. The bearing capacity, floor loads and site-practice sizes are stated assumptions; change them and the quantities change.
         </Text>
       </Page>
+
+      {calc ? <CalcAppendix sheet={calc} chrome={{ tool: 'StructurePro', tag: 'PHASE 1 · STRUCTUREPRO', reportId }} /> : null}
     </Document>
   )
 }

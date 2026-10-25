@@ -2,21 +2,38 @@
 
 import { barArea, barMass, roundUp25 } from './codes'
 
+/** One line of the bar-bending record: what was added, before any floor-area correction (`scales`). */
+export interface BarEntry {
+  group: string
+  phi: number
+  lengthMm: number
+  count: number
+  kg: number
+  /** what the bar is, when the caller said ("bottom bars", "ties") */
+  note?: string
+}
+
 export class SteelBook {
   byGroup: Record<string, number> = {}
   detail: Record<string, Record<number, number>> = {}
+  /** Every bar added, in order, at the weight it had when added (before any `scale`). Read-only record for the calculation sheet. */
+  log: BarEntry[] = []
+  /** The product of every `scale` applied to each group: kg in `byGroup` = sum of `log` kg of the group x `scales` (to rounding). */
+  scales: Record<string, number> = {}
   /** Add `count` bars of diameter phi (mm) and cut length lengthMm to member group `group`. Returns kg added. */
-  add(group: string, phi: number, lengthMm: number, count = 1): number {
+  add(group: string, phi: number, lengthMm: number, count = 1, note?: string): number {
     if (count <= 0 || lengthMm <= 0) return 0
     const kg = barMass(phi) * (roundUp25(lengthMm) / 1000) * count
     this.byGroup[group] = (this.byGroup[group] ?? 0) + kg
     const d = (this.detail[group] ??= {})
     d[phi] = (d[phi] ?? 0) + kg
+    this.log.push({ group, phi, lengthMm, count, kg, note })
     return kg
   }
   /** Multiply everything recorded under `group` by `f` (used to correct a floor's modelled bays to the entered floor area). */
   scale(group: string, f: number): void {
     if (this.byGroup[group] === undefined) return
+    this.scales[group] = (this.scales[group] ?? 1) * f
     this.byGroup[group] *= f
     for (const p of Object.keys(this.detail[group])) this.detail[group][Number(p)] *= f
   }

@@ -1,0 +1,50 @@
+// The design half of the StructurePro calculation sheet (PART 1): your answers, the site, the frame, the loads, the lateral loads, the beams and the columns.
+// PART 2 (foundations, slabs, stairs, balconies, secondary items, steel take-off, concrete, mixes, reconciliation) builds on the same CalcCtx and composes this
+// file's sections, method sentences, limits, references and tie rows with its own.
+
+import type { CalcReference, CalcSection } from '@/lib/calcsheet'
+import type { CalcCtx } from './ctx'
+import { answersSection, frameSection, siteSection } from './answers'
+import { beamsSection } from './beams'
+import { columnsSection } from './columns'
+import { lateralSection } from './lateral'
+import { loadsSection } from './loads'
+
+/** Sections 1 to 7, in order. Call once per CalcCtx: each section writes its lines to `c.L`. */
+export function designSections(c: CalcCtx): CalcSection[] {
+  return [answersSection(c), siteSection(c), frameSection(c), loadsSection(c), lateralSection(c), beamsSection(c), columnsSection(c)]
+}
+
+/** The first steps of the method, in the order the tool works. PART 2 appends its own (the whole method is 6 to 12 sentences). */
+export const DESIGN_METHOD: string[] = [
+  'The tool reads your answers (floors and their areas, the place, the ground, the walls, an open parking level, balconies) and derives the earthquake zone, the wind speed, the concrete grade and the cover from them (Sections 1 and 2).',
+  'It lays a regular grid of bays of about 3.75 m (never over 5 m) over the largest floor, scales every floor to the area you gave, and fixes the slab thickness from span and depth ratios (Section 3).',
+  'It adds up the dead and imposed loads on the slabs, walls and beams, and replaces the slab load on each beam by an equal uniform load (Section 4).',
+  'It finds the earthquake force by the equivalent static method of IS 1893 and the wind force by IS 875 (Part 3), takes the larger of the two storey by storey, and shares it between the frames and columns by the portal method (Section 5).',
+  'It designs every beam: a depth is searched from span ÷ 13 upward, the moments come from IS 456 Table 12 and the lateral force, and the bars and stirrups follow IS 456 and, from Zone III upward, the ductile rules of IS 13920 (Section 6).',
+  'It designs every column for seven load cases (and, in Zone III and above, a strong-column weak-beam check that is the model\'s own) by strain compatibility, and sets the ties (Section 7). The beams and the seismic weights depend on each other, so the whole analysis is run twice and the second run uses the member sizes of the first.',
+]
+
+/** What a person checking the design half must know. PART 2 appends its own (the whole list is 4 to 10 bullets). */
+export const DESIGN_LIMITS: string[] = [
+  'This is a planning model for quantities, not a structural design. The frame is analysed by hand methods (coefficients for the beams, the portal method for the lateral force), not by a computer frame analysis, and no drawing, joint detail or bar bending schedule is produced. A licensed structural engineer must design and sign the real building.',
+  'Beams: the moments are the coefficients of IS 456 Table 12 for equal continuous spans. The outer-support coefficient of 1/16 and the 10 % rise in the support shear are the model\'s own planning values, and the beams are designed with an estimated column size. Compression steel is not designed (the tension steel is raised by 15 % when a section is over its limit), deflection is checked by span and depth ratios with an assumed modification factor, and torsion, crack width and anchorage in the joints are not checked.',
+  'Columns: each column is checked for axial load with biaxial bending on the load cases of Section 7 and the minimum eccentricity. Slenderness, the change in axial load from the overturning of the building, column shear and joint shear are not designed. The ties follow the spacing rules, and in Zone III and above the tie size is 8 mm (10 mm with 25 mm bars). The confining-steel area of IS 13920 cl. 7.4.8 is not checked by the model; Section 7 works it beside the model\'s ties, and in most columns it asks for more steel than the ties provide, so the tie steel of a ductile column is probably higher on the signed drawings.',
+  'Earthquake and wind: the equivalent static method with the empirical period of a frame with infill walls and the medium-soil spectrum for every ground class. The model uses an importance factor of 1, does not raise Ah to Z ÷ 2 for periods under 0.1 s (IS 1893 cl. 6.4.2), and does not model torsion, plan or height irregularity or soil–structure interaction; only an open parking storey is treated specially (the factor 2.5 of cl. 7.10.3). The wind pressure follows IS 875 (Part 3):1987, with the basic wind speed from the model\'s table of places and a table of pressure coefficients rebuilt from a damaged scan.',
+  'Editions: the model follows IS 456:2000, IS 875 (Parts 1 and 2):1987, IS 875 (Part 3):1987, IS 1893 (Part 1):2002, IS 13920:1993 and IS 10262:2009. Newer editions of four of them are now in force: IS 875 (Part 3):2015, IS 1893 (Part 1):2016, IS 13920:2016 and IS 10262:2019. A design office must work to the current editions, and the clause numbers and limits of the sheet may differ in them. Some wording in the report names IS 13920:2016, but the working follows the 1993 edition. Fe 500D steel is used throughout, although IS 13920:1993 itself allows only Fe 415 or lower.',
+  'Loads and ground: only residential use is assumed, with the imposed loads of IS 875 (Part 2), walls counted at 85 % of the full wall, and no water tank, lift or future floors. The ground class stands for a safe bearing capacity and a founding depth that are planning values until a soil test is done.',
+]
+
+/** The standards the design half rests on. PART 2 adds its own and removes duplicates. */
+export const DESIGN_REFERENCES: CalcReference[] = [
+  { code: 'IS 456:2000', title: 'Plain and Reinforced Concrete: Code of Practice', usedFor: 'Concrete grade and cover, load combinations, beam, column, slab and footing design, shear, minimum steel and detailing. The tool follows this edition; check the BIS catalogue for any later revision.' },
+  { code: 'IS 875 (Part 1):1987', title: 'Code of Practice for Design Loads (Other than Earthquake) for Buildings and Structures: Dead Loads', usedFor: 'Unit weights of concrete, masonry and plaster. The edition used.' },
+  { code: 'IS 875 (Part 2):1987', title: 'Code of Practice for Design Loads (Other than Earthquake) for Buildings and Structures: Imposed Loads', usedFor: 'Imposed loads on floors, roof and balconies; reduction on columns. The edition used.' },
+  { code: 'IS 875 (Part 3):1987', title: 'Code of Practice for Design Loads (Other than Earthquake) for Buildings and Structures: Wind Loads', usedFor: 'Basic wind speed, height factor, design pressure and wall pressure coefficients. The tool follows the 1987 edition; IS 875 (Part 3):2015 is now in force.' },
+  { code: 'IS 1893 (Part 1):2002', title: 'Criteria for Earthquake Resistant Design of Structures: General Provisions and Buildings', usedFor: 'Zone factor, response reduction, period, spectral acceleration, base shear and its distribution, load combinations. The tool follows the 2002 edition; IS 1893 (Part 1):2016 is now in force.' },
+  { code: 'IS 13920:1993', title: 'Ductile Detailing of Reinforced Concrete Structures Subjected to Seismic Forces: Code of Practice', usedFor: 'Ductile detailing of beams and columns in Zone III and above. The tool follows the 1993 edition; IS 13920:2016 is now in force and is the edition some wording of the report names.' },
+  { code: 'SP 24:1983', title: 'Explanatory Handbook on Indian Standard Code of Practice for Plain and Reinforced Concrete (IS 456:1978)', usedFor: 'The formula behind the design shear strength of concrete (IS 456 Table 19). SP 24 explains IS 456:1978, the earlier edition of the code.' },
+  { code: 'SP 34:1987', title: 'Handbook on Concrete Reinforcement and Detailing', usedFor: 'Cover to the beam reinforcement. The edition used.' },
+  { code: 'IS 1786:2008', title: 'High Strength Deformed Steel Bars and Wires for Concrete Reinforcement: Specification', usedFor: 'Mass per metre of reinforcing bars. The edition used.' },
+  { code: 'IS 2502:1963', title: 'Code of Practice for Bending and Fixing of Bars for Concrete Reinforcement', usedFor: 'Cut lengths rounded up to the next 25 mm. The edition used.' },
+]

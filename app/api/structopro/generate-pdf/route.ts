@@ -5,9 +5,13 @@ import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
 import StructoProQtyPDF from '@/lib/pdf/structopro-qty-pdf'
 import { runQuantityModel, toPaid, savedInput, type PaidPayload, type QtyInput } from '@/lib/structopro-qty'
+import { buildStructoCalc } from '@/lib/structopro-qty/calc'
 import { SITE } from '@/lib/structopro-qty/sites'
 import type { ContactInfo } from '@/lib/pdf/qty-kit'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+
+// The report carries a calculation sheet of several dozen pages; laying it out takes longer than the 10 s default.
+export const maxDuration = 60
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -86,7 +90,12 @@ export async function POST(req: NextRequest) {
           if (!run.ok) return NextResponse.json({ error: run.error }, { status: 422 })
           report = toPaid(run)
         }
+        // The calculation sheet is rebuilt from the saved answers and checked against the report as it will be printed.
+        // If it cannot be made to agree, the report goes out without it rather than with working that does not match.
+        const calc = buildStructoCalc(qtyInput, report)
+        if (!calc) console.error(`[CRITICAL][NS-CALC] StructurePro calculation sheet was left out of report ${estimateId}: it did not reconcile with the report.`)
         pdfElement = React.createElement(StructoProQtyPDF, {
+          calc,
           report,
           contact: contactInfo,
           reportId,

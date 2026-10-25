@@ -60,8 +60,8 @@ export function basicWindSpeed(state: string, city?: string): WindSpeed {
 }
 
 /** IS 875 (Part 3):1987 Table 2, Class A, terrain categories 2 and 3 (CLEAR). Heights 10, 15, 20, 30 m. */
-const K2_HEIGHTS = [10, 15, 20, 30]
-const K2_CLASS_A: Record<TerrainCategory, number[]> = {
+export const K2_HEIGHTS = [10, 15, 20, 30]
+export const K2_CLASS_A: Record<TerrainCategory, number[]> = {
   2: [1.0, 1.05, 1.07, 1.12],
   3: [0.91, 0.97, 1.01, 1.06],
 }
@@ -89,16 +89,22 @@ export const windPressure = (vb: number, z: number, cat: TerrainCategory = 2): n
  * Outside the table the nearest row is used (ASSUMPTION).
  */
 export function netPressureCoeff(h: number, l: number, w: number): number {
+  return netPressureDetail(h, l, w).ct
+}
+
+/** The Table 4 pair behind `netPressureCoeff`: the row and column used, the windward coefficient, the leeward suction and their sum. */
+export function netPressureDetail(h: number, l: number, w: number): { hw: number; lw: number; row: number; col: number; windward: number; leeward: number; ct: number } {
   const hw = h / w
   const lw = l / w
   const row = hw <= 0.5 ? 0 : hw <= 1.5 ? 1 : 2
   const col = lw <= 1.5 ? 0 : 1
   const T = [
-    [0.7 + 0.2, 0.7 + 0.25],
-    [0.7 + 0.25, 0.7 + 0.3],
-    [0.8 + 0.25, 0.7 + 0.4],
+    [[0.7, 0.2], [0.7, 0.25]],
+    [[0.7, 0.25], [0.7, 0.3]],
+    [[0.8, 0.25], [0.7, 0.4]],
   ]
-  return T[row][col]
+  const [windward, leeward] = T[row][col]
+  return { hw, lw, row, col, windward, leeward, ct: windward + leeward }
 }
 
 export interface WindShears {
