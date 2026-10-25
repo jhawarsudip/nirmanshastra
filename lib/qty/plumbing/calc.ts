@@ -22,25 +22,24 @@ import {
   type PlumbInput, type PlumbTrace,
 } from './model'
 
-/** Where each step comes from. A clause number is given only where it has been read in the standard; otherwise the topic. */
+/** Where each step comes from. A clause number marked "not re-read" in the references table is a pointer taken from the research notes, not a quotation. */
 const REF = {
   answer: 'Your answer',
   rule: 'NirmanShastra assumption',
   eng: 'Engine rule',
-  lpcd: 'IS 1172:1993 cl 4.1 and Table 1',
+  lpcd: 'IS 1172:1993 cl 4.1 and its Note',
   people: 'NBC 2016 Part 9 Sec 1 (BIS draft, Nov 2024)',
-  storage: 'NBC 2016 Part 9 Sec 1 cl 4.4.10 (BIS draft); IS 12183 (Part 1):1987',
+  storage: 'NBC 2016 Part 9 Sec 1 cl 4.4.10 (BIS draft)',
   wsfu: 'NBC 2016 Part 9 Sec 1 Table 2 (BIS draft)',
   flow: 'NBC 2016 Part 9 Sec 1 Table 3 (BIS draft)',
-  vel: 'NBC 2016 Part 9 Sec 1 cl 4.7.6 (BIS draft)',
+  vel: 'NBC 2016 Part 9 Sec 1 cl 4.8.6 (BIS draft)',
   bore: 'IS 15778:2007 Table 2 (65 to 100 mm derived)',
   hw: 'SP 35:1987 eq. 1 (Hazen-Williams)',
-  standby: 'IS 12183 (Part 1):1987 cl 9.1',
   dfu: 'IS 1742:1983 Table 1',
   loads: 'IS 1742:1983 Tables 3 and 4',
   vent: 'IS 5329:1983 cl 6.1.1 (single stack without a vent)',
-  stackTop: 'IS 5329:1983 cl 6.8.4 (top of the stack above the roof)',
-  septicVol: 'IS 2470 (Part 1):1985 Appendix A (Tables 5 and 6)',
+  stackTop: 'IS 5329:1983 cl 6.8.4 (stack above the roof)',
+  septicVol: 'IS 2470 (Part 1):1985 Appendix A, tank dimensions (Tables 5 and 6)',
   septicDim: 'IS 2470 (Part 1):1985 cl 3.4.5 and 3.4.8',
   soak: 'IS 2470 (Part 2):1985 Table 2 (rate of application)',
   rain: 'IS 1742:1983 Table 5, cl 4.10.3.8',
@@ -154,9 +153,11 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
     const note = cap >= flow
       ? `A ${dn} mm pipe carries ${fmt(cap, 1)} L/min at ${vmax} m/s (table in 4.1).`
       : `WARNING: even ${dn} mm carries only ${fmt(cap, 1)} L/min at ${vmax} m/s, less than the ${fmt(flow, 1)} L/min asked of it. No size in the list is big enough, so the model uses ${dn} mm. The real pipe has to be larger, or run in parallel, and the velocity in it is above the limit.`
+    const draftLimit = vmax >= R.vSupply
+    const note2 = draftLimit ? note : `${note} ${vmax} m/s is a NirmanShastra assumption, lower than the ${R.vSupply} m/s maximum in the NBC draft (cl 4.8.6).`
     return L.calc(label, 'smallest size, not under the minimum, whose capacity at the velocity limit is at least Q; the largest size if none is',
       'from {min} mm up: capacity at {v} m/s must be at least {q:2} L/min', { min, v: vmax, q: flow }, (x) => sizeFor(x.q, x.v, x.min),
-      { unit: 'mm', ref: REF.vel, note, ...o, expect: dn })
+      { unit: 'mm', ref: draftLimit ? REF.vel : REF.rule, note: note2, ...o, expect: dn })
   }
   type LooseTable = Omit<CalcTable, 'rows' | 'foot'> & { rows: (string | number)[][]; foot?: (string | number)[] }
   const closeBlock = (id: string, title: string, extra: { intro?: string; table?: LooseTable; note?: string } = {}): CalcBlock => {
@@ -292,8 +293,8 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
   /* ═════════════ 2. daily water ═════════════ */
   const lpcd = input.water === 'borewell' ? WATER_DEMAND_LPCD.borewell : WATER_DEMAND_LPCD.municipal
   L.value('Litres per person per day', lpcd, 'L', 0, REF.lpcd, input.water === 'borewell'
-    ? 'The standard fixes demand by size of town (150 to 200 L for towns of over a lakh people), not by water source. The model takes the lowest figure of that range for a house on its own borewell: a choice of the model.'
-    : 'The standard fixes demand by size of town, and allows 135 L per head for lower-income housing (Note to Table 1). The model uses 135 L for every home on a piped or tanker supply.')
+    ? 'IS 1172 cl 4.1 gives 150 to 200 L a head for towns of over a lakh people and does not fix demand by water source. The model takes the lowest figure of that range, 150 L, for a house on its own borewell: a choice of the model.'
+    : 'IS 1172 cl 4.1 gives 150 to 200 L a head for towns of over a lakh people. The 135 L here is the figure its Note allows for lower-income housing. It is the lower of the figures the sources give, and the model uses it for every home on a piped or tanker supply, so a town of over a lakh people may need 150 L or more.')
   const demandL = L.calc('Water used in a day', 'D = people × litres per person per day', '{p} × {q}', { p: people, q: lpcd }, (v) => v.p * v.q, { unit: 'L', result: true, ref: REF.lpcd, expect: T.demandL })
   sections.push({
     id: 'demand', title: '2. Daily water demand',
@@ -338,7 +339,7 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
   const b3b = closeBlock('tank-size', '3.2 Rounding up to tanks that are sold')
   sections.push({
     id: 'tanks', title: '3. Underground and overhead tanks',
-    intro: 'The day\'s water is split between an underground and an overhead tank according to the water source, then each part is rounded up to a tank that is sold. Fire-fighting reserve is not counted (IS 12183 refers it to NBC Part 4).',
+    intro: 'The day\'s water is split between an underground and an overhead tank according to the water source, then each part is rounded up to a tank that is sold. Fire-fighting reserve is not counted; it is a matter for NBC Part 4.',
     blocks: [b3a, b3b],
   })
   {
@@ -353,18 +354,18 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
     addTie('Overhead tank: size', cellNums(r[1])[0], ohtPlan.each, 'L')
     addTie('Overhead tank: number', cellNums(r[2])[0], ohtPlan.count, '')
     addTie('Overhead tank: litres needed', cellNums(r[4])[0], Math.round(ohtNeed), 'L')
-    addTie('Tile: tanks, total', cellNums(tileOf('Tanks').v)[0], tankTotalL, 'L')
+    addTie('Tanks, total capacity (headline figure)', cellNums(tileOf('Tanks').v)[0], tankTotalL, 'L')
   }
 
   /* ═════════════ 4. supply pipe sizing ═════════════ */
-  L.value('Velocity limit in supply pipe', R.vSupply, 'm/s', 1, REF.vel)
+  L.value('Velocity limit in supply pipe', R.vSupply, 'm/s', 1, REF.vel, 'The most the NBC draft allows for the velocity of the water in a supply pipe.')
   L.calc('Capacity of a 20 mm pipe (worked example)', 'Q = (π ÷ 4) × d² × v × 60,000', '(π ÷ 4) × ({d:1} ÷ 1000)² × {v} × 60,000', { d: CPVC_ID_MM[20], v: R.vSupply }, (x) => (Math.PI / 4) * (x.d / 1000) ** 2 * x.v * 60000, { unit: 'L/min', ref: REF.bore, note: 'd is the inside diameter in mm; 60,000 turns m³/s into L/min.', expect: capLpm(20, R.vSupply) })
   const b4a = closeBlock('bore', '4.1 Pipe bore and what each size carries', {
     table: {
       head: ['Nominal size (mm)', 'Inside diameter (mm)', `Carries at ${R.vSupply} m/s (L/min)`, `Carries at ${R.vDelivery} m/s (L/min)`],
       rows: SUPPLY_DN.map((dn) => [String(dn), fmt(CPVC_ID_MM[dn], 1), fmt(capLpm(dn, R.vSupply), 1), fmt(capLpm(dn, R.vDelivery), 1)]),
       num: [0, 1, 2, 3],
-      note: 'CPVC SDR 11 pipe. Sizes 65 to 100 mm take the inside diameter as 0.806 times the outside diameter (derived). The model uses CPVC bores for all supply sizes.',
+      note: `CPVC SDR 11 pipe. Sizes 65 to 100 mm take the inside diameter as 0.806 times the outside diameter (derived). The model uses CPVC bores for all supply sizes. The ${R.vSupply} m/s column is the maximum in the NBC draft (cl 4.8.6) and is used for the home headers and risers. The ${R.vDelivery} m/s column is used for the delivery pipe only; ${R.vDelivery} m/s is a NirmanShastra assumption, lower than the draft maximum.`,
     },
   })
 
@@ -448,23 +449,24 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
 
   /* ═════════════ 5. delivery pipe and transfer pump ═════════════ */
   const hasPump = input.water !== 'borewell'
-  const peakQ = L.calc('Flow to meet the peak hour', 'Q1 = peak factor × D ÷ (hours × 60)', '{f} × {D:0} ÷ ({h} × 60)', { f: R.peakFactor, D: demandL, h: R.peakHours }, (v) => (v.f * v.D) / (v.h * 60), { unit: 'L/min', ref: REF.rule, note: 'Peak hour taken as one and a half times the day\'s demand spread evenly over the hours of use.' })
+  const peakQ = L.calc('Flow to meet the peak hour', 'Q1 = peak factor × D ÷ (hours × 60)', '{f} × {D:0} ÷ ({h} × 60)', { f: R.peakFactor, D: demandL, h: R.peakHours }, (v) => (v.f * v.D) / (v.h * 60), { unit: 'L/min', ref: REF.rule, note: 'Peak hour taken as one and a half times the day\'s demand spread evenly over the hours of use. The factor 1.5 is a NirmanShastra choice; the NBC draft mentions a peak factor of 2 to 3.' })
   const fillQ = L.calc('Flow to refill the overhead tank', 'Q2 = tank capacity bought ÷ fill time', '{c:0} ÷ {t}', { c: ohtPlan.each * ohtPlan.count, t: R.fillMinutes }, (v) => v.c / v.t, { unit: 'L/min', ref: REF.rule, note: 'The pump is assumed to refill the whole overhead tank in this many minutes.' })
-  const qLpm = maxOf('Pump flow', 'Q = the larger of Q1 and Q2', [peakQ, fillQ], { unit: 'L/min', result: hasPump, ref: REF.rule, expect: T.qLpm }, 1)
+  const qLpm = maxOf('Pump flow', 'Q = the larger of Q1 and Q2', [peakQ, fillQ], { unit: 'L/min', result: hasPump, ref: REF.rule, note: fillQ >= peakQ ? 'Refilling the tank is the larger flow here, so the peak-hour factor does not change the pump.' : 'The peak-hour flow is the larger here, so the peak-hour factor does set the pump flow.', expect: T.qLpm }, 1)
   const staticM = L.calc('Climb from the water level to the top of the overhead tank', 'Hs = floors × floor height + tank stand + water depth + depth of the water below ground', '{N} × {h} + {s} + {d} + {g}', { N, h: H_FLOOR, s: R.tankStandM, d: R.waterDepthM, g: R.belowGroundM }, (v) => v.N * v.h + v.s + v.d + v.g, { unit: 'm', ref: REF.rule, expect: T.staticM })
-  const deliveryDn = sizeLine('Delivery pipe size', qLpm, R.vDelivery, R.minDeliveryDn, { unit: 'mm', ref: REF.vel, expect: T.deliveryDn })
+  L.value('Velocity limit in delivery pipe', R.vDelivery, 'm/s', 1, REF.rule, `A NirmanShastra assumption, lower than the ${R.vSupply} m/s maximum in the NBC draft (cl 4.8.6).`)
+  const deliveryDn = sizeLine('Delivery pipe size', qLpm, R.vDelivery, R.minDeliveryDn, { unit: 'mm', expect: T.deliveryDn })
   const deliveryLen = L.calc('Delivery pipe length', 'L = Hs + extra run', '{h:1} + {e}', { h: staticM, e: R.deliveryExtraM }, (v) => v.h + v.e, { unit: 'm', ref: REF.rule, expect: T.deliveryLen })
   const frictionM = L.calc('Friction loss in the delivery pipe', 'hf = 10.67 × Le × (Q ÷ 1000)^1.852 ÷ (C^1.852 × (d ÷ 1000)^4.87)',
     '10.67 × {Le:1} × ({Q:3} ÷ 1000)^1.852 ÷ ({C}^1.852 × ({d:1} ÷ 1000)^4.87)',
     { Le: deliveryLen * R.fittingsFactor, Q: qLpm / 60, C: HAZEN_C, d: CPVC_ID_MM[deliveryDn] },
-    (v) => headLoss(v.Le, v.Q, deliveryDn, v.C), { unit: 'm', ref: REF.hw, note: `Le is the pipe length times ${R.fittingsFactor} for fittings; Q is in L/s, d the inside diameter in mm; C is the roughness of plastic pipe.`, expect: T.frictionM })
+    (v) => headLoss(v.Le, v.Q, deliveryDn, v.C), { unit: 'm', ref: REF.hw, note: `Le is the pipe length times ${R.fittingsFactor} for fittings, in m. Q is the pump flow in L/s (L/min ÷ 60) and d the inside diameter in mm; the formula divides each by 1000 to get m³/s and m. C = ${HAZEN_C} is the model's value for plastic pipe.`, expect: T.frictionM })
   const headM = L.calc('Total head the pump works against', 'H = Hs + hf + residual head at the tank', '{s:1} + {f:2} + {r}', { s: staticM, f: frictionM, r: R.residualHeadM }, (v) => v.s + v.f + v.r, { unit: 'm', result: hasPump, ref: REF.rule, expect: T.headM })
   const hpRaw = L.calc('Power needed', 'P = Q × H ÷ (4,500 × efficiency)', '{Q:1} × {H:1} ÷ ({k} × {e})', { Q: qLpm, H: headM, k: R.hpFactor, e: R.pumpEff }, (v) => (v.Q * v.H) / (v.k * v.e), { unit: 'HP', ref: REF.rule, note: 'Metric horsepower: 1 HP is 4,500 kgf·m a minute, and 1 L of water weighs 1 kgf. Pump efficiency is assumed.', expect: T.hpRaw })
   const hp = L.calc('Pump size sold', 'next size up from the list', 'first size in the list that is at least {p:2} HP', { p: hpRaw }, (v) => PUMP_HP.find((h) => v.p <= h) ?? PUMP_HP[PUMP_HP.length - 1], { unit: 'HP', result: hasPump, ref: REF.rule, note: `Sizes listed: ${PUMP_HP.join(', ')} HP.`, expect: T.hp })
   if (hpRaw > PUMP_HP[PUMP_HP.length - 1]) {
     L.say('Warning: power above the largest size listed', `The power needed is more than the largest pump size in the list, so the model shows that largest size. The real pump for this building has to be selected from a maker's curve for the flow and head above; do not read the size above as sufficient.`, REF.rule)
   }
-  const pumps = L.calc('Number of transfer pumps', 'two for two or more homes (one working, one standby), else one; none for a borewell', input.water === 'borewell' ? 'borewell: the tank is filled by the borewell pump' : '{h} homes', { h: homes }, (v) => (input.water === 'borewell' ? 0 : v.h >= R.homesForStandby ? R.pumpsWithStandby : 1), { result: hasPump, ref: REF.standby, expect: T.pumps })
+  const pumps = L.calc('Number of transfer pumps', 'two for two or more homes (one working, one standby), else one; none for a borewell', input.water === 'borewell' ? 'borewell: the tank is filled by the borewell pump' : 'homes in the building: {h}; two pumps from {m} homes', { h: homes, m: R.homesForStandby }, (v) => (input.water === 'borewell' ? 0 : v.h >= v.m ? R.pumpsWithStandby : 1), { result: hasPump, ref: REF.rule, note: 'Two pumps, one working and one standby, for two or more homes is a NirmanShastra assumption. The NBC draft mentions standby pumps only for pressurised systems, so a standby pump is not claimed here as a code requirement.', expect: T.pumps })
   if (input.water === 'borewell') {
     L.say('Borewell', 'The borewell pump depends on the depth of water and is not sized here. The flow, head and power above only size the delivery pipe to the overhead tank; they are not a pump selection.', REF.rule)
   }
@@ -485,8 +487,8 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
       addTie('Pump: flow', cellNums(r[4])[0], qLpm, 'L/min')
       addTie('Pump: head', cellNums(r[4])[1], headM, 'm', 1)
       const t = tileOf('Transfer pump')
-      addTie('Tile: transfer pump, size', cellNums(t.v)[0], hp, 'HP', 2)
-      addTie('Tile: transfer pump, number', cellNums(t.unit.replace('HP', ''))[0] ?? 1, pumps, '')
+      addTie('Transfer pump, size (headline figure)', cellNums(t.v)[0], hp, 'HP', 2)
+      addTie('Transfer pump, number (headline figure)', cellNums(t.unit.replace('HP', ''))[0] ?? 1, pumps, '')
     } else if (hasRow(tt, 'Transfer pump')) L.mismatches.push('the report has a transfer pump but the sheet has none')
   }
 
@@ -634,16 +636,16 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
     addTie('Supply pipe: with cutting waste', cellNums(foot[2])[0], supplyWaste, 'm', 1)
     addTie('Supply pipe: 3 m lengths', cellNums(foot[3])[0], supplyPieces, '')
     addTie('Supply pipe: to buy', cellNums(foot[4])[0], supplyBuyM, 'm')
-    addTie('Tile: water supply pipe', cellNums(tileOf('Water supply pipe').v)[0], supplyBuyM, 'm')
+    addTie('Water supply pipe to buy (headline figure)', cellNums(tileOf('Water supply pipe').v)[0], supplyBuyM, 'm')
   }
 
   /* ═════════════ 7. drainage ═════════════ */
   const floorStacks = bath.map((b) => Math.ceil(b / R.wcPerStack))
-  L.say('Soil stacks', `One soil stack takes up to ${R.wcPerStack} WCs on a floor (single stack without a vent, up to five storeys), so the stacks needed are the most WCs on any floor divided by ${R.wcPerStack}, rounded up, and at least one.`, REF.vent)
-  const soilStacks = maxOf('Soil stacks', 'n = largest of 1 and ceil(WCs on a floor ÷ WCs per stack) over the floors', [1, ...floorStacks], { result: true, ref: REF.vent, expect: T.soilStacks })
+  L.say('Soil stacks', `The model counts one soil stack for every ${R.wcPerStack} WCs on a floor, so the stacks needed are the most WCs on any floor divided by ${R.wcPerStack}, rounded up, and at least one. The figure of ${R.wcPerStack} WCs to a stack is a NirmanShastra assumption; it is not a fixture-unit rule of IS 5329.`, REF.rule)
+  const soilStacks = maxOf('Soil stacks', 'n = largest of 1 and ceil(WCs on a floor ÷ WCs per stack) over the floors', [1, ...floorStacks], { result: true, ref: REF.rule, expect: T.soilStacks })
   const wasteStacks = maxOf('Waste stacks', 'n = largest of 1 and the kitchens on a floor', [1, ...kit], { ref: REF.rule, note: 'One waste stack for each kitchen on the floor with the most kitchens.', expect: T.wasteStacks })
-  const stackH = L.calc('Height of a stack', 'H = floors × floor height + foot below the slab + top above the roof', '{N} × {h} + {f} + {t}', { N, h: H_FLOOR, f: R.stackFootM, t: R.stackAboveRoofM }, (v) => v.N * v.h + v.f + v.t, { unit: 'm', ref: REF.stackTop, note: 'The stack goes above the roof to vent; the foot is taken below the slab.', expect: T.stackH })
-  const ventStacks = L.calc('Vent stacks', 'one beside each soil stack from this many floors up', '{N} floors against {v}', { N, v: R.ventFromFloors }, (v) => (v.N >= v.v ? soilStacks : 0), { ref: REF.vent, note: 'IS 5329 allows a single stack without a vent up to five storeys.', expect: T.ventStacks })
+  const stackH = L.calc('Height of a stack', 'H = floors × floor height + foot below the slab + top above the roof', '{N} × {h} + {f} + {t}', { N, h: H_FLOOR, f: R.stackFootM, t: R.stackAboveRoofM }, (v) => v.N * v.h + v.f + v.t, { unit: 'm', ref: REF.stackTop, note: 'The stack goes above the roof to vent; the foot is taken below the slab. Both lengths are planning lengths.', expect: T.stackH })
+  const ventStacks = L.calc('Vent stacks', 'one beside each soil stack from this many floors up', 'floors in the building: {N}; a vent stack from {v} floors up', { N, v: R.ventFromFloors }, (v) => (v.N >= v.v ? soilStacks : 0), { ref: REF.vent, note: `The research notes give IS 5329 as allowing a single stack without a vent up to five storeys, so the model adds a vent stack from ${R.ventFromFloors} floors up.`, expect: T.ventStacks })
   const b7a = closeBlock('stacks', '7.1 Stacks', {
     table: {
       head: ['Floor', 'Bathrooms on the floor', 'Stacks needed', 'Kitchens on the floor'],
@@ -659,7 +661,7 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
   const sWaste = L.calc(`Waste stacks (${R.wasteDn} mm)`, 'L = stacks × H', '{n} × {h:1}', { n: wasteStacks, h: stackH }, (v) => v.n * v.h, { unit: 'm', ref: REF.rule })
   dadd('stack', R.wasteDn, sWaste)
   if (ventStacks) {
-    const sVent = L.calc(`Vent stacks (${R.smallDn} mm)`, 'L = stacks × (floors × floor height + top above the roof)', '{n} × ({N} × {h} + {t})', { n: ventStacks, N, h: H_FLOOR, t: R.stackAboveRoofM }, (v) => v.n * (v.N * v.h + v.t), { unit: 'm', ref: REF.vent })
+    const sVent = L.calc(`Vent stacks (${R.smallDn} mm)`, 'L = stacks × (floors × floor height + top above the roof)', '{n} × ({N} × {h} + {t})', { n: ventStacks, N, h: H_FLOOR, t: R.stackAboveRoofM }, (v) => v.n * (v.N * v.h + v.t), { unit: 'm', ref: REF.rule })
     dadd('stack', R.smallDn, sVent)
   }
   const bathrooms = wc
@@ -680,19 +682,19 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
   const fuTotal = L.calc('Drainage fixture units on the building drain', 'FU = WCs × (Ub + Ut) + kitchens × (Us + Ut) + washers × Uw + balcony traps × Ut',
     '{wc} × ({Ub} + {Ut}) + {k} × ({Us} + {Ut}) + {w} × {Uw} + {b} × {Ut}',
     { wc: bathrooms, Ub: DFU.bathroom, Ut: DFU.floorTrap, k: kitchensN, Us: DFU.sink, w: washers, Uw: DFU.washer, b: balconyTaps },
-    (v) => v.wc * (v.Ub + v.Ut) + v.k * (v.Us + v.Ut) + v.w * v.Uw + v.b * v.Ut, { unit: 'units', ref: REF.dfu, note: 'Ub: bathroom group with a flush-tank WC; Ut: floor trap; Us: kitchen sink; Uw: washing machine. IS 1742 Table 1 lists no washing machine; the model uses the combination sink-and-tray value.', expect: T.fuTotal })
-  const drainDn = L.calc('Building drain size', 'smaller size up to its limit, else the next size', '{fu:0} units against a limit of {lim} units for {a} mm', { fu: fuTotal, lim: R.drain110MaxFu, a: R.soilDn }, (v) => (v.fu <= v.lim ? R.soilDn : R.bigDrainDn), { unit: 'mm', ref: REF.loads, note: 'At a fall of 1 in 100 a 100 mm drain takes 180 units and a 150 mm drain 700 units. The model buys SWR in 110 and 160 mm.', expect: T.drainDn })
+    (v) => v.wc * (v.Ub + v.Ut) + v.k * (v.Us + v.Ut) + v.w * v.Uw + v.b * v.Ut, { unit: 'units', ref: REF.dfu, note: 'Ub: bathroom group with a flush-tank WC; Ut: floor trap; Us: kitchen sink; Uw: washing machine. IS 1742 Table 1 lists no washing machine; the model uses the combination sink-and-tray value. The dining wash basin is not counted: the model gives it no drainage fixture units (a simplification in the engine).', expect: T.fuTotal })
+  const drainDn = L.calc('Building drain size', 'smaller size up to its limit, else the next size', '{fu:0} units against a limit of {lim} units for {a} mm', { fu: fuTotal, lim: R.drain110MaxFu, a: R.soilDn }, (v) => (v.fu <= v.lim ? R.soilDn : R.bigDrainDn), { unit: 'mm', ref: REF.loads, note: 'At a fall of 1 in 100 a 100 mm drain takes 180 units and a 150 mm drain 700 units. The model buys SWR in 110 and 160 mm and uses the 100 mm and 150 mm values for them.', expect: T.drainDn })
   const perInterval = Math.max(...bath.map((b) => Math.ceil(b / soilStacks))) * dfuBath
   const stackTotal = (bathrooms * dfuBath) / soilStacks
   L.calc('Load on one soil stack at a floor', 'FU = WCs per stack at a floor × (Ub + Ut)', '{n} × ({Ub} + {Ut})', { n: Math.max(...bath.map((b) => Math.ceil(b / soilStacks))), Ub: DFU.bathroom, Ut: DFU.floorTrap }, (v) => v.n * (v.Ub + v.Ut), { unit: 'units', ref: REF.loads, note: `Limit ${FU_LIMITS.interval} units for one floor of a stack: ${perInterval <= FU_LIMITS.interval ? 'within the limit' : 'OVER THE LIMIT'}.` })
-  L.calc('Load on one soil stack in all', 'FU = WCs × (Ub + Ut) ÷ soil stacks', '{wc} × ({Ub} + {Ut}) ÷ {s}', { wc: bathrooms, Ub: DFU.bathroom, Ut: DFU.floorTrap, s: soilStacks }, (v) => (v.wc * (v.Ub + v.Ut)) / v.s, { unit: 'units', ref: REF.loads, note: `Limit ${FU_LIMITS.stack} units on a stack: ${stackTotal <= FU_LIMITS.stack ? 'within the limit' : 'OVER THE LIMIT'}. The building drain limit is ${FU_LIMITS.drain} units: ${fuTotal <= FU_LIMITS.drain ? 'within the limit' : 'OVER THE LIMIT'}.` })
+  L.calc('Load on one soil stack in all', 'FU = WCs × (Ub + Ut) ÷ soil stacks', '{wc} × ({Ub} + {Ut}) ÷ {s}', { wc: bathrooms, Ub: DFU.bathroom, Ut: DFU.floorTrap, s: soilStacks }, (v) => (v.wc * (v.Ub + v.Ut)) / v.s, { unit: 'units', ref: REF.loads, note: `Limit ${FU_LIMITS.stack} units on a stack, the one figure the model uses for every building height: ${stackTotal <= FU_LIMITS.stack ? 'within the limit' : 'OVER THE LIMIT'}. The building drain is checked against ${FU_LIMITS.drain} units, the most that the largest drain size in the list takes (160 mm, read as the 150 mm value); the size chosen above is the smallest that carries the load: ${fuTotal <= FU_LIMITS.drain ? 'within the limit' : 'OVER THE LIMIT'}.` })
   const drainRun = L.calc('Building drain length', 'L = stacks × run from stack foot to chamber + run to the plot edge', '({s} + {w}) × {a} + {e}', { s: soilStacks, w: wasteStacks, a: R.stackToChamberM, e: R.plotEdgeM }, (v) => (v.s + v.w) * v.a + v.e, { unit: 'm', ref: REF.rule, expect: T.drainRun })
   dadd('drain', drainDn, drainRun)
   const chambers = L.calc('Inspection chambers', 'n = stacks + 1 at the outlet + floor(drain length ÷ spacing)', '{s} + {w} + 1 + floor({r:1} ÷ {c})', { s: soilStacks, w: wasteStacks, r: drainRun, c: R.chamberEveryM }, (v) => v.s + v.w + 1 + Math.floor(v.r / v.c), { result: true, ref: REF.chamber, note: 'IS 1742 requires a chamber where a drain changes direction, gradient or size; the 30 m spacing and the count at each stack foot are planning rules.', expect: T.chambers })
   const b7c = closeBlock('drain-load', '7.3 Load on the stacks, the building drain and the chambers')
   sections.push({
     id: 'drainage', title: '7. Drainage',
-    intro: 'Soil and waste stacks, the branches to each fixture, the building drain and the inspection chambers. The stack and drain sizes are checked against the fixture-unit limits of IS 1742.',
+    intro: 'Soil and waste stacks, the branches to each fixture, the building drain and the inspection chambers. Two loads are checked against the fixture-unit limits of IS 1742: the load on one soil stack (at a floor and in all) and the load on the building drain, which also sets the drain size. The waste stack, the branches and the vent stacks are not load-checked.',
     blocks: [b7a, b7b, b7c],
   })
 
@@ -719,13 +721,13 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
   let effluentL = 0
   if (!input.sewer) {
     effluentL = L.calc('Waste water leaving the homes in a day', 'E = people × litres per person', '{p} × {e}', { p: users, e: R.effluentLpcd }, (v) => v.p * v.e, { unit: 'L', result: true, ref: REF.rule, note: 'The model takes 108 L a day of the water used as waste water, whatever the water source.', expect: T.effluentL })
-    const uRead = L.calc('Users read from the table', 'between the table\'s fewest and most users', 'between {lo} and {hi}, from {u} people', { lo: R.septicMinUsers, hi: R.septicMaxUsers, u: users }, (v) => Math.max(v.lo, Math.min(v.hi, v.u)), { ref: REF.septicVol })
+    const uRead = L.calc('Users read from the table', 'between the table\'s fewest and most users', 'between {lo} and {hi}; people served: {u}', { lo: R.septicMinUsers, hi: R.septicMaxUsers, u: users }, (v) => Math.max(v.lo, Math.min(v.hi, v.u)), { ref: REF.septicVol, note: 'A number of users below the first row of the table is read as the first row, and a number above the last row as the last row. What lies beyond the table is the model\'s own extension (see the warning below when it applies).' })
     if (users > R.septicMaxUsers) {
-      L.say('Warning: more people than the table covers', `The IS 2470 table stops at ${R.septicMaxUsers} users. For a larger number the model reads the last row and then adds a day's detention of the other waste water for every person, so the septic tank volume here is likely to be too small. A building of this size needs a designed treatment plant or a sewer.`, REF.rule)
+      L.say('Warning: more people than the table covers', `The IS 2470 table stops at ${R.septicMaxUsers} users. For a larger number the model reads the last row and then adds a day's detention of the other waste water for every person. The volume above the table is the tool's own extension, not a table value, and is likely to be too small. A building of this size needs a designed treatment plant or a sewer.`, REF.rule)
     }
-    const vTable = interpLine('Tank volume from the table (WC discharge only)', SEPTIC_V, uRead, false, { unit: 'm³', ref: REF.septicVol, note: 'Liquid volume for desludging every two years, for the discharge of water closets only. Table values at 5 to 20 users are those of Table 5; at 50 to 300 users of Table 6.' })
-    const vComb = L.calc('Volume with the other waste water', 'V = larger of (least volume, table volume + people × allowance)', 'larger of {m} and {t:2} + {p} × {a}', { m: R.septicMinM3, t: vTable, p: users, a: R.septicOtherM3 }, (v) => Math.max(v.m, v.t + v.p * v.a), { unit: 'm³', ref: REF.rule, note: 'The table counts WC discharge only; the model adds a day\'s detention of the other waste water. The 1,000 litre minimum is IS 2470 Part 1 cl 3.4.5.1.' })
-    const count = L.calc('Number of septic tanks', 'one tank for up to this many people, else equal tanks', '{p} people against {m} for one tank', { p: users, m: R.septicUsersEach }, (v) => (v.p > v.m ? Math.ceil(v.p / v.m) : 1), { ref: REF.rule, note: 'The table stops at 300 users. The model builds one tank for up to this many people and equal tanks above that: a choice of the model.', expect: T.septic!.count })
+    const vTable = interpLine('Tank volume from the table (WC discharge only)', SEPTIC_V, uRead, false, { unit: 'm³', ref: REF.septicVol, note: 'IS 2470 Part 1 Appendix A (Tables 5 and 6) gives the tank dimensions for a number of users, for desludging every two years and the discharge of water closets only. It prints dimensions, not volumes: the volume here is the model\'s own length × width × liquid depth from those dimensions.' })
+    const vComb = L.calc('Volume with the other waste water', 'V = larger of (least volume, table volume + people × allowance)', 'larger of {m} and {t:2} + {p} × {a}', { m: R.septicMinM3, t: vTable, p: users, a: R.septicOtherM3 }, (v) => Math.max(v.m, v.t + v.p * v.a), { unit: 'm³', ref: REF.rule, note: 'The table counts WC discharge only; the addition of a day\'s detention of the other waste water is the model\'s own. The 1,000 litre minimum is IS 2470 Part 1 cl 3.4.5.1.' })
+    const count = L.calc('Number of septic tanks', 'one tank for up to this many people, else equal tanks', 'people: {p}; one tank takes up to {m} people', { p: users, m: R.septicUsersEach }, (v) => (v.p > v.m ? Math.ceil(v.p / v.m) : 1), { ref: REF.rule, note: `One tank for up to ${R.septicUsersEach} people and equal tanks above that is the model's rule, not a rule of the standard.`, expect: T.septic!.count })
     const v1 = L.calc('Liquid volume of one tank', 'v = V ÷ n', '{V:2} ÷ {n}', { V: vComb, n: count }, (v) => v.V / v.n, { unit: 'm³' })
     const d = L.calc('Liquid depth', 'depth by the size of the tank', '{v:2} m³ against {v1} and {v2}', { v: v1, v1: R.septicV1, v2: R.septicV2 }, (v) => (v.v <= R.septicV1 ? R.septicD1 : v.v <= R.septicV2 ? R.septicD2 : R.septicD3), { unit: 'm', ref: REF.septicDim, note: `Depth ${R.septicD1} m up to ${R.septicV1} m³, ${R.septicD2} m up to ${R.septicV2} m³, then ${R.septicD3} m. The least liquid depth in IS 2470 is 1 m.` })
     const bw = L.calc('Width', 'b = roundup(max(least width, √(v ÷ (d × length-to-width))), step)', 'roundup(max({m}, √({v:2} ÷ ({d} × {r}))), {s})', { m: R.septicMinB, v: v1, d, r: R.septicLtoB, s: R.dimStep }, (v) => ceilTo(Math.max(v.m, Math.sqrt(v.v / (v.d * v.r))), v.s), { unit: 'm', ref: REF.septicDim, note: 'Least width 750 mm (cl 3.4.5.1). The first try is a length of three times the width.', expect: T.septic!.bM })
@@ -759,7 +761,7 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
     id: 'disposal', title: input.sewer ? '8. Sewer connection' : '8. Septic tank and soak pit',
     intro: input.sewer
       ? 'A public sewer runs past the plot, so the waste connects to it and no septic tank or soak pit is counted.'
-      : 'With no sewer, the waste goes to a septic tank and then to a soak pit on the plot (IS 2470). The tank is sized from the table for the people served and the pit from the ground you chose.',
+      : 'With no sewer, the waste goes to a septic tank and then to a soak pit on the plot (IS 2470). From the standard come the tank dimensions for a number of users, the least sizes and the rate at which ground takes water; the volumes, the number of tanks and pits and their sizes are worked out by the model from the people served and the ground you chose.',
     blocks: b8,
   })
   if (septicOut && pitOut) {
@@ -798,7 +800,7 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
   L.value('Roof drained by one 75 mm pipe', a75, 'm²', 1, REF.rain)
   L.value('Roof drained by one 100 mm pipe', a100, 'm²', 1, REF.rain)
   const n75 = L.calc('75 mm pipes needed', 'n = ceil(roof ÷ area drained by one pipe), at least the fewest allowed', 'larger of {m} and ceil({R:1} ÷ {a})', { m: R.minDownpipes, R: roofM2, a: a75 }, (v) => Math.max(v.m, Math.ceil(v.R / v.a)), { ref: REF.rain })
-  const dpDn = L.calc('Down-pipe size', 'use 100 mm when 75 mm pipes would be more than the limit', '{n} pipes of 75 mm against a limit of {m}', { n: n75, m: R.maxDownpipes75 }, (v) => (v.n > v.m ? 100 : 75), { unit: 'mm', ref: REF.rule, note: 'The model moves to 100 mm pipes when more than four 75 mm pipes would be needed.', expect: T.dpDn })
+  const dpDn = L.calc('Down-pipe size', 'use 100 mm when 75 mm pipes would be more than the limit', '75 mm pipes needed: {n}; most allowed before 100 mm is used: {m}', { n: n75, m: R.maxDownpipes75 }, (v) => (v.n > v.m ? 100 : 75), { unit: 'mm', ref: REF.rule, note: 'The model moves to 100 mm pipes when more than four 75 mm pipes would be needed.', expect: T.dpDn })
   const dpN = L.calc('Number of down-pipes', 'n = ceil(roof ÷ area drained by one pipe of the chosen size), at least the fewest allowed', 'larger of {m} and ceil({R:1} ÷ {a})', { m: R.minDownpipes, R: roofM2, a: dpDn === 100 ? a100 : a75 }, (v) => Math.max(v.m, Math.ceil(v.R / v.a)), { result: true, ref: REF.rain, expect: T.dpN })
   const dpBuy = L.calc('Pipe size bought', 'uPVC SWR is sold in 75 and 110 mm; 110 mm drains at least what 100 mm does', 'a {d} mm design pipe is bought as {b} mm', { d: dpDn, b: dpDn === 100 ? 110 : 75 }, (v) => (v.d === 100 ? 110 : 75), { unit: 'mm', result: true, ref: REF.rule, expect: T.dpBuy })
   const dpEach = L.calc('Length of each down-pipe', 'L = floors × floor height + extra', '{N} × {h} + {e}', { N, h: H_FLOOR, e: R.downpipeExtraM }, (v) => v.N * v.h + v.e, { unit: 'm', result: true, ref: REF.rule })
@@ -830,7 +832,7 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
     addTie('Down-pipes: rain in the heaviest hour', bs[1], RAIN_INTENSITY[input.rain], 'mm')
     addTie('Down-pipes: size of design pipe', bs[2], dpDn, 'mm')
     addTie('Down-pipes: area one pipe drains', bs[3], dpDn === 100 ? a100 : a75, 'm²', 1)
-    addTie('Fact: rain-water down-pipes', cellNums(factOf('Rain water').v)[0], dpN, '')
+    addTie('Rain-water down-pipes (summary line)', cellNums(factOf('Rain water').v)[0], dpN, '')
   }
 
   /* ═════════════ 10. drain and rain pipe: lengths and purchase ═════════════ */
@@ -894,7 +896,7 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
     addTie('Drain and rain pipe: with cutting waste', cellNums(foot[2])[0], drainWaste, 'm', 1)
     addTie('Drain and rain pipe: 3 m lengths', cellNums(foot[3])[0], drainPieces, '')
     addTie('Drain and rain pipe: to buy', cellNums(foot[4])[0], drainBuyM, 'm')
-    addTie('Tile: drain and rain pipe', cellNums(tileOf('Drain and rain pipe').v)[0], drainBuyM, 'm')
+    addTie('Drain and rain pipe to buy (headline figure)', cellNums(tileOf('Drain and rain pipe').v)[0], drainBuyM, 'm')
   }
 
   /* ═════════════ 11. fittings, valves, traps and fixtures ═════════════ */
@@ -955,24 +957,24 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
     return n
   }
   dfl('Long-radius bend, 110 mm (WC branch)', 'one per WC', '{b}', { b: bathrooms }, (v) => v.b)
-  dfl('Branch junction, 110 × 110 mm (WC to stack)', 'one per WC', '{b}', { b: bathrooms }, (v) => v.b)
-  dfl('Branch junction, 110 × 75 mm (bathroom waste to stack)', 'one per bathroom', '{b}', { b: bathrooms }, (v) => v.b)
+  const jWc = dfl('Branch junction, 110 × 110 mm (WC to stack)', 'one per WC', '{b}', { b: bathrooms }, (v) => v.b)
+  const jBath = dfl('Branch junction, 110 × 75 mm (bathroom waste to stack)', 'one per bathroom', '{b}', { b: bathrooms }, (v) => v.b)
   dfl('Bend, 75 mm (floor-trap branch)', 'one per bathroom', '{b}', { b: bathrooms }, (v) => v.b)
   dfl('Floor trap, 50 mm seal, 75 mm outlet', 'floor traps counted in 1.5', '{t}', { t: floorTraps }, (v) => v.t, { ref: REF.dfu })
   dfl('P-trap or bottle trap, 40 mm (basin)', 'one per wash basin', '{b}', { b: basins }, (v) => v.b)
   dfl('Sink trap, 40 mm', 'one per kitchen sink', '{s}', { s: sinks }, (v) => v.s)
-  dfl('Branch junction, 75 × 50 mm (kitchen to waste stack)', 'kitchen sinks + washing machine points', '{k} + {w}', { k: kitchensN, w: washers }, (v) => v.k + v.w)
+  const jKit = dfl('Branch junction, 75 × 50 mm (kitchen to waste stack)', 'kitchen sinks + washing machine points', '{k} + {w}', { k: kitchensN, w: washers }, (v) => v.k + v.w)
   dfl('Large-radius bend, 110 mm (stack foot)', 'one per soil stack', '{s}', { s: soilStacks }, (v) => v.s)
   dfl('Large-radius bend, 75 mm (waste stack foot)', 'one per waste stack', '{s}', { s: wasteStacks }, (v) => v.s)
   dfl('Cowl, 110 mm', 'one per soil stack', '{s}', { s: soilStacks }, (v) => v.s)
   dfl('Cowl, 75 mm', 'one per waste stack', '{s}', { s: wasteStacks }, (v) => v.s)
-  if (ventStacks) dfl('Vent connection and cowl, 50 mm', 'one per vent stack', '{s}', { s: ventStacks }, (v) => v.s, { ref: REF.vent })
+  if (ventStacks) dfl('Vent connection and cowl, 50 mm', 'one per vent stack', '{s}', { s: ventStacks }, (v) => v.s, { ref: REF.rule })
   dfl(`Terrace outlet with grating, ${dpBuy} mm`, 'one per down-pipe', '{n}', { n: dpN }, (v) => v.n)
   dfl(`Bend, ${dpBuy} mm (down-pipe)`, 'two per down-pipe', '{n} × 2', { n: dpN }, (v) => v.n * 2)
   dfl(`Shoe, ${dpBuy} mm (down-pipe foot)`, 'one per down-pipe', '{n}', { n: dpN }, (v) => v.n)
   dfl('Inspection chamber with cover (0.8 × 0.8 m, up to 1 m deep)', 'chambers counted in 7.3', '{c}', { c: chambers }, (v) => v.c, { ref: REF.chamber })
   const dclamps = L.calc('Pipe clamps on stacks and down-pipes', 'n = ceil(stacks × H ÷ spacing + down-pipe length ÷ spacing)', 'ceil(({s} + {w} + {v}) × {h:1} ÷ {c} + {d:1} ÷ {c})', { s: soilStacks, w: wasteStacks, v: ventStacks, h: stackH, c: R.dclampEveryM, d: dpLen }, (v) => Math.ceil(((v.s + v.w + v.v) * v.h) / v.c + v.d / v.c), { unit: 'nos', result: true, ref: REF.rule, expect: T.dclamps })
-  const stackJunctions = L.calc('Stack junctions (shown in the note under the drainage fittings)', 'n = WCs × 2 + kitchen sinks + washing machine points', '{b} × 2 + {k} + {w}', { b: bathrooms, k: kitchensN, w: washers }, (v) => v.b * 2 + v.k + v.w, { expect: T.stackJunctions })
+  const stackJunctions = sumOf('Stack junctions: the three branch-junction lines above, added', 'Σ of the three branch-junction lines', [jWc, jBath, jKit], { expect: T.stackJunctions, note: 'These junctions are already part of the items counted in the table; the report repeats their sum in the note under the table, so they are not an extra item.' })
   const dfitTotal = [...dfitSheet.values()].reduce((s, n) => s + n, 0)
   const b11b = closeBlock('dfit', '11.2 Drainage fittings, traps and chambers', { note: 'Chambers are counted, not built: bricks, mortar and covers are in MasonryPro and the structure.' })
   sections.push({
@@ -1053,7 +1055,7 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
   }
   if (pumps === 0) {
     const fixCount = wc + basins + showers + health + sinks + washers + balconyTaps + terraceTaps + gardenTaps
-    addTie('Tile: fixtures and taps counted', cellNums(tileOf('Fixtures and taps').v)[0], fixCount, '')
+    addTie('Fixtures and taps counted (headline figure)', cellNums(tileOf('Fixtures and taps').v)[0], fixCount, '')
   }
 
   /* ═════════════ 13. how far off ═════════════ */
@@ -1067,8 +1069,8 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
     const hi = L.calc(`${tk}: high end of the range`, 'high = figure × high multiplier', '{f:0} × {k}', { f: fig, k: band.high }, (v) => v.f * v.k, { unit, ref: REF.rule })
     const tl = tileOf(tk)
     const rn = cellNums(tl.range)
-    addTie(`Tile range: ${tk}, low`, rn[0], lo, unit)
-    addTie(`Tile range: ${tk}, high`, rn[1], hi, unit)
+    addTie(`${tk}: range in the report, low end`, rn[0], lo, unit)
+    addTie(`${tk}: range in the report, high end`, rn[1], hi, unit)
     const rb = paid.bands.find((b) => b.label === bl)
     if (!rb) L.mismatches.push(`the report has no band "${bl}"`)
     else { L.compare(`Band ${bl}: low multiplier`, band.low, rb.low); L.compare(`Band ${bl}: high multiplier`, band.high, rb.high) }
@@ -1096,18 +1098,19 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
   sections.push({ id: 'bands', title: '13. Uncertainty bands', intro: 'The ranges printed under the totals in the report are the figure times a low and a high multiplier. They are the model\'s own judgement, not a statistical result.', blocks: [b13] })
 
   /* ───────────── the sheet ───────────── */
+  const NOT_REREAD = 'Clause numbers as given in the tool\'s research notes; not re-read against the published text.'
   const refs: CalcReference[] = [
-    { code: 'IS 1172:1993', title: 'Code of Basic Requirements for Water Supply, Drainage and Sanitation', usedFor: 'Litres per person per day (cl 4.1, Table 1).' },
-    { code: 'NBC 2016 Part 9, Sections 1 and 2', title: 'Plumbing Services, read from the BIS preliminary drafts of November 2024', usedFor: 'People per home, split of stored water, fixture units, simultaneous flow and the 2.4 m/s velocity limit. Draft text, not the published code.' },
-    { code: 'IS 12183 (Part 1):1987', title: 'Code of Practice for Plumbing in Multistoreyed Buildings: Water Supply', usedFor: 'Water storage and pumping; a standby pump (cl 9.1).' },
-    { code: 'IS 2065:1983', title: 'Code of Practice for Water Supply in Buildings', usedFor: 'Cited for the supply layout; quantities are taken from NBC Part 9 and IS 12183.' },
-    { code: 'SP 35:1987', title: 'Handbook on Water Supply and Drainage', usedFor: 'The Hazen-Williams friction formula for the delivery pipe.' },
+    { code: 'IS 1172:1993', title: 'Code of Basic Requirements for Water Supply, Drainage and Sanitation', usedFor: 'Litres per person per day (cl 4.1 and its Note). Table 1 of the standard is for buildings other than residences and is not used. The 135 L used is the lower of the figures the sources give; see the limits.' },
+    { code: 'NBC 2016 Part 9, Sections 1 and 2', title: 'Plumbing Services, read from the BIS preliminary drafts of November 2024', usedFor: 'People per home, split of stored water (cl 4.4.10), fixture units (Table 2), simultaneous flow (Table 3) and the 2.4 m/s velocity limit (cl 4.8.6). Draft text, not the published code. The 2 m/s for the delivery pipe, the peak factor of 1.5 and the standby pump are not from the draft; they are NirmanShastra assumptions.' },
+    { code: 'IS 12183 (Part 1):1987', title: 'Code of Practice for Plumbing in Multistoreyed Buildings: Water Supply', usedFor: 'Named in the notes to the NBC draft storage clause. No figure on this sheet is taken from it directly. ' + NOT_REREAD },
+    { code: 'IS 2065:1983', title: 'Code of Practice for Water Supply in Buildings', usedFor: 'Named in the notes to the NBC draft storage clause. No figure on this sheet is taken from it directly. ' + NOT_REREAD },
+    { code: 'SP 35:1987', title: 'Handbook on Water Supply and Drainage', usedFor: 'The Hazen-Williams friction formula (eq. 1) for the delivery pipe, with C = 120 for plastic pipe. ' + NOT_REREAD },
     { code: 'IS 15778:2007', title: 'CPVC Pipes for Potable Hot and Cold Water Distribution: Specification', usedFor: 'Bore of CPVC pipe by size, and the lengths pipe is sold in.' },
-    { code: 'IS 1742:1983', title: 'Code of Practice for Building Drainage', usedFor: 'Drainage fixture units (Table 1), limits on stacks and drains (Tables 3 and 4), rain-water pipes (Table 5, cl 4.10.3.8), inspection chambers.' },
-    { code: 'IS 5329:1983', title: 'Code of Practice for Sanitary Pipe Work above Ground for Buildings', usedFor: 'Single soil stack without a vent up to five storeys; vent pipes above that.' },
-    { code: 'IS 2470 (Part 1):1985', title: 'Code of Practice for Installation of Septic Tanks: Design Criteria and Construction', usedFor: 'Tank volume for the people served (Appendix A), least width, length-to-width and depth, free board (cl 3.4.5, 3.4.8).' },
-    { code: 'IS 2470 (Part 2):1985', title: 'Code of Practice for Installation of Septic Tanks: Secondary Treatment and Disposal of Effluent', usedFor: 'Rate of application of effluent to the ground for the soak pit; ground that is too slow.' },
-    { code: 'IS 4111 (Part 1):1986', title: 'Code of Practice for Ancillary Structures in Sewerage System: Manholes', usedFor: 'Cited for inspection chambers.' },
+    { code: 'IS 1742:1983', title: 'Code of Practice for Building Drainage', usedFor: 'Drainage fixture units (Table 1), limits on stacks and drains (Tables 3 and 4), rain-water pipes (Table 5, cl 4.10.3.8), inspection chambers. ' + NOT_REREAD },
+    { code: 'IS 5329:1983', title: 'Code of Practice for Sanitary Pipe Work above Ground for Buildings', usedFor: 'Named for a single soil stack without a vent up to five storeys (cl 6.1.1) and a stack that runs above the roof (cl 6.8.4). The count of one stack for every two WCs on a floor is not from this standard. ' + NOT_REREAD },
+    { code: 'IS 2470 (Part 1):1985', title: 'Code of Practice for Installation of Septic Tanks: Design Criteria and Construction', usedFor: 'Tank dimensions for the people served (Appendix A, Tables 5 and 6), least capacity and width (cl 3.4.5.1), length to width, free board (cl 3.4.8). The standard prints dimensions, not volumes: the volumes are the model\'s own length × width × depth.' },
+    { code: 'IS 2470 (Part 2):1985', title: 'Code of Practice for Installation of Septic Tanks: Secondary Treatment and Disposal of Effluent', usedFor: 'Rate of application of effluent to the ground for the soak pit (Table 2: 118, 52 and 33 L/m²/day for water falling 25 mm in 3, 15 and 45 minutes); ground that is too slow.' },
+    { code: 'IS 4111 (Part 1):1986', title: 'Code of Practice for Ancillary Structures in Sewerage System: Manholes', usedFor: 'Named for inspection chambers. ' + NOT_REREAD },
   ]
 
   const unitsNote = `Pipe is bought in whole ${PIECE_M} m lengths with ${Math.round((WASTE - 1) * 100)}% added for cutting.`
@@ -1117,29 +1120,29 @@ function build(input: PlumbInput, report: TradeResult): CalcSheet | null {
     purpose: 'This sheet shows how every figure in the PlumbingPro report was worked out: how many people the water is planned for, how big the tanks and the transfer pump are, how the pipes were sized and measured, how the septic tank and soak pit (or the sewer connection) and the rain-water down-pipes were found, and how the buy list was added up. It is written so that a plumbing engineer, a bank\'s engineer or a contractor can check the formulas and the arithmetic. It is a planning-level quantity estimate, not a plumbing design or a drawing.',
     method: [
       'Your answers and the floor areas are read. The model works out the homes, the people (bedrooms plus three in each home unless you gave the number), the roof area and the fixtures on every floor.',
-      'Daily water is the people times the litres per person per day from IS 1172 (the model uses 135 L, or 150 L for a house on its own borewell).',
+      'Daily water is the people times the litres per person per day from IS 1172 (the model uses 135 L, the lower of the figures the sources give, or 150 L for a house on its own borewell).',
       'The day\'s water is split between an underground and an overhead tank by the NBC Part 9 storage rule for the water source, and each part is rounded up to a tank size that is sold.',
       'Each fixture is given water supply fixture units (NBC Part 9 draft). The units on a floor give the flow drawn at the same moment, and the smallest CPVC size that carries it at the velocity limit is chosen for each home header and for the riser at each floor.',
       'The transfer pump is sized for the larger of the peak-hour demand and refilling the overhead tank in 30 minutes; the head is the climb plus pipe friction (Hazen-Williams) plus a residual head; the power is flow times head over 4,500 times the efficiency, rounded up to a pump size sold.',
       'Supply pipe lengths are built from planning rules (the size of the home, bathrooms, kitchens and outlets), added by pipe size, and rounded up to whole lengths after cutting waste.',
-      'Soil and waste stacks, branches and the building drain are sized from the drainage fixture units of IS 1742 and measured with the same kind of planning rules.',
-      'With no sewer, the septic tank is read from the IS 2470 table for the people served and the soak pit is sized from the ground you chose; with a sewer, a connection length is counted.',
+      'Soil and waste stacks, branches and the building drain are measured with planning rules; the load on a soil stack and on the building drain is checked against IS 1742, and the building drain size is chosen from the drainage fixture units.',
+      'With no sewer, the septic tank is worked out from the IS 2470 tank dimensions for the people served and the soak pit is sized from the rate for the ground you chose; with a sewer, a connection length is counted.',
       'Rain-water down-pipes are found from the roof area, the rain you chose and the area one pipe drains (IS 1742 Table 5).',
       'Fittings, valves, traps and clamps are counted per outlet and per piece of equipment with fixed rules.',
       'The buy list collects the pipe, the tanks, the pump and the main fixture counts, and the uncertainty multipliers give the ranges printed under the totals.',
       'Every total in the report is rebuilt from this working and compared with the report in the reconciliation at the end.',
     ],
     limits: [
-      'This is a planning-level quantity model, not a plumbing design. It does not draw the layout, route any pipe, check pressure at each fixture or size the branch pipes one by one. Pipe lengths come from planning rules for the size of the home and the number of outlets, so the supply and drain pipe totals can be 25% to 35% off a real layout (section 13).',
-      'Several of the code figures are read from the BIS preliminary drafts of NBC 2016 Part 9 (November 2024), not from the published code: people per home, the storage split, fixture units, the flow table and the 2.4 m/s velocity limit. A signing engineer should check them against the published edition.',
-      'Water demand is 135 L a head (150 L for a borewell house). IS 1172 sets demand by the size of the town and allows 135 L only for lower-income housing, so the 135 L is a choice of the model and not a clause for every home.',
-      'Tank sizes are rounded to common ready-made sizes (a market practice, not a standard). Fire-fighting storage and a fire pump are not counted (NBC Part 4). Above six floors a booster or zoned supply may be needed; the sheet counts one riser and one overhead tank.',
-      'The pump is sized by a simple formula (flow, head, an assumed efficiency of 0.5) and rounded up to a size sold. It does not read a maker\'s curve, check suction lift or the electrical supply, and the model shows no more than the largest size in its list even if the power needed is higher. Supply pipes stop at 100 mm in the same way: for a very large building the flow can be more than a 100 mm pipe carries at the velocity limit. The sheet marks both cases. A borewell pump is not sized.',
-      'Drain loads are checked against the stack and drain limits of IS 1742, but gradients, invert levels and the layout of the chambers are not designed. The washing machine value of 3 fixture units is not in Table 1 of IS 1742.',
-      'The septic tank volume is read from the IS 2470 tables for the discharge of WCs, with a day\'s detention of the other waste water added by the model. The soak pit uses the rate for the class of ground you chose, not a percolation test; poor ground is flagged as unsuitable. Neither is designed structurally: walls, slabs, covers and linings are not counted.',
+      `This is a planning-level quantity model, not a plumbing design. It does not draw the layout, route any pipe or size the branch pipes one by one. Pressure at the fixtures (the residual head) is not checked: header and riser sizes come from the velocity limit alone, so friction and fitting losses along them are not part of the sizing, and fittings enter only as ${Math.round((R.fittingsFactor - 1) * 100)}% extra length on the delivery pipe when the pump head is worked out. Pipe lengths come from planning rules for the size of the home and the number of outlets, so the supply and drain pipe totals can be 25% to 35% off a real layout (section 13).`,
+      `Several of the code figures are read from the BIS preliminary drafts of NBC 2016 Part 9 (November 2024), not from the published code: people per home, the storage split, fixture units, the flow table and the ${R.vSupply} m/s velocity limit. A signing engineer should check them against the published edition. The ${R.vDelivery} m/s used for the delivery pipe and the peak-hour factor of ${R.peakFactor} (the draft mentions 2 to 3) are NirmanShastra assumptions.`,
+      'Water demand is 135 L a head (150 L for a borewell house). 135 L is the lower of the figures the sources give: IS 1172 cl 4.1 gives 150 to 200 L for towns of over a lakh people, and its Note allows 135 L for lower-income housing. A town above a lakh may need 150 L or more, which would raise the tanks, the pump flow and the waste water.',
+      `Tank sizes are rounded to common ready-made sizes (a market practice, not a standard). Fire-fighting storage and a fire pump are not counted (NBC Part 4). Above six floors a booster or zoned supply may be needed; the sheet counts one riser and one overhead tank. ${unitsNote} If uPVC or PPR is used for cold water, or the plumber cuts differently, the metres stay and the number of lengths changes. Make, model and finish of fixtures are not specified. Nothing here is a price or a rate, and what is not counted (the borewell, solar hot water, meters, filters, fire-fighting, the building of tanks and chambers) is listed in the report.`,
+      'The pump is sized by a simple formula (flow, head, an assumed efficiency of 0.5) and rounded up to a size sold. It does not read a maker\'s curve, check suction lift or the electrical supply, and the model shows no more than the largest size in its list even if the power needed is higher. Supply pipes stop at 100 mm in the same way: for a very large building the flow can be more than a 100 mm pipe carries at the velocity limit. The sheet marks both cases. Two pumps, one working and one standby, for two or more homes is a NirmanShastra assumption and not a code requirement (the NBC draft mentions standby pumps only for pressurised systems). A borewell pump is not sized.',
+      'Drain loads are checked, not designed. Against the limits of IS 1742 the model checks the load on one soil stack (at a floor and in all) and the load on the building drain, which also sets the drain size; the waste stack, the branches and the vent stacks are not load-checked. The stack limit is one figure for every building height, which may be looser than the standard\'s table for a low building, and the 110 and 160 mm drains use the limits of 100 and 150 mm bores. The dining wash basin is left out of the drainage fixture units (a simplification in the engine), and the washing machine value of 3 units is not in Table 1 of IS 1742. Gradients, invert levels and the layout of the chambers are not designed.',
+      'The septic tank dimensions for the people served come from IS 2470 Part 1 Appendix A, and the soak pit rates from IS 2470 Part 2 Table 2. The standard prints dimensions, not volumes: the volumes in the table are the model\'s own length × width × depth. The day\'s detention added for the other waste water, equal tanks above 100 people and any volume above the table\'s last row (300 users) are also the model\'s own working or extension. Waste water is taken as 108 L a head whatever the water source. The soak pit uses the rate for the class of ground you chose, not a percolation test; poor ground is flagged as unsuitable. Neither is designed structurally: walls, slabs, covers and linings are not counted.',
       'The rain you choose, not the rainfall of your town, sets the number of down-pipes, because IS 1742 gives no figure for each town. The roof is taken as the largest floor; gutters, terrace slopes and rain-water storage are not designed.',
-      `${unitsNote} If uPVC or PPR is used for cold water, or the plumber cuts differently, the metres stay and the number of lengths changes. Make, model and finish of fixtures are not specified.`,
-      'Nothing here is a price or a rate. What is not counted (the borewell, solar hot water, meters, filters, fire-fighting, the building of tanks and chambers) is listed in the report.',
+      'Where the SOURCE column gives a clause number for a standard marked "not re-read against the published text" in the references, treat it as a pointer to check, not as a quotation.',
+      'Each NirmanShastra tool lays out the rooms by its own rule, so a room\'s area or count in this report can differ from the same room in another NirmanShastra report.',
     ],
     sections,
     tie: ties,

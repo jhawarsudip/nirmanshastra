@@ -124,7 +124,7 @@ export const BANDS = {
 export const RULES = {
   /** people in a home = bedrooms + this (NBC Part 9 draft relation, the larger of two readings) */
   extraPeople: 3,
-  /** supply pipe: velocity limit in m/s (NBC Part 9 Section 1 draft 4.7.6) and the smallest size for a home header or riser, mm */
+  /** supply pipe: velocity limit in m/s (NBC Part 9 Section 1 draft 4.8.6) and the smallest size for a home header or riser, mm */
   vSupply: 2.4,
   minHeaderDn: 20,
   /** the header from the riser to the wet rooms of a home: this x the side of the home, plus this many metres for each bathroom after the first */
@@ -255,7 +255,7 @@ export const floorName = (i: number) => ['Ground floor', 'First floor', 'Second 
 
 export const capLpm = (dn: number, v: number) => (Math.PI / 4) * (CPVC_ID_MM[dn] / 1000) ** 2 * v * 60000
 
-/** Smallest supply size whose bore carries the flow at the velocity limit (2.4 m/s NBC draft 4.7.6). */
+/** Smallest supply size whose bore carries the flow at the velocity limit (2.4 m/s NBC draft 4.8.6). */
 export function sizeFor(flowLpm: number, vmax: number, min = 15): number {
   for (const dn of SUPPLY_DN) if (dn >= min && capLpm(dn, vmax) >= flowLpm) return dn
   return 100
@@ -591,7 +591,7 @@ export function runPlumb(inp: PlumbInput, trace?: PlumbTrace): Ran {
     { id: 'demand', clause: 'IS 1172:1993 cl 4.1', description: 'Water use per person', status: 'pass', detail: `${lpcd} litres per person per day is used (${inp.water === 'borewell' ? 'own source, borewell' : 'piped supply, full flushing'}). ${people} people give ${fmt(demandL)} litres a day.` },
     { id: 'storage', clause: 'NBC Part 9 Sec 1 cl 4.4.10', description: 'Storage', status: 'pass', detail: inp.water === 'borewell' ? 'A borewell fills the overhead tank on demand, so one overhead tank holds half a day’s water.' : inp.water === 'tanker' ? 'Tanker water arrives in lots, so the underground tank holds a day and a half and the overhead tank a third of a day.' : 'With an underground and an overhead tank, the underground holds two-thirds of a day’s water and the overhead one-third.' },
     { id: 'fixtures', clause: 'NBC Part 9 Sec 2 cl 4.2', description: 'Fixtures in every home', status: 'pass', detail: 'Each home has at least one WC, one kitchen sink and one bathing place.' },
-    { id: 'stack', clause: 'IS 5329:1983 cl 6.1.1', description: 'Soil stack', status: N >= 6 ? 'advisory' : 'pass', detail: N >= 6 ? `A single 100 mm stack without vents is allowed up to five storeys. At ${N} floors, a vent stack runs beside each soil stack, so ${soilStacks} vent ${soilStacks === 1 ? 'pipe is' : 'pipes are'} counted.` : `A single 100 mm stack without a vent pipe is allowed up to five storeys and two WCs on a floor. You have ${N} ${N === 1 ? 'floor' : 'floors'}, so ${soilStacks} stack${soilStacks === 1 ? '' : 's'} carry the WCs.` },
+    { id: 'stack', clause: 'IS 5329:1983 cl 6.1.1', description: 'Soil stack', status: N >= 6 ? 'advisory' : 'pass', detail: N >= 6 ? `A single 100 mm stack without vents is allowed up to five storeys. At ${N} floors, a vent stack runs beside each soil stack, so ${soilStacks} vent ${soilStacks === 1 ? 'pipe is' : 'pipes are'} counted.` : `A single 100 mm stack without a vent pipe is allowed up to five storeys. The report counts one stack for every two WCs on a floor, a NirmanShastra assumption. You have ${N} ${N === 1 ? 'floor' : 'floors'}, so ${soilStacks} stack${soilStacks === 1 ? '' : 's'} carry the WCs.` },
     { id: 'drainload', clause: 'IS 1742:1983 Tables 3 and 4', description: 'Drain loads', status: fuStackPerInterval <= FU_LIMITS.interval && stackTotalFu <= FU_LIMITS.stack && fuTotal <= FU_LIMITS.drain ? 'pass' : 'fail', detail: `The building drain carries ${fmt(fuTotal)} fixture units, so a ${drainDn} mm drain at 1 in 100 is enough (limit 180 for 110 mm). One stack takes up to 90 units in a floor and 500 in all; yours takes ${fmt(fuStackPerInterval)} and ${fmt(stackTotalFu)}.` },
     { id: 'rain', clause: 'IS 1742:1983 cl 4.10.3.8', description: 'Rain water', status: 'advisory', detail: `For rain of ${RAIN_LABEL[inp.rain]}, a ${fmt(roofM2)} m² roof needs ${dpN} down-pipes of ${dpBuy} mm. IS 1742 gives no rainfall for each town, so the rain figure is the one you chose.` },
   ]
@@ -628,7 +628,7 @@ export function runPlumb(inp: PlumbInput, trace?: PlumbTrace): Ran {
   const tanksRows: (string | number)[][] = []
   if (ugt) tanksRows.push(['Underground tank', fmt(ugt.each), ugt.count, ugt.kind, `${fmt(Math.round(ugtL))} L needed`])
   tanksRows.push(['Overhead tank', fmt(oht.each), oht.count, oht.kind, `${fmt(Math.round(ohtL))} L needed`])
-  if (pumps > 0) tanksRows.push(['Transfer pump', `${hp} HP`, pumps, pumps > 1 ? 'one working, one standby (IS 12183 cl 9.1)' : 'a standby is advised (IS 12183 cl 9.1)', `${fmt(qLpm, 0)} L/min against ${fmt(headM, 1)} m`])
+  if (pumps > 0) tanksRows.push(['Transfer pump', `${hp} HP`, pumps, pumps > 1 ? 'one working, one standby (a NirmanShastra assumption)' : 'a standby is advised (a NirmanShastra assumption)', `${fmt(qLpm, 0)} L/min against ${fmt(headM, 1)} m`])
 
   const matLabel = (dn: number) => `${dn} mm`
   const supplyRows = supplyLines.map(([dn, m]) => {
@@ -697,7 +697,7 @@ export function runPlumb(inp: PlumbInput, trace?: PlumbTrace): Ran {
   lines.push({ key: 'chamber', item: 'Inspection chambers', qty: chambers, unit: 'nos', group: 'Plumbing', basis: 'At each stack foot, at the outlet, and every 30 m' })
 
   const assumptions = [
-    `Code: ${lpcd} litres per person a day (IS 1172:1993). Tanks follow the NBC Part 9 Section 1 split of ${inp.water === 'borewell' ? 'half a day in one overhead tank' : inp.water === 'tanker' ? 'a day and a half underground and a third of a day overhead' : 'two-thirds of a day underground and one-third overhead'}.`,
+    `Code: ${lpcd} litres per person a day (IS 1172:1993 cl 4.1${lpcd === 135 ? ' and its Note; 135 L is the lower of the figures given, and a town of over a lakh people may need 150 L or more' : '; the lowest of its 150 to 200 L for towns of over a lakh people'}). Tanks follow the NBC Part 9 Section 1 split of ${inp.water === 'borewell' ? 'half a day in one overhead tank' : inp.water === 'tanker' ? 'a day and a half underground and a third of a day overhead' : 'two-thirds of a day underground and one-third overhead'}.`,
     'Code: fixture units, simultaneous demand, 2.4 m/s velocity limit (NBC Part 9 Section 1 draft); drain loads, stack and drain limits (IS 1742); venting above five storeys (IS 5329); septic tank and soak pit tables (IS 2470); down-pipe areas (IS 1742 Table 5).',
     `Derived: people per home = bedrooms plus three${inp.persons ? ' (you gave the number, which replaces this)' : ''}. The NBC draft gives this relation in two readings that differ by one person; the larger is used, so tanks lean generous.`,
     'Assumed: floor to floor height of 3.0 m; 3 m of pipe from the header to each tap; 0.6 × the side of the home for the header run from the riser; 4 m from the stack foot to its chamber and 8 m to the plot edge. No standard fixes these, so the report treats them as the least certain part and the range below is wide.',
