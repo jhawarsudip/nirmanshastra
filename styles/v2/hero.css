@@ -1,7 +1,7 @@
 /* ---------- hero: plain headline + the house estimator ---------- */
 .ns-hero { padding-top: max(clamp(26px, 4.4vw, 70px), var(--ns-lip)); padding-bottom: clamp(48px, 7vw, 110px); position: relative; }
 .ns-hero__top { position: relative; margin-bottom: clamp(26px, 4vw, 56px); }
-.ns2 .ns-hero__h1 { position: relative; z-index: 2; max-width: none; font-size: clamp(34px, 4.4vw, 66px); line-height: 1.1; }
+.ns2 .ns-hero__h1 { position: relative; z-index: 2; max-width: none; font-size: clamp(34px, 4.4vw, 66px); line-height: 1.1; text-wrap: balance; }  /* balance: no one-word last line on a phone */
 /* The headline is plain text from the first paint: nothing starts it hidden (a clip-path wipe used to, and on a slow phone the
    first screen showed the paragraph under it and no headline for 1-2 s). Only the marker behind the second line moves, and it
    starts after the words are already there. */

@@ -9,9 +9,6 @@ import { Arrow } from '../Icons'
 import { HERO, pick, type Loc } from '@/lib/v2/copy'
 import '@/styles/v2/hero.css'
 
-/** Keeps the last two words together so a phone never ends the headline on a single word. */
-const noWidow = (s: string) => s.replace(/ (\S+)$/, '\u00a0$1')
-
 export default function Hero({ loc }: { loc: Loc }) {
   return (
     <section className="ns-hero" id="top" aria-labelledby="ns-h1">
@@ -23,7 +20,7 @@ export default function Hero({ loc }: { loc: Loc }) {
               the largest thing on the first screen.) */}
           <h1 className="ns-h1 ns-hero__h1" id="ns-h1">
             {pick(HERO.h1a, loc)}<br />
-            <span className="ns-hero__hl">{noWidow(pick(HERO.h1b, loc))}</span>
+            <span className="ns-hero__hl">{pick(HERO.h1b, loc)}</span>
           </h1>
           <Sticker src="/v2/cutouts/o01-spirit-level.webp" w={820} h={324} width="clamp(150px, 21vw, 330px)" rot={-7}
             pos={{ right: '1%', top: '74%' }} />
