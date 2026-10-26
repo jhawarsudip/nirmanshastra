@@ -52,7 +52,7 @@ export default function ConsentBanner() {
   useEffect(() => onOpenConsentBanner(() => {
     setReopened(true)
     // move focus to the banner so keyboard and screen-reader users land on it
-    window.setTimeout(() => ref.current?.querySelector<HTMLElement>('button')?.focus(), 30)
+    window.setTimeout(() => ref.current?.focus(), 30)
   }), [])
 
   const visible = consent === null || reopened
@@ -70,6 +70,7 @@ export default function ConsentBanner() {
       role="dialog"
       aria-modal="false"
       aria-label={t.label}
+      tabIndex={-1}
       lang={language === 'hi' ? 'hi' : 'en'}
     >
       <div className="ns-consent__head">

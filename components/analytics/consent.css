@@ -13,6 +13,8 @@
   font: 400 14px/1.5 var(--ns-body, var(--font-plex-sans, system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', sans-serif));
 }
 .ns-consent[hidden] { display: none; }
+.ns-consent:focus { outline: none; }
+.ns-consent:focus-visible { outline: 3px solid var(--ns-focus, #2E3F94); outline-offset: 3px; }
 .ns-consent__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 4px; }
 .ns-consent__title { margin: 0; font-size: 16px; line-height: 1.3; font-weight: 700; letter-spacing: 0; }
 .ns-consent__lang {
