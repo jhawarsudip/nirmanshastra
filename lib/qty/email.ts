@@ -4,6 +4,7 @@
 */
 
 import type { TradeMeta } from './meta'
+import { emailAssuranceHtml } from '../email-parts'
 
 const esc = (v: string): string => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
@@ -72,6 +73,7 @@ export function buildTradeEmail(meta: Pick<TradeMeta, 'label' | 'heading' | 'tag
               <p style="margin:0 0 6px;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;letter-spacing:1px;">NEXT STEP</p>
               <p style="margin:0 0 10px;font-size:13px;color:#2A2622;line-height:1.6;">${esc(meta.next.text)}</p>
               <a href="${esc(base)}${esc(meta.next.href)}" style="font-size:13px;color:#B5502D;text-decoration:underline;">Open ${esc(meta.next.name)} &rarr;</a>
+              ${emailAssuranceHtml({ feedback: true })}
             </td>
           </tr>
           <tr>

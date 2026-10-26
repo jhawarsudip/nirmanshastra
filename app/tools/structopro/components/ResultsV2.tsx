@@ -16,6 +16,7 @@ import { Note, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { Tot, ReportTable as Table, DeliveryNote } from '@/components/v2/qty/parts'
 import PackUnlock from '@/components/v2/qty/PackUnlock'
 import QuoteCheck from './QuoteCheck'
+import PayAssurance from '@/components/policy/PayAssurance'
 
 /*
   StructurePro results.
@@ -314,6 +315,7 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
             {!busy && <IcArrow width={22} height={11} />}
           </button>
           {payError && <Note kind="err">{payError}</Note>}
+          <PayAssurance sample="structopro" />
           <p className="ns-i-fine">One payment, no subscription. Paid through Razorpay; we never see your card details.</p>
         </section>
       )}

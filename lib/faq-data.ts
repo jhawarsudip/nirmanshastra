@@ -3,6 +3,8 @@
 
 import { TOOL_PRICE_PAISE, PRICE, PACK_CLAIMS_PER_REPORT } from '@/lib/tool-pricing'
 import { inr } from '@/lib/seo/site'
+import { REFUND_DAYS, REFUND_PROCESSING } from '@/lib/policy'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 export interface FaqItem {
   question: string
@@ -150,7 +152,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'Can I get a refund?',
         answer:
-          'If a report fails to generate because of a fault on our side and cannot be delivered within 48 hours of payment, we refund you in full. Email nirmanshastraindia@gmail.com within 7 days of payment with your order ID. A report that has been generated and delivered is not refundable, since the quantities are worked out and the PDF is made at the time of payment. The Terms of Use say the same.',
+          `Yes. If your report does not help you question at least one line of your contractor’s quote, write to us within ${REFUND_DAYS} days of purchase and we will refund you in full. No forms, no argument. Once approved, the money reaches your original payment method within ${REFUND_PROCESSING}. Email ${CONTACT_EMAIL} with your report ID (it starts with NS-). A report that fails to generate or arrive because of a fault on our side is refunded in full as well. The full policy is at /refund-policy and the Terms of Use say the same.`,
       },
       {
         question: 'What payment methods are accepted?',

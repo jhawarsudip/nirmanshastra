@@ -1,0 +1,8 @@
+/* Customer testimonials (off until there are real ones). */
+.ns-tst__grid { list-style: none; margin: clamp(20px, 3vw, 34px) 0 0; padding: 0; display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.ns-tst__card { margin: 0; padding: 26px 24px 22px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; border-top: 8px solid var(--ns-laterite); }
+.ns-tst__card blockquote { margin: 0; font-size: clamp(17px, 1.6vw, 19px); line-height: 1.6; color: var(--ns-ink); }
+.ns-tst__card blockquote::before { content: "“"; }
+.ns-tst__card blockquote::after { content: "”"; }
+.ns-tst__card figcaption { font-size: 15px; color: var(--ns-ink-2); }
+.ns-tst__card figcaption b { color: var(--ns-ink); }

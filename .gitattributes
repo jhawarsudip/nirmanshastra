@@ -1,0 +1,3 @@
+# PDFs are binary. Without this git can treat a generated PDF as text (no NUL byte in its first 8 KB),
+# and a patch or a CRLF conversion then rewrites bytes inside it and corrupts it.
+*.pdf binary

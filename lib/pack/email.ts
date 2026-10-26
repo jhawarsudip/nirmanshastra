@@ -8,6 +8,8 @@ import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
 import { PACK_CLAIMS_PER_REPORT, PACK_CONTAINS, PRICE } from '@/lib/tool-pricing'
 import { PACK_LABEL, PACK_TOOL_PATH, readPackState } from './shared'
+import { emailAssuranceHtml } from '../email-parts'
+import { CONTACT_EMAIL } from '../site-contact'
 
 type Db = ReturnType<typeof createServiceClient>
 
@@ -57,6 +59,7 @@ export function buildPackEmail(rawName: string, packId: string): string {
           </td></tr></table>
           <p style="margin:0 0 6px;font-size:12px;color:#888;line-height:1.6;">Keep this email. The link above is how your pack is found if you open it on another phone or computer:</p>
           <p style="margin:0 0 20px;font-family:'IBM Plex Mono',Courier,monospace;font-size:11px;color:#B5502D;word-break:break-all;">${esc(open)}</p>
+          ${emailAssuranceHtml({ feedback: false })}
         </td></tr>
         <tr><td style="padding:16px 28px;border-top:1px solid #E4DAC6;background:#FAF6EC;">
           <p style="margin:0;font-family:'IBM Plex Mono',Courier,monospace;font-size:9px;color:#888;line-height:1.6;">
@@ -89,6 +92,7 @@ export async function sendPackEmailOnce(db: Db, packId: string): Promise<void> {
     const sent = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: contact.email,
+      replyTo: CONTACT_EMAIL,
       subject: 'Your Complete House Pack is ready',
       html: buildPackEmail(contact.name ?? '', packId),
     })

@@ -9,6 +9,8 @@ import { buildStructoCalc } from '@/lib/structopro-qty/calc'
 import { SITE } from '@/lib/structopro-qty/sites'
 import type { ContactInfo } from '@/lib/pdf/qty-kit'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import { emailAssuranceHtml } from '@/lib/email-parts'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 // The report carries a calculation sheet of several dozen pages; laying it out takes longer than the 10 s default.
 export const maxDuration = 60
@@ -168,6 +170,7 @@ export async function POST(req: NextRequest) {
         const emailResult = await resend.emails.send({
           from:    process.env.RESEND_FROM_EMAIL!,
           to:      contactInfo.email,
+          replyTo: CONTACT_EMAIL,
           subject: `Your StructurePro Report is Ready — ${reportId}`,
           html:    buildEmailHtml(contactInfo.name, reportId, pdfUrl),
         })
@@ -324,6 +327,7 @@ function buildEmailHtml(rawName: string, reportId: string, pdfUrl: string): stri
               <a href="${process.env.NEXT_PUBLIC_APP_URL}/tools/masonpro" style="font-family:'IBM Plex Sans',Arial,sans-serif;font-size:13px;color:#B5502D;text-decoration:underline;">
                 Open MasonryPro for Phase 2 &rarr;
               </a>
+              ${emailAssuranceHtml({ feedback: true })}
             </td>
           </tr>
 

@@ -57,7 +57,7 @@ export default function Footer() {
   useEffect(() => setYr(new Date().getFullYear()), [])
   const hi = loc === 'hi'
   const legal: [string, string][] = [
-    [t('privacy'), '/privacy-policy'], [t('terms'), '/terms-of-use'], [t('disclaimer'), '/disclaimer'], [t('isCodes'), '/is-codes-used'],
+    [t('privacy'), '/privacy-policy'], [t('terms'), '/terms-of-use'], [hi ? 'रिफ़ंड नीति' : 'Refund policy', '/refund-policy'], [t('disclaimer'), '/disclaimer'], [t('isCodes'), '/is-codes-used'],
     [hi ? 'शब्दावली' : 'Glossary', '/glossary'], [hi ? 'AI असिस्टेंट के लिए' : 'For AI assistants', '/llms.txt'],
   ]
   const company: [string, string][] = [[t('about'), '/about'], [t('contact'), '/contact'], [t('blog'), '/blog'], [t('careers'), '/careers']]

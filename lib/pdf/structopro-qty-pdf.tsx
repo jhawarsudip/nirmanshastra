@@ -8,7 +8,7 @@ import type { CalcSheet } from '@/lib/calcsheet'
 import CalcAppendix from './calc-appendix'
 import type { MemberTotals } from '@/lib/structopro-qty/types'
 import { bandAbovePct, bandBelowPct, bars12m, beamLevelLabel, buildingLabelStilt, fmtIN as f, isCoil, storeyLabel } from '@/lib/structopro-qty/labels'
-import { Bullets, C, Chrome, S, Table, Tot, statusColor, type ContactInfo } from './qty-kit'
+import { Bullets, C, Chrome, S, SampleMark, SampleNote, Table, Tot, statusColor, type ContactInfo } from './qty-kit'
 
 // ─── the document ─────────────────────────────────────────────────────────────
 
@@ -23,9 +23,11 @@ export interface StructoProQtyPDFProps {
   wallLabel: string
   /** the calculation sheet, rebuilt from the saved answers and tied to this report; null leaves it out */
   calc?: CalcSheet | null
+  /** a sample report for an example house: every page is stamped and the first page says so */
+  sample?: { house: string } | null
 }
 
-export default function StructoProQtyPDF({ report: r, contact, reportId, projectName, date, where, siteLabel, wallLabel, calc }: StructoProQtyPDFProps) {
+export default function StructoProQtyPDF({ report: r, contact, reportId, projectName, date, where, siteLabel, wallLabel, calc, sample }: StructoProQtyPDFProps) {
   const t = r.totals
   const m = r.materials
   const b = r.band
@@ -52,7 +54,7 @@ export default function StructoProQtyPDF({ report: r, contact, reportId, project
       <Page size="A4" style={S.page}>
         <Chrome tool="StructurePro" tag="PHASE 1 · STRUCTUREPRO" reportId={reportId} />
 
-        <Text style={S.eyebrow}>QUANTITIES REPORT</Text>
+        <Text style={S.eyebrow}>{sample ? 'SAMPLE QUANTITIES REPORT' : 'QUANTITIES REPORT'}</Text>
         <Text style={S.title}>RCC structure quantities</Text>
         <Text style={S.project}>{projectName}</Text>
 
@@ -62,6 +64,8 @@ export default function StructoProQtyPDF({ report: r, contact, reportId, project
           <View style={S.metaCol}><Text style={S.metaK}>REPORT ID</Text><Text style={[S.metaV, { fontFamily: 'IBMPlexMono' }]}>{reportId}</Text></View>
           <View style={S.metaCol}><Text style={S.metaK}>DATE</Text><Text style={S.metaV}>{dateText}</Text></View>
         </View>
+
+        <SampleNote show={!!sample} house={sample?.house ?? ''} />
 
         <Text style={S.h2} minPresenceAhead={90}>Your building</Text>
         <View style={S.facts}>
@@ -237,9 +241,10 @@ export default function StructoProQtyPDF({ report: r, contact, reportId, project
         <Text style={S.small}>
           NirmanShastra · India&apos;s IS-code construction quantities platform. This report is for estimation and planning only. It is not a substitute for drawings and calculations signed by a licensed structural engineer, and it does not replace a soil test. The bearing capacity, floor loads and site-practice sizes are stated assumptions; change them and the quantities change.
         </Text>
+        <SampleMark show={!!sample} />
       </Page>
 
-      {calc ? <CalcAppendix sheet={calc} chrome={{ tool: 'StructurePro', tag: 'PHASE 1 · STRUCTUREPRO', reportId }} /> : null}
+      {calc ? <CalcAppendix sheet={calc} chrome={{ tool: 'StructurePro', tag: 'PHASE 1 · STRUCTUREPRO', reportId, sample: !!sample }} /> : null}
     </Document>
   )
 }

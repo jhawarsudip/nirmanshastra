@@ -8,7 +8,7 @@ import type { TradeFree, TradePaid } from '@/lib/qty/types'
 import type { TradeMeta } from '@/lib/qty/meta'
 import type { CalcSheet } from '@/lib/calcsheet'
 import CalcAppendix from './calc-appendix'
-import { Bullets, C, Chrome, S, Table, Tot, statusColor, type Cell, type ContactInfo } from './qty-kit'
+import { Bullets, C, Chrome, S, SampleMark, SampleNote, Table, Tot, statusColor, type Cell, type ContactInfo } from './qty-kit'
 
 export interface QtyReportPDFProps {
   meta: TradeMeta
@@ -21,6 +21,8 @@ export interface QtyReportPDFProps {
   where: string // "Pune, Maharashtra"
   /** the working behind every figure, printed after the report; null when it could not be made to agree with the report */
   calc?: CalcSheet | null
+  /** a sample report for an example house: every page is stamped and the first page says so */
+  sample?: { house: string } | null
 }
 
 /** Column weights from the longest word in the heading and the longest cell, so text columns get room and number columns stay narrow. */
@@ -34,7 +36,7 @@ function weights(head: string[], rows: Cell[][], foot?: Cell[]): number[] {
 
 const pct = (low: number, high: number) => ({ below: Math.round((1 - low) * 100), above: Math.round((high - 1) * 100) })
 
-export default function QtyReportPDF({ meta, free, paid, contact, reportId, projectName, date, where, calc }: QtyReportPDFProps) {
+export default function QtyReportPDF({ meta, free, paid, contact, reportId, projectName, date, where, calc, sample }: QtyReportPDFProps) {
   const dateText = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
   const tiles = paid.tiles.slice(0, 4)
 
@@ -43,7 +45,7 @@ export default function QtyReportPDF({ meta, free, paid, contact, reportId, proj
       <Page size="A4" style={S.page}>
         <Chrome tool={meta.label} tag={meta.tag} reportId={reportId} />
 
-        <Text style={S.eyebrow}>QUANTITIES REPORT</Text>
+        <Text style={S.eyebrow}>{sample ? 'SAMPLE QUANTITIES REPORT' : 'QUANTITIES REPORT'}</Text>
         <Text style={S.title}>{meta.heading}</Text>
         <Text style={S.project}>{projectName}</Text>
 
@@ -53,6 +55,8 @@ export default function QtyReportPDF({ meta, free, paid, contact, reportId, proj
           <View style={S.metaCol}><Text style={S.metaK}>REPORT ID</Text><Text style={[S.metaV, { fontFamily: 'IBMPlexMono' }]}>{reportId}</Text></View>
           <View style={S.metaCol}><Text style={S.metaK}>DATE</Text><Text style={S.metaV}>{dateText}</Text></View>
         </View>
+
+        <SampleNote show={!!sample} house={sample?.house ?? ''} />
 
         <Text style={S.h2} minPresenceAhead={90}>{free.factsTitle}</Text>
         <View style={S.facts}>
@@ -140,8 +144,9 @@ export default function QtyReportPDF({ meta, free, paid, contact, reportId, proj
           NirmanShastra · India&apos;s IS-code construction quantities platform. This report is for estimation and planning only. It is not a substitute for drawings and calculations signed by a licensed professional. Where a figure is an assumption, change it and the quantities change.
         </Text>
 
+        <SampleMark show={!!sample} />
       </Page>
-      {calc ? <CalcAppendix sheet={calc} chrome={{ tool: meta.label, tag: meta.tag, reportId }} /> : null}
+      {calc ? <CalcAppendix sheet={calc} chrome={{ tool: meta.label, tag: meta.tag, reportId, sample: !!sample }} /> : null}
     </Document>
   )
 }

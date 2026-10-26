@@ -6,6 +6,14 @@
   918697620512) and redeploy. An empty or invalid value hides every WhatsApp link and the floating button.
 */
 
+/*
+  The public contact email. Set NEXT_PUBLIC_CONTACT_EMAIL in Vercel when the domain mailbox exists (for example
+  support@nirmanshastra.in) and redeploy; until then the Gmail address below is used. An invalid value is ignored.
+  Report emails also use it as their Reply-To, so a reply to "Did the report help?" reaches this inbox.
+*/
+const RAW_EMAIL = (process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? '').trim()
+export const CONTACT_EMAIL: string = /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(RAW_EMAIL) ? RAW_EMAIL : 'nirmanshastraindia@gmail.com'
+
 export const SOCIAL_LINKS = {
   instagram: 'https://www.instagram.com/nirmanshastraindia/',
   youtube: 'https://www.youtube.com/@NirmanShastra',

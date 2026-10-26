@@ -9,6 +9,7 @@ import { Note, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { DeliveryNote, ReportTable, Tot } from './parts'
 import { useUnlock } from './useUnlock'
 import PackUnlock from './PackUnlock'
+import PayAssurance from '@/components/policy/PayAssurance'
 
 /*
   Results of a trade tool.
@@ -98,6 +99,7 @@ export default function QtyResults({ meta, price, free, estimateId, contactName,
             {!u.busy && <IcArrow width={22} height={11} />}
           </button>
           {u.payError && <Note kind="err">{u.payError}</Note>}
+          <PayAssurance sample={meta.appType} />
           <p className="ns-i-fine">One payment, no subscription. Paid through Razorpay; we never see your card details.</p>
         </section>
       )}

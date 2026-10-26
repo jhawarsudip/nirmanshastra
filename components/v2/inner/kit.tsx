@@ -18,8 +18,10 @@ export const IcDraw = (p: IP) => <svg viewBox="0 0 32 32" {...ib} strokeWidth={1
 
 /* ---- tool head: the first thing on a tool page ------------------------------ */
 
-export function ToolHead({ eyebrow, name, blurb, price, art, artAlt }: {
+export function ToolHead({ eyebrow, name, blurb, price, art, artAlt, after }: {
   eyebrow: string; name: string; blurb: string; price?: string; art?: string; artAlt?: string
+  /** anything that belongs directly under the blurb, such as the sample-report link */
+  after?: ReactNode
 }) {
   return (
     <header className="ns-i-head">
@@ -30,6 +32,7 @@ export function ToolHead({ eyebrow, name, blurb, price, art, artAlt }: {
         </div>
         <h1>{name}</h1>
         <p>{blurb}</p>
+        {after ?? null}
       </div>
       {art ? (
         <div className="ns-i-head__art">

@@ -4,6 +4,7 @@
   Run:  npx tsx scripts/check-analytics.ts
 */
 import assert from 'node:assert/strict'
+import { TOOL_PRICE_PAISE, PACK_PRICE_PAISE } from '../lib/tool-pricing'
 
 // ── a tiny fake browser ──────────────────────────────────────────────────────
 const store = new Map<string, string>()
@@ -121,12 +122,12 @@ async function main() {
   })
 
   ok('begin_checkout and purchase carry the amount the server charged, with INR and the order id', () => {
-    checkout.orderCreated({ orderId: 'order_A1', amount: 229900, product: 'structopro' })
+    checkout.orderCreated({ orderId: 'order_A1', amount: TOOL_PRICE_PAISE.structopro, product: 'structopro' })
     const bc = calls.filter(c => c[1] === 'begin_checkout').pop()![2] as { value: number; currency: string; items: { item_id: string; price: number }[] }
-    assert.equal(bc.value, 2299); assert.equal(bc.currency, 'INR'); assert.equal(bc.items[0].item_id, 'structopro'); assert.equal(bc.items[0].price, 2299)
+    assert.equal(bc.value, TOOL_PRICE_PAISE.structopro / 100); assert.equal(bc.currency, 'INR'); assert.equal(bc.items[0].item_id, 'structopro'); assert.equal(bc.items[0].price, TOOL_PRICE_PAISE.structopro / 100)
     checkout.paymentVerified('order_A1')
     const p = calls.filter(c => c[1] === 'purchase').pop()![2] as { transaction_id: string; value: number; currency: string }
-    assert.equal(p.transaction_id, 'order_A1'); assert.equal(p.value, 2299); assert.equal(p.currency, 'INR')
+    assert.equal(p.transaction_id, 'order_A1'); assert.equal(p.value, TOOL_PRICE_PAISE.structopro / 100); assert.equal(p.currency, 'INR')
     const px = fb.filter(c => c[1] === 'Purchase').pop()!
     assert.equal((px[3] as { eventID: string }).eventID, 'order_A1')
   })
@@ -135,11 +136,11 @@ async function main() {
     const before = calls.filter(c => c[1] === 'purchase').length
     checkout.paymentVerified('order_A1'); checkout.paymentVerified('order_A1')
     assert.equal(calls.filter(c => c[1] === 'purchase').length, before)
-    checkout.orderCreated({ orderId: 'order_B2', amount: 499900, product: 'completepack' })
+    checkout.orderCreated({ orderId: 'order_B2', amount: PACK_PRICE_PAISE, product: 'completepack' })
     checkout.paymentVerified('order_B2')
     assert.equal(calls.filter(c => c[1] === 'purchase').length, before + 1)
     const p = calls.filter(c => c[1] === 'purchase').pop()![2] as { value: number }
-    assert.equal(p.value, 4999)
+    assert.equal(p.value, PACK_PRICE_PAISE / 100)
   })
 
   ok('a reload does not send the same purchase again (remembered in the browser)', () => {
@@ -150,7 +151,7 @@ async function main() {
 
   ok('unknown or free products report nothing', () => {
     const before = calls.length
-    checkout.orderCreated({ orderId: 'order_C3', amount: 99900, product: 'vastupro' })
+    checkout.orderCreated({ orderId: 'order_C3', amount: TOOL_PRICE_PAISE.grandtotal, product: 'vastupro' })
     checkout.orderCreated({ orderId: 'order_D4', amount: 0, product: 'plumbpro' })
     assert.equal(calls.length, before)
   })

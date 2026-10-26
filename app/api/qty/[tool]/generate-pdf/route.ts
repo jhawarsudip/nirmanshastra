@@ -11,6 +11,7 @@ import { buildTradeEmail } from '@/lib/qty/email'
 import type { TradeFree, TradePaid } from '@/lib/qty/types'
 import type { CalcSheet } from '@/lib/calcsheet'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 export const runtime = 'nodejs'
 // The report now carries a calculation sheet of 15 to 40 pages; laying it out takes several seconds, longer than the 10 s default.
@@ -127,6 +128,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ too
         const sent = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL!,
           to: contactInfo.email,
+          replyTo: CONTACT_EMAIL,
           subject: `Your ${meta.label} report is ready — ${reportId}`,
           html: buildTradeEmail(meta, contactInfo.name, reportId, pdfUrl),
         })

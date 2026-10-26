@@ -11,6 +11,7 @@ import { buildGrandCalcFromRows } from '@/lib/qty/grand-calc'
 import type { CalcSheet } from '@/lib/calcsheet'
 import { buildTradeEmail } from '@/lib/qty/email'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 export const runtime = 'nodejs'
 // The report now carries a calculation sheet of 20 to 40 pages; laying it out takes several seconds, longer than the 10 s default.
@@ -133,6 +134,7 @@ export async function POST(req: NextRequest) {
         const sent = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL!,
           to: contactInfo.email,
+          replyTo: CONTACT_EMAIL,
           subject: `Your Grand Total report is ready — ${reportId}`,
           html: buildTradeEmail(GRAND_META, contactInfo.name, reportId, pdfUrl),
         })

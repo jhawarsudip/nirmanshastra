@@ -14,6 +14,7 @@ import { useCalm } from '@/lib/v2/store'
 import { TOOLS } from '@/lib/v2/content'
 import { saveProjectToSession } from '@/lib/project-session'
 import ViewItem from '@/components/analytics/ViewItem'
+import SampleReportLink from '@/components/samples/SampleReportLink'
 import '@/styles/v2/results.css'
 
 const stepVariants = {
@@ -200,6 +201,7 @@ export default function StructoProPage() {
           blurb="How much concrete and steel your frame needs, item by item: foundation, columns, beams and slabs, worked out to the Indian Standards."
           art={TOOL.plate}
           artAlt={TOOL.plateAlt}
+          after={<SampleReportLink sample="structopro" where="tool_head" />}
         />
       )}
       <StepBar steps={STEPS} current={STEP_IX[step]} />

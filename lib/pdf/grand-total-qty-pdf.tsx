@@ -6,7 +6,7 @@ import { Document, Page, Text, View } from '@react-pdf/renderer'
 import { GRAND_META, type GrandFree, type GrandPaid } from '@/lib/qty/grand'
 import type { CalcSheet } from '@/lib/calcsheet'
 import CalcAppendix from './calc-appendix'
-import { Bullets, C, Chrome, S, Table, Tot, statusColor, type Cell, type ContactInfo } from './qty-kit'
+import { Bullets, C, Chrome, S, SampleMark, SampleNote, Table, Tot, statusColor, type Cell, type ContactInfo } from './qty-kit'
 
 export interface GrandTotalPDFProps {
   free: GrandFree
@@ -18,6 +18,8 @@ export interface GrandTotalPDFProps {
   where: string // "Pune, Maharashtra"
   /** the working behind every figure, printed after the report; null when it could not be made to agree with the report */
   calc?: CalcSheet | null
+  /** a sample report for an example house: every page is stamped and the first page says so */
+  sample?: { house: string } | null
 }
 
 /** Column weights from the longest word in the heading and the longest cell, so text columns get room and number columns stay narrow. */
@@ -32,7 +34,7 @@ function weights(head: string[], rows: Cell[][], foot?: Cell[]): number[] {
 const pct = (low: number, high: number) => ({ below: Math.round((1 - low) * 100), above: Math.round((high - 1) * 100) })
 const h3 = { fontFamily: 'IBMPlexSerif', fontWeight: 700, fontSize: 11, marginTop: 10, marginBottom: 4 } as const
 
-export default function GrandTotalQtyPDF({ free, paid, contact, reportId, projectName, date, where, calc }: GrandTotalPDFProps) {
+export default function GrandTotalQtyPDF({ free, paid, contact, reportId, projectName, date, where, calc, sample }: GrandTotalPDFProps) {
   const dateText = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
   const tiles = paid.tiles.slice(0, 4)
 
@@ -41,7 +43,7 @@ export default function GrandTotalQtyPDF({ free, paid, contact, reportId, projec
       <Page size="A4" style={S.page}>
         <Chrome tool={GRAND_META.label} tag={GRAND_META.tag} reportId={reportId} />
 
-        <Text style={S.eyebrow}>QUANTITIES REPORT</Text>
+        <Text style={S.eyebrow}>{sample ? 'SAMPLE QUANTITIES REPORT' : 'QUANTITIES REPORT'}</Text>
         <Text style={S.title}>{GRAND_META.heading}</Text>
         <Text style={S.project}>{projectName}</Text>
 
@@ -51,6 +53,8 @@ export default function GrandTotalQtyPDF({ free, paid, contact, reportId, projec
           <View style={S.metaCol}><Text style={S.metaK}>REPORT ID</Text><Text style={[S.metaV, { fontFamily: 'IBMPlexMono' }]}>{reportId}</Text></View>
           <View style={S.metaCol}><Text style={S.metaK}>DATE</Text><Text style={S.metaV}>{dateText}</Text></View>
         </View>
+
+        <SampleNote show={!!sample} house={sample?.house ?? ''} />
 
         <Text style={S.h2} minPresenceAhead={90}>What to order</Text>
         <Text style={S.h2s}>The main totals across {free.phases.length} phases. The line under each figure is the range the real number is likely to fall in.</Text>
@@ -136,8 +140,9 @@ export default function GrandTotalQtyPDF({ free, paid, contact, reportId, projec
         <Text style={S.small}>
           NirmanShastra · India&apos;s IS-code construction quantities platform. This report is for estimation and planning only. It is not a substitute for drawings and calculations signed by a licensed professional. Where a figure is an assumption, change it in the phase report and the quantities change.
         </Text>
+        <SampleMark show={!!sample} />
       </Page>
-      {calc ? <CalcAppendix sheet={calc} chrome={{ tool: GRAND_META.label, tag: GRAND_META.tag, reportId }} /> : null}
+      {calc ? <CalcAppendix sheet={calc} chrome={{ tool: GRAND_META.label, tag: GRAND_META.tag, reportId, sample: !!sample }} /> : null}
     </Document>
   )
 }

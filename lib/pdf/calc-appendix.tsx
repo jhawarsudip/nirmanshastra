@@ -8,7 +8,7 @@
 import React from 'react'
 import { Page, Text, View } from '@react-pdf/renderer'
 import type { CalcBlock, CalcLine, CalcSheet, CalcTable } from '@/lib/calcsheet'
-import { C, Chrome, S } from './qty-kit'
+import { C, Chrome, S, SampleMark } from './qty-kit'
 
 const COLS = { step: 2.5, formula: 2.5, working: 3.1, result: 1.7, ref: 2.0 }
 
@@ -97,7 +97,7 @@ function Block({ b }: { b: CalcBlock }) {
   )
 }
 
-export interface CalcChrome { tool: string; tag: string; reportId: string }
+export interface CalcChrome { tool: string; tag: string; reportId: string; /** a sample report: stamp every page */ sample?: boolean }
 
 export default function CalcAppendix({ sheet, chrome, letter = 'A' }: { sheet: CalcSheet; chrome: CalcChrome; letter?: string }) {
   return (
@@ -128,6 +128,7 @@ export default function CalcAppendix({ sheet, chrome, letter = 'A' }: { sheet: C
         <View key={i} style={S.li} wrap={false}><Text style={S.liDot}>•</Text><Text style={S.liT}>{m}</Text></View>
       ))}
 
+      <SampleMark show={chrome.sample} />
     </Page>
 
       {sheet.sections.map(sec => (
@@ -136,6 +137,7 @@ export default function CalcAppendix({ sheet, chrome, letter = 'A' }: { sheet: C
           <Text style={S.h2}>{sec.title}</Text>
           {sec.intro ? <Text style={k.intro}>{sec.intro}</Text> : null}
           {sec.blocks.map(b => <Block key={b.id} b={b} />)}
+          <SampleMark show={chrome.sample} />
         </Page>
       ))}
 
@@ -173,6 +175,7 @@ export default function CalcAppendix({ sheet, chrome, letter = 'A' }: { sheet: C
       <Text style={S.small}>
         This sheet shows the method and the arithmetic behind a planning-level quantity estimate. It lets a qualified person check the formulas and the working. It is not a structural design, a drawing or a certificate, and it does not replace the drawings and calculations that a licensed professional signs for your building.
       </Text>
+      <SampleMark show={chrome.sample} />
       </Page>
     </>
   )

@@ -1,0 +1,72 @@
+{
+  "house": "G+1, 1,000 sq ft on each floor, Lucknow",
+  "generated": "2026-10-26",
+  "files": {
+    "structopro": {
+      "file": "structurepro-sample-report.pdf",
+      "bytes": 727501,
+      "reportId": "NS-SP-SAMPLE",
+      "figures": {
+        "concreteM3": "58.51",
+        "steelBuyKg": "5418",
+        "cementBags": "493",
+        "formworkSqft": "5454"
+      }
+    },
+    "masonpro": {
+      "file": "masonrypro-sample-report.pdf",
+      "bytes": 335215,
+      "reportId": "NS-MA-SAMPLE",
+      "figures": {
+        "Bricks": "30,400 nos",
+        "Cement": "193 bags of 50 kg",
+        "Sand": "34.6 m³",
+        "Plaster": "1,036 m²"
+      }
+    },
+    "electropro": {
+      "file": "electricalpro-sample-report.pdf",
+      "bytes": 390302,
+      "reportId": "NS-EL-SAMPLE",
+      "figures": {
+        "Points and sockets": "124 counted",
+        "Copper wire": "2,790 m",
+        "Conduit": "696 m",
+        "Circuits": "28 on 2 boards"
+      }
+    },
+    "plumbpro": {
+      "file": "plumbingpro-sample-report.pdf",
+      "bytes": 325458,
+      "reportId": "NS-PL-SAMPLE",
+      "figures": {
+        "Water supply pipe": "177 m",
+        "Drain and rain pipe": "114 m",
+        "Tanks": "1,500 litres",
+        "Transfer pump": "0.5 HP"
+      }
+    },
+    "interiorpro": {
+      "file": "interiorpro-sample-report.pdf",
+      "bytes": 316046,
+      "reportId": "NS-IN-SAMPLE",
+      "figures": {
+        "Painted area": "942 m²",
+        "Tiles": "254 m²",
+        "Doors and windows": "22 nos",
+        "Window glass": "16 m²"
+      }
+    },
+    "grandtotal": {
+      "file": "grand-total-sample-report.pdf",
+      "bytes": 291341,
+      "reportId": "NS-GT-SAMPLE",
+      "figures": {
+        "Cement": "729 bags of 50 kg",
+        "Steel bars": "5,421 kg",
+        "Sand": "65.5 m³",
+        "Bricks or blocks": "30,400 nos"
+      }
+    }
+  }
+}

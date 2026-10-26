@@ -11,6 +11,8 @@ import { useUnlock } from './useUnlock'
 import { readStoredPackId, rememberPackId } from './usePack'
 import { trackLead } from '@/lib/analytics/events'
 import ViewItem from '@/components/analytics/ViewItem'
+import SampleReportLink from '@/components/samples/SampleReportLink'
+import PayAssurance from '@/components/policy/PayAssurance'
 import '@/styles/v2/results.css'
 
 /*
@@ -108,6 +110,7 @@ export default function CompletePack() {
           name="Complete House Pack"
           price={PRICE.pack}
           blurb="All five quantity reports for one house: structure, masonry, electrical, plumbing and interior, plus the Grand Total buying list. Pay once, then use it where you would otherwise pay."
+          after={<SampleReportLink sample="completepack" where="tool_head" />}
         />
 
         {ready ? (
@@ -201,6 +204,7 @@ export default function CompletePack() {
                   {!u.busy && <IcArrow width={22} height={11} />}
                 </button>
                 {u.payError && <Note kind="err">{u.payError}</Note>}
+                <PayAssurance sample="completepack" />
                 <p className="ns-i-fine">One payment, no subscription. Paid through Razorpay; we never see your card details.</p>
               </section>
             )}

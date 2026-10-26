@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useReveal } from '@/lib/v2/store'
 import { Arrow } from '../Icons'
 import { PRICE } from '@/lib/tool-pricing'
+import PayAssurance from '@/components/policy/PayAssurance'
+import SampleReportLink from '@/components/samples/SampleReportLink'
 import '@/styles/v2/closing.css'
 
 const COPY = {
@@ -86,6 +88,7 @@ export default function Pricing() {
           <div className="ns-prc__packR">
             <ul>{c.pack.f.map(x => <li key={x}>{x}</li>)}</ul>
             <Link href="/tools/complete-house-pack" className="ns-btn" data-snap>{c.pack.cta}<Arrow /></Link>
+            <PayAssurance sample="completepack" hi={loc === 'hi'} where="pricing_pack" />
           </div>
         </article>
 
@@ -107,6 +110,7 @@ export default function Pricing() {
             <p className="ns-prc__sub2 ns-mono">{c.one.per}</p>
             <ul>{c.one.f.map(x => <li key={x}>{x}</li>)}</ul>
             <Link href="/tools/structopro" className="ns-btn" data-snap>{c.one.cta}<Arrow /></Link>
+            <SampleReportLink sample="structopro" hi={loc === 'hi'} where="pricing_single" />
           </article>
 
           <article className="ns-plate ns-prc__card ns-prc__card--gt ns-rise" style={{ ['--d' as string]: '.3s', ['--tc' as string]: 'var(--ns-verdigris)' }}>

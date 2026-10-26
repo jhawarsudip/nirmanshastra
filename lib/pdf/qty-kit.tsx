@@ -182,3 +182,36 @@ export function Chrome({ tool, tag, reportId }: { tool: string; tag: string; rep
     </>
   )
 }
+
+/** The words stamped across every page of a sample report. */
+export const SAMPLE_MARK_TEXT = 'SAMPLE — example house, not your project'
+
+/**
+ * A diagonal stamp on every page of a sample report. Render it LAST inside each <Page>, so it sits above the tables.
+ * It is faint enough to read through; it is on every page so a page cannot be passed off as a customer's report.
+ */
+export function SampleMark({ show }: { show?: boolean }) {
+  if (!show) return null
+  return (
+    <View fixed style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ transform: 'rotate(-38deg)', alignItems: 'center' }}>
+        <Text style={{ fontFamily: 'IBMPlexSans', fontWeight: 700, fontSize: 92, color: C.laterite, opacity: 0.1, letterSpacing: 8 }}>SAMPLE</Text>
+        <Text style={{ fontFamily: 'IBMPlexSans', fontWeight: 700, fontSize: 21, color: C.laterite, opacity: 0.16, marginTop: -4 }}>example house, not your project</Text>
+      </View>
+    </View>
+  )
+}
+
+/** A short note under the title of a sample's first page: what this document is. */
+export function SampleNote({ show, house }: { show?: boolean; house: string }) {
+  if (!show) return null
+  return (
+    <View style={[S.callout, { marginTop: 12, backgroundColor: C.warnBg, borderLeftColor: C.warn }]} wrap={false}>
+      <Text style={S.calloutT}>This is a sample report</Text>
+      <Text style={S.calloutP}>
+        It is a real report from the same calculations a paid report uses, made for an example house ({house}). It is not your project and nothing in it applies to your plot. Your own report uses your plot, floors and city, so its figures will differ.
+      </Text>
+    </View>
+  )
+}
+

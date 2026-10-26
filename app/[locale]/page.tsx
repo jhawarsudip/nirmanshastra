@@ -11,6 +11,7 @@ import HowItWorks from '@/components/v2/sections/HowItWorks'
 import Compare from '@/components/v2/sections/Compare'
 import IsCodes from '@/components/v2/sections/IsCodes'
 import Pricing from '@/components/v2/sections/Pricing'
+import Testimonials from '@/components/v2/sections/Testimonials'
 import FreeCalcs from '@/components/v2/sections/FreeCalcs'
 import Toolkits from '@/components/v2/sections/Toolkits'
 import Dealers from '@/components/v2/sections/Dealers'
@@ -41,6 +42,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <Compare />
         <IsCodes />
         <Pricing />
+        <Testimonials loc={loc} />
         <FreeCalcs />
         <Toolkits />
         <Dealers />

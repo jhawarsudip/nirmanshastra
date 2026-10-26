@@ -11,6 +11,8 @@ import PackUnlock from './PackUnlock'
 import { PRICE as PRICES } from '@/lib/tool-pricing'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import ViewItem from '@/components/analytics/ViewItem'
+import SampleReportLink from '@/components/samples/SampleReportLink'
+import PayAssurance from '@/components/policy/PayAssurance'
 import { useCalm } from '@/lib/v2/store'
 import { GRAND_META, PHASES, type GrandFree, type GrandPaid, type PhaseKey } from '@/lib/qty/grand'
 
@@ -117,7 +119,7 @@ export default function GrandTotal() {
   return (
     <div className="ns-i-wrap ns-i-page" style={{ ['--tc' as string]: 'var(--ns-laterite)' }}>
       <ViewItem appType="grandtotal" />
-      {!made && <ToolHead eyebrow={GRAND_META.eyebrow} name="Grand Total" price={`Full list ${PRICE}`} blurb={GRAND_META.blurb} />}
+      {!made && <ToolHead eyebrow={GRAND_META.eyebrow} name="Grand Total" price={`Full list ${PRICE}`} blurb={GRAND_META.blurb} after={<SampleReportLink sample="grandtotal" where="tool_head" />} />}
       <StepBar steps={STEPS} current={stepNow} />
 
       <AnimatePresence mode="wait">
@@ -328,6 +330,7 @@ function GrandResults({ estimateId, free, projectName, onStage, onBack }: { esti
             {!u.busy && <IcArrow width={22} height={11} />}
           </button>
           {u.payError && <Note kind="err">{u.payError}</Note>}
+          <PayAssurance sample="grandtotal" />
           <p className="ns-i-fine">One payment, no subscription. Paid through Razorpay; we never see your card details. The list is made from the reports above and does not update when you add a phase later.</p>
         </section>
       )}
