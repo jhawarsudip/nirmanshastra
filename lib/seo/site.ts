@@ -174,7 +174,7 @@ export const TOOLS: ToolEntry[] = [
     kind: 'paid-report',
     appType: 'electropro',
     summary: 'Points, circuits, boards, wire by size and colour, conduit and fittings for the wiring of a house, from the CPWD specification and the BIS draft of IS 4648.',
-    isCodes: ['IS 4648 (draft revision, 2024)', 'IS 4648:1968', 'IS 732:1989'],
+    isCodes: ['IS 4648 (draft revision, 2024)', 'IS 4648:1968', 'IS 732:2019'],
   },
   {
     path: '/tools/plumbpro',
@@ -223,7 +223,7 @@ const TEMPLATE_META: Record<string, { path: string; summary: string }> = {
   'cost-estimator': {
     path: '/site-templates/cost-estimator',
     summary:
-      'A 17-sheet Excel construction cost estimator for Indian homes: build a BOQ from IS-code rate analysis, generate a client quotation, compare up to 3 contractor quotes line by line, and track budget vs actual.',
+      'An Excel construction cost estimator for contractors. Price a house from IS-code quantities using your own rates, make a client quotation, and compare up to 3 quotes.',
   },
   'documentation-pack': {
     path: '/site-templates/site-documentation',

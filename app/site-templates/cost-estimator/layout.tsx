@@ -5,7 +5,7 @@ import { templateJsonLd } from '@/lib/seo/schema'
 const title =
   'Construction Cost Estimator Excel Template'
 const description =
-  'A 17-sheet Excel construction cost estimator for Indian homes — build a BOQ from IS-code rate analysis, generate a client quotation, compare up to 3 contractor quotes line by line, and track budget vs actual. ₹2,499, instant download.'
+  'An Excel construction cost estimator for contractors. Price a house from IS-code quantities using your own rates, make a client quotation, and compare up to 3 quotes. ₹2,499, instant download.'
 const url = '/site-templates/cost-estimator'
 
 export const metadata: Metadata = {

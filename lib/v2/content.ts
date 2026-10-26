@@ -9,7 +9,7 @@ export const IS_CODES = [
   'IS 875 (Part 3)', 'IS 10262:2009', 'IS 2502:1963', 'IS 1904:1986',
   'IS 1077:1992', 'IS 12894:2002', 'IS 2185', 'IS 2212:1991',
   'IS 2572:2005', 'IS 6041:1985', 'IS 2250:1981', 'IS 4326:1993',
-  'IS 4648', 'IS 732:1989', 'IS 3043:2018', 'IS 1172:1993',
+  'IS 4648', 'IS 732:2019', 'IS 3043:2018', 'IS 1172:1993',
   'IS 1742:1983', 'IS 2470', 'IS 15778:2007', 'IS 1200',
   'IS 2395 (Part 1)', 'IS 15622:2006', 'IS 1003 (Part 1)', 'NBC 2016',
 ] as const
@@ -70,7 +70,7 @@ export const TOOLS: ToolMeta[] = [
     key: 'elec', phase: 'P3', name: 'ElectricalPro', href: '/tools/electropro', price: PRICE.electropro, free: false,
     accent: '--ns-t-elec', plate: '/v2/products/p03-electricalpro.webp',
     plateAlt: 'Isometric wall section with recessed conduit, switch box and distribution board',
-    chips: ['IS 4648', 'IS 732:1989', 'IS 3043:2018'],
+    chips: ['IS 4648', 'IS 732:2019', 'IS 3043:2018'],
     descriptorKey: 'electricalDescriptor', descKey: 'electricalDesc',
   },
   {
@@ -103,7 +103,7 @@ export const PACK_TOOL: { href: string; price: string; name: Bi; plain: Bi } = {
 export const SITE_TEMPLATES: TemplateDef[] = [
   {
     title: 'Residential Construction Cost Estimator', sheets: 16, price: '₹2,499',
-    desc: 'Prices a house from IS-code first principles, generates a client quotation, compares up to 3 contractor quotes line by line, tracks budget against actual once the job starts.',
+    desc: 'For contractors: price a house from IS-code quantities using your own rates, make a client quotation, and compare up to 3 quotes.',
     href: '/site-templates/cost-estimator',
   },
   {
@@ -257,7 +257,7 @@ export const LAYERS: LayerDef[] = [
     onQuote: { en: 'Wire, conduit, switch boards, pipes, fittings', hi: 'तार, कंड्यूट, स्विच बोर्ड, पाइप, फ़िटिंग' },
     rows: [],
     note: { en: 'There is no single number here. Wire size depends on the load of each circuit, and pipe size on the fixtures it feeds; the electrical and plumbing reports work these out room by room.', hi: 'यहाँ कोई एक संख्या नहीं है। तार का साइज़ हर सर्किट के लोड पर और पाइप का साइज़ उससे जुड़ी फ़िटिंग पर निर्भर करता है; इलेक्ट्रिकल और प्लंबिंग रिपोर्ट इसे कमरे-दर-कमरे निकालती हैं।' },
-    codes: ['IS 4648', 'IS 732:1989', 'IS 1172:1993'],
+    codes: ['IS 4648', 'IS 732:2019', 'IS 1172:1993'],
   },
   {
     id: 'S8', src: '/v2/layers/l08.webp', z: 3.2, enter: 'paint',

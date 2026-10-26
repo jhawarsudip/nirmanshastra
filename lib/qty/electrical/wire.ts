@@ -14,7 +14,7 @@
     CPWD GS 3.12(ii) asks for 4 mm² for power wiring in its own works. The draft IS 4648 Table 4 allows 2.5 mm² on a
     circuit of up to two sockets or one appliance of up to 3 kW. This file follows the draft (2.5 mm²) and says so.
 
-  Not read in any source, so not claimed: cable current ratings and derating factors, the voltage-drop limit. IS 732
+  Not read in any source, so not claimed: cable current ratings and derating factors, the voltage-drop limit. IS 732:2019
   sizes a cable by its current rating, its grouping and its voltage drop; none of those is worked here. A long run needs
   a larger size than the minimum below, which is why the calculator says so.
 */
@@ -139,7 +139,7 @@ export const CONDUIT_STEPS: { single: Steps; three: Steps } = {
   Mains and sub-main copper size in mm² for a design load in kW.
   Single phase, up to 5 kW 4 mm², to 7 kW 6, to 10 kW 10: draft IS 4648 Table 4, which leaves exactly 7 kW out of its two
   bands (">5 and <7", ">7 and <10"); 7 kW is put with the 6 mm² band here. Above 10 kW the draft asks for diversity and a size
-  worked from IS 732 current ratings, so the 16 and 25 mm² steps are Assumed.
+  worked from IS 732:2019 current ratings, so the 16 and 25 mm² steps are Assumed.
   Three phase: the draft only hints (4 or 6 mm² with the load balanced to within 10%), so every three-phase size is Assumed.
 */
 export function mainsMm2(kw: number, three: boolean): number {

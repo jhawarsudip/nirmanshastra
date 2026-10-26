@@ -33,7 +33,7 @@ const TOOLKITS: Toolkit[] = [
     price: '₹2,499',
     sheetCount: 16,
     description:
-      'Prices a house from IS-code first principles, generates a client quotation, compares up to 3 contractor quotes line by line, tracks budget against actual once the job starts.',
+      'For contractors: price a house from IS-code quantities using your own rates, make a client quotation, and compare up to 3 quotes.',
     codesLabel: 'Codes',
     codes: ['IS 456:2000', 'IS 1786:2008', 'IS 1077:1992', 'IS 2212', 'IS 1661:1972', 'IS 1893:2016'],
   },
@@ -156,7 +156,9 @@ export default function SiteTemplatesPage() {
           <p>
             Standalone spreadsheet packs, separate from the interactive calculators. Each is a set
             of linked sheets built to Indian standards and statutory practice: estimate, document,
-            bill, schedule, comply, and control progress. Buy one, or take the full suite.
+            bill, schedule, comply, and control progress. They are built for contractors and site engineers, who
+            work from their own rates. The reports for homeowners, which count the materials a house needs,
+            are a separate product. Buy one toolkit, or take the full suite.
           </p>
         </header>
 

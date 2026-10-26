@@ -47,8 +47,9 @@ export default function DisclaimerPage() {
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="dc-4">
-          <h2 id="dc-4" style={H2}>4. No prices</h2>
-          <p>NirmanShastra reports give quantities only. They contain no material rates, labour costs, dealer prices or contractor rates, and nothing in a report says what your building should cost. A rupee figure on this site is the price of a report or of a downloadable template.</p>
+          <h2 id="dc-4" style={H2}>4. Quantities, not prices</h2>
+          <p>The NirmanShastra reports for homeowners give quantities only. They contain no material rates, labour costs, dealer prices or contractor rates, and nothing in a report says what your building should cost. A rupee figure on this site is the price of a report or of a downloadable template.</p>
+          <p>The Excel toolkits are for contractors and site engineers, and they work differently: the Residential Construction Cost Estimator, for one, prices a house from the rates the contractor enters. Those rates are the contractor’s own, not NirmanShastra’s.</p>
           <p>The free payroll, running-account bill and earned-value calculators work only on the figures you type in.</p>
         </section>
 

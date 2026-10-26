@@ -26,7 +26,7 @@
     },
     "electropro": {
       "file": "electricalpro-sample-report.pdf",
-      "bytes": 392435,
+      "bytes": 392623,
       "reportId": "NS-EL-SAMPLE",
       "figures": {
         "Points and sockets": "124 counted",
@@ -59,7 +59,7 @@
     },
     "grandtotal": {
       "file": "grand-total-sample-report.pdf",
-      "bytes": 292830,
+      "bytes": 292941,
       "reportId": "NS-GT-SAMPLE",
       "figures": {
         "Cement": "729 bags of 50 kg",

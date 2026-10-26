@@ -14,11 +14,11 @@
 //   Earth      equal to the line conductor up to 16 mm², half above (draft cl 8).
 //   Conduit    CPWD Delhi Analysis of Rates 2016, items 1.7.1 to 1.7.11.
 //
-// The old version of this page said all five sizes came from "IS 732:2019 Cl 6.2". That clause was never read. The
+// The old version of this page named a clause of IS 732:2019 as the source of all five sizes. That clause was never read. The
 // 4 mm² air conditioner and the 6 and 10 mm² "sub-panel" and "main incomer" sizes were rules of thumb with no load behind
 // them: the real mains size depends on the load, from 4 mm² at 5 kW to 10 mm² at 10 kW. Both were retired.
 //
-// NOT worked here, because no document read gives the figures: cable current ratings, derating, voltage drop. IS 732 sizes
+// NOT worked here, because no document read gives the figures: cable current ratings, derating, voltage drop. IS 732:2019 sizes
 // a cable by those, so a long run needs more than the minimum below, and the page says so.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -96,7 +96,7 @@ export function calculate({ choice, kw, phase }: WireInput): WireResult {
         ? 'The draft IS 4648 Table 4 only hints at three phase (4 or 6 mm² with the load balanced to within 10%), so these sizes are an assumption. Your electricity board fixes the supply and the cable.'
         : load <= DRAFT_MAINS_LIMIT_KW
           ? 'Draft IS 4648 Table 4: up to 5 kW 4 mm², over 5 up to 7 kW 6 mm², over 7 up to 10 kW 10 mm². The table leaves exactly 7 kW out of its two bands; it is put with 6 mm² here.'
-          : 'The draft IS 4648 Table 4 stops at 10 kW. Above that it asks for diversity, a size worked from the IS 732 current ratings, a derating factor and one size up, so this size is an assumption.',
+          : 'The draft IS 4648 Table 4 stops at 10 kW. Above that it asks for diversity, a size worked from the IS 732:2019 current ratings, a derating factor and one size up, so this size is an assumption.',
       limit: 'The main breaker is never larger than the cable can carry. 32 A is the usual home incomer in tender board items, a secondary source; 40 and 63 A are assumptions.',
       risk: 'The supply cable carries the load of every circuit in the home at once, so an undersized one is the weakest point of the whole installation.',
       colours: three ? 'Red, yellow and blue lines, black neutral, green earth' : 'Red live, black neutral, green earth',

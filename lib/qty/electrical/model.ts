@@ -5,7 +5,7 @@
   whether there is an inverter or an EV charger) and the floor areas of the project.
 
   Every figure is one of four kinds, and the report says which:
-    Code     read from a standard or a CPWD document (IS 4648 and its BIS draft revision, IS 732, CPWD General
+    Code     read from a standard or a CPWD document (IS 4648 and its BIS draft revision, IS 732:2019, CPWD General
              Specifications for Electrical Works Part I, CPWD Delhi Analysis of Rates for E&M 2016)
     Derived  worked out from a Code figure with arithmetic that is shown
     Assumed  no document fixes it (for example metres from a board to its first point); a stated, editable engineering value
@@ -563,7 +563,7 @@ export function runElec(inp: ElecInput): Ran {
     'Derived: copper wire is 1.01 m for each metre of route (CPWD DAR), with 5% added for cutting waste, and bought in coils of 90 m for sizes up to 6 mm². The 90 m coil is the common pack; no standard fixes it.',
     'Assumed: the run from a board to the first point of a circuit is 0.6 × the side of the home plus 3 m for lights, 0.7 × plus 3 m for sockets and 0.8 × plus 3 m for large appliances. A socket is tapped from the nearest point over 2.5 to 4 m.',
     `Assumed: carpet area is ${round(CARPET_SHARE * 100)}% of built-up area, and room sizes are shared out of it (hall 1.6, bedroom 1.0, kitchen 0.8, bathroom 0.35 parts), held between sensible limits (a bedroom 9.5 to 20 m², a hall 9.5 to 30 m²). Floor area beyond those limits is taken to be rooms you did not list, which are not counted.`,
-    'Derived: design load is the larger of 75 W per m² of carpet area (draft IS 4648 cl 7) and 0.6 × the big appliances plus 1.5 kW. No standard gives a diversity factor for homes. Mains cables take their size from the steps of draft Table 4 applied to the design load; the draft applies that table to the connected load and, from 10 kW, asks for a size worked from the current ratings of IS 732, which this tool does not read. Larger sizes are Assumed.',
+    'Derived: design load is the larger of 75 W per m² of carpet area (draft IS 4648 cl 7) and 0.6 × the big appliances plus 1.5 kW. No standard gives a diversity factor for homes. Mains cables take their size from the steps of draft Table 4 applied to the design load; the draft applies that table to the connected load and, from 10 kW, asks for a size worked from the current ratings of IS 732:2019, which this tool does not read. Larger sizes are Assumed.',
     'Assumed: single-phase up to a design load of 10 kW and three-phase above it. Your electricity board decides this, and the wire and board sizes change if it differs.',
     `Assumed: ${electrodes} earth ${electrodes === 1 ? 'electrode' : 'electrodes'} for the building and 10 m of earth strip from each. The number of pits depends on the soil.`,
     'Assumed: one 7.4 kW EV charger circuit for every five parking spaces, at least one, when you ask for EV charging. The wire is 6 mm².',
@@ -574,7 +574,7 @@ export function runElec(inp: ElecInput): Ran {
     'The electricity meter, the service connection and the board’s own cable up to the meter.',
     'Lifts, generators, solar panels, battery banks, intercoms, CCTV, security alarms and home automation.',
     'Light fittings, fans, air conditioners, water heaters, the inverter and its batteries, and the pumps themselves.',
-    'Lightning protection and surge protection devices (IS 2309, IS 732 cl 5.3.5).',
+    'Lightning protection and surge protection devices (IS 2309; IS 732:2019 cl 5.3.5, the clause the BIS draft of IS 4648 gives for surge protection).',
     'A residual current device of up to 300 mA at the point of supply (draft IS 4648 cl 6.2.9), and the class (B or C) and the short-circuit rating of the breakers, which this report does not state.',
     'Chasing the walls and making good after the wiring.',
     'Screws, tape, glands, lugs, ferrules, cable ties and other small items.',
@@ -585,7 +585,7 @@ export function runElec(inp: ElecInput): Ran {
     'CPWD General Specifications for Electrical Works Part I (Internal) 2013, Sections 2 and 3',
     'CPWD Delhi Analysis of Rates for Electrical Works (E&M) 2016, items 1.1 to 1.17',
     'IS 4648:1968 Guide for electrical layout in residential buildings; BIS draft first revision, ETD 20, September 2024',
-    'IS 732 Code of practice for electrical wiring installations (the tool names the 1989 edition; a 2019 edition exists)',
+    'IS 732:2019 Code of practice for electrical wiring installations (named by the BIS draft of IS 4648; its text was not read)',
     'IS 3043:2018 Code of practice for earthing (not read in full; earthing counts are Assumed)',
     'NIMI Electrician trade theory, wiring of a dwelling (Table 1, the area yardstick)',
   ]

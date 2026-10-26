@@ -48,7 +48,7 @@ export function buildLlmsTxt(): string {
     ''
   )
   lines.push(
-    `Quantities follow the Indian Standards (IS codes) listed at ${abs('/is-codes-used')}. Quantities are estimates worked out from a few answers and are not a structural design; see ${abs('/disclaimer')}. No rates, labour or contractor prices are given. ${REVIEW_NOTE} ${REVIEW_FACT}`,
+    `Quantities follow the Indian Standards (IS codes) listed at ${abs('/is-codes-used')}. Quantities are estimates worked out from a few answers and are not a structural design; see ${abs('/disclaimer')}. The reports for homeowners give quantities only: no rates, labour or contractor prices are given in them. The Excel toolkits for contractors (${abs('/site-templates')}) price work from rates the contractor enters. ${REVIEW_NOTE} ${REVIEW_FACT}`,
     ''
   )
   lines.push(

@@ -162,7 +162,7 @@ export default function WireSizeCalculatorPage() {
             A wire has to carry its current without getting hot, and over a long run it must not lose too much voltage. For the wiring of a home, two documents set the <strong>least</strong> size for each kind of circuit: the CPWD General Specifications for Electrical Works (Part I, Internal, 2013), and the BIS <strong>draft</strong> of IS 4648, the guide to the electrical layout of residential buildings (the first revision, drafted in September 2024). The draft is not yet a published standard, so its figures may change when it is issued.
           </p>
           <p>
-            The least size is a floor. For loads above 10 kW the draft sends the designer to the current-rating tables of IS 732, with a derating factor and a size up; this page does not read those tables, and so it does not size a large supply.
+            The least size is a floor. For loads above 10 kW the draft sends the designer to the current-rating tables of IS 732:2019, with a derating factor and a size up; this page does not read those tables, and so it does not size a large supply.
           </p>
         </Prose>
 

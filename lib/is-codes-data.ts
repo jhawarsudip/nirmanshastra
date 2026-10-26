@@ -4,6 +4,8 @@
 // Rules for this file:
 //  - list a standard only if a model or a report check cites it;
 //  - give the edition the model uses. Where a newer edition exists and the model uses the older text, say so;
+//  - IS 732 is given as the 2019 edition everywhere (SJ, 26 Oct 2026). The BIS draft of IS 4648 names IS 732:2019 in its Annex C, and
+//    the clause numbers for it here are that draft's. The standard itself was not read, so the entry carries a caveat;
 //  - "governs" says what NirmanShastra takes from the document, in plain words, and does not quote it;
 //  - "caveat" is set where a model says it could not read the document in full, or treats the figure as an assumption.
 // Entries whose code does not start with IS are other sources (SP handbooks, CPWD, NBC, a published study), listed so nothing is hidden.
@@ -211,9 +213,10 @@ export const CODES_BY_TOOL: CodeGroup[] = [
         governs: 'For the Basic level: the socket schedule for each room (cl 9.8; where it gives two to three, the larger is used) and the lighting circuit rule (cl 7.2).',
       },
       {
-        code: 'IS 732:1989',
+        code: 'IS 732:2019',
         title: 'Code of Practice for Electrical Wiring Installations',
-        governs: 'The residual current breaker on every board (cl 5.1.3.1). A later revision (2019) exists; the model reads the 1989 text.',
+        governs: 'Named by the BIS draft of IS 4648 as the code for the type of residual current device on each board (cl 4.2), for surge protection (cl 5.3.5) and, above 10 kW, for the current ratings of cables (Annex T). The model applies none of these rules itself: the 30 mA residual current breaker on every board follows cl 6.2.9 of the draft IS 4648.',
+        caveat: 'The text of IS 732:2019 was not read. The clause and annex numbers are the ones the BIS draft of IS 4648 gives for it; confirm them against the standard.',
       },
       {
         code: 'IS 3043:2018',

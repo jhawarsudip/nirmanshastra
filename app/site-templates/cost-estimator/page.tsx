@@ -14,7 +14,7 @@ const content: ProductContent = {
   codesLabel: 'Codes',
   codes: ['IS 456:2000', 'IS 1786:2008', 'IS 1077:1992', 'IS 2212', 'IS 1661:1972', 'IS 1893:2016'],
   description:
-    'Prices a house from IS-code first principles, generates a client quotation, compares up to 3 contractor quotes line by line, tracks budget against actual once the job starts.',
+    'For contractors: price a house from IS-code quantities using your own rates, make a client quotation, and compare up to 3 quotes.',
   fullSheetList:
     'Project Inputs, Area Statement, Rate Library, Rate Analysis, BOQ, Material Summary, Quality Tiers, Material Options, Quotation, Margin & Bid, Quote Comparison, Payment Schedule, Budget vs Actual, Change Orders, Cost Diagrams, Dashboard.',
 

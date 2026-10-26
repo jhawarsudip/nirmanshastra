@@ -32,7 +32,7 @@ export default function FaqPage() {
         <ToolHead
           eyebrow="Questions"
           name="Questions and answers"
-          blurb={`${total} answers on what NirmanShastra works out, how, and what it leaves out. It gives quantities only: no labour, no dealer prices and no contractor rates.`}
+          blurb={`${total} answers on what NirmanShastra works out, how, and what it leaves out. The reports for homeowners give quantities only: no labour, no dealer prices and no contractor rates. The Excel toolkits for contractors work from the rates you enter.`}
         />
 
         <nav aria-label="FAQ categories" className="ns-faq-nav">

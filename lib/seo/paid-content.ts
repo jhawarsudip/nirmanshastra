@@ -204,7 +204,7 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       {
         question: 'Which standards does it follow?',
         answer:
-          'The room-wise points follow the BIS draft revision of IS 4648 (September 2024) for Standard wiring, and the socket schedule of IS 4648:1968 for Basic wiring. The circuit limits follow CPWD General Specifications for Electrical Works and the draft; protection follows IS 732. The report names the clause for each check. The draft is not yet published, and the report says so.',
+          'The room-wise points follow the BIS draft revision of IS 4648 (September 2024) for Standard wiring, and the socket schedule of IS 4648:1968 for Basic wiring. The circuit limits follow CPWD General Specifications for Electrical Works and the draft; the 30 mA residual current breaker on each board follows the draft, which points to IS 732:2019. The report names the clause for each check, and says where the text of a standard was not read in full. The draft is not yet published, and the report says so.',
       },
       {
         question: 'Why does Standard wiring count more points than my electrician does?',
@@ -223,7 +223,7 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       },
     ],
     source:
-      'lib/qty/electrical/model.ts (BIS draft IS 4648 ETD 20 Sept 2024 Tables 2 to 6; IS 4648:1968 cl 9.8; IS 732:1989; CPWD General Specifications for Electrical Works Part I GS 3.9 to 3.12). Quantities-only model, no rate inputs. No worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',
+      'lib/qty/electrical/model.ts (BIS draft IS 4648 ETD 20 Sept 2024 Tables 2 to 6; IS 4648:1968 cl 9.8; IS 732:2019 (named by the draft, text not read); CPWD General Specifications for Electrical Works Part I GS 3.9 to 3.12). Quantities-only model, no rate inputs. No worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',
   },
 
   // ── PlumbingPro ────────────────────────────────────────────────────────────

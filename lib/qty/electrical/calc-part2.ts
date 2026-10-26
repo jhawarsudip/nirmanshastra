@@ -130,7 +130,7 @@ export function section6(c: Ctx): CalcSection {
   const { d, L } = c
 
   L.say('What the model does', 'Each circuit gets the least copper size for its kind (table 6.2). The size does not change with the length of the run, the number of circuits sharing a conduit or the temperature.', REF.rule)
-  L.say('What the model does not do', 'It does not work out the current a cable can carry, derate it for grouping or temperature, calculate the voltage drop, or check fault current. IS 732 sizes a cable by those things, so a long run needs more than the sizes shown here.', 'Not worked in this model')
+  L.say('What the model does not do', 'It does not work out the current a cable can carry, derate it for grouping or temperature, calculate the voltage drop, or check fault current. IS 732:2019 sizes a cable by those things, so a long run needs more than the sizes shown here.', 'Not worked in this model')
   L.say('Copper', 'All wire is copper. Every circuit carries an earth wire of the same size as its live wire.', REF.draftT4)
   const how = L.take()
 
@@ -162,7 +162,7 @@ export function section6(c: Ctx): CalcSection {
   L.say('How the draft sizes the mains, and what the model does',
     `Draft IS 4648 Table 4 gives the mains and sub-mains for the total connected load, up to ${DRAFT_MAINS_LIMIT_KW} kW. The model applies the steps of that table to the design load, which is smaller because it allows for diversity (section 4). That is the tool's choice; the draft does not say to size by design load. `
     + (connGov >= DRAFT_MAINS_LIMIT_KW
-      ? `Here the connected load is ${d1(connGov)} kW and the design load ${d2(gov.boardPd)} kW. For a connected load of ${DRAFT_MAINS_LIMIT_KW} kW or more the draft asks for a diversity factor, the current worked out, a size taken from the current ratings of IS 732 (Annex T) with further derating factors, and one size higher for future additions. The model reads none of those tables and adds no size, so ${m.size} mm² is the step of the table for ${d2(gov.boardPd)} kW, not a size worked from the current. An electrician or the electricity board should confirm the mains size.`
+      ? `Here the connected load is ${d1(connGov)} kW and the design load ${d2(gov.boardPd)} kW. For a connected load of ${DRAFT_MAINS_LIMIT_KW} kW or more the draft asks for a diversity factor, the current worked out, a size taken from the current ratings of IS 732:2019 (Annex T) with further derating factors, and one size higher for future additions. The model reads none of those tables and adds no size, so ${m.size} mm² is the step of the table for ${d2(gov.boardPd)} kW, not a size worked from the current. An electrician or the electricity board should confirm the mains size.`
       : `Here the connected load is ${d1(connGov)} kW and the design load ${d2(gov.boardPd)} kW.${m.three ? '' : ` Read by connected load, the table would give ${mainsMm2(connGov, false)} mm²; the model gives ${m.size} mm² from the design load.`}`),
     REF.draftT4)
   const raw = L.calc('Copper size from the table below', 'size = the step of the table that the design load falls in', `design load {kw:2} kW, ${m.three ? 'three' : 'single'}-phase`, { kw: gov.boardPd, three: m.three ? 1 : 0 },
@@ -178,7 +178,7 @@ export function section6(c: Ctx): CalcSection {
       table(['Design load', 'Copper (mm²)', 'Source'], stepRows(three ? MAINS_STEPS.three : MAINS_STEPS.single, 'kW', 'mm²', (hi) => (mainsStatus(hi, three) === 'code' ? 'Draft IS 4648 Table 4, applied to the design load' : REF.assume)), {
         note: three
           ? 'The draft IS 4648 only hints at three phase (4 or 6 mm² with the load balanced to within 10%), so every three-phase size is an assumption. Your electricity board fixes the supply and the cable.'
-          : `Draft IS 4648 Table 4 gives sizes up to ${DRAFT_MAINS_LIMIT_KW} kW. It leaves exactly 7 kW out of its two bands (over 5 and under 7, over 7 and under 10); the model puts 7 kW with the 6 mm² band. The draft writes this table for the connected load; the model applies it to the design load. For a connected load of ${DRAFT_MAINS_LIMIT_KW} kW or more the draft asks for diversity, the current worked out, a size from the IS 732 current ratings (Annex T, with derating) and one size higher; the model does none of that, so the larger sizes are assumptions.`,
+          : `Draft IS 4648 Table 4 gives sizes up to ${DRAFT_MAINS_LIMIT_KW} kW. It leaves exactly 7 kW out of its two bands (over 5 and under 7, over 7 and under 10); the model puts 7 kW with the 6 mm² band. The draft writes this table for the connected load; the model applies it to the design load. For a connected load of ${DRAFT_MAINS_LIMIT_KW} kW or more the draft asks for diversity, the current worked out, a size from the IS 732:2019 current ratings (Annex T, with derating) and one size higher; the model does none of that, so the larger sizes are assumptions.`,
       })),
   )
   const conduitTable = table(['Copper (mm²)', 'Conduit, single-phase (mm)', 'Conduit, three-phase (mm)'],
