@@ -156,6 +156,16 @@ async function getPaidStats(supabase: ReturnType<typeof createServiceClient>, to
     contactMap = Object.fromEntries((contactsRaw2 ?? []).map(c => [c.id, c]))
   }
 
+  // which reel, ad or link brought each of these (the campaign tags saved with the order; empty when none were recorded)
+  let sourceMap: Record<string, string> = {}
+  if (recentSlice.length > 0) {
+    const { data: srcRaw } = await supabase.from('estimates').select('id, input_data').in('id', recentSlice.map(e => e.id))
+    sourceMap = Object.fromEntries((srcRaw ?? []).map(r => {
+      const a = (r.input_data as { attribution?: Record<string, string> } | null)?.attribution
+      return [r.id, a ? [a.utm_source, a.utm_medium, a.utm_campaign].filter(Boolean).join(' / ') : '']
+    }))
+  }
+
   const recentReports = recentSlice.map(e => {
     const c  = contactMap[e.contact_id] ?? {}
     const rd = e.result_data as Record<string, unknown> | null
@@ -167,6 +177,7 @@ async function getPaidStats(supabase: ReturnType<typeof createServiceClient>, to
       project:       e.project_name || '—',
       totalEstimate: gt?.standard   ?? 0,
       paid:          e.status === 'paid',
+      source:        sourceMap[e.id] || '—',
       createdAt:     e.created_at,
     }
   })

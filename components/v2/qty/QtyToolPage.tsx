@@ -14,6 +14,7 @@ import type { TradeFree } from '@/lib/qty/types'
 import { useCalm } from '@/lib/v2/store'
 import { TOOLS } from '@/lib/v2/content'
 import { saveProjectToSession } from '@/lib/project-session'
+import ViewItem from '@/components/analytics/ViewItem'
 import '@/styles/v2/results.css'
 
 /*
@@ -162,6 +163,7 @@ export default function QtyToolPage({ slug }: { slug: TradeSlug }) {
 
   return (
     <div className="ns-i-wrap ns-i-page" style={{ ['--tc' as string]: `var(${tool.accent})` }}>
+      <ViewItem appType={meta.appType} />
       {step !== 'results' && (
         <ToolHead eyebrow={meta.eyebrow} name={tool.name} price={`Full report ${tool.price}`} blurb={meta.blurb} art={tool.plate} artAlt={tool.plateAlt} />
       )}

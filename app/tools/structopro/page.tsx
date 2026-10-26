@@ -13,6 +13,7 @@ import { ToolHead, StepBar, RailAside, RailFold, Note } from '@/components/v2/in
 import { useCalm } from '@/lib/v2/store'
 import { TOOLS } from '@/lib/v2/content'
 import { saveProjectToSession } from '@/lib/project-session'
+import ViewItem from '@/components/analytics/ViewItem'
 import '@/styles/v2/results.css'
 
 const stepVariants = {
@@ -190,6 +191,7 @@ export default function StructoProPage() {
 
   return (
     <div className="ns-i-wrap ns-i-page" style={{ ['--tc' as string]: `var(${TOOL.accent})` }}>
+      <ViewItem appType="structopro" />
       {!isReport && (
         <ToolHead
           eyebrow="Phase 1 · Structure"

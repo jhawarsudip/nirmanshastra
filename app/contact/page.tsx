@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { trackLead } from '@/lib/analytics/events'
 import '@/styles/v2/results.css'
 import { ToolHead, Field, Input, Note, IcArrow } from '@/components/v2/inner/kit'
 
@@ -18,6 +19,7 @@ export default function ContactPage() {
     try {
       const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
       if (res.ok) {
+        trackLead('contact_form', 'email')
         setStatus('sent')
         setForm({ name: '', email: '', subject: '', message: '' })
       } else {

@@ -1,0 +1,46 @@
+/*
+  Consent banner. Self-contained: it sits in the root layout, outside the .ns2 wrapper, so every colour has a fallback.
+  Accept and Decline are the same size, weight and height on purpose (DPDP: as easy to refuse as to give).
+*/
+.ns-consent {
+  position: fixed; z-index: 10000;
+  left: 12px; right: 12px; bottom: 12px;
+  margin: 0 auto; max-width: 760px;
+  background: var(--ns-paper, #FBF8F0); color: var(--ns-ink, #2A1E16);
+  border: 2px solid var(--ns-ink, #2A1E16); border-radius: 0;
+  box-shadow: 5px 5px 0 var(--ns-shadow-c, rgba(58, 54, 49, .35));
+  padding: 14px 16px 14px;
+  font: 400 14px/1.5 var(--ns-body, var(--font-plex-sans, system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', sans-serif));
+}
+.ns-consent[hidden] { display: none; }
+.ns-consent__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 4px; }
+.ns-consent__title { margin: 0; font-size: 16px; line-height: 1.3; font-weight: 700; letter-spacing: 0; }
+.ns-consent__lang {
+  appearance: none; background: none; border: 0; padding: 2px 0; margin: 0; cursor: pointer;
+  font: inherit; font-size: 13px; color: var(--ns-link, #2E3F94); text-decoration: underline; text-underline-offset: 3px;
+}
+.ns-consent__text { margin: 0 0 12px; color: var(--ns-ink-2, #5E4B3C); }
+.ns-consent__text a { color: var(--ns-link, #2E3F94); text-underline-offset: 3px; }
+.ns-consent__row { display: flex; gap: 10px; }
+.ns-consent__btn {
+  flex: 1 1 0; min-height: 44px; padding: 8px 16px; cursor: pointer;
+  font: inherit; font-weight: 700; font-size: 15px; line-height: 1.2; text-align: center;
+  border: 2px solid var(--ns-ink, #2A1E16); border-radius: 0;
+  background: var(--ns-paper, #FBF8F0); color: var(--ns-ink, #2A1E16);
+}
+.ns-consent__btn--yes { background: var(--ns-ink, #2A1E16); color: var(--ns-paper, #FBF8F0); }
+.ns-consent__btn:hover { background: var(--ns-tint, #FCE4A8); color: var(--ns-ink, #2A1E16); }
+.ns-consent__btn:focus-visible, .ns-consent__lang:focus-visible { outline: 3px solid var(--ns-focus, #2E3F94); outline-offset: 2px; }
+@media (min-width: 720px) {
+  .ns-consent { bottom: 18px; padding: 16px 20px; }
+  .ns-consent__row { max-width: 360px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ns-consent { animation: ns-consent-in 220ms ease-out both; }
+  @keyframes ns-consent-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+}
+.ns-privacy-choices {
+  appearance: none; background: none; border: 0; padding: 0; margin: 0; cursor: pointer;
+  font: inherit; color: inherit; text-align: left; text-decoration: inherit;
+}
+.ns-privacy-choices:hover { text-decoration: underline; }

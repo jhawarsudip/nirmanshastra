@@ -6,6 +6,7 @@ import { ensureSession } from '@/lib/supabase/ensure-session'
 import { INDIAN_STATES } from '@/lib/structopro-qty/states'
 import type { User } from '@supabase/supabase-js'
 import { Field, Input, Select, Note, IcArrow } from '@/components/v2/inner/kit'
+import { trackLead } from '@/lib/analytics/events'
 
 export interface StructoRegData {
   name: string
@@ -86,6 +87,7 @@ export default function RegistrationForm({ onSubmit }: Props) {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Registration failed')
+      trackLead('structopro', 'email') // generate_lead / Lead: an email address was given
       onSubmit(submitData as StructoRegData, json.contactId)
     } catch (err: unknown) {
       setApiError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')

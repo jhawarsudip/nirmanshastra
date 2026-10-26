@@ -1,5 +1,6 @@
 'use client'
 
+import PrivacyChoices from '@/components/analytics/PrivacyChoices'
 import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
@@ -93,7 +94,10 @@ export default function Footer() {
             <h2>{pick(FOOT.company, loc)}</h2>
             <ul>{company.map(([l, h]) => <li key={h}><Link href={h}>{l}</Link></li>)}</ul>
             <h2 className="ns-foot__h2b">{pick(FOOT.legal, loc)}</h2>
-            <ul>{legal.map(([l, h]) => <li key={h}><Link href={h}>{l}</Link></li>)}</ul>
+            <ul>
+              {legal.map(([l, h]) => <li key={h}><Link href={h}>{l}</Link></li>)}
+              <li><PrivacyChoices>{hi ? 'गोपनीयता विकल्प' : 'Privacy choices'}</PrivacyChoices></li>
+            </ul>
           </nav>
         </div>
         <div className="ns-foot__base">

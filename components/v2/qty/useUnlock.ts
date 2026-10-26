@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import { getAttribution } from '@/lib/analytics/attribution'
+import { orderCreated, paymentVerified } from '@/lib/analytics/checkout'
 
 /*
   The pay, load-the-report, make-the-PDF sequence that every paid tool shares.
@@ -64,6 +66,7 @@ export function useUnlock<R>({ api, estimateId, contactName, description, fileNa
         const json = await res.json()
         if (json.status === 'success') {
           if (pollRef.current) clearInterval(pollRef.current)
+          paymentVerified(orderId) // no-op when the success handler already reported this order
           setIsPaid(true)
           setPayStatus('paid')
         } else if (json.status === 'failed') {
@@ -140,10 +143,12 @@ export function useUnlock<R>({ api, estimateId, contactName, description, fileNa
       const res = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estimateId }), // the amount is decided on the server
+        // the amount is decided on the server; the campaign tags say which reel or ad brought this sale
+        body: JSON.stringify({ estimateId, attribution: getAttribution() }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not start the payment')
+      orderCreated(json) // begin_checkout / InitiateCheckout, with the amount the server will charge
       setOrderId(json.orderId)
       setPayStatus('open')
       if (!window.Razorpay) throw new Error('The payment window did not load. Please refresh the page and try again.')
@@ -172,6 +177,7 @@ export function useUnlock<R>({ api, estimateId, contactName, description, fileNa
             })
             const vJson = await vRes.json()
             if (!vRes.ok) throw new Error(vJson.error || 'Verification failed')
+            paymentVerified(response.razorpay_order_id) // purchase / Purchase, once per order
             setPayStatus('polling')
           } catch (err) {
             setPayStatus('error')

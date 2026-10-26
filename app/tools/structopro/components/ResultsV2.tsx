@@ -9,6 +9,8 @@ import { buildingLabelStilt, storeyLabel, beamLevelLabel, bars12m, isCoil, bandB
 import type { MemberTotals } from '@/lib/structopro-qty/types'
 import StructureViewer from '@/components/3d/StructureViewer'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import { getAttribution } from '@/lib/analytics/attribution'
+import { orderCreated, paymentVerified } from '@/lib/analytics/checkout'
 import { TOOLS } from '@/lib/v2/content'
 import { Note, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { Tot, ReportTable as Table, DeliveryNote } from '@/components/v2/qty/parts'
@@ -85,6 +87,7 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
         const json = await res.json()
         if (json.status === 'success') {
           if (pollRef.current) clearInterval(pollRef.current)
+          paymentVerified(orderId) // no-op when the success handler already reported this order
           setIsPaid(true)
           setPayStatus('paid')
         } else if (json.status === 'failed') {
@@ -163,10 +166,12 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
       const res = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estimateId }), // the amount is decided on the server
+        // the amount is decided on the server; the campaign tags say which reel or ad brought this sale
+        body: JSON.stringify({ estimateId, attribution: getAttribution() }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not start the payment')
+      orderCreated(json) // begin_checkout / InitiateCheckout, with the amount the server will charge
       setOrderId(json.orderId)
       setPayStatus('open')
       if (!window.Razorpay) throw new Error('The payment window did not load. Please refresh the page and try again.')
@@ -195,6 +200,7 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
             })
             const vJson = await vRes.json()
             if (!vRes.ok) throw new Error(vJson.error || 'Verification failed')
+            paymentVerified(response.razorpay_order_id) // purchase / Purchase, once per order
             setPayStatus('polling')
           } catch (err) {
             setPayStatus('error')

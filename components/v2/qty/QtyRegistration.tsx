@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { ensureSession } from '@/lib/supabase/ensure-session'
 import type { User } from '@supabase/supabase-js'
 import { STATES } from '@/lib/qty/states'
+import { trackLead } from '@/lib/analytics/events'
 import type { TradeSlug } from '@/lib/qty/meta'
 import { Field, Input, Select, Note, IcArrow } from '@/components/v2/inner/kit'
 
@@ -83,6 +84,7 @@ export default function QtyRegistration({ slug, onSubmit }: { slug: TradeSlug; o
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok || !json.contactId) throw new Error(json.error || 'Registration failed')
+      trackLead(slug, 'email') // generate_lead / Lead: an email address was given
       onSubmit(data, json.contactId)
     } catch (err: unknown) {
       setApiError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')

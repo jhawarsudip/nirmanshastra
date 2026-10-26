@@ -16,7 +16,7 @@ interface VastuRecentRow {
 }
 interface PaidRecentRow {
   name: string; mobile: string; city: string; project: string
-  totalEstimate: number; paid: boolean; createdAt: string
+  totalEstimate: number; paid: boolean; source: string; createdAt: string
 }
 
 interface VastuStats {
@@ -198,7 +198,7 @@ function VastuTab({ stats }: { stats: VastuStats }) {
 function PaidTab({ stats }: { stats: PaidStats }) {
   const csvRows = stats.recentReports.map(r => ({
     Name: r.name, Mobile: r.mobile, City: r.city, Project: r.project,
-    'Total Estimate (₹)': r.totalEstimate, Paid: r.paid ? 'Yes' : 'No', Date: r.createdAt,
+    'Total Estimate (₹)': r.totalEstimate, Paid: r.paid ? 'Yes' : 'No', Source: r.source, Date: r.createdAt,
   }))
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
@@ -315,7 +315,7 @@ function PaidTable({ rows }: { rows: PaidRecentRow[] }) {
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr style={{ borderBottom: '2px solid rgba(30,34,39,0.2)' }}>
-            {['Name', 'Mobile', 'City', 'Project', 'Est. Value', 'Paid', 'Date'].map(h => (
+            {['Name', 'Mobile', 'City', 'Project', 'Est. Value', 'Paid', 'Source', 'Date'].map(h => (
               <th key={h} style={{ ...mono, fontSize: 10, color: 'rgba(30,34,39,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', textAlign: 'left', padding: '0 10px 8px 0', whiteSpace: 'nowrap' }}>{h}</th>
             ))}
           </tr>
@@ -334,6 +334,7 @@ function PaidTable({ rows }: { rows: PaidRecentRow[] }) {
                   : <span style={{ color: 'rgba(30,34,39,0.35)', border: '1px solid rgba(30,34,39,0.2)', padding: '2px 6px', fontSize: 10 }}>UNPAID</span>
                 }
               </td>
+              <td style={{ ...mono, fontSize: 11, color: '#1E2227', padding: '8px 10px 8px 0', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={r.source}>{r.source}</td>
               <td style={{ ...mono, fontSize: 11, color: 'rgba(30,34,39,0.4)', padding: '8px 0', whiteSpace: 'nowrap' }}>{fmtDate(r.createdAt)}</td>
             </tr>
           ))}

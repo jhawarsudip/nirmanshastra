@@ -9,6 +9,8 @@ import { PACK_CLAIMS_PER_REPORT, PACK_CONTAINS, PRICE, TOOL_PRICE_PAISE, rupees 
 import { PACK_LABEL, PACK_TOOL_PATH, type PackStatus } from '@/lib/pack/shared'
 import { useUnlock } from './useUnlock'
 import { readStoredPackId, rememberPackId } from './usePack'
+import { trackLead } from '@/lib/analytics/events'
+import ViewItem from '@/components/analytics/ViewItem'
 import '@/styles/v2/results.css'
 
 /*
@@ -86,6 +88,7 @@ export default function CompletePack() {
       const res = await fetch('/api/pack/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
       const json = await res.json().catch(() => ({}))
       if (!res.ok || !json.packId) throw new Error(json.error || 'We could not save your details.')
+      trackLead('completepack', 'email') // generate_lead / Lead: an email address was given
       setPackId(json.packId)
     } catch (err) {
       setApiError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
@@ -98,6 +101,7 @@ export default function CompletePack() {
 
   return (
     <div className="ns-i-page" style={{ ['--tc' as string]: 'var(--ns-laterite)' }}>
+      <ViewItem appType="completepack" />
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
         <ToolHead
           eyebrow="Best value · all six reports"

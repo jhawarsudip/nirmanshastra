@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { IcArrow } from './kit'
+import CalcTracker from '@/components/analytics/CalcTracker'
 import '@/styles/v2/results.css'
 import '@/styles/v2/freecalc.css'
 
@@ -13,7 +14,8 @@ import '@/styles/v2/freecalc.css'
 /** The page frame: the same width and padding as every other inner page. */
 export function CalcPage({ children }: { children: ReactNode }) {
   return (
-    <div className="ns-i-page">
+    <div className="ns-i-page" data-ns-calc>
+      <CalcTracker />
       <div className="ns-i-wrap ns-calc-page">{children}</div>
     </div>
   )

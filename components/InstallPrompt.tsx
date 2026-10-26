@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useConsent } from '@/lib/analytics/consent';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -10,6 +11,8 @@ interface BeforeInstallPromptEvent extends Event {
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+  // the consent bar sits in the same spot, so the install bar waits until the visitor has answered it
+  const consent = useConsent();
 
   useEffect(() => {
     // Don't show if already dismissed this session
@@ -47,7 +50,7 @@ export default function InstallPrompt() {
     sessionStorage.setItem('pwa-banner-dismissed', '1');
   };
 
-  if (!visible) return null;
+  if (!visible || consent == null) return null;
 
   return (
     <div

@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import '@/styles/v2/results.css'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
+import PrivacyChoices from '@/components/analytics/PrivacyChoices'
 
 // Last changed when the site became quantity-only. A fixed date, so the page does not say "today" every time it is built.
-const UPDATED = '25 October 2026'
+const UPDATED = '26 October 2026'
 
 const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
@@ -37,6 +38,7 @@ export default function PrivacyPolicyPage() {
             <li>The answers you enter in a tool: plot and floor sizes, number of floors, rooms, finishes and the other choices the form asks for.</li>
             <li>Payment information: we do not store card details. Razorpay takes the payment directly.</li>
             <li>Usage data, such as pages visited, tool steps completed, browser type and device type, collected automatically by our hosting provider, Vercel.</li>
+            <li>Only if you press Accept on the analytics banner: how you use the site (pages, clicks, scrolling, device and browser, an approximate location from your IP address), which ad, reel or link brought you (the utm_source, utm_medium and utm_campaign tags in the link you followed), and anonymous identifiers set by Google, Microsoft and Meta. See section 6.</li>
           </ul>
           <p>If you use a paid tool without creating an account, we start a temporary guest session so your report can be attached to you. A guest cannot log back in later, so the emailed link and the download are the only copies of the report.</p>
           <p>We do not collect Aadhaar numbers, PAN, bank account details or any other sensitive financial or government identification.</p>
@@ -58,9 +60,9 @@ export default function PrivacyPolicyPage() {
             <li>To send helpful construction-stage reminders related to your project (you can opt out at any time).</li>
             <li>To improve our quantity models and the standards they rely on.</li>
             <li>To answer support and contact requests.</li>
-            <li>For internal analytics on which tools are used most, in aggregate and not by individual.</li>
+            <li>If you accept the analytics banner: to see which pages and tools are used, which ad or reel brought a visit or a sale, and to measure our own advertising.</li>
           </ul>
-          <p>We do not use your data for targeted advertising. We do not sell your project information to contractors, builders or material suppliers. Your estimate is your property.</p>
+          <p>We do not sell your data. We do not sell your project information to contractors, builders or material suppliers. Your estimate is your property. If you accept the analytics banner, the Meta Pixel lets Meta match your visit to its own records so that we can measure our ads, and Meta may use that match to show our ads to people who visited. If you decline, the Pixel never loads.</p>
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="pp-4">
@@ -76,14 +78,23 @@ export default function PrivacyPolicyPage() {
             <li>Resend: sends transactional email (your PDF report, contact confirmations). It processes your email address to deliver messages for us.</li>
             <li>Supabase: database and sign-in. It processes your registration data to provide the service.</li>
             <li>Vercel: hosting. It may log request details such as IP address and browser as part of normal infrastructure logging.</li>
+            <li>Google (Google Analytics 4), Microsoft (Clarity) and Meta (Meta Pixel): visit measurement and advertising measurement. They are used only if you press Accept on the analytics banner, and nothing is requested from them before that.</li>
           </ul>
-          <p>We do not use advertising networks, social media trackers or data brokers, and we do not share your data with any party not listed here, other than as set out in 2.1 if you opt in.</p>
+          <p>We do not use data brokers, and we do not share your data with any party not listed here, other than as set out in 2.1 if you opt in.</p>
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="pp-6">
-          <h2 id="pp-6" style={H2}>6. Cookies and session data</h2>
-          <p>NirmanShastra uses cookies for session management only, to keep you signed in during your session. We do not use advertising cookies, cross-site tracking cookies or third-party analytics cookies.</p>
-          <p>The admin session cookie (adminSession) is used only to run the site and expires after 24 hours.</p>
+          <h2 id="pp-6" style={H2}>6. Cookies, analytics and your choice</h2>
+          <p><b>Always on.</b> NirmanShastra uses cookies and browser storage to keep you signed in during your session and to remember your project in this browser. The admin session cookie (adminSession) is used only to run the site and expires after 24 hours.</p>
+          <p><b>Only if you press Accept.</b> The first time you visit, a bar at the bottom of the page asks whether we may count how the site is used. It does not block the page. <b>Accept</b> and <b>Decline</b> are equally easy to press, and the site works the same either way. Until you choose, nothing is requested from Google, Microsoft or Meta.</p>
+          <ul>
+            <li>Google Analytics 4 counts visits, pages, clicks and purchases, and sets its own cookies (for example _ga).</li>
+            <li>Microsoft Clarity records how a page is used, as a replay of clicks, scrolling and movement. Everything typed into a form field is hidden from the recording.</li>
+            <li>The Meta Pixel reports visits, sign-ups and purchases to Meta so that we can see which ads work, and sets its own cookies (for example _fbp).</li>
+            <li>Campaign tags (utm_source, utm_medium, utm_campaign) in the link you followed are kept in your browser for up to 90 days, and are saved with an order if you buy, so we can see which reel or ad brought the sale.</li>
+          </ul>
+          <p>Google, Microsoft and Meta process this data under their own policies: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google</a>, <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener noreferrer">Microsoft</a>, <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener noreferrer">Meta</a>.</p>
+          <p><b>Changing your mind.</b> Press <PrivacyChoices>Privacy choices</PrivacyChoices> here or in the footer of any page. Declining after you accepted stops the services, removes the cookies they set on this site and reloads the page. Your choice is remembered in this browser only.</p>
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="pp-7">
@@ -93,7 +104,8 @@ export default function PrivacyPolicyPage() {
             <li>ask for a summary of the personal data we hold about you;</li>
             <li>ask us to correct inaccurate personal data;</li>
             <li>ask us to delete your personal data and all estimates attached to it;</li>
-            <li>withdraw consent to marketing emails at any time, using the unsubscribe link in any email we send; and</li>
+            <li>withdraw consent to marketing emails at any time, using the unsubscribe link in any email we send;</li>
+            <li>withdraw your consent to analytics and advertising measurement at any time, with &ldquo;Privacy choices&rdquo; in the footer; and</li>
             <li>complain to the Data Protection Board of India once the Board is constituted under the Act.</li>
           </ul>
           <p>To use any of these rights, email <a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a> with the subject &ldquo;Privacy Request: [your name]&rdquo;. We will reply within 30 days.</p>

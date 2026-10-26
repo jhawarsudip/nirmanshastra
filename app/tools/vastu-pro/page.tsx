@@ -1,5 +1,6 @@
 'use client'
 
+import { trackCalculatorUsed } from '@/lib/analytics/events'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import RegistrationForm, { type RegistrationData } from './components/RegistrationForm'
@@ -167,6 +168,7 @@ export default function VastuProPage() {
     setError('')
     setReading(readPlan({ house, northDeg, items, doors }))
     setStep('results')
+    trackCalculatorUsed('vastupro') // a free tool produced a result
     if (contact) {
       fetch('/api/vastu-pro/update-status', {
         method:  'POST',

@@ -218,8 +218,8 @@ html[data-calm="1"] .ns-dlr__map.is-set .ns-dlr__pin { animation: none; opacity:
 .ns-foot__note { margin: 0; max-width: 38ch; font-size: 15px; line-height: 1.6; color: rgba(251, 244, 228, .78); }
 .ns-foot nav h2 { margin: 0 0 14px; font-size: 16px; font-weight: 800; letter-spacing: 0; color: var(--ns-marigold); }
 .ns-foot nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.ns-foot nav a { display: inline-flex; gap: 8px; align-items: baseline; color: var(--ns-chalk); text-decoration: none; font-size: 15.5px; line-height: 1.35; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .2s; }
-.ns-foot nav a:hover, .ns-foot nav a:focus-visible { background-size: 100% 1px; }
+.ns-foot nav a, .ns-foot nav .ns-privacy-choices { display: inline-flex; gap: 8px; align-items: baseline; color: var(--ns-chalk); text-decoration: none; font-size: 15.5px; line-height: 1.35; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .2s; }
+.ns-foot nav a:hover, .ns-foot nav a:focus-visible, .ns-foot nav .ns-privacy-choices:hover, .ns-foot nav .ns-privacy-choices:focus-visible { background-size: 100% 1px; text-decoration: none; }
 .ns-foot nav a em { font-style: normal; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: rgba(251, 244, 228, .14); }
 .ns-foot nav h2.ns-foot__h2b { margin-top: 30px; }
 .ns-foot__base { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; padding: 22px 0 30px; border-top: 1px solid rgba(251, 244, 228, .25); font-size: 14px; color: rgba(251, 244, 228, .78); }

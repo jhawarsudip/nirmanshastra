@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { priceForAppType } from '@/lib/tool-pricing'
+import { sanitizeAttribution, saveAttributionOnEstimate, type CleanAttribution } from '@/lib/analytics/attribution-server'
 
 // Razorpay REST API — server-side only. Key Secret never exposed to client.
-async function createRazorpayOrder(amount: number, receiptId: string, appType: string) {
+async function createRazorpayOrder(amount: number, receiptId: string, appType: string, attribution: CleanAttribution) {
   const keyId     = process.env.RAZORPAY_KEY_ID!
   const keySecret = process.env.RAZORPAY_KEY_SECRET!
 
@@ -27,6 +28,8 @@ async function createRazorpayOrder(amount: number, receiptId: string, appType: s
         source: 'NirmanShastra',
         // which product this order is for, so the Razorpay dashboard tells a pack from a single report
         product: appType,
+        // which reel, ad or link brought this sale (shown on the payment in the Razorpay dashboard)
+        ...attribution,
       },
     }),
   })
@@ -43,6 +46,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { estimateId } = body
+    // campaign tags (utm_source / utm_medium / utm_campaign) from the visitor's first tagged visit; anything else is dropped
+    const attribution = sanitizeAttribution(body?.attribution)
 
     if (!estimateId) {
       return NextResponse.json({ error: 'estimateId is required' }, { status: 400 })
@@ -73,7 +78,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create Razorpay order
-    const order = await createRazorpayOrder(amount, `SP-${estimateId.substring(0, 8)}`, estimate.app_type)
+    const order = await createRazorpayOrder(amount, `SP-${estimateId.substring(0, 8)}`, estimate.app_type, attribution)
 
     // Save pending payment record
     const { error: payError } = await supabase
@@ -92,10 +97,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Could not start the payment. Please try again.' }, { status: 500 })
     }
 
+    // Keep the campaign tags with the estimate too (no database change: they go in its saved inputs). Never blocks the payment.
+    await saveAttributionOnEstimate(supabase, estimateId, attribution)
+
     return NextResponse.json({
       orderId:  order.id,
       amount:   order.amount,
       currency: order.currency,
+      // lets the page report the sale to analytics with the amount that was actually charged
+      product:  estimate.app_type,
       keyId:    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     })
   } catch (err) {

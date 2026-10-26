@@ -7,6 +7,7 @@ import { Arrow } from './Icons'
 import { EST, pick, type Loc } from '@/lib/v2/copy'
 import { TOOLS } from '@/lib/v2/content'
 import { useReveal, useTween } from '@/lib/v2/store'
+import { trackCalculatorUsed } from '@/lib/analytics/events'
 
 // The hero widget. The frame is worked out by the real quantity model on the server (/api/structopro/glance), so the
 // grid, the column count and the plan drawing are the same ones the paid report starts from. Nothing here is a material
@@ -111,6 +112,8 @@ export default function HeroEstimator({ loc }: { loc: Loc }) {
   const [data, setData] = useState<Glance | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'failed'>('loading')
   const seq = useRef(0)
+  const firstRun = useRef(true) // the first request is the page loading, not the visitor trying the estimator
+  const reported = useRef(false)
 
   const built = area * floors
   const vBuilt = useTween(built)
@@ -121,13 +124,18 @@ export default function HeroEstimator({ loc }: { loc: Loc }) {
   useEffect(() => {
     const a = Math.min(MAX, Math.max(MIN, Math.round(area) || MIN))
     const mine = ++seq.current
+    const byVisitor = !firstRun.current
+    firstRun.current = false
     const ctl = new AbortController()
     const t = setTimeout(async () => {
       try {
         const res = await fetch(`/api/structopro/glance?area=${a}&floors=${floors}`, { signal: ctl.signal })
         if (!res.ok) throw new Error(String(res.status))
         const json = (await res.json()) as Glance
-        if (mine === seq.current) { setData(json); setState('ready') }
+        if (mine === seq.current) {
+          setData(json); setState('ready')
+          if (byVisitor && !reported.current) { reported.current = true; trackCalculatorUsed('home_estimator') }
+        }
       } catch (e) {
         if ((e as Error).name === 'AbortError') return
         if (mine === seq.current) setState('failed')

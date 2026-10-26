@@ -13,6 +13,7 @@ import "./globals.css";
 import { PRICE } from "@/lib/tool-pricing";
 import AIChatbox from "@/app/components/AIChatbox";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import Analytics from "@/components/analytics/Analytics";
 import InstallPrompt from "@/components/InstallPrompt";
 import JsonLd from "@/components/seo/JsonLd";
 import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
@@ -151,6 +152,8 @@ export default function RootLayout({
         <AIChatbox />
         <InstallPrompt />
         <ServiceWorkerRegistration />
+        {/* Consent banner, and GA4 / Clarity / Meta Pixel after the visitor accepts (nothing loads before) */}
+        <Analytics />
       </body>
     </html>
   );
