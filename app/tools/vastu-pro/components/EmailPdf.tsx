@@ -94,7 +94,7 @@ export default function EmailPdf({ northDeg, house, items, doors }: Props) {
             <Field id="vp-email" label="Your email" required error={emailError} hint="The PDF is sent here." wide>
               <Input type="email" value={email} onChange={ev => { setEmail(ev.target.value); if (emailError) setEmailError('') }} placeholder="ramesh@example.com" autoComplete="email" inputMode="email" />
             </Field>
-            <Field id="vp-name" label="Your name (optional)">
+            <Field id="vp-name" label="Your name (optional)" hint="So the email can greet you.">
               <Input type="text" value={name} onChange={ev => setName(ev.target.value)} placeholder="Ramesh Sharma" autoComplete="name" />
             </Field>
             <Field id="vp-wa" label="WhatsApp number (optional)" hint="Only if you want to hear back on WhatsApp.">
