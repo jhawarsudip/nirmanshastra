@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import '@/styles/v2/results.css'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
+import { REVIEW_NOTE, REVIEW_FACT } from '@/lib/seo/site'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
@@ -29,6 +31,7 @@ export default function DisclaimerPage() {
             <li>certified the design under their professional registration.</li>
           </ul>
           <p><b>Before any construction, a licensed structural engineer must review and certify the design for your site.</b> NirmanShastra is not liable for any construction outcome based on its reports.</p>
+          <p>{REVIEW_NOTE} {REVIEW_FACT}</p>
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="dc-2">
@@ -57,7 +60,7 @@ export default function DisclaimerPage() {
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="dc-6">
           <h2 id="dc-6" style={H2}>6. General</h2>
           <p>NirmanShastra is not responsible for errors that arise from incorrect answers, changes in local rules, site conditions the answers did not cover, or events outside its control.</p>
-          <p>Using the site means you accept the <Link href="/terms-of-use">Terms of Use</Link> and the <Link href="/privacy-policy">Privacy Policy</Link>. Questions: <a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a>.</p>
+          <p>Using the site means you accept the <Link href="/terms-of-use">Terms of Use</Link> and the <Link href="/privacy-policy">Privacy Policy</Link>. Questions: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
         </section>
       </div>
     </div>

@@ -4,6 +4,7 @@
 import React from 'react'
 import path from 'path'
 import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
+import { CONTACT_EMAIL } from '../site-contact'
 
 export const LOGO_MARK = path.join(process.cwd(), 'public', 'brand', 'real', 'mark-dark-256.png')
 const FONT = (name: string) => path.join(process.cwd(), 'public/fonts', name)
@@ -167,6 +168,7 @@ export function Chrome({ tool, tag, reportId }: { tool: string; tag: string; rep
     <>
       <View style={S.footer} fixed>
         <Text style={S.footT}>NirmanShastra · {tool} · {reportId}</Text>
+        <Text style={S.footT}>{CONTACT_EMAIL}</Text>
         <Text style={S.footT} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
       </View>
       <View style={S.band}>

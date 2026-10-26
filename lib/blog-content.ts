@@ -5,7 +5,11 @@ export interface BlogArticle {
   category: string
   readTime: number
   publishedDate: string
-  /** ISO date of the last substantive edit. Falls back to publishedDate. */
+  /**
+   * ISO date of the last edit that changed what the article says, checked against git history (26 Oct 2026): all 14 guides
+   * were edited again on 25 Oct (the quantity-only rewrite and its fact corrections). Leave it out for an article that has
+   * not changed since it was published; nothing is then shown beside the publish date.
+   */
   updatedDate?: string
   /** 'hi-Latn' = Hindi written in Roman script (the site's Hinglish post). Default 'en'. */
   language?: 'en' | 'hi-Latn'
@@ -25,7 +29,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     category: 'Structural',
     readTime: 5,
     publishedDate: '2026-06-15',
-    updatedDate: '2026-10-23',
+    updatedDate: '2026-10-25',
     quickAnswer: "Multiply your slab or element volume in cubic metres by 8 to get the 50 kg cement bags M20 concrete needs (CPWD DAR 2014). A 20 m³ slab needs about 160 bags, so a quote for 120 bags is a red flag. A variance above 10% needs a written explanation from the contractor.",
     faq: [
       { question: "How many cement bags does M20 concrete need per cubic metre?", answer: "About 8 bags of 50 kg cement (400 kg) per cubic metre of M20 concrete, the CPWD Analysis of Rates 2014 figure. A 20 m³ pour therefore needs roughly 160 bags." },
@@ -84,7 +88,7 @@ NirmanShastra's StructurePro works out the quantities of the RCC frame from your
     category: 'Structural',
     readTime: 5,
     publishedDate: '2026-06-18',
-    updatedDate: '2026-10-23',
+    updatedDate: '2026-10-25',
     quickAnswer: "M20 means a characteristic compressive strength of 20 N/mm² on 150 mm cubes at 28 days. IS 456:2000 Table 5 sets minimum reinforced-concrete grades by exposure: mild M20, moderate M25, severe M30, very severe M35, extreme M40. Foundations and buried elements fall in moderate exposure, so M25 is the safe minimum.",
     faq: [
       { question: "What does M20 mean?", answer: "The M stands for mix and the number is the characteristic compressive strength in N/mm², measured on 150 mm cubes at 28 days. M20 achieves 20 N/mm², roughly 200 kg of force per square centimetre." },
@@ -146,7 +150,7 @@ StructurePro reads your seismic zone from your state and city and lists the conc
     category: 'Structural',
     readTime: 6,
     publishedDate: '2026-06-20',
-    updatedDate: '2026-10-23',
+    updatedDate: '2026-10-25',
     quickAnswer: "Check rebar by weight, not by eye. IS 1786:2008 lists theoretical weights per metre: 8 mm 0.395 kg, 10 mm 0.617 kg, 12 mm 0.888 kg, 16 mm 1.580 kg, 20 mm 2.470 kg. Five 12 mm bars of 6 m should weigh 26.64 kg; 22 kg is 17% light and grounds to reject the delivery.",
     faq: [
       { question: "How do I check that a rebar delivery is not short?", answer: "Count every bar, measure a 10% sample with a tape (standard cut lengths are 12 m or 6 m), then weigh 5 bars and divide by 5 × the measured length. Compare the result with the IS 1786 weight per metre." },
@@ -214,7 +218,7 @@ Weighing checks the delivery. To check the total on the quote, compare it with a
     category: 'Structural',
     readTime: 5,
     publishedDate: '2026-06-22',
-    updatedDate: '2026-10-23',
+    updatedDate: '2026-10-25',
     quickAnswer: "IS 1893:2016 divides India into four seismic zones, II, III, IV and V, with zone factors Z of 0.10, 0.16, 0.24 and 0.36. Delhi NCR is in Zone IV; Srinagar and Guwahati are in Zone V. Z multiplies into the design base shear, so a Zone V building must resist more lateral force.",
     faq: [
       { question: "How many seismic zones does India have?", answer: "Four: Zone II (low hazard), Zone III (moderate), Zone IV (high) and Zone V (very high), under IS 1893:2016." },
@@ -283,7 +287,7 @@ StructurePro reads your seismic zone from your state and city, applies it to the
     category: 'Cost & Transparency',
     readTime: 5,
     publishedDate: '2026-06-24',
-    updatedDate: '2026-10-23',
+    updatedDate: '2026-10-25',
     quickAnswer: "A per-sq-ft rate such as ₹1,800 hides the concrete grade, rebar diameter and wall thickness you are actually getting. Ask for a line-item BOQ and the IS code for every major material instead. Then compare quotes like for like, for example M20 with 16 mm columns against M25 with 20 mm columns.",
     faq: [
       { question: "Why is a per-sq-ft quote risky?", answer: "It is one number with nothing to check. It conceals material substitutions such as a lower concrete grade, thinner rebar or thinner walls, and under-delivery, because no quantities or specifications are listed." },
@@ -351,7 +355,7 @@ Now you are comparing like for like. The second quote might be worth every rupee
     category: 'Electrical',
     readTime: 5,
     publishedDate: '2026-06-26',
-    updatedDate: '2026-10-23',
+    updatedDate: '2026-10-25',
     quickAnswer: "An MCB protects against overload and short circuit; an RCCB protects against earth leakage; an RCBO does both in one device. A 30 mA RCCB typically disconnects within 30–40 milliseconds of detecting leakage, before cardiac fibrillation can occur. Fit one on socket, bathroom, kitchen and outdoor circuits (IS 732:2019).",
     faq: [
       { question: "What is the difference between an MCB and an RCCB?", answer: "An MCB trips when current exceeds its rating, so it protects against overload and short circuit but not earth leakage. An RCCB trips on leakage current to earth but does not protect against overload. You can be electrocuted through a circuit that never trips its MCB." },
@@ -421,7 +425,7 @@ NirmanShastra's ElectricalPro works out the quantities of wire, conduit, points 
     category: 'Plumbing',
     readTime: 4,
     publishedDate: '2026-06-28',
-    updatedDate: '2026-10-23',
+    updatedDate: '2026-10-25',
     quickAnswer: "IS 1172:1993 sets 135 litres per person per day for a residential building with flush toilets, so a family of four needs 540 litres a day. If supply arrives every 48 hours, store 1,080 litres. Put 60% in an underground sump and 40% in the overhead tank, about 432 litres.",
     faq: [
       { question: "How much water per person per day does IS 1172:1993 require?", answer: "135 litres per person per day (LPCD) for a residential building with flush toilets. A family of four therefore needs 540 litres a day." },
@@ -730,6 +734,7 @@ For one slab, beam or column, work from concrete volume instead. M20 concrete ne
     category: "Cost & Transparency",
     readTime: 6,
     publishedDate: '2026-10-23',
+    updatedDate: '2026-10-25',
     quickAnswer: "Ask for a line-item BOQ, then run seven checks: M20 concrete takes about 8 bags of cement per m³; rebar weighs d² ÷ 162 kg per metre; a one-brick modular wall takes 100 bricks per m²; wire is 1.5 mm² for lights, 2.5 mm² for sockets; water is 135 litres per person daily; cubes follow IS 456 Cl 15.2.2.",
     faq: [
       { question: "What is the first thing to ask a contractor for?", answer: "A line-item Bill of Quantities (BOQ) listing each material, quantity, rate and IS specification. A single per-sq-ft rate gives you nothing to check." },

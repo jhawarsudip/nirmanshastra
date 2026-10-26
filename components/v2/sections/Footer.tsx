@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { BrandMark, Arrow } from '../Icons'
 import { TOOLS, SITE_TEMPLATES, TEMPLATES_BUNDLE, PACK_TOOL } from '@/lib/v2/content'
 import { FOOT, pick } from '@/lib/v2/copy'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 import '@/styles/v2/closing.css'
 
 const CALCS: [string, string, string][] = [
@@ -73,6 +74,7 @@ export default function Footer() {
             <p className="ns-foot__name">Nirman<b>Shastra</b></p>
             <p className="ns-foot__note">{pick(FOOT.note, loc)}</p>
             <SocialLinks hi={hi} where="footer" />
+            <p className="ns-foot__mail">{hi ? 'हमें लिखिए: ' : 'Write to us: '}<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
           </div>
           <nav aria-label={pick(FOOT.tools, loc)}>
             <h2>{pick(FOOT.tools, loc)}</h2>

@@ -8,21 +8,26 @@
 
 import { priceForAppType, PACK_APP_TYPE, PRICE, type PaidAppType } from '@/lib/tool-pricing'
 import { SITE_TEMPLATES, BUNDLE_PRICE_PAISE } from '@/lib/site-templates'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 export const SITE_URL = 'https://www.nirmanshastra.in'
 export const SITE_NAME = 'NirmanShastra'
-export const SUPPORT_EMAIL = 'nirmanshastraindia@gmail.com'
+/** The public contact email. Set NEXT_PUBLIC_CONTACT_EMAIL (see lib/site-contact.ts); this is the same value under its older name. */
+export const SUPPORT_EMAIL = CONTACT_EMAIL
 export const OG_IMAGE_URL = `${SITE_URL}/og-image.png`
 export const LOGO_URL = `${SITE_URL}/icon-512.png`
 
 export const SITE_SUMMARY =
   "NirmanShastra is an Indian construction quantity estimator. From a few plain answers about a plot and plan it works out, to the Indian Standards, how much concrete, steel, cement, sand, aggregate, bricks, wire and pipe a house needs, so homeowners know the quantities before they order or sign. It gives quantities only: no labour, dealer or contractor rates. It has 10 free calculators, paid quantity reports (StructurePro, MasonryPro, ElectricalPro, PlumbingPro, InteriorPro, Grand Total), a Complete House Pack that unlocks all six for one house, Excel site templates and a free tool to compare a contractor's quantities with ours, in English and Hindi."
 
-// Authorship decision: no personal name, institute or employer anywhere
-// (pages, schema, metadata). Reviewer line is deliberately generic.
-export const REVIEW_NOTE = 'Written by the NirmanShastra founder, who holds a B.Tech in Civil Engineering. Not a structural design and not reviewed by a practising engineer.'
+// Authorship decision (SJ, 26 Oct 2026): the founder's NAME stays private everywhere. The credential that may be stated is
+// in lib/founder.ts ("Built by a civil engineer (B.Tech Civil, NIT), formerly at a leading real estate construction company").
+// The short note below goes under every guide and in llms.txt; the full disclaimer is at /disclaimer.
+export const REVIEW_NOTE = 'Written by a civil engineer (B.Tech Civil, NIT). For budgeting and quantity checks; a structural design still needs a licensed engineer.'
+/** The plain fact the short note leaves out. Kept on /about, /disclaimer and in llms.txt so no reader or AI assistant is led to assume a review that did not happen. */
+export const REVIEW_FACT = 'The calculations have not been independently reviewed by a structural engineer.'
 export const ORG_REVIEW_DESCRIPTION =
-  'Content is written by the founder, who holds a B.Tech in Civil Engineering. It is not reviewed by a practising engineer. Quantities follow the Indian Standards listed on the IS Codes Used page, and each report says what it could not check.'
+  'Written by a civil engineer (B.Tech Civil, NIT), for budgeting and quantity checks; a structural design still needs a licensed engineer. Quantities follow the Indian Standards listed on the IS Codes Used page, and each report says what it could not check.'
 
 export const abs = (path: string) => (path === '/' ? SITE_URL : `${SITE_URL}${path}`)
 

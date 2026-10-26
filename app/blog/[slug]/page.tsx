@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
 import { articleSchema, breadcrumbSchema, faqPageSchema } from '@/lib/seo/schema'
 import { REVIEW_NOTE } from '@/lib/seo/site'
+import Founder from '@/components/v2/Founder'
 import '@/styles/v2/results.css'
 import '@/styles/v2/content.css'
 import { ToolHead, IcArrow } from '@/components/v2/inner/kit'
@@ -217,7 +218,6 @@ export default async function ArticlePage({ params }: PageProps) {
   if (!article) notFound()
 
   const related = getRelatedArticles(article)
-  const updated = article.updatedDate ?? article.publishedDate
 
   return (
     <div className="ns-i-page">
@@ -239,7 +239,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
         <p className="ns-r-tblnote">
           Published <time dateTime={article.publishedDate}>{longDate(article.publishedDate)}</time>
-          {' · '}Last updated <time dateTime={updated}>{longDate(updated)}</time>
+          {article.updatedDate ? <>{' · '}Updated <time dateTime={article.updatedDate}>{longDate(article.updatedDate)}</time></> : null}
           {' · '}{article.readTime} min read
           <br />
           {REVIEW_NOTE}
@@ -268,6 +268,8 @@ export default async function ArticlePage({ params }: PageProps) {
             </section>
           ) : null}
         </article>
+
+        <Founder heading="Who wrote this" link />
 
         <CalcCta
           kicker="Apply this to your house"

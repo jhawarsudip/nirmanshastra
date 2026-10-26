@@ -23,6 +23,7 @@ import {
   inr,
   priceOfTool,
   REVIEW_NOTE,
+  REVIEW_FACT,
 } from '@/lib/seo/site'
 
 // Evaluated at build time (these routes are force-static).
@@ -47,7 +48,7 @@ export function buildLlmsTxt(): string {
     ''
   )
   lines.push(
-    `Quantities follow the Indian Standards (IS codes) listed at ${abs('/is-codes-used')}. Quantities are estimates worked out from a few answers and are not a structural design; see ${abs('/disclaimer')}. No rates, labour or contractor prices are given. ${REVIEW_NOTE}`,
+    `Quantities follow the Indian Standards (IS codes) listed at ${abs('/is-codes-used')}. Quantities are estimates worked out from a few answers and are not a structural design; see ${abs('/disclaimer')}. No rates, labour or contractor prices are given. ${REVIEW_NOTE} ${REVIEW_FACT}`,
     ''
   )
   lines.push(

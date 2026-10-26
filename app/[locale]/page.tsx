@@ -10,6 +10,7 @@ import QuoteCheck from '@/components/v2/sections/QuoteCheck'
 import HowItWorks from '@/components/v2/sections/HowItWorks'
 import Compare from '@/components/v2/sections/Compare'
 import IsCodes from '@/components/v2/sections/IsCodes'
+import FounderBand from '@/components/v2/sections/Founder'
 import Pricing from '@/components/v2/sections/Pricing'
 import Testimonials from '@/components/v2/sections/Testimonials'
 import FreeCalcs from '@/components/v2/sections/FreeCalcs'
@@ -41,6 +42,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <HowItWorks />
         <Compare />
         <IsCodes />
+        <FounderBand loc={loc} />
         <Pricing />
         <Testimonials loc={loc} />
         <FreeCalcs />

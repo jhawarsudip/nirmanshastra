@@ -1,4 +1,5 @@
 import { TOOL_PRICE_PAISE, type PaidAppType } from '@/lib/tool-pricing'
+import { CONTACT_EMAIL } from './site-contact'
 
 // Follow-up emails sent on days 0, 7, 45, 75 and 120 after a person registers for a tool.
 // NirmanShastra works out QUANTITIES only. No email here states a price for materials, labour or a house, and none
@@ -33,7 +34,8 @@ function wrap(body: string): string {
       <tr>
         <td style="border-top:1px solid #e0dfd8;padding:20px 32px;background:#F4F4F0;">
           <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7280;margin:0 0 4px;">NirmanShastra · Material quantities for Indian homes, worked out to the Indian Standards</p>
-          <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7280;margin:0;">You received this because you registered on NirmanShastra.</p>
+          <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7280;margin:0 0 4px;">You received this because you registered on NirmanShastra.</p>
+          <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7280;margin:0;">Questions, or to stop these emails: write to <a href="mailto:${CONTACT_EMAIL}" style="color:#6b7280;">${CONTACT_EMAIL}</a>.</p>
         </td>
       </tr>
     </table>

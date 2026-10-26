@@ -4,13 +4,15 @@ import { ToolHead, Note, IcArrow } from '@/components/v2/inner/kit'
 import { ReportTable } from '@/components/v2/qty/parts'
 import { TOOLS } from '@/lib/v2/content'
 import { TOOL_PRICE_PAISE, PRICE } from '@/lib/tool-pricing'
-import { inr } from '@/lib/seo/site'
+import { inr, REVIEW_FACT } from '@/lib/seo/site'
+import Founder from '@/components/v2/Founder'
 
 /*
   About. Written to say only what is true:
    - the product gives quantities and no prices;
-   - the founder has a B.Tech in Civil Engineering and about a year on site, and is not a practising structural engineer;
-   - no report is reviewed by a practising engineer.
+   - the founder's name is private; the credential shown is the line in lib/founder.ts (B.Tech Civil, NIT; formerly at a leading
+     real estate construction company), with the photo slot there left empty until an image is supplied;
+   - the calculations have not been independently reviewed by a structural engineer (REVIEW_FACT in lib/seo/site.ts).
   Prices come from lib/tool-pricing.ts, never typed here.
 */
 
@@ -64,10 +66,11 @@ export default function AboutPage() {
           <p>Every standard a report relies on is named on the <Link href="/is-codes-used" style={{ textDecoration: 'underline' }}>IS Codes Used</Link> page, with what we take from it. Where we could not read a standard in full, or a figure is our assumption, that page says so.</p>
         </section>
 
-        <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="ab-who">
+        <section aria-labelledby="ab-who" style={{ display: 'grid', gap: 14 }}>
           <h2 id="ab-who" style={H2}>Who builds it</h2>
-          <p>NirmanShastra is built and run by one person, with no outside funding. The founder has a B.Tech in Civil Engineering and spent a little over a year as a site engineer before moving to other work.</p>
-          <p>That is the whole credential. The founder is not a practising structural engineer, and no practising engineer reviews your report. Your project details are not sold to contractors, builders or material suppliers; the <Link href="/privacy-policy" style={{ textDecoration: 'underline' }}>privacy policy</Link> has the exact terms.</p>
+          <Founder
+            more={<>NirmanShastra is built and run by one person, with no outside funding. The founder spent a little over a year as a site engineer before moving to other work. {REVIEW_FACT} Your project details are not sold to contractors, builders or material suppliers; the <Link href="/privacy-policy" style={{ textDecoration: 'underline' }}>privacy policy</Link> has the exact terms.</>}
+          />
         </section>
 
         <Note kind="warn" title="Not a structural design">

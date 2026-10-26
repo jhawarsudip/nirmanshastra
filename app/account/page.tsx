@@ -5,6 +5,7 @@ import { createSupabaseClient } from '@/lib/supabase/server'
 import { ToolHead } from '@/components/v2/inner/kit'
 import ConsentToggle from './ConsentToggle'
 import GuestUpgradeCard from './GuestUpgradeCard'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
@@ -50,7 +51,7 @@ export default async function AccountPage() {
 
         <p className="ns-r-tblnote">
           To delete your account or ask for a copy of your data, email{' '}
-          <a href="mailto:nirmanshastraindia@gmail.com" style={{ textDecoration: 'underline' }}>nirmanshastraindia@gmail.com</a>{' '}
+          <a href={`mailto:${CONTACT_EMAIL}`} style={{ textDecoration: 'underline' }}>{CONTACT_EMAIL}</a>{' '}
           with the subject &ldquo;Privacy request: [your name]&rdquo;.
         </p>
       </div>

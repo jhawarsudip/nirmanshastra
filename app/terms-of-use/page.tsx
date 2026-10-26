@@ -97,7 +97,7 @@ export default function TermsOfUsePage() {
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-7">
           <h2 id="tu-7" style={H2}>7. Governing law and disputes</h2>
           <p>These terms are governed by the laws of India. Any dispute that arises from your use of NirmanShastra is subject to the exclusive jurisdiction of the courts of Uttar Pradesh, India.</p>
-          <p>Please write to <a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a> before any formal legal step. Most issues can be settled directly.</p>
+          <p>Please write to <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> before any formal legal step. Most issues can be settled directly.</p>
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="tu-8">

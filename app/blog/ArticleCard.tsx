@@ -16,7 +16,10 @@ export default function ArticleCard({ article: a }: { article: BlogArticle }) {
       <h2>{a.title}</h2>
       <p>{a.excerpt}</p>
       <div className="ns-bl-card__foot">
-        <span>{fmt(a.updatedDate ?? a.publishedDate)}</span>
+        <span className="ns-bl-card__dates">
+          <time dateTime={a.publishedDate}>{fmt(a.publishedDate)}</time>
+          {a.updatedDate ? <> · <span>Updated <time dateTime={a.updatedDate}>{fmt(a.updatedDate)}</time></span></> : null}
+        </span>
         <span className="ns-bl-card__go">Read <IcArrow width={20} height={10} aria-hidden="true" /></span>
       </div>
     </Link>

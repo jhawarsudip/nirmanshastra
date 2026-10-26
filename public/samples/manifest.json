@@ -4,7 +4,7 @@
   "files": {
     "structopro": {
       "file": "structurepro-sample-report.pdf",
-      "bytes": 727501,
+      "bytes": 730878,
       "reportId": "NS-SP-SAMPLE",
       "figures": {
         "concreteM3": "58.51",
@@ -15,7 +15,7 @@
     },
     "masonpro": {
       "file": "masonrypro-sample-report.pdf",
-      "bytes": 335215,
+      "bytes": 336595,
       "reportId": "NS-MA-SAMPLE",
       "figures": {
         "Bricks": "30,400 nos",
@@ -26,7 +26,7 @@
     },
     "electropro": {
       "file": "electricalpro-sample-report.pdf",
-      "bytes": 390302,
+      "bytes": 392435,
       "reportId": "NS-EL-SAMPLE",
       "figures": {
         "Points and sockets": "124 counted",
@@ -37,7 +37,7 @@
     },
     "plumbpro": {
       "file": "plumbingpro-sample-report.pdf",
-      "bytes": 325458,
+      "bytes": 327135,
       "reportId": "NS-PL-SAMPLE",
       "figures": {
         "Water supply pipe": "177 m",
@@ -48,7 +48,7 @@
     },
     "interiorpro": {
       "file": "interiorpro-sample-report.pdf",
-      "bytes": 316046,
+      "bytes": 317663,
       "reportId": "NS-IN-SAMPLE",
       "figures": {
         "Painted area": "942 m²",
@@ -59,7 +59,7 @@
     },
     "grandtotal": {
       "file": "grand-total-sample-report.pdf",
-      "bytes": 291341,
+      "bytes": 292830,
       "reportId": "NS-GT-SAMPLE",
       "figures": {
         "Cement": "729 bags of 50 kg",

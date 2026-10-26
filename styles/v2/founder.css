@@ -1,0 +1,13 @@
+/* Who builds NirmanShastra: the founder line, with an optional photo that only appears when one is supplied (lib/founder.ts). */
+.ns-fdr { display: flex; flex-wrap: nowrap; gap: 16px 22px; align-items: center; padding: clamp(16px, 2vw, 26px); }
+.ns-fdr__photo { flex: none; width: 92px; height: 92px; object-fit: cover; border: 2px solid var(--ns-ink); box-shadow: 3px 4px 0 var(--ns-shadow-c); background: var(--ns-paper); }
+.ns-fdr__body { display: grid; gap: 6px; min-width: 0; }
+.ns-fdr__k { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ns-ink-2); }
+.ns-fdr__line { margin: 0; font-family: var(--ns-display); font-weight: 400; font-size: clamp(19px, 2vw, 25px); line-height: 1.3; color: var(--ns-ink); }
+.ns-fdr__more { margin: 0; font-size: 16px; line-height: 1.55; color: var(--ns-ink-2); max-width: 64ch; }
+.ns-fdr__more a { color: var(--ns-link); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 520px) { .ns-fdr { align-items: flex-start; } .ns-fdr__photo { width: 68px; height: 68px; } }
+
+/* the homepage band */
+.ns-fdr-band { padding-block: clamp(36px, 5vw, 64px); }
+.ns-fdr-band .ns-fdr { max-width: 900px; margin-inline: auto; }

@@ -6,6 +6,7 @@ import { WHATSAPP_DISPLAY, WHATSAPP_NUMBER, whatsappUrl } from '@/lib/site-conta
 import SocialLinks from '@/components/social/SocialLinks'
 import '@/styles/v2/results.css'
 import { ToolHead, Field, Input, Note, IcArrow } from '@/components/v2/inner/kit'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 type Status = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -60,7 +61,7 @@ export default function ContactPage() {
                 <Field id="cn-message" label="Message" required>
                   <textarea className="ns-i-in" required rows={6} value={form.message} onChange={e => set('message')(e.target.value)} placeholder="Your message" style={{ resize: 'vertical', minHeight: 140 }} />
                 </Field>
-                {status === 'error' ? <Note kind="err" title="Something went wrong">Please email us directly at nirmanshastraindia@gmail.com.</Note> : null}
+                {status === 'error' ? <Note kind="err" title="Something went wrong">Please email us directly at {CONTACT_EMAIL}.</Note> : null}
                 <button type="submit" className="ns-btn" disabled={status === 'sending'} style={{ justifySelf: 'start' }}>
                   {status === 'sending' ? 'Sending…' : 'Send message'}<IcArrow width={22} height={11} />
                 </button>
@@ -71,7 +72,7 @@ export default function ContactPage() {
           <aside className="ns-cn__side" aria-label="Contact details">
             <div className="ns-plate ns-r-sec ns-prose">
               <h2 style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(20px, 2vw, 25px)', lineHeight: 1.15, margin: 0 }}>Direct contact</h2>
-              <p><b>Email</b><br /><a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a></p>
+              <p><b>Email</b><br /><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
               {WHATSAPP_NUMBER ? (
                 <p data-ns-where="contact_page"><b>WhatsApp</b><br /><a href={whatsappUrl()} target="_blank" rel="noopener">{WHATSAPP_DISPLAY}</a></p>
               ) : null}

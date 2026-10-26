@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'reports@nirmanshastra.in'
-const FOUNDER_EMAIL = 'nirmanshastraindia@gmail.com'
+// Messages from the contact form land in the contact inbox (CONTACT_EMAIL, lib/site-contact.ts).
+const FOUNDER_EMAIL = CONTACT_EMAIL
 
 export async function POST(req: NextRequest) {
   try {

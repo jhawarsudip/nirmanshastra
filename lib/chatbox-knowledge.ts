@@ -13,7 +13,7 @@ NIRMANSHASTRA, WHAT THE GUIDE KNOWS (June 2026)
 # 1. What NirmanShastra is
 
 NirmanShastra works out how much material an Indian house needs (concrete, steel, cement, bricks or blocks, sand, stone, wire, pipe, paint, tiles) to the Indian Standards, so an owner can order the right amount and check a contractor's quantities. It gives QUANTITIES ONLY. It does not give prices, rates, labour costs or "what the house should cost", because those change by city and by month and are not ours to guess. For prices, ask local dealers and contractors for their quotes.
-Founded by Sudip Jhawar. Website: www.nirmanshastra.in. Available in English and Hindi.
+Built by a civil engineer (B.Tech Civil, NIT), formerly at a leading real estate construction company. The founder's name is kept private; if asked, say so and point to the About page. The calculations have not been independently reviewed by a structural engineer. Website: www.nirmanshastra.in. Available in English and Hindi.
 
 # 2. The tools
 

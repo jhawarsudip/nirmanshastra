@@ -2,6 +2,7 @@ import Link from 'next/link'
 import '@/styles/v2/results.css'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
 import PrivacyChoices from '@/components/analytics/PrivacyChoices'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 // Last changed when the site became quantity-only. A fixed date, so the page does not say "today" every time it is built.
 const UPDATED = '26 October 2026'
@@ -25,7 +26,7 @@ export default function PrivacyPolicyPage() {
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="pp-1">
           <h2 id="pp-1" style={H2}>1. Who we are</h2>
           <p>NirmanShastra is operated by The Founder, an individual based in Uttar Pradesh, India. When you use the tools, you share your data with us as the data controller.</p>
-          <p>Privacy contact: <a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a></p>
+          <p>Privacy contact: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="pp-2">
@@ -108,7 +109,7 @@ export default function PrivacyPolicyPage() {
             <li>withdraw your consent to analytics and advertising measurement at any time, with &ldquo;Privacy choices&rdquo; in the footer; and</li>
             <li>complain to the Data Protection Board of India once the Board is constituted under the Act.</li>
           </ul>
-          <p>To use any of these rights, email <a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a> with the subject &ldquo;Privacy Request: [your name]&rdquo;. We will reply within 30 days.</p>
+          <p>To use any of these rights, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with the subject &ldquo;Privacy Request: [your name]&rdquo;. We will reply within 30 days.</p>
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="pp-8">

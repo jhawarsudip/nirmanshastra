@@ -216,6 +216,9 @@ html[data-calm="1"] .ns-dlr__map.is-set .ns-dlr__pin { animation: none; opacity:
 .ns-foot__name { margin: 12px 0 10px; font-family: var(--ns-display); font-weight: 400; font-size: 32px; letter-spacing: 0; color: var(--ns-chalk); }
 .ns-foot__name b { color: var(--ns-marigold); font-weight: 400; }
 .ns-foot__note { margin: 0; max-width: 38ch; font-size: 15px; line-height: 1.6; color: rgba(251, 244, 228, .78); }
+.ns-foot__mail { margin: 14px 0 0; font-size: 15px; line-height: 1.5; color: rgba(251, 244, 228, .78); overflow-wrap: anywhere; }
+.ns-foot__mail a { color: #FBF4E4; text-decoration: underline; text-underline-offset: 3px; font-weight: 700; }
+.ns-foot__mail a:focus-visible { outline: 3px solid var(--ns-focus, #F0C98A); outline-offset: 2px; }
 .ns-foot nav h2 { margin: 0 0 14px; font-size: 16px; font-weight: 800; letter-spacing: 0; color: var(--ns-marigold); }
 .ns-foot nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .ns-foot nav a, .ns-foot nav .ns-privacy-choices { display: inline-flex; gap: 8px; align-items: baseline; color: var(--ns-chalk); text-decoration: none; font-size: 15.5px; line-height: 1.35; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .2s; }
