@@ -36,13 +36,13 @@ export const HERO = {
   h1a: { en: 'Know exactly how much your house needs', hi: 'जानिए आपके घर को ठीक कितना सामान चाहिए' },
   h1b: { en: 'before you place the order.', hi: 'ऑर्डर देने से पहले।' },
   sub: {
-    en: 'Tell us the size of your house. We work out its frame the way an engineer would, then tell you how much concrete, steel, cement, bricks and sand it needs. Quantities only, so every quote you get can be checked against them.',
-    hi: 'अपने घर का साइज़ बताइए। हम इसके ढाँचे को वैसे ही निकालते हैं जैसे इंजीनियर निकालता है, फिर बताते हैं कि कितना कंक्रीट, स्टील, सीमेंट, ईंट और रेत लगेगा। सिर्फ़ मात्राएँ, ताकि आपको मिला हर कोटेशन उनसे जाँचा जा सके।',
+    en: 'Tell us the size of your house. We work out its frame the way an engineer would, then tell you how much concrete, steel, cement, bricks and sand it needs. Exact quantities, so every quote you get can be checked against them.',
+    hi: 'अपने घर का साइज़ बताइए। हम इसके ढाँचे को वैसे ही निकालते हैं जैसे इंजीनियर निकालता है, फिर बताते हैं कि कितना कंक्रीट, स्टील, सीमेंट, ईंट और रेत लगेगा। सटीक मात्राएँ, ताकि आपको मिला हर कोटेशन उनसे जाँचा जा सके।',
   },
   cta1: { en: 'Check my plan for Vastu, free', hi: 'मेरे नक्शे की वास्तु जाँच, मुफ़्त' },
   cta2: { en: "Check my contractor's quantities", hi: 'मेरे ठेकेदार की मात्राएँ जाँचें' },
   chips: [
-    { en: 'Quantities only, no rates', hi: 'सिर्फ़ मात्राएँ, कोई रेट नहीं' },
+    { en: 'Exact quantities. Add your own rates to see the rupees.', hi: 'सटीक मात्राएँ। रुपये देखने के लिए अपने रेट जोड़ें।' },
     { en: 'Hindi & English', hi: 'हिंदी और English' },
     { en: 'Checked against Indian Standards', hi: 'भारतीय मानकों (IS) से जाँचा' },
   ] as Bi[],
@@ -88,8 +88,8 @@ export const EST = {
   },
   ctaH: { en: 'Want the quantities for your own plan?', hi: 'अपने नक्शे की मात्राएँ चाहिए?' },
   ctaP: {
-    en: 'The full report sizes every footing, column, beam and slab for your plot, then counts the concrete, the steel by bar size, and the cement, sand and aggregate to buy. Quantities only, never prices.',
-    hi: 'पूरी रिपोर्ट आपके प्लॉट के लिए हर फुटिंग, कॉलम, बीम और स्लैब का साइज़ तय करती है, फिर कंक्रीट, सरिया (साइज़ के हिसाब से) और ख़रीदने के लिए सीमेंट, रेत और गिट्टी गिनती है। सिर्फ़ मात्राएँ, कभी दाम नहीं।',
+    en: 'The full report sizes every footing, column, beam and slab for your plot, then counts the concrete, the steel by bar size, and the cement, sand and aggregate to buy. Exact quantities. Add your own rates to see the rupees.',
+    hi: 'पूरी रिपोर्ट आपके प्लॉट के लिए हर फुटिंग, कॉलम, बीम और स्लैब का साइज़ तय करती है, फिर कंक्रीट, सरिया (साइज़ के हिसाब से) और ख़रीदने के लिए सीमेंट, रेत और गिट्टी गिनती है। सटीक मात्राएँ। रुपये देखने के लिए अपने रेट जोड़ें।',
   },
   next: { en: 'Get the quantities for my house', hi: 'मेरे घर की मात्राएँ पाएँ' },
   // calculation drawer
@@ -116,7 +116,7 @@ export const TAPE = [
   { en: 'How much pipe?', hi: 'कितना पाइप?' },
   { en: 'Are my contractor’s quantities right?', hi: 'क्या मेरे ठेकेदार की मात्राएँ सही हैं?' },
   { en: 'Does my plan follow Vastu?', hi: 'क्या मेरा नक्शा वास्तु के अनुसार है?' },
-  { en: 'Quantities only, no rates', hi: 'सिर्फ़ मात्राएँ, कोई रेट नहीं' },
+  { en: 'Exact quantities. Add your own rates to see the rupees.', hi: 'सटीक मात्राएँ। रुपये देखने के लिए अपने रेट जोड़ें।' },
   { en: 'Hindi & English', hi: 'हिंदी और English' },
 ] as Bi[]
 

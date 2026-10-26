@@ -6,7 +6,7 @@ import { breadcrumbSchema } from '@/lib/seo/schema'
 // The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
 const title = 'Disclaimer: Quantities, Not a Structural Design'
 const description =
-  'NirmanShastra works out material quantities from a few answers. It is not a structural engineering service and gives no prices. Read this before relying on a report.'
+  'NirmanShastra works out material quantities from a few answers. It is not a structural engineering service and sets no prices of its own. Read this before relying on a report.'
 const url = '/disclaimer'
 
 export const metadata: Metadata = {

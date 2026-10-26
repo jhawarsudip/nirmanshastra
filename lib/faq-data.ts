@@ -1,5 +1,5 @@
 // FAQ content — single source for app/faq/page.tsx, FAQPage JSON-LD and /llms-full.txt.
-// NirmanShastra works out QUANTITIES only. No labour, dealer, contractor or rupee-rate figures appear here.
+// NirmanShastra works out QUANTITIES first. No labour, dealer, contractor or rupee-rate figure of ours appears here; rupees come only from rates the visitor types.
 
 import { TOOL_PRICE_PAISE, PRICE, PACK_CLAIMS_PER_REPORT } from '@/lib/tool-pricing'
 import { inr } from '@/lib/seo/site'
@@ -25,7 +25,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'What is NirmanShastra?',
         answer:
-          'NirmanShastra works out how much material your house needs: concrete, steel, cement, sand, aggregate, bricks, wire and pipe. You answer a few plain questions about your plot and plan. The quantities are then worked out to the Indian Standards (IS 456:2000, IS 875, IS 1893:2016, IS 13920:2016, IS 1786:2008 and others) on our server. It gives quantities and nothing else: no labour figures, no dealer prices and no contractor rates.',
+          'NirmanShastra works out how much material your house needs: concrete, steel, cement, sand, aggregate, bricks, wire and pipe. You answer a few plain questions about your plot and plan. The quantities are then worked out to the Indian Standards (IS 456:2000, IS 875, IS 1893:2016, IS 13920:2016, IS 1786:2008 and others) on our server. It gives quantities first: no labour figures, no dealer prices and no contractor rates of ours. If you want the rupees, you can type your own rates into a report; it multiplies them by the quantities and leaves out labour, transport and taxes.',
       },
       {
         question: 'Who is NirmanShastra for?',
@@ -40,12 +40,12 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'How is this different from asking a contractor for a quote?',
         answer:
-          'A contractor\'s quote mixes quantities, labour, profit and their own habits into one number, so it is hard to check. NirmanShastra gives only the quantities, worked out from public Indian Standards. Put your contractor\'s quantities next to ours, line by line, and ask for an explanation wherever they differ. Price is a separate conversation that you have with your own suppliers.',
+          'A contractor\'s quote mixes quantities, labour, profit and their own habits into one number, so it is hard to check. NirmanShastra gives the quantities first, worked out from public Indian Standards. Put your contractor\'s quantities next to ours, line by line, and ask for an explanation wherever they differ. Price is a separate conversation that you have with your own suppliers; if you want to see the rupees, you can type their rates into the report and it multiplies them by the quantities.',
       },
       {
         question: 'What is not included?',
         answer:
-          'Labour, supervision, contractor margin, material or transport rates, taxes, permits and design fees are not included and are never estimated. NirmanShastra does not tell you what the house will cost. It tells you what the house will need. Each paid report also lists what that particular tool leaves out.',
+          'Labour, supervision, contractor margin, material or transport rates, taxes, permits and design fees are not included and are never estimated. NirmanShastra does not tell you what the house will cost. It tells you what the house will need and, if you type in your own material rates, what those materials come to at those rates. Each paid report also lists what that particular tool leaves out.',
       },
     ],
   },
@@ -136,7 +136,12 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'Why do you not show prices for materials?',
         answer:
-          'Rates change by city, by month and by supplier, and any rate we printed would be out of date or wrong for you. Quantities do not change with the market. Take the quantities to your own suppliers and get your own quotes.',
+          'Rates change by city, by month and by supplier, and any rate we printed would be out of date or wrong for you, so we do not print one. Quantities do not change with the market. Take the quantities to your own suppliers and get your own quotes. If you want to see the rupees, type their rates into the optional panel on a paid report.',
+      },
+      {
+        question: 'Can I see the material cost in rupees?',
+        answer:
+          'Yes, at your own rates. Every paid report and the Grand Total has an optional panel, "Want this in rupees? Enter your local rates." Type the rate your dealer quotes for cement, steel, sand, bricks and the other materials you want priced, and leave any box empty to skip it. The page then shows the material cost per item and a total, labelled "Material cost at the rates you entered. Labour, transport and taxes are not included." Nothing is filled in for you, and the result is not a quotation or a cost for the whole house. A "typical" range beside a box, where there is one, is only a dated guide. The PDF carries the rupee table only if you typed rates and asked for it.',
       },
     ],
   },

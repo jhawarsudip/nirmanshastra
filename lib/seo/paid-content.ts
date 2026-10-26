@@ -158,7 +158,7 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       {
         question: 'Does it include labour?',
         answer:
-          'No. The report is about quantities only, so it carries no labour, material or contractor rates. You can lay it next to any quote and compare line by line.',
+          'No. The report is about quantities, so it carries no labour and no rates of ours. If you want the material cost, you can type your own dealer’s rates into the optional rupee panel; labour, transport and taxes stay out of it. You can lay it next to any quote and compare line by line.',
       },
     ],
     source:
@@ -219,7 +219,7 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       {
         question: 'Does it include labour?',
         answer:
-          'No. The report is about quantities only, so it carries no labour, material or contractor rates. What is not counted, such as fittings, fans, lights and the meter, is listed in the report.',
+          'No. The report is about quantities, so it carries no labour and no rates of ours. If you want the material cost, you can type your own dealer’s rates into the optional rupee panel; labour, transport and taxes stay out of it. What is not counted, such as fittings, fans, lights and the meter, is listed in the report.',
       },
     ],
     source:
@@ -275,7 +275,7 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       {
         question: 'Does it include labour?',
         answer:
-          'No. The report is about quantities only, so it carries no labour, material or contractor rates. You can lay it next to any quote and compare line by line.',
+          'No. The report is about quantities, so it carries no labour and no rates of ours. If you want the material cost, you can type your own dealer’s rates into the optional rupee panel; labour, transport and taxes stay out of it. You can lay it next to any quote and compare line by line.',
       },
     ],
     source:
@@ -330,7 +330,7 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       {
         question: 'Does it include labour?',
         answer:
-          'No. The report is about quantities only, so it carries no labour, material or contractor rates. What is not counted, such as plaster, stairs, sanitary fittings and loose furniture, is listed in the report.',
+          'No. The report is about quantities, so it carries no labour and no rates of ours. If you want the material cost, you can type your own dealer’s rates into the optional rupee panel; labour, transport and taxes stay out of it. What is not counted, such as plaster, stairs, sanitary fittings and loose furniture, is listed in the report.',
       },
       {
         question: 'Is there a free way to estimate finishing quantities?',
@@ -388,7 +388,7 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       {
         question: 'Does it include labour?',
         answer:
-          'No. It lists quantities only, so it carries no labour, material or contractor rates. You can lay it next to any quote and compare line by line.',
+          'No. The report is about quantities, so it carries no labour and no rates of ours. If you want the material cost, you can type your own dealer’s rates into the optional rupee panel; labour, transport and taxes stay out of it. You can lay it next to any quote and compare line by line.',
       },
     ],
     source: 'lib/qty/grand.ts (merge, overlap removal, consistency checks) and lib/qty/grand-server.ts; every figure comes from the phase reports. Quantities-only; no worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',

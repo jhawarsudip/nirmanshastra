@@ -8,6 +8,7 @@ import { Note, StepBar, ToolHead, IcArrow, IcCheck } from '@/components/v2/inner
 import { DeliveryNote, ReportTable, Tot } from './parts'
 import { useUnlock } from './useUnlock'
 import PackUnlock from './PackUnlock'
+import RatesPanel from './RatesPanel'
 import { PRICE as PRICES } from '@/lib/tool-pricing'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import ViewItem from '@/components/analytics/ViewItem'
@@ -378,6 +379,9 @@ function GrandResults({ estimateId, free, projectName, onStage, onBack }: { esti
               {tb.note ? <p className="ns-r-tblnote">{tb.note}</p> : null}
             </section>
           ))}
+
+          {/* optional: the same buying list in rupees, at rates the visitor types */}
+          <RatesPanel tool="grandtotal" lines={r.lines ?? []} pdf={{ api: '/api/grand-total/generate-pdf', estimateId, fileName: 'NirmanShastra-Grand-Total-Report-with-rupees.pdf' }} />
 
           <section className="ns-plate ns-r-sec" aria-labelledby="gt-acc-t">
             <h3 id="gt-acc-t">How far off can this be</h3>

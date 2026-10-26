@@ -13,7 +13,7 @@ export default function DisclaimerPage() {
         <ToolHead
           eyebrow="Legal"
           name="Disclaimer"
-          blurb="NirmanShastra works out material quantities from a few answers. It is not a structural engineering service, and it gives no prices."
+          blurb="NirmanShastra works out material quantities from a few answers. It is not a structural engineering service, and it sets no prices of its own: rupees appear only if you type in your own rates."
         />
 
         <Note kind="warn" title="Read before you rely on a report">
@@ -47,8 +47,9 @@ export default function DisclaimerPage() {
         </section>
 
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="dc-4">
-          <h2 id="dc-4" style={H2}>4. Quantities, not prices</h2>
-          <p>The NirmanShastra reports for homeowners give quantities only. They contain no material rates, labour costs, dealer prices or contractor rates, and nothing in a report says what your building should cost. A rupee figure on this site is the price of a report or of a downloadable template.</p>
+          <h2 id="dc-4" style={H2}>4. Quantities first, and rupees only at your own rates</h2>
+          <p>The NirmanShastra reports for homeowners are quantity reports. They contain no material rates, labour costs, dealer prices or contractor rates of ours, and nothing in a report says what your building should cost.</p>
+          <p>Every paid report has an optional panel, “Want this in rupees? Enter your local rates.” If you type rates there, the page multiplies each quantity by the rate you typed and shows the result as “Material cost at the rates you entered. Labour, transport and taxes are not included.” The rates are yours: we do not supply, check or update them, and the figure is not a quotation, a bid or an estimate of what the house will cost. A “typical” range beside a box, where there is one, is only a guide with the date it was last updated; ask your dealer for today’s rate. The PDF carries the rupee table only if you typed rates and asked for it. Any other rupee figure on this site is the price of a report or of a downloadable template.</p>
           <p>The Excel toolkits are for contractors and site engineers, and they work differently: the Residential Construction Cost Estimator, for one, prices a house from the rates the contractor enters. Those rates are the contractor’s own, not NirmanShastra’s.</p>
           <p>The free payroll, running-account bill and earned-value calculators work only on the figures you type in.</p>
         </section>

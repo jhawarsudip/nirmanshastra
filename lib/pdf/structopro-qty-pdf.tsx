@@ -1,11 +1,13 @@
 // StructurePro quantities report (engine qty-v2). @react-pdf/renderer only.
-// Quantities only: no rates, no cost.
+// Quantities first. The rupee table is printed only when the customer typed their own rates; the report itself never carries a rate of ours.
 
 import React from 'react'
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import type { PaidPayload } from '@/lib/structopro-qty/payload'
 import type { CalcSheet } from '@/lib/calcsheet'
 import CalcAppendix from './calc-appendix'
+import RupeeTable from './rupee-table'
+import type { RupeeResult } from '@/lib/rates/compute'
 import type { MemberTotals } from '@/lib/structopro-qty/types'
 import { bandAbovePct, bandBelowPct, bars12m, beamLevelLabel, buildingLabelStilt, fmtIN as f, isCoil, storeyLabel } from '@/lib/structopro-qty/labels'
 import { Bullets, C, Chrome, S, SampleMark, SampleNote, Table, Tot, statusColor, type ContactInfo } from './qty-kit'
@@ -25,9 +27,11 @@ export interface StructoProQtyPDFProps {
   calc?: CalcSheet | null
   /** a sample report for an example house: every page is stamped and the first page says so */
   sample?: { house: string } | null
+  /** the customer's own rates worked into rupees; absent unless they typed rates and asked for the PDF with rupees */
+  rupees?: RupeeResult | null
 }
 
-export default function StructoProQtyPDF({ report: r, contact, reportId, projectName, date, where, siteLabel, wallLabel, calc, sample }: StructoProQtyPDFProps) {
+export default function StructoProQtyPDF({ report: r, contact, reportId, projectName, date, where, siteLabel, wallLabel, calc, sample, rupees }: StructoProQtyPDFProps) {
   const t = r.totals
   const m = r.materials
   const b = r.band
@@ -165,6 +169,8 @@ export default function StructoProQtyPDF({ report: r, contact, reportId, project
           head={['ITEM', 'COUNT', 'CONCRETE m³', 'STEEL kg', 'BASIS']}
           rows={r.secondary.map(s => [s.label, f(s.count), f(s.concreteM3, 2), f(s.steelKg), s.basis])}
         />
+
+        {rupees ? <RupeeTable result={rupees} /> : null}
 
         <Text style={S.h2} minPresenceAhead={90}>The frame we designed</Text>
         <View style={S.facts}>

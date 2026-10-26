@@ -6,7 +6,7 @@ import { toolJsonLd } from '@/lib/seo/schema'
 import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'MasonryPro: Brick, Block, Mortar and Plaster Quantity Calculator | IS 1200, IS 1077, IS 6041'
-const description = `Work out the bricks or blocks, mortar, cement, sand, plaster and lintels for the walls of your home, measured from your rooms the IS 1200 way. Quantities only. ${PRICE.masonpro} per report.`
+const description = `Work out the bricks or blocks, mortar, cement, sand, plaster and lintels for the walls of your home, measured from your rooms the IS 1200 way. Exact quantities; add your own rates for rupees. ${PRICE.masonpro} per report.`
 const url = '/tools/masonpro'
 
 export const metadata: Metadata = {

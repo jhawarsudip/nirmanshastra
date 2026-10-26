@@ -1,6 +1,6 @@
 // The quantities report of a trade tool (PlumbingPro, ElectricalPro, MasonryPro, InteriorPro). @react-pdf/renderer only.
 // One document for all of them: it draws whatever tables, tiles, checks and notes the tool's model produced.
-// Quantities only: no rates, no cost.
+// Quantities first. The rupee table (rupee-table.tsx) is printed only when the customer typed their own rates; the report itself never carries a rate of ours.
 
 import React from 'react'
 import { Document, Page, Text, View } from '@react-pdf/renderer'
@@ -8,6 +8,8 @@ import type { TradeFree, TradePaid } from '@/lib/qty/types'
 import type { TradeMeta } from '@/lib/qty/meta'
 import type { CalcSheet } from '@/lib/calcsheet'
 import CalcAppendix from './calc-appendix'
+import RupeeTable from './rupee-table'
+import type { RupeeResult } from '@/lib/rates/compute'
 import { Bullets, C, Chrome, S, SampleMark, SampleNote, Table, Tot, statusColor, type Cell, type ContactInfo } from './qty-kit'
 
 export interface QtyReportPDFProps {
@@ -23,6 +25,8 @@ export interface QtyReportPDFProps {
   calc?: CalcSheet | null
   /** a sample report for an example house: every page is stamped and the first page says so */
   sample?: { house: string } | null
+  /** the customer's own rates worked into rupees; absent unless they typed rates and asked for the PDF with rupees */
+  rupees?: RupeeResult | null
 }
 
 /** Column weights from the longest word in the heading and the longest cell, so text columns get room and number columns stay narrow. */
@@ -36,7 +40,7 @@ function weights(head: string[], rows: Cell[][], foot?: Cell[]): number[] {
 
 const pct = (low: number, high: number) => ({ below: Math.round((1 - low) * 100), above: Math.round((high - 1) * 100) })
 
-export default function QtyReportPDF({ meta, free, paid, contact, reportId, projectName, date, where, calc, sample }: QtyReportPDFProps) {
+export default function QtyReportPDF({ meta, free, paid, contact, reportId, projectName, date, where, calc, sample, rupees }: QtyReportPDFProps) {
   const dateText = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
   const tiles = paid.tiles.slice(0, 4)
 
@@ -103,6 +107,8 @@ export default function QtyReportPDF({ meta, free, paid, contact, reportId, proj
             {tb.note ? <Text style={S.note}>{tb.note}</Text> : null}
           </View>
         ))}
+
+        {rupees ? <RupeeTable result={rupees} /> : null}
 
         <Text style={S.h2} minPresenceAhead={90}>Checked against the Indian Standards</Text>
         {free.checks.map(c => {

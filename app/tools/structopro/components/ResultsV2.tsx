@@ -15,13 +15,15 @@ import { TOOLS } from '@/lib/v2/content'
 import { Note, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { Tot, ReportTable as Table, DeliveryNote } from '@/components/v2/qty/parts'
 import PackUnlock from '@/components/v2/qty/PackUnlock'
+import RatesPanel from '@/components/v2/qty/RatesPanel'
+import { structureLines } from '@/lib/rates/structure'
 import QuoteCheck from './QuoteCheck'
 import ContactCapture, { type CaptureMode } from './ContactCapture'
 import PayAssurance from '@/components/policy/PayAssurance'
 
 /*
   StructurePro results.
-  Free: the 3D model (already running), the frame at a glance, the IS-code checks. Paid: the quantities. No rupee figure anywhere.
+  Free: the 3D model (already running), the frame at a glance, the IS-code checks. Paid: the quantities, then an optional panel (RatesPanel) that shows rupees only at rates the visitor types. No rupee figure of ours anywhere.
   The server never sends a quantity before payment is verified; this file only draws what it is given.
 */
 
@@ -372,7 +374,7 @@ export default function ResultsV2({ free, estimateId, hasContact, projectName, o
           {reportError} <button type="button" className="ns-i-link" onClick={loadReport}>Try again</button>
         </Note>
       )}
-      {isPaid && report && <PaidSections r={report} preview={PAYMENT_BYPASS && payStatus !== 'paid'} pdfStatus={pdfStatus} pdfUrl={pdfUrl} emailSent={emailSent} downloading={downloading} onDownload={downloadPdf} onRetryPdf={generatePdf} />}
+      {isPaid && report && <PaidSections r={report} estimateId={estimateId} preview={PAYMENT_BYPASS && payStatus !== 'paid'} pdfStatus={pdfStatus} pdfUrl={pdfUrl} emailSent={emailSent} downloading={downloading} onDownload={downloadPdf} onRetryPdf={generatePdf} />}
 
       <section className="ns-plate ns-r-next" aria-labelledby="r-next-t">
         <p className="ns-r-hook__k">Next · Phase 2</p>
@@ -388,8 +390,9 @@ export default function ResultsV2({ free, estimateId, hasContact, projectName, o
 
 // ─── the paid report ──────────────────────────────────────────────────────────
 
-function PaidSections({ r, preview, pdfStatus, pdfUrl, emailSent, downloading, onDownload, onRetryPdf }: {
+function PaidSections({ r, estimateId, preview, pdfStatus, pdfUrl, emailSent, downloading, onDownload, onRetryPdf }: {
   r: PaidPayload
+  estimateId: string | null
   preview: boolean
   pdfStatus: PdfStatus
   pdfUrl: string | null
@@ -415,6 +418,7 @@ function PaidSections({ r, preview, pdfStatus, pdfUrl, emailSent, downloading, o
   ]
   const rcc = parts.reduce((s, [, mt]) => ({ c: s.c + mt.concreteM3, s: s.s + mt.steelKg, f: s.f + mt.formworkM2 }), { c: 0, s: 0, f: 0 })
   const stilt = r.inputEcho.stilt
+  const lines = useMemo(() => structureLines(r), [r])
 
   const storeys = Math.max(0, ...r.schedules.columns.map(c => c.storey)) + 1
   const lowBand = bandBelowPct
@@ -521,6 +525,9 @@ function PaidSections({ r, preview, pdfStatus, pdfUrl, emailSent, downloading, o
           rows={r.secondary.map(s => [s.label, f(s.count), f(s.concreteM3, 2), f(s.steelKg), s.basis])}
         />
       </section>
+
+      {/* optional: the Buy list in rupees, at rates the visitor types */}
+      <RatesPanel tool="structopro" lines={lines} pdf={{ api: '/api/structopro/generate-pdf', estimateId, fileName: 'NirmanShastra-StructurePro-Report-with-rupees.pdf' }} />
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-lay-t">
         <h3 id="r-lay-t">The frame we designed</h3>

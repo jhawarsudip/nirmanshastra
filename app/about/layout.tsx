@@ -4,9 +4,9 @@ import InnerShell from '@/components/v2/inner/InnerShell'
 import { breadcrumbSchema } from '@/lib/seo/schema'
 
 // The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
-const title = 'About NirmanShastra: Quantities Only, Worked Out in the Open'
+const title = 'About NirmanShastra: Quantities First, Worked Out in the Open'
 const description =
-  'NirmanShastra works out how much concrete, steel, cement, bricks, wire and pipe a house needs, to the Indian Standards, and leaves prices out on purpose. Built and run by one bootstrapped founder with a B.Tech in Civil Engineering.'
+  'NirmanShastra works out how much concrete, steel, cement, bricks, wire and pipe a house needs, to the Indian Standards, and sets no prices of its own: you can add your own rates to see the rupees. Built and run by one bootstrapped founder with a B.Tech in Civil Engineering.'
 const url = '/about'
 
 export const metadata: Metadata = {

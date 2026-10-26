@@ -1,11 +1,13 @@
 // The Grand Total report: the paid reports of one building added into one buying list. @react-pdf/renderer only.
-// Quantities only: no rates, no cost.
+// Quantities first. The rupee table is printed only when the customer typed their own rates; the report itself never carries a rate of ours.
 
 import React from 'react'
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import { GRAND_META, type GrandFree, type GrandPaid } from '@/lib/qty/grand'
 import type { CalcSheet } from '@/lib/calcsheet'
 import CalcAppendix from './calc-appendix'
+import RupeeTable from './rupee-table'
+import type { RupeeResult } from '@/lib/rates/compute'
 import { Bullets, C, Chrome, S, SampleMark, SampleNote, Table, Tot, statusColor, type Cell, type ContactInfo } from './qty-kit'
 
 export interface GrandTotalPDFProps {
@@ -20,6 +22,8 @@ export interface GrandTotalPDFProps {
   calc?: CalcSheet | null
   /** a sample report for an example house: every page is stamped and the first page says so */
   sample?: { house: string } | null
+  /** the customer's own rates worked into rupees; absent unless they typed rates and asked for the PDF with rupees */
+  rupees?: RupeeResult | null
 }
 
 /** Column weights from the longest word in the heading and the longest cell, so text columns get room and number columns stay narrow. */
@@ -34,7 +38,7 @@ function weights(head: string[], rows: Cell[][], foot?: Cell[]): number[] {
 const pct = (low: number, high: number) => ({ below: Math.round((1 - low) * 100), above: Math.round((high - 1) * 100) })
 const h3 = { fontFamily: 'IBMPlexSerif', fontWeight: 700, fontSize: 11, marginTop: 10, marginBottom: 4 } as const
 
-export default function GrandTotalQtyPDF({ free, paid, contact, reportId, projectName, date, where, calc, sample }: GrandTotalPDFProps) {
+export default function GrandTotalQtyPDF({ free, paid, contact, reportId, projectName, date, where, calc, sample, rupees }: GrandTotalPDFProps) {
   const dateText = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
   const tiles = paid.tiles.slice(0, 4)
 
@@ -107,6 +111,8 @@ export default function GrandTotalQtyPDF({ free, paid, contact, reportId, projec
             {tb.note ? <Text style={S.note}>{tb.note}</Text> : null}
           </View>
         ))}
+
+        {rupees ? <RupeeTable result={rupees} /> : null}
 
         <Text style={S.h2} minPresenceAhead={90}>How far off can this be</Text>
         <Bullets items={paid.bands.map(b => {

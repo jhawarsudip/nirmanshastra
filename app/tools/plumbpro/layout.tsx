@@ -6,7 +6,7 @@ import { toolJsonLd } from '@/lib/seo/schema'
 import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'PlumbingPro: Plumbing Quantity Calculator | IS 1172, IS 1742, IS 2470'
-const description = `Work out the pipe lengths, tank sizes, pump, drains, septic tank and every fitting to buy for your home, to the Indian Standards. Quantities only. ${PRICE.plumbpro} per report.`
+const description = `Work out the pipe lengths, tank sizes, pump, drains, septic tank and every fitting to buy for your home, to the Indian Standards. Exact quantities; add your own rates for rupees. ${PRICE.plumbpro} per report.`
 const url = '/tools/plumbpro'
 
 export const metadata: Metadata = {

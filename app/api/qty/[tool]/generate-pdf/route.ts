@@ -12,6 +12,7 @@ import type { TradeFree, TradePaid } from '@/lib/qty/types'
 import type { CalcSheet } from '@/lib/calcsheet'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
+import { RUPEE_PDF_HEADERS, ratesRequest } from '@/lib/rates/server'
 
 export const runtime = 'nodejs'
 // The report now carries a calculation sheet of 15 to 40 pages; laying it out takes several seconds, longer than the 10 s default.
@@ -22,6 +23,8 @@ const bad = (error: string, status = 400) => NextResponse.json({ error }, { stat
 
 // POST /api/qty/<tool>/generate-pdf: called by the results page once the payment is confirmed.
 // The estimate must be paid on the server (or the server must be in payment bypass) before anything is built.
+// With { estimateId, rates } (the customer's own rates, from the rupee panel) the same report is built with a rupee table and sent straight
+// back as the response: it is not stored, not emailed, and the rates are not kept. Without rates it behaves exactly as before.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ tool: string }> }) {
   try {
     const { tool } = await params
@@ -88,19 +91,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ too
       if (!calc) console.error(`[CRITICAL][NS-CALC] ${meta.label} calculation sheet was left out of report ${estimateId}: it did not reconcile with the report.`)
     }
 
+    const asked = ratesRequest(body?.rates, paid.lines)
+    if (asked.kind === 'empty') return bad('Type at least one rate to put rupees in the PDF.')
+    const rupees = asked.kind === 'ok' ? asked.result : null
+
     const reportId = `NS-${meta.code}-${estimateId.slice(0, 8).toUpperCase()}`
     const projectName = estimate.project_name ?? 'My project'
     const where = [input.city, input.state].filter(Boolean).join(', ')
 
     let pdfBuffer: Buffer
     try {
-      const el = React.createElement(QtyReportPDF, { meta, free, paid, contact: contactInfo, reportId, projectName, date: new Date(), where, calc })
+      const el = React.createElement(QtyReportPDF, { meta, free, paid, contact: contactInfo, reportId, projectName, date: new Date(), where, calc, rupees })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       pdfBuffer = await renderToBuffer(el as any)
     } catch (pdfErr) {
       console.error(`${meta.label} PDF render error:`, pdfErr instanceof Error ? pdfErr.message : pdfErr)
       return bad('The PDF could not be built.', 500)
     }
+
+    // The rupee copy goes back to this browser only. It never replaces the stored report or the emailed one.
+    if (rupees) return new NextResponse(new Uint8Array(pdfBuffer), { headers: RUPEE_PDF_HEADERS(`NirmanShastra-${meta.label}-Report-with-rupees.pdf`) })
 
     // Public bucket, reports are named by their UUID.
     const { error: bucketErr } = await supabase.storage.createBucket('reports', { public: true, fileSizeLimit: 10485760 })

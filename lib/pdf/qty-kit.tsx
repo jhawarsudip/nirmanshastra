@@ -1,5 +1,5 @@
 // Shared pieces for every NirmanShastra quantity report (@react-pdf/renderer only).
-// Quantities only: no rates, no cost. Palette is the v2 "limewash and laterite" set, never blue.
+// Quantities first: no rate or cost of ours. The rupee table (lib/pdf/rupee-table.tsx) is printed only from rates the customer typed. Palette is the v2 "limewash and laterite" set, never blue.
 
 import React from 'react'
 import path from 'path'

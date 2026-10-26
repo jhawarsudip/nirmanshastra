@@ -7,7 +7,7 @@ import { toolJsonLd } from '@/lib/seo/schema'
 import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'StructurePro: Concrete, Steel and Cement Quantity Calculator for RCC Houses | IS 456, IS 1893'
-const description = `Work out the concrete, steel, cement, sand, aggregate and shuttering for your RCC frame from a few plain answers, to IS 456, IS 875 and IS 1893. Quantities only. ${PRICE.structopro} per report.`
+const description = `Work out the concrete, steel, cement, sand, aggregate and shuttering for your RCC frame from a few plain answers, to IS 456, IS 875 and IS 1893. Exact quantities; add your own rates for rupees. ${PRICE.structopro} per report.`
 const url = '/tools/structopro'
 
 export const metadata: Metadata = {

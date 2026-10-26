@@ -123,7 +123,8 @@ console.log('Excel estimator card')
   ok(text(join(ROOT, 'lib/seo/site.ts')).includes('An Excel construction cost estimator for contractors.'), 'structured-data summary says it is for contractors')
   const all = LIVE.map((p) => text(p)).join('\n')
   ok(!/Prices a house from IS-code first principles/.test(all), 'the old "Prices a house" wording is gone')
-  ok(/homeowners give quantities only|reports for homeowners give quantities only/.test(text(join(ROOT, 'app/disclaimer/page.tsx')) + text(join(ROOT, 'app/faq/page.tsx'))), 'the "quantities only" statements name the homeowner reports')
+  const dcFaq = text(join(ROOT, 'app/disclaimer/page.tsx')) + text(join(ROOT, 'app/faq/page.tsx'))
+  ok(/reports for homeowners/.test(text(join(ROOT, 'app/disclaimer/page.tsx'))) && /reports for homeowners/.test(text(join(ROOT, 'app/faq/page.tsx'))) && /your own rates|rates you (type|enter)/.test(dcFaq), 'the disclaimer and FAQ name the homeowner reports and say rupees come only from the visitor’s own rates')
 }
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll checks passed')

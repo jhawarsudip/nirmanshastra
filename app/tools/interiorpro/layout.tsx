@@ -6,7 +6,7 @@ import { toolJsonLd } from '@/lib/seo/schema'
 import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'InteriorPro: Finishing Quantity Calculator for Homes | Paint, Tiles, Doors, False Ceiling | IS 1200, IS 15622'
-const description = `Count the paint, putty and primer, floor and wall tiles, doors and windows, false ceiling and plywood for your home, area by area. Quantities only. ${PRICE.interiorpro} per report.`
+const description = `Count the paint, putty and primer, floor and wall tiles, doors and windows, false ceiling and plywood for your home, area by area. Exact quantities; add your own rates for rupees. ${PRICE.interiorpro} per report.`
 const url = '/tools/interiorpro'
 
 export const metadata: Metadata = {

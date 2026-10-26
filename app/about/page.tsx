@@ -9,7 +9,7 @@ import Founder from '@/components/v2/Founder'
 
 /*
   About. Written to say only what is true:
-   - the product gives quantities and no prices;
+   - the product gives quantities and sets no prices of its own (a visitor may type their own rates to see the material cost);
    - the founder's name is private; the credential shown is the line in lib/founder.ts (B.Tech Civil, NIT; formerly at a leading
      real estate construction company), with the photo slot there left empty until an image is supplied;
    - the calculations have not been independently reviewed by a structural engineer (REVIEW_FACT in lib/seo/site.ts).
@@ -44,7 +44,7 @@ export default function AboutPage() {
         <section className="ns-plate ns-r-sec ns-prose" aria-labelledby="ab-why">
           <h2 id="ab-why" style={H2}>Why it exists</h2>
           <p>A homeowner in India is usually handed a rate per square foot and little else. Behind any rate sits a list of quantities: cubic metres of concrete, kilograms of steel, bags of cement, bricks, metres of wire and pipe. The quantities are what can be checked against the Indian Standards. A rate cannot.</p>
-          <p>So NirmanShastra works out the quantities and stops there. Prices are left out because they change by town, by month and by who you buy from, and because a price laid over a wrong quantity is worse than no number at all.</p>
+          <p>So NirmanShastra works out the quantities first. We put no prices of our own on them, because prices change by town, by month and by who you buy from, and because a price laid over a wrong quantity is worse than no number at all. If you want the rupees, you can type the rates your dealer quotes into a report and it multiplies them by the quantities; labour, transport and taxes are not included.</p>
         </section>
 
         <section className="ns-plate ns-r-sec" aria-labelledby="ab-what">

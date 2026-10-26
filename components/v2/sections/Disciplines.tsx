@@ -15,7 +15,7 @@ import Pour from '../Pour'
 const COPY = {
   en: {
     eyebrow: 'Your reports', h: 'A quantities report for every stage of your build',
-    lede: 'Pick the part you are planning. Each report tells you what to order and exactly how much of it, in plain words, ready to hand to your contractor or your dealer. Quantities only: no prices, no labour. You pay per report.',
+    lede: 'Pick the part you are planning. Each report tells you what to order and exactly how much of it, in plain words, ready to hand to your contractor or your dealer. Exact quantities first; add your own rates to see the rupees. Labour is not included. You pay per report.',
     suite1: 'Start here, free', suite2: 'Quantity reports, one per stage',
     sub2: 'Exact quantities · item by item · a PDF for your contractor', from: `from ${PRICE.from} a report`,
     open: 'Open', start: 'Start free', free: 'Free', progress: 'of',
@@ -27,7 +27,7 @@ const COPY = {
   },
   hi: {
     eyebrow: 'आपकी रिपोर्टें', h: 'आपके निर्माण के हर चरण की एक मात्रा-रिपोर्ट',
-    lede: 'जिस हिस्से की योजना बना रहे हैं, उसे चुनिए। हर रिपोर्ट सरल शब्दों में बताती है कि क्या मँगवाना है और ठीक कितना, ठेकेदार या डीलर को देने के लिए तैयार। सिर्फ़ मात्राएँ: न दाम, न मज़दूरी। आप हर रिपोर्ट का अलग भुगतान करते हैं।',
+    lede: 'जिस हिस्से की योजना बना रहे हैं, उसे चुनिए। हर रिपोर्ट सरल शब्दों में बताती है कि क्या मँगवाना है और ठीक कितना, ठेकेदार या डीलर को देने के लिए तैयार। पहले सटीक मात्राएँ; रुपये देखने के लिए अपने रेट जोड़ें। मज़दूरी शामिल नहीं। आप हर रिपोर्ट का अलग भुगतान करते हैं।',
     suite1: 'यहाँ से शुरू कीजिए, मुफ़्त', suite2: 'मात्रा रिपोर्टें, हर चरण की एक',
     sub2: 'सटीक मात्रा · चीज़-दर-चीज़ · ठेकेदार के लिए PDF', from: `${PRICE.from} प्रति रिपोर्ट से`,
     open: 'खोलें', start: 'मुफ़्त शुरू करें', free: 'मुफ़्त', progress: '/',

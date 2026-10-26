@@ -10,6 +10,7 @@ import { DeliveryNote, ReportTable, Tot } from './parts'
 import { useUnlock } from './useUnlock'
 import PackUnlock from './PackUnlock'
 import PayAssurance from '@/components/policy/PayAssurance'
+import RatesPanel from './RatesPanel'
 
 /*
   Results of a trade tool.
@@ -147,6 +148,9 @@ export default function QtyResults({ meta, price, free, estimateId, contactName,
               {tb.note ? <p className="ns-r-tblnote">{tb.note}</p> : null}
             </section>
           ))}
+
+          {/* optional: the same quantities in rupees, at rates the visitor types */}
+          <RatesPanel tool={meta.slug} lines={r.lines ?? []} pdf={{ api: `/api/qty/${meta.slug}/generate-pdf`, estimateId, fileName: `NirmanShastra-${meta.label}-Report-with-rupees.pdf` }} />
 
           <section className="ns-plate ns-r-sec" aria-labelledby="r-acc-t">
             <h3 id="r-acc-t">How far off can this be</h3>

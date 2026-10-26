@@ -7,7 +7,7 @@
     3. the free part (counts, code checks, a short summary) goes straight back,
     4. the paid part (every quantity) is kept on the server until payment is verified.
 
-  The site is quantity-only. Nothing in here carries a rupee figure, a labour figure or a dealer rate.
+  The site is quantities-first. Nothing in here carries a rupee figure, a labour figure or a dealer rate; rupees are layered on later by lib/rates, from rates the visitor types.
 */
 
 import type { PaidAppType } from '../tool-pricing'

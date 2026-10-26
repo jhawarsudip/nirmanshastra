@@ -11,6 +11,9 @@ import type { ContactInfo } from '@/lib/pdf/qty-kit'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import { emailAssuranceHtml } from '@/lib/email-parts'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
+import { RUPEE_PDF_HEADERS, ratesRequest } from '@/lib/rates/server'
+import { structureLines } from '@/lib/rates/structure'
+import type { RupeeResult } from '@/lib/rates/compute'
 
 // The report carries a calculation sheet of several dozen pages; laying it out takes longer than the 10 s default.
 export const maxDuration = 60
@@ -20,9 +23,12 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 // POST /api/structopro/generate-pdf
 // Called from ResultsPage after payment is confirmed.
 // Verifies estimate is paid server-side before generating.
+// With { estimateId, rates } (the customer's own rates) the same report is built with a rupee table and sent straight back:
+// not stored, not emailed, rates not kept. Without rates it behaves exactly as before.
 export async function POST(req: NextRequest) {
   try {
-    const { estimateId } = await req.json()
+    const body = await req.json().catch(() => ({}))
+    const estimateId = body?.estimateId
     if (!estimateId) {
       return NextResponse.json({ error: 'estimateId required' }, { status: 400 })
     }
@@ -81,6 +87,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Generate PDF buffer
     let pdfBuffer: Buffer
+    let rupees: RupeeResult | null = null
     try {
       let pdfElement: React.ReactElement
       {
@@ -92,6 +99,9 @@ export async function POST(req: NextRequest) {
           if (!run.ok) return NextResponse.json({ error: run.error }, { status: 422 })
           report = toPaid(run)
         }
+        const asked = ratesRequest(body?.rates, structureLines(report))
+        if (asked.kind === 'empty') return NextResponse.json({ error: 'Type at least one rate to put rupees in the PDF.' }, { status: 400 })
+        if (asked.kind === 'ok') rupees = asked.result
         // The calculation sheet is rebuilt from the saved answers and checked against the report as it will be printed.
         // If it cannot be made to agree, the report goes out without it rather than with working that does not match.
         const calc = buildStructoCalc(qtyInput, report)
@@ -106,6 +116,7 @@ export async function POST(req: NextRequest) {
           where: [qtyInput.city, qtyInput.state].filter(Boolean).join(', '),
           siteLabel: SITE[qtyInput.site ?? 'flat']?.label ?? 'Flat ground',
           wallLabel: qtyInput.wall === 'block' ? 'Concrete or AAC block walls' : 'Burnt clay brick walls',
+          rupees,
         })
       }
       // renderToBuffer expects ReactElement<DocumentProps>; our component returns Document
@@ -116,6 +127,9 @@ export async function POST(req: NextRequest) {
       console.error('PDF render stack:', pdfErr instanceof Error ? pdfErr.stack : '')
       return NextResponse.json({ error: 'PDF generation failed — estimate data may be malformed' }, { status: 500 })
     }
+
+    // The rupee copy goes back to this browser only. It never replaces the stored report or the emailed one.
+    if (rupees) return new NextResponse(new Uint8Array(pdfBuffer), { headers: RUPEE_PDF_HEADERS('NirmanShastra-StructurePro-Report-with-rupees.pdf') })
 
     // 4. Ensure storage bucket exists (public — reports identified by UUID)
     const { error: bucketErr } = await supabase.storage.createBucket('reports', {

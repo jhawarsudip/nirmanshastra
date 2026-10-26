@@ -6,7 +6,7 @@ import { toolJsonLd } from '@/lib/seo/schema'
 import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'Grand Total: One Buying List for Your Whole House | Frame, Walls, Wiring, Plumbing, Finishing'
-const description = `Add your paid StructurePro, MasonryPro, ElectricalPro, PlumbingPro and InteriorPro reports into one list of what to buy, with cement, sand and stone added across phases and nothing counted twice. Quantities only. ${PRICE.grandtotal}.`
+const description = `Add your paid StructurePro, MasonryPro, ElectricalPro, PlumbingPro and InteriorPro reports into one list of what to buy, with cement, sand and stone added across phases and nothing counted twice. Exact quantities; add your own rates for rupees. ${PRICE.grandtotal}.`
 const url = '/tools/grand-total'
 
 export const metadata: Metadata = {

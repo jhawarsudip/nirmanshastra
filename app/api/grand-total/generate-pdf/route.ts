@@ -12,6 +12,7 @@ import type { CalcSheet } from '@/lib/calcsheet'
 import { buildTradeEmail } from '@/lib/qty/email'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
+import { RUPEE_PDF_HEADERS, ratesRequest } from '@/lib/rates/server'
 
 export const runtime = 'nodejs'
 // The report now carries a calculation sheet of 20 to 40 pages; laying it out takes several seconds, longer than the 10 s default.
@@ -22,6 +23,7 @@ const bad = (error: string, status = 400) => NextResponse.json({ error }, { stat
 
 // POST /api/grand-total/generate-pdf { estimateId }: called by the page once the payment is confirmed.
 // The Grand Total must be paid on the server (or the server must be in payment bypass) before anything is built.
+// With { estimateId, rates } (the customer's own rates) the same report is built with a rupee table and sent straight back: not stored, not emailed, rates not kept.
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}))
@@ -94,19 +96,26 @@ export async function POST(req: NextRequest) {
     }
     if (!calc) console.error(`[CRITICAL][NS-CALC] Grand Total calculation sheet was left out of report ${estimateId}: it did not reconcile with the report.`)
 
+    const asked = ratesRequest(body?.rates, paid.lines)
+    if (asked.kind === 'empty') return bad('Type at least one rate to put rupees in the PDF.')
+    const rupees = asked.kind === 'ok' ? asked.result : null
+
     const reportId = `NS-${GRAND_META.code}-${estimateId.slice(0, 8).toUpperCase()}`
     const projectName = (estimate.project_name ?? 'My project').replace(/^Grand Total:\s*/i, '') || 'My project'
     const where = [estimate.city, estimate.state].filter(Boolean).join(', ')
 
     let pdfBuffer: Buffer
     try {
-      const el = React.createElement(GrandTotalQtyPDF, { free, paid, contact: contactInfo, reportId, projectName, date: new Date(), where, calc })
+      const el = React.createElement(GrandTotalQtyPDF, { free, paid, contact: contactInfo, reportId, projectName, date: new Date(), where, calc, rupees })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       pdfBuffer = await renderToBuffer(el as any)
     } catch (pdfErr) {
       console.error('Grand Total PDF render error:', pdfErr instanceof Error ? pdfErr.message : pdfErr)
       return bad('The PDF could not be built.', 500)
     }
+
+    // The rupee copy goes back to this browser only. It never replaces the stored report or the emailed one.
+    if (rupees) return new NextResponse(new Uint8Array(pdfBuffer), { headers: RUPEE_PDF_HEADERS('NirmanShastra-Grand-Total-Report-with-rupees.pdf') })
 
     // Public bucket, reports are named by their UUID.
     const { error: bucketErr } = await supabase.storage.createBucket('reports', { public: true, fileSizeLimit: 10485760 })
