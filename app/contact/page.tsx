@@ -73,7 +73,7 @@ export default function ContactPage() {
               <h2 style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(20px, 2vw, 25px)', lineHeight: 1.15, margin: 0 }}>Direct contact</h2>
               <p><b>Email</b><br /><a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a></p>
               {WHATSAPP_NUMBER ? (
-                <p data-ns-where="contact_page"><b>WhatsApp</b><br /><a href={whatsappUrl()} target="_blank" rel="noopener">WhatsApp: {WHATSAPP_DISPLAY}</a></p>
+                <p data-ns-where="contact_page"><b>WhatsApp</b><br /><a href={whatsappUrl()} target="_blank" rel="noopener">{WHATSAPP_DISPLAY}</a></p>
               ) : null}
               <p><b>Location</b><br />Uttar Pradesh, India</p>
               <p><b>Response time</b><br />Within 24 to 48 hours on business days</p>
