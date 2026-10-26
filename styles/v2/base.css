@@ -62,6 +62,11 @@
   --ns-gutter: clamp(20px, 4.4vw, 72px);
   --ns-max: 1400px;
 
+  /* How far the poured lip under the header reaches below the bar: the longest drip in public/v2/texture/lip-1.webp is 92% of the
+     tile, the tile is clamp(72px, 8.6vw, 128px) tall, it starts 9.3% inside the bar and breathes up to 5% longer (pour.css).
+     The first thing on any page starts below it plus 10px, so a drip never lands on a badge, a stepper or a heading. */
+  --ns-lip: calc(clamp(72px, 8.6vw, 128px) * .88 + 10px);
+
   position: relative;
   min-height: 100vh;
   background-color: var(--ns-bg);

@@ -17,6 +17,7 @@ import Analytics from "@/components/analytics/Analytics";
 import WhatsAppButton from "@/components/social/WhatsAppButton";
 import InstallPrompt from "@/components/InstallPrompt";
 import JsonLd from "@/components/seo/JsonLd";
+import { mukta } from "@/lib/v2/fonts";
 import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
 
 const plexSerif = IBM_Plex_Serif({
@@ -35,6 +36,7 @@ const plexSans = IBM_Plex_Sans({
 
 const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
+  preload: false,
   subsets: ["latin"],
   weight: ["400", "500"],
 });
@@ -145,7 +147,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <body
-        className={`${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} ${playfair.variable} ${inter.variable} antialiased`}
+        className={`${mukta.variable} ${plexSerif.variable} ${plexSans.variable} ${plexMono.variable} ${plexDevanagari.variable} ${fraunces.variable} ${publicSans.variable} ${playfair.variable} ${inter.variable} antialiased`}
       >
         {/* Site-wide structured data: Organization + WebSite */}
         <JsonLd data={[organizationSchema(), websiteSchema()]} />

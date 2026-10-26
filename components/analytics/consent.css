@@ -10,7 +10,7 @@
   border: 2px solid var(--ns-ink, #2A1E16); border-radius: 0;
   box-shadow: 5px 5px 0 var(--ns-shadow-c, rgba(58, 54, 49, .35));
   padding: 14px 16px 14px;
-  font: 400 14px/1.5 var(--ns-body, var(--font-plex-sans, system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', sans-serif));
+  font: 400 14px/1.5 var(--ns-body, var(--font-mukta, var(--font-plex-sans, system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', sans-serif)));
 }
 .ns-consent[hidden] { display: none; }
 .ns-consent:focus { outline: none; }

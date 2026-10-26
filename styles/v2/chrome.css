@@ -76,11 +76,27 @@ html[data-ns-theme="dark"] .ns-bm[data-on="auto"] .ns-bm__img--light { display: 
 .ns-lang { display: none; align-items: center; font-family: var(--ns-sans); font-size: 14px; border: 1.5px solid var(--ns-hair-strong); border-radius: 13px; overflow: hidden; }
 .ns-lang a { padding: 11px 12px; color: var(--ns-ink-2); font-weight: 700; line-height: 1; }
 .ns-lang a[aria-current="true"] { background: var(--ns-ink); color: var(--ns-bg); }
-.ns-lang a:lang(hi) { font-family: var(--ns-hind); }
+.ns-lang a:lang(hi) { font-family: var(--ns-hind); font-weight: 600; }  /* 600 like the brand line, so an English page fetches one Devanagari file, not two */
 .ns-header__login { display: none; font-family: var(--ns-sans); font-weight: 700; font-size: 16.5px; padding: 10px 8px; }
 .ns-header__cta { display: none; }
 .ns-burger { display: inline-grid; }
 
+/* nothing in the bar wraps onto a second line */
+.ns-nav > a, .ns-nav > button, .ns-header__login, .ns-header__cta { white-space: nowrap; }
+/* 1200-1439 px: the brand, five links and the tools only just fit one line, so everything tightens a little */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .ns-header__bar { gap: 10px; }
+  .ns-brand { gap: 10px; }
+  .ns-brand__latin { font-size: 25px; }
+  .ns-nav { gap: 0; }
+  .ns-nav > a, .ns-nav > button { font-size: 15.5px; padding: 10px 8px; gap: 5px; }
+  .ns-nav > a::after, .ns-nav > button::after { left: 8px; right: 8px; }
+  .ns-nav > a.ns-nav__pro { padding: 7px 12px; margin-left: 2px; }
+  .ns2:lang(hi) .ns-nav > a, .ns2:lang(hi) .ns-nav > button { font-size: 15px; }
+  .ns-header__login { font-size: 15.5px; padding: 10px 4px; }
+  .ns-header__tools { gap: 6px; }
+  .ns-lang a { padding: 11px 10px; }
+}
 @media (min-width: 1200px) {
   .ns-nav { display: flex; }
   .ns-lang { display: inline-flex; }

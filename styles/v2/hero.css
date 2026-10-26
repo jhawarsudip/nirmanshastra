@@ -1,19 +1,18 @@
 /* ---------- hero: plain headline + the house estimator ---------- */
-.ns-hero { padding-top: clamp(26px, 4.4vw, 70px); padding-bottom: clamp(48px, 7vw, 110px); position: relative; }
+.ns-hero { padding-top: max(clamp(26px, 4.4vw, 70px), var(--ns-lip)); padding-bottom: clamp(48px, 7vw, 110px); position: relative; }
 .ns-hero__top { position: relative; margin-bottom: clamp(26px, 4vw, 56px); }
 .ns2 .ns-hero__h1 { position: relative; z-index: 2; max-width: none; font-size: clamp(34px, 4.4vw, 66px); line-height: 1.1; }
 .ns-hero__ln { display: block; }
-.ns-hero__h1 .ns-wipe { clip-path: none; animation: ns-hero-wipe .95s cubic-bezier(.7, 0, .2, 1) both; animation-delay: var(--d, 0s); }
-html:not([data-plumb="skip"]) .ns-hero__h1 .ns-wipe { animation-delay: calc(var(--d, 0s) + .8s); }
-@keyframes ns-hero-wipe { from { clip-path: inset(-.5em 100% -.5em -.1em); } to { clip-path: inset(-.5em -.5em -.5em -.1em); } }
-/* the second line is "highlighted" with a marker that swipes across after the headline lands */
+/* The headline is plain text from the first paint: nothing starts it hidden (a clip-path wipe used to, and on a slow phone the
+   first screen showed the paragraph under it and no headline for 1-2 s). Only the marker behind the second line moves, and it
+   starts after the words are already there. */
+.ns-hero__h1 .ns-wipe { clip-path: none; }
 .ns-hero__h1 .ns-hero__hl {
   color: var(--ns-laterite);
   background: linear-gradient(transparent 66%, var(--ns-tint) 66%) 0 0 / 0 100% no-repeat;
-  animation: ns-hero-wipe .95s cubic-bezier(.7, 0, .2, 1) both, ns-marker .9s cubic-bezier(.5, 0, .2, 1) forwards;
-  animation-delay: var(--d, 0s), 1.3s;
+  animation: ns-marker .9s cubic-bezier(.5, 0, .2, 1) 1.1s forwards;
 }
-html:not([data-plumb="skip"]) .ns-hero__h1 .ns-hero__hl { animation-delay: calc(var(--d, 0s) + .8s), 2.1s; }
+html:not([data-plumb="skip"]) .ns-hero__h1 .ns-hero__hl { animation-delay: 2.1s; }  /* after the plumb-line intro has lifted */
 @keyframes ns-marker { to { background-size: 100% 100%; } }
 html[data-calm="1"] .ns-hero__h1 .ns-hero__hl { background-size: 100% 100%; }
 
@@ -115,8 +114,8 @@ html[data-calm="1"] .ns-hero__scroll svg { animation: none; }
 @media (max-width: 700px) {
   #main { display: flex; flex-direction: column; }
   #main > .ns-hero, #main > .ns-hero > .ns-wrap, #main > .ns-hero .ns-hero__grid { display: contents; }
-  /* the extra 38px at the top keeps the first line clear of the drips that hang from the header (see pour.css) */
-  #main .ns-hero__top { order: -5; margin: calc(clamp(26px, 4.4vw, 70px) + 38px) var(--ns-gutter) clamp(26px, 4vw, 56px); }
+  /* the top gap keeps the badge and the first line clear of the drips that hang from the header (--ns-lip, base.css) */
+  #main .ns-hero__top { order: -5; margin: var(--ns-lip) var(--ns-gutter) clamp(26px, 4vw, 56px); }
   #main .ns-hero__copy { order: -4; margin-inline: var(--ns-gutter); }
   #main > .ns-ex { order: -3; }
   #main > .ns-tape, #main > #problems { order: -2; }

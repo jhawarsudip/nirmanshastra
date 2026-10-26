@@ -7,7 +7,7 @@
   background: #25D366; color: #0B2E1A;
   border: 2px solid var(--ns-ink, #2A1E16); border-radius: 0;
   box-shadow: 4px 4px 0 rgba(42, 30, 22, .35);
-  font: 700 15px/1 var(--ns-body, var(--font-plex-sans, system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', sans-serif));
+  font: 700 15px/1 var(--ns-body, var(--font-mukta, var(--font-plex-sans, system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', sans-serif)));
   text-decoration: none;
 }
 .ns-wa:hover { background: #1FBF5B; }

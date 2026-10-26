@@ -174,7 +174,7 @@ export default function AIChatbox() {
           <span
             className="hidden sm:inline-block"
             style={{
-              fontFamily: 'var(--font-plex-sans), sans-serif',
+              fontFamily: 'var(--font-mukta), var(--font-plex-sans), sans-serif',
               fontSize: 13,
               fontWeight: 600,
               color: COLORS.ironInk,
