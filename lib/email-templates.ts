@@ -88,14 +88,16 @@ const mail = (subject: string, heading: string, body: string): EmailContent => (
 // ---------------------------------------------------------------------------
 
 export function getEmailContent(sequenceType: string, dayNumber: number, contactName: string): EmailContent | null {
-  const firstName = contactName.split(' ')[0] ?? contactName
+  // The name is optional on VastuPro, so a heading must read well without one: "Your Vastu check" or "Your Vastu check, Ramesh".
+  const firstName = (contactName ?? '').trim().split(/\s+/)[0] ?? ''
+  const who = firstName ? `, ${firstName}` : ''
 
   switch (sequenceType) {
     // -----------------------------------------------------------------------
     case 'vastupro': {
       if (dayNumber === 0) {
-        return mail('Your VastuPro check, and what to look at next', `Your Vastu check, ${firstName}`, `
-            ${p('Thank you for trying VastuPro. When you have marked your rooms and read your plan, you can download a free PDF of your findings. It has:')}
+        return mail('Your VastuPro check, and what to look at next', `Your Vastu check${who}`, `
+            ${p('Thank you for trying VastuPro. The free PDF of your findings was sent in a separate email, and it downloaded when you asked for it. It has:')}
             ${ul(['Your plan with the 16 zones turned to your North', 'Every door and room you marked, read against the old texts and today’s teachers, with where each rule comes from', 'A count of the findings by how the old texts and today’s teachers read them, with no overall mark out of 100', 'What could be done about each concern if the plan can still change'])}
             ${p('Vastu is a traditional system. It is not part of any BIS code and says nothing about the strength of the structure.')}
             ${p('Once the layout is settled, the next question is how much material the frame of the house will need. StructurePro answers that from a few plain questions about your plot and plan.')}
@@ -104,7 +106,7 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 7) {
-        return mail('Seven questions to ask before you sign a quote', `Questions to ask a contractor, ${firstName}`, `
+        return mail('Seven questions to ask before you sign a quote', `Questions to ask a contractor${who}`, `
             ${p('A quote that arrives as one number cannot be checked. These are the questions that make it checkable:')}
             ${ul([
               `${mono('Quantities:')} Can I have a line-item list with the unit, quantity and specification of every material?`,
@@ -120,14 +122,14 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 45) {
-        return mail('Next phase: what the masonry will need', `Brickwork and plaster, ${firstName}`, `
+        return mail('Next phase: what the masonry will need', `Brickwork and plaster${who}`, `
             ${p('If your frame is done or underway, the walls are next. Bricks, mortar and plaster are the quantities people most often guess.')}
             ${p('MasonryPro works from your rooms: the wall lengths and heights, the openings, the wall material you choose and the plaster on each face. The report lists every assumption it made and what it leaves out.')}
             ${ctaButton(`Work out masonry, ${rupees('masonpro')}`, MASON)}
           `)
       }
       if (dayNumber === 75) {
-        return mail('Next phases: wiring and pipes', `Wiring and plumbing, ${firstName}`, `
+        return mail('Next phases: wiring and pipes', `Wiring and plumbing${who}`, `
             ${p('Wiring and pipes are counted before they are buried in the walls and floors, which is the cheapest moment to catch a missing item.')}
             ${ul([
               `ElectricalPro counts points, wire by size, conduit and the protection devices for your plan (${rupees('electropro')}).`,
@@ -138,7 +140,7 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 120) {
-        return mail('Finishes: tiles, paint and ceilings', `The finishing phase, ${firstName}`, `
+        return mail('Finishes: tiles, paint and ceilings', `The finishing phase${who}`, `
             ${p('Finishing quantities depend on room areas and on the specification you choose. InteriorPro counts flooring, wall tiles, paint, ceilings and the like from your rooms, so you can check a finishing quote line by line.')}
             ${p(GRAND_LINE)}
             ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
@@ -150,7 +152,7 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
     // -----------------------------------------------------------------------
     case 'structopro': {
       if (dayNumber === 0) {
-        return mail('Your StructurePro report, and masonry next', `Your StructurePro report is ready, ${firstName}`, `
+        return mail('Your StructurePro report, and masonry next', `Your StructurePro report is ready${who}`, `
             ${p('Your report counts the RCC frame: footings, plinth beams, columns, beams, slabs, balconies, the staircase and the small RCC items such as lintels and sunshades. It has:')}
             ${ul([
               'Every quantity with its unit, as a low figure, a central figure and a high figure',
@@ -164,7 +166,7 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 7) {
-        return mail('Checking a structure quote against your report', `Using your report on a quote, ${firstName}`, `
+        return mail('Checking a structure quote against your report', `Using your report on a quote${who}`, `
             ${p('Put your contractor\'s quantities beside the report, line by line:')}
             ${ul([
               `${mono('Concrete:')} Compare volume by grade. A gap inside the low and high figures is normal. A gap outside them needs an explanation.`,
@@ -178,14 +180,14 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 45) {
-        return mail('Brickwork and plaster quantities', `Next phase: masonry, ${firstName}`, `
+        return mail('Brickwork and plaster quantities', `Next phase: masonry${who}`, `
             ${p('Your report covers the frame. The walls are the next quantity a quote can get wrong, because brick sizes differ from kiln to kiln and openings must be deducted.')}
             ${p('MasonryPro works from your rooms and states the brick size it assumed, so you can measure a few bricks and see how the count changes.')}
             ${ctaButton(`Work out masonry, ${rupees('masonpro')}`, MASON)}
           `)
       }
       if (dayNumber === 75) {
-        return mail('Wiring and pipes before they are buried', `Wiring and plumbing, ${firstName}`, `
+        return mail('Wiring and pipes before they are buried', `Wiring and plumbing${who}`, `
             ${p('Conduit and pipes go into walls and floors before plaster and screed. A missing point or a short run is cheapest to fix at that stage.')}
             ${ul([
               `ElectricalPro: points, wire by size, conduit and protection devices (${rupees('electropro')})`,
@@ -196,7 +198,7 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 120) {
-        return mail('Finishing quantities', `Finishes, ${firstName}`, `
+        return mail('Finishing quantities', `Finishes${who}`, `
             ${p('If you have not yet counted the finishing, InteriorPro does it from your room areas: flooring, wall tiles, paint, ceilings and the like, with wastage stated.')}
             ${p(GRAND_LINE)}
             ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
@@ -208,14 +210,14 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
     // -----------------------------------------------------------------------
     case 'masonpro': {
       if (dayNumber === 0) {
-        return mail('Your MasonryPro report, and wiring next', `Your MasonryPro report is ready, ${firstName}`, `
+        return mail('Your MasonryPro report, and wiring next', `Your MasonryPro report is ready${who}`, `
             ${p('Your report counts the brickwork or blockwork, the mortar, and the plaster on every face, from your rooms and openings. It states the brick size it assumed and what it does not count.')}
             ${p('Wiring is next. ElectricalPro counts points, wire by size, conduit and protection devices from your plan.')}
             ${ctaButton(`Work out wiring, ${rupees('electropro')}`, ELEC)}
           `)
       }
       if (dayNumber === 7) {
-        return mail('Reading a brick count', `Checking a brick count, ${firstName}`, `
+        return mail('Reading a brick count', `Checking a brick count${who}`, `
             ${p('Four things decide a brick count:')}
             ${ul([
               `${mono('Brick size:')} bricks from different kilns differ in size. Measure a few and compare with the size in your report.`,
@@ -227,20 +229,20 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 45) {
-        return mail('Wiring before plaster', `Next phase: electrical, ${firstName}`, `
+        return mail('Wiring before plaster', `Next phase: electrical${who}`, `
             ${p('Conduit and boxes are fixed before plaster goes on. That is the moment to count points and wire runs.')}
             ${p('ElectricalPro counts them from your plan and lists what it leaves out, such as fittings, fans, lights and the meter.')}
             ${ctaButton(`Work out wiring, ${rupees('electropro')}`, ELEC)}
           `)
       }
       if (dayNumber === 75) {
-        return mail('Pipes before the floor is laid', `Next phase: plumbing, ${firstName}`, `
+        return mail('Pipes before the floor is laid', `Next phase: plumbing${who}`, `
             ${p('Supply and drainage pipes go in before the floor finish. PlumbingPro counts pipe by size, fittings, fixtures and tank capacity for your plan and family size, so you can check your plumber\'s list line by line.')}
             ${ctaButton(`Work out plumbing, ${rupees('plumbpro')}`, PLUMB)}
           `)
       }
       if (dayNumber === 120) {
-        return mail('Finishing quantities', `Finishes, ${firstName}`, `
+        return mail('Finishing quantities', `Finishes${who}`, `
             ${p('InteriorPro counts flooring, wall tiles, paint, ceilings and the like from your room areas, with wastage stated.')}
             ${p(GRAND_LINE)}
             ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
@@ -252,14 +254,14 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
     // -----------------------------------------------------------------------
     case 'electropro': {
       if (dayNumber === 0) {
-        return mail('Your ElectricalPro report, and plumbing next', `Your ElectricalPro report is ready, ${firstName}`, `
+        return mail('Your ElectricalPro report, and plumbing next', `Your ElectricalPro report is ready${who}`, `
             ${p('Your report counts points, wire by size, conduit, boxes, and the protection devices for your plan. What it does not count, such as fittings, fans, lights and the meter, is listed in the report.')}
             ${p('Pipes are next. PlumbingPro counts pipe by size, fittings, fixtures and tank capacity.')}
             ${ctaButton(`Work out plumbing, ${rupees('plumbpro')}`, PLUMB)}
           `)
       }
       if (dayNumber === 7) {
-        return mail('Five things to ask your electrician to put in writing', `Electrical checks, ${firstName}`, `
+        return mail('Five things to ask your electrician to put in writing', `Electrical checks${who}`, `
             ${ul([
               'Which MCB or RCBO rating protects each circuit.',
               'Which RCCB protects which circuits, and its rating.',
@@ -271,20 +273,20 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 45) {
-        return mail('Wiring and pipes: what has to be settled together', `Coordinating wiring and plumbing, ${firstName}`, `
+        return mail('Wiring and pipes: what has to be settled together', `Coordinating wiring and plumbing${who}`, `
             ${p('Both run inside the walls and floors, and both need their positions fixed before plaster and screed. Settle switch, socket, tap and drain positions on one plan before either trade starts.')}
             ${p('If you have not yet counted the pipes, PlumbingPro does it from your plan and family size.')}
             ${ctaButton(`Work out plumbing, ${rupees('plumbpro')}`, PLUMB)}
           `)
       }
       if (dayNumber === 75) {
-        return mail('Finishing quantities', `Finishes, ${firstName}`, `
+        return mail('Finishing quantities', `Finishes${who}`, `
             ${p('With wiring and plumbing counted, finishing is next. InteriorPro counts flooring, wall tiles, paint, ceilings and the like from your room areas, so you can check a finishing quote before it is signed.')}
             ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
           `)
       }
       if (dayNumber === 120) {
-        return mail('Phases you have not counted yet', `Remaining phases, ${firstName}`, `
+        return mail('Phases you have not counted yet', `Remaining phases${who}`, `
             ${p('If masonry, plumbing or finishes are still uncounted, each report gives you the quantities for that phase to put beside a quote.')}
             ${p(GRAND_LINE)}
             ${ctaButton('See all the tools', `${BASE_URL}/#pricing`)}
@@ -296,14 +298,14 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
     // -----------------------------------------------------------------------
     case 'plumbpro': {
       if (dayNumber === 0) {
-        return mail('Your PlumbingPro report, and finishes next', `Your PlumbingPro report is ready, ${firstName}`, `
+        return mail('Your PlumbingPro report, and finishes next', `Your PlumbingPro report is ready${who}`, `
             ${p('Your report counts pipe by size and material, fittings, fixtures and tank capacity for your plan and family size, and lists what it does not count.')}
             ${p('Finishes are next. InteriorPro counts flooring, wall tiles, paint and ceilings from your room areas.')}
             ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
           `)
       }
       if (dayNumber === 7) {
-        return mail('What to ask your plumber to put in writing', `Plumbing checks, ${firstName}`, `
+        return mail('What to ask your plumber to put in writing', `Plumbing checks${who}`, `
             ${ul([
               'The tank capacity, and how many people it was sized for.',
               'The pipe material and sizes for supply and for drainage.',
@@ -315,19 +317,19 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 45) {
-        return mail('Before the finishing work starts', `Finishes next, ${firstName}`, `
+        return mail('Before the finishing work starts', `Finishes next${who}`, `
             ${p('Once pipes and wiring are in and tested, finishes can go on. InteriorPro counts the finishing from your room areas and states the wastage it allowed.')}
             ${ctaButton(`Work out finishes, ${rupees('interiorpro')}`, INTERIOR)}
           `)
       }
       if (dayNumber === 75) {
-        return mail('Phases you have not counted yet', `Remaining phases, ${firstName}`, `
+        return mail('Phases you have not counted yet', `Remaining phases${who}`, `
             ${p('If any phase of your house is still uncounted, its report gives you the quantities to put beside a quote.')}
             ${ctaButton('See all the tools', `${BASE_URL}/#pricing`)}
           `)
       }
       if (dayNumber === 120) {
-        return mail('One buying list for the whole house', `Grand Total, ${firstName}`, `
+        return mail('One buying list for the whole house', `Grand Total${who}`, `
             ${p(GRAND_LINE)}
             ${ctaButton('See the Grand Total report', GRAND)}
           `)
@@ -338,14 +340,14 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
     // -----------------------------------------------------------------------
     case 'interiorpro': {
       if (dayNumber === 0) {
-        return mail('Your InteriorPro report, and the Grand Total', `Your InteriorPro report is ready, ${firstName}`, `
+        return mail('Your InteriorPro report, and the Grand Total', `Your InteriorPro report is ready${who}`, `
             ${p('Your report counts flooring, wall tiles, paint, ceilings and the like from your rooms, with wastage stated. What it does not count, such as plaster, stairs, sanitary fittings and loose furniture, is listed in the report.')}
             ${p(GRAND_LINE)}
             ${ctaButton('See the Grand Total report', GRAND)}
           `)
       }
       if (dayNumber === 7) {
-        return mail('Five things to check on a finishing quote', `Finishing checks, ${firstName}`, `
+        return mail('Five things to check on a finishing quote', `Finishing checks${who}`, `
             ${ul([
               `${mono('Areas:')} measure a room or two yourself and compare with the areas in the quote.`,
               `${mono('Wastage:')} ask what allowance was added for tiles and boards. It is larger for diagonal lays and small rooms.`,
@@ -356,19 +358,19 @@ export function getEmailContent(sequenceType: string, dayNumber: number, contact
           `)
       }
       if (dayNumber === 45) {
-        return mail('Keep your reports', `Keep your reports, ${firstName}`, `
+        return mail('Keep your reports', `Keep your reports${who}`, `
             ${p('Your reports are a record of what each phase was counted to need. Keep the PDFs with the drawings and the bills. If a repair or an extension comes later, they show what was assumed.')}
             ${p(GRAND_LINE)}
           `)
       }
       if (dayNumber === 75) {
-        return mail('If you are counting another phase', `Other phases, ${firstName}`, `
+        return mail('If you are counting another phase', `Other phases${who}`, `
             ${p('Each phase has its own report: StructurePro, MasonryPro, ElectricalPro, PlumbingPro and InteriorPro. Each states its assumptions and what it leaves out.')}
             ${ctaButton('See all the tools', `${BASE_URL}/#pricing`)}
           `)
       }
       if (dayNumber === 120) {
-        return mail('Planning anything new?', `Planning anything new, ${firstName}`, `
+        return mail('Planning anything new?', `Planning anything new${who}`, `
             ${p('If you are planning a new house, an extension or a renovation, each phase can be counted before you ask for a quote. Start with the free first look at the frame.')}
             ${ctaButton('See all the tools', `${BASE_URL}/#pricing`)}
           `)

@@ -1,15 +1,20 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
-const SEQUENCE_DAYS = [0, 7, 45, 75, 120]
+export const SEQUENCE_DAYS = [0, 7, 45, 75, 120]
 
+/**
+ * Schedules the follow-up emails for a contact. `days` picks which of them (default: all five).
+ * A contact who saved a StructurePro project but has not bought gets days 7 onward only: the day-0 email says "your report is ready".
+ */
 export async function scheduleEmailSequences(
   contactId: string,
   sequenceType: string,
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  days: number[] = SEQUENCE_DAYS
 ): Promise<void> {
   const now = new Date()
 
-  const rows = SEQUENCE_DAYS.map((day) => {
+  const rows = days.map((day) => {
     const scheduledAt = new Date(now)
     scheduledAt.setDate(scheduledAt.getDate() + day)
     return {

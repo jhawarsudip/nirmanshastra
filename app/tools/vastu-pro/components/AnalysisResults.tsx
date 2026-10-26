@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Link from 'next/link'
 import PlanEditor from './PlanEditor'
+import EmailPdf from './EmailPdf'
 import { CATALOGUE } from '../vastu-catalogue'
 import type { DoorMark, PlacedItem, PlanImage } from '../vastu-model'
 import type { Poly } from '../vastu-geometry'
@@ -13,7 +14,6 @@ import { TOOLS } from '@/lib/v2/content'
 
 interface Props {
   reading: Reading
-  contactName: string
   house: Poly
   northDeg: number
   items: PlacedItem[]
@@ -124,9 +124,7 @@ function PlotCard({ n }: { n: PlotNote }) {
   )
 }
 
-export default function AnalysisResults({ reading, contactName, house, northDeg, items, doors, image, onBackToPlan }: Props) {
-  const [pdfBusy, setPdfBusy] = useState(false)
-  const [pdfError, setPdfError] = useState('')
+export default function AnalysisResults({ reading, house, northDeg, items, doors, image, onBackToPlan }: Props) {
   const struct = TOOLS.find(t => t.key === 'struct')!
   const { findings, plot, counts, missing, basisNotes } = reading
 
@@ -149,43 +147,10 @@ export default function AnalysisResults({ reading, contactName, house, northDeg,
     () => [...findings].sort((a, b) => SEVERITY_ORDER.indexOf(a.severity) - SEVERITY_ORDER.indexOf(b.severity) || b.weight - a.weight),
     [findings],
   )
+  const top = ordered.slice(0, 3)
+  const rest = ordered.slice(3)
   const countedPlot = plot.filter(p => p.counted)
   const infoPlot = plot.filter(p => !p.counted)
-
-  async function downloadPdf() {
-    setPdfBusy(true)
-    setPdfError('')
-    try {
-      const res = await fetch('/api/vastu-pro/report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: contactName,
-          northDeg,
-          house: house.map(p => ({ x: p.x, y: p.y })),
-          items: items.map(i => ({ id: i.id, kind: i.kind, x: i.x, y: i.y, w: i.w, h: i.h })),
-          doors: doors.map(d => ({ id: d.id, kind: d.kind, pt: { x: d.pt.x, y: d.pt.y } })),
-        }),
-      })
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error(j.error || 'We could not make the PDF. Please try again.')
-      }
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'VastuPro-findings.pdf'
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      setTimeout(() => URL.revokeObjectURL(url), 5000)
-    } catch (err) {
-      setPdfError(err instanceof Error ? err.message : 'We could not make the PDF. Please try again.')
-    } finally {
-      setPdfBusy(false)
-    }
-  }
 
   return (
     <div>
@@ -198,13 +163,9 @@ export default function AnalysisResults({ reading, contactName, house, northDeg,
         <button type="button" className="ns-v-sbtn" onClick={onBackToPlan}>← Back to my plan</button>
       </div>
 
-      <Note kind="info" title="What this reading is, and is not">
-        It is a reading of your plan against the rules that the old Vastu texts and today’s teachers give. It is not a structural or safety check, and it does not say what will happen to anyone who lives there: no text or study shows that a layout decides health, money or luck. Some rules below are old and widely repeated, some are only taught today, and a few are modern habits. Each finding says which, and says where teachers disagree.
-      </Note>
-
       <div className="ns-plate ns-v-summary">
         <div className="ns-v-summary__l">
-          <h2>{contactName ? `Prepared for ${contactName}` : 'Summary'}</h2>
+          <h2>Your reading at a glance</h2>
           <p className="ns-v-score__meta">
             North at {Math.round(northDeg)}° · {items.length} room{items.length !== 1 ? 's' : ''} and {doors.length} door{doors.length !== 1 ? 's' : ''} read
           </p>
@@ -229,67 +190,73 @@ export default function AnalysisResults({ reading, contactName, house, northDeg,
         </div>
       </div>
 
-      <div className="ns-v-twin">
       <div className="ns-v-block">
-        <h2>Your plan, as read</h2>
-        <div className="ns-plate ns-v-sheet">
-          <div className="ns-v-canvaswrap">
-            <PlanEditor
-              mode="view"
-              house={house}
-              onHouse={NOOP}
-              northDeg={northDeg}
-              items={items}
-              onItems={NOOP}
-              doors={doors}
-              onDoors={NOOP}
-              catalogue={CATALOGUE}
-              activeDoorKind="main_door"
-              selectedId={null}
-              onSelect={NOOP}
-              image={image}
-              zoneNames={ZONE_NAMES}
-              colourOf={id => { const s = sevOf.get(id); return s ? SEV_COLOUR[s] : undefined }}
-              chipOf={id => zoneOf.get(id)}
-            />
-          </div>
-          <div className="ns-v-sheet__foot">
-            <ul className="ns-v-legend" aria-label="Colour key">
-              {([...SEVERITY_ORDER].reverse() as Severity[]).map(s => (
-                <li key={s}><i style={{ background: SEV_COLOUR[s] }} />{SEVERITY_LABEL[s]}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-
-        <div className="ns-v-twin__side">
-      <div className="ns-v-block ns-plate ns-v-next">
-        <h2>Keep a copy</h2>
-        <p>A PDF with your plan, every finding with its source and the remedies, and at the end the working behind each verdict and the books the rules come from. It is as long as your plan needs. It is made when you ask, from the plan on this page, and it is not stored.</p>
-        {pdfError && <Note kind="err" title="That did not work">{pdfError}</Note>}
-        <div className="ns-v-next__row">
-          <button type="button" className="ns-btn" onClick={downloadPdf} disabled={pdfBusy}>
-            {pdfBusy ? 'Making your PDF…' : 'Download the PDF'}
-            {!pdfBusy && <IcArrow width={22} height={11} />}
-          </button>
-          <span className="ns-i-fine">Free. No payment.</span>
-        </div>
-      </div>
-
-        </div>
-      </div>
-
-      <div className="ns-v-block">
-        <h2>Door and room by room</h2>
+        <h2>{rest.length > 0 ? `The ${top.length === 1 ? 'one' : top.length} to look at first` : 'Door and room by room'}</h2>
         {ordered.length === 0 ? (
           <Note kind="info">Nothing on the plan could be read yet. Go back and mark a door or a room.</Note>
         ) : (
-          <div className="ns-v-finds">
-            {ordered.map(f => <FindingCard key={f.id} f={f} />)}
-          </div>
+          <>
+            <div className="ns-v-finds">
+              {top.map(f => <FindingCard key={f.id} f={f} />)}
+            </div>
+            <p className="ns-i-fine" style={{ marginTop: 10 }}>
+              Worst first, then the rule that carries the most weight. This is a reading of the rules, not a safety check or a forecast: the note below says what it is and is not.
+            </p>
+          </>
         )}
       </div>
+
+      <EmailPdf northDeg={northDeg} house={house} items={items} doors={doors} />
+
+      <div className="ns-v-twin">
+        <div className="ns-v-block">
+          <h2>Your plan, as read</h2>
+          <div className="ns-plate ns-v-sheet">
+            <div className="ns-v-canvaswrap">
+              <PlanEditor
+                mode="view"
+                house={house}
+                onHouse={NOOP}
+                northDeg={northDeg}
+                items={items}
+                onItems={NOOP}
+                doors={doors}
+                onDoors={NOOP}
+                catalogue={CATALOGUE}
+                activeDoorKind="main_door"
+                selectedId={null}
+                onSelect={NOOP}
+                image={image}
+                zoneNames={ZONE_NAMES}
+                colourOf={id => { const s = sevOf.get(id); return s ? SEV_COLOUR[s] : undefined }}
+                chipOf={id => zoneOf.get(id)}
+              />
+            </div>
+            <div className="ns-v-sheet__foot">
+              <ul className="ns-v-legend" aria-label="Colour key">
+                {([...SEVERITY_ORDER].reverse() as Severity[]).map(s => (
+                  <li key={s}><i style={{ background: SEV_COLOUR[s] }} />{SEVERITY_LABEL[s]}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="ns-v-twin__side">
+          <Note kind="info" title="What this reading is, and is not">
+            It is a reading of your plan against the rules that the old Vastu texts and today’s teachers give. It is not a structural or safety check, and it does not say what will happen to anyone who lives there: no text or study shows that a layout decides health, money or luck. Some rules below are old and widely repeated, some are only taught today, and a few are modern habits. Each finding says which, and says where teachers disagree.
+          </Note>
+        </div>
+      </div>
+
+      {rest.length > 0 && (
+        <div className="ns-v-block">
+          <h2>The rest, door and room by room</h2>
+          <div className="ns-v-finds">
+            {rest.map(f => <FindingCard key={f.id} f={f} />)}
+          </div>
+        </div>
+      )}
 
       {plot.length > 0 && (
         <div className="ns-v-block">

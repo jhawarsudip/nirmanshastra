@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import RegistrationForm, { type StructoRegData } from './components/RegistrationForm'
+import LocationForm, { type StructoPlaceData } from './components/LocationForm'
 import BuildDetails from './components/BuildDetails'
 import ResultsV2 from './components/ResultsV2'
 import type { QtyInput } from '@/lib/structopro-qty/types'
@@ -34,38 +34,41 @@ const TOOL = TOOLS.find(t => t.key === 'struct')!
 
 // The four steps the visitor sees. Adding floors to a standing house (vertical extension) is not estimated here:
 // it needs an engineer's survey of the old foundation and columns first, so the form says so instead.
-const STEPS = ['About you', 'Your project', 'Your building', 'Your report']
+// The result comes before any email: state and city, then the building, then the free frame. Name and email are asked on the
+// result screen, when the visitor chooses to pay or to save the project.
+const STEPS = ['Where', 'Your project', 'Your building', 'Your frame']
 
-type Step = 'register' | 'project_pick' | 'details' | 'results'
+type Step = 'place' | 'project_pick' | 'details' | 'results'
 
-const STEP_IX: Record<Step, number> = { register: 0, project_pick: 1, details: 2, results: 3 }
+const STEP_IX: Record<Step, number> = { place: 0, project_pick: 1, details: 2, results: 3 }
 
 interface SessionState {
-  regData:         StructoRegData
-  contactId:       string
+  regData:         StructoPlaceData
+  /** true when the estimate already has a contact (a signed-in visitor); false until name and email are given */
+  hasContact:      boolean
   estimateId:      string | null
   free:            FreePayload | null
   selectedProject: SelectedProject | null
 }
 
 const EMPTY_SESSION: SessionState = {
-  regData:         {} as StructoRegData,
-  contactId:       '',
+  regData:         { projectName: '', state: '', city: '' },
+  hasContact:      false,
   estimateId:      null,
   free:            null,
   selectedProject: null,
 }
 
 export default function StructoProPage() {
-  const [step, setStep]         = useState<Step>('register')
+  const [step, setStep]         = useState<Step>('place')
   const [liveData, setLiveData] = useState<LiveSummaryData>({})
   const [session, setSession]   = useState<SessionState>(EMPTY_SESSION)
   const [calcBusy, setCalcBusy] = useState(false)
   const [calcError, setCalcError] = useState('')
   const inFlight = useRef(false)
 
-  function handleRegistration(data: StructoRegData, contactId: string) {
-    setSession(prev => ({ ...prev, regData: data, contactId }))
+  function handlePlace(data: StructoPlaceData) {
+    setSession(prev => ({ ...prev, regData: data }))
     setStep('project_pick')
   }
 
@@ -139,13 +142,13 @@ export default function StructoProPage() {
       const res = await fetch('/api/structopro/calculate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contactId: session.contactId, projectName, projectId, input }),
+        body: JSON.stringify({ projectName, projectId, input }),
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok || !json.free) {
         throw new Error(json.error || 'We could not work out your structure. Please try again.')
       }
-      setSession(prev => ({ ...prev, estimateId: json.estimateId ?? null, free: json.free as FreePayload }))
+      setSession(prev => ({ ...prev, estimateId: json.estimateId ?? null, free: json.free as FreePayload, hasContact: !!json.hasContact }))
       setStep('results')
     } catch (err) {
       setCalcError(err instanceof Error ? err.message : 'We could not work out your structure. Please try again.')
@@ -156,7 +159,7 @@ export default function StructoProPage() {
   }
 
   function handleStartOver() {
-    setStep('register')
+    setStep('place')
     setLiveData({})
     setCalcError('')
     setSession(EMPTY_SESSION)
@@ -207,9 +210,9 @@ export default function StructoProPage() {
       <StepBar steps={STEPS} current={STEP_IX[step]} />
 
       <AnimatePresence mode="wait">
-        {step === 'register' && (
-          <motion.div key="register" variants={v} initial="initial" animate="animate" exit="exit">
-            {withRail(<RegistrationForm onSubmit={handleRegistration} />)}
+        {step === 'place' && (
+          <motion.div key="place" variants={v} initial="initial" animate="animate" exit="exit">
+            {withRail(<LocationForm onSubmit={handlePlace} />)}
           </motion.div>
         )}
 
@@ -247,7 +250,7 @@ export default function StructoProPage() {
             <ResultsV2
               free={session.free}
               estimateId={session.estimateId}
-              contactName={session.regData.name}
+              hasContact={session.hasContact}
               projectName={session.selectedProject?.projectName ?? session.regData.projectName ?? ''}
               onStartOver={handleStartOver}
             />

@@ -3,7 +3,6 @@
 import { trackCalculatorUsed } from '@/lib/analytics/events'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import RegistrationForm, { type RegistrationData } from './components/RegistrationForm'
 import PlanEditor, { bearingOfDoor, placementOf, type EditorMode } from './components/PlanEditor'
 import HouseControls from './components/HouseControls'
 import DoorPanel from './components/DoorPanel'
@@ -21,11 +20,12 @@ import { TOOLS } from '@/lib/v2/content'
 import { useCalm } from '@/lib/v2/store'
 import '@/styles/v2/vastu.css'
 
-type Step = 'register' | 'plan' | 'results'
-type ContactData = RegistrationData & { contactId: string }
+// The plan comes first and the reading second. No name or email is asked before the reading; the email is asked only
+// on the results screen, to send the PDF.
+type Step = 'plan' | 'results'
 
-const STEPS = ['About you', 'Your plan', 'Your reading']
-const STEP_IX: Record<Step, number> = { register: 0, plan: 1, results: 2 }
+const STEPS = ['Your plan', 'Your reading']
+const STEP_IX: Record<Step, number> = { plan: 0, results: 1 }
 
 const MODES: { key: Exclude<EditorMode, 'view'>; label: string }[] = [
   { key: 'outline', label: 'House outline' },
@@ -53,8 +53,7 @@ export default function VastuProPage() {
   const calm = useCalm()
   const v = calm ? calmVariants : stepVariants
 
-  const [step,            setStep]            = useState<Step>('register')
-  const [contact,         setContact]         = useState<ContactData | null>(null)
+  const [step,            setStep]            = useState<Step>('plan')
   const [mode,            setMode]            = useState<Exclude<EditorMode, 'view'>>('outline')
   const [northDeg,        setNorthDeg]        = useState(0)
   const [house,           setHouse]           = useState<Poly>(() => rectangleOutline(40, 30))
@@ -75,11 +74,6 @@ export default function VastuProPage() {
   const imageRef = useRef<PlanImage | null>(null)
   imageRef.current = image
   useEffect(() => () => { if (imageRef.current) URL.revokeObjectURL(imageRef.current.src) }, [])
-
-  function handleRegistration(data: RegistrationData, contactId: string) {
-    setContact({ ...data, contactId })
-    setStep('plan')
-  }
 
   function changeMode(next: Exclude<EditorMode, 'view'>) {
     setMode(next)
@@ -169,13 +163,6 @@ export default function VastuProPage() {
     setReading(readPlan({ house, northDeg, items, doors }))
     setStep('results')
     trackCalculatorUsed('vastupro') // a free tool produced a result
-    if (contact) {
-      fetch('/api/vastu-pro/update-status', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ contactId: contact.contactId, status: 'analysed' }),
-      }).catch(console.error)
-    }
   }
 
   // Back to the plan with everything still on it, so a room can be moved and the plan read again.
@@ -204,7 +191,7 @@ export default function VastuProPage() {
           eyebrow="Before you build · Layout"
           name={tool.name}
           price="Free"
-          blurb="Set where North is, draw the outline of your house, mark the doors and rooms, and see how the Vastu texts and teachers read each place. Free, with a PDF of your findings."
+          blurb="Set where North is, draw the outline of your house, mark the doors and rooms, and see how the Vastu texts and teachers read each place. Free. You see the reading first; an email is asked only if you want the PDF."
           art={tool.plate}
           artAlt={tool.plateAlt}
         />
@@ -212,12 +199,6 @@ export default function VastuProPage() {
       <StepBar steps={STEPS} current={STEP_IX[step]} />
 
       <AnimatePresence mode="wait">
-        {step === 'register' && (
-          <motion.div key="register" variants={v} initial="initial" animate="animate" exit="exit" className="ns-v-narrow">
-            <RegistrationForm onSubmit={handleRegistration} />
-          </motion.div>
-        )}
-
         {step === 'plan' && (
           <motion.div key="plan" variants={v} initial="initial" animate="animate" exit="exit">
             <ol className="ns-v-how">
@@ -335,7 +316,6 @@ export default function VastuProPage() {
           <motion.div key="results" variants={v} initial="initial" animate="animate" exit="exit">
             <AnalysisResults
               reading={reading}
-              contactName={contact?.name ?? ''}
               house={house}
               northDeg={northDeg}
               items={items}

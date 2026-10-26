@@ -120,9 +120,11 @@ export async function redeemClaim(db: Db, packId: string, estimateId: string): P
   const undo = async () => {
     await db.from('estimates').update({ result_data: pack.state }).eq('id', packId).eq('result_data->>rev', String(next.rev))
   }
+  // A report made before a name and email were asked has no contact yet: it takes the pack's, so its PDF has somewhere to go.
+  const contactId = est.contact_id ?? pack.row.contact_id ?? null
   const { data: flipped, error: upErr } = await db
     .from('estimates')
-    .update({ status: 'paid' })
+    .update(est.contact_id || !contactId ? { status: 'paid' } : { status: 'paid', contact_id: contactId })
     .eq('id', est.id)
     .eq('status', 'complete')
     .select('id')
@@ -142,7 +144,7 @@ export async function redeemClaim(db: Db, packId: string, estimateId: string): P
   })
   if (payErr) console.error('Pack redeem: could not write the claim record', payErr)
 
-  if (est.contact_id) await db.from('contacts').update({ status: 'paid' }).eq('id', est.contact_id)
+  if (contactId) await db.from('contacts').update({ status: 'paid' }).eq('id', contactId)
 
   return { ok: true, already: false, status: packStatusOf(true, next) }
 }

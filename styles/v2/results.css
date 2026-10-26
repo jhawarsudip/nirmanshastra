@@ -107,6 +107,13 @@ html[data-calm="1"] .ns-r-stage__hint { animation: none; opacity: .85; }
 @media (max-width: 520px) { .ns-r-pack { justify-items: stretch; } .ns-r-pack .ns-btn { justify-content: center; } }
 @media (max-width: 520px) { .ns-r-unlock .ns-btn { justify-self: stretch; justify-content: center; } }
 
+/* name and email, asked only when the visitor chooses to pay, to save the project, or to have the report sent */
+.ns-r-capture { display: grid; gap: 14px; padding: clamp(16px, 2.2vw, 26px); border: 2px solid var(--ns-line-strong, var(--ns-ink)); background: var(--ns-paper, transparent); box-shadow: 4px 5px 0 var(--ns-shadow-c); }
+.ns-r-capture h4 { margin: 0; font-family: var(--ns-display); font-weight: 400; font-size: clamp(22px, 2.4vw, 30px); line-height: 1.15; }
+.ns-r-capture > p { max-width: 62ch; }
+.ns-r-capture__row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+@media (max-width: 520px) { .ns-r-capture__row .ns-btn { flex: 1 1 100%; justify-content: center; } }
+
 /* totals */
 .ns-r-tots { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
 .ns-r-tot { padding: 16px 18px; border-radius: 14px; border: 1.5px solid var(--ns-line); background: var(--ns-paper); display: grid; gap: 2px; min-width: 0; }

@@ -166,6 +166,10 @@ html[data-calm="1"] .ns-v-placing::before { animation: none; }
 .ns-v-next h2 { margin: 0; font-family: var(--ns-display); font-weight: 400; font-size: clamp(24px, 2.6vw, 34px); line-height: 1.1; }
 .ns-v-next p { margin: 0; font-size: 17px; line-height: 1.6; color: var(--ns-ink-2); max-width: 64ch; }
 .ns-v-next__row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+/* "Email me the full PDF": the one place VastuPro asks for an email, after the reading */
+.ns-v-pdf .ns-i-fields { max-width: 760px; }
+.ns-v-pdf .ns-v-next__row .ns-i-fine { flex: 1 1 260px; max-width: 52ch; }
+@media (max-width: 520px) { .ns-v-pdf .ns-v-next__row .ns-btn { flex: 1 1 100%; justify-content: center; } }
 
 @media (max-width: 520px) { .ns-v-counts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .ns-v-find h3 { font-size: 18.5px; } }
 

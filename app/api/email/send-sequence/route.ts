@@ -49,7 +49,8 @@ export async function GET(req: NextRequest) {
 
   for (const row of pending) {
     const contact = Array.isArray(row.contacts) ? row.contacts[0] : row.contacts
-    if (!contact?.email || !contact?.name) {
+    // A name is optional (VastuPro asks only for an email), the email address is not.
+    if (!contact?.email) {
       await supabase
         .from('email_sequences')
         .update({ status: 'failed' })
@@ -58,7 +59,7 @@ export async function GET(req: NextRequest) {
       continue
     }
 
-    const content = getEmailContent(row.sequence_type, row.day_number, contact.name)
+    const content = getEmailContent(row.sequence_type, row.day_number, contact.name ?? '')
     if (!content) {
       // No template defined for this combination — mark as sent to avoid retrying
       await supabase

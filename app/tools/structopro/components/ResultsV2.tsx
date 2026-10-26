@@ -16,6 +16,7 @@ import { Note, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { Tot, ReportTable as Table, DeliveryNote } from '@/components/v2/qty/parts'
 import PackUnlock from '@/components/v2/qty/PackUnlock'
 import QuoteCheck from './QuoteCheck'
+import ContactCapture, { type CaptureMode } from './ContactCapture'
 import PayAssurance from '@/components/policy/PayAssurance'
 
 /*
@@ -48,17 +49,24 @@ const zoneWord = (z: string) => `Zone ${z}`
 interface Props {
   free: FreePayload
   estimateId: string | null
-  contactName: string
+  /** true when the estimate already has a contact (a signed-in visitor); otherwise a name and email are asked before payment */
+  hasContact: boolean
   projectName: string
   onStartOver: () => void
 }
 
-export default function ResultsV2({ free, estimateId, contactName, projectName, onStartOver }: Props) {
+export default function ResultsV2({ free, estimateId, hasContact, projectName, onStartOver }: Props) {
   const [payStatus, setPayStatus] = useState<PayStatus>('idle')
   const [payError, setPayError] = useState('')
   const [isPaid, setIsPaid] = useState(PAYMENT_BYPASS)
   const [orderId, setOrderId] = useState<string | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Name and email are asked here, not before the result: when the visitor chooses to pay or to save the project.
+  const [contactReady, setContactReady] = useState(hasContact)
+  const [who, setWho] = useState<{ name: string; email: string } | null>(null)
+  const [capture, setCapture] = useState<CaptureMode | null>(null)
+  const [saved, setSaved] = useState(false)
 
   const [reportStatus, setReportStatus] = useState<ReportStatus>('idle')
   const [report, setReport] = useState<PaidPayload | null>(null)
@@ -136,7 +144,8 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
     }
   }, [estimateId])
 
-  useEffect(() => { if (reportStatus === 'ready') generatePdf() }, [reportStatus, generatePdf])
+  // the PDF is emailed to the contact, so it waits until there is one
+  useEffect(() => { if (reportStatus === 'ready' && contactReady) generatePdf() }, [reportStatus, contactReady, generatePdf])
 
   const downloadPdf = useCallback(async () => {
     if (!pdfUrl || downloading) return
@@ -159,7 +168,7 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
     }
   }, [pdfUrl, downloading])
 
-  async function handleUnlock() {
+  async function handleUnlock(by?: { name: string; email: string }) {
     if (!estimateId) { setPayError('Your estimate is not saved yet. Please wait a moment and try again.'); return }
     setPayStatus('creating')
     setPayError('')
@@ -183,7 +192,7 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
         name: 'NirmanShastra',
         description: 'StructurePro report: RCC structure quantities',
         order_id: json.orderId,
-        prefill: { name: contactName },
+        prefill: { name: (by ?? who)?.name ?? '', email: (by ?? who)?.email ?? '' },
         notes: { estimateId },
         theme: { color: '#2E3F94' },
         handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
@@ -309,14 +318,48 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
               'A PDF you can hand to your engineer or contractor',
             ].map(t => <li key={t}><IcCheck />{t}</li>)}
           </ul>
-          <PackUnlock appType="structopro" estimateId={estimateId} onUnlocked={() => { setIsPaid(true); setPayStatus('paid') }} />
-          <button type="button" className="ns-btn" onClick={handleUnlock} disabled={busy || !estimateId}>
-            {payStatus === 'creating' ? 'Starting the payment…' : payStatus === 'verifying' ? 'Checking your payment…' : payStatus === 'polling' ? 'Confirming your payment…' : `Unlock the full report · ${TOOL.price}`}
-            {!busy && <IcArrow width={22} height={11} />}
-          </button>
+          <PackUnlock appType="structopro" estimateId={estimateId} onUnlocked={() => { setContactReady(true); setIsPaid(true); setPayStatus('paid') }} />
+          {capture === 'pay' ? (
+            <ContactCapture
+              estimateId={estimateId}
+              mode="pay"
+              onCancel={() => setCapture(null)}
+              onDone={w => { setWho(w); setContactReady(true); setCapture(null); handleUnlock(w) }}
+            />
+          ) : (
+            <button type="button" className="ns-btn" onClick={() => (contactReady ? handleUnlock() : setCapture('pay'))} disabled={busy || !estimateId}>
+              {payStatus === 'creating' ? 'Starting the payment…' : payStatus === 'verifying' ? 'Checking your payment…' : payStatus === 'polling' ? 'Confirming your payment…' : `Unlock the full report · ${TOOL.price}`}
+              {!busy && <IcArrow width={22} height={11} />}
+            </button>
+          )}
           {payError && <Note kind="err">{payError}</Note>}
           <PayAssurance sample="structopro" />
           <p className="ns-i-fine">One payment, no subscription. Paid through Razorpay; we never see your card details.</p>
+          {!contactReady && !saved && capture !== 'save' && capture !== 'pay' && (
+            <p className="ns-i-fine">
+              Not ready to pay? <button type="button" className="ns-i-link" onClick={() => setCapture('save')}>Save this project</button> and come back to it.
+            </p>
+          )}
+          {capture === 'save' && (
+            <ContactCapture
+              estimateId={estimateId}
+              mode="save"
+              onCancel={() => setCapture(null)}
+              onDone={w => { setWho(w); setContactReady(true); setCapture(null); setSaved(true) }}
+            />
+          )}
+          {saved && (
+            <Note kind="ok" title="Project saved">
+              It is saved with {who?.email ?? 'your email'} and stays in this browser. When you are ready, the full report is one payment away.
+            </Note>
+          )}
+        </section>
+      )}
+
+      {/* paid, but no name and email yet (the open preview mode): ask before the PDF is made and emailed */}
+      {isPaid && !contactReady && (
+        <section className="ns-plate ns-r-unlock" aria-label="Where to send your report">
+          <ContactCapture estimateId={estimateId} mode="send" onDone={w => { setWho(w); setContactReady(true) }} />
         </section>
       )}
 

@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     const supabase = createServiceClient()
     const { data: estimate, error: estError } = await supabase
       .from('estimates')
-      .select('id, status, app_type')
+      .select('id, status, app_type, contact_id')
       .eq('id', estimateId)
       .single()
 
@@ -69,6 +69,12 @@ export async function POST(req: NextRequest) {
 
     if (estimate.status === 'paid') {
       return NextResponse.json({ error: 'Estimate already paid' }, { status: 409 })
+    }
+
+    // The report is emailed to the contact on the estimate, so an estimate with no contact (name and email not given
+    // yet) cannot be paid for: the customer would pay and have nowhere to receive the PDF.
+    if (!estimate.contact_id) {
+      return NextResponse.json({ error: 'Please add your name and email first, so we know where to send your report.' }, { status: 400 })
     }
 
     // Server-trusted price, derived from the estimate's tool type — never the client.

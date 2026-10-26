@@ -2,88 +2,62 @@ import React from 'react'
 import { randomBytes } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer'
+import { Resend } from 'resend'
 import VastuReportPDF from '@/lib/pdf/vastu-pdf'
 import { readPlan } from '@/app/tools/vastu-pro/vastu-reading'
-import { CATALOGUE, DOOR_KINDS } from '@/app/tools/vastu-pro/vastu-catalogue'
-import { SHEET_UNITS, type DoorMark, type PlacedItem } from '@/app/tools/vastu-pro/vastu-model'
-import type { Poly } from '@/app/tools/vastu-pro/vastu-geometry'
+import { parseVastuPlan } from '@/lib/vastu-plan'
+import { cleanEmail, cleanMobile, cleanName, upsertContact } from '@/lib/contacts'
+import { allow, clientKey } from '@/lib/throttle'
+import { createServiceClient } from '@/lib/supabase/server'
+import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 export const runtime = 'nodejs'
+// The findings PDF carries a calculation appendix; laying it out can take longer than the 10 s default.
+export const maxDuration = 60
 
-const MAX_ITEMS = 60
-const MAX_CORNERS = 40
+const HOUR = 60 * 60 * 1000
 
 const bad = (error: string, status = 400) => NextResponse.json({ error }, { status })
 
-const num = (v: unknown, lo: number, hi: number): number | null => {
-  const n = Number(v)
-  return Number.isFinite(n) && n >= lo && n <= hi ? n : null
+const esc = (v: string): string => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+function emailHtml(name: string): string {
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.nirmanshastra.in'
+  const first = name.split(' ')[0]
+  return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#2A2622;line-height:1.6;font-size:15px;">
+<h2 style="font-size:21px;margin:0 0 14px;">Your Vastu findings are attached</h2>
+<p style="margin:0 0 12px;">${first ? `Hello ${esc(first)},` : 'Hello,'}</p>
+<p style="margin:0 0 12px;">The PDF has your plan turned to your North, every door and room you marked read against the old texts and today’s teachers, where each rule comes from, and what could be done about each concern if the plan can still change. There is no overall mark out of 100, because no text gives one.</p>
+<p style="margin:0 0 12px;">It reads your plan against Vastu rules. It is not a structural or safety check, and neither Vastu nor this PDF says what will happen to anyone who lives there.</p>
+<p style="margin:0 0 12px;">Once the layout is settled, the next question is how much material the frame needs. <a href="${esc(base)}/tools/structopro" style="color:#B5502D;">See your frame, free</a>: your earthquake zone, the concrete and steel grades, the IS-code checks and a 3D model.</p>
+<p style="margin:18px 0 0;font-size:12px;color:#5B544B;">You asked for this PDF on nirmanshastra.in. We will send you a few construction tips after this. To stop them, write to ${esc(CONTACT_EMAIL)}. You can reply to this email with any question.</p>
+</div>`
 }
 
 /*
-  POST /api/vastu-pro/report: the free findings PDF.
-  The page sends the outline of the house, where North lies, and where each door and room was drawn. Every reading is
-  worked out again here from the same rule table the page uses, so the PDF always agrees with the screen. The page
-  never sends a verdict, and nothing is stored.
+  POST /api/vastu-pro/report: the free findings PDF, sent to the email the visitor gives and handed back to the page to save.
+  The reading is on screen first and free; the email is asked only here, to send the PDF.
+  The page sends the outline of the house, where North lies, where each door and room was drawn, and the email (the name and
+  a WhatsApp number are optional). Every reading is worked out again here from the same rule table the page uses, so the PDF
+  always agrees with the screen. The page never sends a verdict, and the plan is not stored.
+  The visitor is saved as a contact once, by email address. A failure to save or to email never stops the PDF reaching them;
+  the X-NS-Emailed header says whether the email went.
 */
 export async function POST(req: NextRequest) {
   try {
+    if (!allow(`vastu:ip:${clientKey(req)}`, 12, HOUR)) return bad('That is a lot of PDFs in a short time. Please try again in a little while.', 429)
+
     const body = await req.json().catch(() => ({}))
 
-    const name = typeof body?.name === 'string' ? body.name.replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, 120) : ''
-    const northRaw = Number(body?.northDeg)
-    if (!Number.isFinite(northRaw)) return bad('The North angle is missing.')
-    const northDeg = ((Math.round(northRaw) % 360) + 360) % 360
+    const email = cleanEmail(body?.email)
+    if (!email) return bad('Please enter a valid email address.')
+    const mobile = cleanMobile(body?.whatsapp)
+    if (!mobile.ok) return bad('That WhatsApp number does not look right. Check it, or leave it empty.')
+    const name = cleanName(body?.name)
 
-    // the house outline
-    const rawHouse = Array.isArray(body?.house) ? body.house : null
-    if (!rawHouse || rawHouse.length < 3) return bad('The outline of the house is missing.')
-    if (rawHouse.length > MAX_CORNERS) return bad('The outline of the house has too many corners.')
-    const house: Poly = []
-    for (const p of rawHouse) {
-      const x = num(p?.x, 0, SHEET_UNITS)
-      const y = num(p?.y, 0, SHEET_UNITS)
-      if (x === null || y === null) return bad('One corner of the house outline is not valid.')
-      house.push({ x, y })
-    }
-
-    // rooms
-    const rawItems = Array.isArray(body?.items) ? body.items : []
-    if (rawItems.length > MAX_ITEMS) return bad('That is more rooms than the plan can hold.')
-    const items: PlacedItem[] = []
-    const seen = new Set<string>()
-    const perKind: Record<string, number> = {}
-    for (const r of rawItems) {
-      const entry = typeof r?.kind === 'string' ? CATALOGUE[r.kind] : undefined
-      const id = typeof r?.id === 'string' ? r.id.slice(0, 60) : ''
-      const x = num(r?.x, -SHEET_UNITS, 2 * SHEET_UNITS)
-      const y = num(r?.y, -SHEET_UNITS, 2 * SHEET_UNITS)
-      const w = num(r?.w, 1, SHEET_UNITS)
-      const h = num(r?.h, 1, SHEET_UNITS)
-      if (!entry || entry.category === 'Doors' || !id || seen.has(id) || x === null || y === null || w === null || h === null) {
-        return bad('One of the rooms is not valid.')
-      }
-      perKind[entry.key] = (perKind[entry.key] ?? 0) + 1
-      if (!entry.multi && perKind[entry.key] > 1) return bad(`${entry.label} can be placed only once.`)
-      seen.add(id)
-      items.push({ id, kind: entry.key, x, y, w, h })
-    }
-
-    // doors
-    const rawDoors = Array.isArray(body?.doors) ? body.doors : []
-    if (rawDoors.length > DOOR_KINDS.length) return bad('That is more doors than the plan can hold.')
-    const doors: DoorMark[] = []
-    const doorKinds = new Set<string>()
-    for (const d of rawDoors) {
-      const kind = DOOR_KINDS.find(k => k.key === d?.kind)?.key
-      const x = num(d?.pt?.x, 0, SHEET_UNITS)
-      const y = num(d?.pt?.y, 0, SHEET_UNITS)
-      if (!kind || x === null || y === null || doorKinds.has(kind)) return bad('One of the doors is not valid.')
-      doorKinds.add(kind)
-      doors.push({ id: kind, kind, pt: { x, y } })
-    }
-
-    if (items.length + doors.length === 0) return bad('Mark at least one door or room on the plan first.')
+    const parsed = parseVastuPlan(body)
+    if (!parsed.ok) return bad(parsed.error)
+    const { northDeg, house, items, doors } = parsed.plan
 
     const reading = readPlan({ house, northDeg, items, doors })
     const date = new Date()
@@ -94,13 +68,51 @@ export async function POST(req: NextRequest) {
     const buffer = await renderToBuffer(
       React.createElement(VastuReportPDF, { name, reportId, date, northDeg, house, items, doors, reading }) as React.ReactElement<DocumentProps>,
     )
+    const fileName = `VastuPro-findings-${stamp}.pdf`
+
+    // Save the lead and send the email. Neither may stop the download.
+    let emailed = false
+    if (allow(`vastu:email:${email}`, 3, HOUR)) {
+      try {
+        const saved = await upsertContact(createServiceClient(), {
+          email,
+          name,
+          mobile: mobile.value,
+          source: 'VastuPro',
+          status: 'downloaded',
+          sequence: { type: 'vastupro' },
+        })
+        if (!saved.ok) console.error('VastuPro report: contact not saved', saved.error)
+      } catch (e) {
+        console.error('VastuPro report: contact step failed', e)
+      }
+
+      const from = process.env.RESEND_FROM_EMAIL
+      if (process.env.RESEND_API_KEY && from) {
+        try {
+          const sent = await new Resend(process.env.RESEND_API_KEY).emails.send({
+            from,
+            to: email,
+            replyTo: CONTACT_EMAIL,
+            subject: `Your Vastu findings (PDF), ${reportId}`,
+            html: emailHtml(name),
+            attachments: [{ filename: fileName, content: buffer }],
+          })
+          if (sent.error) console.error('VastuPro report: email failed', sent.error)
+          else emailed = true
+        } catch (e) {
+          console.error('VastuPro report: email threw', e)
+        }
+      }
+    }
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="VastuPro-findings-${stamp}.pdf"`,
+        'Content-Disposition': `attachment; filename="${fileName}"`,
         'Cache-Control': 'no-store',
+        'X-NS-Emailed': emailed ? '1' : '0',
       },
     })
   } catch (err) {
