@@ -112,7 +112,7 @@ function classify(l: QtyLine): Verdict {
     return { id: k.replace(/-sqm$/, ''), label: l.item, unit: 'sq ft', per: 'per sq ft', group: k === 'granite-slab-sqm' ? 'Tiles and stone' : k === 'glass-5mm-sqm' ? 'Doors and windows' : 'Paint', factor: SQFT_PER_M2 }
   }
   if (k === 'door-frame-timber-m3') return { id: 'door-frame-timber', label: l.item, unit: 'cft', per: 'per cft', group: 'Doors and windows', factor: CFT_PER_M3 }
-  if (k === 'tank-oht') return { id: 'tank-oht', label: 'Overhead tank (rate for each litre it holds)', unit: 'litre', per: 'per litre of capacity', group: 'Plumbing', factor: 1, needUnit: () => 'L' }
+  if (k === 'tank-oht') return { id: 'tank-oht', label: 'Overhead tank (rate for each litre it holds)', unit: 'litre', per: 'per litre', group: 'Plumbing', factor: 1, needUnit: () => 'L' }
 
   const u = byUnit(l.unit)
   const group = /^(wall-putty|primer|emulsion|paint|enamel)/.test(k) ? 'Paint'

@@ -255,20 +255,22 @@ html[data-calm="1"] .ns-gl-jump > summary::after { transition: none; }
 .ns-rates__g--fold > summary { cursor: pointer; padding: 0 0 8px; }
 .ns-rates__g--fold > summary small { font-weight: 400; color: var(--ns-ink-2); font-size: 15px; margin-left: 8px; }
 .ns-rates__rows { display: grid; gap: 0; }
-.ns-rates__row { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 7.5rem); grid-template-areas: "lab in amt" "lab hint amt"; gap: 2px 18px; align-items: start; padding: 12px 0; border-top: 1px solid var(--ns-line); }
+.ns-rates__row { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) 7.5rem; grid-template-areas: "lab in amt" "lab hint amt"; gap: 2px 18px; align-items: start; padding: 12px 0; border-top: 1px solid var(--ns-line); }
 .ns-rates__row:first-child { border-top: 0; }
 .ns-rates__lab { grid-area: lab; display: grid; gap: 2px; font-size: 16.5px; line-height: 1.35; cursor: pointer; }
 .ns-rates__lab small { color: var(--ns-ink-2); font-size: 15px; font-variant-numeric: tabular-nums; }
 .ns-rates__in { grid-area: in; display: flex; align-items: center; gap: 8px; min-width: 0; }
 .ns-rates__in > span { flex: none; color: var(--ns-ink-2); font-size: 16px; }
 .ns-rates__in .ns-i-in { min-width: 0; flex: 1 1 auto; width: 100%; font-variant-numeric: tabular-nums; }
-.ns-rates__per { white-space: nowrap; }
+.ns-rates__in > .ns-rates__per { flex: 0 0 5.6rem; white-space: nowrap; }   /* one width for every unit, so the rate boxes line up row to row */
 .ns-rates__hint { grid-area: hint; margin: 0; font-size: 14.5px; line-height: 1.4; color: var(--ns-ink-2); }
 .ns-rates__asof { white-space: nowrap; }
 .ns-rates__bad { color: var(--ns-laterite); font-weight: 700; }
 .ns-rates__amt { grid-area: amt; margin: 0; text-align: right; font-family: var(--ns-mono); font-variant-numeric: tabular-nums; font-weight: 600; font-size: 17px; align-self: center; }
 .ns-rates__res { display: grid; gap: 14px; padding-top: 18px; border-top: 2px solid var(--ns-line-2, var(--ns-line)); }
 .ns-rates__res h4 { margin: 0; font-family: var(--ns-display); font-weight: 400; font-size: clamp(20px, 2vw, 26px); }
+/* the shared table styles left-align body cells while ReportTable right-aligns the numeric headers; inside this table the figures sit under their headings */
+.ns-rates__res td.ns-i-num { text-align: right; }
 .ns-rates__label { margin: 0; font-size: 17px; line-height: 1.45; padding: 12px 14px; border-left: 4px solid var(--tc, var(--ns-laterite)); background: var(--ns-bg-2, transparent); }
 .ns-rates__act { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; }
 @media (max-width: 720px) {
