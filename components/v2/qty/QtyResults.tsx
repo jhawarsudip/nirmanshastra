@@ -8,6 +8,7 @@ import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import { Note, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { DeliveryNote, ReportTable, Tot } from './parts'
 import { useUnlock } from './useUnlock'
+import PackUnlock from './PackUnlock'
 
 /*
   Results of a trade tool.
@@ -91,6 +92,7 @@ export default function QtyResults({ meta, price, free, estimateId, contactName,
           <ul className="ns-r-unlock__list">
             {meta.includes.map(t => <li key={t}><IcCheck />{t}</li>)}
           </ul>
+          <PackUnlock appType={meta.appType} estimateId={estimateId} onUnlocked={u.markPaid} />
           <button type="button" className="ns-btn" onClick={u.unlock} disabled={u.busy || !estimateId}>
             {u.payStatus === 'creating' ? 'Starting the payment…' : u.payStatus === 'verifying' ? 'Checking your payment…' : u.payStatus === 'polling' ? 'Confirming your payment…' : `Unlock the full report · ${price}`}
             {!u.busy && <IcArrow width={22} height={11} />}

@@ -1,5 +1,6 @@
 // Static content for the v2 homepage. Prices and hrefs are carried over from the legacy page.
 import type { Bi } from './copy'
+import { PRICE } from '@/lib/tool-pricing'
 
 // The Indian Standards the quantity models cite (the full list, with what each one governs, is lib/is-codes-data.ts and /is-codes-used).
 // Only standards a model actually reads belong here: the homepage count is IS_CODES.length.
@@ -52,35 +53,35 @@ export const TOOLS: ToolMeta[] = [
     descriptorKey: 'vastuDescriptor', descKey: 'vastuDesc',
   },
   {
-    key: 'struct', phase: 'P1', name: 'StructurePro', href: '/tools/structopro', price: '₹999', free: false,
+    key: 'struct', phase: 'P1', name: 'StructurePro', href: '/tools/structopro', price: PRICE.structopro, free: false,
     accent: '--ns-t-struct', plate: '/v2/products/p01-structurepro.webp',
     plateAlt: 'Isometric cutaway of an RCC column and beam joint with its rebar cage',
     chips: ['IS 456:2000', 'IS 13920:2016', 'IS 1893 (Part 1)'],
     descriptorKey: 'structureDescriptor', descKey: 'structureDesc',
   },
   {
-    key: 'mason', phase: 'P2', name: 'MasonryPro', href: '/tools/masonpro', price: '₹699', free: false,
+    key: 'mason', phase: 'P2', name: 'MasonryPro', href: '/tools/masonpro', price: PRICE.masonpro, free: false,
     accent: '--ns-t-mason', plate: '/v2/products/p02-masonpro.webp',
     plateAlt: 'Isometric corner of an English-bond brick wall with a window and lintel',
     chips: ['IS 1077:1992', 'IS 2212:1991', 'IS 2185'],
     descriptorKey: 'masonryDescriptor', descKey: 'masonryDesc',
   },
   {
-    key: 'elec', phase: 'P3', name: 'ElectricalPro', href: '/tools/electropro', price: '₹499', free: false,
+    key: 'elec', phase: 'P3', name: 'ElectricalPro', href: '/tools/electropro', price: PRICE.electropro, free: false,
     accent: '--ns-t-elec', plate: '/v2/products/p03-electricalpro.webp',
     plateAlt: 'Isometric wall section with recessed conduit, switch box and distribution board',
     chips: ['IS 4648', 'IS 732:1989', 'IS 3043:2018'],
     descriptorKey: 'electricalDescriptor', descKey: 'electricalDesc',
   },
   {
-    key: 'plumb', phase: 'P4', name: 'PlumbingPro', href: '/tools/plumbpro', price: '₹499', free: false,
+    key: 'plumb', phase: 'P4', name: 'PlumbingPro', href: '/tools/plumbpro', price: PRICE.plumbpro, free: false,
     accent: '--ns-t-plumb', plate: '/v2/products/p04-plumbpro.webp',
     plateAlt: 'Isometric plumbing riser from overhead tank to bathroom and drain chamber',
     chips: ['IS 1172:1993', 'IS 1742:1983'],
     descriptorKey: 'plumbingDescriptor', descKey: 'plumbingDesc',
   },
   {
-    key: 'int', phase: 'P5', name: 'InteriorPro', href: '/tools/interiorpro', price: '₹899', free: false,
+    key: 'int', phase: 'P5', name: 'InteriorPro', href: '/tools/interiorpro', price: PRICE.interiorpro, free: false,
     accent: '--ns-t-int', plate: '/v2/products/p05-interiorpro.webp',
     plateAlt: 'Isometric cutaway of a room corner with tile floor, skirting and false ceiling',
     chips: ['BASIC', 'STANDARD', 'PREMIUM', 'LUXURY'],
@@ -91,6 +92,14 @@ export const TOOLS: ToolMeta[] = [
 export interface TemplateDef { title: string; sheets: number; price: string; desc: string; href: string }
 
 // Six toolkits — titles, sheet counts and descriptions verbatim from /site-templates.
+/** The Complete House Pack, as a menu entry: all five reports and the Grand Total for one house. Price from lib/tool-pricing.ts. */
+export const PACK_TOOL: { href: string; price: string; name: Bi; plain: Bi } = {
+  href: '/tools/complete-house-pack',
+  price: PRICE.pack,
+  name: { en: 'Complete House Pack', hi: 'कम्प्लीट हाउस पैक' },
+  plain: { en: 'All five reports and the Grand Total, one house', hi: 'पाँचों रिपोर्टें और ग्रैंड टोटल, एक घर के लिए' },
+}
+
 export const SITE_TEMPLATES: TemplateDef[] = [
   {
     title: 'Residential Construction Cost Estimator', sheets: 16, price: '₹2,499',

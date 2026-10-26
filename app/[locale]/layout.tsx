@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
+import { PRICE } from '@/lib/tool-pricing'
 import { rozha, mukta } from '@/lib/v2/fonts'
 import { NS2_INIT } from '@/lib/v2/init'
 import '@/styles/v2/base.css'
@@ -26,7 +27,7 @@ export function generateStaticParams() {
 // plus x-default) so search and AI engines can match the two versions.
 const HI_TITLE = 'NirmanShastra — IS कोड से घर की सामग्री की मात्रा का हिसाब'
 const HI_DESCRIPTION =
-  'अपने घर के लिए कंक्रीट, स्टील, सीमेंट, ईंट, रेत, तार और पाइप की मात्रा IS कोड के अनुसार निकालें, ऑर्डर देने से पहले। ₹499 से शुरू होने वाली मात्रा रिपोर्ट और मुफ़्त कैलकुलेटर, हिंदी और अंग्रेज़ी में।'
+  `अपने घर के लिए कंक्रीट, स्टील, सीमेंट, ईंट, रेत, तार और पाइप की मात्रा IS कोड के अनुसार निकालें, ऑर्डर देने से पहले। ${PRICE.from} से शुरू होने वाली मात्रा रिपोर्ट और मुफ़्त कैलकुलेटर, हिंदी और अंग्रेज़ी में।`
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params

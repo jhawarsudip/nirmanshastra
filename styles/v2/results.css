@@ -100,6 +100,11 @@ html[data-calm="1"] .ns-r-stage__hint { animation: none; opacity: .85; }
 .ns-r-unlock__list li { display: flex; gap: 10px; align-items: flex-start; font-size: 16.5px; line-height: 1.45; }
 .ns-r-unlock__list svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--ns-verdigris); }
 .ns-r-unlock .ns-btn { justify-self: start; }
+/* "Use my Complete House Pack": sits above the pay button for a visitor whose pack can still unlock this report */
+.ns-r-pack { display: grid; gap: 4px; justify-items: start; padding: 16px 18px 6px; border: 2px dashed var(--ns-verdigris); background: var(--ns-paper, transparent); }
+.ns-r-pack .ns-r-hook__k { display: flex; gap: 8px; align-items: center; color: var(--ns-verdigris); }
+.ns-r-pack .ns-r-hook__k svg { flex: none; }
+@media (max-width: 520px) { .ns-r-pack { justify-items: stretch; } .ns-r-pack .ns-btn { justify-content: center; } }
 @media (max-width: 520px) { .ns-r-unlock .ns-btn { justify-self: stretch; justify-content: center; } }
 
 /* totals */
@@ -219,3 +224,10 @@ html[data-calm="1"] .ns-r-busy__spin { animation-duration: 3s; }
 .ns-gl-jump > summary:focus-visible { outline: 3px solid var(--ns-focus); outline-offset: 3px; border-radius: 8px; }
 .ns-gl-jump .ns-faq-nav { padding: 2px 0 18px; }
 html[data-calm="1"] .ns-gl-jump > summary::after { transition: none; }
+
+/* Complete House Pack page: the list of what the pack has unlocked */
+.ns-pk-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1.5px solid var(--ns-line); }
+.ns-pk-list li { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr) auto; gap: 8px 16px; align-items: center; padding: 14px 4px; border-bottom: 1px dashed var(--ns-hair-strong); }
+.ns-pk-list li > span:first-child { display: inline-flex; gap: 8px; align-items: center; }
+.ns-pk-list li svg { color: var(--ns-verdigris); flex: none; }
+@media (max-width: 620px) { .ns-pk-list li { grid-template-columns: minmax(0, 1fr); } }

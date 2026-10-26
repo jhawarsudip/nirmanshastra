@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import '@/styles/v2/results.css'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
-import { TOOL_PRICE_PAISE } from '@/lib/tool-pricing'
+import { TOOL_PRICE_PAISE, PRICE } from '@/lib/tool-pricing'
 import { inr } from '@/lib/seo/site'
 
 // Last changed when the site became quantity-only. A fixed date, so the page does not say "today" every time it is built.
@@ -42,7 +42,8 @@ export default function TermsOfUsePage() {
             <li>MasonryPro: {inr(TOOL_PRICE_PAISE.masonpro)} a report</li>
             <li>InteriorPro: {inr(TOOL_PRICE_PAISE.interiorpro)} a report</li>
             <li>StructurePro: {inr(TOOL_PRICE_PAISE.structopro)} a report</li>
-            <li>Grand Total Report, which puts the phase reports you have already bought into one buying list: {inr(TOOL_PRICE_PAISE.grandtotal)}, on top of those reports</li>
+            <li>Grand Total Report, which puts the phase reports you have already bought into one buying list: {inr(TOOL_PRICE_PAISE.grandtotal)}, on top of those reports, or included in the Complete House Pack</li>
+            <li>Complete House Pack, which unlocks all five reports and the Grand Total for one house: {PRICE.pack} (bought one by one they cost {PRICE.packSeparate})</li>
           </ul>
           <p>Payments are processed by Razorpay and are subject to its terms. NirmanShastra does not store your payment card details.</p>
           <p><b>Refunds.</b> Once a PDF report has been generated and delivered to your registered email, the payment is not refundable. The quantities are worked out and the PDF is generated at the time of payment, so there is nothing to return. If a PDF fails to generate because of a technical fault on our side and cannot be delivered within 48 hours of payment, we will refund you in full. To ask for a refund for a failed delivery, email <a href="mailto:nirmanshastraindia@gmail.com">nirmanshastraindia@gmail.com</a> within 7 days of payment.</p>

@@ -10,6 +10,7 @@ import {
   Inter,
 } from "next/font/google";
 import "./globals.css";
+import { PRICE } from "@/lib/tool-pricing";
 import AIChatbox from "@/app/components/AIChatbox";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import InstallPrompt from "@/components/InstallPrompt";
@@ -84,7 +85,7 @@ export const metadata: Metadata = {
     default: "NirmanShastra — IS-Code Material Quantity Estimator for Indian Homes",
     template: "%s | NirmanShastra",
   },
-  description: "Work out how much concrete, steel, cement, bricks, sand, wire and pipe your house needs, to the Indian Standards, before you order. Quantity reports from ₹499 and free calculators, in Hindi and English.",
+  description: `Work out how much concrete, steel, cement, bricks, sand, wire and pipe your house needs, to the Indian Standards, before you order. Quantity reports from ${PRICE.from} and free calculators, in Hindi and English.`,
   alternates: {
     canonical: './',
   },
@@ -107,7 +108,7 @@ export const metadata: Metadata = {
     url: 'https://www.nirmanshastra.in',
     siteName: 'NirmanShastra',
     title: "NirmanShastra — IS-Code Material Quantity Estimator for Indian Homes",
-    description: "Work out how much concrete, steel, cement, bricks, sand, wire and pipe your house needs, to the Indian Standards, before you order. Quantity reports from ₹499 and free calculators, in Hindi and English.",
+    description: `Work out how much concrete, steel, cement, bricks, sand, wire and pipe your house needs, to the Indian Standards, before you order. Quantity reports from ${PRICE.from} and free calculators, in Hindi and English.`,
     images: [
       {
         url: '/og-image.png',
@@ -120,7 +121,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: "NirmanShastra — IS-Code Material Quantity Estimator",
-    description: "Exact material quantities for Indian homes, worked out to the IS codes. Quantity reports from ₹499.",
+    description: `Exact material quantities for Indian homes, worked out to the IS codes. Quantity reports from ${PRICE.from}.`,
   },
 };
 

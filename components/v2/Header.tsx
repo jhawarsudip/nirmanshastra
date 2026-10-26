@@ -10,7 +10,7 @@ import AdminGate from './AdminGate'
 import Pour from './Pour'
 import { Arrow, BrandMark, BubbleIcon, Burger, Caret, Cross, LampIcon } from './Icons'
 import { CALCULATORS } from '@/lib/v2/calculators'
-import { SITE_TEMPLATES, TEMPLATES_BUNDLE, TOOLS } from '@/lib/v2/content'
+import { SITE_TEMPLATES, TEMPLATES_BUNDLE, TOOLS, PACK_TOOL } from '@/lib/v2/content'
 import { NAV, TOOL_PLAIN, pick } from '@/lib/v2/copy'
 import { setCalm, toggleTheme, useCalm, useTheme } from '@/lib/v2/store'
 
@@ -189,6 +189,14 @@ export default function Header({ locale }: { locale: Loc }) {
                     <span className={`ns-mega__price${tool.free ? ' is-free' : ''}`}>{tool.free ? t.free : tool.price}</span>
                   </CutLink>
                 ))}
+                <CutLink href={PACK_TOOL.href} onClick={close} role="menuitem" style={{ ['--tc' as string]: 'var(--ns-laterite)' }}>
+                  <span className="ns-mega__bar" aria-hidden="true" />
+                  <span>
+                    <span className="ns-mega__name">{pick(PACK_TOOL.name, locale)}</span>
+                    <span className="ns-mega__sub">{pick(PACK_TOOL.plain, locale)}</span>
+                  </span>
+                  <span className="ns-mega__price">{PACK_TOOL.price}</span>
+                </CutLink>
               </div>
               <div className="ns-mega__col">
                 <p className="ns-mega__title">{n('freeCalcs')}</p>
@@ -242,6 +250,9 @@ export default function Header({ locale }: { locale: Loc }) {
                 <span>{tool.name}</span><span>{tool.free ? t.free : tool.price}</span>
               </CutLink>
             ))}
+            <CutLink href={PACK_TOOL.href} onClick={close} tabIndex={menu ? 0 : -1}>
+              <span>{pick(PACK_TOOL.name, locale)}</span><span>{PACK_TOOL.price}</span>
+            </CutLink>
           </details>
           <Link className="ns-menu__link" href={hash('how-it-works')} onClick={close} tabIndex={menu ? 0 : -1}>{n('how')}<Arrow /></Link>
           <CutLink className="ns-menu__link" href="/compare-quote" onClick={close} tabIndex={menu ? 0 : -1}>{n('quote')}<Arrow /></CutLink>

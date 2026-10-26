@@ -12,6 +12,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getTool, priceOfTool, inr } from '@/lib/seo/site'
+import { PRICE, PACK_CLAIMS_PER_REPORT } from '@/lib/tool-pricing'
 import type { CalcFaq } from '@/lib/seo/calc-content'
 
 export interface PaidExampleRow {
@@ -372,7 +373,7 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       },
       {
         question: 'How much does the Grand Total cost?',
-        answer: `The Grand Total costs ${priceLine('/tools/grand-total')}, on top of the phase reports it adds.`,
+        answer: `The Grand Total costs ${priceLine('/tools/grand-total')}, on top of the phase reports it adds. It is included in the Complete House Pack.`,
       },
       {
         question: 'How many phases do I need?',
@@ -391,5 +392,49 @@ export const PAID_CONTENT: Record<string, PaidContent> = {
       },
     ],
     source: 'lib/qty/grand.ts (merge, overlap removal, consistency checks) and lib/qty/grand-server.ts; every figure comes from the phase reports. Quantities-only; no worked numbers are printed here, so no paid output is revealed; prices via tool-pricing.',
+  },
+
+  // ── Complete House Pack ────────────────────────────────────────────────────
+  '/tools/complete-house-pack': {
+    heading: 'What the Complete House Pack gives you',
+    whatsInside: [
+      'StructurePro: the concrete, steel, cement, sand, aggregate and shuttering for the RCC frame.',
+      'MasonryPro: bricks or blocks, mortar, plaster and lintels for the walls.',
+      'ElectricalPro: points, wire by size, conduit, boards and earthing.',
+      'PlumbingPro: pipes, fittings, tanks, pump, septic tank and soak pit.',
+      'InteriorPro: paint, tiles, false ceiling, doors, windows and plywood.',
+      'The Grand Total: one buying list for the whole house, with shared materials added up and nothing counted twice.',
+    ],
+    whoFor:
+      'Homeowners and small builders planning one house who want every quantity report and the combined buying list, and would rather pay once than buy six reports one by one.',
+    example: {
+      title: 'How it works: pay once, then use it where you would otherwise pay',
+      intro: 'Nothing about the reports changes. The pack only changes how each one is paid for.',
+      rows: [
+        { label: '1. Buy the pack', value: PRICE.pack, note: `Bought one by one the six cost ${PRICE.packSeparate}, so the pack saves ${PRICE.packSavings}.` },
+        { label: '2. Open a tool', value: 'As usual', note: 'Enter your house and look at the free first result.' },
+        { label: '3. Unlock', value: 'Use my Complete House Pack', note: 'Press this instead of paying. The report opens straight away.' },
+      ],
+      footnote: `A pack covers one house: every report must match the same building. Each report can be made up to ${PACK_CLAIMS_PER_REPORT} times, so a wrongly typed figure can be corrected.`,
+    },
+    faq: [
+      {
+        question: 'What does the Complete House Pack include?',
+        answer: 'All five quantity reports for one house (structure, masonry, electrical, plumbing and interior) and the Grand Total buying list.',
+      },
+      {
+        question: 'How much does the Complete House Pack cost?',
+        answer: `${PRICE.pack}, once. Bought one by one the six cost ${PRICE.packSeparate}, so you save ${PRICE.packSavings}.`,
+      },
+      {
+        question: 'Can I use one pack for two houses?',
+        answer: 'No. A pack covers one house. Each report must match the same building (same floors, same state, floor area within 10%), and each report can be made up to ' + PACK_CLAIMS_PER_REPORT + ' times so that a wrongly typed figure can be corrected.',
+      },
+      {
+        question: 'I already bought one report. Can I still get the pack?',
+        answer: 'Yes, but the pack is priced in full. A report you already paid for is not credited against it.',
+      },
+    ],
+    source: 'lib/pack/server.ts (claim rules), lib/tool-pricing.ts (prices and claim limit). No worked quantities are printed here, so no paid output is revealed.',
   },
 }

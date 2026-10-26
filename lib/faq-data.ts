@@ -1,7 +1,7 @@
 // FAQ content — single source for app/faq/page.tsx, FAQPage JSON-LD and /llms-full.txt.
 // NirmanShastra works out QUANTITIES only. No labour, dealer, contractor or rupee-rate figures appear here.
 
-import { TOOL_PRICE_PAISE } from '@/lib/tool-pricing'
+import { TOOL_PRICE_PAISE, PRICE, PACK_CLAIMS_PER_REPORT } from '@/lib/tool-pricing'
 import { inr } from '@/lib/seo/site'
 
 export interface FaqItem {
@@ -53,7 +53,11 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
     items: [
       {
         question: 'How much does it cost?',
-        answer: `The free calculators and the free first look at your frame cost nothing. The paid quantity reports are priced per tool: ElectricalPro and PlumbingPro at ${inr(TOOL_PRICE_PAISE.electropro)} each, MasonryPro at ${inr(TOOL_PRICE_PAISE.masonpro)}, InteriorPro at ${inr(TOOL_PRICE_PAISE.interiorpro)}, StructurePro at ${inr(TOOL_PRICE_PAISE.structopro)} and the combined Grand Total quantity report at ${inr(TOOL_PRICE_PAISE.grandtotal)}, added on top of the phase reports it combines. These are the prices of the reports, not estimates of building cost.`,
+        answer: `The free calculators and the free first look at your frame cost nothing. The paid quantity reports are priced per tool: ElectricalPro and PlumbingPro at ${inr(TOOL_PRICE_PAISE.electropro)} each, MasonryPro at ${inr(TOOL_PRICE_PAISE.masonpro)}, InteriorPro at ${inr(TOOL_PRICE_PAISE.interiorpro)}, StructurePro at ${inr(TOOL_PRICE_PAISE.structopro)} and the combined Grand Total quantity report at ${inr(TOOL_PRICE_PAISE.grandtotal)}, added on top of the phase reports it combines. The Complete House Pack is ${PRICE.pack} for all five reports and the Grand Total for one house; bought one by one they cost ${PRICE.packSeparate}, so the pack saves ${PRICE.packSavings}. These are the prices of the reports, not estimates of building cost.`,
+      },
+      {
+        question: 'What is the Complete House Pack, and how does it work?',
+        answer: `It is one purchase, ${PRICE.pack}, that unlocks all five quantity reports (structure, masonry, electrical, plumbing and interior) and the Grand Total buying list for one house. You pay once on the Complete House Pack page. Then you open each tool as usual, enter your house, and press "Use my Complete House Pack" where you would otherwise pay. A pack covers one house: every report must match the same building (same floors, same state, floor area within 10%). Each report can be made up to ${PACK_CLAIMS_PER_REPORT} times, so you can correct a figure you typed wrongly. The Grand Total is included in the pack.`,
       },
       {
         question: 'What do I get when I pay for a report?',

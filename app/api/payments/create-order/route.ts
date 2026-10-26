@@ -3,7 +3,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { priceForAppType } from '@/lib/tool-pricing'
 
 // Razorpay REST API — server-side only. Key Secret never exposed to client.
-async function createRazorpayOrder(amount: number, receiptId: string) {
+async function createRazorpayOrder(amount: number, receiptId: string, appType: string) {
   const keyId     = process.env.RAZORPAY_KEY_ID!
   const keySecret = process.env.RAZORPAY_KEY_SECRET!
 
@@ -24,7 +24,9 @@ async function createRazorpayOrder(amount: number, receiptId: string) {
       currency: 'INR',
       receipt:  receiptId,
       notes: {
-        source: 'NirmanShastra StructoPro',
+        source: 'NirmanShastra',
+        // which product this order is for, so the Razorpay dashboard tells a pack from a single report
+        product: appType,
       },
     }),
   })
@@ -71,7 +73,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create Razorpay order
-    const order = await createRazorpayOrder(amount, `SP-${estimateId.substring(0, 8)}`)
+    const order = await createRazorpayOrder(amount, `SP-${estimateId.substring(0, 8)}`, estimate.app_type)
 
     // Save pending payment record
     const { error: payError } = await supabase

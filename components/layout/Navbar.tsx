@@ -7,6 +7,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { LanguageToggle } from '@/components/LanguageToggle'
+import { PRICE } from '@/lib/tool-pricing'
 import { StructureIcon } from '@/components/icons/StructureIcon'
 import { MasonryIcon } from '@/components/icons/MasonryIcon'
 import { ElectricalIcon } from '@/components/icons/ElectricalIcon'
@@ -134,15 +135,16 @@ const COMPLIANCE_TOOLS = [
 ]
 
 const ESTIMATION_TOOLS = [
-  { phase: 'P1', name: 'StructurePro',  descriptor: 'RCC frame quantities',  href: '/tools/structopro',   free: false, price: '₹999' },
-  { phase: 'P2', name: 'MasonryPro',   descriptor: 'Brickwork and plaster quantities',      href: '/tools/masonpro',     free: false, price: '₹699' },
-  { phase: 'P3', name: 'ElectricalPro', descriptor: 'Wiring quantities',  href: '/tools/electropro',   free: false, price: '₹499' },
-  { phase: 'P4', name: 'PlumbingPro',  descriptor: 'Pipes, fittings and tank quantities',     href: '/tools/plumbpro',     free: false, price: '₹499' },
-  { phase: 'P5', name: 'InteriorPro', descriptor: 'Finishing quantities',     href: '/tools/interiorpro',  free: false, price: '₹899' },
+  { phase: 'P1', name: 'StructurePro',  descriptor: 'RCC frame quantities',  href: '/tools/structopro',   free: false, price: PRICE.structopro },
+  { phase: 'P2', name: 'MasonryPro',   descriptor: 'Brickwork and plaster quantities',      href: '/tools/masonpro',     free: false, price: PRICE.masonpro },
+  { phase: 'P3', name: 'ElectricalPro', descriptor: 'Wiring quantities',  href: '/tools/electropro',   free: false, price: PRICE.electropro },
+  { phase: 'P4', name: 'PlumbingPro',  descriptor: 'Pipes, fittings and tank quantities',     href: '/tools/plumbpro',     free: false, price: PRICE.plumbpro },
+  { phase: 'P5', name: 'InteriorPro', descriptor: 'Finishing quantities',     href: '/tools/interiorpro',  free: false, price: PRICE.interiorpro },
 ]
 
 const REPORTS_TOOLS = [
-  { phase: 'GT', name: 'Grand Total Report', descriptor: 'One buying list from the reports you have', href: '/tools/grand-total', price: '₹999' },
+  { phase: 'GT', name: 'Grand Total Report', descriptor: 'One buying list from the reports you have', href: '/tools/grand-total', price: PRICE.grandtotal },
+  { phase: 'PK', name: 'Complete House Pack', descriptor: 'All five reports and the Grand Total, one house', href: '/tools/complete-house-pack', price: PRICE.pack },
 ]
 
 const FREE_CALCULATORS = [

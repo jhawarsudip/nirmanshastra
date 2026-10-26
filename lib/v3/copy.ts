@@ -1,3 +1,4 @@
+import { PRICE } from '@/lib/tool-pricing'
 // Plain-language, homeowner-first copy for the v3 ("Storybook") homepage. EN + HI side by side.
 // Rule: no IS-code numbers or site jargon in headlines. Standards live in the Trust section only.
 // Every number here is either from the engine/locked Build Reference or labelled as a sample.
@@ -303,7 +304,7 @@ export const PRICING = {
     badge: { en: 'Start here', hi: 'यहाँ से शुरू करें' },
     name: { en: 'One part of your house', hi: 'आपके घर का एक हिस्सा' },
     sub: { en: 'Pick the part you are building now', hi: 'जो हिस्सा अभी बना रहे हैं वही चुनिए' },
-    price: { en: 'from ₹499', hi: '₹499 से' },
+    price: { en: `from ${PRICE.from}`, hi: `${PRICE.from} से` },
     points: [
       { en: 'Exact quantities of every material', hi: 'हर सामान की सटीक मात्रा' },
       { en: 'Cost of each item, with labour', hi: 'हर चीज़ का ख़र्च, मज़दूरी समेत' },
@@ -315,18 +316,18 @@ export const PRICING = {
     href: '/tools/structopro',
   },
   parts: [
-    { name: { en: 'Frame: foundation, columns, beams, slab', hi: 'ढाँचा: नींव, कॉलम, बीम, स्लैब' }, tool: 'StructurePro', price: '₹999', href: '/tools/structopro' },
-    { name: { en: 'Walls, plaster and waterproofing', hi: 'दीवारें, प्लास्टर और वॉटरप्रूफ़िंग' }, tool: 'MasonryPro', price: '₹699', href: '/tools/masonpro' },
-    { name: { en: 'Wiring, switches and earthing', hi: 'वायरिंग, स्विच और अर्थिंग' }, tool: 'ElectricalPro', price: '₹499', href: '/tools/electropro' },
-    { name: { en: 'Water supply, drains and tank', hi: 'पानी की सप्लाई, नाली और टंकी' }, tool: 'PlumbingPro', price: '₹499', href: '/tools/plumbpro' },
-    { name: { en: 'Floors, kitchen, paint and ceilings', hi: 'फ़र्श, रसोई, पेंट और सीलिंग' }, tool: 'InteriorPro', price: '₹899', href: '/tools/interiorpro' },
+    { name: { en: 'Frame: foundation, columns, beams, slab', hi: 'ढाँचा: नींव, कॉलम, बीम, स्लैब' }, tool: 'StructurePro', price: PRICE.structopro, href: '/tools/structopro' },
+    { name: { en: 'Walls, plaster and waterproofing', hi: 'दीवारें, प्लास्टर और वॉटरप्रूफ़िंग' }, tool: 'MasonryPro', price: PRICE.masonpro, href: '/tools/masonpro' },
+    { name: { en: 'Wiring, switches and earthing', hi: 'वायरिंग, स्विच और अर्थिंग' }, tool: 'ElectricalPro', price: PRICE.electropro, href: '/tools/electropro' },
+    { name: { en: 'Water supply, drains and tank', hi: 'पानी की सप्लाई, नाली और टंकी' }, tool: 'PlumbingPro', price: PRICE.plumbpro, href: '/tools/plumbpro' },
+    { name: { en: 'Floors, kitchen, paint and ceilings', hi: 'फ़र्श, रसोई, पेंट और सीलिंग' }, tool: 'InteriorPro', price: PRICE.interiorpro, href: '/tools/interiorpro' },
   ],
   gt: {
     badge: { en: 'Everything together', hi: 'सब कुछ एक साथ' },
     name: { en: 'Whole‑house report', hi: 'पूरे घर की रिपोर्ट' },
     sub: { en: 'All five parts in one master report', hi: 'पाँचों हिस्से एक मास्टर रिपोर्ट में' },
-    price: '₹999',
-    free: { en: 'Free when you have bought all five parts', hi: 'पाँचों हिस्से ख़रीदने पर मुफ़्त' },
+    price: PRICE.grandtotal,
+    free: { en: 'Included in the Complete House Pack', hi: 'कम्प्लीट हाउस पैक में शामिल' },
     points: [
       { en: 'One total cost for the whole house', hi: 'पूरे घर का एक कुल ख़र्च' },
       { en: 'A timeline chart of the work', hi: 'काम की समयरेखा का चार्ट' },

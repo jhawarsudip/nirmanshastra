@@ -3,6 +3,7 @@
 import { useLocale } from 'next-intl'
 import { useReveal } from '@/lib/v2/store'
 import { IS_CODES } from '@/lib/v2/content'
+import { PRICE } from '@/lib/tool-pricing'
 import '@/styles/v2/closing.css'
 import Pour from '../Pour'
 
@@ -10,7 +11,7 @@ const COPY = {
   en: {
     eye: 'Free calculators vs NirmanShastra', h: 'How we compare with free calculators',
     intro: 'A free calculator is fine for a rough idea. Here is what you get when you want quantities you can take to your contractor.',
-    colF: 'What you get', colFree: 'A typical free calculator', colNS: 'NirmanShastra (from ₹499 a report)',
+    colF: 'What you get', colFree: 'A typical free calculator', colNS: `NirmanShastra (from ${PRICE.from} a report)`,
     foot: 'The arithmetic is the same everywhere. What differs is how much of the house it looks at, and whether it shows its working.',
     rows: [
       ['How the quantities are worked out', 'A rough rate per square foot', 'The frame is laid out and sized to the Indian Standards, member by member, on our servers'],
@@ -26,7 +27,7 @@ const COPY = {
   hi: {
     eye: 'मुफ़्त कैलकुलेटर बनाम NirmanShastra', h: 'मुफ़्त कैलकुलेटर से हम कैसे अलग हैं',
     intro: 'मोटा अंदाज़ा लेने के लिए मुफ़्त कैलकुलेटर ठीक है। पर जब आपको ऐसी मात्राएँ चाहिए जो आप ठेकेदार के सामने रख सकें, तब यह मिलता है।',
-    colF: 'आपको क्या मिलता है', colFree: 'आम मुफ़्त कैलकुलेटर', colNS: 'NirmanShastra (₹499 प्रति रिपोर्ट से)',
+    colF: 'आपको क्या मिलता है', colFree: 'आम मुफ़्त कैलकुलेटर', colNS: `NirmanShastra (${PRICE.from} प्रति रिपोर्ट से)`,
     foot: 'हिसाब हर जगह एक जैसा है। फ़र्क़ यह है कि वह घर के कितने हिस्से को देखता है, और अपना हिसाब दिखाता है या नहीं।',
     rows: [
       ['मात्राएँ कैसे निकलती हैं', 'प्रति वर्ग फुट का मोटा रेट', 'ढाँचा हमारे सर्वर पर बिछाया और भारतीय मानकों के अनुसार हिस्सा-दर-हिस्सा तय किया जाता है'],

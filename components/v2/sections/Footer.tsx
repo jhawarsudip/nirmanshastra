@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { BrandMark, Arrow } from '../Icons'
-import { TOOLS, SITE_TEMPLATES, TEMPLATES_BUNDLE } from '@/lib/v2/content'
+import { TOOLS, SITE_TEMPLATES, TEMPLATES_BUNDLE, PACK_TOOL } from '@/lib/v2/content'
 import { FOOT, pick } from '@/lib/v2/copy'
 import '@/styles/v2/closing.css'
 
@@ -73,7 +73,10 @@ export default function Footer() {
           </div>
           <nav aria-label={pick(FOOT.tools, loc)}>
             <h2>{pick(FOOT.tools, loc)}</h2>
-            <ul>{TOOLS.map(k => <li key={k.key}><Link href={k.href}>{k.name}{k.free ? <em>{pick(FOOT.free, loc)}</em> : null}</Link></li>)}</ul>
+            <ul>
+              {TOOLS.map(k => <li key={k.key}><Link href={k.href}>{k.name}{k.free ? <em>{pick(FOOT.free, loc)}</em> : null}</Link></li>)}
+              <li><Link href={PACK_TOOL.href}>{pick(PACK_TOOL.name, loc)}</Link></li>
+            </ul>
           </nav>
           <nav aria-label={pick(FOOT.calcs, loc)}>
             <h2>{pick(FOOT.calcs, loc)}</h2>

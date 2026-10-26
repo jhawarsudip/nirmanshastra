@@ -4,9 +4,10 @@ import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
+import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'StructurePro: Concrete, Steel and Cement Quantity Calculator for RCC Houses | IS 456, IS 1893'
-const description = 'Work out the concrete, steel, cement, sand, aggregate and shuttering for your RCC frame from a few plain answers, to IS 456, IS 875 and IS 1893. Quantities only. ₹999 per report.'
+const description = `Work out the concrete, steel, cement, sand, aggregate and shuttering for your RCC frame from a few plain answers, to IS 456, IS 875 and IS 1893. Quantities only. ${PRICE.structopro} per report.`
 const url = '/tools/structopro'
 
 export const metadata: Metadata = {

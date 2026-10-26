@@ -6,6 +6,7 @@ import { createSupabaseClient } from '@/lib/supabase/server'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
 import { ReportTable } from '@/components/v2/qty/parts'
 import DownloadButton from './DownloadButton'
+import { PACK_APP_TYPE } from '@/lib/tool-pricing'
 
 const APP_LABELS: Record<string, string> = {
   structopro: 'StructurePro',
@@ -15,6 +16,7 @@ const APP_LABELS: Record<string, string> = {
   interiorpro: 'InteriorPro',
   vastupro: 'VastuPro',
   grandtotal: 'Grand Total',
+  completepack: 'Complete House Pack',
 }
 
 const STATUS: Record<string, { label: string; tc?: boolean }> = {
@@ -69,7 +71,9 @@ export default async function ReportsPage() {
                   [est.city, est.state].filter(Boolean).join(', ') || '—',
                   formatDate(est.created_at),
                   <span key="s" className={`ns-i-pill${st.tc ? ' ns-i-pill--tc' : ''}`}>{st.label}</span>,
-                  est.status === 'paid' ? <DownloadButton key="d" appType={est.app_type} estimateId={est.id} /> : '—',
+                  est.status !== 'paid' ? '—'
+                    : est.app_type === PACK_APP_TYPE ? <Link key="d" href={`/tools/complete-house-pack?pack=${est.id}`} className="ns-i-link">Open your pack</Link>
+                    : <DownloadButton key="d" appType={est.app_type} estimateId={est.id} />,
                 ]
               })}
             />

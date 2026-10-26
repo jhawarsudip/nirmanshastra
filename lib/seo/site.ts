@@ -6,7 +6,7 @@
 // so structured data and llms.txt can never disagree with what the site charges.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { TOOL_PRICE_PAISE, type PaidAppType } from '@/lib/tool-pricing'
+import { priceForAppType, PACK_APP_TYPE, PRICE, type PaidAppType } from '@/lib/tool-pricing'
 import { SITE_TEMPLATES, BUNDLE_PRICE_PAISE } from '@/lib/site-templates'
 
 export const SITE_URL = 'https://www.nirmanshastra.in'
@@ -16,7 +16,7 @@ export const OG_IMAGE_URL = `${SITE_URL}/og-image.png`
 export const LOGO_URL = `${SITE_URL}/icon-512.png`
 
 export const SITE_SUMMARY =
-  "NirmanShastra is an Indian construction quantity estimator. From a few plain answers about a plot and plan it works out, to the Indian Standards, how much concrete, steel, cement, sand, aggregate, bricks, wire and pipe a house needs, so homeowners know the quantities before they order or sign. It gives quantities only: no labour, dealer or contractor rates. It has 10 free calculators, paid quantity reports (StructurePro, MasonryPro, ElectricalPro, PlumbingPro, InteriorPro, Grand Total), Excel site templates and a free tool to compare a contractor's quantities with ours, in English and Hindi."
+  "NirmanShastra is an Indian construction quantity estimator. From a few plain answers about a plot and plan it works out, to the Indian Standards, how much concrete, steel, cement, sand, aggregate, bricks, wire and pipe a house needs, so homeowners know the quantities before they order or sign. It gives quantities only: no labour, dealer or contractor rates. It has 10 free calculators, paid quantity reports (StructurePro, MasonryPro, ElectricalPro, PlumbingPro, InteriorPro, Grand Total), a Complete House Pack that unlocks all six for one house, Excel site templates and a free tool to compare a contractor's quantities with ours, in English and Hindi."
 
 // Authorship decision: no personal name, institute or employer anywhere
 // (pages, schema, metadata). Reviewer line is deliberately generic.
@@ -40,7 +40,7 @@ export interface ToolEntry {
   summary: string
   /** Main IS code(s) the tool is built on, as printed on the page. */
   isCodes: string[]
-  appType?: PaidAppType
+  appType?: PaidAppType | typeof PACK_APP_TYPE
 }
 
 export const TOOLS: ToolEntry[] = [
@@ -196,12 +196,21 @@ export const TOOLS: ToolEntry[] = [
       'Your paid frame, walls, wiring, plumbing and finishing reports added into one list of what to buy, with shared materials added up and nothing counted twice.',
     isCodes: [],
   },
+  {
+    path: '/tools/complete-house-pack',
+    name: 'Complete House Pack',
+    kind: 'paid-report',
+    appType: PACK_APP_TYPE,
+    summary:
+      `One purchase that unlocks all five quantity reports (structure, masonry, electrical, plumbing and interior) and the Grand Total buying list for one house. Bought one by one they cost ${PRICE.packSeparate}; the pack saves ${PRICE.packSavings}.`,
+    isCodes: [],
+  },
 ]
 
 export const getTool = (path: string) => TOOLS.find((t) => t.path === path)
 
 export const priceOfTool = (t: ToolEntry): number | null =>
-  t.appType ? TOOL_PRICE_PAISE[t.appType] : null
+  t.appType ? priceForAppType(t.appType) : null
 
 // ── Excel site templates (prices come from lib/site-templates.ts) ────────────
 

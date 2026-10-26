@@ -3,7 +3,7 @@ import '@/styles/v2/results.css'
 import { ToolHead, Note, IcArrow } from '@/components/v2/inner/kit'
 import { ReportTable } from '@/components/v2/qty/parts'
 import { TOOLS } from '@/lib/v2/content'
-import { TOOL_PRICE_PAISE } from '@/lib/tool-pricing'
+import { TOOL_PRICE_PAISE, PRICE } from '@/lib/tool-pricing'
 import { inr } from '@/lib/seo/site'
 
 /*
@@ -52,7 +52,8 @@ export default function AboutPage() {
             head={['Report', 'What it counts', 'Price']}
             rows={[
               ...paid.map(t => [t.name, counts[t.key], inr(priceOf[t.key])]),
-              ['Grand Total', 'The five reports together, with the overlaps counted once.', `${inr(TOOL_PRICE_PAISE.grandtotal)} add-on`],
+              ['Grand Total', 'The five reports together, with the overlaps counted once.', `${inr(TOOL_PRICE_PAISE.grandtotal)} add-on, or included in the pack`],
+              ['Complete House Pack', 'All five reports and the Grand Total, for one house, in one purchase.', `${PRICE.pack} (${PRICE.packSeparate} bought one by one)`],
             ]}
           />
         </section>

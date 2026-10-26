@@ -3,9 +3,10 @@ import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
+import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'ElectricalPro: Wiring Quantity Calculator for Homes | Points, Wire, Conduit, DB | IS 4648, IS 732'
-const description = 'Count the light, fan and socket points, wire by size and colour, conduit, distribution boards, MCBs and earthing for your home, room by room. Quantities only. ₹499 per report.'
+const description = `Count the light, fan and socket points, wire by size and colour, conduit, distribution boards, MCBs and earthing for your home, room by room. Quantities only. ${PRICE.electropro} per report.`
 const url = '/tools/electropro'
 
 export const metadata: Metadata = {

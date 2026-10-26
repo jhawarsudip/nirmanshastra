@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl'
 import CutLink from '../CutLink'
 import { Arrow } from '../Icons'
 import { TOOLS } from '@/lib/v2/content'
+import { PRICE } from '@/lib/tool-pricing'
 import { TOOL_PLAIN, pick, type Bi } from '@/lib/v2/copy'
 import { useMotionOK } from '@/lib/v2/store'
 import '@/styles/v2/story.css'
@@ -16,24 +17,24 @@ const COPY = {
     eyebrow: 'Your reports', h: 'A quantities report for every stage of your build',
     lede: 'Pick the part you are planning. Each report tells you what to order and exactly how much of it, in plain words, ready to hand to your contractor or your dealer. Quantities only: no prices, no labour. You pay per report.',
     suite1: 'Start here, free', suite2: 'Quantity reports, one per stage',
-    sub2: 'Exact quantities · item by item · a PDF for your contractor', from: 'from ₹499 a report',
+    sub2: 'Exact quantities · item by item · a PDF for your contractor', from: `from ${PRICE.from} a report`,
     open: 'Open', start: 'Start free', free: 'Free', progress: 'of',
     pin: 'Scroll sideways through the five reports', shelf: 'Swipe through the five reports',
     gt: 'Master report', gtName: 'Grand Total Report', gtHead: 'One buying list for the whole house',
     gtDesc: 'Adds the reports you have already bought for one house into a single list. Cement, sand and stone are added across the stages and each stage keeps its own items, in the order a house is built.',
-    gtFree: 'An add-on · ₹999 · uses the reports you already have', gtCta: 'Make my Grand Total Report', phase: 'Stage',
+    gtFree: `An add-on · ${PRICE.grandtotal} · uses the reports you already have · included in the Complete House Pack`, gtCta: 'Make my Grand Total Report', phase: 'Stage',
     get: 'You get quantities and a PDF.',
   },
   hi: {
     eyebrow: 'आपकी रिपोर्टें', h: 'आपके निर्माण के हर चरण की एक मात्रा-रिपोर्ट',
     lede: 'जिस हिस्से की योजना बना रहे हैं, उसे चुनिए। हर रिपोर्ट सरल शब्दों में बताती है कि क्या मँगवाना है और ठीक कितना, ठेकेदार या डीलर को देने के लिए तैयार। सिर्फ़ मात्राएँ: न दाम, न मज़दूरी। आप हर रिपोर्ट का अलग भुगतान करते हैं।',
     suite1: 'यहाँ से शुरू कीजिए, मुफ़्त', suite2: 'मात्रा रिपोर्टें, हर चरण की एक',
-    sub2: 'सटीक मात्रा · चीज़-दर-चीज़ · ठेकेदार के लिए PDF', from: '₹499 प्रति रिपोर्ट से',
+    sub2: 'सटीक मात्रा · चीज़-दर-चीज़ · ठेकेदार के लिए PDF', from: `${PRICE.from} प्रति रिपोर्ट से`,
     open: 'खोलें', start: 'मुफ़्त शुरू करें', free: 'मुफ़्त', progress: '/',
     pin: 'पाँचों रिपोर्ट देखने के लिए बगल में स्क्रॉल करें', shelf: 'पाँचों रिपोर्ट देखने के लिए स्वाइप करें',
     gt: 'मास्टर रिपोर्ट', gtName: 'ग्रैंड टोटल रिपोर्ट', gtHead: 'पूरे घर की एक खरीद-सूची',
     gtDesc: 'एक ही घर की जो रिपोर्टें आप ले चुके हैं, उन्हें एक सूची में जोड़ती है। सीमेंट, रेत और पत्थर चरणों में जुड़ते हैं और हर चरण की अपनी चीज़ें उसी क्रम में रहती हैं जिसमें घर बनता है।',
-    gtFree: 'एक ऐड-ऑन · ₹999 · आपकी ली हुई रिपोर्टों पर', gtCta: 'मेरी ग्रैंड टोटल रिपोर्ट बनाइए', phase: 'चरण',
+    gtFree: `एक ऐड-ऑन · ${PRICE.grandtotal} · आपकी ली हुई रिपोर्टों पर · कम्प्लीट हाउस पैक में शामिल`, gtCta: 'मेरी ग्रैंड टोटल रिपोर्ट बनाइए', phase: 'चरण',
     get: 'आपको मात्राएँ और PDF मिलता है।',
   },
 } as const

@@ -29,6 +29,7 @@ const MAP: Record<string, Ref[]> = {
   '/tools/plumbpro': [{ blog: 'water-requirements-is-1172-1993' }, { term: 'lpcd' }],
   '/tools/interiorpro': [{ blog: 'construction-cost-per-sq-ft-india' }, { blog: 'per-sqft-pricing-contractor-fraud' }, { term: 'quality-tier' }],
   '/tools/grand-total': [{ blog: 'how-to-check-contractor-quote' }, { term: 'boq' }],
+  '/tools/complete-house-pack': [{ blog: 'how-to-check-contractor-quote' }, { term: 'boq' }],
 }
 
 export function relatedLinksFor(path: string): RelatedLink[] {

@@ -1,7 +1,12 @@
+import { PRICE, PACK_CLAIMS_PER_REPORT } from '@/lib/tool-pricing'
+
 // What the site's AI guide knows. Injected into every chat conversation, so everything here can be repeated to a visitor:
 // nothing internal (stack, database, running costs, margins) belongs in this file.
 // The site is QUANTITY-ONLY: no rupee rates, no labour or dealer figures and no "what it should cost" anywhere in it.
 // Quantities for a specific house come only from the paid reports, which are computed on the server. This file never carries them.
+/** A price label from the price file in the guide's own style: "Rs" in place of the rupee sign. */
+const rs = (label: string) => label.replace('₹', 'Rs ')
+
 export const CHATBOX_KNOWLEDGE = `
 NIRMANSHASTRA, WHAT THE GUIDE KNOWS (June 2026)
 
@@ -13,12 +18,13 @@ Founded by Sudip Jhawar. Website: www.nirmanshastra.in. Available in English and
 # 2. The tools
 
 Paid quantity reports (a PDF and an on-screen report, one report per payment):
-- StructurePro, Rs 999: the reinforced-concrete frame. Footings or raft, plinth beams, columns, floor beams, slabs, the staircase, lintels, sunshades, the parapet band and balcony slabs. Counts concrete, steel by bar diameter, cement, sand, aggregate and shuttering. Handles an open parking level under the house (stilt) and balconies. Checks the frame against earthquake (IS 1893) and wind (IS 875 Part 3) and designs for the larger of the two. Shows a 3D model of the frame. Shows how far off the numbers can be, and sets them beside quantities found in real buildings. Includes a panel to type in a contractor's concrete, steel, cement and shuttering figures and see whether each is close, common or high.
-- MasonryPro, Rs 699: bricks or blocks, mortar, cement, sand, lintels and plaster for the walls.
-- ElectricalPro, Rs 499: points, wire, conduit, switchboards, MCBs and earthing, room by room.
-- PlumbingPro, Rs 499: supply and drain pipe, tanks, pump, fittings and fixtures, septic tank or sewer connection, rain-water pipes.
-- InteriorPro, Rs 899: paint, putty, tiles, false ceilings, doors, windows and carpentry sheets.
-- Grand Total, Rs 999: an add-on that adds the paid reports of one house into a single buying list (cement, sand and stone added across the phases, every other item under its own phase, lintels counted once). It needs at least two paid reports for the same building (same floors, same state, floor area within 10%). It does not update if another phase is bought later. It is not free, even when all five reports are bought.
+- StructurePro, ${rs(PRICE.structopro)}: the reinforced-concrete frame. Footings or raft, plinth beams, columns, floor beams, slabs, the staircase, lintels, sunshades, the parapet band and balcony slabs. Counts concrete, steel by bar diameter, cement, sand, aggregate and shuttering. Handles an open parking level under the house (stilt) and balconies. Checks the frame against earthquake (IS 1893) and wind (IS 875 Part 3) and designs for the larger of the two. Shows a 3D model of the frame. Shows how far off the numbers can be, and sets them beside quantities found in real buildings. Includes a panel to type in a contractor's concrete, steel, cement and shuttering figures and see whether each is close, common or high.
+- MasonryPro, ${rs(PRICE.masonpro)}: bricks or blocks, mortar, cement, sand, lintels and plaster for the walls.
+- ElectricalPro, ${rs(PRICE.electropro)}: points, wire, conduit, switchboards, MCBs and earthing, room by room.
+- PlumbingPro, ${rs(PRICE.plumbpro)}: supply and drain pipe, tanks, pump, fittings and fixtures, septic tank or sewer connection, rain-water pipes.
+- InteriorPro, ${rs(PRICE.interiorpro)}: paint, putty, tiles, false ceilings, doors, windows and carpentry sheets.
+- Grand Total, ${rs(PRICE.grandtotal)}: an add-on that adds the paid reports of one house into a single buying list (cement, sand and stone added across the phases, every other item under its own phase, lintels counted once). It needs at least two paid reports for the same building (same floors, same state, floor area within 10%). It does not update if another phase is bought later. It is not free when the reports are bought one by one; it is included in the Complete House Pack.
+- Complete House Pack, ${rs(PRICE.pack)}: one purchase for one house that unlocks all five reports and the Grand Total. Bought one by one they cost ${rs(PRICE.packSeparate)}, so the pack saves ${rs(PRICE.packSavings)} (about ${PRICE.packSavingsPercent}). Each report in the pack can be made up to ${PACK_CLAIMS_PER_REPORT} times, so a wrong figure can be corrected. The pack is bought on its own page, /tools/complete-house-pack.
 Phases in the order a house is built: 1 structure, 2 masonry, 3 electrical, 4 plumbing, 5 interior.
 
 Free tools: VastuPro (a Vastu check of a floor plan, with a PDF) and ten calculators (brick, concrete mix ratio, water tank size, wire size, bar bending schedule, concrete cube test, daily-wage PF and ESI, running-bill retention and TDS, earned value, and paint and tile). Site templates (Excel workbooks for site offices) are sold separately.

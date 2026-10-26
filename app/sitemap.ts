@@ -44,6 +44,7 @@ const TOOL_ROUTES = [
   '/tools/electropro',
   '/tools/plumbpro',
   '/tools/interiorpro',
+  '/tools/complete-house-pack',
   '/tools/bar-bending-schedule-calculator',
   '/tools/water-tank-size-calculator',
   '/tools/concrete-mix-ratio-calculator',

@@ -12,6 +12,7 @@ import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import { TOOLS } from '@/lib/v2/content'
 import { Note, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { Tot, ReportTable as Table, DeliveryNote } from '@/components/v2/qty/parts'
+import PackUnlock from '@/components/v2/qty/PackUnlock'
 import QuoteCheck from './QuoteCheck'
 
 /*
@@ -301,6 +302,7 @@ export default function ResultsV2({ free, estimateId, contactName, projectName, 
               'A PDF you can hand to your engineer or contractor',
             ].map(t => <li key={t}><IcCheck />{t}</li>)}
           </ul>
+          <PackUnlock appType="structopro" estimateId={estimateId} onUnlocked={() => { setIsPaid(true); setPayStatus('paid') }} />
           <button type="button" className="ns-btn" onClick={handleUnlock} disabled={busy || !estimateId}>
             {payStatus === 'creating' ? 'Starting the payment…' : payStatus === 'verifying' ? 'Checking your payment…' : payStatus === 'polling' ? 'Confirming your payment…' : `Unlock the full report · ${TOOL.price}`}
             {!busy && <IcArrow width={22} height={11} />}

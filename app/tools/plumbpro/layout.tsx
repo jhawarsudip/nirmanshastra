@@ -3,9 +3,10 @@ import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
+import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'PlumbingPro: Plumbing Quantity Calculator | IS 1172, IS 1742, IS 2470'
-const description = 'Work out the pipe lengths, tank sizes, pump, drains, septic tank and every fitting to buy for your home, to the Indian Standards. Quantities only. ₹499 per report.'
+const description = `Work out the pipe lengths, tank sizes, pump, drains, septic tank and every fitting to buy for your home, to the Indian Standards. Quantities only. ${PRICE.plumbpro} per report.`
 const url = '/tools/plumbpro'
 
 export const metadata: Metadata = {

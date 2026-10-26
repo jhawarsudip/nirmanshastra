@@ -7,6 +7,8 @@ import '@/styles/v2/results.css'
 import { Note, StepBar, ToolHead, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { DeliveryNote, ReportTable, Tot } from './parts'
 import { useUnlock } from './useUnlock'
+import PackUnlock from './PackUnlock'
+import { PRICE as PRICES } from '@/lib/tool-pricing'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import { useCalm } from '@/lib/v2/store'
 import { GRAND_META, PHASES, type GrandFree, type GrandPaid, type PhaseKey } from '@/lib/qty/grand'
@@ -17,7 +19,7 @@ import { GRAND_META, PHASES, type GrandFree, type GrandPaid, type PhaseKey } fro
   Every quantity is added on the server after the payment is verified.
 */
 
-const PRICE = '₹999'
+const PRICE = PRICES.grandtotal
 
 interface PhaseEntry { key: PhaseKey; label: string; short: string; stage: string; estimateId: string; floors: number; builtUpM2: number; createdAt: string }
 interface ProjectEntry { projectKey: string; projectName: string; where: string; floors: number; builtUpM2: number; phases: PhaseEntry[] }
@@ -318,6 +320,7 @@ function GrandResults({ estimateId, free, projectName, onStage, onBack }: { esti
           <ul className="ns-r-unlock__list">
             {GRAND_META.includes.map(t => <li key={t}><IcCheck />{t}</li>)}
           </ul>
+          <PackUnlock appType="grandtotal" estimateId={estimateId} onUnlocked={u.markPaid} />
           <button type="button" className="ns-btn" onClick={u.unlock} disabled={u.busy}>
             {u.payStatus === 'creating' ? 'Starting the payment…' : u.payStatus === 'verifying' ? 'Checking your payment…' : u.payStatus === 'polling' ? 'Confirming your payment…' : `Unlock the Grand Total · ${PRICE}`}
             {!u.busy && <IcArrow width={22} height={11} />}

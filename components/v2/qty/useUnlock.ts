@@ -20,7 +20,7 @@ type PayStatus = 'idle' | 'creating' | 'open' | 'verifying' | 'polling' | 'paid'
 type PdfStatus = 'idle' | 'generating' | 'ready' | 'error'
 type ReportStatus = 'idle' | 'loading' | 'ready' | 'error'
 
-export function useUnlock<R>({ api, estimateId, contactName, description, fileName }: {
+export function useUnlock<R>({ api, estimateId, contactName, description, fileName, reportless }: {
   /** the tool's route prefix, for example "/api/qty/plumbpro" */
   api: string
   estimateId: string | null
@@ -28,6 +28,8 @@ export function useUnlock<R>({ api, estimateId, contactName, description, fileNa
   /** shown in the payment window */
   description: string
   fileName: string
+  /** true when there is nothing to load after payment (the Complete House Pack itself has no report) */
+  reportless?: boolean
 }) {
   const [payStatus, setPayStatus] = useState<PayStatus>('idle')
   const [payError, setPayError] = useState('')
@@ -90,7 +92,7 @@ export function useUnlock<R>({ api, estimateId, contactName, description, fileNa
     }
   }, [api, estimateId])
 
-  useEffect(() => { if (isPaid) loadReport() }, [isPaid, loadReport])
+  useEffect(() => { if (isPaid && !reportless) loadReport() }, [isPaid, reportless, loadReport])
 
   const generatePdf = useCallback(async () => {
     if (!estimateId) return
@@ -192,8 +194,11 @@ export function useUnlock<R>({ api, estimateId, contactName, description, fileNa
 
   const busy = payStatus === 'creating' || payStatus === 'verifying' || payStatus === 'polling'
 
+  /** the server has already marked this estimate paid (a Complete House Pack unlock): open the report */
+  const markPaid = useCallback(() => { setIsPaid(true); setPayStatus('paid') }, [])
+
   return {
-    isPaid, payStatus, payError, busy, unlock,
+    isPaid, payStatus, payError, busy, unlock, markPaid,
     report, reportStatus, reportError, loadReport,
     pdfStatus, pdfUrl, emailSent, downloading, downloadPdf, generatePdf,
     /** true when the page is open only because the server is in preview mode, not because someone paid */

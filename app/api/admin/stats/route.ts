@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(await getVastuStats(supabase))
   }
 
-  const PAID = ['structopro', 'masonpro', 'electropro', 'plumbpro', 'interiorpro']
+  const PAID = ['structopro', 'masonpro', 'electropro', 'plumbpro', 'interiorpro', 'completepack']
   if (!PAID.includes(tool)) {
     return NextResponse.json({ error: 'Invalid tool' }, { status: 400 })
   }

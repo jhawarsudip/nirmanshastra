@@ -3,9 +3,10 @@ import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
+import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'Grand Total: One Buying List for Your Whole House | Frame, Walls, Wiring, Plumbing, Finishing'
-const description = 'Add your paid StructurePro, MasonryPro, ElectricalPro, PlumbingPro and InteriorPro reports into one list of what to buy, with cement, sand and stone added across phases and nothing counted twice. Quantities only. ₹999.'
+const description = `Add your paid StructurePro, MasonryPro, ElectricalPro, PlumbingPro and InteriorPro reports into one list of what to buy, with cement, sand and stone added across phases and nothing counted twice. Quantities only. ${PRICE.grandtotal}.`
 const url = '/tools/grand-total'
 
 export const metadata: Metadata = {

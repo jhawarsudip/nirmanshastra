@@ -3,9 +3,10 @@ import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
+import { PRICE } from '@/lib/tool-pricing'
 
 const title = 'InteriorPro: Finishing Quantity Calculator for Homes | Paint, Tiles, Doors, False Ceiling | IS 1200, IS 15622'
-const description = 'Count the paint, putty and primer, floor and wall tiles, doors and windows, false ceiling and plywood for your home, area by area. Quantities only. ₹899 per report.'
+const description = `Count the paint, putty and primer, floor and wall tiles, doors and windows, false ceiling and plywood for your home, area by area. Quantities only. ${PRICE.interiorpro} per report.`
 const url = '/tools/interiorpro'
 
 export const metadata: Metadata = {

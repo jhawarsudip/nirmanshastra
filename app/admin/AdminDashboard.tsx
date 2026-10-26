@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type Tab = 'vastupro' | 'structopro' | 'masonpro' | 'electropro' | 'plumbpro' | 'interiorpro'
+type Tab = 'vastupro' | 'structopro' | 'masonpro' | 'electropro' | 'plumbpro' | 'interiorpro' | 'completepack'
 
 interface CityEntry  { city: string; count: number }
 interface RoomEntry  { room: string; count: number }
@@ -54,6 +54,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'electropro', label: 'ElectricalPro' },
   { id: 'plumbpro',   label: 'PlumbingPro'  },
   { id: 'interiorpro',label: 'InteriorPro'},
+  { id: 'completepack',label: 'Complete House Pack'},
 ]
 
 function fmtINR(n: number) {

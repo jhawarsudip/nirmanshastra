@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import { createServiceClient } from '@/lib/supabase/server'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
+import { PACK_APP_TYPE } from '@/lib/tool-pricing'
+import { sendPackEmailOnce } from '@/lib/pack/email'
 
 // HMAC SHA256 verification — Build Reference Section 6.
 // Key Secret used ONLY here, never exposed to client.
@@ -74,7 +76,7 @@ export async function POST(req: NextRequest) {
     // Update contact status to 'paid'
     const { data: estimate } = await supabase
       .from('estimates')
-      .select('contact_id')
+      .select('contact_id, app_type')
       .eq('id', estimateId)
       .single()
 
@@ -83,6 +85,11 @@ export async function POST(req: NextRequest) {
         .from('contacts')
         .update({ status: 'paid' })
         .eq('id', estimate.contact_id)
+    }
+
+    // A Complete House Pack gets its confirmation email now (once; a failed email never undoes the payment).
+    if (estimate?.app_type === PACK_APP_TYPE) {
+      await sendPackEmailOnce(supabase, estimateId)
     }
 
     return NextResponse.json({ success: true })
