@@ -15,11 +15,12 @@ export default function Hero({ loc }: { loc: Loc }) {
       <div className="ns-wrap">
         <div className="ns-hero__top">
           <p className="ns-eyebrow">{pick(HERO.eyebrow, loc)}</p>
+          {/* One block of plain text, in the server HTML, with no entrance that starts it hidden: the first line is plain text and a line
+              break, the second is the highlighted phrase. (As one block the browser measures it as one headline, so on a phone it is
+              the largest thing on the first screen.) */}
           <h1 className="ns-h1 ns-hero__h1" id="ns-h1">
-            <span className="ns-hero__ln"><span className="ns-wipe" style={{ ['--d' as string]: '.1s' }}>{pick(HERO.h1a, loc)}</span></span>{' '}
-            <span className="ns-hero__ln">
-              <span className="ns-wipe ns-hero__hl" style={{ ['--d' as string]: '.4s' }}>{pick(HERO.h1b, loc)}</span>
-            </span>
+            {pick(HERO.h1a, loc)}<br />
+            <span className="ns-hero__hl">{pick(HERO.h1b, loc)}</span>
           </h1>
           <Sticker src="/v2/cutouts/o01-spirit-level.webp" w={820} h={324} width="clamp(150px, 21vw, 330px)" rot={-7}
             pos={{ right: '1%', top: '74%' }} />
