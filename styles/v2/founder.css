@@ -9,5 +9,5 @@
 @media (max-width: 520px) { .ns-fdr { align-items: flex-start; } .ns-fdr__photo { width: 68px; height: 68px; } }
 
 /* the homepage band */
-.ns-fdr-band { padding-block: clamp(36px, 5vw, 64px); }
+.ns-fdr-band { padding-block: clamp(84px, 10vw, 150px) clamp(20px, 3vw, 40px); }  /* the top gap clears the drips of the dark section above */
 .ns-fdr-band .ns-fdr { max-width: 900px; margin-inline: auto; }
