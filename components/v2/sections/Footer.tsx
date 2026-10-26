@@ -1,6 +1,7 @@
 'use client'
 
 import PrivacyChoices from '@/components/analytics/PrivacyChoices'
+import SocialLinks from '@/components/social/SocialLinks'
 import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
@@ -71,6 +72,7 @@ export default function Footer() {
             <BrandMark className="ns-foot__mark" on="dark" size={320} />
             <p className="ns-foot__name">Nirman<b>Shastra</b></p>
             <p className="ns-foot__note">{pick(FOOT.note, loc)}</p>
+            <SocialLinks hi={hi} where="footer" />
           </div>
           <nav aria-label={pick(FOOT.tools, loc)}>
             <h2>{pick(FOOT.tools, loc)}</h2>

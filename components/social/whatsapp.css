@@ -1,0 +1,29 @@
+/* Floating WhatsApp button (bottom-left) and the small icon row used in the footer and the mobile menu. */
+.ns-wa {
+  position: fixed; z-index: 9990;
+  left: 28px; bottom: 28px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-width: 48px; min-height: 48px; padding: 0 12px;
+  background: #25D366; color: #0B2E1A;
+  border: 2px solid var(--ns-ink, #2A1E16); border-radius: 0;
+  box-shadow: 4px 4px 0 rgba(42, 30, 22, .35);
+  font: 700 15px/1 var(--ns-body, var(--font-plex-sans, system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', sans-serif));
+  text-decoration: none;
+}
+.ns-wa:hover { background: #1FBF5B; }
+.ns-wa:focus-visible { outline: 3px solid var(--ns-focus, #2E3F94); outline-offset: 3px; }
+.ns-wa__label { display: none; }
+@media (min-width: 720px) { .ns-wa { padding: 0 16px 0 12px; } .ns-wa__label { display: inline; } }
+@media (max-width: 719px) { .ns-wa { left: 14px; bottom: max(14px, env(safe-area-inset-bottom)); } }
+@media print { .ns-wa { display: none; } }
+
+.ns-social { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0; padding: 0; }
+.ns-social a {
+  display: grid; place-items: center; width: 44px; height: 44px;
+  border: 1.5px solid currentColor; border-radius: 0; color: inherit; text-decoration: none;
+  transition: background .12s, color .12s;
+}
+.ns-social a:hover, .ns-social a:focus-visible { background: var(--ns-tint, #FCE4A8); color: var(--ns-ink, #2A1E16); border-color: var(--ns-ink, #2A1E16); }
+.ns-social a:focus-visible { outline: 3px solid var(--ns-focus, #2E3F94); outline-offset: 2px; }
+.ns-foot .ns-social { margin-top: 18px; color: var(--ns-chalk, #F3EEE2); }
+.ns-menu .ns-social { color: var(--ns-ink, #2A1E16); margin-top: 6px; }

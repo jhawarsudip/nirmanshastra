@@ -1,5 +1,6 @@
 'use client'
 
+import SocialLinks from '@/components/social/SocialLinks'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -278,6 +279,7 @@ export default function Header({ locale }: { locale: Loc }) {
             </div>
             {toggles}
           </div>
+          <SocialLinks hi={locale === 'hi'} where="mobile_menu" />
           <div className="ns-menu__row">
             {user ? (
               <>
