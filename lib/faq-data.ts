@@ -3,7 +3,7 @@
 
 import { TOOL_PRICE_PAISE, PRICE, PACK_CLAIMS_PER_REPORT } from '@/lib/tool-pricing'
 import { inr } from '@/lib/seo/site'
-import { FAILED_DELIVERY_EN, NOT_REFUNDABLE_EN, REFUND_ASK_DAYS, howToAskEn } from '@/lib/policy'
+import { REFUND_ASK_DAYS, REFUND_FAILED_DELIVERY_HOURS } from '@/lib/policy'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 export interface FaqItem {
@@ -157,7 +157,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'Can I get a refund?',
         answer:
-          `${FAILED_DELIVERY_EN} ${howToAskEn(CONTACT_EMAIL)} Please give your order ID. ${NOT_REFUNDABLE_EN} Look at the sample report before you buy: every page of it is marked as a sample. The Terms of Use say the same, and the policy is at /refund-policy.`,
+          `If a report fails to generate because of a fault on our side and cannot be delivered within ${REFUND_FAILED_DELIVERY_HOURS} hours of payment, we refund you in full. Email ${CONTACT_EMAIL} within ${REFUND_ASK_DAYS} days of payment with your order ID. A report that has been generated and delivered is not refundable, since the quantities are worked out and the PDF is made at the time of payment. The Terms of Use say the same.`,
       },
       {
         question: 'What payment methods are accepted?',

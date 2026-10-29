@@ -38,7 +38,7 @@ check('refund page: built from the config, English and Hindi', refundPage.includ
 check('refund page: no promise of a satisfaction refund or a processing time', !/REFUND_PROMISE|REFUND_DAYS|REFUND_PROCESSING|satisfaction|No forms, no argument|business days/i.test(refundPage))
 check('refund page: no WhatsApp and no phone number', !/whatsapp|wa\.me|\+91/i.test(refundPage))
 const faq = FAQ_CATEGORIES.flatMap(c => c.items).find(i => /refund/i.test(i.question))
-check('FAQ: the refund answer is the old wording', !!faq && faq.answer.includes(NOT_REFUNDABLE_EN) && faq.answer.includes(FAILED_DELIVERY_EN) && faq.answer.includes(howToAskEn(CONTACT_EMAIL)))
+check('FAQ: the refund answer is the old wording, word for word', !!faq && faq.answer === `If a report fails to generate because of a fault on our side and cannot be delivered within 48 hours of payment, we refund you in full. Email ${CONTACT_EMAIL} within 7 days of payment with your order ID. A report that has been generated and delivered is not refundable, since the quantities are worked out and the PDF is made at the time of payment. The Terms of Use say the same.`)
 check('FAQ: no satisfaction promise', !!faq && !/satisfaction|question at least one line|No forms/i.test(faq.answer))
 check('layout descriptions: no 7-day promise', !/7-day|seven-day|satisfaction/i.test(read('app/refund-policy/layout.tsx') + read('app/terms-of-use/layout.tsx') + read('app/faq/layout.tsx')))
 check('policy file has no leftover promise constants', !/REFUND_PROMISE|REFUND_SHORT|REFUND_PROCESSING|REFUND_DAYS/.test(read('lib/policy.ts').replace(/The "7-day satisfaction promise"[^\n]*/g, '')))
