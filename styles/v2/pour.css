@@ -82,6 +82,16 @@ html[data-ns-theme="dark"] .ns-pour[data-tone="header"] { --pm: var(--ns-stage);
 @keyframes ns-lip-in { from { transform: scaleY(.08); } to { transform: scaleY(1); } }
 .ns-pour--lip :is(.ns-pour__s, .ns-pour__m) { animation: ns-lip-in 1.6s cubic-bezier(.16, .84, .24, 1) .25s backwards; }
 
+/* The lip is for the top of a page. Once the page has scrolled (Header.tsx sets data-stuck="1" past 24 px) the drips are drawn back
+   into the bar, so they never hang over a line of text passing underneath; the bar keeps a hairline so its edge stays clear.
+   Back at the top the lip pours out again. Anchor jumps land below the bar (scroll-margin on the targets, 96 px). */
+.ns-header .ns-pour--lip { transition: opacity .3s ease, visibility 0s; }
+.ns-header[data-stuck="1"] .ns-pour--lip { opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
+.ns-header { transition: box-shadow .3s ease; }
+.ns-header[data-stuck="1"] { box-shadow: 0 1px 0 rgba(54, 38, 24, .22), 0 8px 14px -12px rgba(54, 38, 24, .35); }
+html[data-ns-theme="dark"] .ns-header[data-stuck="1"] { box-shadow: 0 1px 0 rgba(255, 255, 255, .14), 0 8px 14px -12px rgba(0, 0, 0, .7); }
+@media print { .ns-header[data-stuck] .ns-pour--lip { display: none; } }
+
 /* ---------- Calm mode, reduced motion: the finished edge, still ---------- */
 html[data-calm="1"] .ns-pour, html[data-calm="1"] .ns-pour :is(.ns-pour__s, .ns-pour__m) { animation: none; transition: none; }
 html[data-calm="1"] .ns-pour.is-pre :is(.ns-pour__s, .ns-pour__m) { transform: none; }

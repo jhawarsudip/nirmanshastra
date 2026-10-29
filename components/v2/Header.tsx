@@ -68,6 +68,20 @@ export default function Header({ locale }: { locale: Loc }) {
     return () => { document.removeEventListener('mousedown', down); document.removeEventListener('keydown', key) }
   }, [])
 
+  // The poured lip (the drips under the bar) belongs to the top of a page only. Once the page has scrolled, the drips are
+  // drawn back into the bar (pour.css, `data-stuck`), so they never hang over a line of text that is passing underneath.
+  // (SJ, 29 Oct 2026: "I don't want any text to be blocked in the website, in any pages.")
+  useEffect(() => {
+    const el = headerRef.current
+    if (!el) return
+    let raf = 0
+    const apply = () => { raf = 0; el.dataset.stuck = window.scrollY > 24 ? '1' : '0' }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply) }
+    apply()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf) }
+  }, [])
+
   useEffect(() => {
     document.body.style.overflow = menu ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
