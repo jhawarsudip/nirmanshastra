@@ -1,7 +1,7 @@
 /*
   Group 5 check: result before email.
   Covers the pieces that decide whether a visitor's details are kept correctly and nothing is lost:
-    - cleaning of email, name and WhatsApp number
+    - cleaning of email, name and phone number
     - one contact per email and tool, follow-up emails scheduled once
     - a StructurePro estimate gets its contact at pay or save, and a paid estimate is left alone
     - the VastuPro PDF route: asks for an email, returns a real PDF, and still returns it when the database and the mailer are unavailable
@@ -159,12 +159,10 @@ async function main() {
     ok(res.status === 400, 'no email: refused')
     res = await call({ ...plan, email: 'nope' }, '10.0.0.1')
     ok(res.status === 400, 'a bad email: refused')
-    res = await call({ ...plan, email: 'a@b.in', whatsapp: '123' }, '10.0.0.1')
-    ok(res.status === 400, 'a bad WhatsApp number: refused')
     res = await call({ ...plan, email: 'a@b.in', doors: [] }, '10.0.0.1')
     ok(res.status === 400, 'an empty plan: refused')
-    res = await call({ ...plan, email: 'a@b.in', name: 'Asha', whatsapp: '98765 43210' }, '10.0.0.2')
-    ok(res.status === 200, 'a good request: 200 even with no database and no mailer')
+    res = await call({ ...plan, email: 'a@b.in', name: 'Asha', whatsapp: '123' }, '10.0.0.2')
+    ok(res.status === 200, 'a good request: 200 even with no database and no mailer (a stray "whatsapp" field is ignored: the form no longer asks for one)')
     ok(res.headers.get('content-type') === 'application/pdf', 'it returns a PDF')
     ok(res.headers.get('x-ns-emailed') === '0', 'and says the email did not go')
     const bytes = new Uint8Array(await res.arrayBuffer())

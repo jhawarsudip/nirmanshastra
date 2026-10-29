@@ -6,7 +6,7 @@ import { Resend } from 'resend'
 import VastuReportPDF from '@/lib/pdf/vastu-pdf'
 import { readPlan } from '@/app/tools/vastu-pro/vastu-reading'
 import { parseVastuPlan } from '@/lib/vastu-plan'
-import { cleanEmail, cleanMobile, cleanName, upsertContact } from '@/lib/contacts'
+import { cleanEmail, cleanName, upsertContact } from '@/lib/contacts'
 import { allow, clientKey } from '@/lib/throttle'
 import { createServiceClient } from '@/lib/supabase/server'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
@@ -37,8 +37,8 @@ function emailHtml(name: string): string {
 /*
   POST /api/vastu-pro/report: the free findings PDF, sent to the email the visitor gives and handed back to the page to save.
   The reading is on screen first and free; the email is asked only here, to send the PDF.
-  The page sends the outline of the house, where North lies, where each door and room was drawn, and the email (the name and
-  a WhatsApp number are optional). Every reading is worked out again here from the same rule table the page uses, so the PDF
+  The page sends the outline of the house, where North lies, where each door and room was drawn, and the email (the name is
+  optional; no phone number is asked for). Every reading is worked out again here from the same rule table the page uses, so the PDF
   always agrees with the screen. The page never sends a verdict, and the plan is not stored.
   The visitor is saved as a contact once, by email address. A failure to save or to email never stops the PDF reaching them;
   the X-NS-Emailed header says whether the email went.
@@ -51,8 +51,6 @@ export async function POST(req: NextRequest) {
 
     const email = cleanEmail(body?.email)
     if (!email) return bad('Please enter a valid email address.')
-    const mobile = cleanMobile(body?.whatsapp)
-    if (!mobile.ok) return bad('That WhatsApp number does not look right. Check it, or leave it empty.')
     const name = cleanName(body?.name)
 
     const parsed = parseVastuPlan(body)
@@ -77,7 +75,6 @@ export async function POST(req: NextRequest) {
         const saved = await upsertContact(createServiceClient(), {
           email,
           name,
-          mobile: mobile.value,
           source: 'VastuPro',
           status: 'downloaded',
           sequence: { type: 'vastupro' },

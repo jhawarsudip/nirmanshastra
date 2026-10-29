@@ -5,7 +5,6 @@
 // lib/is-codes-data. Add a post or a tool and these files update on next build.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { WHATSAPP_DISPLAY } from '@/lib/site-contact'
 import { BLOG_ARTICLES } from '@/lib/blog-content'
 import { FAQ_CATEGORIES } from '@/lib/faq-data'
 import { uniqueSources } from '@/lib/is-codes-data'
@@ -44,7 +43,7 @@ export function buildLlmsTxt(): string {
   lines.push(`# ${SITE_NAME}`, '')
   lines.push(`> ${SITE_SUMMARY}`, '')
   lines.push(
-    `Site: ${SITE_URL} · Languages: English (default) and Hindi (${abs('/hi')}) · Contact: ${SUPPORT_EMAIL}${WHATSAPP_DISPLAY ? ` · WhatsApp: ${WHATSAPP_DISPLAY}` : ''}`,
+    `Site: ${SITE_URL} · Languages: English (default) and Hindi (${abs('/hi')}) · Contact: ${SUPPORT_EMAIL}`,
     ''
   )
   lines.push(

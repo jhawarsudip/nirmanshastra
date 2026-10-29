@@ -3,7 +3,7 @@
 
 import { TOOL_PRICE_PAISE, PRICE, PACK_CLAIMS_PER_REPORT } from '@/lib/tool-pricing'
 import { inr } from '@/lib/seo/site'
-import { REFUND_DAYS, REFUND_PROCESSING } from '@/lib/policy'
+import { FAILED_DELIVERY_EN, NOT_REFUNDABLE_EN, REFUND_ASK_DAYS, howToAskEn } from '@/lib/policy'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
 
 export interface FaqItem {
@@ -157,7 +157,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: 'Can I get a refund?',
         answer:
-          `Yes. If your report does not help you question at least one line of your contractor’s quote, write to us within ${REFUND_DAYS} days of purchase and we will refund you in full. No forms, no argument. Once approved, the money reaches your original payment method within ${REFUND_PROCESSING}. Email ${CONTACT_EMAIL} with your report ID (it starts with NS-). A report that fails to generate or arrive because of a fault on our side is refunded in full as well. The full policy is at /refund-policy and the Terms of Use say the same.`,
+          `${FAILED_DELIVERY_EN} ${howToAskEn(CONTACT_EMAIL)} Please give your order ID. ${NOT_REFUNDABLE_EN} Look at the sample report before you buy: every page of it is marked as a sample. The Terms of Use say the same, and the policy is at /refund-policy.`,
       },
       {
         question: 'What payment methods are accepted?',

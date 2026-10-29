@@ -7,10 +7,9 @@ import { CLARITY_PROJECT_ID, GA_MEASUREMENT_ID, META_PIXEL_ID, analyticsAllowedO
 import { useConsent } from '@/lib/analytics/consent'
 import { captureAttribution, flushAttribution } from '@/lib/analytics/attribution'
 import { bootClarity, bootGa, bootPixel, initConsentDefaults, pixelPageView, readDebugFlag, revokeAll } from '@/lib/analytics/vendors'
-import { dropQueuedEvents, flushQueuedEvents, trackSampleReportDownload, trackWhatsAppClick } from '@/lib/analytics/events'
+import { dropQueuedEvents, flushQueuedEvents, trackSampleReportDownload } from '@/lib/analytics/events'
 import ConsentBanner from './ConsentBanner'
 
-const WHATSAPP_HOSTS = /^(wa\.me|api\.whatsapp\.com|web\.whatsapp\.com|chat\.whatsapp\.com|whatsapp\.com|www\.whatsapp\.com)$/i
 
 /*
   The one place analytics is switched on. It renders the consent banner, and renders the GA4, Meta Pixel and Clarity
@@ -60,7 +59,7 @@ export default function Analytics() {
     if (consent === 'granted') pixelPageView()
   }, [pathname, consent])
 
-  // WhatsApp links and the sample report link are tracked wherever they are on the site
+  // the sample report link is tracked wherever it is on the site
   useEffect(() => {
     function onClick(e: MouseEvent) {
       const el = (e.target as Element | null)?.closest?.('a, [data-ns-event]') as HTMLElement | null
@@ -68,12 +67,10 @@ export default function Analytics() {
       const where = el.closest('[data-ns-where]')?.getAttribute('data-ns-where') || 'page'
       const named = el.getAttribute('data-ns-event')
       if (named === 'sample_report_download') { trackSampleReportDownload(el.getAttribute('data-ns-label') || 'sample'); return }
-      if (named === 'whatsapp_click') { trackWhatsAppClick(where); return }
       if (!(el instanceof HTMLAnchorElement)) return
       try {
         const url = new URL(el.href, window.location.href)
-        if (WHATSAPP_HOSTS.test(url.hostname)) trackWhatsAppClick(where)
-        else if (url.origin === window.location.origin && /\/samples?[-/].*\.pdf$/i.test(url.pathname)) trackSampleReportDownload(url.pathname.split('/').pop() || 'sample')
+        if (url.origin === window.location.origin && /\/samples?[-/].*\.pdf$/i.test(url.pathname)) trackSampleReportDownload(url.pathname.split('/').pop() || 'sample')
       } catch { /* a malformed href is not ours to track */ }
     }
     document.addEventListener('click', onClick, true)

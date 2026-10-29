@@ -1,0 +1,12 @@
+/* The small row of social icons used in the footer, the contact page and the mobile menu. */
+.ns-social, .ns-prose ul.ns-social { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0; padding: 0; max-width: none; }
+.ns-prose ul.ns-social { margin-top: 16px; }
+.ns-social a {
+  display: grid; place-items: center; width: 44px; height: 44px;
+  border: 1.5px solid currentColor; border-radius: 0; color: inherit; text-decoration: none;
+  transition: background .12s, color .12s;
+}
+.ns-social a:hover, .ns-social a:focus-visible { background: var(--ns-tint, #FCE4A8); color: var(--ns-ink, #2A1E16); border-color: var(--ns-ink, #2A1E16); }
+.ns-social a:focus-visible { outline: 3px solid var(--ns-focus, #2E3F94); outline-offset: 2px; }
+.ns-foot .ns-social { margin-top: 18px; color: var(--ns-chalk, #F3EEE2); }
+.ns-menu .ns-social { color: var(--ns-ink, #2A1E16); margin-top: 6px; }

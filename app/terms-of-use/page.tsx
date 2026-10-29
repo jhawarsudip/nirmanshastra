@@ -3,11 +3,11 @@ import '@/styles/v2/results.css'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
 import { TOOL_PRICE_PAISE, PRICE } from '@/lib/tool-pricing'
 import { inr } from '@/lib/seo/site'
-import { REFUND_PROMISE_EN } from '@/lib/policy'
+import { FAILED_DELIVERY_EN, NOT_REFUNDABLE_EN, PACK_REFUND_EN, REFUND_ASK_DAYS } from '@/lib/policy'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
 
-// Last changed when the refund promise replaced the "delivered reports are not refundable" clause. A fixed date, so the page does not say "today" every time it is built.
-const UPDATED = '26 October 2026'
+// Last changed when the refund wording went back to "a delivered report is not refundable" (it had a 7-day promise for three days). A fixed date, so the page does not say "today" every time it is built.
+const UPDATED = '29 October 2026'
 
 const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
@@ -48,7 +48,7 @@ export default function TermsOfUsePage() {
             <li>Complete House Pack, which unlocks all five reports and the Grand Total for one house: {PRICE.pack} (bought one by one they cost {PRICE.packSeparate})</li>
           </ul>
           <p>Payments are processed by Razorpay and are subject to its terms. NirmanShastra does not store your payment card details.</p>
-          <p><b>Refunds.</b> {REFUND_PROMISE_EN} A report that fails to generate or arrive because of a fault on our side is refunded in full as well. To ask, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with your report ID. The full policy, including how to ask and what is covered, is at <Link href="/refund-policy">/refund-policy</Link>; if the two ever differ, the refund policy page is the one that applies.</p>
+          <p><b>Refunds.</b> {NOT_REFUNDABLE_EN} {FAILED_DELIVERY_EN} To ask for a refund for a failed delivery, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> within {REFUND_ASK_DAYS} days of payment. {PACK_REFUND_EN} The same terms are set out at <Link href="/refund-policy">/refund-policy</Link>.</p>
           <p><b>Excel Site Templates.</b> The Excel files sold at <Link href="/site-templates">/site-templates</Link> have their own licence, delivery and refund terms: see the <Link href="/site-templates/terms">Site Templates Terms and Licence</Link>.</p>
         </section>
 

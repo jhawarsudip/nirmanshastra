@@ -10,7 +10,7 @@ import type { CalcFaq } from '@/lib/seo/calc-content'
 import type { GlossaryGroup } from '@/lib/seo/glossary'
 import { CALC_CONTENT } from '@/lib/seo/calc-content'
 import { PAID_CONTENT } from '@/lib/seo/paid-content'
-import { SAME_AS, WHATSAPP_DISPLAY, WHATSAPP_E164, whatsappUrl } from '@/lib/site-contact'
+import { SAME_AS } from '@/lib/site-contact'
 import {
   SITE_URL,
   SITE_NAME,
@@ -52,18 +52,6 @@ export function organizationSchema(): Json {
         areaServed: 'IN',
         availableLanguage: ['English', 'Hindi'],
       },
-      // WhatsApp: shown on the contact page as "WhatsApp: +91 86976 20512"
-      ...(WHATSAPP_E164
-        ? [{
-            '@type': 'ContactPoint',
-            contactType: 'customer support',
-            telephone: WHATSAPP_E164,
-            url: whatsappUrl(),
-            description: `WhatsApp: ${WHATSAPP_DISPLAY}`,
-            areaServed: 'IN',
-            availableLanguage: ['English', 'Hindi'],
-          }]
-        : []),
     ],
     // the same on every page and in both languages (this block is in the root layout)
     sameAs: SAME_AS,

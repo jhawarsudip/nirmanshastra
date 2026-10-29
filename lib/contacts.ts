@@ -24,7 +24,7 @@ export function cleanName(v: unknown): string {
 }
 
 /**
- * A phone or WhatsApp number as "+<country code><number>".
+ * A phone number as "+<country code><number>".
  * 10 digits starting 6 to 9 are taken as Indian; "0" or "91" in front is understood. ok:true with value null means "left empty".
  */
 export function cleanMobile(v: unknown): { ok: true; value: string | null } | { ok: false } {

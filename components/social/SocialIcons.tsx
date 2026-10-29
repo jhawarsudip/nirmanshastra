@@ -30,16 +30,3 @@ export function FacebookIcon(props: P) {
     </svg>
   )
 }
-
-export function WhatsAppIcon(props: P) {
-  return (
-    <svg {...common} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" {...props}>
-      <path d="M12 3.1a8.9 8.9 0 0 0-7.7 13.4L3 21l4.6-1.2A8.9 8.9 0 1 0 12 3.1z" />
-      <path
-        d="M9.2 7.9c.2-.4.5-.4.8-.4h.4c.2 0 .4.1.5.4l.7 1.7c.1.2 0 .4-.1.6l-.5.6c-.1.1-.1.3 0 .4.6 1.1 1.5 2 2.7 2.5.2.1.4 0 .5-.1l.6-.7c.2-.2.4-.2.6-.1l1.6.8c.2.1.3.3.3.5 0 .9-.7 1.8-1.7 2-1 .2-2.5 0-4.3-1.4-1.9-1.4-2.8-3-3-4.3-.1-.8.2-1.6.9-2.2z"
-        fill="currentColor"
-        stroke="none"
-      />
-    </svg>
-  )
-}

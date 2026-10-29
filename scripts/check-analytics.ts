@@ -160,15 +160,16 @@ async function main() {
     ev.trackLead('plumbpro', 'email')
     ev.trackCalculatorUsed('brick-calculator')
     ev.trackSampleReportDownload('structurepro-sample')
-    ev.trackWhatsAppClick('footer')
     ev.trackRatesEntered('plumbpro', 4, 18250)
     const names = eventNames()
-    for (const e of ['generate_lead', 'calculator_used', 'sample_report_download', 'whatsapp_click', 'rates_entered']) assert.ok(names.includes(e), e)
+    for (const e of ['generate_lead', 'calculator_used', 'sample_report_download', 'rates_entered']) assert.ok(names.includes(e), e)
+    assert.ok(!names.includes('whatsapp_click'), 'WhatsApp was removed from the site, so there is no whatsapp_click event')
+    assert.equal((ev as Record<string, unknown>).trackWhatsAppClick, undefined)
     const r = calls.filter(c => c[1] === 'rates_entered').pop()![2] as { currency: string; value: number }
     assert.equal(r.currency, 'INR'); assert.equal(r.value, 18250)
     assert.ok(fb.some(c => c[1] === 'Lead'))
-    // calculator, sample, whatsapp and rates events are GA4-only
-    for (const e of ['calculator_used', 'sample_report_download', 'whatsapp_click', 'rates_entered']) assert.ok(!fb.some(c => c[1] === e), e)
+    // calculator, sample and rates events are GA4-only
+    for (const e of ['calculator_used', 'sample_report_download', 'rates_entered']) assert.ok(!fb.some(c => c[1] === e), e)
   })
 
   // ── declined ──────────────────────────────────────────────────────────────

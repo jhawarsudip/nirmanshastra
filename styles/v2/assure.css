@@ -1,12 +1,5 @@
-/* The refund line and the sample-report link beside every pay button. Uses the v2 tokens, with fallbacks for pages outside .ns2. */
+/* The sample-report link beside every pay button. Uses the v2 tokens, with fallbacks for pages outside .ns2. */
 .ns-assure { display: grid; gap: 12px; margin: 2px 0 0; }
-.ns-assure__refund {
-  margin: 0; padding-left: 12px; border-left: 3px solid var(--ns-verdigris, #2F7D5B);
-  font-size: 15px; line-height: 1.55; color: var(--ns-ink-2, #5B4B3C);
-}
-.ns-assure__refund b { color: var(--ns-ink, #2A1E16); }
-.ns-assure__refund a { font-weight: 700; color: var(--ns-link, #2E3F94); text-underline-offset: 3px; }
-.ns-assure__refund a:focus-visible { outline: 3px solid var(--ns-focus, #2E3F94); outline-offset: 2px; }
 
 .ns-sample {
   display: inline-flex; align-items: center; gap: 12px; width: fit-content; max-width: 100%;

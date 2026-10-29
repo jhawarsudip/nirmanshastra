@@ -14,7 +14,6 @@ import { PRICE } from "@/lib/tool-pricing";
 import AIChatbox from "@/app/components/AIChatbox";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import Analytics from "@/components/analytics/Analytics";
-import WhatsAppButton from "@/components/social/WhatsAppButton";
 import InstallPrompt from "@/components/InstallPrompt";
 import JsonLd from "@/components/seo/JsonLd";
 import { mukta } from "@/lib/v2/fonts";
@@ -153,8 +152,6 @@ export default function RootLayout({
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
         {children}
         <AIChatbox />
-        {/* floating WhatsApp button, bottom-left; the chat above is bottom-right */}
-        <WhatsAppButton />
         <InstallPrompt />
         <ServiceWorkerRegistration />
         {/* Consent banner, and GA4 / Clarity / Meta Pixel after the visitor accepts (nothing loads before) */}

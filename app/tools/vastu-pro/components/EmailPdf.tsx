@@ -18,12 +18,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /*
   "Email me the full PDF": the only place VastuPro asks for an email, and only after the reading is on screen.
-  The PDF is sent to the address and also saved from this page. A name and a WhatsApp number are optional.
+  The PDF is sent to the address and also saved from this page. The name is optional.
 */
 export default function EmailPdf({ northDeg, house, items, doors }: Props) {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
-  const [whatsapp, setWhatsapp] = useState('')
   const [emailError, setEmailError] = useState('')
   const [apiError, setApiError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -44,7 +43,6 @@ export default function EmailPdf({ northDeg, house, items, doors }: Props) {
         body: JSON.stringify({
           email: e,
           name: name.trim(),
-          whatsapp: whatsapp.trim(),
           northDeg,
           house: house.map(p => ({ x: p.x, y: p.y })),
           items: items.map(i => ({ id: i.id, kind: i.kind, x: i.x, y: i.y, w: i.w, h: i.h })),
@@ -65,7 +63,7 @@ export default function EmailPdf({ northDeg, house, items, doors }: Props) {
       a.click()
       a.remove()
       setTimeout(() => URL.revokeObjectURL(url), 5000)
-      trackLead('vastupro', whatsapp.trim() ? 'email_and_whatsapp' : 'email') // generate_lead / Lead: the email was given
+      trackLead('vastupro', 'email') // generate_lead / Lead: the email was given
       setDone({ email: e, emailed })
     } catch (err) {
       setApiError(err instanceof Error ? err.message : 'We could not make the PDF. Please try again.')
@@ -96,9 +94,6 @@ export default function EmailPdf({ northDeg, house, items, doors }: Props) {
             </Field>
             <Field id="vp-name" label="Your name (optional)" hint="So the email can greet you.">
               <Input type="text" value={name} onChange={ev => setName(ev.target.value)} placeholder="Ramesh Sharma" autoComplete="name" />
-            </Field>
-            <Field id="vp-wa" label="WhatsApp number (optional)" hint="Only if you want to hear back on WhatsApp.">
-              <Input type="tel" value={whatsapp} onChange={ev => setWhatsapp(ev.target.value)} placeholder="98765 43210" autoComplete="tel" inputMode="tel" />
             </Field>
           </div>
           {apiError && <Note kind="err" title="That did not go through">{apiError}</Note>}

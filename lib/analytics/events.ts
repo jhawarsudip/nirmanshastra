@@ -13,13 +13,12 @@ import type { TrackItem } from './items'
   Money events carry value and currency "INR".
 
   GA4 event              Pixel event        When
-  generate_lead          Lead               an email or WhatsApp number is given in any tool
+  generate_lead          Lead               an email address is given in any tool
   view_item              ViewContent        a paid tool page opens
   begin_checkout         InitiateCheckout   the pay button is pressed (the order is created)
   purchase               Purchase           payment verified by the server, once per order
   calculator_used        -                  a free calculator produces a result
   sample_report_download -                  the sample PDF is downloaded
-  whatsapp_click         -                  any WhatsApp link is pressed
   rates_entered          -                  a customer enters their own local rates
 */
 
@@ -105,8 +104,8 @@ const itemParams = (item: TrackItem) => ({
   contents: [{ id: item.item_id, quantity: item.quantity, item_price: item.price }],
 })
 
-/** An email address or WhatsApp number was given. `source` is the tool or form it was given in. */
-export function trackLead(source: string, method: 'email' | 'whatsapp' | 'email_and_whatsapp' = 'email') {
+/** An email address was given. `source` is the tool or form it was given in. */
+export function trackLead(source: string, method: 'email' = 'email') {
   sendEvent({
     ga: { name: 'generate_lead', params: { lead_source: source, method } },
     pixel: { name: 'Lead', params: { content_name: source } },
@@ -147,11 +146,6 @@ export function trackCalculatorUsed(calculator: string) {
 /** The sample report PDF was opened or downloaded */
 export function trackSampleReportDownload(report: string) {
   sendEvent({ ga: { name: 'sample_report_download', params: { report } } })
-}
-
-/** A WhatsApp link was pressed. `location` says where on the site. */
-export function trackWhatsAppClick(location: string) {
-  sendEvent({ ga: { name: 'whatsapp_click', params: { link_location: location, page_path: window.location.pathname } } })
 }
 
 /** A customer entered their own local rates. `value` is the material cost total in rupees, when there is one. */

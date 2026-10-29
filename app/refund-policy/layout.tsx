@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import { breadcrumbSchema } from '@/lib/seo/schema'
-import { REFUND_DAYS } from '@/lib/policy'
+import { REFUND_ASK_DAYS, REFUND_FAILED_DELIVERY_HOURS } from '@/lib/policy'
 
 // The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
 const title = 'Refund Policy'
-const description = `Our refund promise: if your report does not help you question at least one line of your contractor’s quote, write to us within ${REFUND_DAYS} days of purchase and we refund you in full. No forms, no argument.`
+const description = `A report that has been delivered is not refundable, and you can look at a real sample first. A report that cannot be delivered within ${REFUND_FAILED_DELIVERY_HOURS} hours of payment because of a fault on our side is refunded in full: email us within ${REFUND_ASK_DAYS} days.`
 const url = '/refund-policy'
 
 export const metadata: Metadata = {

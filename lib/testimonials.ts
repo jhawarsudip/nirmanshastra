@@ -10,7 +10,7 @@
   There are no star ratings and no review markup anywhere: a rating we did not collect is not shown.
 */
 
-export type TestimonialSource = 'email-reply' | 'whatsapp' | 'instagram-dm' | 'contact-form'
+export type TestimonialSource = 'email-reply' | 'instagram-dm' | 'contact-form'
 
 export interface Testimonial {
   /** first name only, as the customer gave it */
