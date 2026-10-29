@@ -52,6 +52,22 @@ export const C = {
   failBg: '#F6E1DE',
 }
 
+/*
+  Column tints (SJ, 29 Oct 2026): in every table the columns take turns being a lighter and a slightly darker cream, from the header
+  cell down to the last row, so each value sits visibly under its own header even where there are no vertical lines.
+  Column 0 (first) is the lighter one. The header and total rows use the same two creams one step deeper, so they read as the ends of
+  the same columns. 'input' and 'result' keep the calculation sheet's two meanings (a figure you gave / a figure that is in the report)
+  in an amber and a green pair, so those rows still stand out from the cream stripes.
+*/
+export type Tone = 'body' | 'head' | 'input' | 'result'
+const TINTS: Record<Tone, [string, string]> = {
+  body: ['#FDFAF3', '#F3ECDA'],
+  head: ['#EEE5CF', '#E3D8BC'],
+  input: ['#FBF2D9', '#F5E8C6'],
+  result: ['#E9F3EC', '#DBEBE0'],
+}
+export const tint = (col: number, tone: Tone = 'body'): string => TINTS[tone][col % 2]
+
 export const S = StyleSheet.create({
   page: { backgroundColor: C.paper, paddingTop: 34, paddingBottom: 50, paddingHorizontal: 34, fontFamily: 'IBMPlexSans', fontSize: 9.5, color: C.ink },
   band: { backgroundColor: C.charcoal, borderRadius: 4, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
@@ -114,18 +130,18 @@ export type Cell = string | number
 type StyleRef = (typeof S)[keyof typeof S]
 
 export function Table({ cols, head, rows, foot, num = [], repeatHead = false }: { cols: number[]; head: string[]; rows: Cell[][]; foot?: Cell[]; num?: number[]; repeatHead?: boolean }) {
-  const cell = (c: Cell, i: number, style: StyleRef[]) => (
-    <Text key={i} style={[...style, { flex: cols[i] }, ...(num.includes(i) ? [S.num] : [])]}>{String(c)}</Text>
+  const cell = (c: Cell, i: number, style: StyleRef[], tone: Tone) => (
+    <Text key={i} style={[...style, { flex: cols[i], backgroundColor: tint(i, tone) }, ...(num.includes(i) ? [S.num] : [])]}>{String(c)}</Text>
   )
   return (
     <View style={S.tbl}>
-      <View style={[S.tr, S.trHead]} wrap={false} fixed={repeatHead}>{head.map((h, i) => cell(h, i, [S.th]))}</View>
+      <View style={S.tr} wrap={false} fixed={repeatHead}>{head.map((h, i) => cell(h, i, [S.th], 'head'))}</View>
       {rows.map((r, ri) => (
         <View key={ri} style={[S.tr, !foot && ri === rows.length - 1 ? S.trLast : {}]} wrap={false}>
-          {r.map((c, i) => cell(c, i, i === 0 ? [S.td, S.bold] : [S.td]))}
+          {r.map((c, i) => cell(c, i, i === 0 ? [S.td, S.bold] : [S.td], 'body'))}
         </View>
       ))}
-      {foot ? <View style={[S.tr, S.trFoot]} wrap={false}>{foot.map((c, i) => cell(c, i, [S.td, S.bold]))}</View> : null}
+      {foot ? <View style={[S.tr, S.trLast]} wrap={false}>{foot.map((c, i) => cell(c, i, [S.td, S.bold], 'head'))}</View> : null}
     </View>
   )
 }

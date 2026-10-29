@@ -1,10 +1,10 @@
 {
   "house": "G+1, 1,000 sq ft on each floor, Lucknow",
-  "generated": "2026-10-26",
+  "generated": "2026-10-29",
   "files": {
     "structopro": {
       "file": "structurepro-sample-report.pdf",
-      "bytes": 730878,
+      "bytes": 839585,
       "reportId": "NS-SP-SAMPLE",
       "figures": {
         "concreteM3": "58.51",
@@ -15,7 +15,7 @@
     },
     "masonpro": {
       "file": "masonrypro-sample-report.pdf",
-      "bytes": 336595,
+      "bytes": 373219,
       "reportId": "NS-MA-SAMPLE",
       "figures": {
         "Bricks": "30,400 nos",
@@ -26,7 +26,7 @@
     },
     "electropro": {
       "file": "electricalpro-sample-report.pdf",
-      "bytes": 392623,
+      "bytes": 442049,
       "reportId": "NS-EL-SAMPLE",
       "figures": {
         "Points and sockets": "124 counted",
@@ -37,7 +37,7 @@
     },
     "plumbpro": {
       "file": "plumbingpro-sample-report.pdf",
-      "bytes": 327135,
+      "bytes": 357933,
       "reportId": "NS-PL-SAMPLE",
       "figures": {
         "Water supply pipe": "177 m",
@@ -48,7 +48,7 @@
     },
     "interiorpro": {
       "file": "interiorpro-sample-report.pdf",
-      "bytes": 317663,
+      "bytes": 351522,
       "reportId": "NS-IN-SAMPLE",
       "figures": {
         "Painted area": "942 m²",
@@ -59,7 +59,7 @@
     },
     "grandtotal": {
       "file": "grand-total-sample-report.pdf",
-      "bytes": 292941,
+      "bytes": 314517,
       "reportId": "NS-GT-SAMPLE",
       "figures": {
         "Cement": "729 bags of 50 kg",

@@ -8,7 +8,7 @@
 import React from 'react'
 import { Page, Text, View } from '@react-pdf/renderer'
 import type { CalcBlock, CalcLine, CalcSheet, CalcTable } from '@/lib/calcsheet'
-import { C, Chrome, S, SampleMark } from './qty-kit'
+import { C, Chrome, S, SampleMark, tint, type Tone } from './qty-kit'
 
 const COLS = { step: 2.5, formula: 2.5, working: 3.1, result: 1.7, ref: 2.0 }
 
@@ -17,43 +17,44 @@ const k = {
   intro: { fontSize: 8.2, color: C.ink2, lineHeight: 1.45, marginBottom: 5 } as const,
   cell: { fontSize: 7.7, lineHeight: 1.38, paddingVertical: 3.2, paddingHorizontal: 4 } as const,
   head: { fontFamily: 'IBMPlexMono', fontSize: 6.6, color: C.ink2, letterSpacing: 0.4, paddingVertical: 4.5, paddingHorizontal: 4 } as const,
-  input: { backgroundColor: '#F7F2E6' },
-  resultRow: { backgroundColor: C.passBg },
-  textRow: { backgroundColor: 'transparent' },
-  ref: { fontSize: 6.9, color: C.ink3, lineHeight: 1.35, paddingVertical: 3.2, paddingHorizontal: 4 } as const,
+  // a shade darker than ink3 so the small grey notes and sources stay readable (about 4.8:1) on the darker cream column
+  ref: { fontSize: 6.9, color: '#6E665B', lineHeight: 1.35, paddingVertical: 3.2, paddingHorizontal: 4 } as const,
   mono: { fontFamily: 'IBMPlexMono', fontSize: 7.1 } as const,
 }
 
 function Head({ cols }: { cols: [string, number][] }) {
   return (
-    <View style={[S.tr, S.trHead]} wrap={false}>
-      {cols.map(([t, w], i) => <Text key={i} style={[k.head, { flex: w }]}>{t}</Text>)}
+    <View style={S.tr} wrap={false}>
+      {cols.map(([t, w], i) => <Text key={i} style={[k.head, { flex: w, backgroundColor: tint(i, 'head') }]}>{t}</Text>)}
     </View>
   )
 }
 
+// Columns take turns being a lighter and a darker cream (see `tint` in qty-kit). An input row (a figure you gave, or a value read
+// from a code table) is tinted amber and a result row (a figure that is in the report) green, in the same light/dark turns.
 function Line({ l, last }: { l: CalcLine; last: boolean }) {
   const border = last ? { borderBottomWidth: 0 } : {}
   if (l.kind === 'text') {
+    // the note runs across the FORMULA, WORKING and RESULT columns: it takes the tint of the first of them
     return (
       <View style={[S.tr, border]} wrap={false}>
-        <Text style={[k.cell, { flex: COLS.step, fontWeight: 700 }]}>{l.label}</Text>
-        <Text style={[k.cell, { flex: COLS.formula + COLS.working + COLS.result }]}>{l.note}</Text>
-        <Text style={[k.ref, { flex: COLS.ref }]}>{l.ref ?? ''}</Text>
+        <Text style={[k.cell, { flex: COLS.step, fontWeight: 700, backgroundColor: tint(0) }]}>{l.label}</Text>
+        <Text style={[k.cell, { flex: COLS.formula + COLS.working + COLS.result, backgroundColor: tint(1) }]}>{l.note}</Text>
+        <Text style={[k.ref, { flex: COLS.ref, backgroundColor: tint(4) }]}>{l.ref ?? ''}</Text>
       </View>
     )
   }
-  const bg = l.kind === 'result' ? k.resultRow : l.kind === 'input' ? k.input : k.textRow
+  const tone: Tone = l.kind === 'result' ? 'result' : l.kind === 'input' ? 'input' : 'body'
   return (
-    <View style={[S.tr, bg, border]} wrap={false}>
-      <View style={{ flex: COLS.step }}>
+    <View style={[S.tr, border]} wrap={false}>
+      <View style={{ flex: COLS.step, backgroundColor: tint(0, tone) }}>
         <Text style={[k.cell, { fontWeight: l.kind === 'result' ? 700 : 500 }]}>{l.label}</Text>
         {l.note ? <Text style={[k.ref, { paddingTop: 0 }]}>{l.note}</Text> : null}
       </View>
-      <Text style={[k.cell, { flex: COLS.formula }]}>{l.formula ?? ''}</Text>
-      <Text style={[k.cell, { flex: COLS.working }]}>{l.working ?? ''}</Text>
-      <Text style={[k.cell, { flex: COLS.result, fontWeight: 700, textAlign: l.kind === 'input' && !l.working ? 'left' : 'right' }]}>{l.result ?? ''}</Text>
-      <Text style={[k.ref, { flex: COLS.ref }]}>{l.ref ?? ''}</Text>
+      <Text style={[k.cell, { flex: COLS.formula, backgroundColor: tint(1, tone) }]}>{l.formula ?? ''}</Text>
+      <Text style={[k.cell, { flex: COLS.working, backgroundColor: tint(2, tone) }]}>{l.working ?? ''}</Text>
+      <Text style={[k.cell, { flex: COLS.result, fontWeight: 700, textAlign: l.kind === 'input' && !l.working ? 'left' : 'right', backgroundColor: tint(3, tone) }]}>{l.result ?? ''}</Text>
+      <Text style={[k.ref, { flex: COLS.ref, backgroundColor: tint(4, tone) }]}>{l.ref ?? ''}</Text>
     </View>
   )
 }
@@ -70,16 +71,16 @@ function Lines({ lines }: { lines: CalcLine[] }) {
 function SheetTable({ t }: { t: CalcTable }) {
   const n = t.head.length
   const w = t.head.map((h, i) => Math.min(Math.max(Math.max(...h.split(/\s+/).map(x => x.length), 4) * 1.1, ...t.rows.map(r => String(r[i] ?? '').length * 0.82), 4), 30))
-  const cell = (c: string, i: number, bold = false) => (
-    <Text key={i} style={[k.cell, { flex: w[i], fontWeight: bold ? 700 : 400, textAlign: t.num?.includes(i) ? 'right' : 'left' }]}>{c}</Text>
+  const cell = (c: string, i: number, bold = false, tone: Tone = 'body') => (
+    <Text key={i} style={[k.cell, { flex: w[i], fontWeight: bold ? 700 : 400, textAlign: t.num?.includes(i) ? 'right' : 'left', backgroundColor: tint(i, tone) }]}>{c}</Text>
   )
   return (
     <View style={S.tbl}>
-      <View style={[S.tr, S.trHead]} wrap={false}>{t.head.map((h, i) => <Text key={i} style={[k.head, { flex: w[i], textAlign: t.num?.includes(i) ? 'right' : 'left' }]}>{h.toUpperCase()}</Text>)}</View>
+      <View style={S.tr} wrap={false}>{t.head.map((h, i) => <Text key={i} style={[k.head, { flex: w[i], textAlign: t.num?.includes(i) ? 'right' : 'left', backgroundColor: tint(i, 'head') }]}>{h.toUpperCase()}</Text>)}</View>
       {t.rows.map((r, ri) => (
         <View key={ri} style={[S.tr, !t.foot && ri === t.rows.length - 1 ? S.trLast : {}]} wrap={false}>{Array.from({ length: n }, (_, i) => cell(r[i] ?? '', i, i === 0))}</View>
       ))}
-      {t.foot ? <View style={[S.tr, S.trFoot]} wrap={false}>{Array.from({ length: n }, (_, i) => cell(t.foot?.[i] ?? '', i, true))}</View> : null}
+      {t.foot ? <View style={[S.tr, S.trLast]} wrap={false}>{Array.from({ length: n }, (_, i) => cell(t.foot?.[i] ?? '', i, true, 'head'))}</View> : null}
     </View>
   )
 }
@@ -115,7 +116,7 @@ export default function CalcAppendix({ sheet, chrome, letter = 'A' }: { sheet: C
 
       <Text style={S.h2} minPresenceAhead={90}>How to read it</Text>
       <Text style={k.intro}>
-        Each row is one step. STEP says what is being found. FORMULA gives it in symbols. WORKING puts the numbers in. RESULT is the answer with its unit. SOURCE names the clause or table the step rests on. Shaded rows are inputs: a figure you gave, or a value read from a code table. Green rows are figures that appear in the report. Every sum was carried out at full precision and is shown rounded, so re-keying the rounded numbers by hand may differ in the last digit.
+        Each row is one step. STEP says what is being found. FORMULA gives it in symbols. WORKING puts the numbers in. RESULT is the answer with its unit. SOURCE names the clause or table the step rests on. The columns take turns being a lighter and a darker cream, so each figure sits under its own heading. Amber rows are inputs: a figure you gave, or a value read from a code table. Green rows are figures that appear in the report. Every sum was carried out at full precision and is shown rounded, so re-keying the rounded numbers by hand may differ in the last digit.
       </Text>
 
       <Text style={S.h2} minPresenceAhead={90}>Method in brief</Text>
@@ -146,29 +147,29 @@ export default function CalcAppendix({ sheet, chrome, letter = 'A' }: { sheet: C
       <Text style={S.h2} minPresenceAhead={120}>Reconciliation: the report against this sheet</Text>
       <Text style={k.intro}>The totals printed in the report, rebuilt from the working above. Every row must read the same on both sides. This shows that the report and this sheet agree with each other, which is a check of the arithmetic; it does not show that either one is right against a standard or against your site.</Text>
       <View style={S.tbl}>
-        <View style={[S.tr, S.trHead]} wrap={false}>
-          <Text style={[k.head, { flex: 4 }]}>ITEM</Text><Text style={[k.head, { flex: 2, textAlign: 'right' }]}>IN THE REPORT</Text><Text style={[k.head, { flex: 2, textAlign: 'right' }]}>FROM THIS SHEET</Text><Text style={[k.head, { flex: 0.8, textAlign: 'center' }]}>MATCH</Text>
+        <View style={S.tr} wrap={false}>
+          <Text style={[k.head, { flex: 4, backgroundColor: tint(0, 'head') }]}>ITEM</Text><Text style={[k.head, { flex: 2, textAlign: 'right', backgroundColor: tint(1, 'head') }]}>IN THE REPORT</Text><Text style={[k.head, { flex: 2, textAlign: 'right', backgroundColor: tint(2, 'head') }]}>FROM THIS SHEET</Text><Text style={[k.head, { flex: 0.8, textAlign: 'center', backgroundColor: tint(3, 'head') }]}>MATCH</Text>
         </View>
         {sheet.tie.map((t, i) => (
           <View key={i} style={[S.tr, i === sheet.tie.length - 1 ? S.trLast : {}]} wrap={false}>
-            <Text style={[k.cell, { flex: 4 }]}>{t.item}</Text>
-            <Text style={[k.cell, { flex: 2, textAlign: 'right' }]}>{t.report}</Text>
-            <Text style={[k.cell, { flex: 2, textAlign: 'right' }]}>{t.sheet}</Text>
-            <Text style={[k.cell, { flex: 0.8, textAlign: 'center', fontWeight: 700, color: t.ok ? C.pass : C.fail }]}>{t.ok ? 'Yes' : 'NO'}</Text>
+            <Text style={[k.cell, { flex: 4, backgroundColor: tint(0) }]}>{t.item}</Text>
+            <Text style={[k.cell, { flex: 2, textAlign: 'right', backgroundColor: tint(1) }]}>{t.report}</Text>
+            <Text style={[k.cell, { flex: 2, textAlign: 'right', backgroundColor: tint(2) }]}>{t.sheet}</Text>
+            <Text style={[k.cell, { flex: 0.8, textAlign: 'center', fontWeight: 700, color: t.ok ? C.pass : C.fail, backgroundColor: tint(3) }]}>{t.ok ? 'Yes' : 'NO'}</Text>
           </View>
         ))}
       </View>
 
       <Text style={S.h2} minPresenceAhead={120}>Standards and references used in this sheet</Text>
       <View style={S.tbl}>
-        <View style={[S.tr, S.trHead]} wrap={false}>
-          <Text style={[k.head, { flex: 2.2 }]}>DOCUMENT</Text><Text style={[k.head, { flex: 4 }]}>TITLE</Text><Text style={[k.head, { flex: 4.5 }]}>USED FOR</Text>
+        <View style={S.tr} wrap={false}>
+          <Text style={[k.head, { flex: 2.2, backgroundColor: tint(0, 'head') }]}>DOCUMENT</Text><Text style={[k.head, { flex: 4, backgroundColor: tint(1, 'head') }]}>TITLE</Text><Text style={[k.head, { flex: 4.5, backgroundColor: tint(2, 'head') }]}>USED FOR</Text>
         </View>
         {sheet.references.map((r, i) => (
           <View key={i} style={[S.tr, i === sheet.references.length - 1 ? S.trLast : {}]} wrap={false}>
-            <Text style={[k.cell, { flex: 2.2, fontWeight: 700 }]}>{r.code}</Text>
-            <Text style={[k.cell, { flex: 4 }]}>{r.title}</Text>
-            <Text style={[k.cell, { flex: 4.5 }]}>{r.usedFor}</Text>
+            <Text style={[k.cell, { flex: 2.2, fontWeight: 700, backgroundColor: tint(0) }]}>{r.code}</Text>
+            <Text style={[k.cell, { flex: 4, backgroundColor: tint(1) }]}>{r.title}</Text>
+            <Text style={[k.cell, { flex: 4.5, backgroundColor: tint(2) }]}>{r.usedFor}</Text>
           </View>
         ))}
       </View>
