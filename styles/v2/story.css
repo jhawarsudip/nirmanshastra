@@ -115,6 +115,22 @@ html[data-calm="1"] .ns-prob__lines, html[data-calm="1"] .ns-prob__q, html[data-
   .ns-ex__stage { --ex-res: 236px; }
   .ns-ex__stage.is-calc { --ex-panel: max(190px, calc(var(--ex-avail) * .74)); --ex-h: max(70px, calc(var(--ex-avail) - var(--ex-panel))); }
 }
+/* short laptop screens (desktop width, about 800 px tall and under, e.g. a 1366 x 768 laptop with its browser bars): the pinned screen is only
+   500-700 px tall and the full copy column (label, headline, paragraph, eight rows) is taller, so the headline went under the header and the last rows
+   were cut off. It takes the compact form that tablets and phones get: no paragraph, the eight steps in two columns. */
+@media (min-width: 1000px) and (max-height: 799px) {
+  .ns-ex__lede { display: none; }
+  .ns-ex__copy .ns-h2 { font-size: clamp(30px, 3.2vw, 46px); margin-bottom: 6px; }
+  .ns-ex__copy .ns-eyebrow { margin-bottom: 6px; }
+  .ns-ex__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; border: 0; margin-top: 8px; padding: 0; }
+  .ns-ex__list li { min-width: 0; }
+  .ns-ex__list button {
+    width: 100%; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: center; min-height: 36px;
+    border: 1.5px solid var(--ns-line-2); padding: 5px 9px; font-size: 14px; line-height: 1.2; white-space: normal;
+  }
+  .ns-ex__list button:hover, .ns-ex__list button[aria-pressed="true"] { padding-left: 9px; }
+  .ns-ex__no { font-size: 12px; }
+}
 html[data-calm="1"] .ns-ex__layer { transition: none; }
 /* static mode (Calm / reduced motion): the page flows normally, nothing is pinned, so the box and panel size themselves */
 .ns-ex[data-motion="0"] .ns-ex__stack { height: auto; width: min(100%, calc(54vh * 1.218)); }

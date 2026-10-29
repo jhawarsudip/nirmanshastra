@@ -82,16 +82,6 @@ html[data-ns-theme="dark"] .ns-pour[data-tone="header"] { --pm: var(--ns-stage);
 @keyframes ns-lip-in { from { transform: scaleY(.08); } to { transform: scaleY(1); } }
 .ns-pour--lip :is(.ns-pour__s, .ns-pour__m) { animation: ns-lip-in 1.6s cubic-bezier(.16, .84, .24, 1) .25s backwards; }
 
-/* The lip is for the top of a page. Once the page has scrolled (Header.tsx sets data-stuck="1" past 24 px) the drips are drawn back
-   into the bar, so they never hang over a line of text passing underneath; the bar keeps a hairline so its edge stays clear.
-   Back at the top the lip pours out again. Anchor jumps land below the bar (scroll-margin on the targets, 96 px). */
-.ns-header .ns-pour--lip { transition: opacity .3s ease, visibility 0s; }
-.ns-header[data-stuck="1"] .ns-pour--lip { opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
-.ns-header { transition: box-shadow .3s ease; }
-.ns-header[data-stuck="1"] { box-shadow: 0 1px 0 rgba(54, 38, 24, .22), 0 8px 14px -12px rgba(54, 38, 24, .35); }
-html[data-ns-theme="dark"] .ns-header[data-stuck="1"] { box-shadow: 0 1px 0 rgba(255, 255, 255, .14), 0 8px 14px -12px rgba(0, 0, 0, .7); }
-@media print { .ns-header[data-stuck] .ns-pour--lip { display: none; } }
-
 /* ---------- Calm mode, reduced motion: the finished edge, still ---------- */
 html[data-calm="1"] .ns-pour, html[data-calm="1"] .ns-pour :is(.ns-pour__s, .ns-pour__m) { animation: none; transition: none; }
 html[data-calm="1"] .ns-pour.is-pre :is(.ns-pour__s, .ns-pour__m) { transform: none; }
@@ -106,4 +96,67 @@ html[data-calm="1"] .ns-pour.is-pre :is(.ns-pour__s, .ns-pour__m) { transform: n
 .ns-pourline { display: none; }
 @media (max-width: 700px) {
   #main .ns-pourline { display: block; position: relative; height: 0; z-index: 5; pointer-events: none; }
+}
+
+/* ============================================================================
+   Clearance: ordinary text starts BELOW the lowest drip of the join above it (SJ, 29 Oct 2026).
+   The drips themselves are untouched. Only the section under a join pads its top by how far that join's drips reach.
+   (The yellow tape under the hero is meant to run behind the drips, so it is not moved.)
+
+   A join's drips reach below the line where the next section starts by
+       --pour-h x (tip x 1.05 - .118) + 8px
+   tip   how far down its tile the longest drip goes, as a share of the tile height. Read from the alpha channel of
+         public/v2/texture/pour-N.webp (scripts/check-pour-reach.ts fails when a tile and this table disagree):
+         1 .682  2 .949  3 .955  4 .773  5 .759  6 .641  7 .932  8 .959  9 .950  10 .955  11 .577  12 .905
+   1.05  the slow creep (ns-ooze) makes a join up to 5% longer
+   .118  the share of the tile that melts into its own section (--jr), so it does not hang below the line
+   8px   the soft shadow
+   --ns-join-N is that reach plus --ns-join-gap: the padding the section below join N needs at the top.
+   ========================================================================== */
+.ns2 {
+  --ns-pour-h: clamp(92px, 12vw, 172px);             /* the same height .ns-pour uses above */
+  --ns-join-gap: 16px;                               /* clear space between the lowest drip and the first line of text */
+  --ns-reach-1: calc(var(--ns-pour-h) * 0.598 + 8px);
+  --ns-reach-2: calc(var(--ns-pour-h) * 0.879 + 8px);
+  --ns-reach-3: calc(var(--ns-pour-h) * 0.884 + 8px);
+  --ns-reach-4: calc(var(--ns-pour-h) * 0.693 + 8px);
+  --ns-reach-5: calc(var(--ns-pour-h) * 0.679 + 8px);
+  --ns-reach-6: calc(var(--ns-pour-h) * 0.555 + 8px);
+  --ns-reach-7: calc(var(--ns-pour-h) * 0.860 + 8px);
+  --ns-reach-8: calc(var(--ns-pour-h) * 0.889 + 8px);
+  --ns-reach-9: calc(var(--ns-pour-h) * 0.879 + 8px);
+  --ns-reach-11: calc(var(--ns-pour-h) * 0.488 + 8px);
+  --ns-reach-12: calc(var(--ns-pour-h) * 0.832 + 8px);
+}
+
+/* which join hangs over which section (home page; join 10 is the one over the footer) */
+.ns2 #structure   { --ns-join: calc(var(--ns-reach-1) + var(--ns-join-gap)); }
+.ns2 #tools       { --ns-join: calc(var(--ns-reach-2) + var(--ns-join-gap)); }
+.ns2 #lab         { --ns-join: calc(var(--ns-reach-3) + var(--ns-join-gap)); }
+.ns2 #quote-check { --ns-join: calc(var(--ns-reach-4) + var(--ns-join-gap)); }
+.ns2 #compare     { --ns-join: calc(var(--ns-reach-5) + var(--ns-join-gap)); }
+.ns2 #is-codes    { --ns-join: calc(var(--ns-reach-6) + var(--ns-join-gap)); }
+.ns2 #founder     { --ns-join: calc(var(--ns-reach-7) + var(--ns-join-gap)); }
+.ns2 #builders    { --ns-join: calc(var(--ns-reach-8) + var(--ns-join-gap)); }
+.ns2 #dealers     { --ns-join: calc(var(--ns-reach-9) + var(--ns-join-gap)); }
+
+/* the sections that start with the normal section padding: take whichever is larger, the normal padding or the join's reach */
+.ns2 :is(#tools, #lab, #quote-check, #compare, #is-codes, #builders, #dealers) { padding-top: max(clamp(72px, 10vw, 150px), var(--ns-join)); }
+/* the founder card is a box rather than a line of text: its top edge just clears the drips, the text inside is a card-padding lower */
+.ns2 #founder { padding-top: max(clamp(84px, 10vw, 150px), calc(var(--ns-join) - var(--ns-join-gap))); }
+
+/* The eight-steps section is pinned while it plays (story.css): its first line sits where the screen's height puts it,
+   (100vh - 68px - the copy column, about 760px with room for longer Hindi lines) / 2 below the join, so add what is missing. */
+.ns2 #structure[data-motion="1"] { padding-top: max(0px, calc(var(--ns-join) - (100vh - 68px - 760px) / 2)); }
+@media (max-width: 999px) { .ns2 #structure[data-motion="1"] { padding-top: calc(var(--ns-join) - 4px); } }
+/* short laptop screens get the compact copy column (story.css), about 380px with room for longer Hindi lines */
+@media (min-width: 1000px) and (max-height: 799px) { .ns2 #structure[data-motion="1"] { padding-top: max(0px, calc(var(--ns-join) - (100vh - 68px - 380px) / 2)); } }
+/* without motion it flows normally: the stick pads its own top (clamp(64px, 9vw, 120px)) and the label is 4px inside it */
+.ns2 #structure[data-motion="0"] { padding-top: max(0px, calc(var(--ns-join) - clamp(64px, 9vw, 120px) - 4px)); }
+
+/* phones: the page is re-ordered (hero.css), so the section that sits under a join is not always the next one in the HTML */
+@media (max-width: 700px) {
+  .ns2 #structure { --ns-join: calc(var(--ns-reach-11) + var(--ns-join-gap)); }   /* the join under the headline copy */
+  .ns2 #tools { --ns-join: calc(var(--ns-reach-12) + var(--ns-join-gap)); }       /* the join under the estimator */
+  .ns2 #main .ns-est { --ns-join: calc(var(--ns-reach-1) + var(--ns-join-gap)); margin-top: max(clamp(8px, 2vw, 24px), calc(var(--ns-join) - var(--ns-join-gap))); }
 }

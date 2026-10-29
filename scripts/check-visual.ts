@@ -1,7 +1,6 @@
 /*
   Group 7 check: the first screen.
     - the header's poured lip: every page starts below it (one token, --ns-lip), on the homepage and on every inner page
-    - the lip is drawn back into the bar once the page scrolls, so a drip never hangs over a line of text passing underneath (29 Oct 2026)
     - the hero headline is plain text in one block, in the server markup, and nothing starts it hidden
     - the plumb-line intro (an opaque sheet over the whole first screen) never runs on a phone, and its picture is not preloaded
     - fonts: Rozha One (headline) preloaded with font-display: swap; Mukta cut to the three weights used; no stray preloads
@@ -32,11 +31,6 @@ ok(/\.ns2 \.ns-pour--lip \{ --pour-h: clamp\(72px, 8\.6vw, 128px\)/.test(lipTile
 ok(/\.ns-hero \{ padding-top: max\(clamp\(26px, 4\.4vw, 70px\), var\(--ns-lip\)\)/.test(hero), 'desktop hero starts below the lip')
 ok(/#main \.ns-hero__top \{ order: -5; margin: var\(--ns-lip\) /.test(hero), 'phone hero starts below the lip')
 ok(/\.ns-i-page \{ padding-block: max\(clamp\(22px, 3\.2vw, 44px\), var\(--ns-lip\)\)/.test(inner), 'every inner page starts below the lip')
-
-const headerTsx = read('components/v2/Header.tsx')
-ok(/dataset\.stuck\s*=\s*window\.scrollY\s*>\s*24\s*\?\s*'1'\s*:\s*'0'/.test(headerTsx) && /addEventListener\('scroll'/.test(headerTsx), 'the header marks itself data-stuck once the page has scrolled past 24 px')
-ok(/\.ns-header\[data-stuck="1"\] \.ns-pour--lip \{ opacity: 0; visibility: hidden;/.test(lipTile), 'a stuck header hides its drips (they never hang over scrolling text)')
-ok(!/\.ns-header\[data-stuck="1"\][^{]*\{[^}]*(opacity: 1|visibility: visible)/.test(lipTile.replace(/\/\*[\s\S]*?\*\//g, '')), 'nothing shows the drips again while the header is stuck')
 
 console.log('The headline')
 const h1 = /<h1[\s\S]*?<\/h1>/.exec(heroTsx)?.[0] ?? ''

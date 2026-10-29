@@ -1,5 +1,6 @@
 """
-Is any text hidden by the poured edges (drips) or the band masks?   (SJ, 29 Oct 2026: no text may be blocked, on any page.)
+Is any word hidden by the poured edges (drips) or the band masks?   (SJ, 29 Oct 2026: no text may be blocked, on any page.)
+This counts hidden words only. How far BELOW a drip the text starts is checked by scripts/check-drip-clearance.py.
 
 Needs the site running (npm run dev, or a build on localhost) and: pip install playwright numpy pillow.
   python3 scripts/check-text-at-rest.py OUT_DIR ROUTES.json light,dark desktop,mobile [BASE_URL]
