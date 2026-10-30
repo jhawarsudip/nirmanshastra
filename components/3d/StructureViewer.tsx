@@ -46,7 +46,7 @@ const VIEWS: { key: ViewKey; label: string }[] = [
 export default function StructureViewer({ model, caption }: { model: SceneModel; caption?: string }) {
   const motion = useMotionOK()
   const [view, setView] = useState<ViewKey>('3d')
-  const [layers, setLayers] = useState<Record<LayerKey, boolean>>({ foundation: true, columns: true, beams: true, slabs: true, balconies: true, stair: true })
+  const [layers, setLayers] = useState<Record<LayerKey, boolean>>({ foundation: true, ground: true, columns: true, beams: true, slabs: true, balconies: true, stair: true })
   const [replayKey, setReplayKey] = useState(0)
   const [spin, setSpin] = useState(true)
   const [active, setActive] = useState(true)
@@ -92,7 +92,7 @@ export default function StructureViewer({ model, caption }: { model: SceneModel;
   const onReady = useCallback(() => setReady(true), [])
 
   const nominal = model.mode === 'nominal'
-  const desc = caption ?? `3D model of the frame: ${model.counts.columns} column pieces, ${model.counts.beams} beam pieces and ${model.counts.slabs - model.counts.balconies} slab panels${model.counts.balconies ? `, ${model.counts.balconies} balconies` : ''} over ${model.storeys} ${model.storeys === 1 ? 'floor' : 'floors'}, ${model.lengthM.toFixed(1)} m by ${model.widthM.toFixed(1)} m.`
+  const desc = caption ?? `3D model of the frame: ${model.counts.columns} column pieces, ${model.counts.beams} beam pieces and ${model.counts.slabs - model.counts.balconies} slab panels${model.counts.balconies ? `, ${model.counts.balconies} balconies` : ''} over ${model.storeys} ${model.storeys === 1 ? 'floor' : 'floors'}, ${model.lengthM.toFixed(1)} m by ${model.widthM.toFixed(1)} m. The ground floor is laid on filled earth, so it has no structural slab.`
 
   if (failed) return <PlanFallback model={model} onRetry={hasWebGL() ? () => { setReady(false); setFailed(false) } : undefined} />
 
@@ -146,7 +146,10 @@ export default function StructureViewer({ model, caption }: { model: SceneModel;
           ))}
         </fieldset>
       </div>
-      <figcaption className="ns-i-fine">{nominal ? 'Your real column grid, floors and stair, drawn with typical member sizes. The designed sizes are in the full report.' : 'Your frame as designed for this report: every column, beam, slab and footing at its designed size.'}</figcaption>
+      <figcaption className="ns-i-fine">
+        {nominal ? 'Your real column grid, floors and stair, drawn with typical member sizes. The designed sizes are in the full report.' : 'Your frame as designed for this report: every column, beam, slab and footing at its designed size.'}
+        {' '}The grey plate at the bottom is the ground floor, laid on filled earth inside the plinth beams. It is not a structural slab and is not counted in this report.
+      </figcaption>
     </figure>
   )
 }

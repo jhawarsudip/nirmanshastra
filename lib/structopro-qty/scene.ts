@@ -26,6 +26,13 @@ export interface SceneModel {
   depthM: number
   footings: SceneBox[]
   raft: SceneBox | null
+  /**
+   * The ground floor, drawn as a thin plate at plinth level. In a framed house the ground floor is not a structural slab:
+   * it is a bed of concrete and the flooring laid on earth that is filled and compacted inside the plinth beams.
+   * It is drawn so the model does not look as if the bottom floor is missing, and it is NOT part of `slabs`,
+   * `counts` or any quantity.
+   */
+  groundFloor: SceneBox
   columns: (SceneBox & { storey: number })[]
   beams: (SceneBox & { floor: number })[]
   slabs: (SceneBox & { floor: number; balcony?: boolean })[]
@@ -33,6 +40,10 @@ export interface SceneModel {
   mumty: GeoMumty | null
   counts: { footings: number; columns: number; beams: number; slabs: number; balconies: number }
 }
+
+/** Thickness of the drawn ground-floor plate, and how far its top sits below the plinth beam tops (so the two never share a face). */
+const GROUND_PLATE_T = 0.1
+const GROUND_PLATE_DROP = 0.03
 
 const box = (x0: number, y0: number, x1: number, y1: number, zBottom: number, zTop: number): SceneBox => ({
   cx: (x0 + x1) / 2,
@@ -100,6 +111,7 @@ function finish(
     depthM,
     footings,
     raft,
+    groundFloor: box(0, 0, lengthM, widthM, plinthM - GROUND_PLATE_DROP - GROUND_PLATE_T, plinthM - GROUND_PLATE_DROP),
     columns,
     beams,
     slabs,

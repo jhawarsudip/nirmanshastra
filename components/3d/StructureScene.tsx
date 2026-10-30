@@ -1,7 +1,7 @@
 'use client'
 
-// The 3D model of the structure. It builds itself up on arrival (footings, then each storey's columns, beams and slab, then the stair and the head-room),
-// then turns slowly. Nothing to click. In Calm mode, or with reduced motion, it shows the finished model at once and does not move by itself.
+// The 3D model of the structure. It builds itself up on arrival (footings, the plinth beams and the ground floor, then each storey's columns, beams and slab, then the stair and the head-room),
+// then turns slowly. Nothing to click. With reduced motion, it shows the finished model at once and does not move by itself.
 //
 // Model coordinates are x along the length, y along the width, z up. Three.js is y-up, so a model point (x, y, z) is drawn at (x - L/2, z, y - W/2).
 
@@ -368,6 +368,8 @@ export default function StructureScene({ model, motion, active, replayKey, autoR
         {model.raft ? <Boxes boxes={[model.raft]} color={COLOR.foundation} kind="plate" window={tl.foundation} t={t} model={model} visible={layers.foundation} /> : null}
         <Boxes boxes={model.footings} color={COLOR.foundation} kind="grow" window={tl.foundation} t={t} model={model} visible={layers.foundation} />
         <Boxes boxes={plinthBoxes} color={COLOR.plinth} kind="slide" window={tl.plinth} t={t} model={model} visible={layers.foundation} />
+        {/* the ground floor: laid on filled earth, not a structural slab, so it is drawn grey and is in no count */}
+        <Boxes boxes={[model.groundFloor]} color={COLOR.groundFloor} kind="plate" window={tl.plinth} t={t} model={model} opacity={0.6} visible={layers.ground} />
         {storeys.map(k => {
           const w = tl.storey(k)
           return (
