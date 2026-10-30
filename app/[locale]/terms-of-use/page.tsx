@@ -1,17 +1,25 @@
 import { Link } from '@/i18n/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import '@/styles/v2/results.css'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
 import { TOOL_PRICE_PAISE, PRICE } from '@/lib/tool-pricing'
 import { inr } from '@/lib/seo/site'
 import { FAILED_DELIVERY_EN, NOT_REFUNDABLE_EN, PACK_REFUND_EN, REFUND_ASK_DAYS } from '@/lib/policy'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
+import LegalHiPage from '@/components/policy/LegalHiPage'
+import { termsDocHi } from '@/lib/i18n/labels/legal-terms'
+import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
 
 // Last changed when the refund wording went back to "a delivered report is not refundable" (it had a 7-day promise for three days). A fixed date, so the page does not say "today" every time it is built.
 const UPDATED = '29 October 2026'
 
 const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
-export default function TermsOfUsePage() {
+export default async function TermsOfUsePage({ params }: LocaleParams) {
+  const { locale: raw } = await params
+  setRequestLocale(raw)
+  // On /hi the whole page is the Hindi document (lib/i18n/labels/legal-terms.ts), clause for clause; the English below is the binding text and is untouched.
+  if (asLocale(raw) === 'hi') return <LegalHiPage doc={termsDocHi(UPDATED)} />
   return (
     <div className="ns-i-page">
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>

@@ -1,8 +1,12 @@
 import { Link } from '@/i18n/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import '@/styles/v2/results.css'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
 import { SUPPORT_EMAIL } from '@/lib/seo/site'
 import { ST_TERMS_INTRO, ST_TERMS_SECTIONS, ST_TERMS_SUMMARY, ST_TERMS_UPDATED } from '@/lib/site-templates-terms'
+import LegalHiPage from '@/components/policy/LegalHiPage'
+import { templatesTermsDocHi } from '@/lib/i18n/labels/legal-templates'
+import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
 
 const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
@@ -15,7 +19,11 @@ function withEmail(text: string) {
   )
 }
 
-export default function SiteTemplatesTermsPage() {
+export default async function SiteTemplatesTermsPage({ params }: LocaleParams) {
+  const { locale: raw } = await params
+  setRequestLocale(raw)
+  // On /hi the whole page is the Hindi document (the Hindi sits beside the English in lib/site-templates-terms.ts); the English below is the binding text and is untouched.
+  if (asLocale(raw) === 'hi') return <LegalHiPage doc={templatesTermsDocHi()} email={SUPPORT_EMAIL} />
   return (
     <div className="ns-i-page">
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>

@@ -1,12 +1,20 @@
 import { Link } from '@/i18n/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import '@/styles/v2/results.css'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
 import { REVIEW_NOTE, REVIEW_FACT } from '@/lib/seo/site'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
+import LegalHiPage from '@/components/policy/LegalHiPage'
+import { disclaimerDocHi } from '@/lib/i18n/labels/legal-disclaimer'
+import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
 
 const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
-export default function DisclaimerPage() {
+export default async function DisclaimerPage({ params }: LocaleParams) {
+  const { locale: raw } = await params
+  setRequestLocale(raw)
+  // On /hi the whole page is the Hindi document (lib/i18n/labels/legal-disclaimer.ts), clause for clause; the English below is the binding text and is untouched.
+  if (asLocale(raw) === 'hi') return <LegalHiPage doc={disclaimerDocHi()} />
   return (
     <div className="ns-i-page">
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>

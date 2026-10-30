@@ -5,6 +5,7 @@ import { breadcrumbSchema } from '@/lib/seo/schema'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
+import { crumbs } from '@/lib/i18n/labels/pages-common'
 
 // The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
 const title = 'Disclaimer: Quantities, Not a Structural Design'
@@ -28,8 +29,12 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name stays in Latin letters.
+const HI: HiMeta = {
+  title: 'अस्वीकरण: मात्राएँ हैं, स्ट्रक्चरल डिज़ाइन नहीं',
+  description: 'NirmanShastra कुछ जवाबों से सामग्री की मात्राएँ निकालता है। यह स्ट्रक्चरल इंजीनियरिंग सेवा नहीं है और अपनी ओर से कोई दाम तय नहीं करता। किसी रिपोर्ट पर भरोसा करने से पहले इसे पढ़िए।',
+  imageAlt: 'NirmanShastra: भारतीय घरों के लिए सामग्री की मात्राएँ',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function DisclaimerLayout({ children, params }: { children:
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={[breadcrumbSchema([{ name: 'Home', path: '/' }, { name: 'Disclaimer', path: url }])]} />
+      <JsonLd data={[breadcrumbSchema(crumbs(asLocale(locale), 'Disclaimer', 'अस्वीकरण', url))]} />
       {children}
     </InnerShell>
   )

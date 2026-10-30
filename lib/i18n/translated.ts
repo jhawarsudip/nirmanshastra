@@ -51,6 +51,12 @@ export const HINDI_READY: readonly string[] = [
   '/compare-quote',
   // blog index and all 14 articles (31 Oct 2026)
   '/blog/*',
+  // legal pages (31 Oct 2026): the Hindi text is a courtesy translation; each page says the English text governs
+  '/privacy-policy',
+  '/terms-of-use',
+  '/refund-policy',
+  '/disclaimer',
+  '/site-templates/terms',
 ]
 
 export function isHindiReady(path: string): boolean {

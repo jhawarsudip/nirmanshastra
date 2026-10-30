@@ -5,6 +5,7 @@ import { breadcrumbSchema } from '@/lib/seo/schema'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
+import { crumbs } from '@/lib/i18n/labels/pages-common'
 
 // The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
 const title = 'Privacy Policy'
@@ -28,8 +29,12 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name stays in Latin letters.
+const HI: HiMeta = {
+  title: 'गोपनीयता नीति',
+  description: 'NirmanShastra कौन-सा व्यक्तिगत डेटा इकट्ठा करता है, उसका उपयोग कैसे होता है, वह किसके साथ साझा होता है, कितने समय तक रखा जाता है, और भारतीय क़ानून के तहत आपके अधिकार।',
+  imageAlt: 'NirmanShastra: भारतीय घरों के लिए सामग्री की मात्राएँ',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function PrivacyLayout({ children, params }: { children: Re
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={[breadcrumbSchema([{ name: 'Home', path: '/' }, { name: 'Privacy Policy', path: url }])]} />
+      <JsonLd data={[breadcrumbSchema(crumbs(asLocale(locale), 'Privacy Policy', 'गोपनीयता नीति', url))]} />
       {children}
     </InnerShell>
   )

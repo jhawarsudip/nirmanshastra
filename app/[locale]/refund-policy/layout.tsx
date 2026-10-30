@@ -6,6 +6,7 @@ import { REFUND_ASK_DAYS, REFUND_FAILED_DELIVERY_HOURS } from '@/lib/policy'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
+import { crumbs } from '@/lib/i18n/labels/pages-common'
 
 // The root layout's title template appends " | NirmanShastra", so the brand is not repeated in `title`.
 const title = 'Refund Policy'
@@ -28,8 +29,12 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The hours and days are the same constants as the English; the brand name stays in Latin letters.
+const HI: HiMeta = {
+  title: 'रिफ़ंड नीति',
+  description: `जो रिपोर्ट पहुँचा दी गई है, वह वापस नहीं होती, और आप ख़रीदने से पहले एक असली नमूना देख सकते हैं। जो रिपोर्ट हमारी ओर की किसी ख़राबी से भुगतान के ${REFUND_FAILED_DELIVERY_HOURS} घंटे के भीतर नहीं पहुँचाई जा सकती, उसका पूरा रिफ़ंड होता है: ${REFUND_ASK_DAYS} दिन के भीतर हमें ईमेल कीजिए।`,
+  imageAlt: 'NirmanShastra: भारतीय घरों के लिए सामग्री की मात्राएँ',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function RefundLayout({ children, params }: { children: Rea
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={[breadcrumbSchema([{ name: 'Home', path: '/' }, { name: 'Refund Policy', path: url }])]} />
+      <JsonLd data={[breadcrumbSchema(crumbs(asLocale(locale), 'Refund Policy', 'रिफ़ंड नीति', url))]} />
       {children}
     </InnerShell>
   )

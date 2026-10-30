@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import '@/styles/v2/results.css'
 import '@/styles/v2/assure.css'
 import { ToolHead } from '@/components/v2/inner/kit'
@@ -8,13 +9,22 @@ import {
 } from '@/lib/policy'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
 import SampleReportLink from '@/components/samples/SampleReportLink'
+import LegalHiPage from '@/components/policy/LegalHiPage'
+import { refundDocHi } from '@/lib/i18n/labels/legal-refund'
+import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
 
 // A fixed date, so the page does not say "today" every time it is built.
 const UPDATED = '29 October 2026'
 
 const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
-export default function RefundPolicyPage() {
+export default async function RefundPolicyPage({ params }: LocaleParams) {
+  const { locale: raw } = await params
+  setRequestLocale(raw)
+  // On /hi the whole page is the Hindi document (lib/i18n/labels/legal-refund.ts), clause for clause; the English below is the binding text and is untouched.
+  if (asLocale(raw) === 'hi') {
+    return <LegalHiPage doc={refundDocHi(UPDATED, { notRefundable: NOT_REFUNDABLE_HI, failedDelivery: FAILED_DELIVERY_HI, pack: PACK_REFUND_HI })} />
+  }
   return (
     <div className="ns-i-page">
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
