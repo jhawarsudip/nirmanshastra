@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
-import { templateJsonLd } from '@/lib/seo/schema'
+import { templateJsonLdFor } from '@/lib/i18n/labels/templates-jsonld'
+import { templateHiMeta } from '@/lib/i18n/labels/templates-meta'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -38,8 +39,8 @@ const metadata: Metadata = {
   },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text (lib/i18n/labels/templates-meta.ts). The price in the description comes from the catalog.
+const HI: HiMeta = templateHiMeta('cost-estimator')
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -51,7 +52,7 @@ export default async function CostEstimatorLayout({ children, params }: { childr
   setRequestLocale(locale)
   return (
     <>
-      <JsonLd data={templateJsonLd('/site-templates/cost-estimator')} />
+      <JsonLd data={templateJsonLdFor('/site-templates/cost-estimator', locale)} />
       {children}
     </>
   )

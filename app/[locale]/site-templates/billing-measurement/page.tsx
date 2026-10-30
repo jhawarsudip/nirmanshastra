@@ -1,6 +1,7 @@
 'use client'
 
 import ProductPage, { type ProductContent } from '../_components/ProductPage'
+import { BILLING_HI } from '@/lib/i18n/labels/templates-billing'
 
 const content: ProductContent = {
   productId: 'billing-measurement',
@@ -63,5 +64,5 @@ const content: ProductContent = {
 }
 
 export default function Page() {
-  return <ProductPage content={content} />
+  return <ProductPage content={{ en: content, hi: BILLING_HI }} />
 }

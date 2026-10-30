@@ -1,11 +1,18 @@
 'use client'
 
 import React from 'react'
+import { useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import JsonLd from '@/components/seo/JsonLd'
-import { templatesIndexSchema } from '@/lib/seo/schema'
 import { IcArrow } from '@/components/v2/inner/kit'
+import { displayTitleForProduct } from '@/lib/site-templates'
+import { useCopy } from '@/lib/i18n/use-copy'
+import {
+  BUNDLE_RUPEES, CARD_HI, HIGHEST_PAISE, INDEX, LOWEST_PAISE, SAVE_PERCENT, SEPARATE_RUPEES, inr,
+} from '@/lib/i18n/labels/templates-ui'
+import { templatesIndexJsonLd } from '@/lib/i18n/labels/templates-jsonld'
 import { BuyButton, CodeTag, useToolkitCheckout } from './_components/purchase'
+import { Rich } from './_components/rich'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONTENT — six downloadable Excel toolkits. Prices are shown here for the
@@ -111,27 +118,34 @@ function ToolkitCard({
   onBuy: (id: string, title: string) => void
   busy: boolean
 }) {
+  const t = useCopy(INDEX)
+  const hi = useLocale() === 'hi'
+  // Hindi: the title is in lib/site-templates.ts, the description, label and codes in CARD_HI. The English title still goes to the checkout.
+  const card = hi ? CARD_HI[kit.id] : undefined
+  const title = hi ? displayTitleForProduct(kit.id, 'hi') : kit.title
+  const codesLabel = card?.codesLabel ?? kit.codesLabel
+  const codes = card?.codes ?? kit.codes
   return (
     <article className="ns-plate ns-st-card">
       <div className="ns-st-card__top">
-        <span className="ns-i-pill">{kit.sheetCount} linked sheets</span>
-        <span className="ns-st-card__fmt">Excel · .xlsx</span>
+        <span className="ns-i-pill">{t.sheets(kit.sheetCount)}</span>
+        <span className="ns-st-card__fmt" lang={hi ? 'en' : undefined}>Excel · .xlsx</span>
       </div>
 
       <div className="ns-st-card__main">
-        <h3><Link href={kit.href}>{kit.title}</Link></h3>
-        <p>{kit.description}</p>
-        <p className="ns-st-k">{kit.codesLabel}</p>
-        <ul className="ns-st-codes" aria-label={kit.codesLabel}>
-          {kit.codes.map((code) => <CodeTag key={code} code={code} />)}
+        <h3><Link href={kit.href}>{title}</Link></h3>
+        <p>{card?.desc ?? kit.description}</p>
+        <p className="ns-st-k">{codesLabel}</p>
+        <ul className="ns-st-codes" aria-label={codesLabel}>
+          {codes.map((code) => <CodeTag key={code} code={code} />)}
         </ul>
       </div>
 
       <div className="ns-st-card__foot">
         <p className="ns-st-price ns-st-price--sm">{kit.price}</p>
         <div className="ns-st-card__acts">
-          <Link href={kit.href} className="ns-i-back ns-st-more">Details<IcArrow aria-hidden="true" /></Link>
-          <BuyButton label={`Buy · ${kit.price}`} onClick={() => onBuy(kit.id, kit.title)} busy={busy} />
+          <Link href={kit.href} className="ns-i-back ns-st-more">{t.details}<IcArrow aria-hidden="true" /></Link>
+          <BuyButton label={t.buy(kit.price)} onClick={() => onBuy(kit.id, kit.title)} busy={busy} />
         </div>
       </div>
     </article>
@@ -143,48 +157,41 @@ function ToolkitCard({
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SiteTemplatesPage() {
   const { busy, open, overlay } = useToolkitCheckout()
+  const t = useCopy(INDEX)
+  const locale = useLocale()
 
   return (
     <div className="ns-i-page">
       {/* BreadcrumbList JSON-LD (server-rendered; JsonLd has no hooks). Sub-pages carry their own via their layouts. */}
-      <JsonLd data={templatesIndexSchema()} />
+      <JsonLd data={templatesIndexJsonLd(locale)} />
       <div className="ns-i-wrap ns-st">
         {/* ── HERO ── */}
         <header className="ns-st-hero">
-          <p className="ns-st-k">Site Templates · 6 Excel toolkits</p>
-          <h1>Downloadable Excel toolkits for running the job on site.</h1>
-          <p>
-            Standalone spreadsheet packs, separate from the interactive calculators. Each is a set
-            of linked sheets built to Indian standards and statutory practice: estimate, document,
-            bill, schedule, comply, and control progress. They are built for contractors and site engineers, who
-            work from their own rates. The reports for homeowners, which count the materials a house needs,
-            are a separate product. Buy one toolkit, or take the full suite.
-          </p>
+          <p className="ns-st-k">{t.kicker}</p>
+          <h1>{t.h1}</h1>
+          <p>{t.intro}</p>
         </header>
 
         {/* ── FEATURED BUNDLE ── */}
-        <section className="ns-plate ns-st-bundle" aria-label="Site Operations Suite bundle">
+        <section className="ns-plate ns-st-bundle" aria-label={t.bundleAria}>
           <div className="ns-st-bundle__l">
-            <p className="ns-st-k">The bundle · All 6 toolkits</p>
-            <h2>Site Operations Suite</h2>
-            <p>
-              Every toolkit on this page — estimating, documentation, billing, bar bending,
-              labour compliance, and planning &amp; delay control — in one download.
-            </p>
+            <p className="ns-st-k">{t.bundleKicker}</p>
+            <h2>{t.bundleName}</h2>
+            <p>{t.bundleText}</p>
             <p className="ns-st-save">
-              <s aria-label="Separate price">₹12,894 if bought separately</s>
-              <span className="ns-i-pill ns-i-pill--tc">Save about 38%</span>
+              <s aria-label={t.separateAria}>{t.separate(SEPARATE_RUPEES)}</s>
+              <span className="ns-i-pill ns-i-pill--tc">{t.save(SAVE_PERCENT)}</span>
             </p>
           </div>
           <div className="ns-st-bundle__r">
-            <p className="ns-st-price">₹7,999</p>
-            <BuyButton label="Buy bundle · ₹7,999" onClick={() => open('bundle', BUNDLE_TITLE)} busy={busy} />
+            <p className="ns-st-price">{BUNDLE_RUPEES}</p>
+            <BuyButton label={t.buyBundle(BUNDLE_RUPEES)} onClick={() => open('bundle', BUNDLE_TITLE)} busy={busy} />
           </div>
         </section>
 
         {/* ── INDIVIDUAL TOOLKITS ── */}
         <section aria-labelledby="st-ind" className="ns-st-ind">
-          <h2 id="st-ind" className="ns-st-rule"><span>Or buy individually · ₹1,699 to ₹2,499</span></h2>
+          <h2 id="st-ind" className="ns-st-rule"><span>{t.individually(inr(LOWEST_PAISE), inr(HIGHEST_PAISE))}</span></h2>
           <div className="ns-st-grid">
             {TOOLKITS.map((kit) => (
               <ToolkitCard key={kit.id} kit={kit} onBuy={open} busy={busy} />
@@ -193,9 +200,7 @@ export default function SiteTemplatesPage() {
         </section>
 
         <p className="ns-st-fine ns-st-fine--c">
-          Secure payment by Razorpay. Toolkits are delivered as Excel (.xlsx) files, packaged as
-          a .zip, via a secure download link shown here and emailed to you after checkout.{' '}
-          <Link href="/site-templates/terms">Licence, delivery and refund terms</Link>.
+          <Rich text={t.fineBefore} /><Link href="/site-templates/terms">{t.fineLink}</Link>{t.fineAfter}
         </p>
       </div>
       {overlay}

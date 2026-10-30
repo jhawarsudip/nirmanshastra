@@ -5,6 +5,7 @@ import '@/styles/v2/results.css'
 import '@/styles/v2/content.css'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
+import { templateHiMeta } from '@/lib/i18n/labels/templates-meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
 
 // /site-templates is a client page, so its metadata lives here. Without this the
@@ -47,8 +48,8 @@ const metadata: Metadata = {
 }
 
 // One frame for the index and all six product pages (their own layouts only add titles and structured data).
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text (lib/i18n/labels/templates-meta.ts). The bundle price in the description comes from the catalog.
+const HI: HiMeta = templateHiMeta('index')
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params

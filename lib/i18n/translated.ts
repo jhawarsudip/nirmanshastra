@@ -40,6 +40,15 @@ export const HINDI_READY: readonly string[] = [
   '/careers',
   '/contact',
   '/auth',
+  // site templates and compare-quote (31 Oct 2026)
+  '/site-templates',
+  '/site-templates/bar-bending-schedule',
+  '/site-templates/billing-measurement',
+  '/site-templates/cost-estimator',
+  '/site-templates/site-documentation',
+  '/site-templates/labour-compliance',
+  '/site-templates/planning-progress',
+  '/compare-quote',
 ]
 
 export function isHindiReady(path: string): boolean {

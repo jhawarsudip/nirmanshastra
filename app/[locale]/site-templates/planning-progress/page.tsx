@@ -1,6 +1,7 @@
 'use client'
 
 import ProductPage, { type ProductContent } from '../_components/ProductPage'
+import { PLANNING_HI } from '@/lib/i18n/labels/templates-planning'
 
 const content: ProductContent = {
   productId: 'planning-progress',
@@ -65,5 +66,5 @@ const content: ProductContent = {
 }
 
 export default function Page() {
-  return <ProductPage content={content} />
+  return <ProductPage content={{ en: content, hi: PLANNING_HI }} />
 }

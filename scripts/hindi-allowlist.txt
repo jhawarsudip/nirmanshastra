@@ -252,3 +252,8 @@ next
 typescript
 pci
 dss
+pmc
+rfi
+ncr
+fidic
+whatsapp

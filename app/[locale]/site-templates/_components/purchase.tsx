@@ -9,9 +9,17 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import React, { useCallback, useEffect, useId, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { useLocale } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import { Field, Input, Note, IcArrow } from '@/components/v2/inner/kit'
 import { SUPPORT_EMAIL } from '@/lib/seo/site'
+import { SITE_TEMPLATES, displayTitleForProduct } from '@/lib/site-templates'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useTr } from '@/lib/i18n/use-tr'
+import { CHECKOUT, CHECKOUT_DICT, LINK_HOURS } from '@/lib/i18n/labels/templates-ui'
+import { Rich } from './rich'
 
 declare global {
   interface Window {
@@ -35,6 +43,7 @@ export function BuyButton({
   onClick: () => void
   busy?: boolean
 }) {
+  const t = useCopy(CHECKOUT)
   return (
     <button
       type="button"
@@ -43,7 +52,7 @@ export function BuyButton({
       disabled={busy}
       aria-live="polite"
     >
-      {busy ? 'Processing…' : label}
+      {busy ? t.processing : label}
       {!busy ? <IcArrow width={22} height={11} /> : null}
     </button>
   )
@@ -57,7 +66,7 @@ export function CodeTag({ code }: { code: string }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // CHECKOUT DIALOG — email → processing → download links.
 // ─────────────────────────────────────────────────────────────────────────────
-function CheckoutDialog({
+export function CheckoutDialog({
   phase,
   productTitle,
   email,
@@ -79,6 +88,10 @@ function CheckoutDialog({
   onClose: () => void
 }) {
   const titleId = useId()
+  const locale = useLocale()
+  const t = useCopy(CHECKOUT)
+  // Messages are kept as English strings in the flow (and some come from the API); the Hindi page looks each one up.
+  const tr = useTr(CHECKOUT_DICT)
 
   // Escape closes the dialog, except while a payment is being confirmed.
   useEffect(() => {
@@ -93,9 +106,16 @@ function CheckoutDialog({
   const emailValid = EMAIL_RE.test(email.trim())
   const many = downloads.length > 1
 
-  return (
+  // The page's sticky header (z-index 80) and its poured lip sit above anything inside <main>, so a dialog rendered in
+  // place would have its top lines covered by the drip (CLAUDE.md: no text may be blocked). The dialog is therefore
+  // drawn as a child of the .ns2 wrapper instead, where its own z-index (100) wins. It only mounts after a click,
+  // so reading the DOM here cannot disagree with the server render. `--tc` is repeated on the dialog because <main class="ns-i"> is what sets it.
+  const host = typeof document === 'undefined' ? null : document.querySelector('.ns2')
+
+  const dialog = (
     <div
       className="ns-st-modal"
+      style={{ ['--tc' as string]: 'var(--ns-t-struct)' }}
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
@@ -108,12 +128,12 @@ function CheckoutDialog({
             className="ns-st-modal__body"
             onSubmit={(e) => { e.preventDefault(); if (emailValid) onSubmitEmail() }}
           >
-            <p className="ns-st-k">Checkout · Site Templates</p>
+            <p className="ns-st-k">{t.kicker}</p>
             <h2 id={titleId}>{productTitle}</h2>
             <p className="ns-st-modal__p">
-              Enter your email. Your download link is shown here after payment and also emailed to you, so you have it even if you close this tab.
+              {t.emailIntro}
             </p>
-            <Field id="st-email" label="Email address" required error={error || undefined}>
+            <Field id="st-email" label={t.emailLabel} required error={error ? tr(error) : undefined}>
               <Input
                 type="email"
                 value={email}
@@ -124,68 +144,66 @@ function CheckoutDialog({
               />
             </Field>
             <p className="ns-st-fine">
-              By paying you accept the <a href="/site-templates/terms" target="_blank" rel="noopener noreferrer">Site Templates Terms</a>.
-              A downloaded file cannot be returned; a faulty one is fixed or refunded.
+              {t.termsBefore}<Link href="/site-templates/terms" target="_blank" rel="noopener noreferrer">{t.termsLink}</Link>{t.termsAfter}
             </p>
             <button type="submit" className="ns-btn ns-st-modal__go" disabled={!emailValid}>
-              {PAYMENT_BYPASS ? 'Get download (preview mode)' : 'Continue to payment'}
+              {PAYMENT_BYPASS ? t.getPreview : t.toPayment}
               <IcArrow width={22} height={11} />
             </button>
-            <button type="button" className="ns-st-modal__x" onClick={onClose}>Cancel</button>
+            <button type="button" className="ns-st-modal__x" onClick={onClose}>{t.cancel}</button>
           </form>
         )}
 
         {/* ── PROCESSING ── */}
         {phase === 'processing' && (
           <div className="ns-st-modal__body" role="status">
-            <p className="ns-st-k">Verifying payment</p>
-            <h2 id={titleId}>One moment</h2>
-            <p className="ns-st-modal__p">Confirming your payment and preparing your secure download link…</p>
+            <p className="ns-st-k">{t.verifying}</p>
+            <h2 id={titleId}>{t.oneMoment}</h2>
+            <p className="ns-st-modal__p">{t.confirming}</p>
           </div>
         )}
 
         {/* ── SUCCESS — DOWNLOAD LINKS ── */}
         {phase === 'success' && (
           <div className="ns-st-modal__body">
-            <p className="ns-st-k">Payment confirmed</p>
-            <h2 id={titleId}>Your toolkit{many ? 's are' : ' is'} ready</h2>
+            <p className="ns-st-k">{t.confirmed}</p>
+            <h2 id={titleId}>{t.ready(many)}</h2>
             <p className="ns-st-modal__p">
-              {emailSent
-                ? `We've also emailed ${many ? 'these links' : 'this link'} to ${email}. `
-                : `We tried to email ${many ? 'these links' : 'this link'} to ${email} but delivery may have failed — download now to be safe. `}
-              Save your download link or check your email now — there is no login to retrieve this purchase later. Links are secure and expire in 48 hours; save the file{many ? 's' : ''} after downloading.
+              {emailSent ? t.emailedOk(many, email) : t.emailedFail(many, email)}
+              {t.saveLink(many, LINK_HOURS)}
             </p>
             <ul className="ns-st-dls">
               {downloads.map((d) => (
                 <li key={d.url}>
                   <a href={d.url} target="_blank" rel="noopener noreferrer" className="ns-st-dl">
-                    <span>{d.title}</span>
-                    <b>Download .zip ↓</b>
+                    <span>{locale === 'hi' ? (SITE_TEMPLATES.find((p) => p.title === d.title)?.titleHi ?? d.title) : d.title}</span>
+                    <b><Rich text={t.downloadZip} /></b>
                   </a>
                 </li>
               ))}
             </ul>
             <p className="ns-st-fine">
-              Lost the link? Write to <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> from the email you bought with.
-              <a href="/site-templates/terms" target="_blank" rel="noopener noreferrer"> Terms and refunds</a>.
+              {t.lostBefore}<a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>{t.lostAfter}
+              <Link href="/site-templates/terms" target="_blank" rel="noopener noreferrer">{t.termsRefunds}</Link>{t.termsRefundsAfter}
             </p>
-            <button type="button" className="ns-st-modal__x" onClick={onClose}>Done</button>
+            <button type="button" className="ns-st-modal__x" onClick={onClose}>{t.done}</button>
           </div>
         )}
 
         {/* ── ERROR ── */}
         {phase === 'error' && (
           <div className="ns-st-modal__body">
-            <h2 id={titleId}>Something went wrong</h2>
+            <h2 id={titleId}>{t.wentWrong}</h2>
             <Note kind="err">
-              {error || 'Your payment could not be completed. If money was deducted it will be refunded automatically.'}
+              {error ? tr(error) : t.failed}
             </Note>
-            <button type="button" className="ns-btn ns-st-modal__go" onClick={onClose}>Close</button>
+            <button type="button" className="ns-btn ns-st-modal__go" onClick={onClose}>{t.close}</button>
           </div>
         )}
       </div>
     </div>
   )
+  return host ? createPortal(dialog, host) : dialog
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -194,6 +212,7 @@ function CheckoutDialog({
 // the page root.
 // ─────────────────────────────────────────────────────────────────────────────
 export function useToolkitCheckout() {
+  const locale = useLocale()
   const [phase, setPhase] = useState<Phase>('idle')
   const [product, setProduct] = useState<{ id: string; title: string }>({ id: '', title: '' })
   const [email, setEmail] = useState('')
@@ -318,7 +337,7 @@ export function useToolkitCheckout() {
   const overlay = (
     <CheckoutDialog
       phase={phase}
-      productTitle={product.title}
+      productTitle={locale === 'hi' ? displayTitleForProduct(product.id, locale) : product.title}
       email={email}
       setEmail={setEmail}
       downloads={downloads}

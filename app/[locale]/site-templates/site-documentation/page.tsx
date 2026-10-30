@@ -1,6 +1,7 @@
 'use client'
 
 import ProductPage, { type ProductContent } from '../_components/ProductPage'
+import { DOCS_HI } from '@/lib/i18n/labels/templates-docs'
 
 const content: ProductContent = {
   productId: 'documentation-pack',
@@ -64,5 +65,5 @@ const content: ProductContent = {
 }
 
 export default function Page() {
-  return <ProductPage content={content} />
+  return <ProductPage content={{ en: content, hi: DOCS_HI }} />
 }

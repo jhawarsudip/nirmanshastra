@@ -34,7 +34,8 @@ ok('no WhatsApp and no phone number anywhere in the site', () => {
   const SKIP = new Set(['node_modules', '.next', '.git', 'samples'])
   const pat = /whatsapp|wa\.me|8697620512|86976 ?20512|86976-20512/i
   // a sentence about how building sites run in general; it is not contact information
-  const ALLOWED = new Set(['app/[locale]/site-templates/site-documentation/page.tsx'])
+  // (the Hindi file carries the same sentence translated)
+  const ALLOWED = new Set(['app/[locale]/site-templates/site-documentation/page.tsx', 'lib/i18n/labels/templates-docs.ts'])
   const bad: string[] = []
   const walk = (d: string) => {
     for (const name of fs.readdirSync(d)) {
