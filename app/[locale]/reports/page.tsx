@@ -9,22 +9,24 @@ import { ToolHead, Note } from '@/components/v2/inner/kit'
 import { ReportTable } from '@/components/v2/qty/parts'
 import DownloadButton from './DownloadButton'
 import { PACK_APP_TYPE } from '@/lib/tool-pricing'
+import { REPORTS, reportDateHi } from '@/lib/i18n/labels/pages-account'
+import { placesHi } from '@/lib/i18n/labels/structopro-places'
 
-const APP_LABELS: Record<string, string> = {
+// The six tool names are brand names and stay as they are. The two that are plain words come from the copy (Hindi on /hi).
+const TOOL_BRANDS: Record<string, string> = {
   structopro: 'StructurePro',
   masonpro: 'MasonryPro',
   electropro: 'ElectricalPro',
   plumbpro: 'PlumbingPro',
   interiorpro: 'InteriorPro',
   vastupro: 'VastuPro',
-  grandtotal: 'Grand Total',
-  completepack: 'Complete House Pack',
 }
 
-const STATUS: Record<string, { label: string; tc?: boolean }> = {
-  draft: { label: 'In progress' },
-  complete: { label: 'Free view' },
-  paid: { label: 'Paid', tc: true },
+// `key` is the status as stored; the words shown come from the copy.
+const STATUS: Record<string, { key: 'draft' | 'complete' | 'paid'; tc?: boolean }> = {
+  draft: { key: 'draft' },
+  complete: { key: 'complete' },
+  paid: { key: 'paid', tc: true },
 }
 
 const formatDate = (iso: string) =>
@@ -33,6 +35,8 @@ const formatDate = (iso: string) =>
 export default async function ReportsPage({ params }: LocaleParams) {
   const { locale } = await params
   setRequestLocale(locale)
+  const t = REPORTS[asLocale(locale)]
+  const hi = asLocale(locale) === 'hi'
   const supabase = await createSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -50,38 +54,39 @@ export default async function ReportsPage({ params }: LocaleParams) {
   return (
     <div className="ns-i-page">
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
-        <ToolHead eyebrow="Account" name="My reports" blurb="Every estimate you have saved. A paid report can be downloaded again here at any time." />
+        <ToolHead eyebrow={t.eyebrow} name={t.name} blurb={t.blurb} />
 
-        {error ? <Note kind="err" title="Could not load your reports">Please refresh the page.</Note> : null}
+        {error ? <Note kind="err" title={t.errTitle}>{t.errBody}</Note> : null}
 
         {!error && count === 0 ? (
           <section className="ns-plate ns-r-sec ns-rp-empty">
-            <h2 style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', margin: 0 }}>No reports yet</h2>
-            <p className="ns-r-sec__sub">Run any tool and your estimate is saved here.</p>
-            <Link href="/tools/structopro" className="ns-btn">Start with StructurePro</Link>
+            <h2 style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', margin: 0 }}>{t.emptyH}</h2>
+            <p className="ns-r-sec__sub">{t.emptySub}</p>
+            <Link href="/tools/structopro" className="ns-btn">{t.emptyGo}</Link>
           </section>
         ) : null}
 
         {!error && count > 0 ? (
           <>
             <ReportTable
-              head={['Tool', 'Project', 'Location', 'Date', 'Status', 'Report']}
+              head={t.head}
               stack
               rows={(estimates ?? []).map((est) => {
                 const st = STATUS[est.status] ?? STATUS.draft
                 return [
-                  APP_LABELS[est.app_type] ?? est.app_type,
+                  TOOL_BRANDS[est.app_type] ?? (est.app_type === 'grandtotal' ? t.apps.grandtotal : est.app_type === 'completepack' ? t.apps.completepack : est.app_type),
                   est.project_name || '—',
-                  [est.city, est.state].filter(Boolean).join(', ') || '—',
-                  formatDate(est.created_at),
-                  <span key="s" className={`ns-i-pill${st.tc ? ' ns-i-pill--tc' : ''}`}>{st.label}</span>,
+                  // a state or listed town gets its Devanagari name on /hi; a city the visitor typed is shown as typed
+                  (hi ? placesHi : (s: string) => s)([est.city, est.state].filter(Boolean).join(', ')) || '—',
+                  hi ? reportDateHi(est.created_at) : formatDate(est.created_at),
+                  <span key="s" className={`ns-i-pill${st.tc ? ' ns-i-pill--tc' : ''}`}>{t.status[st.key]}</span>,
                   est.status !== 'paid' ? '—'
-                    : est.app_type === PACK_APP_TYPE ? <Link key="d" href={`/tools/complete-house-pack?pack=${est.id}`} className="ns-i-link">Open your pack</Link>
+                    : est.app_type === PACK_APP_TYPE ? <Link key="d" href={`/tools/complete-house-pack?pack=${est.id}`} className="ns-i-link">{t.openPack}</Link>
                     : <DownloadButton key="d" appType={est.app_type} estimateId={est.id} />,
                 ]
               })}
             />
-            <p className="ns-r-tblnote">Showing {count} estimate{count === 1 ? '' : 's'}, most recent first.</p>
+            <p className="ns-r-tblnote">{t.showing(count)}</p>
           </>
         ) : null}
       </div>

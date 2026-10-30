@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import { breadcrumbSchema } from '@/lib/seo/schema'
+import { crumbs } from '@/lib/i18n/labels/pages-common'
+import { ABOUT_META_HI } from '@/lib/i18n/labels/pages-about'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -28,8 +30,8 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name and abbreviations stay in Latin letters.
+const HI: HiMeta = ABOUT_META_HI
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -39,9 +41,10 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
 export default async function AboutLayout({ children, params }: { children: React.ReactNode } & LocaleParams) {
   const { locale } = await params
   setRequestLocale(locale)
+  const loc = asLocale(locale)
   return (
-    <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={[breadcrumbSchema([{ name: 'Home', path: '/' }, { name: 'About', path: url }])]} />
+    <InnerShell locale={loc}>
+      <JsonLd data={[breadcrumbSchema(crumbs(loc, 'About', 'हमारे बारे में', url))]} />
       {children}
     </InnerShell>
   )

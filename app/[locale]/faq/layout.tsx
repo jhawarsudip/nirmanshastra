@@ -26,8 +26,13 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name and IS numbers stay in Latin letters.
+const HI: HiMeta = {
+  title: 'FAQ: मात्राएँ कैसे निकाली जाती हैं',
+  description:
+    'NirmanShastra के बारे में जवाब: मात्रा रिपोर्टों में क्या होता है, क्या मुफ़्त है, मात्राएँ भारतीय मानकों से कैसे निकलती हैं, क्या छोड़ा गया है, और भुगतान व रिफ़ंड कैसे काम करते हैं।',
+  imageAlt: 'NirmanShastra: भारतीय घरों के लिए सामग्री की मात्राएँ',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params

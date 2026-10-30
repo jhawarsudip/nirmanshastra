@@ -238,3 +238,15 @@ sika
 laticrete
 mapei
 kajaria
+# payment-app names, an organisation name and stack names that stay Latin (added 31 Oct 2026)
+hmac
+pci-dss
+sha
+pay
+paytm
+phonepe
+gkspl
+conserve
+consultants
+next
+typescript

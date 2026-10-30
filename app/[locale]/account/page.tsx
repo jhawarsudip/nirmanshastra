@@ -8,12 +8,15 @@ import { ToolHead } from '@/components/v2/inner/kit'
 import ConsentToggle from './ConsentToggle'
 import GuestUpgradeCard from './GuestUpgradeCard'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
+import { ACCOUNT } from '@/lib/i18n/labels/pages-account'
+import { placesHi } from '@/lib/i18n/labels/structopro-places'
 
 const H2 = { fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 } as const
 
 export default async function AccountPage({ params }: LocaleParams) {
   const { locale } = await params
   setRequestLocale(locale)
+  const t = ACCOUNT[asLocale(locale)]
   const supabase = await createSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return redirect({ href: '/auth?redirect=/account', locale: asLocale(locale) })
@@ -26,26 +29,26 @@ export default async function AccountPage({ params }: LocaleParams) {
   return (
     <div className="ns-i-page">
       <div className="ns-i-wrap ns-ac" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
-        <ToolHead eyebrow="Account" name="Your account" blurb="The details we hold for you, and the choices you can change." />
+        <ToolHead eyebrow={t.eyebrow} name={t.name} blurb={t.blurb} />
 
         {/* Guest sessions can turn into a permanent account here */}
         {isGuest ? <GuestUpgradeCard /> : null}
 
         <section className="ns-plate ns-r-sec" aria-labelledby="ac-profile">
-          <h2 id="ac-profile" style={H2}>Your profile</h2>
+          <h2 id="ac-profile" style={H2}>{t.profileH}</h2>
           <dl className="ns-ac-dl">
             <div>
-              <dt>Name</dt>
+              <dt>{t.nameK}</dt>
               <dd>{meta.full_name || meta.name || '—'}</dd>
             </div>
             <div>
-              <dt>Email</dt>
-              <dd>{user.email || (isGuest ? 'Guest session, no email on file' : '—')}</dd>
+              <dt>{t.emailK}</dt>
+              <dd>{user.email || (isGuest ? t.guestNoEmail : '—')}</dd>
             </div>
             {meta.city ? (
               <div>
-                <dt>City</dt>
-                <dd>{meta.city}</dd>
+                <dt>{t.cityK}</dt>
+                <dd>{asLocale(locale) === 'hi' && typeof meta.city === 'string' ? placesHi(meta.city) : meta.city}</dd>
               </div>
             ) : null}
           </dl>
@@ -54,9 +57,9 @@ export default async function AccountPage({ params }: LocaleParams) {
         <ConsentToggle initialCity={consentInitial} initialContact={consentContactInitial} />
 
         <p className="ns-r-tblnote">
-          To delete your account or ask for a copy of your data, email{' '}
+          {t.privacyA}{' '}
           <a href={`mailto:${CONTACT_EMAIL}`} style={{ textDecoration: 'underline' }}>{CONTACT_EMAIL}</a>{' '}
-          with the subject &ldquo;Privacy request: [your name]&rdquo;.
+          {t.privacyB}
         </p>
       </div>
     </div>

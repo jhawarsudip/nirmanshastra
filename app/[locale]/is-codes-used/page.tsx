@@ -1,53 +1,54 @@
 import { Link } from '@/i18n/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import '@/styles/v2/results.css'
 import { ToolHead, Note } from '@/components/v2/inner/kit'
 import { ReportTable } from '@/components/v2/qty/parts'
-import { CODES_BY_TOOL, sourceCounts } from '@/lib/is-codes-data'
+import { sourceCounts } from '@/lib/is-codes-data'
+import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
+import { ISC_PAGE, codesFor } from '@/lib/i18n/labels/pages-iscodes'
 
 /*
   The standards behind the quantities. Built from lib/is-codes-data, which lists only what the quantity models cite.
   Where a model says it could not read a document in full, the entry carries that caveat; nothing here claims more than the models do.
+  On /hi the explanations come from lib/i18n/labels/pages-iscodes.ts (IS numbers, clause numbers and values are the same).
 */
 
-export default function ISCodesPage() {
+export default async function ISCodesPage({ params }: LocaleParams) {
+  const { locale: raw } = await params
+  setRequestLocale(raw)
+  const locale = asLocale(raw)
+  const t = ISC_PAGE[locale]
+  const groups = codesFor(locale)
   const n = sourceCounts()
   return (
     <div className="ns-i-page">
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
-        <ToolHead
-          eyebrow="Reference"
-          name="The standards behind every quantity"
-          blurb={`${n.total} sources feed the five reports: ${n.indianStandards} Indian Standards, counted by edition or part, and ${n.other} other documents. For each one, this page says what we take from it, so you can open the same clause and check.`}
-        />
+        <ToolHead eyebrow={t.eyebrow} name={t.name} blurb={t.blurb(n.total, n.indianStandards, n.other)} />
 
-        <Note title="How to read this page">
-          A source is listed only if one of the reports cites it. Where a report says it could not read a standard in full, or the figure it took is an assumption, the entry says so under the word &ldquo;Limit&rdquo;. A listing here does not mean the standard was read cover to cover.
-        </Note>
+        <Note title={t.howTitle}>{t.how}</Note>
 
-        {CODES_BY_TOOL.map(tool => (
+        {groups.map(tool => (
           <section key={tool.tool} className="ns-plate ns-r-sec" aria-labelledby={`isc-${tool.tool}`}>
             <h2 id={`isc-${tool.tool}`} style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 }}>{tool.tool}</h2>
             <p className="ns-r-sec__sub">{tool.desc}</p>
             <ReportTable
-              head={['Source', 'What it is', 'What we take from it']}
+              head={t.head}
               rows={tool.codes.map(c => [
                 c.code,
                 c.title,
                 <span key="g">
                   {c.governs}
-                  {c.caveat ? <span className="ns-isc-limit"><b>Limit.</b> {c.caveat}</span> : null}
+                  {c.caveat ? <span className="ns-isc-limit"><b>{t.limit}</b> {c.caveat}</span> : null}
                 </span>,
               ])}
             />
           </section>
         ))}
 
-        <Note kind="warn" title="Check the edition before you rely on a clause">
-          Standards are revised by the Bureau of Indian Standards, and the editions named here are the ones the reports use. Where a newer edition exists, the entry says which one is applied. This page is a map of our sources, not a substitute for the standard itself or for the engineer who signs your drawings.
-        </Note>
+        <Note kind="warn" title={t.editionTitle}>{t.edition}</Note>
 
         <p className="ns-r-tblnote">
-          See also the <Link href="/disclaimer" style={{ textDecoration: 'underline' }}>disclaimer</Link> and the <Link href="/terms-of-use" style={{ textDecoration: 'underline' }}>terms of use</Link>.
+          {t.seeA}<Link href="/disclaimer" style={{ textDecoration: 'underline' }}>{t.disclaimer}</Link>{t.seeB}<Link href="/terms-of-use" style={{ textDecoration: 'underline' }}>{t.terms}</Link>{t.seeC}
         </p>
       </div>
     </div>

@@ -1,15 +1,20 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import { trackLead } from '@/lib/analytics/events'
 import SocialLinks from '@/components/social/SocialLinks'
 import '@/styles/v2/results.css'
 import { ToolHead, Field, Input, Note, IcArrow } from '@/components/v2/inner/kit'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { CONTACT } from '@/lib/i18n/labels/pages-about'
 
 type Status = 'idle' | 'sending' | 'sent' | 'error'
 
 export default function ContactPage() {
+  const t = useCopy(CONTACT)
+  const hi = useLocale() === 'hi'
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [status, setStatus] = useState<Status>('idle')
 
@@ -35,54 +40,47 @@ export default function ContactPage() {
   return (
     <div className="ns-i-page">
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
-        <ToolHead
-          eyebrow="Contact"
-          name="Write to us"
-          blurb="Questions about a quantity report, a standard it cites, or a payment. Based in India, serving homeowners across India."
-        />
+        <ToolHead eyebrow={t.eyebrow} name={t.name} blurb={t.blurb} />
 
         <div className="ns-cn">
           <section className="ns-plate ns-r-sec" aria-labelledby="cn-form">
-            <h2 id="cn-form" style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 }}>Send a message</h2>
+            <h2 id="cn-form" style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 }}>{t.formH}</h2>
             {status === 'sent' ? (
-              <Note kind="ok" title="Message sent">We will get back to you within 24 to 48 hours on business days.</Note>
+              <Note kind="ok" title={t.sentTitle}>{t.sent}</Note>
             ) : (
               <form onSubmit={submit} className="ns-cn__form" noValidate={false}>
-                <Field id="cn-name" label="Name" required>
-                  <Input type="text" required autoComplete="name" value={form.name} onChange={e => set('name')(e.target.value)} placeholder="Your full name" />
+                <Field id="cn-name" label={t.nameL} required>
+                  <Input type="text" required autoComplete="name" value={form.name} onChange={e => set('name')(e.target.value)} placeholder={t.nameP} />
                 </Field>
-                <Field id="cn-email" label="Email" required>
+                <Field id="cn-email" label={t.emailL} required>
                   <Input type="email" required autoComplete="email" value={form.email} onChange={e => set('email')(e.target.value)} placeholder="you@example.com" />
                 </Field>
-                <Field id="cn-subject" label="Subject" required>
-                  <Input type="text" required value={form.subject} onChange={e => set('subject')(e.target.value)} placeholder="What is this about?" />
+                <Field id="cn-subject" label={t.subjectL} required>
+                  <Input type="text" required value={form.subject} onChange={e => set('subject')(e.target.value)} placeholder={t.subjectP} />
                 </Field>
-                <Field id="cn-message" label="Message" required>
-                  <textarea className="ns-i-in" required rows={6} value={form.message} onChange={e => set('message')(e.target.value)} placeholder="Your message" style={{ resize: 'vertical', minHeight: 140 }} />
+                <Field id="cn-message" label={t.messageL} required>
+                  <textarea className="ns-i-in" required rows={6} value={form.message} onChange={e => set('message')(e.target.value)} placeholder={t.messageP} style={{ resize: 'vertical', minHeight: 140 }} />
                 </Field>
-                {status === 'error' ? <Note kind="err" title="Something went wrong">Please email us directly at {CONTACT_EMAIL}.</Note> : null}
+                {status === 'error' ? <Note kind="err" title={t.errTitle}>{t.err(CONTACT_EMAIL)}</Note> : null}
                 <button type="submit" className="ns-btn" disabled={status === 'sending'} style={{ justifySelf: 'start' }}>
-                  {status === 'sending' ? 'Sending…' : 'Send message'}<IcArrow width={22} height={11} />
+                  {status === 'sending' ? t.sending : t.send}<IcArrow width={22} height={11} />
                 </button>
               </form>
             )}
           </section>
 
-          <aside className="ns-cn__side" aria-label="Contact details">
+          <aside className="ns-cn__side" aria-label={t.asideAria}>
             <div className="ns-plate ns-r-sec ns-prose">
-              <h2 style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(20px, 2vw, 25px)', lineHeight: 1.15, margin: 0 }}>Direct contact</h2>
-              <p><b>Email</b><br /><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
-              <p><b>Location</b><br />Uttar Pradesh, India</p>
-              <p><b>Response time</b><br />Within 24 to 48 hours on business days</p>
-              <SocialLinks where="contact_page" />
+              <h2 style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(20px, 2vw, 25px)', lineHeight: 1.15, margin: 0 }}>{t.directH}</h2>
+              <p><b>{t.emailK}</b><br /><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
+              <p><b>{t.locK}</b><br />{t.loc}</p>
+              <p><b>{t.respK}</b><br />{t.resp}</p>
+              <SocialLinks hi={hi} where="contact_page" />
             </div>
             <div className="ns-plate ns-r-sec ns-prose">
-              <h2 style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(20px, 2vw, 25px)', lineHeight: 1.15, margin: 0 }}>What to include</h2>
+              <h2 style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(20px, 2vw, 25px)', lineHeight: 1.15, margin: 0 }}>{t.includeH}</h2>
               <ul>
-                <li>Your state and city (the earthquake zone and wind speed depend on them)</li>
-                <li>Which tool you used or are asking about</li>
-                <li>A short description of the question or the problem</li>
-                <li>Your estimate ID, if you have one (it is in your PDF report)</li>
+                {t.include.map(line => <li key={line}>{line}</li>)}
               </ul>
             </div>
           </aside>

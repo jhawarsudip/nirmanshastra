@@ -12,8 +12,11 @@ const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title and description for this page.
+const HI: HiMeta = {
+  title: 'लॉग इन कीजिए या खाता बनाइए',
+  description: 'अपनी सहेजी हुई रिपोर्टें देखने के लिए NirmanShastra में लॉग इन कीजिए, या नया खाता बनाइए।',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params

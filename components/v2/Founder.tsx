@@ -17,7 +17,7 @@ export default function Founder({ loc = 'en', heading, more, link = false }: {
   link?: boolean
 }) {
   return (
-    <aside className="ns-plate ns-fdr" aria-label={heading ?? FOUNDER_LINE.en}>
+    <aside className="ns-plate ns-fdr" aria-label={heading ?? FOUNDER_LINE[loc]}>
       {FOUNDER_PHOTO ? (
         // A plain img: the address is checked in lib/founder.ts and may be on any https host.
         // eslint-disable-next-line @next/next/no-img-element

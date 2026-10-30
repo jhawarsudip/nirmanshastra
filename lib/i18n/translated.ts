@@ -32,6 +32,14 @@ export const HINDI_READY: readonly string[] = [
   '/tools/ra-bill-retention-tds-calculator',
   '/tools/water-tank-size-calculator',
   '/tools/wire-size-calculator',
+  // main pages (31 Oct 2026)
+  '/about',
+  '/faq',
+  '/glossary',
+  '/is-codes-used',
+  '/careers',
+  '/contact',
+  '/auth',
 ]
 
 export function isHindiReady(path: string): boolean {

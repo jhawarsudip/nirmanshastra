@@ -3,6 +3,10 @@
 import { useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Field, Input, Note } from '@/components/v2/inner/kit'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useTr } from '@/lib/i18n/use-tr'
+import { GUEST } from '@/lib/i18n/labels/pages-account'
+import { AUTH_MESSAGES } from '@/lib/i18n/labels/pages-auth'
 
 /**
  * GuestUpgradeCard
@@ -19,6 +23,9 @@ import { Field, Input, Note } from '@/components/v2/inner/kit'
  */
 export default function GuestUpgradeCard() {
   const supabase = useMemo(() => createClient(), [])
+  const c = useCopy(GUEST)
+  // The error is kept in English as it came; `t` shows it in Hindi on a Hindi page and leaves unknown lines as they are.
+  const t = useTr(AUTH_MESSAGES)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -53,37 +60,37 @@ export default function GuestUpgradeCard() {
 
   if (done) {
     return (
-      <Note kind="ok" title="Check your email to confirm your new address">
-        Once confirmed, you can log in with this email and password. All your existing projects and reports stay exactly where they are.
+      <Note kind="ok" title={c.doneTitle}>
+        {c.doneBody}
       </Note>
     )
   }
 
   return (
     <section className="ns-plate ns-r-sec ns-ac-guest" aria-labelledby="ac-guest">
-      <Note kind="warn" title="Guest session">
-        You are using NirmanShastra as a guest. A guest cannot log back in on another device or after clearing the browser.
+      <Note kind="warn" title={c.noteTitle}>
+        {c.noteBody}
       </Note>
       <h2 id="ac-guest" style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 }}>
-        Secure your account
+        {c.h}
       </h2>
-      <p className="ns-r-sec__sub">Add an email and password to keep permanent access to your projects, reports and purchases. Nothing you have already made is lost.</p>
+      <p className="ns-r-sec__sub">{c.sub}</p>
 
       <form onSubmit={handleUpgrade} className="ns-i-form" noValidate>
         <div className="ns-i-fields">
-          <Field id="ac-email" label="Email" required>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" />
+          <Field id="ac-email" label={c.email} required>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder={c.emailPh} />
           </Field>
-          <Field id="ac-pass" label="Password" required hint="At least 6 characters.">
+          <Field id="ac-pass" label={c.password} required hint={c.passHint}>
             <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" />
           </Field>
         </div>
 
-        {error ? <Note kind="err" title="Could not secure the account">{error}</Note> : null}
+        {error ? <Note kind="err" title={c.errTitle}>{t(error)}</Note> : null}
 
         <div className="ns-i-actions">
           <button type="submit" disabled={!canSubmit} className="ns-btn">
-            {loading ? 'Securing…' : 'Secure my account'}
+            {loading ? c.busy : c.go}
           </button>
         </div>
       </form>

@@ -3,6 +3,8 @@ import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import { CODES_BY_TOOL, sourceCounts } from '@/lib/is-codes-data'
 import { breadcrumbSchema, isCodesItemList } from '@/lib/seo/schema'
+import { crumbs } from '@/lib/i18n/labels/pages-common'
+import { ISC_META_HI, isCodesItemListHi } from '@/lib/i18n/labels/pages-iscodes'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -29,8 +31,8 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name and IS numbers stay in Latin letters.
+const HI: HiMeta = { title: ISC_META_HI.title, description: ISC_META_HI.description(n.total), imageAlt: ISC_META_HI.imageAlt }
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -40,9 +42,10 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
 export default async function IsCodesLayout({ children, params }: { children: React.ReactNode } & LocaleParams) {
   const { locale } = await params
   setRequestLocale(locale)
+  const loc = asLocale(locale)
   return (
-    <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={[breadcrumbSchema([{ name: 'Home', path: '/' }, { name: 'IS Codes Used', path: url }]), isCodesItemList(CODES_BY_TOOL)]} />
+    <InnerShell locale={loc}>
+      <JsonLd data={[breadcrumbSchema(crumbs(loc, 'IS Codes Used', 'प्रयुक्त IS कोड', url)), loc === 'hi' ? isCodesItemListHi() : isCodesItemList(CODES_BY_TOOL)]} />
       {children}
     </InnerShell>
   )

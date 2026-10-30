@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { DOWNLOAD } from '@/lib/i18n/labels/pages-account'
 
 /**
  * Fetches the address of a report that was already built and opens it. Each tool keeps its own route:
@@ -15,9 +17,10 @@ function routeFor(appType: string): string | null {
 }
 
 export default function DownloadButton({ appType, estimateId }: { appType: string; estimateId: string }) {
+  const c = useCopy(DOWNLOAD)
   const [state, setState] = useState<'idle' | 'busy' | 'none' | 'err'>('idle')
   const route = routeFor(appType)
-  if (!route) return <span className="ns-rp-none">No PDF</span>
+  if (!route) return <span className="ns-rp-none">{c.none}</span>
 
   async function go() {
     setState('busy')
@@ -39,11 +42,11 @@ export default function DownloadButton({ appType, estimateId }: { appType: strin
   return (
     <span className="ns-rp-dl">
       <button type="button" className="ns-btn ns-btn--sm" onClick={go} disabled={state === 'busy'}>
-        {state === 'busy' ? 'Fetching…' : 'Download PDF'}
+        {state === 'busy' ? c.busy : c.go}
       </button>
       <span role="status" aria-live="polite" className="ns-rp-dl__msg">
-        {state === 'none' ? 'This PDF was not built yet. Open the tool to build it.' : null}
-        {state === 'err' ? 'Could not fetch it. Please try again.' : null}
+        {state === 'none' ? c.notBuilt : null}
+        {state === 'err' ? c.failed : null}
       </span>
     </span>
   )
