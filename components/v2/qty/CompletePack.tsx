@@ -1,12 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Field, Input, Select, Note, ToolHead, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { STATES } from '@/lib/qty/states'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import { PACK_CLAIMS_PER_REPORT, PACK_CONTAINS, PRICE, TOOL_PRICE_PAISE, rupees } from '@/lib/tool-pricing'
 import { PACK_LABEL, PACK_TOOL_PATH, type PackStatus } from '@/lib/pack/shared'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useQtyTr } from '@/lib/i18n/use-qty-tr'
+import { stateLabel } from '@/lib/i18n/states'
+import { PACK_PAGE } from '@/lib/i18n/labels/calc-pack'
+import { QTY_REG, QTY_RES } from '@/lib/i18n/labels/qty-ui'
 import { useUnlock } from './useUnlock'
 import { readStoredPackId, rememberPackId } from './usePack'
 import { trackLead } from '@/lib/analytics/events'
@@ -26,6 +32,12 @@ interface Form { name: string; email: string; projectName: string; state: string
 const EMPTY: Form = { name: '', email: '', projectName: '', state: '', city: '' }
 
 export default function CompletePack() {
+  const k = useCopy(PACK_PAGE)
+  const reg = useCopy(QTY_REG)
+  const rs = useCopy(QTY_RES)
+  const t = useQtyTr('none')
+  const locale = useLocale()
+  const nameOf = (key: keyof typeof PACK_LABEL) => (PACK_LABEL[key] === 'Grand Total' ? k.grandTotal : PACK_LABEL[key])
   const [form, setForm] = useState<Form>(EMPTY)
   const [errors, setErrors] = useState<Partial<Form>>({})
   const [saving, setSaving] = useState(false)
@@ -73,10 +85,10 @@ export default function CompletePack() {
 
   function validate(): boolean {
     const e: Partial<Form> = {}
-    if (!form.name.trim()) e.name = 'Please enter your name'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Please enter a valid email address'
-    if (!form.state) e.state = 'Please choose your state'
-    if (!form.city.trim()) e.city = 'Please enter your city'
+    if (!form.name.trim()) e.name = reg.errName
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = reg.errEmail
+    if (!form.state) e.state = reg.errState
+    if (!form.city.trim()) e.city = reg.errCity
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -89,11 +101,11 @@ export default function CompletePack() {
     try {
       const res = await fetch('/api/pack/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
       const json = await res.json().catch(() => ({}))
-      if (!res.ok || !json.packId) throw new Error(json.error || 'We could not save your details.')
+      if (!res.ok || !json.packId) throw new Error(json.error || k.couldNotSave)
       trackLead('completepack', 'email') // generate_lead / Lead: an email address was given
       setPackId(json.packId)
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setApiError(err instanceof Error ? err.message : k.wentWrong)
     } finally {
       setSaving(false)
     }
@@ -106,85 +118,85 @@ export default function CompletePack() {
       <ViewItem appType="completepack" />
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
         <ToolHead
-          eyebrow="Best value · all six reports"
-          name="Complete House Pack"
+          eyebrow={k.eyebrow}
+          name={k.name}
           price={PRICE.pack}
-          blurb="All five quantity reports for one house: structure, masonry, electrical, plumbing and interior, plus the Grand Total buying list. Pay once, then use it where you would otherwise pay."
-          after={<SampleReportLink sample="completepack" where="tool_head" />}
+          blurb={k.blurb}
+          after={<SampleReportLink sample="completepack" hi={locale === 'hi'} where="tool_head" />}
         />
 
         {ready ? (
           <section className="ns-plate ns-r-sec" aria-labelledby="pk-ready">
-            <h2 id="pk-ready" style={{ margin: 0 }}>Your pack is ready</h2>
-            {PAYMENT_BYPASS && !status?.paid && <Note kind="info" title="Preview mode">Payment is switched off on this copy of the site, so the pack is open for testing.</Note>}
-            <p className="ns-r-sec__sub">Open a tool, enter your house, and press <b>Use my Complete House Pack</b> where you would otherwise pay. A pack covers one house.</p>
+            <h2 id="pk-ready" style={{ margin: 0 }}>{k.readyTitle}</h2>
+            {PAYMENT_BYPASS && !status?.paid && <Note kind="info" title={k.previewTitle}>{k.previewText}</Note>}
+            <p className="ns-r-sec__sub">{k.readyBefore}<b>{k.readyButton}</b>{k.readyAfter}</p>
             <ul className="ns-pk-list">
-              {PACK_CONTAINS.map(k => {
-                const used = status?.used[k] ?? 0
-                const left = status?.remaining[k] ?? 0
+              {PACK_CONTAINS.map(key => {
+                const used = status?.used[key] ?? 0
+                const left = status?.remaining[key] ?? 0
                 return (
-                  <li key={k}>
-                    <span><IcCheck width={18} height={18} /> <b>{PACK_LABEL[k]}</b></span>
-                    <span className="ns-i-fine">{status ? `${used} made · ${left} left` : ''}</span>
-                    <Link href={PACK_TOOL_PATH[k]} className="ns-i-link">Open {PACK_LABEL[k]} <IcArrow width={18} height={9} /></Link>
+                  <li key={key}>
+                    <span><IcCheck width={18} height={18} /> <b>{nameOf(key)}</b></span>
+                    <span className="ns-i-fine">{status ? k.madeLeft(used, left) : ''}</span>
+                    <Link href={PACK_TOOL_PATH[key]} className="ns-i-link">{k.open(nameOf(key))} <IcArrow width={18} height={9} /></Link>
                   </li>
                 )
               })}
             </ul>
-            <p className="ns-i-fine">We have emailed you a link to this page. Keep it: it opens your pack on another phone or computer.</p>
+            <p className="ns-i-fine">{k.emailed}</p>
           </section>
         ) : (
           <>
             <section className="ns-plate ns-r-sec" aria-labelledby="pk-save">
-              <h2 id="pk-save" style={{ margin: 0 }}>What you get, and what you save</h2>
+              <h2 id="pk-save" style={{ margin: 0 }}>{k.saveTitle}</h2>
               <table className="ns-i-tbl ns-i-tbl--plain" style={{ width: '100%' }}>
                 <tbody>
-                  {PACK_CONTAINS.map(k => (
-                    <tr key={k}><th scope="row">{PACK_LABEL[k]}</th><td style={{ textAlign: 'right' }}>{rupees(TOOL_PRICE_PAISE[k])}</td></tr>
+                  {PACK_CONTAINS.map(key => (
+                    <tr key={key}><th scope="row">{nameOf(key)}</th><td style={{ textAlign: 'right' }}>{rupees(TOOL_PRICE_PAISE[key])}</td></tr>
                   ))}
-                  <tr><th scope="row">Bought one by one</th><td style={{ textAlign: 'right' }}><b>{PRICE.packSeparate}</b></td></tr>
-                  <tr><th scope="row">Complete House Pack</th><td style={{ textAlign: 'right' }}><b>{PRICE.pack}</b></td></tr>
-                  <tr><th scope="row">You save</th><td style={{ textAlign: 'right' }}><b>{PRICE.packSavings}</b> ({PRICE.packSavingsPercent})</td></tr>
+                  <tr><th scope="row">{k.oneByOne}</th><td style={{ textAlign: 'right' }}><b>{PRICE.packSeparate}</b></td></tr>
+                  <tr><th scope="row">{k.packRow}</th><td style={{ textAlign: 'right' }}><b>{PRICE.pack}</b></td></tr>
+                  <tr><th scope="row">{k.youSave}</th><td style={{ textAlign: 'right' }}><b>{PRICE.packSavings}</b> ({PRICE.packSavingsPercent})</td></tr>
                 </tbody>
               </table>
-              <p className="ns-i-fine">A pack covers one house. Every report must match the same building: the same floors, the same state and a floor area within 10%. Each report can be made up to {PACK_CLAIMS_PER_REPORT} times, so you can correct a figure you typed wrongly.</p>
+              <p className="ns-i-fine">{k.fine(PACK_CLAIMS_PER_REPORT)}</p>
             </section>
 
             {checked && !packId && (
               <form onSubmit={handleSubmit} noValidate>
                 <div className="ns-plate ns-i-card">
-                  <p className="ns-i-card__eyebrow">Step 1 of 2</p>
-                  <h2>Tell us who and where</h2>
-                  <p className="ns-i-card__sub">We send your pack link to this email. It takes under a minute.</p>
+                  <p className="ns-i-card__eyebrow">{k.step1}</p>
+                  <h2>{reg.title}</h2>
+                  <p className="ns-i-card__sub">{k.formSub}</p>
                   <div className="ns-i-card__body">
                     <div className="ns-i-fields">
-                      <Field id="pk-name" label="Your name" required error={errors.name} wide>
-                        <Input type="text" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ramesh Sharma" autoComplete="name" />
+                      <Field id="pk-name" label={reg.yourName} required error={errors.name} wide>
+                        <Input type="text" value={form.name} onChange={e => set('name', e.target.value)} placeholder={reg.namePh} autoComplete="name" />
                       </Field>
-                      <Field id="pk-email" label="Email" required error={errors.email} hint="Your pack link is sent here." wide>
-                        <Input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="ramesh@example.com" autoComplete="email" inputMode="email" />
+                      <Field id="pk-email" label={reg.email} required error={errors.email} hint={k.emailHint} wide>
+                        <Input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder={reg.emailPh} autoComplete="email" inputMode="email" />
                       </Field>
-                      <Field id="pk-state" label="State" required error={errors.state}>
+                      <Field id="pk-state" label={reg.state} required error={errors.state}>
                         <Select value={form.state} onChange={e => set('state', e.target.value)}>
-                          <option value="">Select your state</option>
-                          {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                          <option value="">{reg.selectState}</option>
+                          {STATES.map(s => <option key={s} value={s}>{stateLabel(s, locale)}</option>)}
                         </Select>
                       </Field>
-                      <Field id="pk-city" label="City" required error={errors.city}>
-                        <Input type="text" value={form.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Pune" autoComplete="address-level2" />
+                      <Field id="pk-city" label={reg.city} required error={errors.city}>
+                        <Input type="text" value={form.city} onChange={e => set('city', e.target.value)} placeholder={reg.cityPh} autoComplete="address-level2" />
                       </Field>
-                      <Field id="pk-project" label="House name (optional)" hint="To find your reports again. You can skip it." wide>
-                        <Input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)} placeholder="e.g. Sharma Residence, Kothrud" />
+                      <Field id="pk-project" label={k.houseName} hint={k.houseHint} wide>
+                        <Input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)} placeholder={reg.projectPh} />
                       </Field>
                     </div>
                   </div>
                   <div className="ns-i-card__foot">
-                    {apiError && <div style={{ flexBasis: '100%' }}><Note kind="err" title="That did not go through">{apiError}</Note></div>}
+                    {apiError && <div style={{ flexBasis: '100%' }}><Note kind="err" title={reg.didNotGoThrough}>{t(apiError)}</Note></div>}
                     <button type="submit" disabled={saving} className="ns-btn">
-                      {saving ? 'Saving…' : 'Continue to payment'}
+                      {saving ? reg.saving : k.toPayment}
                       {!saving && <IcArrow width={22} height={11} />}
                     </button>
-                    <p className="ns-i-fine" style={{ flex: '1 1 260px' }}>We save your details securely and email you only your pack link and a few IS-code construction tips.</p>
+                    <p className="ns-i-fine" style={{ flex: '1 1 260px' }}>{k.formFine}</p>
                   </div>
                 </div>
               </form>
@@ -193,19 +205,19 @@ export default function CompletePack() {
             {packId && (
               <section className="ns-plate ns-r-unlock" aria-labelledby="pk-pay">
                 <div>
-                  <p className="ns-r-hook__k">Step 2 of 2</p>
-                  <h3 id="pk-pay">Pay once for the whole house</h3>
+                  <p className="ns-r-hook__k">{k.step2}</p>
+                  <h3 id="pk-pay">{k.payTitle}</h3>
                 </div>
                 <ul className="ns-r-unlock__list">
-                  {PACK_CONTAINS.map(k => <li key={k}><IcCheck />{PACK_LABEL[k]}</li>)}
+                  {PACK_CONTAINS.map(key => <li key={key}><IcCheck />{nameOf(key)}</li>)}
                 </ul>
                 <button type="button" className="ns-btn" onClick={u.unlock} disabled={u.busy}>
-                  {u.payStatus === 'creating' ? 'Starting the payment…' : u.payStatus === 'verifying' ? 'Checking your payment…' : u.payStatus === 'polling' ? 'Confirming your payment…' : `Pay ${PRICE.pack} for the Complete House Pack`}
+                  {u.payStatus === 'creating' ? rs.starting : u.payStatus === 'verifying' ? rs.checkingPay : u.payStatus === 'polling' ? rs.confirmingPay : k.payButton(PRICE.pack)}
                   {!u.busy && <IcArrow width={22} height={11} />}
                 </button>
                 {u.payError && <Note kind="err">{u.payError}</Note>}
-                <PayAssurance sample="completepack" />
-                <p className="ns-i-fine">One payment, no subscription. Paid through Razorpay; we never see your card details.</p>
+                <PayAssurance sample="completepack" hi={locale === 'hi'} />
+                <p className="ns-i-fine">{k.payFine}</p>
               </section>
             )}
           </>
