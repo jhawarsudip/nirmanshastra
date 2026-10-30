@@ -215,3 +215,26 @@ bbs
 rcbo
 ii
 iv
+# IS-code citation words, trade abbreviations and brand names that stay Latin (added 31 Oct 2026)
+part
+sec
+section
+table
+tables
+appendix
+dar
+etd
+nimi
+swr
+spn
+tpn
+cat
+cctv
+min
+asian
+nerolac
+berger
+sika
+laticrete
+mapei
+kajaria

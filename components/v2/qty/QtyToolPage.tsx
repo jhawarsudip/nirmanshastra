@@ -14,6 +14,7 @@ import { FORMS } from '@/lib/qty/forms'
 import { localizeForm } from '@/lib/qty/forms/hi'
 import { useCopy } from '@/lib/i18n/use-copy'
 import { useTr } from '@/lib/i18n/use-tr'
+import { useQtyTr } from '@/lib/i18n/use-qty-tr'
 import { QTY_PAGE } from '@/lib/i18n/labels/qty-ui'
 import { QTY_ERRORS } from '@/lib/i18n/labels/qty-errors'
 import type { TradeFree } from '@/lib/qty/types'
@@ -57,6 +58,8 @@ export default function QtyToolPage({ slug }: { slug: TradeSlug }) {
   const locale = useLocale()
   const k = useCopy(QTY_PAGE)
   const tErr = useTr(QTY_ERRORS)
+  // Starts fetching this tool's Hindi dictionary as soon as the wizard opens, so it is there by the time the results appear.
+  useQtyTr(slug)
   const meta = useMemo(() => localizeMeta(TRADE_META[slug], locale), [slug, locale])
   const rawSpec = FORMS[slug]
   const spec = useMemo(() => (rawSpec ? localizeForm(rawSpec, locale) : rawSpec), [rawSpec, locale])

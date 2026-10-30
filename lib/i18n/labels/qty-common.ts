@@ -59,6 +59,7 @@ export const QTY_COMMON: Dict = {
   'Rooms counted': 'गिने गए कमरे',
   'Run (m)': 'रन (m)',
   'Sand': 'रेत',
+  'Steel': 'स्टील',
   'Stone aggregate 20 mm': 'गिट्टी 20 mm',
   'Steel bars (one rate for every diameter)': 'स्टील के सरिये (हर व्यास का एक रेट)',
   'Binding wire': 'बाइंडिंग तार',

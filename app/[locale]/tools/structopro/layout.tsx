@@ -5,6 +5,7 @@ import InnerShell from '@/components/v2/inner/InnerShell'
 import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
 import { PRICE } from '@/lib/tool-pricing'
+import { withHindiFaq } from '@/lib/i18n/labels/calc-jsonld'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -62,7 +63,7 @@ export default async function StructoProLayout({ children, params }: { children:
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={jsonLdFor(locale)} />
+      <JsonLd data={withHindiFaq(jsonLdFor(locale), '/tools/structopro', locale)} />
       {children}
       {/* The explainer sits full-width under the wizard, so it is placed after <main>'s content by the shell's own wrapper */}
       <ToolInfo path="/tools/structopro" />

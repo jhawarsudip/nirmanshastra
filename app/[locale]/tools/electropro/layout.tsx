@@ -4,6 +4,7 @@ import InnerShell from '@/components/v2/inner/InnerShell'
 import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
 import { localizeToolLd } from '@/lib/qty/meta'
+import { withHindiFaq } from '@/lib/i18n/labels/calc-jsonld'
 import { PRICE } from '@/lib/tool-pricing'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
@@ -48,7 +49,7 @@ export default async function ElectroProLayout({ children, params }: { children:
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={localizeToolLd(toolJsonLd('/tools/electropro'), locale, HI_APP_SUMMARY)} />
+      <JsonLd data={withHindiFaq(localizeToolLd(toolJsonLd('/tools/electropro'), locale, HI_APP_SUMMARY), '/tools/electropro', locale)} />
       {children}
       <ToolInfo path="/tools/electropro" />
     </InnerShell>
