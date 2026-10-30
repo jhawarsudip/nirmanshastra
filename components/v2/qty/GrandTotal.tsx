@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import '@/styles/v2/results.css'
 import { Note, StepBar, ToolHead, IcArrow, IcCheck } from '@/components/v2/inner/kit'

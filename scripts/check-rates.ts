@@ -176,7 +176,7 @@ console.log('The words on the site')
     const h = hits(re)
     ok(h.length === 0, `no live file still says ${why}` + (h.length ? ': ' + h.join(', ') : ''))
   }
-  const dc = readFileSync(join(ROOT, 'app/disclaimer/page.tsx'), 'utf8')
+  const dc = readFileSync(join(ROOT, 'app/[locale]/disclaimer/page.tsx'), 'utf8')
   ok(dc.includes('Material cost at the rates you entered. Labour, transport and taxes are not included.') && dc.includes('Enter your local rates'), 'the disclaimer explains the panel and quotes the result label')
   ok(/not a quotation/.test(dc) && /do not supply, check or update/.test(dc), 'the disclaimer says the rates are the visitor’s and the figure is not a quotation')
   const faq = readFileSync(join(ROOT, 'lib/faq-data.ts'), 'utf8')

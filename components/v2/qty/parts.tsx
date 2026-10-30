@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Note } from '@/components/v2/inner/kit'
 

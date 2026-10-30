@@ -6,14 +6,14 @@
 
 import React from 'react'
 import { Circle, Document, Line, Page, Polygon, Rect, Svg, Text, View } from '@react-pdf/renderer'
-import { brahmasthan, minAreaRect, polygonCentroid, polygonArea, type Poly } from '@/app/tools/vastu-pro/vastu-geometry'
-import { CENTRE_ALL, CENTRE_SHARE, CUTOFF, PADA_EDGE, workRoom, type RoomWorking } from '@/app/tools/vastu-pro/vastu-reading'
-import { CATALOGUE } from '@/app/tools/vastu-pro/vastu-catalogue'
-import { BORDERLINE_DEG, ZONE_SPAN } from '@/app/tools/vastu-pro/vastu-geometry'
-import { PADA_RING, ROOM_RULES, SEV_SCORE, SIDE_FULL, SIDE_ORDER, SOURCES, ZONES, basisAt, type PadaTone, type RoomRule } from '@/app/tools/vastu-pro/vastu-rules'
-import { BASIS_LABEL, SEVERITY_LABEL, SEVERITY_ORDER, type Basis, type Finding, type PlotNote, type Reading, type RemedySet, type Severity } from '@/app/tools/vastu-pro/vastu-types'
-import type { DoorMark, PlacedItem } from '@/app/tools/vastu-pro/vastu-model'
-import { SHEET_UNITS } from '@/app/tools/vastu-pro/vastu-model'
+import { brahmasthan, minAreaRect, polygonCentroid, polygonArea, type Poly } from '@/app/[locale]/tools/vastu-pro/vastu-geometry'
+import { CENTRE_ALL, CENTRE_SHARE, CUTOFF, PADA_EDGE, workRoom, type RoomWorking } from '@/app/[locale]/tools/vastu-pro/vastu-reading'
+import { CATALOGUE } from '@/app/[locale]/tools/vastu-pro/vastu-catalogue'
+import { BORDERLINE_DEG, ZONE_SPAN } from '@/app/[locale]/tools/vastu-pro/vastu-geometry'
+import { PADA_RING, ROOM_RULES, SEV_SCORE, SIDE_FULL, SIDE_ORDER, SOURCES, ZONES, basisAt, type PadaTone, type RoomRule } from '@/app/[locale]/tools/vastu-pro/vastu-rules'
+import { BASIS_LABEL, SEVERITY_LABEL, SEVERITY_ORDER, type Basis, type Finding, type PlotNote, type Reading, type RemedySet, type Severity } from '@/app/[locale]/tools/vastu-pro/vastu-types'
+import type { DoorMark, PlacedItem } from '@/app/[locale]/tools/vastu-pro/vastu-model'
+import { SHEET_UNITS } from '@/app/[locale]/tools/vastu-pro/vastu-model'
 import { C, Chrome, S, Tot, Bullets } from './qty-kit'
 
 export interface VastuPDFProps {

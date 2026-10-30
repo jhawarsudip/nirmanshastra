@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useLocale } from 'next-intl'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { useReveal } from '@/lib/v2/store'
 import { IS_CODES } from '@/lib/v2/content'
 import { Arrow } from '../Icons'

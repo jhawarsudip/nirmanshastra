@@ -4,7 +4,7 @@ import PrivacyChoices from '@/components/analytics/PrivacyChoices'
 import SocialLinks from '@/components/social/SocialLinks'
 import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { BrandMark, Arrow } from '../Icons'
 import FootingsArt from './FootingsArt'
 import { TOOLS, SITE_TEMPLATES, TEMPLATES_BUNDLE, PACK_TOOL } from '@/lib/v2/content'
@@ -73,7 +73,8 @@ export default function Footer() {
             <ul>{company.map(([l, h]) => <li key={h}><Link href={h}>{l}</Link></li>)}</ul>
             <h2 className="ns-foot__h2b">{pick(FOOT.legal, loc)}</h2>
             <ul>
-              {legal.map(([l, h]) => <li key={h}><Link href={h}>{l}</Link></li>)}
+              {/* /llms.txt is a file with no language: a plain link, not the language-aware one (that would send Hindi readers to /hi/llms.txt). */}
+              {legal.map(([l, h]) => <li key={h}>{h.includes('.') ? <a href={h}>{l}</a> : <Link href={h}>{l}</Link>}</li>)}
               <li><PrivacyChoices>{hi ? 'गोपनीयता विकल्प' : 'Privacy choices'}</PrivacyChoices></li>
             </ul>
           </nav>

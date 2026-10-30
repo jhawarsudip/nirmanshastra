@@ -2,9 +2,10 @@
 
 import SocialLinks from '@/components/social/SocialLinks'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter as useNextRouter } from 'next/navigation'
+import { Link, useRouter, usePathname } from '@/i18n/navigation'
 import type { User } from '@supabase/supabase-js'
+import { localizePath } from '@/lib/i18n/paths'
 import { createClient } from '@/lib/supabase/client'
 import CutLink from './CutLink'
 import AdminGate from './AdminGate'
@@ -34,6 +35,7 @@ export default function Header({ locale }: { locale: Loc }) {
   const t = L[locale]
   const n = (k: keyof typeof NAV) => pick(NAV[k], locale)
   const router = useRouter()
+  const plainRouter = useNextRouter() // for the language switch: it already has the final address, with no language to add
   const supabase = useMemo(() => createClient(), [])
   const theme = useTheme()
 
@@ -44,8 +46,11 @@ export default function Header({ locale }: { locale: Loc }) {
   const clicks = useRef<number[]>([])
   const headerRef = useRef<HTMLElement>(null)
 
-  const home = locale === 'hi' ? '/hi' : '/'
-  const hash = (id: string) => `${home}#${id}`
+  // The locale-aware Link adds /hi by itself, so these are written once, without a language.
+  // A hash link to the home page is an object: "/#id" would become "/hi/#id".
+  const home = '/'
+  const hash = (id: string) => ({ pathname: '/', hash: id })
+  const pathname = usePathname()
 
   // A silent anonymous session is not an account — treat it as signed out (same rule as the legacy Navbar).
   useEffect(() => {
@@ -92,11 +97,26 @@ export default function Header({ locale }: { locale: Loc }) {
 
   const close = () => { setMega(false); setMenu(false) }
 
+  // The switch keeps the visitor on the same page, same query and same #section, in the other language.
+  // The href is a plain address (/about or /hi/about) for crawlers and for "open in new tab"; a normal click is handled here.
+  // It is a plain <a>, not the language-aware Link: that one writes /en/about for English, which only redirects to /about.
+  function switchTo(next: Loc) {
+    return (e: React.MouseEvent<HTMLAnchorElement>) => {
+      close()
+      if (next === locale) { e.preventDefault(); return }
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+      e.preventDefault()
+      plainRouter.replace(`${localizePath(pathname, next)}${window.location.search}${window.location.hash}`)
+    }
+  }
+  const langLinks = (
+    <>
+      <a href={localizePath(pathname, 'en')} lang="en" aria-current={locale === 'en'} hrefLang="en" onClick={switchTo('en')}>EN</a>
+      <a href={localizePath(pathname, 'hi')} lang="hi" aria-current={locale === 'hi'} hrefLang="hi" onClick={switchTo('hi')}>हि</a>
+    </>
+  )
   const langSwitch = (
-    <div className="ns-lang" role="group" aria-label={n('lang')}>
-      <Link href="/" prefetch={false} lang="en" aria-current={locale === 'en'} hrefLang="en">EN</Link>
-      <Link href="/hi" prefetch={false} lang="hi" aria-current={locale === 'hi'} hrefLang="hi">हि</Link>
-    </div>
+    <div className="ns-lang" role="group" aria-label={n('lang')}>{langLinks}</div>
   )
 
   const toggles = (
@@ -254,10 +274,7 @@ export default function Header({ locale }: { locale: Loc }) {
           <CutLink className="ns-menu__link" href="/blog" onClick={close} tabIndex={menu ? 0 : -1}>{t.blog}<Arrow /></CutLink>
           <CutLink className="ns-menu__link" href="/faq" onClick={close} tabIndex={menu ? 0 : -1}>{t.faq}<Arrow /></CutLink>
           <div className="ns-menu__row">
-            <div className="ns-lang" style={{ display: 'inline-flex' }} role="group" aria-label={n('lang')}>
-              <Link href="/" prefetch={false} lang="en" aria-current={locale === 'en'} hrefLang="en" onClick={close}>EN</Link>
-              <Link href="/hi" prefetch={false} lang="hi" aria-current={locale === 'hi'} hrefLang="hi" onClick={close}>हि</Link>
-            </div>
+            <div className="ns-lang" style={{ display: 'inline-flex' }} role="group" aria-label={n('lang')}>{langLinks}</div>
             {toggles}
           </div>
           <SocialLinks hi={locale === 'hi'} where="mobile_menu" />

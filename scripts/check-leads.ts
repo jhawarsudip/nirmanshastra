@@ -15,7 +15,7 @@ import { attachContactToEstimate, STRUCT_SEQUENCE_DAYS } from '@/lib/structopro-
 import { allow } from '@/lib/throttle'
 import { parseVastuPlan } from '@/lib/vastu-plan'
 import { getEmailContent } from '@/lib/email-templates'
-import { rectangleOutline } from '@/app/tools/vastu-pro/vastu-model'
+import { rectangleOutline } from '@/app/[locale]/tools/vastu-pro/vastu-model'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 let failed = 0

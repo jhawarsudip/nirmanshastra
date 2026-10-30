@@ -1,7 +1,7 @@
 'use client'
 
 import { useLocale } from 'next-intl'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { useReveal } from '@/lib/v2/store'
 import { SITE_TEMPLATES, TEMPLATES_BUNDLE } from '@/lib/v2/content'
 import { CALCULATORS } from '@/lib/v2/calculators'

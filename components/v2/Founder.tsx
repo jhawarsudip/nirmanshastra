@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import type { ReactNode } from 'react'
 import { FOUNDER_LINE, FOUNDER_PHOTO, FOUNDER_PHOTO_ALT } from '@/lib/founder'
 import '@/styles/v2/founder.css'

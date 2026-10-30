@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import CutLink from '../CutLink'
 import Sticker from '../Sticker'
 import HeroEstimator from '../HeroEstimator'
@@ -31,7 +31,7 @@ export default function Hero({ loc }: { loc: Loc }) {
             <p className="ns-lede ns-hero__sub">{pick(HERO.sub, loc)}</p>
             <div className="ns-hero__cta">
               <CutLink href="/tools/vastu-pro" className="ns-btn" data-snap>{pick(HERO.cta1, loc)}</CutLink>
-              <Link href={loc === 'hi' ? '/hi#quote-check' : '/#quote-check'} className="ns-btn ns-btn--paper" data-snap>{pick(HERO.cta2, loc)}</Link>
+              <Link href={{ pathname: '/', hash: 'quote-check' }} className="ns-btn ns-btn--paper" data-snap>{pick(HERO.cta2, loc)}</Link>
             </div>
             <ul className="ns-hero__chips">
               {HERO.chips.map((c, i) => (

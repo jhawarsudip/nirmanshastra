@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { Field, Input, Select, Note, ToolHead, IcArrow, IcCheck } from '@/components/v2/inner/kit'
 import { STATES } from '@/lib/qty/states'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'

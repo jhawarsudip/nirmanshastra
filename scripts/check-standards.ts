@@ -39,7 +39,7 @@ const text = (p: string) => readFileSync(p, 'utf8')
 
 // The old ElectricalPro engine (IS 732:2019 "Cl 6.2", "Table 6", "Cl 10.4" ...) is not imported by any page. Its clause numbers were
 // never read, so the one thing that matters is that it stays unreachable.
-const DEAD_ENGINE = 'app/tools/electropro/electropro-engine.ts'
+const DEAD_ENGINE = 'app/[locale]/tools/electropro/electropro-engine.ts'
 
 console.log('IS 732 edition')
 {
@@ -50,8 +50,8 @@ console.log('IS 732 edition')
 
   // the files that carry a standards list or a report's sources never say "IS 732" without the edition
   const must = ['lib/is-codes-data.ts', 'lib/v2/content.ts', 'lib/seo/site.ts', 'lib/seo/paid-content.ts', 'lib/qty/electrical/model.ts', 'lib/qty/electrical/calc.ts',
-    'lib/qty/electrical/calc-part2.ts', 'lib/qty/electrical/wire.ts', 'app/tools/wire-size-calculator/page.tsx', 'app/tools/wire-size-calculator/wire-size-engine.ts',
-    'lib/chatbox-knowledge.ts', 'app/tools/electropro/layout.tsx']
+    'lib/qty/electrical/calc-part2.ts', 'lib/qty/electrical/wire.ts', 'app/[locale]/tools/wire-size-calculator/page.tsx', 'app/[locale]/tools/wire-size-calculator/wire-size-engine.ts',
+    'lib/chatbox-knowledge.ts', 'app/[locale]/tools/electropro/layout.tsx']
   for (const f of must) {
     const bare = [...text(join(ROOT, f)).matchAll(/IS 732(?![:0-9])/g)]
     // the header comment of is-codes-data states the rule in words ("IS 732 is given as the 2019 edition")
@@ -118,13 +118,13 @@ console.log('Excel estimator card')
   const CARD = 'For contractors: price a house from IS-code quantities using your own rates, make a client quotation, and compare up to 3 quotes.'
   const est = SITE_TEMPLATES.find((t) => t.href === '/site-templates/cost-estimator')
   ok(est?.desc === CARD, 'homepage card text is exact')
-  ok(text(join(ROOT, 'app/site-templates/page.tsx')).includes(`'${CARD}'`), '/site-templates card text is exact')
-  ok(text(join(ROOT, 'app/site-templates/cost-estimator/page.tsx')).includes(`'${CARD}'`), 'product page buy-box text is exact')
+  ok(text(join(ROOT, 'app/[locale]/site-templates/page.tsx')).includes(`'${CARD}'`), '/site-templates card text is exact')
+  ok(text(join(ROOT, 'app/[locale]/site-templates/cost-estimator/page.tsx')).includes(`'${CARD}'`), 'product page buy-box text is exact')
   ok(text(join(ROOT, 'lib/seo/site.ts')).includes('An Excel construction cost estimator for contractors.'), 'structured-data summary says it is for contractors')
   const all = LIVE.map((p) => text(p)).join('\n')
   ok(!/Prices a house from IS-code first principles/.test(all), 'the old "Prices a house" wording is gone')
-  const dcFaq = text(join(ROOT, 'app/disclaimer/page.tsx')) + text(join(ROOT, 'app/faq/page.tsx'))
-  ok(/reports for homeowners/.test(text(join(ROOT, 'app/disclaimer/page.tsx'))) && /reports for homeowners/.test(text(join(ROOT, 'app/faq/page.tsx'))) && /your own rates|rates you (type|enter)/.test(dcFaq), 'the disclaimer and FAQ name the homeowner reports and say rupees come only from the visitor’s own rates')
+  const dcFaq = text(join(ROOT, 'app/[locale]/disclaimer/page.tsx')) + text(join(ROOT, 'app/[locale]/faq/page.tsx'))
+  ok(/reports for homeowners/.test(text(join(ROOT, 'app/[locale]/disclaimer/page.tsx'))) && /reports for homeowners/.test(text(join(ROOT, 'app/[locale]/faq/page.tsx'))) && /your own rates|rates you (type|enter)/.test(dcFaq), 'the disclaimer and FAQ name the homeowner reports and say rupees come only from the visitor’s own rates')
 }
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll checks passed')

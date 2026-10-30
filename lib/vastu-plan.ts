@@ -3,9 +3,9 @@
   against the catalogue, so nothing the page says is trusted. Used by the findings-PDF route.
 */
 
-import { CATALOGUE, DOOR_KINDS } from '@/app/tools/vastu-pro/vastu-catalogue'
-import { SHEET_UNITS, type DoorMark, type PlacedItem } from '@/app/tools/vastu-pro/vastu-model'
-import type { Poly } from '@/app/tools/vastu-pro/vastu-geometry'
+import { CATALOGUE, DOOR_KINDS } from '@/app/[locale]/tools/vastu-pro/vastu-catalogue'
+import { SHEET_UNITS, type DoorMark, type PlacedItem } from '@/app/[locale]/tools/vastu-pro/vastu-model'
+import type { Poly } from '@/app/[locale]/tools/vastu-pro/vastu-geometry'
 
 const MAX_ITEMS = 60
 const MAX_CORNERS = 40

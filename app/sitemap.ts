@@ -1,5 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { BLOG_ARTICLES } from '@/lib/blog-content'
+import { languageAlternates, localizePath } from '@/lib/i18n/paths'
+import { isHindiReady } from '@/lib/i18n/translated'
 
 const BASE_URL = 'https://www.nirmanshastra.in'
 
@@ -58,6 +60,22 @@ const TOOL_ROUTES = [
   '/tools/earned-value-calculator',
 ]
 
+/**
+ * A page with real Hindi text is listed twice, once per language, each entry naming the other (hreflang).
+ * A page that is still English only is listed once. See lib/i18n/translated.ts.
+ */
+function bothLanguages(entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
+  const out: MetadataRoute.Sitemap = []
+  for (const e of entries) {
+    const path = e.url.slice(BASE_URL.length) || '/'
+    if (!isHindiReady(path)) { out.push(e); continue }
+    const languages = Object.fromEntries(Object.entries(languageAlternates(path)).map(([k, v]) => [k, `${BASE_URL}${v === '/' ? '' : v}`]))
+    out.push({ ...e, alternates: { languages } })
+    out.push({ ...e, url: `${BASE_URL}${localizePath(path, 'hi')}`, priority: Math.max(0.1, (e.priority ?? 0.5) - 0.1), alternates: { languages } })
+  }
+  return out
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const home: MetadataRoute.Sitemap = [
     {
@@ -99,5 +117,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: 'monthly',
   }))
 
-  return [...home, ...tools, ...grandTotal, ...staticPages, ...blogPosts]
+  return [...home, ...bothLanguages([...tools, ...grandTotal, ...staticPages, ...blogPosts])]
 }

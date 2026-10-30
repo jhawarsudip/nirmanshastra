@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { relatedLinksFor } from '@/lib/seo/related'
 import '@/styles/v2/freecalc.css'
 

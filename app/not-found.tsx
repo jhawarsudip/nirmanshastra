@@ -1,50 +1,14 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import InnerShell from '@/components/v2/inner/InnerShell'
-import { IcArrow } from '@/components/v2/inner/kit'
-import '@/styles/v2/content.css'
+import NotFoundView from '@/components/v2/inner/NotFoundView'
 
 export const metadata: Metadata = {
   title: 'Page not found',
   robots: { index: false, follow: false },
 }
 
-// The old site chrome is gone from the root layout, so a missing page needs its own frame.
-// The page-head and card classes are the ones the sign-in page uses.
-const LINKS: [string, string][] = [
-  ['/', 'Home'],
-  ['/tools/structopro', 'StructurePro: structure quantities'],
-  ['/blog', 'IS code guides'],
-  ['/site-templates', 'Excel templates'],
-  ['/contact', 'Contact us'],
-]
-
+// Reached only for an address with no language segment that the page tree cannot place (for example an
+// unknown first path segment that is not a language). Every other missing page is handled by
+// app/[locale]/not-found.tsx, which answers in the visitor's language.
 export default function NotFound() {
-  return (
-    <InnerShell>
-      <div className="ns-i-page">
-        <div className="ns-i-wrap">
-          <div className="ns-au">
-            <header className="ns-au-head">
-              <p className="ns-au-eyebrow">Error 404</p>
-              <h1>That page isn&apos;t here</h1>
-              <p>The link may be old, or the address may have a typo. These will get you back on track.</p>
-            </header>
-            <nav className="ns-plate ns-au-card" aria-label="Useful pages">
-              <ul className="ns-nf-list">
-                {LINKS.map(([href, label]) => (
-                  <li key={href}>
-                    <Link href={href}>
-                      <span>{label}</span>
-                      <IcArrow width={22} height={11} />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </div>
-    </InnerShell>
-  )
+  return <NotFoundView locale="en" />
 }

@@ -34,7 +34,7 @@ ok('no WhatsApp and no phone number anywhere in the site', () => {
   const SKIP = new Set(['node_modules', '.next', '.git', 'samples'])
   const pat = /whatsapp|wa\.me|8697620512|86976 ?20512|86976-20512/i
   // a sentence about how building sites run in general; it is not contact information
-  const ALLOWED = new Set(['app/site-templates/site-documentation/page.tsx'])
+  const ALLOWED = new Set(['app/[locale]/site-templates/site-documentation/page.tsx'])
   const bad: string[] = []
   const walk = (d: string) => {
     for (const name of fs.readdirSync(d)) {
@@ -53,7 +53,7 @@ ok('no WhatsApp and no phone number anywhere in the site', () => {
 })
 
 ok('the only allowed mention is the sentence about how sites run', () => {
-  const s = fs.readFileSync(path.join(__dirname, '..', 'app/site-templates/site-documentation/page.tsx'), 'utf8')
+  const s = fs.readFileSync(path.join(__dirname, '..', 'app/[locale]/site-templates/site-documentation/page.tsx'), 'utf8')
   const hits = s.match(/[^.]*whatsapp[^.]*/gi) ?? []
   assert.equal(hits.length, 1)
   assert.ok(/run on WhatsApp and recollection/.test(hits[0]))

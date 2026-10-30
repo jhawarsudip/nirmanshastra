@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import '@/styles/v2/results.css'
 import type { TradeFree, TradePaid } from '@/lib/qty/types'
 import type { TradeMeta } from '@/lib/qty/meta'

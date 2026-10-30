@@ -16,16 +16,16 @@ const ROOT = path.resolve(__dirname, '..', '..')
 const OUT = '/tmp/calc-check-build'
 
 const FILES = [
-  'app/tools/brick-calculator/brick-engine.ts',
-  'app/tools/concrete-mix-ratio-calculator/concrete-mix-engine.ts',
-  'app/tools/water-tank-size-calculator/water-tank-engine.ts',
-  'app/tools/bar-bending-schedule-calculator/bbs-engine.ts',
-  'app/tools/concrete-cube-test-calculator/cube-test-engine.ts',
-  'app/tools/wire-size-calculator/wire-size-engine.ts',
-  'app/tools/paint-tile-calculator/paint-tile-engine.ts',
-  'app/tools/daily-wage-pf-esi-calculator/wage-engine.ts',
-  'app/tools/ra-bill-retention-tds-calculator/ra-bill-engine.ts',
-  'app/tools/earned-value-calculator/evm-engine.ts',
+  'app/[locale]/tools/brick-calculator/brick-engine.ts',
+  'app/[locale]/tools/concrete-mix-ratio-calculator/concrete-mix-engine.ts',
+  'app/[locale]/tools/water-tank-size-calculator/water-tank-engine.ts',
+  'app/[locale]/tools/bar-bending-schedule-calculator/bbs-engine.ts',
+  'app/[locale]/tools/concrete-cube-test-calculator/cube-test-engine.ts',
+  'app/[locale]/tools/wire-size-calculator/wire-size-engine.ts',
+  'app/[locale]/tools/paint-tile-calculator/paint-tile-engine.ts',
+  'app/[locale]/tools/daily-wage-pf-esi-calculator/wage-engine.ts',
+  'app/[locale]/tools/ra-bill-retention-tds-calculator/ra-bill-engine.ts',
+  'app/[locale]/tools/earned-value-calculator/evm-engine.ts',
 ]
 
 fs.rmSync(OUT, { recursive: true, force: true })

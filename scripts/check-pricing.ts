@@ -58,7 +58,7 @@ const SKIP_DIR = new Set(['node_modules', '.next', '.git'])
 const ALLOW = new Set(['lib/tool-pricing.ts', 'scripts/check-pricing.ts'])
 // The Excel site templates are separate products with their own prices (lib/site-templates.ts). One of them happens to
 // cost the same as StructurePro, so a line that belongs to a template (its folder, its link, or a "sheets:" card) is skipped.
-const isTemplateFile = (rel: string) => rel.startsWith('app/site-templates/') || rel === 'lib/site-templates.ts' || rel.startsWith('app/api/site-templates/')
+const isTemplateFile = (rel: string) => rel.startsWith('app/[locale]/site-templates/') || rel === 'lib/site-templates.ts' || rel.startsWith('app/api/site-templates/')
 const isTemplateLine = (line: string) => /site-templates|\bsheets:\s*\d/.test(line)
 
 const OLD = [/₹\s?(499|699|899)\b/, /\bRs\.?\s?(499|699|899)\b/, /\b(49900|69900|89900)\b/]

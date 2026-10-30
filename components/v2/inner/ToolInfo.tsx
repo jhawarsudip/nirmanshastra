@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { PAID_CONTENT } from '@/lib/seo/paid-content'
 import { relatedLinksFor } from '@/lib/seo/related'
 

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { META_PIXEL_ID } from '@/lib/analytics/config'
+import { localeFromPath, localizePath } from '@/lib/i18n/paths'
 import { onOpenConsentBanner, useConsent, writeConsent } from '@/lib/analytics/consent'
 import './consent.css'
 
@@ -46,7 +47,7 @@ export default function ConsentBanner() {
   const [lang, setLang] = useState<Lang | null>(null)
   const ref = useRef<HTMLDivElement>(null)
 
-  const language: Lang = lang ?? (pathname === '/hi' || pathname.startsWith('/hi/') ? 'hi' : 'en')
+  const language: Lang = lang ?? localeFromPath(pathname)
   const t = COPY[language]
 
   useEffect(() => onOpenConsentBanner(() => {
@@ -80,7 +81,7 @@ export default function ConsentBanner() {
         </button>
       </div>
       <p className="ns-consent__text">
-        {t.body} <Link href="/privacy-policy">{t.policy}</Link>
+        {t.body} <Link href={localizePath('/privacy-policy', language)}>{t.policy}</Link>
       </p>
       <div className="ns-consent__row">
         <button type="button" className="ns-consent__btn ns-consent__btn--yes" onClick={() => choose('granted')}>{t.yes}</button>
