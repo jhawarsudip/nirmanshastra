@@ -82,6 +82,14 @@ export default function Footer() {
           <span>&copy; {yr} NirmanShastra</span>
           <button type="button" className="ns-foot__top" data-snap onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>{pick(FOOT.top, loc)}<Arrow style={{ transform: 'rotate(-90deg)' }} /></button>
         </div>
+        {/* Same line, same place as the foot of zeizzsystems.com: a quiet credit, centred, with the ZeizzLabs mark as the link. */}
+        <div className="ns-foot__credit">
+          <span>{pick(FOOT.credit, loc)}</span>
+          <a href="https://www.zeizzlabs.com" target="_blank" rel="noopener noreferrer" aria-label={pick(FOOT.creditAria, loc)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/zeizzlabs.png" alt="ZeizzLabs" width={432} height={144} loading="lazy" decoding="async" />
+          </a>
+        </div>
       </div>
     </footer>
   )

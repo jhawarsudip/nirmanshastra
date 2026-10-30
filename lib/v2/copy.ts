@@ -186,4 +186,6 @@ export const FOOT = {
   },
   free: { en: 'Free', hi: 'मुफ़्त' },
   top: { en: 'Back to top', hi: 'ऊपर जाएँ' },
+  credit: { en: 'Designed & Developed by', hi: 'डिज़ाइन और डेवलपमेंट:' },
+  creditAria: { en: 'ZeizzLabs (opens www.zeizzlabs.com in a new tab)', hi: 'ZeizzLabs (www.zeizzlabs.com नए टैब में खुलेगा)' },
 } as Record<string, Bi>
