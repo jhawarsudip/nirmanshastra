@@ -39,6 +39,8 @@ export interface ToolMeta {
   accent: string
   plate: string
   plateAlt: string
+  /** the same description for the Hindi page */
+  plateAltHi: string
   chips: string[]
   descriptorKey: string
   descKey: string
@@ -49,6 +51,7 @@ export const TOOLS: ToolMeta[] = [
     key: 'vastu', phase: 'P0', name: 'VastuPro', href: '/tools/vastu-pro', price: 'FREE', free: true,
     accent: '--ns-t-vastu', plate: '/v2/products/p06-vastupro.webp',
     plateAlt: 'Plan-view drawing of a house with a 16-zone Vastu compass grid in gold line',
+    plateAltHi: 'घर के प्लान-व्यू का ड्रॉइंग, सुनहरी रेखाओं में 16-ज़ोन वास्तु कंपास ग्रिड के साथ',
     chips: ['24 ROOMS', 'SOURCED RULES'],
     descriptorKey: 'vastuDescriptor', descKey: 'vastuDesc',
   },
@@ -56,6 +59,7 @@ export const TOOLS: ToolMeta[] = [
     key: 'struct', phase: 'P1', name: 'StructurePro', href: '/tools/structopro', price: PRICE.structopro, free: false,
     accent: '--ns-t-struct', plate: '/v2/products/p01-structurepro.webp',
     plateAlt: 'Isometric cutaway of an RCC column and beam joint with its rebar cage',
+    plateAltHi: 'RCC कॉलम और बीम के जोड़ का आइसोमेट्रिक कटअवे, सरिये के पिंजरे के साथ',
     chips: ['IS 456:2000', 'IS 13920:2016', 'IS 1893 (Part 1)'],
     descriptorKey: 'structureDescriptor', descKey: 'structureDesc',
   },
@@ -63,6 +67,7 @@ export const TOOLS: ToolMeta[] = [
     key: 'mason', phase: 'P2', name: 'MasonryPro', href: '/tools/masonpro', price: PRICE.masonpro, free: false,
     accent: '--ns-t-mason', plate: '/v2/products/p02-masonpro.webp',
     plateAlt: 'Isometric corner of an English-bond brick wall with a window and lintel',
+    plateAltHi: 'अंग्रेज़ी बॉन्ड की ईंट की दीवार के कोने का आइसोमेट्रिक चित्र, खिड़की और लिंटल के साथ',
     chips: ['IS 1077:1992', 'IS 2212:1991', 'IS 2185'],
     descriptorKey: 'masonryDescriptor', descKey: 'masonryDesc',
   },
@@ -70,6 +75,7 @@ export const TOOLS: ToolMeta[] = [
     key: 'elec', phase: 'P3', name: 'ElectricalPro', href: '/tools/electropro', price: PRICE.electropro, free: false,
     accent: '--ns-t-elec', plate: '/v2/products/p03-electricalpro.webp',
     plateAlt: 'Isometric wall section with recessed conduit, switch box and distribution board',
+    plateAltHi: 'दीवार के भीतर कंड्यूट, स्विच बॉक्स और डिस्ट्रीब्यूशन बोर्ड दिखाता आइसोमेट्रिक सेक्शन',
     chips: ['IS 4648', 'IS 732:2019', 'IS 3043:2018'],
     descriptorKey: 'electricalDescriptor', descKey: 'electricalDesc',
   },
@@ -77,6 +83,7 @@ export const TOOLS: ToolMeta[] = [
     key: 'plumb', phase: 'P4', name: 'PlumbingPro', href: '/tools/plumbpro', price: PRICE.plumbpro, free: false,
     accent: '--ns-t-plumb', plate: '/v2/products/p04-plumbpro.webp',
     plateAlt: 'Isometric plumbing riser from overhead tank to bathroom and drain chamber',
+    plateAltHi: 'ऊपरी टंकी से बाथरूम और ड्रेन चैंबर तक प्लंबिंग राइज़र का आइसोमेट्रिक चित्र',
     chips: ['IS 1172:1993', 'IS 1742:1983'],
     descriptorKey: 'plumbingDescriptor', descKey: 'plumbingDesc',
   },
@@ -84,12 +91,13 @@ export const TOOLS: ToolMeta[] = [
     key: 'int', phase: 'P5', name: 'InteriorPro', href: '/tools/interiorpro', price: PRICE.interiorpro, free: false,
     accent: '--ns-t-int', plate: '/v2/products/p05-interiorpro.webp',
     plateAlt: 'Isometric cutaway of a room corner with tile floor, skirting and false ceiling',
+    plateAltHi: 'टाइल वाले फ़र्श, स्कर्टिंग और फ़ॉल्स सीलिंग के साथ कमरे के कोने का आइसोमेट्रिक कटअवे',
     chips: ['BASIC', 'STANDARD', 'PREMIUM', 'LUXURY'],
     descriptorKey: 'interiorDescriptor', descKey: 'interiorDesc',
   },
 ]
 
-export interface TemplateDef { title: string; sheets: number; price: string; desc: string; href: string }
+export interface TemplateDef { title: string; sheets: number; price: string; desc: string; href: string; hi: { title: string; desc: string } }
 
 // Six toolkits — titles, sheet counts and descriptions verbatim from /site-templates.
 /** The Complete House Pack, as a menu entry: all five reports and the Grand Total for one house. Price from lib/tool-pricing.ts. */
@@ -105,31 +113,37 @@ export const SITE_TEMPLATES: TemplateDef[] = [
     title: 'Residential Construction Cost Estimator', sheets: 16, price: '₹2,499',
     desc: 'For contractors: price a house from IS-code quantities using your own rates, make a client quotation, and compare up to 3 quotes.',
     href: '/site-templates/cost-estimator',
+    hi: { title: 'रेज़िडेंशियल कंस्ट्रक्शन कॉस्ट एस्टिमेटर', desc: 'ठेकेदारों के लिए: अपने रेट लगाकर IS कोड की मात्राओं से घर का हिसाब लगाइए, क्लाइंट के लिए कोटेशन बनाइए और 3 कोटेशन तक की तुलना कीजिए।' },
   },
   {
     title: 'Construction Site Documentation Pack', sheets: 14, price: '₹1,699',
     desc: 'Nine registers holding the proof of what happened on site — the contemporaneous record that holds up when a delay or defect is disputed.',
     href: '/site-templates/site-documentation',
+    hi: { title: 'कंस्ट्रक्शन साइट डॉक्यूमेंटेशन पैक', desc: 'नौ रजिस्टर, जिनमें साइट पर जो कुछ हुआ उसका प्रमाण दर्ज रहता है। उसी समय का यह रिकॉर्ड तब काम आता है जब देरी या ख़ामी पर विवाद हो।' },
   },
   {
     title: 'Billing & Measurement', sheets: 9, price: '₹2,299',
     desc: 'Takes measured work through the full Indian billing chain — joint measurement, abstract against BOQ, RA bill with retention/TDS/GST, payment tracking to close.',
     href: '/site-templates/billing-measurement',
+    hi: { title: 'बिलिंग और मेज़रमेंट', desc: 'नापे हुए काम को भारतीय बिलिंग की पूरी कड़ी से गुज़ारता है: संयुक्त माप, BOQ के सामने एब्सट्रैक्ट, रिटेंशन/TDS/GST के साथ RA बिल, और अंत तक भुगतान की ट्रैकिंग।' },
   },
   {
     title: 'Bar Bending Schedule', sheets: 12, price: '₹2,099',
     desc: 'Turns reinforcement details into a cutting-length schedule and steel order note, with every bend deduction and hook allowance applied per code.',
     href: '/site-templates/bar-bending-schedule',
+    hi: { title: 'बार बेंडिंग शेड्यूल', desc: 'सरिये की डिटेल को कटिंग-लेंथ शेड्यूल और स्टील ऑर्डर नोट में बदलता है, हर मोड़ की कटौती और हुक का भत्ता कोड के अनुसार लगाकर।' },
   },
   {
     title: 'Labour & Statutory Compliance', sheets: 16, price: '₹1,999',
     desc: "Runs site payroll end to end under India's current four Labour Codes (in force since Nov 2025) — PF, ESI, minimum wage checks, subcontractor compliance holds.",
     href: '/site-templates/labour-compliance',
+    hi: { title: 'लेबर और स्टैच्यूटरी कम्प्लायंस', desc: 'साइट का पूरा पेरोल भारत के मौजूदा चार लेबर कोड (नवंबर 2025 से लागू) के हिसाब से चलाता है: PF, ESI, न्यूनतम मज़दूरी की जाँच और सब-कॉन्ट्रैक्टर के कम्प्लायंस होल्ड।' },
   },
   {
     title: 'Planning, Progress & Delay Control', sheets: 17, price: '₹2,299',
     desc: 'Value-weighted S-curve and earned value tracking, plus a delay/EOT register that classifies events the way a contract actually does — with notice-deadline tracking.',
     href: '/site-templates/planning-progress',
+    hi: { title: 'प्लानिंग, प्रोग्रेस और डिले कंट्रोल', desc: 'वैल्यू-वेटेड S-कर्व और अर्नड वैल्यू ट्रैकिंग, साथ में डिले/EOT रजिस्टर, जो घटनाओं को वैसे ही बाँटता है जैसे कॉन्ट्रैक्ट बाँटता है, नोटिस की आख़िरी तारीख़ की ट्रैकिंग सहित।' },
   },
 ]
 

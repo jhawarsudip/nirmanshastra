@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
+import { stateLabel } from '@/lib/i18n/states'
 import { useReveal } from '@/lib/v2/store'
 import { DEALER_QUERIES } from '@/lib/v2/content'
 import { STATE_CITIES, INDIAN_STATES_LIST } from '@/lib/state-cities'
@@ -13,6 +14,7 @@ const CATS = ['cat0', 'cat1', 'cat2', 'cat3', 'cat4', 'cat5', 'cat6', 'cat7'] as
 /** Opens a Google Maps search; nothing is stored or listed by us. Behaviour carried over from the live page. */
 export default function Dealers() {
   const t = useTranslations('dealers')
+  const locale = useLocale()
   const [state, setState] = useState('')
   const [city, setCity] = useState('')
   const [area, setArea] = useState('')
@@ -59,7 +61,7 @@ export default function Dealers() {
             <label className="ns-field"><span>{t('labelState')}</span>
               <select className="ns-select" value={state} onChange={e => { setState(e.target.value); setCity('') }}>
                 <option value="">{t('stateDefault')}</option>
-                {INDIAN_STATES_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+                {INDIAN_STATES_LIST.map(s => <option key={s} value={s}>{stateLabel(s, locale)}</option>)}
               </select>
             </label>
             <label className="ns-field"><span>{t('labelCity')}</span>

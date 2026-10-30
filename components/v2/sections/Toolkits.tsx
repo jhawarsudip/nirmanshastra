@@ -40,8 +40,8 @@ export default function Toolkits() {
               <Link href={s.href} className="ns-plate ns-tk__card" data-snap>
                 <span className="ns-tk__sh ns-mono" aria-hidden="true">{String(s.sheets).padStart(2, '0')}</span>
                 <span className="ns-tk__meta ns-mono">{s.sheets} {c.sheets}</span>
-                <h3>{s.title}</h3>
-                <p>{s.desc}</p>
+                <h3>{loc === 'hi' ? s.hi.title : s.title}</h3>
+                <p>{loc === 'hi' ? s.hi.desc : s.desc}</p>
                 <span className="ns-tk__foot"><b className="ns-mono">{s.price}</b><span>{c.open}<Arrow /></span></span>
               </Link>
             </li>

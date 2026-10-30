@@ -64,7 +64,7 @@ export default function Footer() {
           <nav aria-label={pick(FOOT.kits, loc)}>
             <h2>{pick(FOOT.kits, loc)}</h2>
             <ul>
-              {SITE_TEMPLATES.map(s => <li key={s.href}><Link href={s.href}>{s.title}<em>{s.price}</em></Link></li>)}
+              {SITE_TEMPLATES.map(s => <li key={s.href}><Link href={s.href}>{hi ? s.hi.title : s.title}<em>{s.price}</em></Link></li>)}
               <li><Link href={TEMPLATES_BUNDLE.href}>{t('templatesBundle')}<em>{TEMPLATES_BUNDLE.price}</em></Link></li>
             </ul>
           </nav>

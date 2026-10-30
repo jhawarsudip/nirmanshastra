@@ -22,12 +22,12 @@ const L = {
   en: {
     reports: 'My reports', logout: 'Log out', sheets: 'sheets', free: 'FREE', allKits: 'All six toolkits',
     blog: 'Blog', faq: 'Questions',
-    lamp: 'Day / night', home: 'NirmanShastra home',
+    lamp: 'Day / night', home: 'NirmanShastra home', primary: 'Primary', menuLabel: 'Menu',
   },
   hi: {
     reports: 'मेरी रिपोर्ट', logout: 'लॉग आउट', sheets: 'शीट', free: 'मुफ़्त', allKits: 'सभी छह टूलकिट',
     blog: 'ब्लॉग', faq: 'सवाल',
-    lamp: 'दिन / रात', home: 'NirmanShastra होम',
+    lamp: 'दिन / रात', home: 'NirmanShastra होम', primary: 'मुख्य मेन्यू', menuLabel: 'मेन्यू',
   },
 } as const
 
@@ -138,7 +138,7 @@ export default function Header({ locale }: { locale: Loc }) {
             </span>
           </Link>
 
-          <nav className="ns-nav" aria-label="Primary">
+          <nav className="ns-nav" aria-label={t.primary}>
             <button
               type="button"
               aria-expanded={mega}
@@ -216,7 +216,7 @@ export default function Header({ locale }: { locale: Loc }) {
                   <CutLink key={k.href} href={k.href} onClick={close} role="menuitem">
                     <span className="ns-mega__bar" aria-hidden="true" />
                     <span>
-                      <span className="ns-mega__name">{k.title}</span>
+                      <span className="ns-mega__name">{locale === 'hi' ? k.hi.title : k.title}</span>
                       <span className="ns-mega__sub ns-mono">{k.sheets} {t.sheets}</span>
                     </span>
                     <span className="ns-mega__price">{k.price}</span>
@@ -234,7 +234,7 @@ export default function Header({ locale }: { locale: Loc }) {
       </header>
 
       {/* mobile menu sheet */}
-      <div className={`ns-menu${menu ? ' is-open' : ''}`} aria-hidden={!menu} role="dialog" aria-modal="true" aria-label="Menu">
+      <div className={`ns-menu${menu ? ' is-open' : ''}`} aria-hidden={!menu} role="dialog" aria-modal="true" aria-label={t.menuLabel}>
         <div className="ns-menu__top">
           <Link href={home} className="ns-brand" onClick={close} tabIndex={menu ? 0 : -1}>
             <BrandMark className="ns-brand__mark" />
@@ -264,7 +264,7 @@ export default function Header({ locale }: { locale: Loc }) {
             <Link href={hash('builders')} onClick={close} tabIndex={menu ? 0 : -1}><span>{n('freeCalcs')}</span><span>{t.free}</span></Link>
             {SITE_TEMPLATES.map(k => (
               <CutLink key={k.href} href={k.href} onClick={close} tabIndex={menu ? 0 : -1}>
-                <span>{k.title}</span><span>{k.price}</span>
+                <span>{locale === 'hi' ? k.hi.title : k.title}</span><span>{k.price}</span>
               </CutLink>
             ))}
             <CutLink href={TEMPLATES_BUNDLE.href} onClick={close} tabIndex={menu ? 0 : -1}>

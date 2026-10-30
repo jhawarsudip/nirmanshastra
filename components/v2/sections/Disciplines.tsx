@@ -124,7 +124,7 @@ export default function Disciplines() {
         <p className="ns-label ns-dis__suite">{c.suite1}</p>
         <article className="ns-plate ns-plate--paper ns-dis__vastu" style={{ ['--tc' as string]: 'var(--ns-t-vastu)' }}>
           <div className="ns-dis__vimg">
-            <Image src={vastu.plate} alt={vastu.plateAlt} width={1100} height={1100} sizes="(max-width: 900px) 70vw, 320px" />
+            <Image src={vastu.plate} alt={loc === 'hi' ? vastu.plateAltHi : vastu.plateAlt} width={1100} height={1100} sizes="(max-width: 900px) 70vw, 320px" />
           </div>
           <div className="ns-dis__vbody">
             <span className="ns-mono ns-dis__ph">{c.free}</span>
@@ -148,7 +148,7 @@ export default function Disciplines() {
                   <span className="ns-mono ns-dis__price">{tool.price}</span>
                 </header>
                 <div className="ns-dis__img">
-                  <Image src={tool.plate} alt={tool.plateAlt} width={1100} height={1100} sizes="(max-width: 900px) 78vw, 380px" />
+                  <Image src={tool.plate} alt={loc === 'hi' ? tool.plateAltHi : tool.plateAlt} width={1100} height={1100} sizes="(max-width: 900px) 78vw, 380px" />
                 </div>
                 <h3 className="ns-h3">{tool.name}</h3>
                 <p className="ns-dis__desc"><strong>{pick(TOOL_PLAIN[tool.key], loc)}</strong><br />{pick(DESC[tool.key], loc)}</p>
