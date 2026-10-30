@@ -397,7 +397,7 @@ export default function ResultsV2({ free, estimateId, hasContact, projectName, o
 
 // ─── the paid report ──────────────────────────────────────────────────────────
 
-export function PaidSections({ r, estimateId, preview, pdfStatus, pdfUrl, emailSent, downloading, onDownload, onRetryPdf }: {
+function PaidSections({ r, estimateId, preview, pdfStatus, pdfUrl, emailSent, downloading, onDownload, onRetryPdf }: {
   r: PaidPayload
   estimateId: string | null
   preview: boolean
