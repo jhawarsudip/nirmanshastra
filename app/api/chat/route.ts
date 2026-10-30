@@ -24,6 +24,9 @@ Which tool for which question:
 
 const SYSTEM_PROMPT = BASE_SYSTEM_PROMPT + '\n\n' + CHATBOX_KNOWLEDGE
 
+// A visitor on the Hindi pages (/hi/...) gets Hindi unless they write in English: Devanagari, with everyday site words (cement, slab, beam) as people say them.
+const HINDI_NOTE = '\n\nThe visitor is reading the Hindi version of the site. Answer in Hindi (Devanagari script) unless their message is in English. Use everyday words the way Indian site engineers say them (सीमेंट, स्लैब, बीम, कॉलम). Keep IS code names and numbers, grades such as M25 and Fe500, units and product names such as StructurePro in Latin letters, and use Latin digits.'
+
 // The endpoint is open to anyone who visits the site and each call is billed, so keep what it accepts small and well-formed.
 const MAX_TURNS = 10
 const MAX_CHARS = 1500
@@ -70,7 +73,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 500,
-        system: SYSTEM_PROMPT,
+        system: body?.lang === 'hi' ? SYSTEM_PROMPT + HINDI_NOTE : SYSTEM_PROMPT,
         messages,
       }),
     })

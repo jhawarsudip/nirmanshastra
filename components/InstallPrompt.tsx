@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useConsent } from '@/lib/analytics/consent';
+import { localeFromPath } from '@/lib/i18n/paths';
+
+// This bar sits in the root layout (no next-intl provider), so the language comes from the address.
+const COPY = {
+  en: { aria: 'Install NirmanShastra app', title: 'Install NirmanShastra App', sub: 'Works offline · Faster on repeat visits', install: 'Install', dismiss: 'Dismiss install prompt' },
+  hi: { aria: 'NirmanShastra ऐप इंस्टॉल करें', title: 'NirmanShastra ऐप इंस्टॉल करें', sub: 'ऑफ़लाइन भी चलता है · दोबारा खोलने पर तेज़', install: 'इंस्टॉल', dismiss: 'इंस्टॉल का सुझाव बंद करें' },
+} as const;
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -9,6 +17,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function InstallPrompt() {
+  const t = COPY[localeFromPath(usePathname())];
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   // the consent bar sits in the same spot, so the install bar waits until the visitor has answered it
@@ -69,7 +78,7 @@ export default function InstallPrompt() {
         fontFamily: 'var(--font-plex-sans)',
       }}
       role="banner"
-      aria-label="Install NirmanShastra app"
+      aria-label={t.aria}
     >
       {/* NS icon */}
       <div
@@ -95,10 +104,10 @@ export default function InstallPrompt() {
       {/* Text */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#F4F4F0', lineHeight: 1.3 }}>
-          Install NirmanShastra App
+          {t.title}
         </p>
         <p style={{ margin: 0, fontSize: 11, color: 'rgba(244,244,240,0.55)', lineHeight: 1.3, fontFamily: 'var(--font-plex-mono)' }}>
-          Works offline · Faster on repeat visits
+          {t.sub}
         </p>
       </div>
 
@@ -119,13 +128,13 @@ export default function InstallPrompt() {
           borderRadius: 4,
         }}
       >
-        Install
+        {t.install}
       </button>
 
       {/* Dismiss */}
       <button
         onClick={handleDismiss}
-        aria-label="Dismiss install prompt"
+        aria-label={t.dismiss}
         style={{
           flexShrink: 0,
           background: 'transparent',

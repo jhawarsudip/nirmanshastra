@@ -1,20 +1,61 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { localeFromPath } from '@/lib/i18n/paths'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
 }
 
-const SUGGESTED_QUESTIONS = [
-  'What should I ask my contractor for, besides a price?',
-  'What is M20 concrete?',
-  'How many bricks are in a wall of 100 sq ft?',
-  'What does StructurePro count?',
-  'What is IS 456:2000?',
-  'How do I check the steel delivered to my site?',
-]
+// This box sits in the root layout (no next-intl provider), so its language comes from the address (/hi/... is Hindi).
+const COPY = {
+  en: {
+    questions: [
+      'What should I ask my contractor for, besides a price?',
+      'What is M20 concrete?',
+      'How many bricks are in a wall of 100 sq ft?',
+      'What does StructurePro count?',
+      'What is IS 456:2000?',
+      'How do I check the steel delivered to my site?',
+    ],
+    ask: 'Ask NirmanShastra',
+    openAria: 'Open AI chat',
+    closeAria: 'Close AI chat',
+    closePanel: 'Close chat',
+    title: 'NirmanShastra AI',
+    powered: 'POWERED BY CLAUDE',
+    intro1: 'Your guide to construction quantities and the IS codes.',
+    intro2: 'Ask what to order, or how to check what you are told.',
+    placeholder: 'Ask about quantities, materials, IS codes…',
+    send: 'Send message',
+    oops: 'Sorry, something went wrong. Please try again.',
+    network: 'Network error. Please check your connection and try again.',
+  },
+  hi: {
+    questions: [
+      'ठेकेदार से रेट के अलावा और क्या-क्या माँगना चाहिए?',
+      'M20 कंक्रीट क्या होता है?',
+      '100 वर्ग फ़ुट की दीवार में कितनी ईंटें लगती हैं?',
+      'StructurePro क्या-क्या गिनता है?',
+      'IS 456:2000 क्या है?',
+      'साइट पर आया सरिया कैसे जाँचें?',
+    ],
+    ask: 'NirmanShastra से पूछिए',
+    openAria: 'AI चैट खोलें',
+    closeAria: 'AI चैट बंद करें',
+    closePanel: 'चैट बंद करें',
+    title: 'NirmanShastra AI',
+    powered: 'POWERED BY CLAUDE',
+    intro1: 'निर्माण की मात्रा और IS कोड के लिए आपका साथी।',
+    intro2: 'पूछिए कि क्या मँगवाना है, या जो बताया गया है उसे कैसे जाँचें।',
+    placeholder: 'मात्रा, सामान, IS कोड के बारे में पूछिए…',
+    send: 'संदेश भेजें',
+    oops: 'माफ़ कीजिए, कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।',
+    network: 'नेटवर्क में दिक्कत है। कृपया अपना कनेक्शन जाँचकर फिर कोशिश करें।',
+  },
+} as const
 
 // Warm ink at various opacities over cream paper (the same palette as the rest of the site)
 const COLORS = {
@@ -79,6 +120,8 @@ function ChatMessage({ msg }: { msg: Message }) {
 }
 
 export default function AIChatbox() {
+  const lang = localeFromPath(usePathname())
+  const t = COPY[lang]
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -113,7 +156,7 @@ export default function AIChatbox() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next, lang }),
       })
       const data = await res.json()
       if (data.text) {
@@ -121,13 +164,13 @@ export default function AIChatbox() {
       } else {
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' },
+          { role: 'assistant', content: t.oops },
         ])
       }
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: 'Network error. Please check your connection and try again.' },
+        { role: 'assistant', content: t.network },
       ])
     } finally {
       setLoading(false)
@@ -189,13 +232,13 @@ export default function AIChatbox() {
             }}
             onClick={() => setOpen(true)}
           >
-            Ask NirmanShastra
+            {t.ask}
           </span>
         )}
 
         <button
           onClick={() => setOpen((v) => !v)}
-          aria-label={open ? 'Close AI chat' : 'Open AI chat'}
+          aria-label={open ? t.closeAria : t.openAria}
           style={{
             width: 52,
             height: 52,
@@ -293,7 +336,7 @@ export default function AIChatbox() {
                     lineHeight: 1.2,
                   }}
                 >
-                  NirmanShastra AI
+                  {t.title}
                 </div>
                 <div
                   style={{
@@ -304,13 +347,13 @@ export default function AIChatbox() {
                     letterSpacing: '0.04em',
                   }}
                 >
-                  POWERED BY CLAUDE
+                  <span lang="en">{t.powered}</span>
                 </div>
               </div>
             </div>
             <button
               onClick={() => setOpen(false)}
-              aria-label="Close chat"
+              aria-label={t.closePanel}
               style={{
                 background: 'none',
                 border: 'none',
@@ -353,10 +396,10 @@ export default function AIChatbox() {
                     lineHeight: 1.5,
                   }}
                 >
-                  Your guide to construction quantities and the IS codes.<br />Ask what to order, or how to check what you are told.
+                  {t.intro1}<br />{t.intro2}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {SUGGESTED_QUESTIONS.map((q) => (
+                  {t.questions.map((q) => (
                     <button
                       key={q}
                       onClick={() => sendMessage(q)}
@@ -425,7 +468,7 @@ export default function AIChatbox() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about quantities, materials, IS codes…"
+              placeholder={t.placeholder}
               rows={1}
               disabled={loading}
               style={{
@@ -450,7 +493,7 @@ export default function AIChatbox() {
             <button
               onClick={() => sendMessage(input)}
               disabled={loading || !input.trim()}
-              aria-label="Send message"
+              aria-label={t.send}
               style={{
                 width: 38,
                 height: 38,

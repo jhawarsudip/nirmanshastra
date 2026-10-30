@@ -187,7 +187,7 @@ export default function Exploded() {
                 <div className="ns-ex__scene" ref={scene}>
                   {stackOrder.map(i => (
                     <div key={LAYERS[i].id} className="ns-ex__layer" ref={el => { layers.current[i] = el }}>
-                      {near && <Image src={LAYERS[i].src} alt={`${c.step} ${i + 1}: ${LAYERS[i].name.en}`} width={1500} height={1232} unoptimized sizes="(max-width: 1000px) 92vw, 52vw" />}
+                      {near && <Image src={LAYERS[i].src} alt={`${c.step} ${i + 1}: ${LAYERS[i].name[loc]}`} width={1500} height={1232} unoptimized sizes="(max-width: 1000px) 92vw, 52vw" />}
                     </div>
                   ))}
                 </div>
