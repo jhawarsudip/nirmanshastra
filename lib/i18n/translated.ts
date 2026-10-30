@@ -13,6 +13,25 @@
  */
 export const HINDI_READY: readonly string[] = [
   '/',
+  // tools and calculators (31 Oct 2026)
+  '/tools/structopro',
+  '/tools/masonpro',
+  '/tools/electropro',
+  '/tools/plumbpro',
+  '/tools/interiorpro',
+  '/tools/grand-total',
+  '/tools/complete-house-pack',
+  '/tools/vastu-pro',
+  '/tools/bar-bending-schedule-calculator',
+  '/tools/brick-calculator',
+  '/tools/concrete-cube-test-calculator',
+  '/tools/concrete-mix-ratio-calculator',
+  '/tools/daily-wage-pf-esi-calculator',
+  '/tools/earned-value-calculator',
+  '/tools/paint-tile-calculator',
+  '/tools/ra-bill-retention-tds-calculator',
+  '/tools/water-tank-size-calculator',
+  '/tools/wire-size-calculator',
 ]
 
 export function isHindiReady(path: string): boolean {
