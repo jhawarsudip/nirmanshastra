@@ -58,10 +58,11 @@ export function useQtyTr(which: TradeSlug | 'all' | 'none') {
     return () => { live = false }
   }, [locale, which])
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback((s: string) => {
     if (locale !== 'hi' || !s) return s
     const r = RANGE.exec(s)
     return r ? `${r[1]} से ${r[2]}` : trQty(s, dictFor(slugs))
+    // `slugs` is derived from `which`; `version` re-reads the dictionaries once they have loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, which, version])
 }

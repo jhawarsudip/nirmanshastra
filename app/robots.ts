@@ -1,7 +1,9 @@
 import { MetadataRoute } from 'next'
 
 // Private / transactional routes stay disallowed for every bot, named or not.
-const DISALLOW = ['/admin', '/api', '/account', '/auth', '/reports']
+const PRIVATE = ['/account', '/auth', '/reports']
+// The Hindi pages live under /hi, so each private page is closed there too.
+const DISALLOW = ['/admin', '/api', ...PRIVATE, ...PRIVATE.map((p) => `/hi${p}`)]
 
 // AI assistants and AI-search crawlers, welcomed by name. A named group REPLACES
 // the "*" group for that bot, so the disallow list is repeated here on purpose.
