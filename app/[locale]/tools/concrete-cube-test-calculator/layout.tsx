@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
-import { toolJsonLd } from '@/lib/seo/schema'
+import { calcJsonLd } from '@/lib/i18n/labels/calc-jsonld'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -28,8 +28,13 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name, IS numbers and units stay in Latin letters.
+const HI: HiMeta = {
+  title: 'कंक्रीट क्यूब टेस्ट कैलकुलेटर: एक ढलाई के लिए सैंपल और क्यूब',
+  description:
+    'निःशुल्क कंक्रीट क्यूब टेस्ट कैलकुलेटर। एक ग्रेड के कंक्रीट की मात्रा डालिए और IS 456:2000 के क्लॉज़ 15.2.2 के अनुसार कम से कम सैंपल और ढालने के क्यूब पाइए: हर सैंपल के तीन, 28 दिन पर जाँचे जाते हैं। 50 m³ से ऊपर "या उसका हिस्सा" भी गिना जाता है। बिना साइन-इन।',
+  imageAlt: 'NirmanShastra कंक्रीट क्यूब टेस्ट कैलकुलेटर',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function ConcreteCubeTestCalculatorLayout({ children, param
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/concrete-cube-test-calculator')} />
+      <JsonLd data={calcJsonLd('/tools/concrete-cube-test-calculator', locale)} />
       {children}
     </InnerShell>
   )

@@ -1,11 +1,16 @@
 'use client'
 
 import { useState, useEffect, useMemo, type ReactNode } from 'react'
+import { useLocale } from 'next-intl'
 import { INDIAN_STATES } from '@/lib/structopro-qty/states'
 import { seismicZoneFor } from '@/lib/structopro-qty/zones'
 import { SITE } from '@/lib/structopro-qty/sites'
 import type { QtyInput, SiteCondition, WallType } from '@/lib/structopro-qty/types'
-import { buildingLabelStilt } from '@/lib/structopro-qty/labels'
+import { buildingLabelFor } from '@/lib/i18n/labels/structopro-fmt'
+import { stateLabel } from '@/lib/i18n/states'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useStructTr } from '@/lib/i18n/labels/structopro-tr'
+import { COPY } from '../copy'
 import { Field, Input, Select, Note, IcArrow, IcAlert, IcCheck } from '@/components/v2/inner/kit'
 import { Tip, type TipInfo } from '@/components/v2/inner/Tip'
 import Disclosure from '@/components/v2/inner/Disclosure'
@@ -22,22 +27,13 @@ import { TOOLS } from '@/lib/v2/content'
 
 const TOOL = TOOLS.find(t => t.key === 'struct')!
 
-const FLOOR_LABELS = ['Ground floor', 'First floor', 'Second floor', 'Third floor', 'Fourth floor', 'Fifth floor']
 const MAX_G = 5 // G+5 is the tallest the form offers: beyond it a structural engineer is needed from day one
 const MAX_G_STILT = 4 // an open parking level plus 5 floors is the same six storeys as G+5, so 5 floors above it is the most
 
 // ─── Site cards ───────────────────────────────────────────────────────────────
 
-const SITE_CARDS: { value: SiteCondition; label: string; note: string }[] = [
-  { value: 'flat',         label: 'Flat ground',       note: 'Level site, no cutting needed' },
-  { value: 'sloped_mild',  label: 'Mild slope',        note: 'Up to 10°, minor earthwork' },
-  { value: 'sloped_steep', label: 'Steep slope',       note: 'Over 10°, retaining walls likely' },
-  { value: 'rocky',        label: 'Rocky',             note: 'Hard rock, good bearing' },
-  { value: 'bcs',          label: 'Black cotton soil', note: 'Expansive clay that swells and shrinks' },
-  { value: 'soft_marshy',  label: 'Soft or marshy',    note: 'Low bearing, ground gives under foot' },
-  { value: 'waterlogged',  label: 'Waterlogged',       note: 'Water table near the surface' },
-  { value: 'coastal',      label: 'Coastal',           note: 'Salt-laden air near the sea' },
-]
+// the label and the note of each card are in ../copy.ts (build.sites)
+const SITE_VALUES: SiteCondition[] = ['flat', 'sloped_mild', 'sloped_steep', 'rocky', 'bcs', 'soft_marshy', 'waterlogged', 'coastal']
 
 // Small line drawings for the cards. Decorative only.
 const SITE_ICON: Record<string, ReactNode> = {
@@ -51,19 +47,7 @@ const SITE_ICON: Record<string, ReactNode> = {
   coastal:      <><path d="M3 17q3-5 6 0t6 0 6 0" /><circle cx="17" cy="7" r="2.5" /></>,
 }
 
-const WALLS: { value: WallType; label: string; note: string }[] = [
-  { value: 'brick', label: 'Burnt clay brick', note: '230 mm outer walls, 115 mm inner walls' },
-  { value: 'block', label: 'Concrete or AAC block', note: 'Lighter walls, so a lighter frame' },
-]
-
-const INFO: Record<string, TipInfo> = {
-  seismic: { title: 'Earthquake zone', body: 'Worked out from your town. Higher zones need closer stirrups, more steel at joints and stronger columns. You do not need to choose anything here.', is: 'IS 1893 (Part 1)' },
-  terrace: { title: 'Roof as a terrace', body: 'A roof people walk on, dry clothes on or put a tank on carries about twice the live load of a roof that is only reached for repairs. It changes the beam and column sizes.', is: 'IS 875 (Part 2) Table 1' },
-  plot: { title: 'Plot size', body: 'Only the shape of the plot is used (long and thin, or squarish) to pick a sensible column grid. It does not change the area you entered above.' },
-  stilt: { title: 'Open parking level (stilt)', body: 'The ground level has columns and a roof slab but no walls, so cars can park under the house. An open level is the weak storey in an earthquake, so the columns there are made larger and the design force there is raised. List only the floors above it.', is: 'IS 1893 (Part 1) cl 7.1 and Table 6' },
-  balcony: { title: 'Balconies', body: 'Count a balcony only if it sticks out beyond the walls of the floor below. It hangs from the floor slab like a shelf, so it needs its own thick slab and extra top bars. A balcony set inside the floor outline is already part of the floor area.', is: 'IS 456 cl 23.2.1 (cantilever), IS 875 (Part 2)' },
-  site: { title: 'Ground', body: 'Pick the closest match. The report states the safe bearing capacity it assumed for your choice. A soil test report replaces that assumption and should come before any foundation work.', is: 'IS 1904; IS 6403' },
-}
+const WALL_VALUES: WallType[] = ['brick', 'block']
 
 const HIMALAYAN = ['Arunachal Pradesh','Assam','Manipur','Meghalaya','Mizoram','Nagaland','Sikkim','Tripura','Jammu and Kashmir','Ladakh','Uttarakhand','Himachal Pradesh']
 
@@ -72,8 +56,9 @@ const HIMALAYAN = ['Arunachal Pradesh','Assam','Manipur','Meghalaya','Mizoram','
 interface ISBadge { variant: 'green' | 'amber' | 'red'; text: string }
 
 function IsBadge({ variant, text }: ISBadge) {
+  const t = useCopy(COPY).build
   const Icon = variant === 'green' ? IcCheck : IcAlert
-  const lead = variant === 'red' ? 'Problem: ' : variant === 'amber' ? 'Warning: ' : 'OK: '
+  const lead = variant === 'red' ? t.leadProblem : variant === 'amber' ? t.leadWarning : t.leadOk
   return (
     <p className={`ns-i-isb ns-i-isb--${variant}`}>
       <Icon />
@@ -84,6 +69,7 @@ function IsBadge({ variant, text }: ISBadge) {
 
 // Elevation sketch: ground floor at the bottom, floors stack upward, bar width = area
 function ElevationDiagram({ floors, stilt }: { floors: { label: string; area: number }[]; stilt: boolean }) {
+  const t = useCopy(COPY).build
   if (!floors.some(f => f.area > 0)) return null
   const maxArea = Math.max(...floors.map(f => f.area), 1)
   const svgH = 160, svgW = 280, maxBarW = 220, baseY = svgH - 16
@@ -98,27 +84,27 @@ function ElevationDiagram({ floors, stilt }: { floors: { label: string; area: nu
     curY -= barH
     return r
   })
-  const summary = floors.map(f => `${f.label} ${f.area.toFixed(0)} sq ft`).join(', ')
+  const summary = floors.map(f => `${f.label} ${f.area.toFixed(0)} ${t.sqftTight}`).join(', ')
   return (
     <figure className="ns-i-elev">
-      <figcaption className="ns-i-elev__t">Your building from the side</figcaption>
-      <svg viewBox={`0 0 ${svgW} ${svgH}`} role="img" aria-label={`Side sketch, ${stilt ? 'open parking level' : 'ground floor'} at the bottom. ${summary}.`}>
+      <figcaption className="ns-i-elev__t">{t.elevTitle}</figcaption>
+      <svg viewBox={`0 0 ${svgW} ${svgH}`} role="img" aria-label={t.elevAria(stilt ? t.openLevel : t.groundFloorLow, summary)}>
         <line x1={10} y1={baseY} x2={svgW - 10} y2={baseY} strokeWidth={1} />
         {stilt && firstW > 0 && (
           <g>
             {[0, 0.5, 1].map(t => <line key={t} x1={(svgW - firstW) / 2 + t * firstW} y1={baseY} x2={(svgW - firstW) / 2 + t * firstW} y2={baseY - openH} strokeWidth={2} />)}
-            <text x={svgW / 2} y={baseY - openH / 2 + 3.5} textAnchor="middle">Open parking level</text>
+            <text x={svgW / 2} y={baseY - openH / 2 + 3.5} textAnchor="middle">{t.openLevelCap}</text>
           </g>
         )}
         {rects.map((r, i) => (
           <g key={i}>
             <rect x={r.x} y={r.y} width={r.w} height={r.h} style={{ fillOpacity: 0.16 + i * 0.08 }} />
-            <text x={svgW / 2} y={r.y + r.h / 2 + 3.5} textAnchor="middle">{r.label} {r.area > 0 ? `${r.area.toFixed(0)} sqft` : ''}</text>
+            <text x={svgW / 2} y={r.y + r.h / 2 + 3.5} textAnchor="middle">{r.label} {r.area > 0 ? `${r.area.toFixed(0)} ${t.sqft}` : ''}</text>
           </g>
         ))}
         <text className="ns-i-elev__gl" x={svgW - 5} y={baseY + 12} textAnchor="end">G.L.</text>
       </svg>
-      <p className="ns-i-fine">{stilt ? 'The open parking level is at the bottom. ' : 'Ground floor at the bottom. '}Bar width shows the floor area.</p>
+      <p className="ns-i-fine">{stilt ? t.elevFineStilt : t.elevFineGround}{t.elevFine}</p>
     </figure>
   )
 }
@@ -147,6 +133,12 @@ interface Props {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function BuildDetails({ state: initState, city: initCity, initialProject, onSubmit, onFormChange, onBack }: Props) {
+  const t = useCopy(COPY).build
+  const tr = useStructTr()
+  const locale = useLocale()
+  const SITE_CARDS = SITE_VALUES.map(value => ({ value, ...t.sites[value] }))
+  const WALLS = WALL_VALUES.map(value => ({ value, ...t.walls[value] }))
+  const INFO: Record<string, TipInfo> = t.info
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const [localState, setLocalState] = useState(initState || '')
@@ -178,7 +170,7 @@ export default function BuildDetails({ state: initState, city: initCity, initial
   }, [numFloors])
 
   // with an open parking level, the floors you list sit above it, so the first one is the "first floor"
-  const floorLabel = (i: number) => (stilt ? FLOOR_LABELS[i + 1] : FLOOR_LABELS[i]) ?? `Floor ${i + (stilt ? 1 : 0)}`
+  const floorLabel = (i: number) => (stilt ? t.floorLabels[i + 1] : t.floorLabels[i]) ?? t.floorN(i + (stilt ? 1 : 0))
   function toggleStilt(on: boolean) {
     setStilt(on)
     if (on && numFloors > MAX_G_STILT) setNumFloors(MAX_G_STILT)
@@ -209,12 +201,12 @@ export default function BuildDetails({ state: initState, city: initCity, initial
         const cant = cantM.toFixed(2)
         const beamDepth = Math.ceil(cantM * 142)
         const row: ISBadge[] = []
-        if (dimRatio > 1.5) { row.push({ variant: 'red', text: `This floor is ${dimPct}% wider than the one below. That needs a transfer structure and a dynamic analysis (IS 1893 Table 6).` }); irregular = true }
-        else if (dimRatio > 1.25) { row.push({ variant: 'amber', text: `This floor is ${dimPct}% wider than the one below. In Zones III to V a dynamic analysis is needed (IS 1893 Table 6).` }); irregular = true }
-        if (areaRatio > 1.5) { row.push({ variant: 'amber', text: `${floorLabel(i)} is ${areaPct}% heavier than the floor below (IS 1893 Table 6, mass irregularity).` }); irregular = true }
-        if (cantM > 3) { row.push({ variant: 'red', text: `A ${cant} m overhang needs a beam about ${beamDepth} mm deep. That is not practical in ordinary RCC. Revise the floor areas (IS 456 cl 23.2.1).` }); block = true; irregular = true }
-        else if (cantM > 1.5) { row.push({ variant: 'amber', text: `A ${cant} m overhang needs a deep transfer beam (about ${beamDepth} mm). A structural engineer must design it.` }); irregular = true }
-        else if (cantM > 0) { row.push({ variant: 'green', text: `Overhang of ${cant} m is in the ordinary range.` }) }
+        if (dimRatio > 1.5) { row.push({ variant: 'red', text: t.wider(dimPct, true) }); irregular = true }
+        else if (dimRatio > 1.25) { row.push({ variant: 'amber', text: t.wider(dimPct, false) }); irregular = true }
+        if (areaRatio > 1.5) { row.push({ variant: 'amber', text: t.heavier(floorLabel(i), areaPct) }); irregular = true }
+        if (cantM > 3) { row.push({ variant: 'red', text: t.overhangBad(cant, beamDepth) }); block = true; irregular = true }
+        else if (cantM > 1.5) { row.push({ variant: 'amber', text: t.overhangDeep(cant, beamDepth) }); irregular = true }
+        else if (cantM > 0) { row.push({ variant: 'green', text: t.overhangOk(cant) }) }
         perFloor[i] = row
       }
     }
@@ -230,22 +222,22 @@ export default function BuildDetails({ state: initState, city: initCity, initial
     if (!onFormChange) return
     const total = floorAreas.reduce((s, a) => s + a, 0)
     onFormChange({
-      floors: buildingLabelStilt(numFloors + 1, stilt),
+      floors: buildingLabelFor(locale, numFloors + 1, stilt),
       bua: Math.round(total),
-      siteCondition: site ? SITE_CARDS.find(c => c.value === site)?.label : undefined,
-      wallType: WALLS.find(w => w.value === wall)?.label,
+      siteCondition: site ? t.sites[site]?.label : undefined,
+      wallType: t.walls[wall]?.label,
     })
-  }, [numFloors, floorAreas, site, wall, stilt]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [numFloors, floorAreas, site, wall, stilt, locale]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function validate(): boolean {
     const errs: Record<string, string> = {}
-    if (!localState) errs.state = 'Choose your state'
-    if (!site) errs.site = 'Choose the ground that is closest to your site'
-    if (sameArea && (!(parseFloat(groundArea) >= 100) || parseFloat(groundArea) > 30000)) errs.area = 'Enter the area of one floor in sq ft (100 to 30,000)'
-    if (!sameArea && floorAreas.some(a => !(a >= 100) || a > 30000)) errs.floors = 'Enter an area between 100 and 30,000 sq ft for every floor'
+    if (!localState) errs.state = t.errState
+    if (!site) errs.site = t.errSite
+    if (sameArea && (!(parseFloat(groundArea) >= 100) || parseFloat(groundArea) > 30000)) errs.area = t.errArea
+    if (!sameArea && floorAreas.some(a => !(a >= 100) || a > 30000)) errs.floors = t.errFloors
     const pl = plotL.trim(), pw = plotW.trim()
-    if ((pl && !pw) || (!pl && pw)) errs.plot = 'Give both sides of the plot, or leave both empty'
-    if (pl && pw && !(parseFloat(pl) >= 10 && parseFloat(pl) <= 1000 && parseFloat(pw) >= 10 && parseFloat(pw) <= 1000)) errs.plot = 'Each plot side must be between 10 and 1000 ft'
+    if ((pl && !pw) || (!pl && pw)) errs.plot = t.errPlotBoth
+    if (pl && pw && !(parseFloat(pl) >= 10 && parseFloat(pl) <= 1000 && parseFloat(pw) >= 10 && parseFloat(pw) <= 1000)) errs.plot = t.errPlotRange
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -274,71 +266,71 @@ export default function BuildDetails({ state: initState, city: initCity, initial
 
   return (
     <form onSubmit={e => e.preventDefault()} noValidate className="ns-i-form">
-      {onBack && <button type="button" className="ns-i-back" onClick={onBack}><IcArrow />Back</button>}
+      {onBack && <button type="button" className="ns-i-back" onClick={onBack}><IcArrow />{t.back}</button>}
 
       <div className="ns-plate ns-i-card">
-        <p className="ns-i-card__eyebrow">Step 3 of 4</p>
-        <h2>Tell us about your building</h2>
-        <p className="ns-i-card__sub">Four short questions. Concrete grade, steel size, column and beam sizes and the foundation are worked out for you from the Indian Standards, and written into your report.</p>
+        <p className="ns-i-card__eyebrow">{t.eyebrow}</p>
+        <h2>{t.title}</h2>
+        <p className="ns-i-card__sub">{t.sub}</p>
       </div>
-      <Note kind="info" title="Adding floors to a house that already stands?">
-        That needs an engineer to survey the old foundation and columns first, so this tool does not estimate it. For a new building, carry on below.
+      <Note kind="info" title={t.extTitle}>
+        {t.extBody}
       </Note>
 
       {/* 1 ─ place */}
-      <Disclosure n="1" title="Where is your plot?">
+      <Disclosure n="1" title={t.s1}>
         <div className="ns-i-fields">
-          <Field id="bd-state" label="State" required error={errors.state}>
+          <Field id="bd-state" label={t.state} required error={errors.state}>
             <Select value={localState} onChange={e => setLocalState(e.target.value)}>
-              <option value="">Select your state or UT</option>
-              {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              <option value="">{t.statePick}</option>
+              {INDIAN_STATES.map(s => <option key={s} value={s}>{stateLabel(s, locale)}</option>)}
             </Select>
           </Field>
-          <Field id="bd-city" label="Town or city" hint="Used to find the earthquake zone">
-            <Input value={localCity} onChange={e => setLocalCity(e.target.value)} placeholder="e.g. Pune" autoComplete="address-level2" />
+          <Field id="bd-city" label={t.city} hint={t.cityHint}>
+            <Input value={localCity} onChange={e => setLocalCity(e.target.value)} placeholder={t.cityEg} autoComplete="address-level2" />
           </Field>
         </div>
         {zone && (
           <div className="ns-i-zone">
-            <span className="ns-i-mono">Earthquake zone {zone.zone}</span>
-            <span style={{ fontWeight: 400 }}>{zone.note}</span>
+            <span className="ns-i-mono">{t.zone(zone.zone)}</span>
+            <span style={{ fontWeight: 400 }}>{tr(zone.note)}</span>
             <Tip info={INFO.seismic} />
           </div>
         )}
         {localState && HIMALAYAN.includes(localState) && (
-          <Note kind="warn">Your region is in the highest earthquake zones. Ductile steel and closer stirrups are built into every figure in your report, which raises the steel quantity.</Note>
+          <Note kind="warn">{t.himalayan}</Note>
         )}
       </Disclosure>
 
       {/* 2 ─ floors */}
-      <Disclosure n="2" title="How many floors, and how big is each?">
+      <Disclosure n="2" title={t.s2}>
         <div className="ns-i-fields">
           <fieldset className="ns-i-fs">
-            <legend className="ns-i-lab" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>Is the ground level left open for parking?<Tip info={INFO.stilt} /></legend>
+            <legend className="ns-i-lab" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{t.stiltQ}<Tip info={INFO.stilt} /></legend>
             <div className="ns-i-seg">
-              {([['No', false], ['Yes, parking underneath', true]] as const).map(([label, v]) => (
+              {([[t.no, false], [t.stiltYes, true]] as const).map(([label, v]) => (
                 <label key={label} className="ns-i-segopt">
                   <input type="radio" name="bd-stilt" checked={stilt === v} onChange={() => toggleStilt(v)} />
                   <span>{label}</span>
                 </label>
               ))}
             </div>
-            {stilt && <p className="ns-i-hint" style={{ marginTop: 8 }}>List only the floors above the parking level. The parking level itself is added for you, with larger columns.</p>}
+            {stilt && <p className="ns-i-hint" style={{ marginTop: 8 }}>{t.stiltHint}</p>}
           </fieldset>
-          <Field id="bd-floors" label={stilt ? 'Floors above the parking' : 'Number of floors'} hint={stilt ? undefined : 'G means ground only. G+1 means ground plus one floor above.'}>
+          <Field id="bd-floors" label={stilt ? t.floorsAbove : t.floorsNum} hint={stilt ? undefined : t.floorsHint}>
             <Select value={numFloors} onChange={e => setNumFloors(parseInt(e.target.value))}>
               {Array.from({ length: (stilt ? MAX_G_STILT : MAX_G) + 1 }, (_, g) => (
-                <option key={g} value={g}>{stilt ? `${g + 1} floor${g === 0 ? '' : 's'} above the parking` : g === 0 ? 'G (ground only)' : `G + ${g}`}</option>
+                <option key={g} value={g}>{stilt ? t.floorsAboveOpt(g + 1) : g === 0 ? t.groundOnly : `G + ${g}`}</option>
               ))}
             </Select>
           </Field>
           <fieldset className="ns-i-fs">
-            <legend className="ns-i-lab">Same area on every floor?</legend>
+            <legend className="ns-i-lab">{t.sameArea}</legend>
             <div className="ns-i-seg">
-              {(['Yes', 'No'] as const).map(opt => (
+              {([['Yes', t.yes], ['No', t.no]] as const).map(([opt, word]) => (
                 <label key={opt} className="ns-i-segopt">
                   <input type="radio" name="bd-samearea" checked={sameArea === (opt === 'Yes')} onChange={() => setSameArea(opt === 'Yes')} />
-                  <span>{opt}</span>
+                  <span>{word}</span>
                 </label>
               ))}
             </div>
@@ -347,13 +339,13 @@ export default function BuildDetails({ state: initState, city: initCity, initial
 
         {sameArea ? (
           <div className="ns-i-fields">
-            <Field id="bd-area" label="Built-up area of one floor (sq ft)" required hint="Inside the outer walls. If your plan's figure includes balconies, take them out and tell us about them in step 4." error={errors.area}>
-              <Input type="number" inputMode="numeric" min="100" placeholder="e.g. 1200" value={groundArea} onChange={e => setGroundArea(e.target.value)} />
+            <Field id="bd-area" label={t.area} required hint={t.areaHint} error={errors.area}>
+              <Input type="number" inputMode="numeric" min="100" placeholder={t.areaEg} value={groundArea} onChange={e => setGroundArea(e.target.value)} />
             </Field>
           </div>
         ) : (
           <>
-            <Note kind="info">Enter the built-up area of each floor in sq ft, inside the outer walls and without balconies (step 4 asks about those). A floor that is larger than the one below overhangs it; the checks below say whether that is practical.</Note>
+            <Note kind="info">{t.diffNote}</Note>
             <ul className="ns-i-floors">
               {floorAreas.map((a, idx) => {
                 const prev = idx > 0 ? floorAreas[idx - 1] : null
@@ -364,24 +356,24 @@ export default function BuildDetails({ state: initState, city: initCity, initial
                   <li key={idx} className="ns-i-floor">
                     <p className="ns-i-floor__t">{floorLabel(idx)}</p>
                     <div className="ns-i-floor__g">
-                      <Field id={`bd-fa-${idx}`} label="Area (sq ft)" invalid={bad}>
-                        <Input type="number" inputMode="numeric" min="0" placeholder="e.g. 1200" value={areas[idx] ?? ''} onChange={e => setAreas(prevA => prevA.map((v, i) => (i === idx ? e.target.value : v)))} />
+                      <Field id={`bd-fa-${idx}`} label={t.areaShort} invalid={bad}>
+                        <Input type="number" inputMode="numeric" min="0" placeholder={t.areaEg} value={areas[idx] ?? ''} onChange={e => setAreas(prevA => prevA.map((v, i) => (i === idx ? e.target.value : v)))} />
                       </Field>
                       <div className="ns-i-f">
-                        <span className="ns-i-lab">Difference from the floor below</span>
+                        <span className="ns-i-lab">{t.diffLabel}</span>
                         <span className={`ns-i-diff ${diff === null ? 'ns-i-diff--na' : diff > 0 ? 'ns-i-diff--up' : diff < 0 ? 'ns-i-diff--dn' : ''}`}>
-                          {diff === null ? '—' : diff > 0 ? `+${diff.toFixed(0)} sqft` : diff < 0 ? `${diff.toFixed(0)} sqft` : '±0 sqft'}
+                          {diff === null ? '—' : diff > 0 ? `+${diff.toFixed(0)} ${t.sqft}` : diff < 0 ? `${diff.toFixed(0)} ${t.sqft}` : `±0 ${t.sqft}`}
                         </span>
                       </div>
                     </div>
                     <div className="ns-i-floor__chk">
                       {idx === 0
-                        ? <p className="ns-i-isb ns-i-isb--idle">{stilt ? 'Sits on the parking level: no overhang to compare' : 'Base floor: nothing below to compare with'}</p>
+                        ? <p className="ns-i-isb ns-i-isb--idle">{stilt ? t.baseStilt : t.baseGround}</p>
                         : badges.length > 0
                           ? badges.map((b, bi) => <IsBadge key={bi} variant={b.variant} text={b.text} />)
                           : (a > 0 && prev && prev > 0
-                            ? <p className="ns-i-isb ns-i-isb--green"><IcCheck />No irregularity</p>
-                            : <p className="ns-i-isb ns-i-isb--idle">Enter the area to check this floor</p>)}
+                            ? <p className="ns-i-isb ns-i-isb--green"><IcCheck />{t.noIrreg}</p>
+                            : <p className="ns-i-isb ns-i-isb--idle">{t.enterArea}</p>)}
                     </div>
                   </li>
                 )
@@ -392,26 +384,26 @@ export default function BuildDetails({ state: initState, city: initCity, initial
         )}
 
         {checks.slender && (
-          <Note kind="warn">Your building is tall for its footprint (more than 5 times its width). The report checks wind as well as earthquake (IS 875 Part 3) and uses the larger force, but a tall thin building needs an engineer&rsquo;s dynamic check before construction.</Note>
+          <Note kind="warn">{t.slender}</Note>
         )}
         {checks.block && (
-          <Note kind="err" title="One or more floors cannot be built in ordinary RCC" foot="IS 456:2000 cl 23.2.1 · IS 1893:2016 Table 6">
-            A floor overhangs the one below by more than a practical limit. Revise the floor areas or take a structural engineer&rsquo;s advice before going ahead. We cannot give quantities for a shape like this.
+          <Note kind="err" title={t.blockTitle} foot={t.blockFoot}>
+            {t.blockBody}
           </Note>
         )}
         {checks.irregular && !checks.block && (
-          <Note kind="warn" title="This shape needs an engineer's check" foot="IS 1893:2016 Table 6">
-            The quantities will be given, but an irregular shape needs a dynamic analysis by a licensed structural engineer before construction.
+          <Note kind="warn" title={t.irregTitle} foot={t.irregFoot}>
+            {t.irregBody}
           </Note>
         )}
         <ElevationDiagram stilt={stilt} floors={floorAreas.map((area, i) => ({ label: floorLabel(i), area }))} />
       </Disclosure>
 
       {/* 3 ─ ground */}
-      <Disclosure n="3" title="What is the ground like?">
-        <div className="ns-i-labrow"><span className="ns-i-lab">Pick the closest match</span><Tip info={INFO.site} /></div>
+      <Disclosure n="3" title={t.s3}>
+        <div className="ns-i-labrow"><span className="ns-i-lab">{t.pickClosest}</span><Tip info={INFO.site} /></div>
         <fieldset className="ns-i-fs" aria-describedby={errors.site ? 'bd-site-e' : undefined}>
-          <legend className="ns-sr">Ground</legend>
+          <legend className="ns-sr">{t.groundSr}</legend>
           {errors.site && <p className="ns-i-err" id="bd-site-e" role="alert" style={{ marginBottom: 10 }}><IcAlert />{errors.site}</p>}
           <div className="ns-i-sites">
             {SITE_CARDS.map(card => (
@@ -426,52 +418,52 @@ export default function BuildDetails({ state: initState, city: initCity, initial
         </fieldset>
 
         {siteInfo && (
-          <Note kind="info" title="What the report will assume for this ground">
-            {siteInfo.raft ? 'A raft foundation' : 'Separate footings under each column'}, about {siteInfo.depth.toFixed(1)} m deep, on ground that safely carries {siteInfo.sbc} kN/m². A soil test report replaces this assumption; it should come before any foundation work.
+          <Note kind="info" title={t.siteAssumeTitle}>
+            {t.siteAssume(siteInfo.raft, siteInfo.depth.toFixed(1), siteInfo.sbc)}
           </Note>
         )}
         {site === 'bcs' && (
-          <Note kind="warn">Black cotton soil swells in the rains and shrinks in summer. The foundation here is a rough guide only. A soil test and a structural engineer must choose it (under-reamed piles are common in this soil).</Note>
+          <Note kind="warn">{t.bcs}</Note>
         )}
         {(site === 'soft_marshy' || site === 'waterlogged') && (
-          <Note kind="warn">The bearing of soft or waterlogged ground can be low. Do not start the foundation without a soil test.</Note>
+          <Note kind="warn">{t.soft}</Note>
         )}
         {site === 'coastal' && (
-          <Note kind="info">Salt-laden air attacks steel. The report raises the concrete grade and the cover over the bars for this exposure (IS 456 Table 5 and Table 16).</Note>
+          <Note kind="info">{t.coastal}</Note>
         )}
       </Disclosure>
 
       {/* 4 ─ the rest */}
-      <Disclosure n="4" title="A few last questions">
+      <Disclosure n="4" title={t.s4}>
         <fieldset className="ns-i-fs">
-          <legend className="ns-i-lab" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>Balconies that stick out beyond the walls<Tip info={INFO.balcony} /></legend>
+          <legend className="ns-i-lab" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{t.balconyQ}<Tip info={INFO.balcony} /></legend>
           {balconyLevels === 0 ? (
-            <p className="ns-i-hint">A single ground floor has no upper floor to hang a balcony from. Add a floor above to ask about balconies.</p>
+            <p className="ns-i-hint">{t.balconyNone}</p>
           ) : (
             <>
               <div className="ns-i-fields">
-                <Field id="bd-bal" label={`How many on each ${stilt ? 'floor' : 'upper floor'}?`} hint={stilt ? 'On every floor above the parking except the roof' : 'On every floor above the ground floor except the roof'}>
+                <Field id="bd-bal" label={t.balHowMany(stilt)} hint={t.balHowManyHint(stilt)}>
                   <Select value={balconies} onChange={e => setBalconies(parseInt(e.target.value))}>
-                    {[0, 1, 2, 3, 4].map(n => <option key={n} value={n}>{n === 0 ? 'None' : n}</option>)}
+                    {[0, 1, 2, 3, 4].map(n => <option key={n} value={n}>{n === 0 ? t.none : n}</option>)}
                   </Select>
                 </Field>
                 {balconies > 0 && (
-                  <Field id="bd-bald" label="How far does each stick out?" hint="Measured from the wall, most are 1.2 m (4 ft)">
+                  <Field id="bd-bald" label={t.balDepth} hint={t.balDepthHint}>
                     <Select value={balconyDepth} onChange={e => setBalconyDepth(parseFloat(e.target.value) as 1 | 1.2 | 1.5)}>
-                      <option value={1}>1.0 m (about 3 ft 3 in)</option>
-                      <option value={1.2}>1.2 m (about 4 ft)</option>
-                      <option value={1.5}>1.5 m (about 5 ft)</option>
+                      <option value={1}>{t.balD1}</option>
+                      <option value={1.2}>{t.balD12}</option>
+                      <option value={1.5}>{t.balD15}</option>
                     </Select>
                   </Field>
                 )}
               </div>
-              {balconies > 0 && <p className="ns-i-hint">About {balconies * balconyLevels} balcon{balconies * balconyLevels === 1 ? 'y' : 'ies'} in all. Each is as wide as one column bay, up to 3.6 m.</p>}
+              {balconies > 0 && <p className="ns-i-hint">{t.balTotal(balconies * balconyLevels)}</p>}
             </>
           )}
         </fieldset>
 
         <fieldset className="ns-i-fs">
-          <legend className="ns-i-lab">What will the walls be made of?</legend>
+          <legend className="ns-i-lab">{t.wallsQ}</legend>
           <div className="ns-i-choices ns-i-choices--2">
             {WALLS.map(w => (
               <label key={w.value} className="ns-i-choice">
@@ -486,26 +478,26 @@ export default function BuildDetails({ state: initState, city: initCity, initial
         </fieldset>
 
         <fieldset className="ns-i-fs">
-          <legend className="ns-i-lab" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>Will people use the roof as a terrace?<Tip info={INFO.terrace} /></legend>
+          <legend className="ns-i-lab" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{t.terraceQ}<Tip info={INFO.terrace} /></legend>
           <div className="ns-i-seg">
-            {([['Yes', true], ['No', false]] as const).map(([label, v]) => (
+            {([[t.yes, true], [t.no, false]] as const).map(([label, v]) => (
               <label key={label} className="ns-i-segopt">
                 <input type="radio" name="bd-terrace" checked={terrace === v} onChange={() => setTerrace(v)} />
                 <span>{label}</span>
               </label>
             ))}
           </div>
-          <p className="ns-i-hint" style={{ marginTop: 8 }}>Yes if you will walk on it, dry clothes there or keep a tank. No if the roof is only reached for repairs.</p>
+          <p className="ns-i-hint" style={{ marginTop: 8 }}>{t.terraceHint}</p>
         </fieldset>
 
         <div>
-          <div className="ns-i-labrow" style={{ marginBottom: 8 }}><span className="ns-i-lab">Plot size (optional)</span><Tip info={INFO.plot} /></div>
+          <div className="ns-i-labrow" style={{ marginBottom: 8 }}><span className="ns-i-lab">{t.plotTitle}</span><Tip info={INFO.plot} /></div>
           <div className="ns-i-fields">
-            <Field id="bd-plotl" label="Plot length (ft)" invalid={!!errors.plot}>
-              <Input type="number" inputMode="numeric" min="10" placeholder="e.g. 50" value={plotL} onChange={e => setPlotL(e.target.value)} />
+            <Field id="bd-plotl" label={t.plotLen} invalid={!!errors.plot}>
+              <Input type="number" inputMode="numeric" min="10" placeholder={t.plotEg1} value={plotL} onChange={e => setPlotL(e.target.value)} />
             </Field>
-            <Field id="bd-plotw" label="Plot width (ft)" error={errors.plot}>
-              <Input type="number" inputMode="numeric" min="10" placeholder="e.g. 30" value={plotW} onChange={e => setPlotW(e.target.value)} />
+            <Field id="bd-plotw" label={t.plotWid} error={errors.plot}>
+              <Input type="number" inputMode="numeric" min="10" placeholder={t.plotEg2} value={plotW} onChange={e => setPlotW(e.target.value)} />
             </Field>
           </div>
         </div>
@@ -516,18 +508,18 @@ export default function BuildDetails({ state: initState, city: initCity, initial
           <div className="ns-i-note ns-i-note--err ns-i-errsum" role="alert">
             <IcAlert />
             <div>
-              <p><b>Please check these before continuing</b></p>
+              <p><b>{t.errSummary}</b></p>
               <ul>{errorList.map(m => <li key={m}>{m}</li>)}</ul>
             </div>
           </div>
         )}
         <div className="ns-i-actions__r">
           <button type="button" className="ns-btn" onClick={handleSubmit} disabled={checks.block} data-blocked={checks.block ? '' : undefined}>
-            {checks.block ? 'Fix the floor shape to continue' : 'Work out my structure'}
+            {checks.block ? t.fixShape : t.go}
             {!checks.block && <IcArrow width={22} height={11} />}
           </button>
         </div>
-        <p className="ns-i-fine">Free: the earthquake zone, concrete and steel grades, IS-code checks and a 3D model of your frame. The itemised quantities are in the {TOOL.price} report.</p>
+        <p className="ns-i-fine">{t.fine(TOOL.price)}</p>
       </div>
     </form>
   )

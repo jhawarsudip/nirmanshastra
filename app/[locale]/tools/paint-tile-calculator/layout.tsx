@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
-import { toolJsonLd } from '@/lib/seo/schema'
+import { calcJsonLd } from '@/lib/i18n/labels/calc-jsonld'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -28,8 +28,13 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name, IS numbers and units stay in Latin letters.
+const HI: HiMeta = {
+  title: 'पेंट और टाइल कैलकुलेटर: पेंट, पुट्टी, टाइलें और ग्राउट',
+  description:
+    'निःशुल्क पेंट और टाइल कैलकुलेटर। एरिया और फ़िनिश डालिए और ख़रीदने के लिए पेंट, पुट्टी और प्राइमर, या टाइलें, बॉक्स, ग्राउट और फ़िक्सिंग पाइए, टूट-फूट की छूट के साथ और तीन पेंट सिस्टम या पाँच टाइल साइज़ साथ-साथ। फ़ैक्टर CPWD और निर्माताओं की शीट से। बिना साइन-इन।',
+  imageAlt: 'NirmanShastra पेंट और टाइल कैलकुलेटर',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function PaintTileCalculatorLayout({ children, params }: { 
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/paint-tile-calculator')} />
+      <JsonLd data={calcJsonLd('/tools/paint-tile-calculator', locale)} />
       {children}
     </InnerShell>
   )

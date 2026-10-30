@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
-import { toolJsonLd } from '@/lib/seo/schema'
+import { calcJsonLd } from '@/lib/i18n/labels/calc-jsonld'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -28,8 +28,13 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name, IS numbers and units stay in Latin letters.
+const HI: HiMeta = {
+  title: 'आरए बिल कैलकुलेटर: रिटेंशन, GST और TDS के बाद नेट देय',
+  description:
+    'वर्क्स कॉन्ट्रैक्ट के लिए निःशुल्क आरए बिल कैलकुलेटर। ग्रॉस रनिंग बिल डालिए और रोकी गई रिटेंशन, जुड़ा GST, कटा TDS, वापस ली गई एडवांस और नेट देय रक़म देखिए। TDS GST के बिना की रक़म पर निकाला जाता है। बिना साइन-इन।',
+  imageAlt: 'NirmanShastra आरए बिल कैलकुलेटर',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function RABillCalculatorLayout({ children, params }: { chi
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/ra-bill-retention-tds-calculator')} />
+      <JsonLd data={calcJsonLd('/tools/ra-bill-retention-tds-calculator', locale)} />
       {children}
     </InnerShell>
   )

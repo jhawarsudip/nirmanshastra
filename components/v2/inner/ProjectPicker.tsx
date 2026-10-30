@@ -4,6 +4,10 @@ import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { loadProjectFromSession } from '@/lib/project-session'
 import { IcArrow, IcCheck } from './kit'
+import { useLocale } from 'next-intl'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { stateLabel } from '@/lib/i18n/states'
+import { QTY_PICK } from '@/lib/i18n/labels/qty-ui'
 
 // v2 look for the shared "continue a saved project?" step. The behaviour is the same as components/ui/ProjectPicker.tsx
 // (which the not-yet-converted tools still use); only the markup and wording changed.
@@ -41,6 +45,8 @@ export default function ProjectPicker({ onSelect, toolName }: Props) {
   const [loading,     setLoading]     = useState(true)
   const [selectedId,  setSelectedId]  = useState<string>('new')
   const supabase = useMemo(() => createClient(), [])
+  const k = useCopy(QTY_PICK)
+  const locale = useLocale()
 
   useEffect(() => {
     let cancelled = false
@@ -111,22 +117,22 @@ export default function ProjectPicker({ onSelect, toolName }: Props) {
   if (loading) {
     return (
       <div className="ns-plate ns-i-card">
-        <div className="ns-i-loading" role="status"><span className="ns-i-spin" />Checking for saved projects…</div>
+        <div className="ns-i-loading" role="status"><span className="ns-i-spin" />{k.checking}</div>
       </div>
     )
   }
 
   const selected = projects.find(p => p.projectId === selectedId)
-  const floorsLabel = (n: number | null) => (n ? (n === 1 ? 'Ground only' : `Ground + ${n - 1}`) : '—')
+  const floorsLabel = (n: number | null) => (n ? (n === 1 ? k.groundOnly : k.groundPlus(n - 1)) : '—')
 
   return (
     <div className="ns-plate ns-i-card">
-      <p className="ns-i-card__eyebrow">{toolName} · Continue or start new</p>
-      <h2>Continue an existing project?</h2>
-      <p className="ns-i-card__sub">We found saved projects on your account. Pick one and we fill in the form for you, or start fresh.</p>
+      <p className="ns-i-card__eyebrow">{k.eyebrow(toolName)}</p>
+      <h2>{k.title}</h2>
+      <p className="ns-i-card__sub">{k.sub}</p>
 
       <fieldset className="ns-i-choices ns-i-card__body">
-        <legend className="ns-sr">Choose a project</legend>
+        <legend className="ns-sr">{k.legend}</legend>
         {projects.map(p => (
           <label key={p.projectId} className="ns-i-choice">
             <input
@@ -138,7 +144,7 @@ export default function ProjectPicker({ onSelect, toolName }: Props) {
             />
             <span>
               <span className="ns-i-choice__t">{p.projectName}</span>
-              <span className="ns-i-choice__d">{p.city}, {p.state}{p.numFloors ? ` · ${floorsLabel(p.numFloors)}` : ''}</span>
+              <span className="ns-i-choice__d">{p.city}, {stateLabel(p.state, locale)}{p.numFloors ? ` · ${floorsLabel(p.numFloors)}` : ''}</span>
             </span>
           </label>
         ))}
@@ -152,28 +158,28 @@ export default function ProjectPicker({ onSelect, toolName }: Props) {
             onChange={() => setSelectedId('new')}
           />
           <span>
-            <span className="ns-i-choice__t">Start a new project</span>
-            <span className="ns-i-choice__d">Enter everything fresh. A new project is saved for you.</span>
+            <span className="ns-i-choice__t">{k.startNew}</span>
+            <span className="ns-i-choice__d">{k.startNewSub}</span>
           </span>
         </label>
       </fieldset>
 
       {selected && selectedId !== 'new' && (
         <div className="ns-i-prefill">
-          <p className="ns-i-prefill__t"><IcCheck width={18} height={18} />These fill in for you on the next steps</p>
+          <p className="ns-i-prefill__t"><IcCheck width={18} height={18} />{k.prefill}</p>
           <dl>
-            <div><dt>Project name</dt><dd>{selected.projectName}</dd></div>
-            <div><dt>City</dt><dd>{selected.city}</dd></div>
-            <div><dt>State</dt><dd>{selected.state}</dd></div>
-            <div><dt>Floors</dt><dd>{floorsLabel(selected.numFloors)}</dd></div>
+            <div><dt>{k.projectName}</dt><dd>{selected.projectName}</dd></div>
+            <div><dt>{k.city}</dt><dd>{selected.city}</dd></div>
+            <div><dt>{k.state}</dt><dd>{stateLabel(selected.state, locale)}</dd></div>
+            <div><dt>{k.floors}</dt><dd>{floorsLabel(selected.numFloors)}</dd></div>
           </dl>
-          <p className="ns-i-fine" style={{ marginTop: 10 }}>You can change any of these. Questions about the structure itself, like concrete grade and wall type, are always asked fresh.</p>
+          <p className="ns-i-fine" style={{ marginTop: 10 }}>{k.prefillNote}</p>
         </div>
       )}
 
       <div className="ns-i-card__foot">
         <button type="button" onClick={handleContinue} className="ns-btn">
-          {selectedId === 'new' ? 'Start a new project' : `Continue “${selected?.projectName}”`}
+          {selectedId === 'new' ? k.startNew : k.cont(selected?.projectName ?? '')}
           <IcArrow width={22} height={11} />
         </button>
       </div>

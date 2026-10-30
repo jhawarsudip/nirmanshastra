@@ -8,6 +8,12 @@ import { STATES } from '@/lib/qty/states'
 import { trackLead } from '@/lib/analytics/events'
 import type { TradeSlug } from '@/lib/qty/meta'
 import { Field, Input, Select, Note, IcArrow } from '@/components/v2/inner/kit'
+import { useLocale } from 'next-intl'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useTr } from '@/lib/i18n/use-tr'
+import { stateLabel } from '@/lib/i18n/states'
+import { QTY_REG } from '@/lib/i18n/labels/qty-ui'
+import { QTY_ERRORS } from '@/lib/i18n/labels/qty-errors'
 
 export interface QtyRegData {
   name: string
@@ -30,6 +36,9 @@ export default function QtyRegistration({ slug, onSubmit }: { slug: TradeSlug; o
   const [apiError, setApiError] = useState('')
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
   const supabase = useMemo(() => createClient(), [])
+  const k = useCopy(QTY_REG)
+  const locale = useLocale()
+  const t = useTr(QTY_ERRORS)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -54,10 +63,10 @@ export default function QtyRegistration({ slug, onSubmit }: { slug: TradeSlug; o
 
   function validate(): boolean {
     const e: Partial<QtyRegData> = {}
-    if (!loggedInUser && !form.name.trim()) e.name = 'Please enter your name'
-    if (!loggedInUser && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Please enter a valid email address'
-    if (!form.state) e.state = 'Please choose your state'
-    if (!form.city.trim()) e.city = 'Please enter your city'
+    if (!loggedInUser && !form.name.trim()) e.name = k.errName
+    if (!loggedInUser && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = k.errEmail
+    if (!form.state) e.state = k.errState
+    if (!form.city.trim()) e.city = k.errCity
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -69,7 +78,7 @@ export default function QtyRegistration({ slug, onSubmit }: { slug: TradeSlug; o
     setApiError('')
     const { userId, error: sessionError } = await ensureSession()
     if (!userId) {
-      setApiError(sessionError ?? 'Could not start a session. Please try again, or log in.')
+      setApiError(sessionError ? t(sessionError) : k.noSession)
       setLoading(false)
       return
     }
@@ -83,11 +92,11 @@ export default function QtyRegistration({ slug, onSubmit }: { slug: TradeSlug; o
         body: JSON.stringify(data),
       })
       const json = await res.json().catch(() => ({}))
-      if (!res.ok || !json.contactId) throw new Error(json.error || 'Registration failed')
+      if (!res.ok || !json.contactId) throw new Error(json.error || k.registrationFailed)
       trackLead(slug, 'email') // generate_lead / Lead: an email address was given
       onSubmit(data, json.contactId)
     } catch (err: unknown) {
-      setApiError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setApiError(err instanceof Error ? t(err.message) : k.wentWrong)
     } finally {
       setLoading(false)
     }
@@ -96,54 +105,54 @@ export default function QtyRegistration({ slug, onSubmit }: { slug: TradeSlug; o
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div className="ns-plate ns-i-card">
-        <p className="ns-i-card__eyebrow">Step 1 of 4</p>
-        <h2>Tell us who and where</h2>
-        <p className="ns-i-card__sub">Your report is sent to your email. It takes under a minute.</p>
+        <p className="ns-i-card__eyebrow">{k.step}</p>
+        <h2>{k.title}</h2>
+        <p className="ns-i-card__sub">{k.sub}</p>
 
         <div className="ns-i-card__body">
           {loggedInUser && (
-            <Note kind="ok" title={`Signed in as ${loggedInUser.user_metadata?.full_name || loggedInUser.email}`}>
-              Your name and email are filled in from your account.
+            <Note kind="ok" title={k.signedInAs(loggedInUser.user_metadata?.full_name || loggedInUser.email)}>
+              {k.filledFromAccount}
             </Note>
           )}
 
           <div className="ns-i-fields">
             {!loggedInUser && (
-              <Field id="qr-name" label="Your name" required error={errors.name} wide>
-                <Input type="text" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ramesh Sharma" autoComplete="name" />
+              <Field id="qr-name" label={k.yourName} required error={errors.name} wide>
+                <Input type="text" value={form.name} onChange={e => set('name', e.target.value)} placeholder={k.namePh} autoComplete="name" />
               </Field>
             )}
             {!loggedInUser && (
-              <Field id="qr-email" label="Email" required error={errors.email} hint="Your report is sent here." wide>
-                <Input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="ramesh@example.com" autoComplete="email" inputMode="email" />
+              <Field id="qr-email" label={k.email} required error={errors.email} hint={k.emailHint} wide>
+                <Input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder={k.emailPh} autoComplete="email" inputMode="email" />
               </Field>
             )}
 
-            <Field id="qr-state" label="State" required error={errors.state}>
+            <Field id="qr-state" label={k.state} required error={errors.state}>
               <Select value={form.state} onChange={e => set('state', e.target.value)}>
-                <option value="">Select your state</option>
-                {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                <option value="">{k.selectState}</option>
+                {STATES.map(s => <option key={s} value={s}>{stateLabel(s, locale)}</option>)}
               </Select>
             </Field>
 
-            <Field id="qr-city" label="City" required error={errors.city}>
-              <Input type="text" value={form.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Pune" autoComplete="address-level2" />
+            <Field id="qr-city" label={k.city} required error={errors.city}>
+              <Input type="text" value={form.city} onChange={e => set('city', e.target.value)} placeholder={k.cityPh} autoComplete="address-level2" />
             </Field>
 
-            <Field id="qr-project" label="Project name (optional)" hint="To find this report again. You can skip it." wide>
-              <Input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)} placeholder="e.g. Sharma Residence, Kothrud" />
+            <Field id="qr-project" label={k.project} hint={k.projectHint} wide>
+              <Input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)} placeholder={k.projectPh} />
             </Field>
           </div>
         </div>
 
         <div className="ns-i-card__foot">
-          {apiError && <div style={{ flexBasis: '100%' }}><Note kind="err" title="That did not go through">{apiError}</Note></div>}
+          {apiError && <div style={{ flexBasis: '100%' }}><Note kind="err" title={k.didNotGoThrough}>{apiError}</Note></div>}
           <button type="submit" disabled={loading} className="ns-btn">
-            {loading ? 'Saving…' : 'Continue'}
+            {loading ? k.saving : k.next}
             {!loading && <IcArrow width={22} height={11} />}
           </button>
           <p className="ns-i-fine" style={{ flex: '1 1 260px' }}>
-            We save your details securely and email you only your report and a few IS-code construction tips.
+            {k.fine}
           </p>
         </div>
       </div>

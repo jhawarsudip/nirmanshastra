@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
-import { toolJsonLd } from '@/lib/seo/schema'
+import { calcJsonLd } from '@/lib/i18n/labels/calc-jsonld'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -28,8 +28,13 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name, IS numbers and units stay in Latin letters.
+const HI: HiMeta = {
+  title: 'अर्नड वैल्यू कैलकुलेटर: SPI, CPI, EAC और TCPI',
+  description:
+    'निर्माण प्रोजेक्ट के लिए निःशुल्क अर्नड वैल्यू कैलकुलेटर। बजट, प्लान्ड वैल्यू, अर्नड वैल्यू और अब तक की असल लागत डालिए और शेड्यूल व लागत के वैरिएंस, SPI, CPI, अनुमानित अंतिम लागत (EAC), ETC, VAC और TCPI पाइए। बिना साइन-इन।',
+  imageAlt: 'NirmanShastra अर्नड वैल्यू कैलकुलेटर',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function EarnedValueCalculatorLayout({ children, params }: 
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/earned-value-calculator')} />
+      <JsonLd data={calcJsonLd('/tools/earned-value-calculator', locale)} />
       {children}
     </InnerShell>
   )

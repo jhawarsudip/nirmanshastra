@@ -1,6 +1,18 @@
 'use client'
 
 import React from 'react'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { COPY } from './copy'
+
+function MassingFailLine() {
+  const t = useCopy(COPY)
+  return <>{t.massingFailLine}</>
+}
+
+function MassingLoadingLine() {
+  const t = useCopy(COPY)
+  return <>{t.massingLoading}</>
+}
 
 interface BoundaryState { crashed: boolean }
 
@@ -19,7 +31,7 @@ class MassingErrorBoundary extends React.Component<
       return (
         <div style={fallbackStyle}>
           <p style={monoSmall}>
-            3D preview couldn&apos;t load on this device — your report data is unaffected
+            <MassingFailLine />
           </p>
         </div>
       )
@@ -41,7 +53,7 @@ export function MassingPreviewContainer({ children }: { children: React.ReactNod
 export function LoadingSlot() {
   return (
     <div style={loadingStyle}>
-      <p style={monoSmall}>LOADING 3D SCENE…</p>
+      <p style={monoSmall}><MassingLoadingLine /></p>
     </div>
   )
 }

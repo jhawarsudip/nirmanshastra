@@ -3,6 +3,7 @@ import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
+import { localizeToolLd } from '@/lib/qty/meta'
 import { PRICE } from '@/lib/tool-pricing'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
@@ -28,8 +29,14 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand and tool names, IS numbers and units stay in Latin letters.
+const HI: HiMeta = {
+  title: 'InteriorPro: घरों की फ़िनिशिंग की मात्रा का कैलकुलेटर | पेंट, टाइल, दरवाज़े, फ़ॉल्स सीलिंग | IS 1200, IS 15622',
+  description: `अपने घर के लिए हिस्से-दर-हिस्से पेंट, पुट्टी और प्राइमर, फ़र्श और दीवार की टाइल, दरवाज़े-खिड़कियाँ, फ़ॉल्स सीलिंग और प्लाईवुड गिनिए। सटीक मात्राएँ; रुपये के लिए अपने रेट डालिए। प्रति रिपोर्ट ${PRICE.interiorpro}।`,
+  imageAlt: 'NirmanShastra: भारत में IS-कोड के अनुसार निर्माण की मात्राएँ',
+}
+
+const HI_APP_SUMMARY = 'इंटीरियर की मात्रा की रिपोर्ट: कमरा-दर-कमरा फ़र्श, पेंट, फ़ॉल्स सीलिंग और रसोई की मात्राएँ, बर्बादी समेत।'
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +48,7 @@ export default async function InteriorProLayout({ children, params }: { children
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/interiorpro')} />
+      <JsonLd data={localizeToolLd(toolJsonLd('/tools/interiorpro'), locale, HI_APP_SUMMARY)} />
       {children}
       <ToolInfo path="/tools/interiorpro" />
     </InnerShell>

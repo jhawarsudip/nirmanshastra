@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useLocale } from 'next-intl'
 import { AnimatePresence, motion } from 'framer-motion'
 import LocationForm, { type StructoPlaceData } from './components/LocationForm'
 import BuildDetails from './components/BuildDetails'
@@ -14,6 +15,9 @@ import { useMotionOK } from '@/lib/v2/store'
 import { TOOLS } from '@/lib/v2/content'
 import { saveProjectToSession } from '@/lib/project-session'
 import ViewItem from '@/components/analytics/ViewItem'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useStructTr } from '@/lib/i18n/labels/structopro-tr'
+import { COPY } from './copy'
 import SampleReportLink from '@/components/samples/SampleReportLink'
 import '@/styles/v2/results.css'
 
@@ -32,11 +36,10 @@ const calmVariants = {
 // Name, price and artwork come from the same list the homepage uses, so they cannot drift apart.
 const TOOL = TOOLS.find(t => t.key === 'struct')!
 
-// The four steps the visitor sees. Adding floors to a standing house (vertical extension) is not estimated here:
+// The four steps the visitor sees (their names are in ./copy.ts). Adding floors to a standing house (vertical extension) is not estimated here:
 // it needs an engineer's survey of the old foundation and columns first, so the form says so instead.
 // The result comes before any email: state and city, then the building, then the free frame. Name and email are asked on the
 // result screen, when the visitor chooses to pay or to save the project.
-const STEPS = ['Where', 'Your project', 'Your building', 'Your frame']
 
 type Step = 'place' | 'project_pick' | 'details' | 'results'
 
@@ -60,6 +63,9 @@ const EMPTY_SESSION: SessionState = {
 }
 
 export default function StructoProPage() {
+  const t = useCopy(COPY).page
+  const tr = useStructTr()
+  const hi = useLocale() === 'hi'
   const [step, setStep]         = useState<Step>('place')
   const [liveData, setLiveData] = useState<LiveSummaryData>({})
   const [session, setSession]   = useState<SessionState>(EMPTY_SESSION)
@@ -198,16 +204,16 @@ export default function StructoProPage() {
       <ViewItem appType="structopro" />
       {!isReport && (
         <ToolHead
-          eyebrow="Phase 1 · Structure"
+          eyebrow={t.eyebrow}
           name={TOOL.name}
-          price={`Full report ${TOOL.price}`}
-          blurb="How much concrete and steel your frame needs, item by item: foundation, columns, beams and slabs, worked out to the Indian Standards."
+          price={t.fullReport(TOOL.price)}
+          blurb={t.blurb}
           art={TOOL.plate}
-          artAlt={TOOL.plateAlt}
-          after={<SampleReportLink sample="structopro" where="tool_head" />}
+          artAlt={hi ? TOOL.plateAltHi : TOOL.plateAlt}
+          after={<SampleReportLink sample="structopro" hi={hi} where="tool_head" />}
         />
       )}
-      <StepBar steps={STEPS} current={STEP_IX[step]} />
+      <StepBar steps={t.steps} current={STEP_IX[step]} />
 
       <AnimatePresence mode="wait">
         {step === 'place' && (
@@ -228,7 +234,7 @@ export default function StructoProPage() {
               <>
                 {calcError && (
                   <div style={{ marginBottom: 16 }}>
-                    <Note kind="err" title="We could not finish">{calcError}</Note>
+                    <Note kind="err" title={t.errTitle}>{tr(calcError)}</Note>
                   </div>
                 )}
                 <BuildDetails
@@ -263,8 +269,8 @@ export default function StructoProPage() {
         <div className="ns-r-busy" role="status" aria-live="polite">
           <div className="ns-r-busy__card">
             <span className="ns-r-busy__spin" aria-hidden="true" />
-            <p>Working out your structure…</p>
-            <small>Sizing the footings, columns, beams and slabs to the IS codes. This takes a few seconds.</small>
+            <p>{t.busyTitle}</p>
+            <small>{t.busySub}</small>
           </div>
         </div>
       )}

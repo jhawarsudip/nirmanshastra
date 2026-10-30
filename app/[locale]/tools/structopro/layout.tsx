@@ -29,8 +29,28 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text for this page.
+const HI: HiMeta = {
+  title: 'StructurePro: RCC घर के लिए कंक्रीट, स्टील और सीमेंट की मात्रा का कैलकुलेटर | IS 456, IS 1893',
+  description: `कुछ सीधे सवालों के जवाब से अपने RCC ढाँचे का कंक्रीट, स्टील, सीमेंट, रेत, गिट्टी और शटरिंग निकालिए, IS 456, IS 875 और IS 1893 के अनुसार। सटीक मात्राएँ; रुपये के लिए अपने रेट डालिए। प्रति रिपोर्ट ${PRICE.structopro}।`,
+  imageAlt: 'NirmanShastra: भारत में IS-कोड के अनुसार निर्माण की मात्राएँ',
+}
+
+const HI_APP_SUMMARY =
+  'RCC ढाँचे की मात्रा की रिपोर्ट: फुटिंग, कॉलम, बीम, स्लैब और सीढ़ी के लिए कंक्रीट, स्टील (सरिये के व्यास के हिसाब से), सीमेंट, रेत, गिट्टी और शटरिंग, कुछ सीधे सवालों के जवाब से IS 456, IS 875, IS 1893 और IS 13920 के अनुसार निकाली गई।'
+
+/** The structured data of this page, with the names in Hindi on /hi (the builders in lib/seo are English only). */
+function jsonLdFor(locale: string) {
+  const data = toolJsonLd('/tools/structopro')
+  if (locale !== 'hi') return data
+  return data.map(node => {
+    if (node['@type'] === 'BreadcrumbList' && Array.isArray(node.itemListElement)) {
+      return { ...node, itemListElement: node.itemListElement.map((it: { name?: string }) => (it.name === 'Home' ? { ...it, name: 'होम' } : it)) }
+    }
+    if (node['@type'] === 'SoftwareApplication') return { ...node, description: HI_APP_SUMMARY, inLanguage: 'hi-IN' }
+    return node
+  })
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -42,7 +62,7 @@ export default async function StructoProLayout({ children, params }: { children:
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/structopro')} />
+      <JsonLd data={jsonLdFor(locale)} />
       {children}
       {/* The explainer sits full-width under the wizard, so it is placed after <main>'s content by the shell's own wrapper */}
       <ToolInfo path="/tools/structopro" />

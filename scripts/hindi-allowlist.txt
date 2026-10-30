@@ -201,3 +201,17 @@ tech
 vac
 tcpi
 etc
+# statutory, clause and glossary labels that stay Latin (added 31 Oct 2026)
+huf
+pan
+cgst
+hra
+epfo
+esic
+bia
+iii
+lpcd
+bbs
+rcbo
+ii
+iv

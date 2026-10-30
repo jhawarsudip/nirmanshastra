@@ -1,5 +1,8 @@
 import { Link } from '@/i18n/navigation'
+import { useLocale } from 'next-intl'
 import type { ReactNode } from 'react'
+import { pickLocale } from '@/lib/i18n/copy'
+import { KIT } from '@/lib/i18n/labels/qty-ui'
 import { IcArrow } from './kit'
 import CalcTracker from '@/components/analytics/CalcTracker'
 import '@/styles/v2/results.css'
@@ -23,10 +26,11 @@ export function CalcPage({ children }: { children: ReactNode }) {
 
 /** Two cards side by side on a desktop (the questions, then the answer), one above the other on a phone. */
 export function CalcGrid({ input, result }: { input: ReactNode; result: ReactNode }) {
+  const k = pickLocale(KIT, useLocale())
   return (
     <div className="ns-calc">
-      <section className="ns-plate ns-calc__in" aria-label="Your numbers">{input}</section>
-      <section className="ns-plate ns-calc__out" aria-label="The answer" aria-live="polite">{result}</section>
+      <section className="ns-plate ns-calc__in" aria-label={k.yourNumbers}>{input}</section>
+      <section className="ns-plate ns-calc__out" aria-label={k.theAnswer} aria-live="polite">{result}</section>
     </div>
   )
 }
@@ -85,8 +89,9 @@ export function Rows({ rows }: { rows: { label: string; detail?: string; value: 
 
 /** The IS codes a calculator rests on. */
 export function Chips({ codes }: { codes: string[] }) {
+  const k = pickLocale(KIT, useLocale())
   return (
-    <ul className="ns-r-chips ns-calc-chips" aria-label="Standards used">
+    <ul className="ns-r-chips ns-calc-chips" aria-label={k.standardsUsed}>
       {codes.map(c => <li key={c} className="ns-i-pill">{c}</li>)}
     </ul>
   )

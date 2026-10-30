@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
-import { toolJsonLd } from '@/lib/seo/schema'
+import { calcJsonLd } from '@/lib/i18n/labels/calc-jsonld'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -28,8 +28,13 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name, IS numbers and units stay in Latin letters.
+const HI: HiMeta = {
+  title: 'कंक्रीट मिक्स कैलकुलेटर: सीमेंट, रेत और गिट्टी',
+  description:
+    'निःशुल्क कंक्रीट मिक्स कैलकुलेटर। मात्रा, ग्रेड (M10 से M40) और साइट का एक्सपोज़र डालिए और सीमेंट के बैग, रेत और मोटी गिट्टी पाइए। M20 और उससे नीचे CPWD के नॉमिनल मिक्स लेते हैं; M25 और उससे ऊपर IS 10262 के अनुसार निकाले गए मिक्स हैं, जो IS 456 की तालिका 5 के भीतर रहते हैं। बिना साइन-इन।',
+  imageAlt: 'NirmanShastra कंक्रीट मिक्स कैलकुलेटर',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function ConcreteMixRatioCalculatorLayout({ children, param
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/concrete-mix-ratio-calculator')} />
+      <JsonLd data={calcJsonLd('/tools/concrete-mix-ratio-calculator', locale)} />
       {children}
     </InnerShell>
   )

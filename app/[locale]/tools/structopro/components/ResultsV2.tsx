@@ -1,11 +1,16 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import '@/styles/v2/results.css'
 import type { FreePayload, PaidPayload } from '@/lib/structopro-qty/payload'
 import { sceneFromGeometry, sceneFromPreview } from '@/lib/structopro-qty/scene'
-import { buildingLabelStilt, storeyLabel, beamLevelLabel, bars12m, isCoil, bandBelowPct, bandAbovePct } from '@/lib/structopro-qty/labels'
+import { bars12m, isCoil, bandBelowPct, bandAbovePct } from '@/lib/structopro-qty/labels'
+import { buildingLabelFor, storeyLabelFor, beamLevelLabelFor } from '@/lib/i18n/labels/structopro-fmt'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useStructTr } from '@/lib/i18n/labels/structopro-tr'
+import { RCOPY } from '../results-copy'
 import type { MemberTotals } from '@/lib/structopro-qty/types'
 import StructureViewer from '@/components/3d/StructureViewer'
 import { PAYMENT_BYPASS } from '@/lib/payment-config'
@@ -44,7 +49,13 @@ type ReportStatus = 'idle' | 'loading' | 'ready' | 'error'
 
 const f = (v: number, d = 0) => v.toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d })
 
-const zoneWord = (z: string) => `Zone ${z}`
+/** The long reference to a study, with the English title of the publication set apart so it is read as English. */
+function Source({ text, hi }: { text: string; hi: boolean }) {
+  const TITLE = 'Building the Baseline: Embodied Carbon in India’s Urban Housing'
+  const i = text.indexOf(TITLE)
+  if (i < 0 || !hi) return <>{text}</>
+  return <>{text.slice(0, i)}<span lang="en">{TITLE}</span>{text.slice(i + TITLE.length)}</>
+}
 
 // ─── the page ─────────────────────────────────────────────────────────────────
 
@@ -58,6 +69,9 @@ interface Props {
 }
 
 export default function ResultsV2({ free, estimateId, hasContact, projectName, onStartOver }: Props) {
+  const t = useCopy(RCOPY)
+  const tr = useStructTr()
+  const locale = useLocale()
   const [payStatus, setPayStatus] = useState<PayStatus>('idle')
   const [payError, setPayError] = useState('')
   const [isPaid, setIsPaid] = useState(PAYMENT_BYPASS)
@@ -244,13 +258,13 @@ export default function ResultsV2({ free, estimateId, hasContact, projectName, o
   return (
     <div className="ns-r">
       <header className="ns-r-head">
-        <p className="ns-i-card__eyebrow" style={{ margin: '0 0 6px', fontWeight: 700, color: 'var(--tc)', fontSize: 14 }}>Step 4 of 4 · {projectName || 'Your project'}</p>
-        <h2>{report ? 'Your quantities are ready' : 'Your structure is ready'}</h2>
+        <p className="ns-i-card__eyebrow" style={{ margin: '0 0 6px', fontWeight: 700, color: 'var(--tc)', fontSize: 14 }}>{t.head.step(projectName || t.head.yourProject)}</p>
+        <h2>{report ? t.head.quantitiesReady : t.head.structureReady}</h2>
         <div className="ns-r-chips">
-          <span className="ns-i-pill ns-i-pill--tc">{buildingLabelStilt(free.floors, free.stilt)} · {f(free.builtUpSqft)} sq ft</span>
-          <span className="ns-i-pill">{zoneWord(free.zone)}</span>
-          <span className="ns-i-pill">{free.foundation === 'raft' ? 'Raft foundation' : 'Separate footings'}</span>
-          {PAYMENT_BYPASS ? <span className="ns-r-preview"><IcCheck width={16} height={16} />Preview mode: full report open for testing</span> : null}
+          <span className="ns-i-pill ns-i-pill--tc">{buildingLabelFor(locale, free.floors, free.stilt)} · {t.free.sqft(f(free.builtUpSqft))}</span>
+          <span className="ns-i-pill">{t.head.zone(free.zone)}</span>
+          <span className="ns-i-pill">{free.foundation === 'raft' ? t.head.raft : t.head.footings}</span>
+          {PAYMENT_BYPASS ? <span className="ns-r-preview"><IcCheck width={16} height={16} />{t.head.previewMode}</span> : null}
         </div>
       </header>
 
@@ -259,47 +273,47 @@ export default function ResultsV2({ free, estimateId, hasContact, projectName, o
 
       {/* ───────────────────────── FREE ───────────────────────── */}
       <section className="ns-plate ns-r-hook" aria-labelledby="r-hook-t">
-        <p className="ns-r-hook__k" id="r-hook-t">Your frame at a glance</p>
-        <dl className="ns-r-facts" aria-label="The frame we worked out for your plan">
-          <div className="ns-r-fact"><dt>Plan size</dt><dd>{f(gl.lengthM, 1)} × {f(gl.widthM, 1)} m</dd><small>About {ft(gl.lengthM)} × {ft(gl.widthM)} ft</small></div>
-          <div className="ns-r-fact"><dt>Grid of columns</dt><dd>{gl.baysX} × {gl.baysY} bays</dd><small>Spans of about {f(gl.spanXM, 1)} and {f(gl.spanYM, 1)} m</small></div>
-          <div className="ns-r-fact"><dt>Columns on each floor</dt><dd>{gl.columnsPerStorey}</dd></div>
-          {free.stilt && <div className="ns-r-fact"><dt>Open parking level</dt><dd>Columns only</dd><small>Larger columns and closer ties, because an open level is the weak storey in an earthquake</small></div>}
-          {free.balconies > 0 && <div className="ns-r-fact"><dt>Balconies</dt><dd>{free.balconies}</dd><small>Each hangs from the floor slab like a shelf</small></div>}
-          <div className="ns-r-fact"><dt>{free.foundation === 'raft' ? 'Foundation' : 'Footings'}</dt><dd>{free.foundation === 'raft' ? 'One raft' : gl.footings}</dd><small>{free.foundation === 'raft' ? 'A thick slab under the whole building' : 'One under every column'}</small></div>
-          <div className="ns-r-fact"><dt>Beams on each floor</dt><dd>{gl.beamsPerFloor}</dd></div>
-          <div className="ns-r-fact"><dt>Slab panels on each floor</dt><dd>{gl.slabPanelsPerFloor}</dd></div>
+        <p className="ns-r-hook__k" id="r-hook-t">{t.free.glanceTitle}</p>
+        <dl className="ns-r-facts" aria-label={t.free.glanceAria}>
+          <div className="ns-r-fact"><dt>{t.free.planSize}</dt><dd>{f(gl.lengthM, 1)} × {f(gl.widthM, 1)} m</dd><small>{t.free.planSizeFt(ft(gl.lengthM), ft(gl.widthM))}</small></div>
+          <div className="ns-r-fact"><dt>{t.free.grid}</dt><dd>{t.free.bays(gl.baysX, gl.baysY)}</dd><small>{t.free.spans(f(gl.spanXM, 1), f(gl.spanYM, 1))}</small></div>
+          <div className="ns-r-fact"><dt>{t.free.colsPerFloor}</dt><dd>{gl.columnsPerStorey}</dd></div>
+          {free.stilt && <div className="ns-r-fact"><dt>{t.free.openLevel}</dt><dd>{t.free.columnsOnly}</dd><small>{t.free.openLevelNote}</small></div>}
+          {free.balconies > 0 && <div className="ns-r-fact"><dt>{t.free.balconies}</dt><dd>{free.balconies}</dd><small>{t.free.balconyNote}</small></div>}
+          <div className="ns-r-fact"><dt>{free.foundation === 'raft' ? t.free.foundation : t.free.footingsLabel}</dt><dd>{free.foundation === 'raft' ? t.free.oneRaft : gl.footings}</dd><small>{free.foundation === 'raft' ? t.free.raftNote : t.free.footingNote}</small></div>
+          <div className="ns-r-fact"><dt>{t.free.beamsPerFloor}</dt><dd>{gl.beamsPerFloor}</dd></div>
+          <div className="ns-r-fact"><dt>{t.free.slabPanels}</dt><dd>{gl.slabPanelsPerFloor}</dd></div>
         </dl>
-        <p className="ns-r-hook__m">Counted from the grid we laid out for the shape of your plot. How much concrete, steel and cement that frame takes is in the full report, below.</p>
+        <p className="ns-r-hook__m">{t.free.glanceNote}</p>
       </section>
 
-      <dl className="ns-r-facts" aria-label="Your structure at a glance">
-        <div className="ns-r-fact"><dt>Floors</dt><dd>{buildingLabelStilt(free.floors, free.stilt)}</dd>{free.stilt && <small>Open parking level, then {free.floors} {free.floors === 1 ? 'floor' : 'floors'}</small>}</div>
-        <div className="ns-r-fact"><dt>Built-up area</dt><dd>{f(free.builtUpSqft)} sq ft</dd></div>
-        <div className="ns-r-fact"><dt>Earthquake zone</dt><dd>{zoneWord(free.zone)}<small>{free.zoneNote}</small></dd></div>
-        <div className="ns-r-fact"><dt>Concrete grade</dt><dd>{free.gradeAbove} above ground</dd><dd style={{ fontSize: 16, marginTop: 0 }}>{free.gradeBelow} in the foundation</dd></div>
-        <div className="ns-r-fact"><dt>Steel</dt><dd>Fe500D</dd><small>Ductile TMT bars, IS 1786</small></div>
-        <div className="ns-r-fact"><dt>Exposure</dt><dd style={{ textTransform: 'capitalize' }}>{free.exposure.replace('_', ' ')}</dd><small>Sets cover and cement content (IS 456 Table 5, Table 16)</small></div>
+      <dl className="ns-r-facts" aria-label={t.free.structureAria}>
+        <div className="ns-r-fact"><dt>{t.free.floors}</dt><dd>{buildingLabelFor(locale, free.floors, free.stilt)}</dd>{free.stilt && <small>{t.free.stiltFloors(free.floors)}</small>}</div>
+        <div className="ns-r-fact"><dt>{t.free.builtUp}</dt><dd>{t.free.sqft(f(free.builtUpSqft))}</dd></div>
+        <div className="ns-r-fact"><dt>{t.free.quakeZone}</dt><dd>{t.head.zone(free.zone)}<small>{tr(free.zoneNote)}</small></dd></div>
+        <div className="ns-r-fact"><dt>{t.free.concreteGrade}</dt><dd>{t.free.aboveGround(free.gradeAbove)}</dd><dd style={{ fontSize: 16, marginTop: 0 }}>{t.free.inFoundation(free.gradeBelow)}</dd></div>
+        <div className="ns-r-fact"><dt>{t.free.steel}</dt><dd>Fe500D</dd><small>{t.free.steelNote}</small></div>
+        <div className="ns-r-fact"><dt>{t.free.exposure}</dt><dd style={{ textTransform: 'capitalize' }}>{t.free.exposures[free.exposure] ?? free.exposure.replace('_', ' ')}</dd><small>{t.free.exposureNote}</small></div>
       </dl>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-chk-t">
-        <h3 id="r-chk-t">Checks against the Indian Standards</h3>
-        <p className="ns-r-sec__sub">These are the checks the tool makes. A PASS for the steel grade or the concrete grade follows from the tool&apos;s own choices. Where a line says a limit is reached, the section shown does not pass it.</p>
+        <h3 id="r-chk-t">{t.free.checksTitle}</h3>
+        <p className="ns-r-sec__sub">{t.free.checksSub}</p>
         <ul className="ns-r-chks">
           {free.compliance.filter(c => c.id !== 'review').map(c => (
             <li key={c.id} className="ns-r-chk" data-s={c.status}>
-              <span className="ns-r-chk__s">{c.status === 'pass' ? 'PASS' : c.status === 'advisory' ? 'NOTE' : 'FAIL'}</span>
-              <p className="ns-r-chk__c">{c.clause}</p>
-              <p className="ns-r-chk__t">{c.description}</p>
-              <p className="ns-r-chk__d">{c.detail}</p>
+              <span className="ns-r-chk__s">{c.status === 'pass' ? t.free.pass : c.status === 'advisory' ? t.free.note : t.free.fail}</span>
+              <p className="ns-r-chk__c">{tr(c.clause)}</p>
+              <p className="ns-r-chk__t">{tr(c.description)}</p>
+              <p className="ns-r-chk__d">{tr(c.detail)}</p>
             </li>
           ))}
         </ul>
       </section>
 
       {free.warnings.length > 0 && (
-        <Note kind="warn" title="Please read">
-          {free.warnings.join(' ')}
+        <Note kind="warn" title={t.free.pleaseRead}>
+          {free.warnings.map(tr).join(' ')}
         </Note>
       )}
 
@@ -307,18 +321,11 @@ export default function ResultsV2({ free, estimateId, hasContact, projectName, o
       {!isPaid && (
         <section className="ns-plate ns-r-unlock" aria-labelledby="r-unlock-t">
           <div>
-            <p className="ns-r-hook__k">The quantities are in the full report</p>
-            <h3 id="r-unlock-t">Know how much to order, item by item</h3>
+            <p className="ns-r-hook__k">{t.free.unlockKicker}</p>
+            <h3 id="r-unlock-t">{t.free.unlockTitle}</h3>
           </div>
           <ul className="ns-r-unlock__list">
-            {[
-              'Concrete in m³ for footings, columns, beams, slabs, stair and lintels',
-              'Steel in kg for every bar diameter, and how many 12 m bars to buy',
-              'Cement bags, sand, aggregate, shuttering area and excavation',
-              'Column and beam sizes, bars and stirrups, floor by floor',
-              'The assumptions behind every figure, what is not counted, and how far off it can be',
-              'A PDF you can hand to your engineer or contractor',
-            ].map(t => <li key={t}><IcCheck />{t}</li>)}
+            {t.free.unlockList.map(line => <li key={line}><IcCheck />{line}</li>)}
           </ul>
           <PackUnlock appType="structopro" estimateId={estimateId} onUnlocked={() => { setContactReady(true); setIsPaid(true); setPayStatus('paid') }} />
           {capture === 'pay' ? (
@@ -330,16 +337,16 @@ export default function ResultsV2({ free, estimateId, hasContact, projectName, o
             />
           ) : (
             <button type="button" className="ns-btn" onClick={() => (contactReady ? handleUnlock() : setCapture('pay'))} disabled={busy || !estimateId}>
-              {payStatus === 'creating' ? 'Starting the payment…' : payStatus === 'verifying' ? 'Checking your payment…' : payStatus === 'polling' ? 'Confirming your payment…' : `Unlock the full report · ${TOOL.price}`}
+              {payStatus === 'creating' ? t.free.starting : payStatus === 'verifying' ? t.free.verifying : payStatus === 'polling' ? t.free.confirming : t.free.unlock(TOOL.price)}
               {!busy && <IcArrow width={22} height={11} />}
             </button>
           )}
-          {payError && <Note kind="err">{payError}</Note>}
-          <PayAssurance sample="structopro" />
-          <p className="ns-i-fine">One payment, no subscription. Paid through Razorpay; we never see your card details.</p>
+          {payError && <Note kind="err">{tr(payError)}</Note>}
+          <PayAssurance sample="structopro" hi={locale === 'hi'} />
+          <p className="ns-i-fine">{t.free.onePayment}</p>
           {!contactReady && !saved && capture !== 'save' && capture !== 'pay' && (
             <p className="ns-i-fine">
-              Not ready to pay? <button type="button" className="ns-i-link" onClick={() => setCapture('save')}>Save this project</button> and come back to it.
+              {t.free.notReady} <button type="button" className="ns-i-link" onClick={() => setCapture('save')}>{t.free.saveLink}</button> {t.free.andCome}
             </p>
           )}
           {capture === 'save' && (
@@ -351,8 +358,8 @@ export default function ResultsV2({ free, estimateId, hasContact, projectName, o
             />
           )}
           {saved && (
-            <Note kind="ok" title="Project saved">
-              It is saved with {who?.email ?? 'your email'} and stays in this browser. When you are ready, the full report is one payment away.
+            <Note kind="ok" title={t.free.savedTitle}>
+              {t.free.saved(who?.email)}
             </Note>
           )}
         </section>
@@ -360,37 +367,37 @@ export default function ResultsV2({ free, estimateId, hasContact, projectName, o
 
       {/* paid, but no name and email yet (the open preview mode): ask before the PDF is made and emailed */}
       {isPaid && !contactReady && (
-        <section className="ns-plate ns-r-unlock" aria-label="Where to send your report">
+        <section className="ns-plate ns-r-unlock" aria-label={t.free.whereToSend}>
           <ContactCapture estimateId={estimateId} mode="send" onDone={w => { setWho(w); setContactReady(true) }} />
         </section>
       )}
 
       {/* ───────────────────────── PAID ───────────────────────── */}
       {isPaid && reportStatus === 'loading' && (
-        <div role="status" aria-live="polite"><div className="ns-r-skel" /><p className="ns-i-fine" style={{ marginTop: 10 }}>Putting your quantities together…</p></div>
+        <div role="status" aria-live="polite"><div className="ns-r-skel" /><p className="ns-i-fine" style={{ marginTop: 10 }}>{t.free.putting}</p></div>
       )}
       {isPaid && reportStatus === 'error' && (
-        <Note kind="err" title="We could not load your report">
-          {reportError} <button type="button" className="ns-i-link" onClick={loadReport}>Try again</button>
+        <Note kind="err" title={t.free.loadFail}>
+          {tr(reportError)} <button type="button" className="ns-i-link" onClick={loadReport}>{t.free.tryAgain}</button>
         </Note>
       )}
       {isPaid && report && <PaidSections r={report} estimateId={estimateId} preview={PAYMENT_BYPASS && payStatus !== 'paid'} pdfStatus={pdfStatus} pdfUrl={pdfUrl} emailSent={emailSent} downloading={downloading} onDownload={downloadPdf} onRetryPdf={generatePdf} />}
 
       <section className="ns-plate ns-r-next" aria-labelledby="r-next-t">
-        <p className="ns-r-hook__k">Next · Phase 2</p>
-        <h3 id="r-next-t">Brick and mortar quantities</h3>
-        <p>With the frame sized, MasonryPro works out the bricks or blocks and the mortar for the walls of the same building.</p>
-        <Link href="/tools/masonpro" className="ns-btn ns-btn--paper">Start MasonryPro<IcArrow width={22} height={11} /></Link>
+        <p className="ns-r-hook__k">{t.free.nextKicker}</p>
+        <h3 id="r-next-t">{t.free.nextTitle}</h3>
+        <p>{t.free.nextBody}</p>
+        <Link href="/tools/masonpro" className="ns-btn ns-btn--paper">{t.free.nextGo}<IcArrow width={22} height={11} /></Link>
       </section>
 
-      <button type="button" className="ns-r-again" onClick={onStartOver}>Start a new estimate</button>
+      <button type="button" className="ns-r-again" onClick={onStartOver}>{t.free.again}</button>
     </div>
   )
 }
 
 // ─── the paid report ──────────────────────────────────────────────────────────
 
-function PaidSections({ r, estimateId, preview, pdfStatus, pdfUrl, emailSent, downloading, onDownload, onRetryPdf }: {
+export function PaidSections({ r, estimateId, preview, pdfStatus, pdfUrl, emailSent, downloading, onDownload, onRetryPdf }: {
   r: PaidPayload
   estimateId: string | null
   preview: boolean
@@ -401,20 +408,24 @@ function PaidSections({ r, estimateId, preview, pdfStatus, pdfUrl, emailSent, do
   onDownload: () => void
   onRetryPdf: () => void
 }) {
+  const all = useCopy(RCOPY)
+  const pc = all.paid
+  const tr = useStructTr()
+  const locale = useLocale()
   const t = r.totals
   const m = r.materials
   const b = r.band
-  const rng = (v: number, band: [number, number]) => `${f(v * band[0])} to ${f(v * band[1])}`
+  const rng = (v: number, band: [number, number]) => `${f(v * band[0])} ${pc.rangeTo} ${f(v * band[1])}`
 
   const parts: [string, MemberTotals][] = [
-    ['Footings (or raft)', r.members.footings],
-    ['Plinth beams', r.members.plinthBeams],
-    ['Columns', r.members.columns],
-    ['Floor beams', r.members.beams],
-    ['Slabs', r.members.slabs],
-    ['Staircase', r.members.stairs],
-    ['Lintels, sunshades, parapet band, stair head-room', r.members.secondary],
-    ...(r.members.balconies ? [['Balcony slabs', r.members.balconies] as [string, MemberTotals]] : []),
+    [pc.partFootings, r.members.footings],
+    [pc.partPlinth, r.members.plinthBeams],
+    [pc.partColumns, r.members.columns],
+    [pc.partBeams, r.members.beams],
+    [pc.partSlabs, r.members.slabs],
+    [pc.partStair, r.members.stairs],
+    [pc.partSecondary, r.members.secondary],
+    ...(r.members.balconies ? [[pc.partBalcony, r.members.balconies] as [string, MemberTotals]] : []),
   ]
   const rcc = parts.reduce((s, [, mt]) => ({ c: s.c + mt.concreteM3, s: s.s + mt.steelKg, f: s.f + mt.formworkM2 }), { c: 0, s: 0, f: 0 })
   const stilt = r.inputEcho.stilt
@@ -427,102 +438,102 @@ function PaidSections({ r, estimateId, preview, pdfStatus, pdfUrl, emailSent, do
   return (
     <>
       <section className="ns-plate ns-r-pdf" aria-labelledby="r-pdf-t">
-        <p className="ns-r-hook__k">{preview ? 'Preview mode · no payment taken' : 'Payment received'}</p>
-        <h3 id="r-pdf-t">Your report is unlocked</h3>
+        <p className="ns-r-hook__k">{preview ? pc.previewKicker : pc.paidKicker}</p>
+        <h3 id="r-pdf-t">{pc.unlockedTitle}</h3>
         <DeliveryNote emailSent={emailSent} />
-        {pdfStatus === 'generating' && <p className="ns-i-fine" role="status">Preparing your PDF…</p>}
+        {pdfStatus === 'generating' && <p className="ns-i-fine" role="status">{pc.pdfPreparing}</p>}
         {pdfStatus === 'ready' && pdfUrl && (
-          <button type="button" className="ns-btn" onClick={onDownload} disabled={downloading}>{downloading ? 'Preparing the download…' : 'Download the PDF report'}</button>
+          <button type="button" className="ns-btn" onClick={onDownload} disabled={downloading}>{downloading ? pc.pdfDownloading : pc.pdfDownload}</button>
         )}
         {pdfStatus === 'error' && (
-          <Note kind="warn">The PDF could not be prepared just now. Everything is on this page. <button type="button" className="ns-i-link" onClick={onRetryPdf}>Try the PDF again</button></Note>
+          <Note kind="warn">{pc.pdfFail} <button type="button" className="ns-i-link" onClick={onRetryPdf}>{pc.pdfRetry}</button></Note>
         )}
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-tot-t">
-        <h3 id="r-tot-t">What to order</h3>
-        <p className="ns-r-sec__sub">Totals for the whole structure. The line under each figure is the range the real number is likely to fall in (see “How far off can this be”).</p>
+        <h3 id="r-tot-t">{pc.orderTitle}</h3>
+        <p className="ns-r-sec__sub">{pc.orderSub}</p>
         <div className="ns-r-tots">
-          <Tot k="Concrete" v={f(t.concreteM3, 1)} unit="m³" range={`${rng(t.concreteM3, b.concrete)} m³`} />
-          <Tot k="Steel to buy" v={f(t.steelBuyKg)} unit="kg" range={`${rng(t.steelBuyKg, b.steel)} kg`} />
-          <Tot k="Cement" v={f(m.cementBags)} unit="bags" range={`${rng(m.cementBags, b.cement)} bags`} />
-          <Tot k="Shuttering" v={f(m.formworkSqft)} unit="sq ft" range={`${rng(m.formworkSqft, b.formwork)} sq ft`} />
+          <Tot k={pc.tConcrete} v={f(t.concreteM3, 1)} unit="m³" range={`${rng(t.concreteM3, b.concrete)} m³`} />
+          <Tot k={pc.tSteel} v={f(t.steelBuyKg)} unit="kg" range={`${rng(t.steelBuyKg, b.steel)} kg`} />
+          <Tot k={pc.tCement} v={f(m.cementBags)} unit={pc.bags} range={`${rng(m.cementBags, b.cement)} ${pc.bags}`} />
+          <Tot k={pc.tShuttering} v={f(m.formworkSqft)} unit={pc.sqft} range={`${rng(m.formworkSqft, b.formwork)} ${pc.sqft}`} />
         </div>
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-buy-t">
-        <h3 id="r-buy-t">Buy list</h3>
+        <h3 id="r-buy-t">{pc.buyTitle}</h3>
         <Table
-          head={['Material', 'Quantity', 'Unit', 'How it was worked out']}
+          head={pc.buyHead}
           num={[1]}
           rows={[
-            ['Cement (50 kg bags)', f(m.cementBags), 'bags', 'Per cubic metre of each mix (see “Mixes”), plus 3% site wastage'],
-            ['Sand', f(m.sandCft), 'cft', `${f(m.sandM3, 1)} m³`],
-            ['Coarse aggregate', f(m.aggregateCft), 'cft', `${f(m.aggregateM3, 1)} m³`],
-            ['Reinforcement steel Fe500D', f(m.steelBuyKg), 'kg', `Bar weight ${f(t.steelNetKg)} kg + 5% cutting waste (CPWD DAR 5.22.1)`],
-            ['Binding wire', f(m.bindingWireKg, 1), 'kg', '9 kg per tonne of steel'],
-            ['Shuttering (contact area)', f(m.formworkSqft), 'sq ft', `${f(t.formworkM2)} m² of formwork face`],
-            ['Excavation', f(m.excavationCft), 'cft', `${f(t.excavationM3, 1)} m³ for the foundation pits`],
+            [pc.buyCement, f(m.cementBags), pc.bags, pc.buyCementHow],
+            [pc.buySand, f(m.sandCft), 'cft', `${f(m.sandM3, 1)} m³`],
+            [pc.buyAgg, f(m.aggregateCft), 'cft', `${f(m.aggregateM3, 1)} m³`],
+            [pc.buySteel, f(m.steelBuyKg), 'kg', pc.buySteelHow(f(t.steelNetKg))],
+            [pc.buyWire, f(m.bindingWireKg, 1), 'kg', pc.buyWireHow],
+            [pc.buyShut, f(m.formworkSqft), 'sq ft', pc.buyShutHow(f(t.formworkM2))],
+            [pc.buyExc, f(m.excavationCft), 'cft', pc.buyExcHow(f(t.excavationM3, 1))],
           ]}
         />
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-mem-t">
-        <h3 id="r-mem-t">Concrete, steel and shuttering by part</h3>
+        <h3 id="r-mem-t">{pc.partsTitle}</h3>
         <Table
-          head={['Part', 'Pieces', 'Concrete m³', 'Steel kg', 'Shuttering m²']}
+          head={pc.partsHead}
           num={[1, 2, 3, 4]}
           rows={parts.map(([label, mt]) => [label, f(mt.count), f(mt.concreteM3, 2), f(mt.steelKg), f(mt.formworkM2, 1)])}
-          foot={['Reinforced concrete total', '', f(rcc.c, 2), f(rcc.s), f(rcc.f, 1)]}
+          foot={[pc.partTotal, '', f(rcc.c, 2), f(rcc.s), f(rcc.f, 1)]}
         />
-        <p className="ns-r-tblnote">Steel here is the bar weight before the 5% cutting waste. Lean concrete under the footings (M7.5) is {f(r.members.pcc.concreteM3, 2)} m³ and is not part of the total above.</p>
+        <p className="ns-r-tblnote">{pc.partsNote(f(r.members.pcc.concreteM3, 2))}</p>
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-steel-t">
-        <h3 id="r-steel-t">Steel by bar diameter</h3>
+        <h3 id="r-steel-t">{pc.steelTitle}</h3>
         <Table
-          head={['Diameter', 'Weight to buy kg', '12 m bars']}
+          head={pc.steelHead}
           num={[1, 2]}
-          rows={r.steelByDiameter.map(s => [`${s.phi} mm`, f(s.kg), isCoil(s.phi) ? 'coil' : f(bars12m(s.phi, s.kg))])}
-          foot={['All diameters', f(r.steelByDiameter.reduce((a, s) => a + s.kg, 0)), f(r.steelByDiameter.reduce((a, s) => a + bars12m(s.phi, s.kg), 0))]}
+          rows={r.steelByDiameter.map(s => [`${s.phi} mm`, f(s.kg), isCoil(s.phi) ? pc.coil : f(bars12m(s.phi, s.kg))])}
+          foot={[pc.allDia, f(r.steelByDiameter.reduce((a, s) => a + s.kg, 0)), f(r.steelByDiameter.reduce((a, s) => a + bars12m(s.phi, s.kg), 0))]}
         />
-        <p className="ns-r-tblnote">Weights include the 5% cutting waste. The bar count rounds each diameter up to whole 12 m lengths (weight per metre = d²/162.2, IS 1786). 6 mm bar is bought as a coil and cut and bent on site, so it has no bar count.</p>
+        <p className="ns-r-tblnote">{pc.steelNote}</p>
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-mix-t">
-        <h3 id="r-mix-t">Mixes</h3>
+        <h3 id="r-mix-t">{pc.mixTitle}</h3>
         <Table
-          head={['Where', 'Grade', 'Cement kg/m³', 'Sand m³/m³', 'Aggregate m³/m³']}
+          head={pc.mixHead}
           num={[2, 3, 4]}
-          rows={r.mixes.map(x => [x.where, x.grade, f(x.cementKgPerM3), f(x.sandM3PerM3, 2), f(x.aggM3PerM3, 2)])}
+          rows={r.mixes.map(x => [tr(x.where), x.grade, f(x.cementKgPerM3), f(x.sandM3PerM3, 2), f(x.aggM3PerM3, 2)])}
         />
-        <ul className="ns-r-list">{r.mixes.map(x => <li key={x.where}><b>{x.grade}</b> {x.where}: {x.basis}</li>)}</ul>
+        <ul className="ns-r-list">{r.mixes.map(x => <li key={x.where}><b>{x.grade}</b> {tr(x.where)}: {tr(x.basis)}</li>)}</ul>
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-col-t">
-        <h3 id="r-col-t">Columns and beams</h3>
+        <h3 id="r-col-t">{pc.colTitle}</h3>
         <Table
           tight
-          head={['Storey', 'Column type', 'Pieces', 'Size mm', 'Main bars', 'Steel %', 'Ties']}
+          head={pc.colHead}
           num={[2, 5]}
-          rows={r.schedules.columns.map(c => [storeyLabel(c.storey, stilt), c.type, f(c.count), `${c.bMm}\u00a0×\u00a0${c.dMm}`, c.bars, f(c.asPercent, 2), c.ties])}
+          rows={r.schedules.columns.map(c => [storeyLabelFor(locale, c.storey, stilt), tr(c.type), f(c.count), `${c.bMm}\u00a0×\u00a0${c.dMm}`, c.bars, f(c.asPercent, 2), tr(c.ties)])}
         />
         <Table
           tight
-          head={['Slab level', 'Beam', 'Pieces', 'Size mm', 'Bars']}
+          head={pc.beamHead}
           num={[2]}
-          rows={r.schedules.beams.map(x => [beamLevelLabel(x.floor, storeys), x.type, f(x.count), `${x.bMm}\u00a0×\u00a0${x.dMm}`, x.note])}
+          rows={r.schedules.beams.map(x => [beamLevelLabelFor(locale, x.floor, storeys), tr(x.type), f(x.count), `${x.bMm}\u00a0×\u00a0${x.dMm}`, tr(x.note)])}
         />
-        <p className="ns-r-tblnote">Bars read as number-diameter: 8-16 means eight 16 mm bars. In beams, the top bars are two continuous bars plus the extra bars after the plus sign, which sit over the supports. Every size is the smallest the tool&apos;s IS 456 and IS 13920 checks accept for your zone, except where the report says a limit is reached; your engineer may round up.</p>
+        <p className="ns-r-tblnote">{pc.colNote}</p>
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-sec-t">
-        <h3 id="r-sec-t">Smaller items, counted</h3>
+        <h3 id="r-sec-t">{pc.smallTitle}</h3>
         <Table
           tight
-          head={['Item', 'Count', 'Concrete m³', 'Steel kg', 'Basis']}
+          head={pc.smallHead}
           num={[1, 2, 3]}
-          rows={r.secondary.map(s => [s.label, f(s.count), f(s.concreteM3, 2), f(s.steelKg), s.basis])}
+          rows={r.secondary.map(s => [tr(s.label), f(s.count), f(s.concreteM3, 2), f(s.steelKg), tr(s.basis)])}
         />
       </section>
 
@@ -530,56 +541,56 @@ function PaidSections({ r, estimateId, preview, pdfStatus, pdfUrl, emailSent, do
       <RatesPanel tool="structopro" lines={lines} pdf={{ api: '/api/structopro/generate-pdf', estimateId, fileName: 'NirmanShastra-StructurePro-Report-with-rupees.pdf' }} />
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-lay-t">
-        <h3 id="r-lay-t">The frame we designed</h3>
+        <h3 id="r-lay-t">{pc.layTitle}</h3>
         <dl className="ns-r-facts">
-          <div className="ns-r-fact"><dt>Footprint</dt><dd>{f(r.layout.lengthM, 1)} × {f(r.layout.widthM, 1)} m</dd></div>
-          <div className="ns-r-fact"><dt>Column grid</dt><dd>{r.layout.baysX} × {r.layout.baysY} bays</dd><small>Spans about {f(r.layout.spanX, 2)} × {f(r.layout.spanY, 2)} m</small></div>
-          <div className="ns-r-fact"><dt>Storey height</dt><dd>{f(r.layout.storeyHeightM, 1)} m</dd><small>Plinth {f(r.layout.plinthM, 2)} m above ground</small></div>
-          <div className="ns-r-fact"><dt>Founding depth</dt><dd>{f(r.layout.foundingDepthM, 1)} m</dd><small>Below ground level</small></div>
-          <div className="ns-r-fact"><dt>Steel per m²</dt><dd>{f(r.perM2.steelKgPerM2, 1)} kg</dd><small>{stilt ? 'Of roofed floor area, parking level included' : 'Of built-up floor area'}</small></div>
-          <div className="ns-r-fact"><dt>Concrete per m²</dt><dd>{f(r.perM2.concreteM3PerM2, 3)} m³</dd><small>{stilt ? 'Of roofed floor area, parking level included' : 'Of built-up floor area'}</small></div>
-          <div className="ns-r-fact"><dt>Wind speed used</dt><dd>{r.wind.vbMs} m/s</dd><small>{r.wind.basis === 'city' ? r.wind.place : `${r.wind.place}, state value`}. {r.wind.governs.x === 'wind' || r.wind.governs.y === 'wind' ? 'Wind is the larger force in one direction.' : 'Earthquake is the larger force.'}</small></div>
+          <div className="ns-r-fact"><dt>{pc.footprint}</dt><dd>{f(r.layout.lengthM, 1)} × {f(r.layout.widthM, 1)} m</dd></div>
+          <div className="ns-r-fact"><dt>{pc.colGrid}</dt><dd>{all.free.bays(r.layout.baysX, r.layout.baysY)}</dd><small>{pc.spansAbout(f(r.layout.spanX, 2), f(r.layout.spanY, 2))}</small></div>
+          <div className="ns-r-fact"><dt>{pc.storeyHeight}</dt><dd>{f(r.layout.storeyHeightM, 1)} m</dd><small>{pc.plinthAbove(f(r.layout.plinthM, 2))}</small></div>
+          <div className="ns-r-fact"><dt>{pc.foundingDepth}</dt><dd>{f(r.layout.foundingDepthM, 1)} m</dd><small>{pc.belowGround}</small></div>
+          <div className="ns-r-fact"><dt>{pc.steelPerM2}</dt><dd>{f(r.perM2.steelKgPerM2, 1)} kg</dd><small>{stilt ? pc.ofRoofed : pc.ofBuiltUp}</small></div>
+          <div className="ns-r-fact"><dt>{pc.concretePerM2}</dt><dd>{f(r.perM2.concreteM3PerM2, 3)} m³</dd><small>{stilt ? pc.ofRoofed : pc.ofBuiltUp}</small></div>
+          <div className="ns-r-fact"><dt>{pc.windSpeed}</dt><dd>{r.wind.vbMs} m/s</dd><small>{r.wind.basis === 'city' ? tr(r.wind.place) : pc.stateValue(tr(r.wind.place))}. {r.wind.governs.x === 'wind' || r.wind.governs.y === 'wind' ? pc.windLarger : pc.quakeLarger}</small></div>
         </dl>
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-acc-t">
-        <h3 id="r-acc-t">How far off can this be</h3>
-        <p className="ns-r-sec__sub">This is a code-based planning estimate, not a structural design for your drawing. It designs a regular frame to the Indian Standards and counts the extras. Your engineer&rsquo;s drawing will differ, and a real building is more likely to use more than this than less.</p>
+        <h3 id="r-acc-t">{pc.accTitle}</h3>
+        <p className="ns-r-sec__sub">{pc.accSub}</p>
         <ul className="ns-r-list">
-          <li>Concrete: from {lowBand(b.concrete)}% below to {highBand(b.concrete)}% above the figure shown.</li>
-          <li>Steel: from {lowBand(b.steel)}% below to {highBand(b.steel)}% above.</li>
-          <li>Cement: from {lowBand(b.cement)}% below to {highBand(b.cement)}% above.</li>
-          <li>Shuttering: from {lowBand(b.formwork)}% below to {highBand(b.formwork)}% above.</li>
+          <li>{pc.accRange(pc.accConcrete, lowBand(b.concrete), highBand(b.concrete))}</li>
+          <li>{pc.accRange(pc.accSteel, lowBand(b.steel), highBand(b.steel))}</li>
+          <li>{pc.accRange(pc.accCement, lowBand(b.cement), highBand(b.cement))}</li>
+          <li>{pc.accRange(pc.accShuttering, lowBand(b.formwork), highBand(b.formwork))}</li>
         </ul>
-        <p className="ns-r-tblnote">Use the figure to compare and to order the first lots. For a budget, plan on the upper half of each range, because the range is lopsided on purpose: the code sets a floor under what a frame needs, and site practice only adds to it. Get the final bar bending schedule from the structural engineer who signs your drawings.</p>
+        <p className="ns-r-tblnote">{pc.accNote}</p>
       </section>
 
       {r.practice && (
       <section className="ns-plate ns-r-sec" aria-labelledby="r-prac-t">
-        <h3 id="r-prac-t">Against buildings that were actually built</h3>
-        <p className="ns-r-sec__sub">The figures above are the steel and concrete a code-based design of this regular frame needs, at the section sizes shown. Built houses usually use more, because site practice adds margin that no code asks for. For orientation, here is what a published study of real {r.practice.classLabel} found.</p>
+        <h3 id="r-prac-t">{pc.pracTitle}</h3>
+        <p className="ns-r-sec__sub">{pc.pracSub(tr(r.practice.classLabel))}</p>
         <Table
-          head={['', 'This report', 'Real buildings, low to high', 'For your floor area']}
+          head={pc.pracHead}
           num={[1, 2, 3]}
           rows={[
-            ['Steel per m² of floor (bar weight)', `${f(r.practice.thisReport.steelKgPerM2, 1)} kg`, `${f(r.practice.steelKgPerM2[0])} to ${f(r.practice.steelKgPerM2[1])} kg`, `${f(r.practice.steelKg[0])} to ${f(r.practice.steelKg[1])} kg`],
-            ['Concrete per m² of floor', `${f(r.practice.thisReport.concreteM3PerM2, 2)} m³`, `${f(r.practice.concreteM3PerM2[0], 2)} to ${f(r.practice.concreteM3PerM2[1], 2)} m³`, `${f(r.practice.concreteM3[0], 1)} to ${f(r.practice.concreteM3[1], 1)} m³`],
+            [pc.pracSteelRow, `${f(r.practice.thisReport.steelKgPerM2, 1)} kg`, `${f(r.practice.steelKgPerM2[0])} ${pc.pracTo} ${f(r.practice.steelKgPerM2[1])} kg`, `${f(r.practice.steelKg[0])} ${pc.pracTo} ${f(r.practice.steelKg[1])} kg`],
+            [pc.pracConcRow, `${f(r.practice.thisReport.concreteM3PerM2, 2)} m³`, `${f(r.practice.concreteM3PerM2[0], 2)} ${pc.pracTo} ${f(r.practice.concreteM3PerM2[1], 2)} m³`, `${f(r.practice.concreteM3[0], 1)} ${pc.pracTo} ${f(r.practice.concreteM3[1], 1)} m³`],
           ]}
         />
-        <p className="ns-r-tblnote">If your contractor&rsquo;s quantities fall between this report and the real-building range, that is common and worth a conversation, not an accusation. If they are above the range, ask for the bar bending schedule. Source: {r.practice.source} The study does not publish how many buildings fell in each class, so treat the range as orientation, not as a prediction for your house.</p>
+        <p className="ns-r-tblnote">{pc.pracNote1}<Source text={tr(r.practice.source)} hi={locale === 'hi'} />{pc.pracNote2}</p>
       </section>
       )}
 
       <QuoteCheck r={r} />
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-as-t">
-        <h3 id="r-as-t">Assumptions</h3>
-        <ul className="ns-r-list">{r.assumptions.map(a => <li key={a}>{a}</li>)}</ul>
+        <h3 id="r-as-t">{pc.assumpTitle}</h3>
+        <ul className="ns-r-list">{r.assumptions.map(a => <li key={a}>{tr(a)}</li>)}</ul>
       </section>
 
       <section className="ns-plate ns-r-sec" aria-labelledby="r-ni-t">
-        <h3 id="r-ni-t">Not counted in this report</h3>
-        <ul className="ns-r-list">{r.notIncluded.map(a => <li key={a}>{a}</li>)}</ul>
+        <h3 id="r-ni-t">{pc.notInTitle}</h3>
+        <ul className="ns-r-list">{r.notIncluded.map(a => <li key={a}>{tr(a)}</li>)}</ul>
       </section>
     </>
   )

@@ -8,6 +8,10 @@ import type { SelectedProject } from '@/components/v2/inner/ProjectPicker'
 import { Field, Input, Select, Note, IcArrow, IcAlert } from '@/components/v2/inner/kit'
 import { Tip } from '@/components/v2/inner/Tip'
 import Disclosure from '@/components/v2/inner/Disclosure'
+import { useLocale } from 'next-intl'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { stateLabel } from '@/lib/i18n/states'
+import { QTY_FORM } from '@/lib/i18n/labels/qty-ui'
 
 /*
   One form for every trade tool. The first section (plot, floors, area) is the same for all of them;
@@ -15,8 +19,6 @@ import Disclosure from '@/components/v2/inner/Disclosure'
 */
 
 const MAX_FLOORS = 10
-const floorLabel = (n: number) => (n === 1 ? 'G (ground only)' : `G + ${n - 1}`)
-const FLOOR_NAMES = ['Ground floor', 'First floor', 'Second floor', 'Third floor', 'Fourth floor', 'Fifth floor', 'Sixth floor', 'Seventh floor', 'Eighth floor', 'Ninth floor']
 
 function holds(c: Cond | undefined, v: Values): boolean {
   if (!c) return true
@@ -47,6 +49,9 @@ interface Props {
 }
 
 export default function QtyForm({ spec, meta, price, state: initState, city: initCity, initialProject, onSubmit, onRows, onBack }: Props) {
+  const k = useCopy(QTY_FORM)
+  const locale = useLocale()
+  const floorLabel = (n: number) => (n === 1 ? k.gOnly : k.gPlus(n - 1))
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [localState, setLocalState] = useState(initState || '')
   const [localCity, setLocalCity] = useState(initCity || '')
@@ -84,16 +89,16 @@ export default function QtyForm({ spec, meta, price, state: initState, city: ini
 
   function validate(): boolean {
     const errs: Record<string, string> = {}
-    if (!localState) errs.state = 'Choose your state'
-    if (sameArea && (!(parseFloat(groundArea) >= 100) || parseFloat(groundArea) > 30000)) errs.area = 'Enter the area of one floor in sq ft (100 to 30,000)'
-    if (!sameArea && floorAreas.some(a => !(a >= 100) || a > 30000)) errs.floors = 'Enter an area between 100 and 30,000 sq ft for every floor'
+    if (!localState) errs.state = k.errState
+    if (sameArea && (!(parseFloat(groundArea) >= 100) || parseFloat(groundArea) > 30000)) errs.area = k.errArea
+    if (!sameArea && floorAreas.some(a => !(a >= 100) || a > 30000)) errs.floors = k.errFloors
     for (const g of spec.groups) for (const f of g.fields) {
       if (!holds(f.showIf, vals)) continue
       if (f.kind === 'number') {
         const raw = String(vals[f.id] ?? '').trim()
-        if (raw === '') { if (!f.optional) errs[f.id] = `Enter ${f.label.toLowerCase()}`; continue }
+        if (raw === '') { if (!f.optional) errs[f.id] = k.errEnter(f.label); continue }
         const n = Number(raw)
-        if (!Number.isFinite(n) || n < f.min || n > f.max) errs[f.id] = `${f.label} must be between ${f.min} and ${f.max}`
+        if (!Number.isFinite(n) || n < f.min || n > f.max) errs[f.id] = k.errRange(f.label, f.min, f.max)
       }
     }
     setErrors(errs)
@@ -117,38 +122,38 @@ export default function QtyForm({ spec, meta, price, state: initState, city: ini
 
   return (
     <form onSubmit={e => e.preventDefault()} noValidate className="ns-i-form">
-      {onBack && <button type="button" className="ns-i-back" onClick={onBack}><IcArrow />Change project</button>}
+      {onBack && <button type="button" className="ns-i-back" onClick={onBack}><IcArrow />{k.back}</button>}
 
       <div className="ns-plate ns-i-card">
-        <p className="ns-i-card__eyebrow">Step 3 of 4</p>
+        <p className="ns-i-card__eyebrow">{k.step}</p>
         <h2>{spec.heading}</h2>
         <p className="ns-i-card__sub">{spec.sub}</p>
       </div>
 
       {/* 1 ─ the plot and the floors, the same for every tool */}
-      <Disclosure n="1" title="Where is the plot, and how big is the building?">
+      <Disclosure n="1" title={k.plotTitle}>
         <div className="ns-i-fields">
-          <Field id="qf-state" label="State" required error={errors.state}>
+          <Field id="qf-state" label={k.state} required error={errors.state}>
             <Select value={localState} onChange={e => setLocalState(e.target.value)}>
-              <option value="">Select your state or UT</option>
-              {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              <option value="">{k.selectState}</option>
+              {STATES.map(s => <option key={s} value={s}>{stateLabel(s, locale)}</option>)}
             </Select>
           </Field>
-          <Field id="qf-city" label="Town or city">
-            <Input value={localCity} onChange={e => setLocalCity(e.target.value)} placeholder="e.g. Pune" autoComplete="address-level2" />
+          <Field id="qf-city" label={k.city}>
+            <Input value={localCity} onChange={e => setLocalCity(e.target.value)} placeholder={k.cityPh} autoComplete="address-level2" />
           </Field>
-          <Field id="qf-floors" label="Number of floors" hint="G means ground only. G + 1 means ground plus one floor above.">
+          <Field id="qf-floors" label={k.numFloors} hint={k.numFloorsHint}>
             <Select value={numFloors} onChange={e => setNumFloors(parseInt(e.target.value))}>
               {Array.from({ length: MAX_FLOORS }, (_, i) => i + 1).map(n => <option key={n} value={n}>{floorLabel(n)}</option>)}
             </Select>
           </Field>
           <fieldset className="ns-i-fs">
-            <legend className="ns-i-lab">Same area on every floor?</legend>
+            <legend className="ns-i-lab">{k.sameArea}</legend>
             <div className="ns-i-seg">
               {(['Yes', 'No'] as const).map(opt => (
                 <label key={opt} className="ns-i-segopt">
                   <input type="radio" name="qf-samearea" checked={sameArea === (opt === 'Yes')} onChange={() => setSameArea(opt === 'Yes')} />
-                  <span>{opt}</span>
+                  <span>{opt === 'Yes' ? k.yes : k.no}</span>
                 </label>
               ))}
             </div>
@@ -157,8 +162,8 @@ export default function QtyForm({ spec, meta, price, state: initState, city: ini
 
         {sameArea ? (
           <div className="ns-i-fields">
-            <Field id="qf-area" label="Built-up area of one floor (sq ft)" required hint="Walls and balconies included, as in your plan" error={errors.area}>
-              <Input type="number" inputMode="numeric" min="100" placeholder="e.g. 1200" value={groundArea} onChange={e => { setGroundArea(e.target.value); if (errors.area) setErrors(p => ({ ...p, area: '' })) }} />
+            <Field id="qf-area" label={k.areaOne} required hint={k.areaOneHint} error={errors.area}>
+              <Input type="number" inputMode="numeric" min="100" placeholder={k.areaPh} value={groundArea} onChange={e => { setGroundArea(e.target.value); if (errors.area) setErrors(p => ({ ...p, area: '' })) }} />
             </Field>
           </div>
         ) : (
@@ -168,10 +173,10 @@ export default function QtyForm({ spec, meta, price, state: initState, city: ini
                 const bad = !!errors.floors && !(a >= 100 && a <= 30000)
                 return (
                   <li key={idx} className="ns-i-floor">
-                    <p className="ns-i-floor__t">{FLOOR_NAMES[idx] ?? `Floor ${idx}`}</p>
+                    <p className="ns-i-floor__t">{k.floorNames[idx] ?? k.floorN(idx)}</p>
                     <div className="ns-i-floor__g">
-                      <Field id={`qf-fa-${idx}`} label="Area (sq ft)" invalid={bad}>
-                        <Input type="number" inputMode="numeric" min="0" placeholder="e.g. 1200" value={areas[idx] ?? ''} onChange={e => setAreas(prev => prev.map((v, i) => (i === idx ? e.target.value : v)))} />
+                      <Field id={`qf-fa-${idx}`} label={k.areaFloor} invalid={bad}>
+                        <Input type="number" inputMode="numeric" min="0" placeholder={k.areaPh} value={areas[idx] ?? ''} onChange={e => setAreas(prev => prev.map((v, i) => (i === idx ? e.target.value : v)))} />
                       </Field>
                     </div>
                   </li>
@@ -198,18 +203,18 @@ export default function QtyForm({ spec, meta, price, state: initState, city: ini
           <div className="ns-i-note ns-i-note--err ns-i-errsum" role="alert">
             <IcAlert />
             <div>
-              <p><b>Please check these before continuing</b></p>
+              <p><b>{k.checkThese}</b></p>
               <ul>{errorList.map(m => <li key={m}>{m}</li>)}</ul>
             </div>
           </div>
         )}
         <div className="ns-i-actions__r">
           <button type="button" className="ns-btn" onClick={handleSubmit}>
-            Work out my quantities
+            {k.work}
             <IcArrow width={22} height={11} />
           </button>
         </div>
-        <p className="ns-i-fine">{spec.freeLine} ({price}).</p>
+        <p className="ns-i-fine">{spec.freeLine} ({price}){locale === 'hi' ? '।' : '.'}</p>
       </div>
     </form>
   )
@@ -218,6 +223,7 @@ export default function QtyForm({ spec, meta, price, state: initState, city: ini
 // ─── one question ─────────────────────────────────────────────────────────────
 
 function Ask({ f, v, onChange, error }: { f: FieldSpec; v: string | number | boolean | undefined; onChange: (v: string | number | boolean) => void; error?: string }) {
+  const k = useCopy(QTY_FORM)
   const id = `qf-${f.id}`
   const legend = (
     <legend className="ns-i-lab" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -253,7 +259,7 @@ function Ask({ f, v, onChange, error }: { f: FieldSpec; v: string | number | boo
         {legend}
         {hint}
         <div className="ns-i-seg">
-          {([['Yes', true], ['No', false]] as const).map(([label, val]) => (
+          {([[k.yes, true], [k.no, false]] as const).map(([label, val]) => (
             <label key={label} className="ns-i-segopt">
               <input type="radio" name={id} checked={v === val} onChange={() => onChange(val)} />
               <span>{label}</span>
@@ -271,9 +277,9 @@ function Ask({ f, v, onChange, error }: { f: FieldSpec; v: string | number | boo
         {legend}
         {hint}
         <div className="ns-i-qty">
-          <button type="button" aria-label={`One fewer: ${f.label}`} disabled={n <= f.min} onClick={() => onChange(Math.max(f.min, n - 1))}>−</button>
+          <button type="button" aria-label={k.oneFewer(f.label)} disabled={n <= f.min} onClick={() => onChange(Math.max(f.min, n - 1))}>−</button>
           <output className="ns-i-qty__v" aria-live="polite" htmlFor={id}>{n}</output>
-          <button type="button" id={id} aria-label={`One more: ${f.label}`} disabled={n >= f.max} onClick={() => onChange(Math.min(f.max, n + 1))}>+</button>
+          <button type="button" id={id} aria-label={k.oneMore(f.label)} disabled={n >= f.max} onClick={() => onChange(Math.min(f.max, n + 1))}>+</button>
         </div>
       </fieldset>
     )

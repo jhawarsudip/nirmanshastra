@@ -1,4 +1,5 @@
-import { PAID_CONTENT } from '@/lib/seo/paid-content'
+import { useLocale } from 'next-intl'
+import { PAID_CONTENT, paidFaqBi, pickPaid } from '@/lib/seo/paid-content'
 import CalcFaq from '@/components/seo/CalcFaq'
 import RelatedLinks from '@/components/seo/RelatedLinks'
 
@@ -28,11 +29,14 @@ const h2Style: React.CSSProperties = {
 }
 
 export default function PaidToolInfo({ path }: { path: string }) {
-  const c = PAID_CONTENT[path]
-  if (!c) return null
+  const locale = useLocale()
+  const hi = locale === 'hi'
+  const paid = PAID_CONTENT[path]
+  if (!paid) return null
+  const c = pickPaid(paid, locale)
   return (
     <section
-      aria-label="About this report"
+      aria-label={hi ? 'इस रिपोर्ट के बारे में' : 'About this report'}
       style={{ background: 'var(--bg-base, #0A0A0A)', borderTop: `1px solid ${BSUB}` }}
     >
       <div className="px-6 md:px-16 lg:px-24 py-16" style={{ maxWidth: 940 }}>
@@ -48,12 +52,12 @@ export default function PaidToolInfo({ path }: { path: string }) {
         </section>
 
         <section style={{ marginBottom: 40 }}>
-          <h2 style={h2Style}>Who it is for</h2>
+          <h2 style={h2Style}>{hi ? 'यह किसके लिए है' : 'Who it is for'}</h2>
           <p style={{ fontFamily: SANS, fontSize: 16, color: INK_65, lineHeight: 1.8, margin: 0 }}>{c.whoFor}</p>
         </section>
 
         <section style={{ marginBottom: 40 }}>
-          <h2 style={h2Style}>Worked example</h2>
+          <h2 style={h2Style}>{hi ? 'हल किया हुआ उदाहरण' : 'Worked example'}</h2>
           <p style={{ fontFamily: MONO, fontSize: 12, color: BLUEPRINT, letterSpacing: '0.06em', textTransform: 'uppercase', margin: '0 0 8px' }}>
             {c.example.title}
           </p>
@@ -85,7 +89,7 @@ export default function PaidToolInfo({ path }: { path: string }) {
           <p style={{ fontFamily: SANS, fontSize: 14, color: INK_45, lineHeight: 1.7, margin: '12px 0 0' }}>{c.example.footnote}</p>
         </section>
 
-        <CalcFaq items={c.faq} />
+        <CalcFaq items={paidFaqBi(paid)} />
 
         <RelatedLinks path={path} />
       </div>

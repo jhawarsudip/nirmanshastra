@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
-import { toolJsonLd } from '@/lib/seo/schema'
+import { calcJsonLd } from '@/lib/i18n/labels/calc-jsonld'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -28,8 +28,13 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name, IS numbers and units stay in Latin letters.
+const HI: HiMeta = {
+  title: 'बार बेंडिंग कैलकुलेटर: बार की कटिंग लेंथ और वज़न',
+  description:
+    'निःशुल्क बार बेंडिंग कैलकुलेटर। आकार (सीधा, L, U, क्रैंक, स्टिरप, चौकोर टाई), बार का साइज़ और लंबाइयाँ चुनिए, और काटने की लंबाई व वज़न पाइए: बेंड घटाकर, 135° के हुक जोड़कर और लंबाई 25 mm तक ऊपर गोल करके। IS 2502, IS 1786 और IS 13920। बिना साइन-इन।',
+  imageAlt: 'NirmanShastra बार बेंडिंग कैलकुलेटर',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function BarBendingScheduleCalculatorLayout({ children, par
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/bar-bending-schedule-calculator')} />
+      <JsonLd data={calcJsonLd('/tools/bar-bending-schedule-calculator', locale)} />
       {children}
     </InnerShell>
   )

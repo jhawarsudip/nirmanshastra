@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { Field, Input, Note, IcArrow } from '@/components/v2/inner/kit'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useStructTr } from '@/lib/i18n/labels/structopro-tr'
+import { COPY } from '../copy'
 import { trackLead } from '@/lib/analytics/events'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
 
@@ -11,11 +14,7 @@ import { CONTACT_EMAIL } from '@/lib/site-contact'
 */
 export type CaptureMode = 'pay' | 'save' | 'send'
 
-const COPY: Record<CaptureMode, { title: string; sub: string; button: string }> = {
-  pay:  { title: 'Where should we send your report?', sub: 'Your report is emailed here when it is ready, and you can also download it on this page.', button: 'Continue to payment' },
-  save: { title: 'Save this project', sub: 'We keep your name and email with this project. It also stays in this browser, so you can come back to it here.', button: 'Save my project' },
-  send: { title: 'Where should we send your report?', sub: 'Your report is emailed here, and you can also download it on this page.', button: 'Send my report' },
-}
+// the words for each mode (pay, save, send) are in ../copy.ts
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -30,17 +29,19 @@ export default function ContactCapture({ estimateId, mode, onDone, onCancel }: {
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({})
   const [apiError, setApiError] = useState('')
   const [busy, setBusy] = useState(false)
-  const c = COPY[mode]
+  const t = useCopy(COPY).contact
+  const tr = useStructTr()
+  const c = t[mode]
 
   async function submit(ev: React.FormEvent) {
     ev.preventDefault()
     if (busy) return
     const e: { name?: string; email?: string } = {}
-    if (!name.trim()) e.name = 'Please enter your name'
-    if (!EMAIL_RE.test(email.trim())) e.email = 'Please enter a valid email address'
+    if (!name.trim()) e.name = t.errName
+    if (!EMAIL_RE.test(email.trim())) e.email = t.errEmail
     setErrors(e)
     if (e.name || e.email) return
-    if (!estimateId) { setApiError('Your estimate is not saved yet. Please wait a moment and try again.'); return }
+    if (!estimateId) { setApiError(t.notSaved); return }
     setBusy(true)
     setApiError('')
     try {
@@ -54,7 +55,7 @@ export default function ContactCapture({ estimateId, mode, onDone, onCancel }: {
       trackLead('structopro', 'email') // generate_lead / Lead: an email address was given
       onDone({ name: name.trim(), email: email.trim() })
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'We could not save your details. Please try again.')
+      setApiError(err instanceof Error ? tr(err.message) : t.saveFail)
     } finally {
       setBusy(false)
     }
@@ -65,22 +66,22 @@ export default function ContactCapture({ estimateId, mode, onDone, onCancel }: {
       <h4 id={`r-cap-${mode}`}>{c.title}</h4>
       <p className="ns-i-fine">{c.sub}</p>
       <div className="ns-i-fields">
-        <Field id={`cap-name-${mode}`} label="Your name" required error={errors.name}>
-          <Input type="text" value={name} onChange={ev => { setName(ev.target.value); if (errors.name) setErrors(p => ({ ...p, name: undefined })) }} placeholder="Ramesh Sharma" autoComplete="name" />
+        <Field id={`cap-name-${mode}`} label={t.name} required error={errors.name}>
+          <Input type="text" value={name} onChange={ev => { setName(ev.target.value); if (errors.name) setErrors(p => ({ ...p, name: undefined })) }} placeholder={t.nameEg} autoComplete="name" />
         </Field>
-        <Field id={`cap-email-${mode}`} label="Email" required error={errors.email}>
-          <Input type="email" value={email} onChange={ev => { setEmail(ev.target.value); if (errors.email) setErrors(p => ({ ...p, email: undefined })) }} placeholder="ramesh@example.com" autoComplete="email" inputMode="email" />
+        <Field id={`cap-email-${mode}`} label={t.email} required error={errors.email}>
+          <Input type="email" value={email} onChange={ev => { setEmail(ev.target.value); if (errors.email) setErrors(p => ({ ...p, email: undefined })) }} placeholder={t.emailEg} autoComplete="email" inputMode="email" />
         </Field>
       </div>
-      {apiError && <Note kind="err" title="That did not go through">{apiError}</Note>}
+      {apiError && <Note kind="err" title={t.failTitle}>{apiError}</Note>}
       <div className="ns-r-capture__row">
         <button type="submit" className="ns-btn" disabled={busy}>
-          {busy ? 'Saving…' : c.button}
+          {busy ? t.saving : c.button}
           {!busy && <IcArrow width={22} height={11} />}
         </button>
-        {onCancel && <button type="button" className="ns-i-link" onClick={onCancel} disabled={busy}>Not now</button>}
+        {onCancel && <button type="button" className="ns-i-link" onClick={onCancel} disabled={busy}>{t.notNow}</button>}
       </div>
-      <p className="ns-i-fine">We email you the report and, now and then, an IS-code construction tip. To stop the tips, write to {CONTACT_EMAIL}.</p>
+      <p className="ns-i-fine">{t.fine(CONTACT_EMAIL)}</p>
     </form>
   )
 }

@@ -2,6 +2,8 @@
 
 import { useId, useState } from 'react'
 import { IcInfo } from './kit'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { KIT } from '@/lib/i18n/labels/qty-ui'
 
 export type TipInfo = { title: string; body: string; is?: string }
 
@@ -13,6 +15,7 @@ export type TipInfo = { title: string; body: string; is?: string }
 export function Tip({ info }: { info: TipInfo }) {
   const [open, setOpen] = useState(false)
   const pid = useId()
+  const k = useCopy(KIT)
   return (
     <>
       <button
@@ -20,7 +23,7 @@ export function Tip({ info }: { info: TipInfo }) {
         className="ns-i-tipbtn"
         aria-expanded={open}
         aria-controls={open ? pid : undefined}
-        aria-label={`About ${info.title}`}
+        aria-label={k.aboutTip(info.title)}
         onClick={() => setOpen(o => !o)}
         onKeyDown={e => { if (e.key === 'Escape') setOpen(false) }}
       >

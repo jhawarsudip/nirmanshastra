@@ -9,6 +9,11 @@ import { rateItems, type RateItem } from '@/lib/rates/items'
 import { RESULT_LABEL, computeRupees, inr, inrRate, parseRate } from '@/lib/rates/compute'
 import { hintFor, latestHintDate } from '@/lib/rates/hints'
 import { trackRatesEntered } from '@/lib/analytics/events'
+import { useLocale } from 'next-intl'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useQtyTr } from '@/lib/i18n/use-qty-tr'
+import { QTY_RATES, dateHi } from '@/lib/i18n/labels/qty-ui'
+import { isTradeSlug } from '@/lib/qty/meta'
 
 /*
   "Want this in rupees? Enter your local rates." (Group 9)
@@ -34,6 +39,10 @@ const FOLD_OVER = 8
 
 export default function RatesPanel({ tool, lines, pdf }: Props) {
   const uid = useId()
+  const k = useCopy(QTY_RATES)
+  const hi = useLocale() === 'hi'
+  // the words of the report's lines (item names, units, groups) are the server's English; the dictionaries of this tool turn them into Hindi
+  const t = useQtyTr(tool === 'grandtotal' ? 'all' : isTradeSlug(tool) ? tool : 'none')
   const { items } = useMemo(() => rateItems(lines), [lines])
   const [typed, setTyped] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
@@ -69,19 +78,29 @@ export default function RatesPanel({ tool, lines, pdf }: Props) {
     if (g) g.items.push(it)
     else groups.push({ name: it.group, items: [it] })
   }
-  const updated = latestHintDate(items.map(i => i.id))
+  const updatedEn = latestHintDate(items.map(i => i.id))
+  const updated = hi ? dateHi(updatedEn) : updatedEn
   const rowOf = new Map(result.rows.map(r => [r.id, r]))
+
+  /** The words beside a rate box. lib/rates/hints.ts words them in English; the Hindi page re-words the same two shapes. */
+  function hintLine(h: { text: string; updated: string }): { text: string; updated: string } {
+    if (!hi) return h
+    const m = /^Typical: (.+?) (?:a|per) (.+?) \(ask your dealer\)$/.exec(h.text)
+    const text = m ? `${k.typical}: ${m[1]} ${t(`per ${m[2]}`)} (${k.askDealer})` : h.text === "Ask your dealer for today's rate" ? k.askToday : h.text
+    const d = /^updated (.+)$/.exec(h.updated)
+    return { text, updated: d ? k.updatedOn(dateHi(d[1])) : h.updated }
+  }
 
   async function download() {
     if (busy || result.priced === 0) return
-    if (!pdf.estimateId) { setError('Your report is not saved yet. Please wait a moment and try again.'); return }
+    if (!pdf.estimateId) { setError(k.notSaved); return }
     setBusy(true)
     setError('')
     try {
       const res = await fetch(pdf.api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estimateId: pdf.estimateId, rates }) })
       if (!res.ok) {
         const j = await res.json().catch(() => ({}))
-        throw new Error(j.error || 'We could not make the PDF. Please try again.')
+        throw new Error(j.error || k.pdfFailed)
       }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
@@ -93,7 +112,7 @@ export default function RatesPanel({ tool, lines, pdf }: Props) {
       a.remove()
       setTimeout(() => URL.revokeObjectURL(url), 5000)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'We could not make the PDF. Please try again.')
+      setError(e instanceof Error ? e.message : k.pdfFailed)
     } finally {
       setBusy(false)
     }
@@ -103,13 +122,13 @@ export default function RatesPanel({ tool, lines, pdf }: Props) {
     const id = `${uid}-${it.id}`
     const text = typed[it.id] ?? ''
     const bad = text.trim() !== '' && parseRate(text) === null
-    const hint = hintFor(it.id, it.unit)
+    const hint = hintLine(hintFor(it.id, it.unit))
     const row = rowOf.get(it.id)
     return (
       <div key={it.id} className="ns-rates__row">
         <label className="ns-rates__lab" htmlFor={id}>
-          <b>{it.label}</b>
-          <small>You need {it.need}</small>
+          <b>{t(it.label)}</b>
+          <small>{k.youNeed(t(it.need))}</small>
         </label>
         <div className="ns-rates__in">
           <span aria-hidden="true">₹</span>
@@ -119,19 +138,19 @@ export default function RatesPanel({ tool, lines, pdf }: Props) {
             type="text"
             inputMode="decimal"
             autoComplete="off"
-            placeholder="Your rate"
+            placeholder={k.yourRate}
             value={text}
             aria-invalid={bad || undefined}
             aria-describedby={`${id}-h`}
             onChange={e => setTyped(prev => ({ ...prev, [it.id]: e.target.value.replace(/[^\d.,\s₹]/g, '').slice(0, 12) }))}
           />
-          <span className="ns-rates__per">{it.per}</span>
+          <span className="ns-rates__per">{t(it.per)}</span>
         </div>
         <p className="ns-rates__hint" id={`${id}-h`}>
-          {bad ? <span className="ns-rates__bad">Type a number, for example 380 or 38.50.</span> : hint.text}
+          {bad ? <span className="ns-rates__bad">{k.badRate}</span> : hint.text}
           {!bad && hint.updated ? <span className="ns-rates__asof"> · {hint.updated}</span> : null}
         </p>
-        {row ? <p className="ns-rates__amt"><span className="ns-sr">Amount: </span>{inr(row.amount)}</p> : null}
+        {row ? <p className="ns-rates__amt"><span className="ns-sr">{k.amount}</span>{inr(row.amount)}</p> : null}
       </div>
     )
   }
@@ -141,15 +160,15 @@ export default function RatesPanel({ tool, lines, pdf }: Props) {
       <details className="ns-rates__d">
         <summary className="ns-rates__sum">
           <span>
-            <b id={`${uid}-t`}>Want this in rupees? Enter your local rates.</b>
-            <small>Optional. The quantities above stay the answer; this just multiplies them by your dealer&rsquo;s rates.</small>
+            <b id={`${uid}-t`}>{k.title}</b>
+            <small>{k.optional}</small>
           </span>
         </summary>
 
         <div className="ns-rates__body">
           <p className="ns-r-sec__sub">
-            Type the rate your dealer quotes for each material you want priced. Leave a box empty to skip it. Your rates stay on this page: they are not saved, and they are sent to us only if you ask for the PDF with rupees.
-            {updated ? ` The typical ranges were last updated ${updated}; they are only a guide.` : ' We do not guess a rate for you: ask your dealer.'}
+            {k.intro}
+            {updated ? k.updated(updated) : k.noGuess}
           </p>
 
           {groups.map((g, gi) => {
@@ -158,14 +177,14 @@ export default function RatesPanel({ tool, lines, pdf }: Props) {
             if (g.items.length <= FOLD_OVER) {
               return (
                 <fieldset key={g.name} className="ns-rates__g">
-                  <legend>{g.name}</legend>
+                  <legend>{t(g.name)}</legend>
                   {body}
                 </fieldset>
               )
             }
             return (
               <details key={g.name} className="ns-rates__g ns-rates__g--fold" open={gi === 0 || filled > 0 ? true : undefined}>
-                <summary>{g.name} <small>{g.items.length} items{filled ? `, ${filled} priced` : ''}</small></summary>
+                <summary>{t(g.name)} <small>{k.items(g.items.length)}{filled ? k.pricedN(filled) : ''}</small></summary>
                 {body}
               </details>
             )
@@ -173,31 +192,31 @@ export default function RatesPanel({ tool, lines, pdf }: Props) {
 
           {result.priced > 0 && (
             <div className="ns-rates__res" aria-live="polite">
-              <h4>In rupees, at your rates</h4>
+              <h4>{k.inRupees}</h4>
               <ReportTable
-                head={['Item', 'Quantity', 'Your rate', 'Amount']}
+                head={k.head}
                 num={[2, 3]}
                 stack
-                rows={result.rows.map(r => [r.label, r.need, `${inrRate(r.rate)} ${r.per}`, inr(r.amount)])}
-                foot={[`Total for the ${result.priced} ${result.priced === 1 ? 'item' : 'items'} priced`, '', '', inr(result.total)]}
+                rows={result.rows.map(r => [t(r.label), t(r.need), `${inrRate(r.rate)} ${t(r.per)}`, inr(r.amount)])}
+                foot={[k.totalFor(result.priced), '', '', inr(result.total)]}
               />
-              <p className="ns-rates__label"><b>{RESULT_LABEL}</b></p>
+              <p className="ns-rates__label"><b>{t(RESULT_LABEL)}</b></p>
               {result.blank.length > 0 && (
-                <p className="ns-r-tblnote">You gave a rate for {result.priced} of {result.of} items. The other {result.blank.length} {result.blank.length === 1 ? 'is' : 'are'} not in this total.</p>
+                <p className="ns-r-tblnote">{k.gave(result.priced, result.of, result.blank.length)}</p>
               )}
               {result.unpriced.length > 0 && (
                 <p className="ns-r-tblnote">
-                  Not priced here: {result.unpriced.map(u => u.item).join(', ')}. {Array.from(new Set(result.unpriced.map(u => u.why))).join(' ')}
+                  {k.notPriced}{result.unpriced.map(u => t(u.item)).join(', ')}{hi ? '। ' : '. '}{Array.from(new Set(result.unpriced.map(u => u.why))).map(w => t(w)).join(' ')}
                 </p>
               )}
               <div className="ns-rates__act">
                 <button type="button" className="ns-btn" onClick={download} disabled={busy}>
-                  {busy ? 'Making your PDF…' : 'Download the PDF with these rupees'}
+                  {busy ? k.making : k.download}
                 </button>
-                <button type="button" className="ns-i-link" onClick={() => { setTyped({}); setError('') }}>Clear my rates</button>
+                <button type="button" className="ns-i-link" onClick={() => { setTyped({}); setError('') }}>{k.clear}</button>
               </div>
-              {error && <Note kind="err" title="That did not go through">{error}</Note>}
-              <p className="ns-i-fine">The PDF has the same report as before, with this table added after the quantities. The one already emailed to you does not change.</p>
+              {error && <Note kind="err" title={k.didNotGoThrough}>{t(error)}</Note>}
+              <p className="ns-i-fine">{k.pdfFine}</p>
             </div>
           )}
         </div>

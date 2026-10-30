@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
-import { toolJsonLd } from '@/lib/seo/schema'
+import { calcJsonLd } from '@/lib/i18n/labels/calc-jsonld'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -28,8 +28,13 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name, IS numbers and units stay in Latin letters.
+const HI: HiMeta = {
+  title: 'दैनिक मज़दूरी PF और ESI कैलकुलेटर: साइट के मज़दूर की नेट मज़दूरी',
+  description:
+    'निर्माण साइट के लिए निःशुल्क दैनिक मज़दूरी PF और ESI कैलकुलेटर। दैनिक दर और काम के दिन (23.5 भी चलेगा) डालिए, चाहें तो ओवरटाइम या एडवांस भी, और मज़दूर का PF, ESI और नेट मज़दूरी देखिए। मस्टर-रोल के तरीक़े का हिसाब, मासिक पेरोल नहीं। बिना साइन-इन।',
+  imageAlt: 'NirmanShastra दैनिक मज़दूरी PF और ESI कैलकुलेटर',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +46,7 @@ export default async function DailyWagePfEsiCalculatorLayout({ children, params 
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/daily-wage-pf-esi-calculator')} />
+      <JsonLd data={calcJsonLd('/tools/daily-wage-pf-esi-calculator', locale)} />
       {children}
     </InnerShell>
   )

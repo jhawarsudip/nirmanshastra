@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocale } from 'next-intl'
 import { AnimatePresence, motion } from 'framer-motion'
 import QtyRegistration, { type QtyRegData } from './QtyRegistration'
 import QtyForm from './QtyForm'
@@ -8,8 +9,13 @@ import QtyResults from './QtyResults'
 import ProjectPicker, { type SelectedProject } from '@/components/v2/inner/ProjectPicker'
 import { ToolHead, StepBar, RailAside, RailFold, Note } from '@/components/v2/inner/kit'
 import type { LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
-import { TRADE_META, type TradeSlug } from '@/lib/qty/meta'
+import { TRADE_META, localizeMeta, type TradeSlug } from '@/lib/qty/meta'
 import { FORMS } from '@/lib/qty/forms'
+import { localizeForm } from '@/lib/qty/forms/hi'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useTr } from '@/lib/i18n/use-tr'
+import { QTY_PAGE } from '@/lib/i18n/labels/qty-ui'
+import { QTY_ERRORS } from '@/lib/i18n/labels/qty-errors'
 import type { TradeFree } from '@/lib/qty/types'
 import { useMotionOK } from '@/lib/v2/store'
 import { TOOLS } from '@/lib/v2/content'
@@ -35,8 +41,6 @@ const calmVariants = {
   exit:    { opacity: 1, x: 0, transition: { duration: 0 } },
 }
 
-const STEPS = ['About you', 'Your project', 'Your building', 'Your report']
-
 type Step = 'register' | 'project_pick' | 'details' | 'results'
 const STEP_IX: Record<Step, number> = { register: 0, project_pick: 1, details: 2, results: 3 }
 
@@ -50,8 +54,12 @@ interface Session {
 const EMPTY: Session = { regData: { name: '', email: '', projectName: '', state: '', city: '' }, contactId: '', estimateId: null, free: null, selectedProject: null }
 
 export default function QtyToolPage({ slug }: { slug: TradeSlug }) {
-  const meta = TRADE_META[slug]
-  const spec = FORMS[slug]
+  const locale = useLocale()
+  const k = useCopy(QTY_PAGE)
+  const tErr = useTr(QTY_ERRORS)
+  const meta = useMemo(() => localizeMeta(TRADE_META[slug], locale), [slug, locale])
+  const rawSpec = FORMS[slug]
+  const spec = useMemo(() => (rawSpec ? localizeForm(rawSpec, locale) : rawSpec), [rawSpec, locale])
   const tool = TOOLS.find(t => t.key === meta.toolKey)!
 
   const [step, setStep] = useState<Step>('register')
@@ -127,11 +135,11 @@ export default function QtyToolPage({ slug }: { slug: TradeSlug }) {
         body: JSON.stringify({ contactId: session.contactId, projectName, projectId, input }),
       })
       const json = await res.json().catch(() => ({}))
-      if (!res.ok || !json.free) throw new Error(json.error || 'We could not work this out. Please try again.')
+      if (!res.ok || !json.free) throw new Error(json.error || k.couldNotWork)
       setSession(prev => ({ ...prev, estimateId: json.estimateId ?? null, free: json.free as TradeFree }))
       setStep('results')
     } catch (err) {
-      setCalcError(err instanceof Error ? err.message : 'We could not work this out. Please try again.')
+      setCalcError(err instanceof Error ? err.message : k.couldNotWork)
     } finally {
       inFlight.current = false
       setCalcBusy(false)
@@ -166,9 +174,9 @@ export default function QtyToolPage({ slug }: { slug: TradeSlug }) {
     <div className="ns-i-wrap ns-i-page" style={{ ['--tc' as string]: `var(${tool.accent})` }}>
       <ViewItem appType={meta.appType} />
       {step !== 'results' && (
-        <ToolHead eyebrow={meta.eyebrow} name={tool.name} price={`Full report ${tool.price}`} blurb={meta.blurb} art={tool.plate} artAlt={tool.plateAlt} after={<SampleReportLink sample={meta.appType} where="tool_head" />} />
+        <ToolHead eyebrow={meta.eyebrow} name={tool.name} price={`${k.fullReport} ${tool.price}`} blurb={meta.blurb} art={tool.plate} artAlt={locale === 'hi' ? tool.plateAltHi : tool.plateAlt} after={<SampleReportLink sample={meta.appType} hi={locale === 'hi'} where="tool_head" />} />
       )}
-      <StepBar steps={STEPS} current={STEP_IX[step]} />
+      <StepBar steps={k.steps} current={STEP_IX[step]} />
 
       <AnimatePresence mode="wait">
         {step === 'register' && (
@@ -189,7 +197,7 @@ export default function QtyToolPage({ slug }: { slug: TradeSlug }) {
               <>
                 {calcError && (
                   <div style={{ marginBottom: 16 }}>
-                    <Note kind="err" title="We could not finish">{calcError}</Note>
+                    <Note kind="err" title={k.couldNotFinish}>{tErr(calcError)}</Note>
                   </div>
                 )}
                 <QtyForm

@@ -1,10 +1,15 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import { useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { ensureSession } from '@/lib/supabase/ensure-session'
 import { INDIAN_STATES } from '@/lib/structopro-qty/states'
 import { Field, Input, Select, Note, IcArrow } from '@/components/v2/inner/kit'
+import { stateLabel } from '@/lib/i18n/states'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useStructTr } from '@/lib/i18n/labels/structopro-tr'
+import { COPY } from '../copy'
 
 /** Where the house is, and what to call the project. No name or email: they are asked at payment, or to save the project. */
 export interface StructoPlaceData {
@@ -20,6 +25,9 @@ interface Props {
 const EMPTY: StructoPlaceData = { projectName: '', state: '', city: '' }
 
 export default function LocationForm({ onSubmit }: Props) {
+  const t = useCopy(COPY).place
+  const tr = useStructTr()
+  const locale = useLocale()
   const [form, setForm] = useState<StructoPlaceData>(EMPTY)
   const [errors, setErrors] = useState<Partial<StructoPlaceData>>({})
   const [loading, setLoading] = useState(false)
@@ -44,8 +52,8 @@ export default function LocationForm({ onSubmit }: Props) {
 
   function validate(): boolean {
     const e: Partial<StructoPlaceData> = {}
-    if (!form.state)       e.state = 'Please choose your state'
-    if (!form.city.trim()) e.city  = 'Please enter your city'
+    if (!form.state)       e.state = t.errState
+    if (!form.city.trim()) e.city  = t.errCity
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -58,7 +66,7 @@ export default function LocationForm({ onSubmit }: Props) {
     // Every estimate carries a user id (Grand Total links reports through it), so a quiet visitor session is made here.
     const { userId, error: sessionError } = await ensureSession()
     if (!userId) {
-      setApiError(sessionError ?? 'Could not start a session. Please try again, or log in.')
+      setApiError(sessionError ? tr(sessionError) : t.sessionFail)
       setLoading(false)
       return
     }
@@ -69,45 +77,45 @@ export default function LocationForm({ onSubmit }: Props) {
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div className="ns-plate ns-i-card">
-        <p className="ns-i-card__eyebrow">Step 1 of 4</p>
-        <h2>Where is the house?</h2>
-        <p className="ns-i-card__sub">Your city sets the earthquake zone the structure is designed for. No name or email is needed to see your frame.</p>
+        <p className="ns-i-card__eyebrow">{t.eyebrow}</p>
+        <h2>{t.title}</h2>
+        <p className="ns-i-card__sub">{t.sub}</p>
 
         <div className="ns-i-card__body">
           {signedInAs && (
-            <Note kind="ok" title={`Signed in as ${signedInAs}`}>
-              Your report will be sent to your account email.
+            <Note kind="ok" title={t.signedIn(signedInAs)}>
+              {t.signedInNote}
             </Note>
           )}
 
           <div className="ns-i-fields">
-            <Field id="state" label="State" required error={errors.state}>
+            <Field id="state" label={t.state} required error={errors.state}>
               <Select value={form.state} onChange={e => set('state', e.target.value)}>
-                <option value="">Select your state</option>
-                {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                <option value="">{t.statePick}</option>
+                {INDIAN_STATES.map(s => <option key={s} value={s}>{stateLabel(s, locale)}</option>)}
               </Select>
             </Field>
 
             {form.state && (
-              <Field id="city" label="City" required error={errors.city}>
-                <Input type="text" value={form.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Pune" autoComplete="address-level2" />
+              <Field id="city" label={t.city} required error={errors.city}>
+                <Input type="text" value={form.city} onChange={e => set('city', e.target.value)} placeholder={t.cityEg} autoComplete="address-level2" />
               </Field>
             )}
 
-            <Field id="projectName" label="Project name (optional)" hint="To find this report again. You can skip it." error={errors.projectName} wide>
-              <Input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)} placeholder="e.g. Sharma Residence, Kothrud" />
+            <Field id="projectName" label={t.project} hint={t.projectHint} error={errors.projectName} wide>
+              <Input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)} placeholder={t.projectEg} />
             </Field>
           </div>
         </div>
 
         <div className="ns-i-card__foot">
-          {apiError && <div style={{ flexBasis: '100%' }}><Note kind="err" title="That did not go through">{apiError}</Note></div>}
+          {apiError && <div style={{ flexBasis: '100%' }}><Note kind="err" title={t.failTitle}>{apiError}</Note></div>}
           <button type="submit" disabled={loading} className="ns-btn">
-            {loading ? 'One moment…' : 'Continue'}
+            {loading ? t.wait : t.go}
             {!loading && <IcArrow width={22} height={11} />}
           </button>
           <p className="ns-i-fine" style={{ flex: '1 1 260px' }}>
-            We ask for your name and email only when you pay for the report or choose to save the project.
+            {t.fine}
           </p>
         </div>
       </div>

@@ -1,7 +1,13 @@
 import { cloneElement, isValidElement } from 'react'
 import type { InputHTMLAttributes, ReactElement, ReactNode, SelectHTMLAttributes, SVGProps } from 'react'
 import Image from 'next/image'
+import { useLocale } from 'next-intl'
 import type { LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { stateLabel } from '@/lib/i18n/states'
+import { useTr } from '@/lib/i18n/use-tr'
+import { KIT } from '@/lib/i18n/labels/qty-ui'
+import { QTY_SUMMARY } from '@/lib/i18n/labels/qty-summary'
 
 /* Shared pieces for every inner page. Plain components with no state, so they work in server and client files alike. */
 
@@ -46,8 +52,9 @@ export function ToolHead({ eyebrow, name, blurb, price, art, artAlt, after }: {
 /* ---- step bar --------------------------------------------------------------- */
 
 export function StepBar({ steps, current }: { steps: string[]; current: number }) {
+  const k = useCopy(KIT)
   return (
-    <ol className="ns-i-steps" aria-label="Progress">
+    <ol className="ns-i-steps" aria-label={k.progress}>
       {steps.map((label, i) => {
         const s = i < current ? 'done' : i === current ? 'now' : 'next'
         return (
@@ -117,50 +124,56 @@ export function Note({ kind = 'info', title, foot, children }: { kind?: 'info' |
 type BaseReg = { name?: string; projectName?: string; city?: string; state?: string }
 
 function SummaryBody({ toolName, price, regData, liveData }: { toolName: string; price: string; regData: BaseReg; liveData: LiveSummaryData }) {
+  const k = useCopy(KIT)
+  const t = useTr(QTY_SUMMARY)
+  const locale = useLocale()
   const rows: [string, string | undefined][] = [
-    ['Floors', liveData.floors],
-    ['Built-up area', liveData.bua ? `${liveData.bua.toLocaleString('en-IN')} sq ft` : undefined],
-    ['Site condition', liveData.siteCondition],
-    ['Concrete grade', liveData.concreteGrade],
-    ['Steel grade', liveData.steelGrade],
-    ['Wall type', liveData.wallType],
-    ['Total area', liveData.totalArea ? `${liveData.totalArea.toLocaleString('en-IN')} sq m` : undefined],
-    ['Finish level', liveData.grade],
+    [k.floors, liveData.floors],
+    [k.builtUpArea, liveData.bua ? `${liveData.bua.toLocaleString('en-IN')} ${k.sqft}` : undefined],
+    [k.siteCondition, liveData.siteCondition],
+    [k.concreteGrade, liveData.concreteGrade],
+    [k.steelGrade, liveData.steelGrade],
+    [k.wallType, liveData.wallType],
+    [k.totalArea, liveData.totalArea ? `${liveData.totalArea.toLocaleString('en-IN')} ${k.sqm}` : undefined],
+    [k.finishLevel, liveData.grade],
   ]
-  // A tool can hand over its own rows (label, value) instead of the fixed set above.
-  const custom = Array.isArray(liveData.rows) ? (liveData.rows as [string, string][]) : null
+  // A tool can hand over its own rows (label, value) instead of the fixed set above. Their words are English from the form;
+  // the Hindi page looks each up in the summary dictionary (a row with no entry shows as it is).
+  const custom = Array.isArray(liveData.rows) ? (liveData.rows as [string, string][]).map(([a, b]) => [t(a), t(b)] as [string, string]) : null
   const shown = (custom ?? rows).filter(([, v]) => v)
-  const where = [regData.city, regData.state].filter(Boolean).join(', ')
+  const where = [regData.city, regData.state ? stateLabel(regData.state, locale) : ''].filter(Boolean).join(', ')
   return (
     <div className="ns-plate ns-i-sum">
-      <p className="ns-i-sum__eyebrow">Your project so far</p>
-      <h2>{regData.projectName || 'Your project'}</h2>
+      <p className="ns-i-sum__eyebrow">{k.yourProjectSoFar}</p>
+      <h2>{regData.projectName || k.yourProject}</h2>
       <p className="ns-i-sum__who">{[regData.name, where].filter(Boolean).join(' · ')}</p>
       {shown.length ? (
         <ul className="ns-i-sum__rows">
-          {shown.map(([k, v]) => <li key={k} className="ns-i-sum__row"><span>{k}</span><b>{v}</b></li>)}
+          {shown.map(([a, v]) => <li key={a} className="ns-i-sum__row"><span>{a}</span><b>{v}</b></li>)}
         </ul>
       ) : (
-        <p className="ns-i-sum__empty">Your answers will appear here as you go.</p>
+        <p className="ns-i-sum__empty">{k.answersAppear}</p>
       )}
       <div className="ns-i-sum__trust">
-        <Note kind="ok" title="Checked against Indian Standards">Every quantity follows the IS codes and is worked out for you. This summary updates as you answer.</Note>
+        <Note kind="ok" title={k.checkedTitle}>{k.checkedText}</Note>
       </div>
-      <p className="ns-i-sum__price"><span>{toolName} full report</span><b>{price}</b></p>
+      <p className="ns-i-sum__price"><span>{k.fullReport(toolName)}</span><b>{price}</b></p>
     </div>
   )
 }
 
 /** Desktop: sticks beside the form. */
 export function RailAside(props: { toolName: string; price: string; regData: BaseReg; liveData: LiveSummaryData }) {
-  return <aside className="ns-i-rail" aria-label="Your project so far"><SummaryBody {...props} /></aside>
+  const k = useCopy(KIT)
+  return <aside className="ns-i-rail" aria-label={k.yourProjectSoFar}><SummaryBody {...props} /></aside>
 }
 
 /** Phone and tablet: the same summary, folded above the form. */
 export function RailFold(props: { toolName: string; price: string; regData: BaseReg; liveData: LiveSummaryData }) {
+  const k = useCopy(KIT)
   return (
     <details className="ns-i-railm">
-      <summary>Your project so far</summary>
+      <summary>{k.yourProjectSoFar}</summary>
       <SummaryBody {...props} />
     </details>
   )

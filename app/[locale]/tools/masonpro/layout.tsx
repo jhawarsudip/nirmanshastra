@@ -3,6 +3,7 @@ import JsonLd from '@/components/seo/JsonLd'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import ToolInfo from '@/components/v2/inner/ToolInfo'
 import { toolJsonLd } from '@/lib/seo/schema'
+import { localizeToolLd } from '@/lib/qty/meta'
 import { PRICE } from '@/lib/tool-pricing'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
@@ -28,8 +29,14 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand and tool names, IS numbers and units stay in Latin letters.
+const HI: HiMeta = {
+  title: 'MasonryPro: ईंट, ब्लॉक, मसाला और प्लास्टर की मात्रा का कैलकुलेटर | IS 1200, IS 1077, IS 6041',
+  description: `अपने घर की दीवारों के लिए ईंट या ब्लॉक, मसाला, सीमेंट, रेत, प्लास्टर और लिंटल की मात्रा निकालिए, आपके कमरों से IS 1200 के तरीक़े से नापकर। सटीक मात्राएँ; रुपये के लिए अपने रेट डालिए। प्रति रिपोर्ट ${PRICE.masonpro}।`,
+  imageAlt: 'NirmanShastra: भारत में IS-कोड के अनुसार निर्माण की मात्राएँ',
+}
+
+const HI_APP_SUMMARY = 'चिनाई की मात्रा की रिपोर्ट: बाहरी और अंदर की दीवारों के लिए ईंट या ब्लॉक की गिनती, मसाले और प्लास्टर की मात्राएँ (सीमेंट और रेत), IS 1077 और IS 2212 के अनुसार।'
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -41,7 +48,7 @@ export default async function MasonryProLayout({ children, params }: { children:
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/masonpro')} />
+      <JsonLd data={localizeToolLd(toolJsonLd('/tools/masonpro'), locale, HI_APP_SUMMARY)} />
       {children}
       <ToolInfo path="/tools/masonpro" />
     </InnerShell>

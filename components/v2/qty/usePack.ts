@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { PACK_STORAGE_KEY, type PackStatus } from '@/lib/pack/shared'
 import type { PaidAppType } from '@/lib/tool-pricing'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { QTY_PACK } from '@/lib/i18n/labels/qty-ui'
 
 /*
   The Complete House Pack, seen from a tool page.
@@ -29,6 +31,7 @@ export function rememberPackId(id: string) {
 }
 
 export function usePack(appType: PaidAppType) {
+  const k = useCopy(QTY_PACK)
   const [packId, setPackId] = useState<string | null>(null)
   const [status, setStatus] = useState<PackStatus | null>(null)
   const [busy, setBusy] = useState(false)
@@ -52,7 +55,7 @@ export function usePack(appType: PaidAppType) {
 
   /** Unlocks this estimate with the pack. Resolves true when the server has marked it paid. */
   const redeem = useCallback(async (estimateId: string | null): Promise<boolean> => {
-    if (!packId || !estimateId) { setError('Your estimate is not saved yet. Please wait a moment and try again.'); return false }
+    if (!packId || !estimateId) { setError(k.notSaved); return false }
     setBusy(true)
     setError('')
     try {
@@ -62,16 +65,16 @@ export function usePack(appType: PaidAppType) {
         body: JSON.stringify({ packId, estimateId }),
       })
       const json = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(json.error || 'We could not use your pack.')
+      if (!res.ok) throw new Error(json.error || k.couldNot)
       if (json.status) setStatus(json.status as PackStatus)
       return true
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'We could not use your pack.')
+      setError(e instanceof Error ? e.message : k.couldNot)
       return false
     } finally {
       setBusy(false)
     }
-  }, [packId])
+  }, [packId, k])
 
   const left = status?.paid ? status.remaining[appType] : 0
   return {
