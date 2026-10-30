@@ -199,7 +199,9 @@ html[data-reduce-motion="1"] .ns-dlr__map.is-set .ns-dlr__pin { animation: none;
 
 /* ---------- foundation footer ---------- */
 .ns-foot { position: relative; }
-.ns-foot__strata { display: block; width: 100%; height: clamp(90px, 10.4vw, 150px); background: var(--ns-bg); border-bottom: 2px solid #0C1240; }
+/* The drawing is 1440 x 346 units. Wider than that it stays centred at full size and the soil carries on either side (same band heights, in px). */
+.ns-foot__strata { background: linear-gradient(to bottom, var(--ns-bg) 0 168px, #E7C48A 168px 202px, #C56A43 202px 258px, #9C4A2E 258px); border-bottom: 2px solid #0C1240; }
+.ns-foot__strata > svg { display: block; width: 100%; max-width: 1440px; height: clamp(172px, 24.03vw, 346px); margin: 0 auto; }
 .ns-foot__col { transform-box: fill-box; transform-origin: center bottom; }
 .ns-foot__big {
   margin: clamp(40px, 5vw, 76px) 0 clamp(32px, 4.4vw, 64px); font-family: var(--ns-display); font-weight: 400;

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { BrandMark, Arrow } from '../Icons'
+import FootingsArt from './FootingsArt'
 import { TOOLS, SITE_TEMPLATES, TEMPLATES_BUNDLE, PACK_TOOL } from '@/lib/v2/content'
 import { FOOT, pick } from '@/lib/v2/copy'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
@@ -24,33 +25,6 @@ const CALCS: [string, string, string][] = [
   ['/tools/earned-value-calculator', 'Earned Value (SPI, CPI, EAC)', 'अर्नड वैल्यू (SPI, CPI, EAC)'],
 ]
 
-/** Soft ground under the page: topsoil, laterite, rock, with footings and starter bars standing up out of it. */
-function Strata() {
-  return (
-    <svg className="ns-foot__strata" viewBox="0 0 1440 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <rect x="0" y="52" width="1440" height="98" fill="#9C4A2E" />
-      <rect x="0" y="52" width="1440" height="30" fill="#E7C48A" />
-      <rect x="0" y="82" width="1440" height="34" fill="#C56A43" />
-      <g fill="#FBF4E4" opacity=".22">
-        {Array.from({ length: 42 }, (_, i) => (
-          <circle key={i} cx={(i * 197) % 1440} cy={60 + ((i * 53) % 84)} r={2 + (i % 3)} />
-        ))}
-      </g>
-      <line x1="0" x2="1440" y1="52" y2="52" stroke="#2A1E16" strokeWidth="2" strokeOpacity=".5" />
-      {Array.from({ length: 9 }, (_, k) => {
-        const x = 70 + k * 165
-        return (
-          <g key={k} className="ns-foot__col" style={{ ['--k' as string]: k }}>
-            <rect x={x - 34} y="52" width="68" height="20" rx="5" fill="#FFFCF3" stroke="#2A1E16" strokeWidth="1.5" strokeOpacity=".6" />
-            <rect x={x - 10} y="20" width="20" height="32" rx="3" fill="#FFFCF3" stroke="#2A1E16" strokeWidth="1.5" strokeOpacity=".6" />
-            <path d={`M${x - 5} 20 V4 M${x} 20 V0 M${x + 5} 20 V4`} stroke="#B5472B" strokeWidth="2.6" strokeLinecap="round" fill="none" />
-          </g>
-        )
-      })}
-    </svg>
-  )
-}
-
 export default function Footer() {
   const t = useTranslations('footer')
   const loc = useLocale() === 'hi' ? 'hi' : 'en'
@@ -65,7 +39,7 @@ export default function Footer() {
 
   return (
     <footer className="ns-foot ns-stage">
-      <Strata />
+      <div className="ns-foot__strata"><FootingsArt /></div>
       <div className="ns-wrap">
         <p className="ns-foot__big">{pick(FOOT.tag, loc)}</p>
         <div className="ns-foot__cols">
