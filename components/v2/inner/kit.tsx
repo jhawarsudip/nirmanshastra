@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl'
 import type { LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 import { useCopy } from '@/lib/i18n/use-copy'
 import { stateLabel } from '@/lib/i18n/states'
+import { placesHi } from '@/lib/i18n/labels/structopro-places'
 import { useTr } from '@/lib/i18n/use-tr'
 import { KIT } from '@/lib/i18n/labels/qty-ui'
 import { QTY_SUMMARY } from '@/lib/i18n/labels/qty-summary'
@@ -141,7 +142,11 @@ function SummaryBody({ toolName, price, regData, liveData }: { toolName: string;
   // the Hindi page looks each up in the summary dictionary (a row with no entry shows as it is).
   const custom = Array.isArray(liveData.rows) ? (liveData.rows as [string, string][]).map(([a, b]) => [t(a), t(b)] as [string, string]) : null
   const shown = (custom ?? rows).filter(([, v]) => v)
-  const where = [regData.city, regData.state ? stateLabel(regData.state, locale) : ''].filter(Boolean).join(', ')
+  // On the Hindi page a town that is on the IS 1893 list (and the state) is written in Devanagari; any other town stays as typed.
+  const hi = locale === 'hi'
+  const town = hi && regData.city ? placesHi(regData.city) : regData.city
+  const stateText = regData.state ? stateLabel(regData.state, locale) : ''
+  const where = [town, hi && town === stateText ? '' : stateText].filter(Boolean).join(', ')
   return (
     <div className="ns-plate ns-i-sum">
       <p className="ns-i-sum__eyebrow">{k.yourProjectSoFar}</p>

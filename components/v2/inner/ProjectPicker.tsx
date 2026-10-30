@@ -7,6 +7,7 @@ import { IcArrow, IcCheck } from './kit'
 import { useLocale } from 'next-intl'
 import { useCopy } from '@/lib/i18n/use-copy'
 import { stateLabel } from '@/lib/i18n/states'
+import { placesHi } from '@/lib/i18n/labels/structopro-places'
 import { QTY_PICK } from '@/lib/i18n/labels/qty-ui'
 
 // v2 look for the shared "continue a saved project?" step. The behaviour is the same as components/ui/ProjectPicker.tsx
@@ -47,6 +48,8 @@ export default function ProjectPicker({ onSelect, toolName }: Props) {
   const supabase = useMemo(() => createClient(), [])
   const k = useCopy(QTY_PICK)
   const locale = useLocale()
+  // a town on the IS 1893 list is shown in Devanagari on the Hindi page; any other town stays as it was typed
+  const town = (c: string) => (locale === 'hi' && c ? placesHi(c) : c)
 
   useEffect(() => {
     let cancelled = false
@@ -144,7 +147,7 @@ export default function ProjectPicker({ onSelect, toolName }: Props) {
             />
             <span>
               <span className="ns-i-choice__t">{p.projectName}</span>
-              <span className="ns-i-choice__d">{p.city}, {stateLabel(p.state, locale)}{p.numFloors ? ` · ${floorsLabel(p.numFloors)}` : ''}</span>
+              <span className="ns-i-choice__d">{town(p.city)}, {stateLabel(p.state, locale)}{p.numFloors ? ` · ${floorsLabel(p.numFloors)}` : ''}</span>
             </span>
           </label>
         ))}
@@ -169,7 +172,7 @@ export default function ProjectPicker({ onSelect, toolName }: Props) {
           <p className="ns-i-prefill__t"><IcCheck width={18} height={18} />{k.prefill}</p>
           <dl>
             <div><dt>{k.projectName}</dt><dd>{selected.projectName}</dd></div>
-            <div><dt>{k.city}</dt><dd>{selected.city}</dd></div>
+            <div><dt>{k.city}</dt><dd>{town(selected.city)}</dd></div>
             <div><dt>{k.state}</dt><dd>{stateLabel(selected.state, locale)}</dd></div>
             <div><dt>{k.floors}</dt><dd>{floorsLabel(selected.numFloors)}</dd></div>
           </dl>
