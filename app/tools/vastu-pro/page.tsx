@@ -17,7 +17,7 @@ import { ringSides, readPlan } from './vastu-reading'
 import type { Reading } from './vastu-types'
 import { ToolHead, StepBar, Note, IcArrow } from '@/components/v2/inner/kit'
 import { TOOLS } from '@/lib/v2/content'
-import { useCalm } from '@/lib/v2/store'
+import { useMotionOK } from '@/lib/v2/store'
 import '@/styles/v2/vastu.css'
 
 // The plan comes first and the reading second. No name or email is asked before the reading; the email is asked only
@@ -50,7 +50,7 @@ const catalogueForEditor = CATALOGUE
 
 export default function VastuProPage() {
   const tool = TOOLS.find(t => t.key === 'vastu')!
-  const calm = useCalm()
+  const calm = !useMotionOK()
   const v = calm ? calmVariants : stepVariants
 
   const [step,            setStep]            = useState<Step>('plan')

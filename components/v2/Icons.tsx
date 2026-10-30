@@ -35,16 +35,6 @@ export function LampIcon({ on, ...props }: P & { on?: boolean }) {
   )
 }
 
-export function BubbleIcon({ calm, ...props }: P & { calm?: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" {...base} aria-hidden="true" {...props}>
-      <rect x="2.5" y="8" width="19" height="8" rx="4" />
-      <path d="M9.2 8v8M14.8 8v8" strokeWidth="1" />
-      <circle cx={calm ? 12 : 6.6} cy="12" r="2.2" fill="currentColor" stroke="none" />
-    </svg>
-  )
-}
-
 export function Caret(props: P) {
   return (
     <svg viewBox="0 0 10 10" {...base} strokeWidth={1.6} aria-hidden="true" {...props}>

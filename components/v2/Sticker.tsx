@@ -19,7 +19,7 @@ interface Props {
 
 /**
  * A cut-out site tool you can pick up and drop anywhere. Decorative (aria-hidden): the page never depends on it.
- * Double-click puts it back. Drag is user-driven, so it stays available in Calm mode.
+ * Double-click puts it back. Drag is user-driven, so it stays available under reduced motion.
  */
 export default function Sticker({ src, w, h, width, rot = 0, pos, sizes, priority }: Props) {
   const el = useRef<HTMLDivElement>(null)

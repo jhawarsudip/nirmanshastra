@@ -115,5 +115,5 @@
   border-radius: 50%; background: #2A1E16; opacity: .55;
 }
 @keyframes ns-tape { to { transform: translateX(-50%); } }
-html[data-calm="1"] .ns-tape__track { animation: none; flex-wrap: wrap; width: auto; }
+html[data-reduce-motion="1"] .ns-tape__track { animation: none; flex-wrap: wrap; width: auto; }
 @media (prefers-reduced-motion: reduce) { .ns-tape__track { animation: none; } }

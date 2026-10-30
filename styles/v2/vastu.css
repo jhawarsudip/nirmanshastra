@@ -115,7 +115,7 @@ html[data-ns-theme="dark"] .ns-v-cat__n { color: #1C1B19; }
 .ns-v-sheet__head h2 { margin: 0; font-size: 17px; font-weight: 800; }
 .ns-v-placing { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; font-size: 14.5px; font-weight: 800; color: var(--tc); border: 1.5px solid color-mix(in srgb, var(--tc) 60%, transparent); background: color-mix(in srgb, var(--tc) 11%, transparent); }
 .ns-v-placing::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--tc); animation: ns-v-pulse 1.4s ease-in-out infinite; }
-html[data-calm="1"] .ns-v-placing::before { animation: none; }
+html[data-reduce-motion="1"] .ns-v-placing::before { animation: none; }
 @keyframes ns-v-pulse { 50% { transform: scale(1.5); opacity: .55; } }
 .ns-v-canvaswrap { background: #FAF6EC; line-height: 0; }
 .ns-v-canvas { display: block; width: 100%; aspect-ratio: 1 / 1; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }

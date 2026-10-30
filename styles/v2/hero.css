@@ -12,7 +12,7 @@
 }
 html:not([data-plumb="skip"]) .ns-hero__h1 .ns-hero__hl { animation-delay: 2.1s; }  /* after the plumb-line intro has lifted */
 @keyframes ns-marker { to { background-size: 100% 100%; } }
-html[data-calm="1"] .ns-hero__h1 .ns-hero__hl { background-size: 100% 100%; }
+html[data-reduce-motion="1"] .ns-hero__h1 .ns-hero__hl { background-size: 100% 100%; }
 
 .ns-hero__grid { display: grid; gap: clamp(28px, 3.4vw, 52px); align-items: start; }
 @media (min-width: 1180px) { .ns-hero__grid { grid-template-columns: minmax(320px, 34%) minmax(0, 1fr); } }
@@ -87,7 +87,7 @@ html[data-calm="1"] .ns-hero__h1 .ns-hero__hl { background-size: 100% 100%; }
   .ns-hero__top > .ns-sticker { top: auto !important; bottom: 8px !important; right: 3% !important; width: 138px !important; }
   .ns-hero__copy > .ns-sticker { width: 84px !important; }
 }
-html[data-calm="1"] .ns-hero__scroll svg { animation: none; }
+html[data-reduce-motion="1"] .ns-hero__scroll svg { animation: none; }
 
 /* hero widget: the ground-floor plan and the counts under it (quantity-only: shapes and counts, no materials, no prices) */
 .ns-est__planbox { position: relative; display: grid; place-items: center; min-height: 190px; padding: 10px; border-radius: var(--ns-r-sm); background: var(--ns-paper); border: 1.5px solid var(--ns-hair); transition: opacity .2s ease; }

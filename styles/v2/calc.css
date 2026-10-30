@@ -50,4 +50,4 @@
   .ns-calc__rows li { grid-template-columns: 1fr auto; }
   .ns-calc__how { grid-column: 1 / -1; grid-row: 2; }
 }
-html[data-calm="1"] .ns-calc__sheet { opacity: 1; transform: none; }
+html[data-reduce-motion="1"] .ns-calc__sheet { opacity: 1; transform: none; }

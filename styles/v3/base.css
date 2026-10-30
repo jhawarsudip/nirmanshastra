@@ -253,7 +253,7 @@ html[data-ns-theme="dark"] .s3-card { box-shadow: 0 18px 40px -26px rgba(0, 0, 0
 html[data-js] .s3-rise:not(.is-in) { opacity: 0; transform: translateY(22px); }
 
 /* ---------- calm / reduced motion ---------- */
-html[data-calm="1"] .ns3 *, html[data-calm="1"] .ns3 *::before, html[data-calm="1"] .ns3 *::after {
+html[data-reduce-motion="1"] .ns3 *, html[data-reduce-motion="1"] .ns3 *::before, html[data-reduce-motion="1"] .ns3 *::after {
   animation-duration: .001ms !important;
   animation-delay: 0s !important;
   animation-iteration-count: 1 !important;
@@ -261,7 +261,7 @@ html[data-calm="1"] .ns3 *, html[data-calm="1"] .ns3 *::before, html[data-calm="
   transition-delay: 0s !important;
   scroll-behavior: auto !important;
 }
-html[data-calm="1"] .s3-rise:not(.is-in) { opacity: 1; transform: none; }
+html[data-reduce-motion="1"] .s3-rise:not(.is-in) { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .ns3 *, .ns3 *::before, .ns3 *::after {
     animation-duration: .001ms !important;

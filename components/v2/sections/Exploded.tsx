@@ -132,7 +132,7 @@ export default function Exploded() {
     return () => ro.disconnect()
   }, [apply])
 
-  // static mode (Calm / reduced motion): fully exploded, layer chosen from the list
+  // static mode (reduced motion): fully exploded, layer chosen from the list
   useEffect(() => {
     pickRef.current = ok ? pick : (pick ?? 0)
     if (!ok) prog.current = 1

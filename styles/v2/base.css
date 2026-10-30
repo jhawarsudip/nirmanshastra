@@ -407,7 +407,7 @@ html[data-ns-theme="dark"] .ns-btn--verd { --btn-bg-h: #F5EEDD; --btn-edge: #8E8
 @keyframes ns-wipe { to { clip-path: inset(-10% 0 -10% 0); } }
 
 /* ---------- calm / reduced motion ---------- */
-html[data-calm="1"] .ns2 *, html[data-calm="1"] .ns2 *::before, html[data-calm="1"] .ns2 *::after {
+html[data-reduce-motion="1"] .ns2 *, html[data-reduce-motion="1"] .ns2 *::before, html[data-reduce-motion="1"] .ns2 *::after {
   animation-duration: .001ms !important;
   animation-delay: 0s !important;
   animation-iteration-count: 1 !important;
@@ -415,9 +415,9 @@ html[data-calm="1"] .ns2 *, html[data-calm="1"] .ns2 *::before, html[data-calm="
   transition-delay: 0s !important;
   scroll-behavior: auto !important;
 }
-html[data-calm="1"] .ns-draw { stroke-dashoffset: 0; }
-html[data-calm="1"] .ns-rise { opacity: 1; transform: none; }
-html[data-calm="1"] .ns-wipe { clip-path: none; }
+html[data-reduce-motion="1"] .ns-draw { stroke-dashoffset: 0; }
+html[data-reduce-motion="1"] .ns-rise { opacity: 1; transform: none; }
+html[data-reduce-motion="1"] .ns-wipe { clip-path: none; }
 @media (prefers-reduced-motion: reduce) {
   .ns2 *, .ns2 *::before, .ns2 *::after {
     animation-duration: .001ms !important;

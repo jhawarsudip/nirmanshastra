@@ -9,23 +9,23 @@ import { createClient } from '@/lib/supabase/client'
 import CutLink from './CutLink'
 import AdminGate from './AdminGate'
 import Pour from './Pour'
-import { Arrow, BrandMark, BubbleIcon, Burger, Caret, Cross, LampIcon } from './Icons'
+import { Arrow, BrandMark, Burger, Caret, Cross, LampIcon } from './Icons'
 import { CALCULATORS } from '@/lib/v2/calculators'
 import { SITE_TEMPLATES, TEMPLATES_BUNDLE, TOOLS, PACK_TOOL } from '@/lib/v2/content'
 import { NAV, TOOL_PLAIN, pick } from '@/lib/v2/copy'
-import { setCalm, toggleTheme, useCalm, useTheme } from '@/lib/v2/store'
+import { toggleTheme, useTheme } from '@/lib/v2/store'
 
 type Loc = 'en' | 'hi'
 
 const L = {
   en: {
     reports: 'My reports', logout: 'Log out', sheets: 'sheets', free: 'FREE', allKits: 'All six toolkits',
-    calmOn: 'Calm on · motion off', calmOff: 'Motion on', blog: 'Blog', faq: 'Questions',
+    blog: 'Blog', faq: 'Questions',
     lamp: 'Day / night', home: 'NirmanShastra home',
   },
   hi: {
     reports: 'मेरी रिपोर्ट', logout: 'लॉग आउट', sheets: 'शीट', free: 'मुफ़्त', allKits: 'सभी छह टूलकिट',
-    calmOn: 'शांत मोड चालू · हलचल बंद', calmOff: 'हलचल चालू', blog: 'ब्लॉग', faq: 'सवाल',
+    blog: 'ब्लॉग', faq: 'सवाल',
     lamp: 'दिन / रात', home: 'NirmanShastra होम',
   },
 } as const
@@ -35,16 +35,13 @@ export default function Header({ locale }: { locale: Loc }) {
   const n = (k: keyof typeof NAV) => pick(NAV[k], locale)
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
-  const calm = useCalm()
   const theme = useTheme()
 
   const [user, setUser] = useState<User | null>(null)
   const [mega, setMega] = useState(false)
   const [menu, setMenu] = useState(false)
   const [admin, setAdmin] = useState(false)
-  const [toast, setToast] = useState<string | null>(null)
   const clicks = useRef<number[]>([])
-  const toastTimer = useRef<number | undefined>(undefined)
   const headerRef = useRef<HTMLElement>(null)
 
   const home = locale === 'hi' ? '/hi' : '/'
@@ -73,12 +70,6 @@ export default function Header({ locale }: { locale: Loc }) {
     return () => { document.body.style.overflow = '' }
   }, [menu])
 
-  function say(msg: string) {
-    setToast(msg)
-    window.clearTimeout(toastTimer.current)
-    toastTimer.current = window.setTimeout(() => setToast(null), 1800)
-  }
-
   function brandClick(e: React.MouseEvent) {
     const now = Date.now()
     clicks.current = [...clicks.current, now].filter(x => now - x < 2000)
@@ -92,11 +83,6 @@ export default function Header({ locale }: { locale: Loc }) {
   function lamp(e: React.MouseEvent<HTMLButtonElement>) {
     const r = e.currentTarget.getBoundingClientRect()
     toggleTheme({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
-  }
-
-  function calmToggle() {
-    setCalm(!calm)
-    say(!calm ? t.calmOn : t.calmOff)
   }
 
   async function logout() {
@@ -114,14 +100,9 @@ export default function Header({ locale }: { locale: Loc }) {
   )
 
   const toggles = (
-    <>
-      <button type="button" className="ns-iconbtn" aria-pressed={theme === 'dark'} aria-label={n('night')} title={n('night')} onClick={lamp}>
-        <LampIcon on={theme === 'dark'} />
-      </button>
-      <button type="button" className="ns-iconbtn" aria-pressed={calm} aria-label={n('calm')} title={n('calm')} onClick={calmToggle}>
-        <BubbleIcon calm={calm} />
-      </button>
-    </>
+    <button type="button" className="ns-iconbtn" aria-pressed={theme === 'dark'} aria-label={n('night')} title={n('night')} onClick={lamp}>
+      <LampIcon on={theme === 'dark'} />
+    </button>
   )
 
   return (
@@ -296,7 +277,6 @@ export default function Header({ locale }: { locale: Loc }) {
         </div>
       </div>
 
-      {toast && <div className="ns-toast" role="status">{toast}</div>}
       {admin && <AdminGate onClose={() => setAdmin(false)} />}
     </>
   )

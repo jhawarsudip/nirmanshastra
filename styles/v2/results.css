@@ -27,7 +27,7 @@
   animation: ns-r-hint 9s ease forwards;
 }
 @keyframes ns-r-hint { 0%, 70% { opacity: 1 } 100% { opacity: 0 } }
-html[data-calm="1"] .ns-r-stage__hint { animation: none; opacity: .85; }
+html[data-reduce-motion="1"] .ns-r-stage__hint { animation: none; opacity: .85; }
 .ns-r-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--ns-chalk); font-size: 16px; }
 .ns-r-loading .ns-i-spin { border-color: rgba(243, 238, 226, .3); border-top-color: var(--ns-chalk); }
 
@@ -158,7 +158,7 @@ html[data-calm="1"] .ns-r-stage__hint { animation: none; opacity: .85; }
 .ns-r-preview { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; font-size: 14px; font-weight: 700; background: color-mix(in srgb, var(--ns-verdigris) 14%, transparent); border: 1.5px solid color-mix(in srgb, var(--ns-verdigris) 55%, transparent); color: var(--ns-verdigris); justify-self: start; }
 .ns-r-skel { height: 160px; border-radius: var(--ns-r); background: linear-gradient(90deg, var(--ns-bg-2), color-mix(in srgb, var(--ns-bg-2) 60%, var(--ns-paper)), var(--ns-bg-2)); background-size: 200% 100%; animation: ns-r-sk 1.6s linear infinite; }
 @keyframes ns-r-sk { to { background-position: -200% 0; } }
-html[data-calm="1"] .ns-r-skel { animation: none; }
+html[data-reduce-motion="1"] .ns-r-skel { animation: none; }
 
 /* ---- "working out your structure" overlay (shown while the server runs the model) ---- */
 .ns-r-busy {
@@ -178,7 +178,7 @@ html[data-calm="1"] .ns-r-skel { animation: none; }
 }
 @keyframes ns-r-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .ns-r-busy__spin { animation-duration: 2.4s; } }
-html[data-calm="1"] .ns-r-busy__spin { animation-duration: 3s; }
+html[data-reduce-motion="1"] .ns-r-busy__spin { animation-duration: 3s; }
 
 /* check your contractor's quantities */
 .ns-r-q { display: grid; gap: 18px; }
@@ -230,7 +230,7 @@ html[data-calm="1"] .ns-r-busy__spin { animation-duration: 3s; }
 .ns-gl-jump[open] > summary::after { transform: rotate(-135deg) translateY(-3px); }
 .ns-gl-jump > summary:focus-visible { outline: 3px solid var(--ns-focus); outline-offset: 3px; border-radius: 8px; }
 .ns-gl-jump .ns-faq-nav { padding: 2px 0 18px; }
-html[data-calm="1"] .ns-gl-jump > summary::after { transition: none; }
+html[data-reduce-motion="1"] .ns-gl-jump > summary::after { transition: none; }
 
 /* Complete House Pack page: the list of what the pack has unlocked */
 .ns-pk-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1.5px solid var(--ns-line); }

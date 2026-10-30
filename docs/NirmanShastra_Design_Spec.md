@@ -63,9 +63,9 @@ Plumb-line load (once per session, <900 ms) · CAD cursor (desktop, fine pointer
 live quantities from locked Section 8 values + engine rates) · Five Disciplines (pinned horizontal scroll on desktop,
 native swipe shelf on touch) · Exploded structure L01–L07 · Rebar Cage Builder · Brick Bond Wall · Mix Lab ·
 Quote Checker teaser (real engine) · Tool Finder · Surveyor's-tape marquee · Section-cut page transition ·
-Plate buttons · Foundation footer · Day/Night work-lamp toggle (View Transition) · Calm toggle · Level-staff scroll progress.
+Plate buttons · Foundation footer · Day/Night work-lamp toggle (View Transition) · EN/हि language switch (the Calm toggle was removed 30 Oct 2026) · Level-staff scroll progress.
 
-**Guardrails:** `prefers-reduced-motion` and the Calm toggle disable the cursor, pinned scroll, scroll-linked transforms
+**Guardrails:** `prefers-reduced-motion` disables the cursor, pinned scroll, scroll-linked transforms
 and all keyframes. Mobile gets the same content, with touch-native equivalents. WebGL: none in Stage 1. Images through
 `next/image` (AVIF/WebP). LCP target < 2.5 s on throttled 4G. Every number shown by an interactive widget must come from
 locked Build Reference Section 8 values or the StructurePro engine; anything else is labelled "illustrative".

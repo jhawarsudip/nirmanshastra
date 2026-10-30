@@ -10,7 +10,7 @@ import type { FreePayload } from '@/lib/structopro-qty/payload'
 import type { LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 import ProjectPicker, { type SelectedProject } from '@/components/v2/inner/ProjectPicker'
 import { ToolHead, StepBar, RailAside, RailFold, Note } from '@/components/v2/inner/kit'
-import { useCalm } from '@/lib/v2/store'
+import { useMotionOK } from '@/lib/v2/store'
 import { TOOLS } from '@/lib/v2/content'
 import { saveProjectToSession } from '@/lib/project-session'
 import ViewItem from '@/components/analytics/ViewItem'
@@ -165,7 +165,7 @@ export default function StructoProPage() {
     setSession(EMPTY_SESSION)
   }
 
-  const calm = useCalm()
+  const calm = !useMotionOK()
   const v = calm ? calmVariants : stepVariants
   const isReport = step === 'results'
 

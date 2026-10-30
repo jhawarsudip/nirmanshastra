@@ -8,7 +8,7 @@ const SNAP = '.ns-btn, .ns-plate, [data-snap]'
 /**
  * Pointer ring (desktop, fine pointer only): a soft ring that follows the mouse, hugs the corners of cards and
  * buttons as you pass them, and turns into a little level-bubble over anything you can press.
- * Off for touch, Calm and reduced motion.
+ * Off for touch and reduced motion.
  */
 export default function CadCursor() {
   const root = useRef<HTMLDivElement>(null)
@@ -21,7 +21,7 @@ export default function CadCursor() {
     let x = -10
     let y = -10
 
-    const allowed = () => d.getAttribute('data-calm') !== '1' && !reduced.matches
+    const allowed = () => d.getAttribute('data-reduce-motion') !== '1' && !reduced.matches
 
     const frame = () => {
       raf = 0
@@ -65,7 +65,7 @@ export default function CadCursor() {
     window.addEventListener('pointermove', move, { passive: true })
     document.addEventListener('pointerleave', leave)
     const mo = new MutationObserver(sync)
-    mo.observe(d, { attributes: true, attributeFilter: ['data-calm'] })
+    mo.observe(d, { attributes: true, attributeFilter: ['data-reduce-motion'] })
     reduced.addEventListener('change', sync)
     return () => {
       window.removeEventListener('pointermove', move)

@@ -11,8 +11,8 @@
 .ns-bl-card p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--ns-ink-2); }
 .ns-bl-card__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1.5px solid var(--ns-hair); font-size: 14.5px; color: var(--ns-ink-2); }
 .ns-bl-card__go { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--tc); }
-html[data-calm="1"] .ns-bl-card { transition: none; }
-html[data-calm="1"] .ns-bl-card:hover { transform: none; }
+html[data-reduce-motion="1"] .ns-bl-card { transition: none; }
+html[data-reduce-motion="1"] .ns-bl-card:hover { transform: none; }
 
 /* ---- blog article body ---- */
 .ns-bl-art { padding: clamp(20px, 3vw, 44px); display: grid; gap: 0; min-width: 0; }
@@ -84,7 +84,7 @@ html[data-calm="1"] .ns-bl-card:hover { transform: none; }
 .ns-au-opt .ns-i-chk { align-items: flex-start; font-size: 16px; font-weight: 700; line-height: 1.4; }
 .ns-au-opt .ns-i-hint { margin: 0 0 0 38px; max-width: 62ch; }
 .ns-au-rule { border: 0; border-top: 1.5px solid var(--ns-hair); margin: 0; width: 100%; }
-html[data-calm="1"] .ns-au-tab { transition: none; }
+html[data-reduce-motion="1"] .ns-au-tab { transition: none; }
 
 /* ---- Site Templates: index, product pages, checkout dialog ---- */
 .ns-st { display: grid; gap: clamp(26px, 3.6vw, 48px); min-width: 0; }

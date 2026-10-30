@@ -15,7 +15,7 @@ import '@/styles/v2/pour.css'
   itself (tone) matches the section it belongs to; see pour.css.
 
   Edges load when they are about two screens away. One that is still below the fold starts low and thin and pours out to
-  its full length as it comes into view; after that it creeps a little, very slowly. Calm mode and reduced motion get the
+  its full length as it comes into view; after that it creeps a little, very slowly. Reduced motion gets the
   finished edge, still.
 */
 

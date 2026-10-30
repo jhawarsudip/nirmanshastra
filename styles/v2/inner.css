@@ -182,9 +182,9 @@ button.ns-i-method:focus-visible { outline: 3px solid var(--ns-focus); outline-o
 .ns-i-loading { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 220px; color: var(--ns-ink-2); font-size: 17px; }
 .ns-i-spin { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--ns-line); border-top-color: var(--tc); animation: ns-i-spin .8s linear infinite; }
 @keyframes ns-i-spin { to { transform: rotate(360deg); } }
-html[data-calm="1"] .ns-i-spin { animation-duration: 2.4s; }
-html[data-calm="1"] .ns-i-choice, html[data-calm="1"] .ns-i-method, html[data-calm="1"] .ns-i-in, html[data-calm="1"] .ns-i-sel { transition: none; }
-html[data-calm="1"] button.ns-i-method:hover, html[data-calm="1"] .ns-i-choice:hover { transform: none; }
+html[data-reduce-motion="1"] .ns-i-spin { animation-duration: 2.4s; }
+html[data-reduce-motion="1"] .ns-i-choice, html[data-reduce-motion="1"] .ns-i-method, html[data-reduce-motion="1"] .ns-i-in, html[data-reduce-motion="1"] .ns-i-sel { transition: none; }
+html[data-reduce-motion="1"] button.ns-i-method:hover, html[data-reduce-motion="1"] .ns-i-choice:hover { transform: none; }
 
 /* ---- tables: BOQ and plain. Figures use the mono face (locked rule: numbers on tool pages are IBM Plex Mono). ---- */
 .ns-i-tblw { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1.5px solid var(--ns-line); background: var(--ns-paper); }
@@ -232,7 +232,7 @@ html[data-calm="1"] button.ns-i-method:hover, html[data-calm="1"] .ns-i-choice:h
 .ns-i-faq__plus::after { width: 2.5px; height: 14px; margin: -7px 0 0 -1.25px; transition: transform .2s; }
 .ns-i-faq__item[open] .ns-i-faq__plus::after { transform: scaleY(0); }
 .ns-i-faq__item > p { margin: 0 0 18px; padding-right: 36px; }
-html[data-calm="1"] .ns-i-faq__plus::after { transition: none; }
+html[data-reduce-motion="1"] .ns-i-faq__plus::after { transition: none; }
 
 .ns-i-rel { list-style: none; margin: 0; padding: 0; border-top: 1.5px solid var(--ns-line); }
 .ns-i-rel li { border-bottom: 1.5px solid var(--ns-line); }
@@ -241,7 +241,7 @@ html[data-calm="1"] .ns-i-faq__plus::after { transition: none; }
 .ns-i-rel a i { font-style: normal; color: var(--ns-link); transition: transform .15s; }
 .ns-i-rel a:hover i { transform: translateX(4px); }
 .ns-i-rel a:hover span { text-decoration: underline; text-underline-offset: 3px; }
-html[data-calm="1"] .ns-i-rel a i { transition: none; }
+html[data-reduce-motion="1"] .ns-i-rel a i { transition: none; }
 
 /* ---- long forms (StructurePro build details, and the big forms of the other tools) ------------------------- */
 .ns-i-form { display: grid; gap: clamp(14px, 1.8vw, 20px); min-width: 0; }
@@ -276,7 +276,7 @@ html[data-ns-theme="dark"] .ns-i-parts li[data-s="now"] b, html[data-ns-theme="d
 .ns-i-sect[data-open="1"] .ns-i-sect__chev { transform: rotate(225deg); margin-top: 4px; }
 .ns-i-sect__b { padding: 4px clamp(18px, 2.4vw, 30px) clamp(20px, 2.4vw, 30px); display: grid; gap: 18px; min-width: 0; }
 .ns-i-tag--ok { background: color-mix(in srgb, var(--ns-verdigris) 14%, transparent); border-color: color-mix(in srgb, var(--ns-verdigris) 50%, transparent); color: var(--ns-verdigris); }
-html[data-calm="1"] .ns-i-sect__chev { transition: none; }
+html[data-reduce-motion="1"] .ns-i-sect__chev { transition: none; }
 
 /* the "i" that explains a question */
 .ns-i-labrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
@@ -348,8 +348,8 @@ html[data-calm="1"] .ns-i-sect__chev { transition: none; }
 .ns-i-site svg { width: 30px; height: 30px; color: var(--tc); margin-bottom: 2px; }
 .ns-i-site__t { font-weight: 800; font-size: 16px; line-height: 1.2; }
 .ns-i-site__d { font-size: 14px; line-height: 1.4; color: var(--ns-ink-2); }
-html[data-calm="1"] .ns-i-site { transition: none; }
-html[data-calm="1"] .ns-i-site:hover { transform: none; }
+html[data-reduce-motion="1"] .ns-i-site { transition: none; }
+html[data-reduce-motion="1"] .ns-i-site:hover { transform: none; }
 .ns-i-rec { padding: 16px 18px; border-radius: 14px; border: 1.5px solid color-mix(in srgb, var(--ns-verdigris) 55%, transparent); background: color-mix(in srgb, var(--ns-verdigris) 9%, transparent); display: grid; gap: 14px; }
 .ns-i-rec__k { margin: 0; font-size: 13.5px; font-weight: 800; letter-spacing: .04em; color: var(--ns-verdigris); }
 .ns-i-rec__t { margin: 2px 0 0; font-size: 18px; font-weight: 700; }
@@ -370,7 +370,7 @@ html[data-calm="1"] .ns-i-site:hover { transform: none; }
 .ns-i-chk input:checked::after { transform: rotate(45deg) scale(1); }
 html[data-ns-theme="dark"] .ns-i-chk input::after { border-color: #1C1B19; }
 .ns-i-chk input:focus-visible { outline: 3px solid var(--ns-focus); outline-offset: 2px; }
-html[data-calm="1"] .ns-i-chk input, html[data-calm="1"] .ns-i-chk input::after { transition: none; }
+html[data-reduce-motion="1"] .ns-i-chk input, html[data-reduce-motion="1"] .ns-i-chk input::after { transition: none; }
 .ns-i-radios { display: grid; gap: 8px; }
 .ns-i-qty { display: inline-flex; align-items: center; gap: 8px; }
 .ns-i-qty button { width: 44px; height: 44px; flex: none; border-radius: 12px; border: 2px solid var(--ns-line-2); background: var(--ns-paper); color: var(--ns-ink); font: inherit; font-size: 22px; font-weight: 700; line-height: 1; cursor: pointer; }

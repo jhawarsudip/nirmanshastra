@@ -6,23 +6,16 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
  * v2 client state lives on <html> data attributes (set before first paint by the inline
  * script in app/[locale]/layout.tsx), so CSS and JS read the same source of truth:
  *   data-ns-theme = "light" | "dark"      (work-lamp toggle)
- *   data-calm     = "1"                   (Calm toggle; also defaulted on by prefers-reduced-motion)
+ *   data-reduce-motion     = "1"                   (set only when the visitor's device asks for reduced motion;
+ *                                           there is no on-page switch for it any more)
  */
 
-const ATTRS = ['data-calm', 'data-ns-theme']
+const ATTRS = ['data-reduce-motion', 'data-ns-theme']
 
 function subscribeAttrs(cb: () => void) {
   const mo = new MutationObserver(cb)
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ATTRS })
   return () => mo.disconnect()
-}
-
-export function useCalm(): boolean {
-  return useSyncExternalStore(
-    subscribeAttrs,
-    () => document.documentElement.getAttribute('data-calm') === '1',
-    () => false,
-  )
 }
 
 export function useTheme(): 'light' | 'dark' {
@@ -41,20 +34,12 @@ function subscribeReduced(cb: () => void) {
 
 /** true only when it is OK to run scroll-linked / looping JS motion */
 export function useMotionOK(): boolean {
-  const calm = useCalm()
   const reduced = useSyncExternalStore(
     subscribeReduced,
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     () => false,
   )
-  return !calm && !reduced
-}
-
-export function setCalm(on: boolean) {
-  const d = document.documentElement
-  if (on) d.setAttribute('data-calm', '1')
-  else d.removeAttribute('data-calm')
-  try { localStorage.setItem('ns2-calm', on ? '1' : '0') } catch { /* private mode */ }
+  return !reduced
 }
 
 type VTDoc = Document & {
@@ -70,8 +55,8 @@ export function toggleTheme(origin?: { x: number; y: number }) {
     try { localStorage.setItem('ns2-theme', next) } catch { /* private mode */ }
   }
   const doc = document as VTDoc
-  const calm = d.getAttribute('data-calm') === '1'
-  if (!doc.startViewTransition || calm) { apply(); return }
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (!doc.startViewTransition || reduced) { apply(); return }
   const x = origin?.x ?? window.innerWidth / 2
   const y = origin?.y ?? 0
   const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))

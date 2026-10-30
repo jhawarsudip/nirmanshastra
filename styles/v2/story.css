@@ -33,8 +33,8 @@
 .ns-prob__card:is(:hover, :focus-visible, [data-open="true"]) .ns-prob__blk { transform: translateX(calc((2 - var(--k)) * 9px)); }
 .ns-prob__card:is(:hover, :focus-visible, [data-open="true"]) .ns-prob__q { opacity: 0; }
 .ns-prob__card:is(:hover, :focus-visible, [data-open="true"]) .ns-prob__sum { opacity: 1; }
-html[data-calm="1"] .ns-prob__redact rect, html[data-calm="1"] .ns-prob__lid, html[data-calm="1"] .ns-prob__blk,
-html[data-calm="1"] .ns-prob__lines, html[data-calm="1"] .ns-prob__q, html[data-calm="1"] .ns-prob__sum { transition: none; }
+html[data-reduce-motion="1"] .ns-prob__redact rect, html[data-reduce-motion="1"] .ns-prob__lid, html[data-reduce-motion="1"] .ns-prob__blk,
+html[data-reduce-motion="1"] .ns-prob__lines, html[data-reduce-motion="1"] .ns-prob__q, html[data-reduce-motion="1"] .ns-prob__sum { transition: none; }
 
 /* ---------- exploded structure ---------- */
 .ns-ex { position: relative; background: var(--ns-bg-2); }
@@ -131,7 +131,7 @@ html[data-calm="1"] .ns-prob__lines, html[data-calm="1"] .ns-prob__q, html[data-
   .ns-ex__list button:hover, .ns-ex__list button[aria-pressed="true"] { padding-left: 9px; }
   .ns-ex__no { font-size: 12px; }
 }
-html[data-calm="1"] .ns-ex__layer { transition: none; }
+html[data-reduce-motion="1"] .ns-ex__layer { transition: none; }
 /* static mode (Calm / reduced motion): the page flows normally, nothing is pinned, so the box and panel size themselves */
 .ns-ex[data-motion="0"] .ns-ex__stack { height: auto; width: min(100%, calc(54vh * 1.218)); }
 .ns-ex[data-motion="0"] .ns-ex__panel { height: auto; min-height: 196px; overflow: visible; }

@@ -78,8 +78,8 @@
 .ns-plat { transition: transform .5s cubic-bezier(.4, 0, .2, 1); }
 .ns-crack { transition: opacity .3s .35s; }
 
-html[data-calm="1"] .ns-tie, html[data-calm="1"] .ns-bkg .ns-bk { opacity: 1 !important; animation: none !important; transform: none; }
-html[data-calm="1"] .ns-needle, html[data-calm="1"] .ns-plat, html[data-calm="1"] .ns-crack { transition: none; }
+html[data-reduce-motion="1"] .ns-tie, html[data-reduce-motion="1"] .ns-bkg .ns-bk { opacity: 1 !important; animation: none !important; transform: none; }
+html[data-reduce-motion="1"] .ns-needle, html[data-reduce-motion="1"] .ns-plat, html[data-reduce-motion="1"] .ns-crack { transition: none; }
 @media (prefers-reduced-motion: reduce) {
   .ns-tie, .ns-bkg .ns-bk { opacity: 1 !important; animation: none !important; }
   .ns-needle, .ns-plat, .ns-crack { transition: none; }

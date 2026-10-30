@@ -14,7 +14,7 @@ import { PAYMENT_BYPASS } from '@/lib/payment-config'
 import ViewItem from '@/components/analytics/ViewItem'
 import SampleReportLink from '@/components/samples/SampleReportLink'
 import PayAssurance from '@/components/policy/PayAssurance'
-import { useCalm } from '@/lib/v2/store'
+import { useMotionOK } from '@/lib/v2/store'
 import { GRAND_META, PHASES, type GrandFree, type GrandPaid, type PhaseKey } from '@/lib/qty/grand'
 
 /*
@@ -57,7 +57,7 @@ function mismatch(ph: PhaseEntry[]): string | null {
 }
 
 export default function GrandTotal() {
-  const calm = useCalm()
+  const calm = !useMotionOK()
   const v = calm ? calmVariants : stepVariants
 
   const [data, setData] = useState<Available | null>(null)

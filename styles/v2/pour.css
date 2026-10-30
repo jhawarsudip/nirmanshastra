@@ -83,8 +83,8 @@ html[data-ns-theme="dark"] .ns-pour[data-tone="header"] { --pm: var(--ns-stage);
 .ns-pour--lip :is(.ns-pour__s, .ns-pour__m) { animation: ns-lip-in 1.6s cubic-bezier(.16, .84, .24, 1) .25s backwards; }
 
 /* ---------- Calm mode, reduced motion: the finished edge, still ---------- */
-html[data-calm="1"] .ns-pour, html[data-calm="1"] .ns-pour :is(.ns-pour__s, .ns-pour__m) { animation: none; transition: none; }
-html[data-calm="1"] .ns-pour.is-pre :is(.ns-pour__s, .ns-pour__m) { transform: none; }
+html[data-reduce-motion="1"] .ns-pour, html[data-reduce-motion="1"] .ns-pour :is(.ns-pour__s, .ns-pour__m) { animation: none; transition: none; }
+html[data-reduce-motion="1"] .ns-pour.is-pre :is(.ns-pour__s, .ns-pour__m) { transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .ns-pour, .ns-pour :is(.ns-pour__s, .ns-pour__m) { animation: none; transition: none; }
   .ns-pour.is-pre :is(.ns-pour__s, .ns-pour__m) { transform: none; opacity: 1; }

@@ -11,7 +11,7 @@ import type { LiveSummaryData } from '@/components/ui/LiveSummaryPanel'
 import { TRADE_META, type TradeSlug } from '@/lib/qty/meta'
 import { FORMS } from '@/lib/qty/forms'
 import type { TradeFree } from '@/lib/qty/types'
-import { useCalm } from '@/lib/v2/store'
+import { useMotionOK } from '@/lib/v2/store'
 import { TOOLS } from '@/lib/v2/content'
 import { saveProjectToSession } from '@/lib/project-session'
 import ViewItem from '@/components/analytics/ViewItem'
@@ -60,7 +60,7 @@ export default function QtyToolPage({ slug }: { slug: TradeSlug }) {
   const [calcBusy, setCalcBusy] = useState(false)
   const [calcError, setCalcError] = useState('')
   const inFlight = useRef(false)
-  const calm = useCalm()
+  const calm = !useMotionOK()
   const v = calm ? calmVariants : stepVariants
 
   // a fresh screen always starts at the top

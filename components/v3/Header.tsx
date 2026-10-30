@@ -6,14 +6,13 @@ import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import AdminGate3 from './AdminGate3'
-import { Arrow, BrandMark, Burger, Cross, Moon, Sun, Wind } from './Icons'
+import { Arrow, BrandMark, Burger, Cross, Moon, Sun } from './Icons'
 import { NAV, pick, type Loc } from '@/lib/v3/copy'
-import { setCalm, toggleTheme, useCalm, useTheme } from '@/lib/v2/store'
+import { toggleTheme, useTheme } from '@/lib/v2/store'
 
 export default function Header({ locale }: { locale: Loc }) {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
-  const calm = useCalm()
   const theme = useTheme()
   const t = (k: keyof typeof NAV) => pick(NAV[k], locale)
 
@@ -21,9 +20,7 @@ export default function Header({ locale }: { locale: Loc }) {
   const [menu, setMenu] = useState(false)
   const [admin, setAdmin] = useState(false)
   const [stuck, setStuck] = useState(false)
-  const [toast, setToast] = useState<string | null>(null)
   const clicks = useRef<number[]>([])
-  const toastTimer = useRef<number | undefined>(undefined)
 
   const home = locale === 'hi' ? '/hi' : '/'
   const hash = (id: string) => `${home}#${id}`
@@ -54,12 +51,6 @@ export default function Header({ locale }: { locale: Loc }) {
     return () => { document.body.style.overflow = '' }
   }, [menu])
 
-  function say(msg: string) {
-    setToast(msg)
-    window.clearTimeout(toastTimer.current)
-    toastTimer.current = window.setTimeout(() => setToast(null), 1800)
-  }
-
   function brandClick(e: React.MouseEvent) {
     const now = Date.now()
     clicks.current = [...clicks.current, now].filter(x => now - x < 2000)
@@ -73,11 +64,6 @@ export default function Header({ locale }: { locale: Loc }) {
   function night(e: React.MouseEvent<HTMLButtonElement>) {
     const r = e.currentTarget.getBoundingClientRect()
     toggleTheme({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
-  }
-
-  function calmToggle() {
-    setCalm(!calm)
-    say(!calm ? t('calmOn') : t('calmOff'))
   }
 
   async function logout() {
@@ -98,9 +84,6 @@ export default function Header({ locale }: { locale: Loc }) {
     <>
       <button type="button" className="s3-iconbtn" aria-pressed={theme === 'dark'} aria-label={t('night')} title={t('night')} onClick={night}>
         {theme === 'dark' ? <Moon /> : <Sun />}
-      </button>
-      <button type="button" className="s3-iconbtn" aria-pressed={calm} aria-label={t('calm')} title={t('calm')} onClick={calmToggle}>
-        <Wind calm={calm} />
       </button>
     </>
   )
@@ -196,7 +179,6 @@ export default function Header({ locale }: { locale: Loc }) {
         </div>
       </div>
 
-      {toast && <div className="s3-toast" role="status">{toast}</div>}
       {admin && <AdminGate3 loc={locale} onClose={() => setAdmin(false)} />}
     </>
   )

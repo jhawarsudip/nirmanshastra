@@ -6,7 +6,7 @@ import type { ComponentProps, MouseEvent } from 'react'
 
 /**
  * Internal link that plays the 450 ms section-cut hatch wipe before navigating.
- * Falls back to a plain link for hash links, modified clicks, Calm and reduced motion.
+ * Falls back to a plain link for hash links, modified clicks and reduced motion.
  */
 export default function CutLink({ href, onClick, children, ...rest }: ComponentProps<typeof Link>) {
   const router = useRouter()
@@ -19,7 +19,7 @@ export default function CutLink({ href, onClick, children, ...rest }: ComponentP
     if (!target.startsWith('/') || target.startsWith('/#') || target.startsWith('//')) return
     if (rest.target && rest.target !== '_self') return
     const d = document.documentElement
-    if (d.getAttribute('data-calm') === '1' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (d.getAttribute('data-reduce-motion') === '1' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const wipe = document.querySelector('.ns-cutwipe')
     if (!wipe) return
     e.preventDefault()
