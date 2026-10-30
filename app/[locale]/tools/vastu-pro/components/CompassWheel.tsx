@@ -1,6 +1,8 @@
 'use client'
 
 import { useRef, useEffect, useCallback } from 'react'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { COPY } from '../copy'
 
 interface Props {
   northDeg: number
@@ -24,6 +26,8 @@ const GREEN = '#2F7A4F'
   Drag the dial, use the arrow keys, or type the angle beside it.
 */
 export default function CompassWheel({ northDeg, onChange }: Props) {
+  const t = useCopy(COPY).north
+  const letters = t.letters
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const dragging = useRef(false)
 
@@ -64,14 +68,13 @@ export default function CompassWheel({ northDeg, onChange }: Props) {
     }
 
     // N, E, S, W turn with the face but stay upright
-    const cardinals = ['N', 'E', 'S', 'W']
     const labelR = R - 31
-    cardinals.forEach((label, i) => {
+    letters.forEach((label, i) => {
       const angle = faceRot + (i * Math.PI) / 2
-      ctx.font = `800 ${label === 'N' ? 19 : 15}px ${sans}`
+      ctx.font = `800 ${i === 0 ? 19 : 15}px ${sans}`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.fillStyle = label === 'N' ? NORTH : INK
+      ctx.fillStyle = i === 0 ? NORTH : INK
       ctx.fillText(label, CX + labelR * Math.sin(angle), CY - labelR * Math.cos(angle))
     })
 
@@ -100,7 +103,7 @@ export default function CompassWheel({ northDeg, onChange }: Props) {
     ctx.fillStyle = GREEN
     ctx.fill()
 
-  }, [northDeg])
+  }, [northDeg, letters])
 
   // Size the canvas for the screen's pixel density, then draw.
   useEffect(() => {
@@ -161,13 +164,13 @@ export default function CompassWheel({ northDeg, onChange }: Props) {
       aria-valuemin={0}
       aria-valuemax={359}
       aria-valuenow={Math.round(northDeg)}
-      aria-valuetext={`North is ${Math.round(northDeg)} degrees clockwise from the top of the drawing`}
+      aria-valuetext={t.dialValue(Math.round(northDeg))}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerEnd}
       onPointerCancel={onPointerEnd}
       onKeyDown={onKeyDown}
-      aria-label="North direction dial. Drag the dial or use the arrow keys."
+      aria-label={t.dialAria}
     />
   )
 }

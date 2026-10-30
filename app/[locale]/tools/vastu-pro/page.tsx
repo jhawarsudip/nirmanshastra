@@ -3,6 +3,8 @@
 import { trackCalculatorUsed } from '@/lib/analytics/events'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useLocale } from 'next-intl'
+import { useCopy } from '@/lib/i18n/use-copy'
 import PlanEditor, { bearingOfDoor, placementOf, type EditorMode } from './components/PlanEditor'
 import HouseControls from './components/HouseControls'
 import DoorPanel from './components/DoorPanel'
@@ -16,6 +18,9 @@ import { ZONES } from './vastu-rules'
 import { ringSides, readPlan } from './vastu-reading'
 import type { Reading } from './vastu-types'
 import { ToolHead, StepBar, Note, IcArrow } from '@/components/v2/inner/kit'
+import { ZONE_HI } from '@/lib/i18n/labels/vastu-terms'
+import { kindLabelOf, zoneName } from './vastu-hi'
+import { COPY } from './copy'
 import { TOOLS } from '@/lib/v2/content'
 import { useMotionOK } from '@/lib/v2/store'
 import '@/styles/v2/vastu.css'
@@ -24,16 +29,12 @@ import '@/styles/v2/vastu.css'
 // on the results screen, to send the PDF.
 type Step = 'plan' | 'results'
 
-const STEPS = ['Your plan', 'Your reading']
 const STEP_IX: Record<Step, number> = { plan: 0, results: 1 }
 
-const MODES: { key: Exclude<EditorMode, 'view'>; label: string }[] = [
-  { key: 'outline', label: 'House outline' },
-  { key: 'door', label: 'Doors' },
-  { key: 'rooms', label: 'Rooms' },
-]
+const MODE_KEYS: Exclude<EditorMode, 'view'>[] = ['outline', 'door', 'rooms']
 
 const ZONE_NAMES = ZONES.map(z => z.short)
+const ZONE_NAMES_HI = ZONE_HI.map(z => z.short)
 
 const stepVariants = {
   initial: { opacity: 0, x: 18 },
@@ -49,6 +50,8 @@ const calmVariants = {
 const catalogueForEditor = CATALOGUE
 
 export default function VastuProPage() {
+  const t = useCopy(COPY).page
+  const hi = useLocale() === 'hi'
   const tool = TOOLS.find(t => t.key === 'vastu')!
   const calm = !useMotionOK()
   const v = calm ? calmVariants : stepVariants
@@ -123,31 +126,30 @@ export default function VastuProPage() {
   }
 
   // Where each item sits against the completed rectangle of the house, for the short notes in the lists.
-  const itemNotes = useMemo(() => {
+  const { notes: itemNotes, chips: itemChips } = useMemo(() => {
     const out: Record<string, PlacementNote> = {}
+    const chips: Record<string, string> = {}
     for (const it of items) {
       const p = placementOf(it, house, northDeg)
-      const where = p.primaryZone < 0 ? 'Brahmasthan (centre)' : `${ZONES[p.primaryZone].full} (${ZONES[p.primaryZone].short})`
-      const also = p.alsoIn.length ? `also ${p.alsoIn.map(z => ZONES[z].short).join(', ')}` : undefined
+      const where = p.primaryZone < 0 ? t.centreWhere : hi ? zoneName(p.primaryZone) : `${ZONES[p.primaryZone].full} (${ZONES[p.primaryZone].short})`
+      const zoneShort = (z: number) => (hi ? ZONE_NAMES_HI[z] : ZONES[z].short)
+      const also = p.alsoIn.length ? t.also(p.alsoIn.map(zoneShort).join(', ')) : undefined
       out[it.id] = { where, also, centre: p.centreShare >= 0.25 && p.primaryZone >= 0, borderline: p.borderline }
+      chips[it.id] = p.primaryZone < 0 ? t.centreChip : zoneShort(p.primaryZone)
     }
-    return out
-  }, [items, house, northDeg])
+    return { notes: out, chips }
+  }, [items, house, northDeg, hi, t])
 
   const doorNotes = useMemo(() => {
     const out: Record<string, string> = {}
-    for (const d of doors) out[d.kind] = ZONES[zoneOfBearing(bearingOfDoor(d, house, northDeg))].short
-    return out
-  }, [doors, house, northDeg])
-
-  const chipOf = (id: string): string | undefined => {
-    const n = itemNotes[id]
-    if (n) {
-      const m = /\(([A-Z]+)\)$/.exec(n.where)
-      return m ? m[1] : n.where.startsWith('Brahma') ? 'Centre' : undefined
+    for (const d of doors) {
+      const z = zoneOfBearing(bearingOfDoor(d, house, northDeg))
+      out[d.kind] = hi ? ZONE_NAMES_HI[z] : ZONES[z].short
     }
-    return doorNotes[id]
-  }
+    return out
+  }, [doors, house, northDeg, hi])
+
+  const chipOf = (id: string): string | undefined => itemChips[id] ?? doorNotes[id]
 
   const diagonal = useMemo(() => ringSides(minAreaRect(house), northDeg) === null, [house, northDeg])
 
@@ -156,7 +158,7 @@ export default function VastuProPage() {
 
   function handleRead() {
     if (placedCount === 0) {
-      setError('Mark at least one door or room on the plan first.')
+      setError(t.errNone)
       return
     }
     setError('')
@@ -172,46 +174,46 @@ export default function VastuProPage() {
     setReading(null)
   }
 
-  const sheetTitle = mode === 'outline' ? 'Outline of the house' : mode === 'door' ? 'Doors' : 'Rooms'
+  const sheetTitle = t.sheetTitle[mode]
   const sheetStatus =
     mode === 'outline'
-      ? 'Drag the green corners to match your plan. Tap a + on an edge to add a corner.'
+      ? t.statusOutline
       : mode === 'door'
         ? diagonal
-          ? 'The plot sits about 45° to the compass, so the position along each side is not read. The door is still read by its direction.'
-          : `Choose a door in the list, then tap the outline where it is. The coloured bars are the old positions along each side.`
+          ? t.statusDoorDiag
+          : t.statusDoor
         : items.length === 0
-          ? 'Add a room from the list, then drag it to where it sits on your plan.'
-          : 'Drag a room to move it. Drag the dot at its corner to resize it.'
+          ? t.statusRoomsEmpty
+          : t.statusRooms
 
   return (
     <div className="ns-i-wrap ns-i-page ns-v" style={{ ['--tc' as string]: 'var(--ns-t-vastu)' }}>
       {step !== 'results' && (
         <ToolHead
-          eyebrow="Before you build · Layout"
+          eyebrow={t.eyebrow}
           name={tool.name}
-          price="Free"
-          blurb="Set where North is, draw the outline of your house, mark the doors and rooms, and see how the Vastu texts and teachers read each place. Free. You see the reading first; an email is asked only if you want the PDF."
+          price={t.price}
+          blurb={t.blurb}
           art={tool.plate}
-          artAlt={tool.plateAlt}
+          artAlt={hi ? tool.plateAltHi : tool.plateAlt}
         />
       )}
-      <StepBar steps={STEPS} current={STEP_IX[step]} />
+      <StepBar steps={t.steps} current={STEP_IX[step]} />
 
       <AnimatePresence mode="wait">
         {step === 'plan' && (
           <motion.div key="plan" variants={v} initial="initial" animate="animate" exit="exit">
             <ol className="ns-v-how">
-              <li><span><b>Set North and draw the house.</b> Match the outline to your plan.</span></li>
-              <li><span><b>Tap where the doors are.</b> The main door matters most.</span></li>
-              <li><span><b>Add each room</b> and drag it to where it sits.</span></li>
+              {t.how.map(h => (
+                <li key={h.b}><span><b>{h.b}</b> {h.r}</span></li>
+              ))}
             </ol>
 
-            <div className="ns-v-modes" role="group" aria-label="What you are marking">
-              {MODES.map((m, i) => (
-                <button key={m.key} type="button" className="ns-v-seg__b" aria-pressed={mode === m.key} onClick={() => changeMode(m.key)}>
+            <div className="ns-v-modes" role="group" aria-label={t.modesAria}>
+              {MODE_KEYS.map((m, i) => (
+                <button key={m} type="button" className="ns-v-seg__b" aria-pressed={mode === m} onClick={() => changeMode(m)}>
                   <span className="ns-v-modes__n" aria-hidden="true">{i + 1}</span>
-                  {m.label}
+                  {t.modes[m]}
                 </button>
               ))}
             </div>
@@ -260,7 +262,7 @@ export default function VastuProPage() {
                   <div className="ns-v-sheet__head">
                     <h2>{sheetTitle}</h2>
                     {mode === 'door' && (
-                      <span className="ns-v-placing">Placing the {(DOOR_KINDS.find(k => k.key === activeDoor)?.label ?? 'door').toLowerCase()}</span>
+                      <span className="ns-v-placing">{t.placing(kindLabelOf(hi, activeDoor, DOOR_KINDS.find(k => k.key === activeDoor)?.label ?? 'door'))}</span>
                     )}
                   </div>
                   <div className="ns-v-canvaswrap">
@@ -278,7 +280,7 @@ export default function VastuProPage() {
                       selectedId={selectedId}
                       onSelect={setSelectedId}
                       image={image}
-                      zoneNames={ZONE_NAMES}
+                      zoneNames={hi ? ZONE_NAMES_HI : ZONE_NAMES}
                       chipOf={chipOf}
                       selectedVertex={selectedVertex}
                       onSelectVertex={setSelectedVertex}
@@ -294,17 +296,17 @@ export default function VastuProPage() {
                 <div className="ns-plate ns-v-go">
                   <p className="ns-v-go__count">
                     <b>{placedCount}</b>
-                    <span>{items.length} room{items.length !== 1 ? 's' : ''}, {doors.length} door{doors.length !== 1 ? 's' : ''}</span>
+                    <span>{t.count(items.length, doors.length)}</span>
                   </p>
                   {error && <Note kind="err">{error}</Note>}
                   <div className="ns-i-btn--block">
                     <button type="button" className="ns-btn" onClick={handleRead} disabled={placedCount === 0}>
-                      Read my plan
+                      {t.read}
                       <IcArrow width={22} height={11} />
                     </button>
                   </div>
                   <p className="ns-i-fine">
-                    {hasMain ? 'The more rooms you mark, the fuller the reading.' : 'Mark the main door too: it carries the most weight in the reading.'}
+                    {hasMain ? t.fineMain : t.fineNoMain}
                   </p>
                 </div>
               </div>

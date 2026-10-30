@@ -1,11 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { useTr } from '@/lib/i18n/use-tr'
+import { VASTU_ERRORS } from '@/lib/i18n/labels/vastu-errors'
 import { Field, Input, Note, IcArrow } from '@/components/v2/inner/kit'
 import { trackLead } from '@/lib/analytics/events'
 import { CONTACT_EMAIL } from '@/lib/site-contact'
 import type { DoorMark, PlacedItem } from '../vastu-model'
 import type { Poly } from '../vastu-geometry'
+import { CATALOGUE } from '../vastu-catalogue'
+import { kindLabelOf } from '../vastu-hi'
+import { COPY } from '../copy'
 
 interface Props {
   northDeg: number
@@ -21,6 +28,19 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   The PDF is sent to the address and also saved from this page. The name is optional.
 */
 export default function EmailPdf({ northDeg, house, items, doors }: Props) {
+  const t = useCopy(COPY).pdf
+  const hi = useLocale() === 'hi'
+  const trErr = useTr(VASTU_ERRORS)
+  // what the server says, shown in Hindi on the Hindi page; "{label} can be placed only once." carries a room name that needs its own Hindi
+  const serverError = (msg: string): string => {
+    const once = /^(.+) can be placed only once\.$/.exec(msg)
+    if (once) {
+      if (!hi) return msg
+      const entry = Object.values(CATALOGUE).find(c => c.label === once[1])
+      return `${entry ? kindLabelOf(hi, entry.key, once[1]) : once[1]} केवल एक बार रखा जा सकता है।`
+    }
+    return trErr(msg)
+  }
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [emailError, setEmailError] = useState('')
@@ -32,7 +52,7 @@ export default function EmailPdf({ northDeg, house, items, doors }: Props) {
     ev.preventDefault()
     if (busy) return
     const e = email.trim()
-    if (!EMAIL_RE.test(e)) { setEmailError('Please enter a valid email address'); return }
+    if (!EMAIL_RE.test(e)) { setEmailError(t.errEmail); return }
     setEmailError('')
     setApiError('')
     setBusy(true)
@@ -66,7 +86,7 @@ export default function EmailPdf({ northDeg, house, items, doors }: Props) {
       trackLead('vastupro', 'email') // generate_lead / Lead: the email was given
       setDone({ email: e, emailed })
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'We could not make the PDF. Please try again.')
+      setApiError(err instanceof Error ? serverError(err.message) : t.fail)
     } finally {
       setBusy(false)
     }
@@ -74,35 +94,34 @@ export default function EmailPdf({ northDeg, house, items, doors }: Props) {
 
   return (
     <form className="ns-v-block ns-plate ns-v-next ns-v-pdf" onSubmit={submit} noValidate aria-labelledby="v-pdf-t">
-      <h2 id="v-pdf-t">Email me the full PDF</h2>
+      <h2 id="v-pdf-t">{t.title}</h2>
       <p>
-        A PDF with your plan, every finding with its source and the remedies, and at the end the working behind each verdict and the books the rules come from.
-        It is as long as your plan needs. Your reading above stays free with or without it.
+        {t.intro}
       </p>
 
       {done ? (
-        <Note kind="ok" title={done.emailed ? `Sent to ${done.email}` : 'Your PDF has downloaded'}>
+        <Note kind="ok" title={done.emailed ? t.sentTo(done.email) : t.downloaded}>
           {done.emailed
-            ? 'It is saving to this device now too. If the email does not arrive in a few minutes, look in your spam folder.'
-            : 'We could not send the email just now, so this is your copy. Write to us if you want it sent again.'}
+            ? t.doneEmailed
+            : t.doneNot}
         </Note>
       ) : (
         <>
           <div className="ns-i-fields">
-            <Field id="vp-email" label="Your email" required error={emailError} hint="The PDF is sent here." wide>
-              <Input type="email" value={email} onChange={ev => { setEmail(ev.target.value); if (emailError) setEmailError('') }} placeholder="ramesh@example.com" autoComplete="email" inputMode="email" />
+            <Field id="vp-email" label={t.email} required error={emailError} hint={t.emailHint} wide>
+              <Input type="email" value={email} onChange={ev => { setEmail(ev.target.value); if (emailError) setEmailError('') }} placeholder={t.emailEg} autoComplete="email" inputMode="email" />
             </Field>
-            <Field id="vp-name" label="Your name (optional)" hint="So the email can greet you.">
-              <Input type="text" value={name} onChange={ev => setName(ev.target.value)} placeholder="Ramesh Sharma" autoComplete="name" />
+            <Field id="vp-name" label={t.name} hint={t.nameHint}>
+              <Input type="text" value={name} onChange={ev => setName(ev.target.value)} placeholder={t.nameEg} autoComplete="name" />
             </Field>
           </div>
-          {apiError && <Note kind="err" title="That did not go through">{apiError}</Note>}
+          {apiError && <Note kind="err" title={t.failTitle}>{apiError}</Note>}
           <div className="ns-v-next__row">
             <button type="submit" className="ns-btn" disabled={busy}>
-              {busy ? 'Making your PDF…' : 'Email me the PDF'}
+              {busy ? t.busy : t.button}
               {!busy && <IcArrow width={22} height={11} />}
             </button>
-            <span className="ns-i-fine">Free. We also email you a construction tip now and then; to stop those, write to {CONTACT_EMAIL}.</span>
+            <span className="ns-i-fine">{t.fine(CONTACT_EMAIL)}</span>
           </div>
         </>
       )}

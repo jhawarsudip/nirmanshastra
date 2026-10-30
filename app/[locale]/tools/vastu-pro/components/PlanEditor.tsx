@@ -1,6 +1,8 @@
 'use client'
 
 import { useCallback, useMemo, useRef } from 'react'
+import { useLocale } from 'next-intl'
+import { useCopy } from '@/lib/i18n/use-copy'
 import {
   SHEET_UNITS,
   type DoorMark,
@@ -20,6 +22,8 @@ import {
 } from '../vastu-geometry'
 import { PADA_RING } from '../vastu-rules'
 import { ringSides } from '../vastu-reading'
+import { kindAbbrevOf, kindLabelOf, padaNameOf } from '../vastu-hi'
+import { COPY } from '../copy'
 
 export type EditorMode = 'outline' | 'rooms' | 'door' | 'view'
 
@@ -103,6 +107,8 @@ export default function PlanEditor(props: Props) {
     mode, house, onHouse, northDeg, items, onItems, doors, onDoors, catalogue, activeDoorKind,
     selectedId, onSelect, image, colourOf, zoneNames, chipOf, selectedVertex = null, onSelectVertex,
   } = props
+  const t = useCopy(COPY).sheet
+  const hi = useLocale() === 'hi'
   const svgRef = useRef<SVGSVGElement>(null)
   const drag = useRef<Drag | null>(null)
   const moved = useRef(false)
@@ -139,13 +145,13 @@ export default function PlanEditor(props: Props) {
           x1: a.x + dx * t0 + nx * 9, y1: a.y + dy * t0 + ny * 9,
           x2: a.x + dx * t1 + nx * 9, y2: a.y + dy * t1 + ny * 9,
           tone: pad.tone,
-          name: pad.name,
+          name: padaNameOf(hi, pad.name),
           lx: a.x + dx * (t0 + t1) / 2 + nx * 24, ly: a.y + dy * (t0 + t1) / 2 + ny * 24,
         })
       }
     }
     return out
-  }, [mode, ref, northDeg, centre])
+  }, [mode, ref, northDeg, centre, hi])
 
   const toSheet = useCallback((clientX: number, clientY: number): Pt => {
     const svg = svgRef.current!
@@ -173,8 +179,9 @@ export default function PlanEditor(props: Props) {
     const tx = Math.abs(dx) < 1e-9 ? Infinity : (dx > 0 ? SHEET_UNITS - centre.x : centre.x) / Math.abs(dx)
     const ty = Math.abs(dy) < 1e-9 ? Infinity : (dy > 0 ? SHEET_UNITS - centre.y : centre.y) / Math.abs(dy)
     const t = Math.min(tx, ty) - 15
-    return { i, x: clamp(centre.x + dx * t, 14, SHEET_UNITS - 14), y: clamp(centre.y + dy * t, 12, SHEET_UNITS - 12) }
-  }), [centre, northDeg])
+    const px = hi ? 30 : 14
+    return { i, x: clamp(centre.x + dx * t, px, SHEET_UNITS - px), y: clamp(centre.y + dy * t, 12, SHEET_UNITS - 12) }
+  }), [centre, northDeg, hi])
 
   // ---- pointer handling ----
   function startDrag(e: React.PointerEvent, d: Drag) {
@@ -263,12 +270,12 @@ export default function PlanEditor(props: Props) {
       role="application"
       aria-label={
         mode === 'outline'
-          ? 'Plan sheet. Drag the corners of the house outline to match your plan.'
+          ? t.ariaOutline
           : mode === 'door'
-            ? 'Plan sheet. Tap the outline where the door is.'
+            ? t.ariaDoor
             : mode === 'view'
-              ? 'Your plan with each room coloured by how it was read.'
-              : 'Plan sheet. Drag each room to where it sits on your plan.'
+              ? t.ariaView
+              : t.ariaRooms
       }
       onPointerMove={onMove}
       onPointerUp={onSheetPointerUp}
@@ -311,7 +318,7 @@ export default function PlanEditor(props: Props) {
             dominantBaseline="central"
             className="ns-v-zl"
             fill={l.i === 0 ? NORTH : INK2}
-            fontSize={l.i % 2 === 0 ? 14 : 11.5}
+            fontSize={hi ? (l.i % 2 === 0 ? 15.5 : 12.5) : l.i % 2 === 0 ? 14 : 11.5}
             fontWeight={700}
             stroke={PAPER}
             strokeWidth={3.5}
@@ -321,11 +328,11 @@ export default function PlanEditor(props: Props) {
           </text>
         ))}
         <circle cx={centre.x} cy={centre.y} r={3.5} fill={GREEN} />
-        <text x={centre.x} y={centre.y + 15} textAnchor="middle" fontSize={11} fontWeight={700} fill={GREEN} stroke={PAPER} strokeWidth={3} paintOrder="stroke">Brahmasthan</text>
+        <text x={centre.x} y={centre.y + 15} textAnchor="middle" fontSize={hi ? 12 : 11} fontWeight={700} fill={GREEN} stroke={PAPER} strokeWidth={3} paintOrder="stroke">{t.brahmasthan}</text>
         {/* North arrow */}
         <line x1={centre.x} y1={centre.y} x2={nx} y2={ny} stroke={NORTH} strokeWidth={2.4} />
         <circle cx={nx} cy={ny} r={4.5} fill={NORTH} />
-        <text x={centre.x + (arrowLen + 14) * Math.sin(northRad)} y={centre.y - (arrowLen + 14) * Math.cos(northRad)} textAnchor="middle" dominantBaseline="central" fontSize={15} fontWeight={800} fill={NORTH} stroke={PAPER} strokeWidth={3.5} paintOrder="stroke">N</text>
+        <text x={centre.x + (arrowLen + 14) * Math.sin(northRad)} y={centre.y - (arrowLen + 14) * Math.cos(northRad)} textAnchor="middle" dominantBaseline="central" fontSize={15} fontWeight={800} fill={NORTH} stroke={PAPER} strokeWidth={3.5} paintOrder="stroke">{t.north}</text>
       </g>
 
       {/* door mode: the eight positions on each side of the boundary, favourable ones in green */}
@@ -348,6 +355,8 @@ export default function PlanEditor(props: Props) {
         const sel = it.id === selectedId
         const col = colourOf?.(it.id) ?? GREEN
         const chip = chipOf?.(it.id)
+        const label = kindLabelOf(hi, it.kind, c?.label ?? it.kind)
+        const abbrev = kindAbbrevOf(hi, it.kind, c?.abbrev ?? it.kind.slice(0, 2).toUpperCase())
         const movable = mode === 'rooms'
         return (
           <g
@@ -357,7 +366,7 @@ export default function PlanEditor(props: Props) {
             data-movable={movable ? '1' : '0'}
             tabIndex={movable ? 0 : -1}
             role="button"
-            aria-label={`${c?.label ?? it.kind}${chip ? `, ${chip} zone` : ''}. Arrow keys move it, shift and arrow keys resize it.`}
+            aria-label={t.item(label, chip)}
             onKeyDown={movable ? e => onItemKey(e, it) : undefined}
             onFocus={() => { if (movable) onSelect(it.id) }}
           >
@@ -383,11 +392,11 @@ export default function PlanEditor(props: Props) {
               onPointerUpCapture={e => { if (drag.current) endDrag(e) }}
             />
             <text x={it.x + it.w / 2} y={it.y + it.h / 2} textAnchor="middle" dominantBaseline="central" fontSize={Math.min(15, Math.max(10, it.h / 3))} fontWeight={800} fill={INK} stroke={PAPER} strokeWidth={3} paintOrder="stroke" pointerEvents="none">
-              {c?.abbrev ?? it.kind.slice(0, 2).toUpperCase()}
+              {abbrev}
             </text>
             {chip && (
               <g pointerEvents="none">
-                <rect x={it.x + 2} y={it.y + 2} width={chip.length * 7.6 + 8} height={15} rx={3} fill={col} />
+                <rect x={it.x + 2} y={it.y + 2} width={chip.length * (hi ? 9.2 : 7.6) + 8} height={15} rx={3} fill={col} />
                 <text x={it.x + 6} y={it.y + 9.5} dominantBaseline="central" fontSize={10.5} fontWeight={800} fill="#fff">{chip}</text>
               </g>
             )}
@@ -416,7 +425,7 @@ export default function PlanEditor(props: Props) {
         return (
           <g key={d.id} pointerEvents="none">
             <circle cx={d.pt.x} cy={d.pt.y} r={sel ? 13 : 11} fill={col} stroke="#fff" strokeWidth={2} />
-            <text x={d.pt.x} y={d.pt.y} textAnchor="middle" dominantBaseline="central" fontSize={10.5} fontWeight={800} fill="#fff">{c?.abbrev ?? 'D'}</text>
+            <text x={d.pt.x} y={d.pt.y} textAnchor="middle" dominantBaseline="central" fontSize={10.5} fontWeight={800} fill="#fff">{kindAbbrevOf(hi, d.kind, c?.abbrev ?? 'D')}</text>
             {chipOf?.(d.id) && (
               <text x={d.pt.x} y={d.pt.y - 19} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={800} fill={INK} stroke={PAPER} strokeWidth={3} paintOrder="stroke">{chipOf(d.id)}</text>
             )}
@@ -438,7 +447,7 @@ export default function PlanEditor(props: Props) {
                 key={`add${i}`}
                 className="ns-v-add"
                 role="button"
-                aria-label={`Add a corner on edge ${i + 1}`}
+                aria-label={t.addCorner(i + 1)}
                 onPointerUp={e => {
                   e.stopPropagation()
                   const next = [...house]
@@ -464,7 +473,7 @@ export default function PlanEditor(props: Props) {
               strokeWidth={2.5}
               tabIndex={0}
               role="slider"
-              aria-label={`Corner ${i + 1} of the house`}
+              aria-label={t.corner(i + 1)}
               onKeyDown={e => {
                 const step = e.altKey ? 1 : 6
                 const d = e.key === 'ArrowLeft' ? [-step, 0] : e.key === 'ArrowRight' ? [step, 0] : e.key === 'ArrowUp' ? [0, -step] : e.key === 'ArrowDown' ? [0, step] : null

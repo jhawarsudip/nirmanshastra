@@ -1,6 +1,10 @@
 'use client'
 
+import { useLocale } from 'next-intl'
+import { useCopy } from '@/lib/i18n/use-copy'
 import { DOOR_KINDS } from '../vastu-catalogue'
+import { kindLabelOf } from '../vastu-hi'
+import { COPY } from '../copy'
 import type { DoorMark } from '../vastu-model'
 
 interface Props {
@@ -18,22 +22,24 @@ interface Props {
   along each side of the plot, as the old texts name them.
 */
 export default function DoorPanel({ doors, active, onActive, onRemove, notes, diagonal }: Props) {
+  const t = useCopy(COPY).doors
+  const hi = useLocale() === 'hi'
   return (
     <div className="ns-plate ns-v-rooms ns-v-doors">
       <div className="ns-v-rooms__head">
-        <h2>Doors</h2>
-        <span className="ns-v-rooms__count">{doors.length} on the plan</span>
+        <h2>{t.title}</h2>
+        <span className="ns-v-rooms__count">{t.onPlan(doors.length)}</span>
       </div>
 
       <div className="ns-v-doors__intro">
-        <p>Choose a door, then tap the outline on the sheet where it is. Tap again to move it.</p>
+        <p>{t.intro}</p>
         {diagonal ? (
-          <p className="ns-v-doors__diag">Your plot sits about 45° to the compass, so the old texts’ positions along each side do not apply. A door here is read by its direction only.</p>
+          <p className="ns-v-doors__diag">{t.diag}</p>
         ) : (
-        <p className="ns-v-doors__key" aria-label="Key to the bars along the boundary">
-          <span><i data-tone="favourable" /> named favourable</span>
-          <span><i data-tone="mixed" /> mixed</span>
-          <span><i data-tone="cautioned" /> cautioned</span>
+        <p className="ns-v-doors__key" aria-label={t.keyAria}>
+          <span><i data-tone="favourable" /> {t.keyFav}</span>
+          <span><i data-tone="mixed" /> {t.keyMixed}</span>
+          <span><i data-tone="cautioned" /> {t.keyCaut}</span>
         </p>
         )}
       </div>
@@ -42,17 +48,18 @@ export default function DoorPanel({ doors, active, onActive, onRemove, notes, di
         {DOOR_KINDS.map(k => {
           const placed = doors.some(d => d.kind === k.key)
           const note = notes[k.key]
+          const label = kindLabelOf(hi, k.key, k.label)
           return (
             <div key={k.key} className="ns-v-doorrow">
               <button type="button" className="ns-v-room" aria-pressed={active === k.key} onClick={() => onActive(k.key)}>
                 <span>
-                  {k.label}
+                  {label}
                   {note && <small> · {note}</small>}
                 </span>
-                {placed ? <span className="ns-v-room__n" aria-label="placed">✓</span> : <span className="ns-v-room__add" aria-hidden="true">Tap the outline</span>}
+                {placed ? <span className="ns-v-room__n" aria-label={t.placed}>✓</span> : <span className="ns-v-room__add" aria-hidden="true">{t.tap}</span>}
               </button>
               {placed && (
-                <button type="button" className="ns-v-sbtn ns-v-sbtn--danger ns-v-doorrow__x" onClick={() => onRemove(k.key)} aria-label={`Remove the ${k.label.toLowerCase()}`}>Remove</button>
+                <button type="button" className="ns-v-sbtn ns-v-sbtn--danger ns-v-doorrow__x" onClick={() => onRemove(k.key)} aria-label={t.removeAria(label)}>{t.remove}</button>
               )}
             </div>
           )

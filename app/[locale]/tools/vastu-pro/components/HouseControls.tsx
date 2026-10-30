@@ -2,6 +2,8 @@
 
 import { useRef, useState } from 'react'
 import { Field, Input, Select } from '@/components/v2/inner/kit'
+import { useCopy } from '@/lib/i18n/use-copy'
+import { COPY } from '../copy'
 import type { Poly } from '../vastu-geometry'
 import {
   OUTLINE_BOX,
@@ -28,6 +30,7 @@ interface Props {
   A picture of the plan can sit faintly behind the sheet to trace over; it never leaves the browser.
 */
 export default function HouseControls({ house, onHouse, selectedVertex, onSelectVertex, image, onImage }: Props) {
+  const t = useCopy(COPY).house
   const [shape, setShape] = useState<Shape>('rect')
   const [width, setWidth] = useState('40')
   const [depth, setDepth] = useState('30')
@@ -73,11 +76,11 @@ export default function HouseControls({ house, onHouse, selectedVertex, onSelect
 
   return (
     <div className="ns-plate ns-v-card ns-v-house">
-      <h2>The outline of your house</h2>
-      <p className="ns-v-card__sub">Start with a shape close to yours, then drag the green corners until the outline matches your plan.</p>
+      <h2>{t.title}</h2>
+      <p className="ns-v-card__sub">{t.sub}</p>
 
-      <div className="ns-v-seg" role="group" aria-label="Starting shape">
-        {([['rect', 'Rectangle'], ['l', 'L-shaped'], ['own', 'My own shape']] as [Shape, string][]).map(([k, label]) => (
+      <div className="ns-v-seg" role="group" aria-label={t.shapeAria}>
+        {([['rect', t.shapes.rect], ['l', t.shapes.l], ['own', t.shapes.own]] as [Shape, string][]).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -92,23 +95,23 @@ export default function HouseControls({ house, onHouse, selectedVertex, onSelect
 
       {shape !== 'own' && (
         <div className="ns-v-house__f">
-          <Field id="vh-w" label="Width (ft)" hint="Left to right on your drawing.">
+          <Field id="vh-w" label={t.width} hint={t.widthHint}>
             <Input type="number" inputMode="decimal" min={1} value={width} onChange={e => { setWidth(e.target.value); apply(shape, { w: Math.max(Number(e.target.value) || 0, 1) }) }} />
           </Field>
-          <Field id="vh-d" label="Depth (ft)" hint="Top to bottom on your drawing.">
+          <Field id="vh-d" label={t.depth} hint={t.depthHint}>
             <Input type="number" inputMode="decimal" min={1} value={depth} onChange={e => { setDepth(e.target.value); apply(shape, { d: Math.max(Number(e.target.value) || 0, 1) }) }} />
           </Field>
           {shape === 'l' && (
             <>
-              <Field id="vh-c" label="The missing corner is at the">
+              <Field id="vh-c" label={t.corner}>
                 <Select value={corner} onChange={e => { const c = e.target.value as LCorner; setCorner(c); apply('l', { corner: c }) }}>
-                  <option value="top-right">Top right of the drawing</option>
-                  <option value="top-left">Top left of the drawing</option>
-                  <option value="bottom-right">Bottom right of the drawing</option>
-                  <option value="bottom-left">Bottom left of the drawing</option>
+                  <option value="top-right">{t.corners['top-right']}</option>
+                  <option value="top-left">{t.corners['top-left']}</option>
+                  <option value="bottom-right">{t.corners['bottom-right']}</option>
+                  <option value="bottom-left">{t.corners['bottom-left']}</option>
                 </Select>
               </Field>
-              <Field id="vh-cut" label={`How much is cut away: ${cut}%`}>
+              <Field id="vh-cut" label={t.cut(cut)}>
                 <input id="vh-cut" className="ns-v-range" type="range" min={10} max={60} step={5} value={cut} onChange={e => { const c = Number(e.target.value); setCut(c); apply('l', { cut: c }) }} />
               </Field>
             </>
@@ -122,25 +125,25 @@ export default function HouseControls({ house, onHouse, selectedVertex, onSelect
           onHouse(house.filter((_, i) => i !== selectedVertex))
           onSelectVertex(null)
         }}>
-          Remove the selected corner
+          {t.removeCorner}
         </button>
-        <small className="ns-i-fine">Tap a green corner to select it. Tap a + on an edge to add a corner.</small>
+        <small className="ns-i-fine">{t.cornerHelp}</small>
       </div>
 
       <div className="ns-v-house__pic">
-        <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="ns-v-file" tabIndex={-1} aria-label="Add a picture of your plan" />
+        <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="ns-v-file" tabIndex={-1} aria-label={t.fileAria} />
         <div className="ns-v-house__row">
           <button type="button" className="ns-v-sbtn ns-v-sbtn--tc" onClick={() => fileRef.current?.click()}>
-            {image ? 'Change the picture of my plan' : 'Add a picture of my plan to trace'}
+            {image ? t.picChange : t.picAdd}
           </button>
-          {image && <button type="button" className="ns-v-sbtn ns-v-sbtn--danger" onClick={() => { URL.revokeObjectURL(image.src); onImage(null) }}>Remove</button>}
-          <small className="ns-i-fine">Optional. It stays in your browser.</small>
+          {image && <button type="button" className="ns-v-sbtn ns-v-sbtn--danger" onClick={() => { URL.revokeObjectURL(image.src); onImage(null) }}>{t.remove}</button>}
+          <small className="ns-i-fine">{t.picFine}</small>
         </div>
         {image && (
           <details className="ns-v-pic" open>
-            <summary>Fit the picture to the sheet</summary>
+            <summary>{t.fit}</summary>
             <div className="ns-v-pic__g">
-              <label>Size
+              <label>{t.size}
                 <input className="ns-v-range" type="range" min={0.2} max={3} step={0.01} value={image.scale / (OUTLINE_BOX * 1.1 / Math.max(image.w, image.h))}
                   onChange={e => {
                     const base = OUTLINE_BOX * 1.1 / Math.max(image.w, image.h)
@@ -151,13 +154,13 @@ export default function HouseControls({ house, onHouse, selectedVertex, onSelect
                     onImage({ ...image, scale: nk, x: cx - (image.w * nk) / 2, y: cy - (image.h * nk) / 2 })
                   }} />
               </label>
-              <label>Turn
+              <label>{t.turn}
                 <input className="ns-v-range" type="range" min={-180} max={180} step={0.5} value={image.rot} onChange={e => onImage({ ...image, rot: Number(e.target.value) })} />
               </label>
-              <label>Left or right
+              <label>{t.leftRight}
                 <input className="ns-v-range" type="range" min={-300} max={SHEET_UNITS} step={1} value={image.x} onChange={e => onImage({ ...image, x: Number(e.target.value) })} />
               </label>
-              <label>Up or down
+              <label>{t.upDown}
                 <input className="ns-v-range" type="range" min={-300} max={SHEET_UNITS} step={1} value={image.y} onChange={e => onImage({ ...image, y: Number(e.target.value) })} />
               </label>
             </div>

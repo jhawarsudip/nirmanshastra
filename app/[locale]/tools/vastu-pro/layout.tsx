@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import InnerShell from '@/components/v2/inner/InnerShell'
 import JsonLd from '@/components/seo/JsonLd'
-import { toolJsonLd } from '@/lib/seo/schema'
+import { vastuJsonLd } from '@/lib/i18n/labels/vastu-jsonld'
 import { setRequestLocale } from 'next-intl/server'
 import { localizeMetadata, type HiMeta } from '@/lib/i18n/meta'
 import { asLocale, type LocaleParams } from '@/lib/i18n/paths'
@@ -35,8 +35,13 @@ const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `${title} | NirmanShastra`, description },
 }
 
-// Hindi title and description for this page. Left empty until the Hindi copy is written; the page then keeps its English text.
-const HI: HiMeta = {}
+// Hindi title, description and share-image text. The brand name and IS-code mention stay in Latin letters.
+const HI: HiMeta = {
+  title: 'VastuPro: अपने घर के नक्शे की निःशुल्क वास्तु जाँच',
+  description:
+    'घर के नक्शे की निःशुल्क वास्तु रीडिंग: अपने घर की आउटलाइन बनाइए, उत्तर तय कीजिए, दरवाज़े और कमरे चिह्नित कीजिए, और देखिए कि पुराने ग्रंथ और आज के वास्तु शिक्षक हर एक को कैसे पढ़ते हैं, हर नियम कहाँ से आता है यह बताते हुए। पारंपरिक मार्गदर्शन, IS कोड नहीं।',
+  imageAlt: 'NirmanShastra VastuPro: आपके घर के नक्शे की निःशुल्क वास्तु जाँच',
+}
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params
@@ -48,7 +53,7 @@ export default async function VastuProLayout({ children, params }: { children: R
   setRequestLocale(locale)
   return (
     <InnerShell locale={asLocale(locale)}>
-      <JsonLd data={toolJsonLd('/tools/vastu-pro')} />
+      <JsonLd data={vastuJsonLd(locale)} />
       {children}
     </InnerShell>
   )
