@@ -27,7 +27,7 @@ export default function SampleReportLink({ sample, hi = false, where, className 
   const label = hi ? 'नमूना रिपोर्ट देखिए (मुफ़्त PDF)' : 'See a sample report (free PDF)'
   const small = isPack
     ? (hi ? 'ग्रैंड टोटल, जो पैक के साथ आती है। एक उदाहरण-घर के लिए असली रिपोर्ट (अंग्रेज़ी में)।' : 'The Grand Total summary that comes with the pack: a real report for an example house.')
-    : (hi ? `${SAMPLES[key].tool}: एक उदाहरण-घर के लिए असली रिपोर्ट (अंग्रेज़ी में)। ईमेल की ज़रूरत नहीं।` : `${SAMPLES[key].tool}: a real report for an example house (${SAMPLE_HOUSE.describe}). No email needed.`)
+    : (hi ? `${SAMPLES[key].tool}: एक उदाहरण-घर (G+1, हर मंज़िल पर 1,000 वर्ग फ़ुट, लखनऊ) के लिए असली रिपोर्ट, अंग्रेज़ी में। ईमेल की ज़रूरत नहीं।` : `${SAMPLES[key].tool}: a real report for an example house (${SAMPLE_HOUSE.describe}). No email needed.`)
   return (
     <a
       className={`ns-sample ${className}`.trim()}

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { rozha, mukta } from '@/lib/v2/fonts'
 import { NS2_INIT } from '@/lib/v2/init'
+import HtmlLang from '@/components/i18n/HtmlLang'
 import '@/styles/v2/base.css'
 import '@/styles/v2/chrome.css'
 import '@/styles/v2/sections.css'
@@ -35,9 +36,12 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       <script dangerouslySetInnerHTML={{ __html: NS2_INIT }} />
+      {locale === 'hi' ? <script dangerouslySetInnerHTML={{ __html: "document.documentElement.lang='hi'" }} /> : null}
+      <HtmlLang locale={locale} />
       {/* Wrapper applies Devanagari font stack automatically for Hindi locale.
-          <html lang> is fixed to "en" in the root layout (it sits above the locale
-          segment), so the Hindi page declares its language on this wrapper. */}
+          <html lang> starts as "en" in the root layout (it sits above the locale
+          segment); HtmlLang and the inline script above bring it to "hi", and this wrapper
+          declares the language for the content itself. */}
       <div
         lang={locale === 'hi' ? 'hi' : undefined}
         className={`${rozha.variable} ${mukta.variable}`}

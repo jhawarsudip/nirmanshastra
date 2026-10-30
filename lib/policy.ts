@@ -32,7 +32,7 @@ export const NOT_REFUNDABLE_HI =
 export const FAILED_DELIVERY_HI =
   `अगर हमारी ओर की किसी तकनीकी ख़राबी से PDF बन नहीं पाती और भुगतान के ${REFUND_FAILED_DELIVERY_HOURS} घंटे के भीतर आप तक नहीं पहुँच पाती, तो हम आपको पूरा पैसा लौटा देंगे।`
 export const PACK_REFUND_HI =
-  `कम्प्लीट हाउस पैक एक ही खरीद है। एक बार वह खुल जाए और उसका पुष्टि-ईमेल चला जाए, तो वह वापस नहीं होता। अगर हमारी ओर की किसी तकनीकी ख़राबी से वह भुगतान के ${REFUND_FAILED_DELIVERY_HOURS} घंटे के भीतर नहीं खुल पाता, तो हम आपको पूरा पैसा लौटा देंगे।`
+  `कम्प्लीट हाउस पैक एक ही ख़रीद है। एक बार वह खुल जाए और उसका पुष्टि-ईमेल चला जाए, तो वह वापस नहीं होता। अगर हमारी ओर की किसी तकनीकी ख़राबी से वह भुगतान के ${REFUND_FAILED_DELIVERY_HOURS} घंटे के भीतर नहीं खुल पाता, तो हम आपको पूरा पैसा लौटा देंगे।`
 export const howToAskHi = (email: string) => `डिलीवरी न होने पर रिफ़ंड माँगने के लिए, भुगतान के ${REFUND_ASK_DAYS} दिन के भीतर ${email} पर ईमेल कीजिए।`
 
 /** The question and the request at the foot of every report-ready email. Replies reach CONTACT_EMAIL (the emails set it as Reply-To). */
