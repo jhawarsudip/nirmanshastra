@@ -57,6 +57,7 @@ def offenders(text: str):
     for w in WORD.findall(s):
         base = w.strip("'’-").lower()
         if len(base) < 3: continue
+        if base in ALLOW: continue  # a whole hyphenated name on the list, e.g. a path like site-templates
         parts = re.split(r"[-’']", base)
         if all((p in ALLOW) or len(p) < 3 for p in parts): continue
         if base.rstrip('s') in ALLOW: continue

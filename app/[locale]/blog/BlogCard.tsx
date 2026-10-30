@@ -1,7 +1,11 @@
 'use client'
 
 import { Link } from '@/i18n/navigation'
+import { useLocale } from 'next-intl'
 import type { BlogArticle } from '@/lib/blog-content'
+import { asLocale } from '@/lib/i18n/paths'
+import { isoDateHi } from '@/lib/i18n/labels/pages-common'
+import { BLOG_CATEGORY_HI, BLOG_COPY } from '@/lib/blog-hi/copy'
 
 const CATEGORY_COLORS: Record<string, string> = {
   Structural: '#1F4E79',
@@ -11,11 +15,19 @@ const CATEGORY_COLORS: Record<string, string> = {
   Vastu: '#C9A84C',
 }
 
+/** The colour of a category, whether its name is the English one or its Hindi spelling (lib/blog-hi/copy.ts). */
+const categoryColor = (category: string) => {
+  const en = Object.keys(BLOG_CATEGORY_HI).find((k) => BLOG_CATEGORY_HI[k] === category) ?? category
+  return CATEGORY_COLORS[en] ?? '#1F4E79'
+}
+
 export default function BlogCard({ article }: { article: BlogArticle }) {
+  const locale = asLocale(useLocale())
+  const c = BLOG_COPY[locale]
   const mono = { fontFamily: 'var(--font-plex-mono)' } as React.CSSProperties
   const serif = { fontFamily: 'var(--font-plex-serif)' } as React.CSSProperties
   const sans = { fontFamily: 'var(--font-plex-sans)' } as React.CSSProperties
-  const catColor = CATEGORY_COLORS[article.category] ?? '#1F4E79'
+  const catColor = categoryColor(article.category)
 
   return (
     <Link href={`/blog/${article.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
@@ -47,7 +59,7 @@ export default function BlogCard({ article }: { article: BlogArticle }) {
             {article.category}
           </span>
           <span style={{ ...mono, fontSize: 10, color: 'rgba(30,34,39,0.4)' }}>
-            {article.readTime} min read
+            {c.minRead(article.readTime)}
           </span>
         </div>
 
@@ -75,10 +87,10 @@ export default function BlogCard({ article }: { article: BlogArticle }) {
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, paddingTop: 12, borderTop: '1px solid rgba(30,34,39,0.08)' }}>
           <span style={{ ...mono, fontSize: 10, color: 'rgba(30,34,39,0.35)' }}>
-            {new Date(article.publishedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+            {locale === 'hi' ? isoDateHi(article.publishedDate) : new Date(article.publishedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
           <span style={{ ...mono, fontSize: 11, color: '#1F4E79', letterSpacing: '0.03em' }}>
-            Read →
+            {c.read} →
           </span>
         </div>
       </article>

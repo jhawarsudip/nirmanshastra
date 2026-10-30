@@ -1,11 +1,17 @@
 import { Link } from '@/i18n/navigation'
 import { notFound } from 'next/navigation'
-import { getArticleBySlug, getRelatedArticles, BLOG_ARTICLES } from '@/lib/blog-content'
+import { setRequestLocale } from 'next-intl/server'
+import { getArticleBySlug, BLOG_ARTICLES } from '@/lib/blog-content'
 import ArticleCard from '../ArticleCard'
 import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
-import { articleSchema, breadcrumbSchema, faqPageSchema } from '@/lib/seo/schema'
 import { REVIEW_NOTE } from '@/lib/seo/site'
+import { asLocale } from '@/lib/i18n/paths'
+import { REVIEW_NOTE_HI } from '@/lib/i18n/labels/pages-common'
+import { articleJsonLd } from '@/lib/i18n/labels/blog-jsonld'
+import { BLOG_COPY, longDate } from '@/lib/blog-hi/copy'
+import { blogArticleMetadata } from '@/lib/blog-hi/meta'
+import { viewArticle, viewRelated } from '@/lib/blog-hi/pick'
 import Founder from '@/components/v2/Founder'
 import '@/styles/v2/results.css'
 import '@/styles/v2/content.css'
@@ -14,7 +20,7 @@ import QuickAnswer from '@/components/seo/QuickAnswer'
 import { CalcCta } from '@/components/v2/inner/calc'
 
 interface PageProps {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
 }
 
 export async function generateStaticParams() {
@@ -22,33 +28,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const article = getArticleBySlug(slug)
-  if (!article) return { title: 'Article Not Found' }
-  const url = `/blog/${article.slug}`
-  const ogTitle = `${article.title} | NirmanShastra`
-  return {
-    // Root layout's title template appends " | NirmanShastra"; do not repeat it here.
-    title: article.title,
-    description: article.excerpt,
-    alternates: { canonical: url },
-    openGraph: {
-      type: 'article',
-      locale: article.language === 'hi-Latn' ? 'hi_IN' : 'en_IN',
-      siteName: 'NirmanShastra',
-      url,
-      title: ogTitle,
-      description: article.excerpt,
-      publishedTime: article.publishedDate,
-      modifiedTime: article.updatedDate ?? article.publishedDate,
-      images: [{ url: '/og-image.png', width: 1200, height: 630, alt: article.title }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: ogTitle,
-      description: article.excerpt,
-    },
-  }
+  const { locale, slug } = await params
+  return blogArticleMetadata(slug, asLocale(locale))
 }
 
 // ── Minimal markdown-to-JSX renderer ──────────────────────────────────────────
@@ -88,7 +69,7 @@ function isTableLine(line: string) {
 }
 
 /** A table of up to five columns stacks into rows on a phone (column name above each figure); wider ones swipe. */
-function parseTable(lines: string[]): React.ReactNode {
+function parseTable(lines: string[], swipe: string): React.ReactNode {
   const rows = lines.map(l => l.split('|').slice(1, -1).map(c => c.trim()))
   const header = rows[0]
   // skip separator row (rows[1])
@@ -97,7 +78,7 @@ function parseTable(lines: string[]): React.ReactNode {
 
   return (
     <>
-      {!stacked ? <p className="ns-i-swipe" aria-hidden="true">Swipe sideways to see every column &rarr;</p> : null}
+      {!stacked ? <p className="ns-i-swipe" aria-hidden="true">{`${swipe} \u2192`}</p> : null}
       <div className="ns-i-tblw">
         <table className={`ns-i-tbl ns-r-tbl${stacked ? ' ns-r-tbl--stack' : ''}`}>
           <thead>
@@ -120,7 +101,7 @@ function parseTable(lines: string[]): React.ReactNode {
   )
 }
 
-function renderMarkdown(content: string): React.ReactNode[] {
+function renderMarkdown(content: string, swipe: string): React.ReactNode[] {
   const lines = content.split('\n')
   const nodes: React.ReactNode[] = []
   let i = 0
@@ -148,7 +129,7 @@ function renderMarkdown(content: string): React.ReactNode[] {
         tableLines.push(lines[i])
         i++
       }
-      nodes.push(<div key={key++} className="ns-bl-art__tbl">{parseTable(tableLines)}</div>)
+      nodes.push(<div key={key++} className="ns-bl-art__tbl">{parseTable(tableLines, swipe)}</div>)
       continue
     }
 
@@ -209,56 +190,57 @@ function renderMarkdown(content: string): React.ReactNode[] {
 
 // ── Page component ─────────────────────────────────────────────────────────────
 
-const longDate = (d: string) =>
-  new Date(`${d}T00:00:00Z`).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
-
 export default async function ArticlePage({ params }: PageProps) {
-  const { slug } = await params
-  const article = getArticleBySlug(slug)
-  if (!article) notFound()
+  const { locale: raw, slug } = await params
+  setRequestLocale(raw)
+  const locale = asLocale(raw)
+  const c = BLOG_COPY[locale]
+  const found = getArticleBySlug(slug)
+  if (!found) notFound()
 
-  const related = getRelatedArticles(article)
+  // The Hindi edition on /hi where one exists, else the English article unchanged (see lib/blog-hi/pick.ts).
+  const article = viewArticle(found, locale)
+  const related = viewRelated(found, locale)
+  // The body's own language: Hindi edition = hi; an article still English on /hi says so; the English site's Roman-letter Hindi post keeps hi-Latn.
+  const bodyLang = article.hi ? 'hi' : article.language === 'hi-Latn' ? 'hi-Latn' : locale === 'hi' ? 'en' : undefined
 
   return (
     <div className="ns-i-page">
-      <JsonLd
-        data={[
-          breadcrumbSchema([
-            { name: 'Home', path: '/' },
-            { name: 'Blog', path: '/blog' },
-            { name: article.title, path: `/blog/${article.slug}` },
-          ]),
-          articleSchema(article),
-          ...(article.faq?.length ? [faqPageSchema(article.faq)] : []),
-        ]}
-      />
+      <JsonLd data={articleJsonLd(locale, article)} />
       <div className="ns-i-wrap" style={{ display: 'grid', gap: 'clamp(18px, 2.4vw, 28px)' }}>
-        <Link href="/blog" className="ns-i-back"><IcArrow aria-hidden="true" /> All guides</Link>
+        <Link href="/blog" className="ns-i-back"><IcArrow aria-hidden="true" /> {c.allGuides}</Link>
 
         <ToolHead eyebrow={article.category} name={article.title} blurb={article.excerpt} />
 
         <p className="ns-r-tblnote">
-          Published <time dateTime={article.publishedDate}>{longDate(article.publishedDate)}</time>
-          {article.updatedDate ? <>{' · '}Updated <time dateTime={article.updatedDate}>{longDate(article.updatedDate)}</time></> : null}
-          {' · '}{article.readTime} min read
+          {`${c.published} `}<time dateTime={article.publishedDate}>{longDate(article.publishedDate, locale)}</time>
+          {article.updatedDate ? <>{' · '}{`${c.updated} `}<time dateTime={article.updatedDate}>{longDate(article.updatedDate, locale)}</time></> : null}
+          {' · '}{c.minRead(article.readTime)}
           <br />
-          {REVIEW_NOTE}
+          {locale === 'hi' ? REVIEW_NOTE_HI : REVIEW_NOTE}
         </p>
 
         {/* Quick answer: the 40–60 word direct answer that search and AI assistants quote */}
         {article.quickAnswer ? (
           <div style={{ '--tc': 'var(--ns-laterite)' } as React.CSSProperties}>
-            <QuickAnswer content={{ question: article.title, quickAnswer: article.quickAnswer }} />
+            <QuickAnswer
+              content={{
+                question: article.title,
+                quickAnswer: article.quickAnswer,
+                // the Hindi box (Hindi label) only when the text is the Hindi edition
+                hi: article.hi ? { question: article.title, quickAnswer: article.quickAnswer } : undefined,
+              }}
+            />
           </div>
         ) : null}
 
-        <article className="ns-plate ns-bl-art" lang={article.language === 'hi-Latn' ? 'hi-Latn' : undefined}>
-          {renderMarkdown(article.content)}
+        <article className="ns-plate ns-bl-art" lang={bodyLang}>
+          {renderMarkdown(article.content, c.swipe)}
 
           {/* FAQ — each question is its own heading; the same data feeds the FAQPage JSON-LD */}
           {article.faq && article.faq.length > 0 ? (
             <section aria-labelledby="article-faq" className="ns-bl-art__faq">
-              <h2 id="article-faq">Frequently asked questions</h2>
+              <h2 id="article-faq">{c.faqHeading}</h2>
               {article.faq.map((q) => (
                 <div key={q.question}>
                   <h3>{q.question}</h3>
@@ -269,23 +251,18 @@ export default async function ArticlePage({ params }: PageProps) {
           ) : null}
         </article>
 
-        <Founder heading="Who wrote this" link />
+        <Founder heading={c.whoWrote} link loc={locale} />
 
-        <CalcCta
-          kicker="Apply this to your house"
-          text="StructurePro works out the concrete, steel and cement for the frame of your house from a few answers, with the IS clause behind each rule. The first look at your zone, grades and frame is free."
-          href="/tools/structopro"
-          label="Open StructurePro"
-        />
+        <CalcCta kicker={c.articleCta.kicker} text={c.articleCta.text} href="/tools/structopro" label={c.articleCta.label} />
 
         {related.length > 0 ? (
           <section aria-labelledby="related-h" style={{ display: 'grid', gap: 16 }}>
             <h2 id="related-h" style={{ fontFamily: 'var(--ns-display)', fontWeight: 400, fontSize: 'clamp(22px, 2.2vw, 29px)', lineHeight: 1.15, margin: 0 }}>
-              Related guides
+              {c.related}
             </h2>
             <div className="ns-bl-grid">
               {related.map((rel) => (
-                <ArticleCard key={rel.slug} article={rel} />
+                <ArticleCard key={rel.slug} article={rel} locale={locale} />
               ))}
             </div>
           </section>

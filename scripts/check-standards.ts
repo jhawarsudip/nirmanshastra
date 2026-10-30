@@ -43,10 +43,13 @@ const DEAD_ENGINE = 'app/[locale]/tools/electropro/electropro-engine.ts'
 
 console.log('IS 732 edition')
 {
-  const old1989 = LIVE.filter((p) => /732[: ]*1989|732 \(1989/.test(text(p)) && rel(p) !== 'lib/blog-content.ts')
+  // The blog is the one place that names the 1989 edition, and only as the earlier one; its Hindi edition says the same once ("पुराने").
+  const old1989 = LIVE.filter((p) => /732[: ]*1989|732 \(1989/.test(text(p)) && rel(p) !== 'lib/blog-content.ts' && rel(p) !== 'lib/blog-hi/articles-a.ts')
   ok(old1989.length === 0, 'no IS 732:1989 label in any live file' + (old1989.length ? ': ' + old1989.map(rel).join(', ') : ''))
   const blog = text(join(ROOT, 'lib/blog-content.ts'))
   ok((blog.match(/732:1989/g) ?? []).length === 1 && /earlier IS 732:1989/.test(blog), 'the blog names 1989 once, as the earlier edition')
+  const blogHi = text(join(ROOT, 'lib/blog-hi/articles-a.ts'))
+  ok((blogHi.match(/732:1989/g) ?? []).length === 1 && /पुराने IS 732:1989/.test(blogHi), 'the Hindi blog names 1989 once, as the earlier edition')
 
   // the files that carry a standards list or a report's sources never say "IS 732" without the edition
   const must = ['lib/is-codes-data.ts', 'lib/v2/content.ts', 'lib/seo/site.ts', 'lib/seo/paid-content.ts', 'lib/qty/electrical/model.ts', 'lib/qty/electrical/calc.ts',

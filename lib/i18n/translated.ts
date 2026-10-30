@@ -49,6 +49,8 @@ export const HINDI_READY: readonly string[] = [
   '/site-templates/labour-compliance',
   '/site-templates/planning-progress',
   '/compare-quote',
+  // blog index and all 14 articles (31 Oct 2026)
+  '/blog/*',
 ]
 
 export function isHindiReady(path: string): boolean {

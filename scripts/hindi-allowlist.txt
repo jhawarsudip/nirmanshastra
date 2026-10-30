@@ -257,3 +257,8 @@ rfi
 ncr
 fidic
 whatsapp
+ncrb
+iec
+vercel
+postgresql
+site-templates

@@ -13,6 +13,7 @@ import { FOUNDER_LINE, FOUNDER_PHOTO, cleanPhotoUrl } from '../lib/founder'
 import { REVIEW_NOTE, REVIEW_FACT, ORG_REVIEW_DESCRIPTION, SUPPORT_EMAIL } from '../lib/seo/site'
 import { CONTACT_EMAIL } from '../lib/site-contact'
 import { BLOG_ARTICLES } from '../lib/blog-content'
+import { BLOG_COPY } from '../lib/blog-hi/copy'
 import { articleSchema, organizationSchema } from '../lib/seo/schema'
 import { emailAssuranceHtml } from '../lib/email-parts'
 import { getEmailContent } from '../lib/email-templates'
@@ -100,8 +101,10 @@ for (const a of BLOG_ARTICLES) {
   ok(ld.datePublished === a.publishedDate && ld.dateModified === (a.updatedDate ?? a.publishedDate), `${a.slug}: JSON-LD datePublished and dateModified agree`)
 }
 const card = readFileSync(path.join(ROOT, 'app/[locale]/blog/ArticleCard.tsx'), 'utf8')
-ok(card.includes('fmt(a.publishedDate)') && !card.includes('fmt(a.updatedDate ??'), 'the guide cards lead with the publish date, not the update date')
-ok(/Updated <time/.test(blogPage) && !/Last updated/.test(blogPage), 'the guide page shows "Updated" separately, only when there is an update')
+ok(card.includes('shortDate(a.publishedDate') && !card.includes('shortDate(a.updatedDate ??'), 'the guide cards lead with the publish date, not the update date')
+// The words come from the language copy now (English "Updated", Hindi "अपडेट"); the page prints them next to the date only when there is an update.
+ok(BLOG_COPY.en.updated === 'Updated' && /article\.updatedDate \? <>\{' · '\}\{`\$\{c\.updated\} `\}<time/.test(blogPage) && !/Last updated/.test(blogPage) && !/Last updated/.test(BLOG_COPY.en.updated),
+   'the guide page shows "Updated" separately, only when there is an update')
 const sm = readFileSync(path.join(ROOT, 'app/sitemap.ts'), 'utf8')
 ok(sm.includes('article.updatedDate ?? article.publishedDate'), 'the sitemap uses the last real edit')
 
