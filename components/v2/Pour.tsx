@@ -76,6 +76,9 @@ export default function Pour({ tone, v, kind = 'seam' }: PourProps) {
   const ref = useRef<HTMLDivElement>(null)
   const motion = useMotionOK()
   const file = `${kind === 'lip' ? 'lip' : 'pour'}-${v}`
+  // The header's lip is not a repeating strip: one picture for wide screens and one for narrow ones, each stretched to the
+  // width of the screen so the weeping stays at the two corners (pour.css picks one with --mm).
+  const lip = kind === 'lip'
 
   useEffect(() => {
     const el = ref.current
@@ -110,8 +113,9 @@ export default function Pour({ tone, v, kind = 'seam' }: PourProps) {
       data-tone={tone}
       aria-hidden="true"
       style={{
-        ['--mm' as string]: `url(/v2/texture/${file}.webp)`,
-        ['--ox' as string]: `${ox}px`,
+        ...(lip
+          ? { ['--mm-w' as string]: `url(/v2/texture/${file}-w.webp)`, ['--mm-n' as string]: `url(/v2/texture/${file}-n.webp)` }
+          : { ['--mm' as string]: `url(/v2/texture/${file}.webp)`, ['--ox' as string]: `${ox}px` }),
         ['--oz' as string]: `${oz}s`,
         ['--od' as string]: `${od}s`,
       }}

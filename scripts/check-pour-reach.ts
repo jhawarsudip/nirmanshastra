@@ -51,6 +51,20 @@ async function main() {
     check(`join ${v} (${file}): table ${have} is not much longer than needed (extra blank space under a short drip)`, have <= want + 0.02)
   }
 
+  // the header's lip (lip-2-w from 900px up, lip-2-n under it): --ns-lip in base.css is its reach plus 10px
+  const base = read('styles/v2/base.css')
+  const LIP_MELT = 0.075  // pour.css: the lip's --jr (9 of the picture's 120 rows)
+  for (const [file, re, label] of [['lip-2-w.webp', /--ns-lip:\s*calc\(clamp\(54px, 5\.1vw, 104px\) \* ([0-9.]+) \+ 10px\)/, 'wide'], ['lip-2-n.webp', /--ns-lip:\s*calc\(clamp\(48px, 12vw, 84px\) \* ([0-9.]+) \+ 10px\)/, 'narrow']] as const) {
+    const t = await tip(file)
+    const want = t * CREEP - LIP_MELT
+    const m = base.match(re)
+    check(`header lip (${label}): --ns-lip has the reach`, !!m)
+    if (!m) continue
+    const have = Number(m[1])
+    check(`header lip (${label}): ${have} is not shorter than the tile's ${want.toFixed(3)} (longest run ${(t * 100).toFixed(1)}% of the tile)`, have >= want - 0.002)
+    check(`header lip (${label}): ${have} is not much longer than needed`, have <= want + 0.02)
+  }
+
   check('the gap and the 8px shadow allowance are in the file', /--ns-join-gap:\s*16px/.test(css) && /\+ 8px\)/.test(css))
   const assigned = [...css.matchAll(/--ns-join:\s*calc\(var\(--ns-reach-(\d+)\)/g)].map(m => Number(m[1]))
   for (const v of [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12]) check(`join ${v} is assigned to the section under it`, assigned.includes(v))

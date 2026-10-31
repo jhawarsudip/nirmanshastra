@@ -210,16 +210,20 @@ def add_run(sdf, ye, rnd, x0, spec, H):
 
 
 # ----------------------------------------------------------------------------------------------------------- render
-def render(seed, H, fade, style, rim, base, runs, spec, relief=1.0, streak=1.0, gloss=1.0, min_gap=40):
+def render(seed, H, fade, style, rim, base, runs, spec, relief=1.0, streak=1.0, gloss=1.0, min_gap=40, edge=None, plan=None):
+    """edge: a ready-made edge line (used by the header lip); plan: [(x, spec)] explicit runs instead of random ones"""
     rnd = random.Random(seed)
-    ye = edge_line(style, rnd, base)
+    ye = edge(rnd) if edge is not None else edge_line(style, rnd, base)
     # distance below the edge line (approximate, corrected for slope)
     slope = (np.roll(ye, -1) - np.roll(ye, 1)) / 2.0
     cosv = 1.0 / np.sqrt(1 + slope ** 2)
     Y = np.arange(H, dtype=np.float64)[:, None]
     sdf = (Y - ye[None, :]) * cosv[None, :]
     # runs
-    if runs:
+    if plan is not None:
+        for x0, sp in plan:
+            add_run(sdf, ye, rnd, x0, sp, H)
+    elif runs:
         for x0 in place_runs(rnd, ye, runs, min_gap, spec.get('pairs', 0.0)):
             add_run(sdf, ye, rnd, x0, spec, H)
     # coverage (antialiased), then melt into the section along the top
@@ -299,5 +303,98 @@ def build_all():
     save_tile('lip-1', grey, alpha)
 
 
+# ------------------------------------------------------------------------------------- the header lip, second version
+# SJ, 31 Oct 2026: "make the dripping a little less in size ... don't make it so low ... drip more in the corners and
+# not much in the middle ... keep the civil engineering style". The first lip (lip-1) hung eleven runs, up to about
+# 100 px, evenly along the whole bar. This one is a thin screeded edge along the middle, a few small beads, and the
+# weeping gathers at the two ends of the bar, like slurry collecting at the corners of formwork: the longest runs at
+# the very corner, shorter and finer towards the middle, then nothing. It does not repeat: the tile is stretched to
+# the width of the screen (pour.css), so the corners stay corners at every width. lip-2-w is for screens from 900 px
+# up, lip-2-n for phones and small tablets (a narrower picture, fewer runs).
+LIP2_RUN = dict(w=(11, 24), bulb=(1.25, 1.8), flare=(1.5, 2.3), drift=(-5, 5), wob=2.2, pinch=0.24, drop=0.0, k=8, stub=0.0, pairs=0.0)
+
+
+def lip2_corner(Wt, corner):
+    """1 at the two ends of the bar, falling to 0 towards the middle"""
+    u = np.arange(Wt) / (Wt - 1.0)
+    return np.clip(np.exp(-((u / corner) ** 2)) + np.exp(-(((1 - u) / corner) ** 2)), 0, 1)
+
+
+def lip2_edge(rnd, Wt, base, corner, mid=0.6):
+    """an edge that is uneven all the way along (nowhere ruled): sags of every size, a little crumble on top; heavier and
+    lower towards the two ends (mid = how much of that unevenness the middle keeps); flat only in the last few pixels so the lighting does not wrap"""
+    xs = np.arange(Wt)
+    cw = lip2_corner(Wt, corner)
+    gentle = waves(rnd, 4, 3, 16, 3.4) + 1.1 * pnoise(rnd, 24, 190, 0.95)
+    sags = lobes(rnd, int(Wt / 62), 11.0, 8, 44) * (mid + (1 - mid) * cw)
+    y = gentle + sags
+    y = y - y.min()
+    ends = smoothstep(0, 30, xs) * smoothstep(0, 30, (Wt - 1) - xs)
+    return base + y * ends
+
+
+def lip2_plan(rnd, ye, Wt, corner, anchors, mean_mid, mean_cor, lmax_mid, lmax_cor, min_gap, wscale=1.0):
+    """[(x, spec)]: the anchors are the longest runs at the corners (fraction of width, length, thickness); everything else is
+    random: irregular spacing (closer at the ends), each run starts at a local low point of the edge, lengths run from stubs to
+    drips (short in the middle, long at the corners), some come in pairs that merge at the root, a few let go of a bead"""
+    cw = lip2_corner(Wt, corner)
+    plan, used = [], []
+    for f, L, wsc in anchors:
+        x = f * Wt
+        sp = dict(LIP2_RUN, L=(L, L), w=(LIP2_RUN['w'][0] * wsc * wscale, LIP2_RUN['w'][1] * wsc * wscale), drop=0.55 if L > 55 else 0.0)
+        plan.append((x, sp)); used.append(x)
+    x = rnd.uniform(60, 120)
+    while x < Wt - 60:
+        c = float(cw[int(x)])
+        # snap to the lowest point of the edge within a short reach: material gathers there
+        lo, hi = int(max(40, x - 26)), int(min(Wt - 40, x + 26))
+        xs_ = lo + int(np.argmax(ye[lo:hi + 1]))
+        c = float(cw[xs_])
+        if all(abs(xs_ - u) >= min_gap for u in used):
+            lmax = lmax_mid + (lmax_cor - lmax_mid) * c ** 0.9
+            L = 5 + (lmax - 5) * (rnd.random() ** (1.25 - 0.45 * c))
+            if c < 0.3 and rnd.random() < 0.17:                    # the odd long one in the middle, as real runs are
+                L = rnd.uniform(0.75, 1.0) * lmax_mid * 1.7
+            wsc = rnd.uniform(0.55, 1.15) * (0.85 + 0.35 * c) * wscale
+            sp = dict(LIP2_RUN, L=(L, L), w=(LIP2_RUN['w'][0] * wsc, LIP2_RUN['w'][1] * wsc), drop=0.4 if L > 34 else 0.0)
+            plan.append((float(xs_), sp)); used.append(xs_)
+            if rnd.random() < 0.22 + 0.15 * c:                      # a neighbour that merges into it at the root
+                x2 = xs_ + rnd.uniform(12, 22) * rnd.choice([-1, 1]) * wscale
+                if 50 < x2 < Wt - 50 and all(abs(x2 - u) >= 9 for u in used if abs(u - xs_) > 1):
+                    sp2 = dict(sp, L=(L * rnd.uniform(0.3, 0.7),) * 2, w=(LIP2_RUN['w'][0] * wsc * 0.6, LIP2_RUN['w'][1] * wsc * 0.65), drop=0.0)
+                    plan.append((x2, sp2)); used.append(x2)
+        step = rnd.uniform(0.4, 1.9) * (mean_mid + (mean_cor - mean_mid) * c)
+        if rnd.random() < 0.14:
+            step *= rnd.uniform(1.6, 2.6)                           # a longer clear stretch now and then
+        x += max(step, min_gap * 0.8)
+    return sorted(plan, key=lambda p: p[0])
+
+
+def build_lip2():
+    global W
+    keep = W
+    Ht, fade = 120, 9
+    # wide: screens from 900 px up (aspect 20:1 at the size the page draws it)
+    W = 2400
+    rw = random.Random(7102)
+    ye_w = lip2_edge(random.Random(52), W, 22, 0.15, 0.78)
+    anchors_w = [(0.030, 46, 1.0), (0.057, 62, 1.15), (0.095, 33, 0.9), (0.953, 40, 1.0), (0.921, 58, 1.15), (0.884, 30, 0.9)]
+    plan = lip2_plan(rw, ye_w, W, 0.15, anchors_w, 112, 58, 21, 60, 28)
+    grey, alpha, _ = render(52, Ht, fade, None, 7, 0, 0, LIP2_RUN, edge=lambda r: lip2_edge(r, W, 22, 0.15, 0.78), plan=plan)
+    print('wide runs:', len(plan), flush=True)
+    save_tile('lip-2-w', grey, alpha)
+    # narrow: phones (aspect 8:1): fewer, a little heavier runs, shorter
+    W = 960
+    rn = random.Random(7103)
+    ye_n = lip2_edge(random.Random(53), W, 26, 0.22, 0.78)
+    anchors_n = [(0.070, 42, 1.0), (0.145, 50, 1.1), (0.930, 36, 1.0), (0.855, 46, 1.1)]
+    plan = lip2_plan(rn, ye_n, W, 0.22, anchors_n, 66, 44, 16, 48, 24, 0.9)
+    grey, alpha, _ = render(53, Ht, fade, None, 7, 0, 0, LIP2_RUN, edge=lambda r: lip2_edge(r, W, 26, 0.22, 0.78), plan=plan)
+    print('narrow runs:', len(plan), flush=True)
+    save_tile('lip-2-n', grey, alpha)
+    W = keep
+
+
 if __name__ == '__main__':
     build_all()
+    build_lip2()

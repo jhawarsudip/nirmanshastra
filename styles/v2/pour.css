@@ -77,7 +77,20 @@ html[data-ns-theme="dark"] .ns-pour[data-tone="header"] { --pm: var(--ns-stage);
 .ns-pour[data-tone="stage"] { --pour-tex: url("/v2/texture/slurry.webp"); --pour-tex-size: 1024px 512px; --pour-tex-blend: overlay; }
 
 /* ---------- the lip under the header ---------- */
-.ns2 .ns-pour--lip { --pour-h: clamp(72px, 8.6vw, 128px); --jr: .093; z-index: 0; animation-duration: calc(var(--oz, 13s) * .7); }
+/* SJ, 31 Oct 2026: shorter, higher, and the weeping at the corners rather than all along the bar. The lip is not a repeating strip any
+   more: its picture (lip-2-w from 900px up, lip-2-n under it; scripts/brand/build-pour-edges.py, build_lip2) is stretched to the
+   width of the screen, so the thin screeded edge runs along the middle and the runs gather at the two ends of the bar, at any width.
+   Height: clamp(54px, 5.1vw, 104px) wide, clamp(48px, 12vw, 84px) narrow, which keeps the picture's shape (20:1 and 8:1) close to
+   what it was drawn at. --jr is the share of the picture that melts into the bar (9 of 120 rows). The page starts below the lowest
+   run (--ns-lip, base.css; scripts/check-visual.ts keeps the two in step). */
+.ns2 .ns-pour--lip { --pour-h: clamp(54px, 5.1vw, 104px); --jr: .075; --mm: var(--mm-w); z-index: 0; animation-duration: calc(var(--oz, 13s) * .7); }
+@media (max-width: 899px) { .ns2 .ns-pour--lip { --pour-h: clamp(48px, 12vw, 84px); --mm: var(--mm-n); } }
+.ns-pour--lip .ns-pour__m {
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: 0 0; mask-position: 0 0;
+  background-size: 100% 100%, var(--pour-tex-size); background-repeat: no-repeat, repeat; background-position: 0 0, 0 0;
+}
+.ns-pour--lip .ns-pour__s { inset: 3px 0 -3px 0; filter: blur(2.6px); }
+.ns-pour--lip .ns-pour__s::before { -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: 0 0; mask-position: 0 0; }
 /* on first paint the lip pours down from the bar */
 @keyframes ns-lip-in { from { transform: scaleY(.08); } to { transform: scaleY(1); } }
 .ns-pour--lip :is(.ns-pour__s, .ns-pour__m) { animation: ns-lip-in 1.6s cubic-bezier(.16, .84, .24, 1) .25s backwards; }

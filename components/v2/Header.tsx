@@ -174,7 +174,7 @@ export default function Header({ locale }: { locale: Loc }) {
           </div>
         </div>
 
-        <Pour kind="lip" tone="header" v={1} />
+        <Pour kind="lip" tone="header" v={2} />
 
         {mega && (
           <div className="ns-megawrap" id="ns-mega">
