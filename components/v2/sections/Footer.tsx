@@ -85,10 +85,11 @@ export default function Footer() {
         </div>
         {/* Same line, same place as the foot of zeizzsystems.com: a quiet credit, centred, with the ZeizzLabs mark as the link. */}
         <div className="ns-foot__credit">
-          <span>{pick(FOOT.credit, loc)}</span>
+          {/* One line of text with the picture inline in it: an inline picture's bottom edge sits on the text baseline, so the mark and the words share a baseline at every width. */}
+          <span>{pick(FOOT.credit, loc)}</span>{' '}
           <a href="https://www.zeizzlabs.com" target="_blank" rel="noopener noreferrer" aria-label={pick(FOOT.creditAria, loc)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/zeizzlabs.png" alt="ZeizzLabs" width={432} height={144} loading="lazy" decoding="async" />
+            <img src="/brand/zeizzlabs.png" alt="ZeizzLabs" width={507} height={80} loading="lazy" decoding="async" />
           </a>
         </div>
       </div>

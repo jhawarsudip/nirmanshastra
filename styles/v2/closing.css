@@ -231,12 +231,16 @@ html[data-reduce-motion="1"] .ns-dlr__map.is-set .ns-dlr__pin { animation: none;
 .ns-foot__top { display: inline-flex; gap: 8px; align-items: center; background: none; border: 1.5px solid rgba(251, 244, 228, .4); border-radius: 999px; color: var(--ns-chalk); padding: 10px 18px; cursor: pointer; font-family: var(--ns-sans); font-weight: 700; font-size: 14px; transition: border-color .12s, background .12s; }
 .ns-foot__top:hover { border-color: var(--ns-chalk); background: rgba(251, 244, 228, .1); }
 .ns-foot__top svg { width: 14px; height: 14px; }
-/* credit line at the very bottom: "Designed & Developed by" + the ZeizzLabs mark (same line as the foot of zeizzsystems.com) */
-.ns-foot__credit { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; padding: 18px 0 28px; border-top: 1px solid rgba(251, 244, 228, .14); font-size: 12px; color: rgba(251, 244, 228, .78); }
-.ns-foot__credit a { display: inline-flex; align-items: center; border-radius: 4px; color: inherit; }
-.ns-foot__credit img { height: 20px; width: auto; display: block; opacity: .9; transition: opacity .15s; }
+/* credit line at the very bottom: "© Designed & Developed by" + the ZeizzLabs mark. One line of text with the (white) mark inline in it:
+   an inline picture is placed on the text baseline, then lowered 2.75px because the Z's foot hangs below the baseline of "Labs" (measured at 4x), so the letters of the mark and the words share a baseline.
+   The foot is dark grey in both themes, so the mark stays white in both. */
+.ns-foot__credit { text-align: center; padding: 18px 0 28px; border-top: 1px solid rgba(251, 244, 228, .14); font-size: 12px; line-height: 1.6; color: rgba(251, 244, 228, .78); }
+.ns-foot__credit a { display: inline; border-radius: 4px; color: inherit; margin-left: 4px; }
+.ns-foot__credit img { display: inline-block; vertical-align: -2.75px; height: 20px; width: auto; opacity: .92; transition: opacity .15s; }
 .ns-foot__credit a:hover img, .ns-foot__credit a:focus-visible img { opacity: 1; }
 .ns-foot__credit a:focus-visible { outline: 3px solid var(--ns-focus, #F0C98A); outline-offset: 3px; }
+/* On a phone the floating "Ask NirmanShastra" button (52px, 28px from the bottom and right) would sit on the end of this line at the foot of every page. Lift the line clear of it. */
+@media (max-width: 520px) { .ns-foot__credit { padding-bottom: 104px; } }
 
 /* quote check by quantity: the three-way "where does it sit" control */
 .ns-qc__ctl .ns-seg--wrap.ns-seg--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
